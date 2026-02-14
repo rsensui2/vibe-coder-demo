@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarScale — 同じ予算で、どこまでの車に乗れるか</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Hiragino Sans','Noto Sans JP',sans-serif;color:#2d3748;line-height:1.7;background:#fff}
+.container{max-width:1060px;margin:0 auto;padding:0 20px}
+
+/* Hero */
+.hero{padding:80px 0 60px;background:#fff;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:50%;opacity:.5}
+.hero::after{content:'';position:absolute;bottom:-80px;left:-60px;width:300px;height:300px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-radius:50%;opacity:.4}
+.hero>*{position:relative;z-index:1}
+.hero .badge{display:inline-block;background:#fef3c7;color:#92400e;font-size:.85rem;font-weight:700;padding:6px 16px;border-radius:99px;margin-bottom:16px}
+.hero h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:900;line-height:1.3;margin-bottom:16px}
+.hero h1 .pop{color:#f59e0b}
+.hero h1 .blue{color:#3b82f6}
+.hero p{color:#6b7280;font-size:1.05rem;max-width:500px;margin:0 auto 28px}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-primary{padding:14px 36px;background:#f59e0b;color:#fff;border:none;border-radius:99px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-primary:hover{background:#d97706;transform:scale(1.03)}
+.btn-secondary{padding:14px 36px;background:#f3f4f6;color:#374151;border:none;border-radius:99px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:.2s;text-decoration:none}
+.btn-secondary:hover{background:#e5e7eb}
+.hero-img{margin-top:40px;font-size:4rem}
+
+/* Ticker */
+.ticker{background:#1e293b;color:#fff;padding:12px 0;overflow:hidden;white-space:nowrap}
+.ticker-inner{display:inline-block;animation:scroll 20s linear infinite}
+.ticker-inner span{margin-right:48px;font-size:.9rem;opacity:.7}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* Features */
+.features{padding:64px 0;background:#fafafa}
+.section-title{text-align:center;font-size:clamp(1.3rem,3vw,1.8rem);font-weight:800;margin-bottom:8px}
+.section-sub{text-align:center;color:#9ca3af;font-size:.95rem;margin-bottom:40px}
+.f-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.f-card{background:#fff;border-radius:20px;padding:28px;border:2px solid #f3f4f6;transition:.2s;cursor:default}
+.f-card:hover{border-color:#fbbf24;transform:translateY(-3px)}
+.f-card .emoji{font-size:2.2rem;margin-bottom:12px}
+.f-card h3{font-size:1rem;font-weight:700;margin-bottom:6px}
+.f-card p{color:#6b7280;font-size:.9rem}
+
+/* Compare */
+.compare{padding:64px 0;background:#fff}
+.budget-pill{text-align:center;margin-bottom:32px}
+.budget-pill span{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;font-weight:700;padding:10px 24px;border-radius:99px;font-size:1rem}
+.compare-flex{display:flex;gap:20px;align-items:stretch}
+@media(max-width:700px){.compare-flex{flex-direction:column}}
+.c-box{flex:1;border-radius:20px;padding:28px;position:relative}
+.c-box.new-car{background:linear-gradient(180deg,#eff6ff,#dbeafe);border:2px solid #93c5fd}
+.c-box.used-car{background:linear-gradient(180deg,#fefce8,#fef9c3);border:2px solid #fcd34d}
+.c-box .type-badge{position:absolute;top:-12px;left:20px;background:#fff;padding:4px 14px;border-radius:99px;font-size:.8rem;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.c-box.new-car .type-badge{color:#2563eb}
+.c-box.used-car .type-badge{color:#d97706}
+.c-box .car-name{font-size:1.25rem;font-weight:800;margin:8px 0 16px}
+.specs-list{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.specs-list li{background:rgba(255,255,255,.8);border-radius:12px;padding:10px 12px}
+.specs-list li .sl{font-size:.7rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em}
+.specs-list li .sv{font-size:1rem;font-weight:700;margin-top:2px}
+.score-area{margin-top:16px;background:rgba(255,255,255,.8);border-radius:12px;padding:14px}
+.score-bar-bg{height:12px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:6px}
+.score-bar-bg div{height:100%;border-radius:99px;transition:width 1s}
+.score-num{display:flex;justify-content:space-between;font-size:.85rem;font-weight:700;margin-top:4px}
+.vs-tag{align-self:center;background:#1e293b;color:#fff;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;flex-shrink:0}
+@media(max-width:700px){.vs-tag{align-self:center;margin:0 auto}}
+.insight{text-align:center;margin-top:24px;padding:16px;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0}
+.insight p{color:#166534;font-weight:600;font-size:.95rem}
+
+/* CTA */
+.cta{padding:64px 0;background:linear-gradient(135deg,#1e293b,#334155);color:#fff;text-align:center;border-radius:32px 32px 0 0}
+.cta h2{font-size:clamp(1.3rem,3vw,1.8rem);font-weight:800;margin-bottom:8px}
+.cta p{color:#94a3b8;margin-bottom:28px}
+.cta-form{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.cta-form input{padding:14px 20px;border:2px solid #475569;border-radius:99px;font-size:1rem;width:240px;background:#1e293b;color:#fff;outline:none}
+.cta-form input:focus{border-color:#fbbf24}
+.cta-form button{padding:14px 32px;background:#f59e0b;color:#fff;border:none;border-radius:99px;font-size:1rem;font-weight:700;cursor:pointer;transition:.2s}
+.cta-form button:hover{background:#d97706}
+.cta-note{margin-top:12px;font-size:.8rem;color:#64748b}
+
+footer{text-align:center;padding:20px;color:#9ca3af;font-size:.8rem;background:#1e293b}
+</style>
+</head>
+<body>
+
+<section class="hero">
+<div class="container">
+<div class="badge">🚗 2026年2月リリース</div>
+<h1>同じ予算で<br><span class="pop">新車</span>と<span class="blue">中古車</span>、<br>どっちがお得？</h1>
+<p>予算を入れるだけ！新車vs中古車の車格・維持費をサクッと比較できるサービスです。</p>
+<div class="hero-actions">
+<button class="btn-primary" onclick="document.getElementById('ctaInput').focus();document.querySelector('.cta').scrollIntoView({behavior:'smooth'})">🔍 無料で試す</button>
+<button class="btn-secondary" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">デモを見る ↓</button>
+</div>
+<div class="hero-img">🚙💨</div>
+</div>
+</section>
+
+<div class="ticker">
+<div class="ticker-inner">
+<span>✅ 完全無料</span><span>✅ 登録不要</span><span>✅ 30秒で結果</span><span>✅ 維持費込み比較</span><span>✅ 車格スコア対応</span><span>✅ 最新相場連動</span>
+<span>✅ 完全無料</span><span>✅ 登録不要</span><span>✅ 30秒で結果</span><span>✅ 維持費込み比較</span><span>✅ 車格スコア対応</span><span>✅ 最新相場連動</span>
+</div>
+</div>
+
+<section class="features">
+<div class="container">
+<h2 class="section-title">CarScaleってなに？ 🤔</h2>
+<p class="section-sub">3つのポイントでカンタン解説</p>
+<div class="f-grid">
+<div class="f-card">
+<div class="emoji">📊</div>
+<h3>車格スコアでひと目でわかる</h3>
+<p>車のグレードを0〜100でスコア化。大きさ・排気量・装備を数字で比較！</p>
+</div>
+<div class="f-card">
+<div class="emoji">🧮</div>
+<h3>維持費まるごと計算</h3>
+<p>税金・保険・車検・ガソリン代…5年分のコストを自動計算してくれます。</p>
+</div>
+<div class="f-card">
+<div class="emoji">⚡</div>
+<h3>リアルタイム価格</h3>
+<p>中古車の相場は毎日変動。最新データだから「今買える車」がわかります。</p>
+</div>
+<div class="f-card">
+<div class="emoji">🆓</div>
+<h3>完全無料・登録不要</h3>
+<p>メアド登録なし。予算を入れるだけで、すぐに結果が見られます。</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="compare" id="demo">
+<div class="container">
+<h2 class="section-title">たとえば予算300万円なら…</h2>
+<p class="section-sub">こんな感じで比較できます 👇</p>
+<div class="budget-pill"><span>💰 予算: 300万円</span></div>
+<div class="compare-flex">
+<div class="c-box new-car">
+<div class="type-badge">🆕 新車</div>
+<div class="car-name">トヨタ ヤリスクロス Z</div>
+<ul class="specs-list">
+<li><div class="sl">車両価格</div><div class="sv">293万円</div></li>
+<li><div class="sl">排気量</div><div class="sv">1,500cc</div></li>
+<li><div class="sl">年間維持費</div><div class="sv">約32万円</div></li>
+<li><div class="sl">燃費</div><div class="sv">26.0km/L</div></li>
+</ul>
+<div class="score-area">
+<div style="font-size:.8rem;color:#6b7280">車格スコア</div>
+<div class="score-bar-bg"><div style="width:58%;background:linear-gradient(90deg,#60a5fa,#3b82f6)"></div></div>
+<div class="score-num"><span>0</span><span style="color:#3b82f6">58点</span><span>100</span></div>
+</div>
+</div>
+<div class="vs-tag">VS</div>
+<div class="c-box used-car">
+<div class="type-badge">🔄 中古車</div>
+<div class="car-name">レクサス NX300h（2020年式）</div>
+<ul class="specs-list">
+<li><div class="sl">車両価格</div><div class="sv">289万円</div></li>
+<li><div class="sl">排気量</div><div class="sv">2,500cc</div></li>
+<li><div class="sl">年間維持費</div><div class="sv">約38万円</div></li>
+<li><div class="sl">燃費</div><div class="sv">17.8km/L</div></li>
+</ul>
+<div class="score-area">
+<div style="font-size:.8rem;color:#6b7280">車格スコア</div>
+<div class="score-bar-bg"><div style="width:82%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div></div>
+<div class="score-num"><span>0</span><span style="color:#d97706">82点</span><span>100</span></div>
+</div>
+</div>
+</div>
+<div class="insight">
+<p>💡 同じ300万円でも車格スコアに <strong>24点</strong> の差！中古なら1.4倍上の車に乗れる！</p>
+</div>
+</div>
+</section>
+
+<section class="cta">
+<div class="container">
+<h2>あなたの予算でも試してみよう！ 🎯</h2>
+<p>予算を入力するだけ。30秒で結果が出ます。</p>
+<div class="cta-form">
+<input type="text" placeholder="予算を入力（例: 250万円）" id="ctaInput">
+<button onclick="alert('デモ: 予算「'+document.getElementById('ctaInput').value+'」で比較します！')">比較スタート 🚀</button>
+</div>
+<div class="cta-note">※ 完全無料・会員登録不要</div>
+</div>
+</section>
+
+<footer>© 2026 CarScale. All rights reserved.</footer>
+</body>
+</html>

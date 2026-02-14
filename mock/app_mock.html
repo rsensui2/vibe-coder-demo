@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarScale — 同じ予算で、どこまでの車に乗れるか</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;overflow:hidden}
+.device{width:375px;height:812px;background:#000;border-radius:55px;padding:18px;position:relative;box-shadow:0 0 0 3px #333,0 0 0 6px #1a1a1a,0 30px 80px rgba(0,0,0,.6)}
+.device::before{content:'';position:absolute;top:18px;left:50%;transform:translateX(-50%);width:150px;height:30px;background:#000;border-radius:0 0 18px 18px;z-index:100}
+.device::after{content:'';position:absolute;bottom:22px;left:50%;transform:translateX(-50%);width:130px;height:4px;background:#555;border-radius:2px;z-index:100}
+.screen{width:100%;height:100%;background:#f5f5f7;border-radius:40px;overflow:hidden;position:relative}
+.status-bar{height:50px;background:transparent;display:flex;justify-content:space-between;align-items:flex-end;padding:0 28px 6px;position:absolute;top:0;left:0;right:0;z-index:50;color:#000;font-size:12px;font-weight:600}
+.status-bar .time{font-size:15px;font-weight:700}
+.status-bar .icons{display:flex;gap:5px;align-items:center;font-size:13px}
+
+/* Pages */
+.page{position:absolute;top:0;left:0;right:0;bottom:0;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .35s;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:50px;padding-bottom:90px}
+.page.hidden-right{transform:translateX(100%);opacity:0;pointer-events:none}
+.page.hidden-left{transform:translateX(-100%);opacity:0;pointer-events:none}
+
+/* Home */
+.home-page{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#fff}
+.home-hero{padding:40px 24px 20px;text-align:center}
+.home-hero .logo{font-size:36px;font-weight:800;background:linear-gradient(135deg,#f7971e,#ffd200);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.home-hero .sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:6px}
+.budget-section{padding:20px 24px}
+.budget-section label{font-size:13px;color:rgba(255,255,255,.5);display:block;margin-bottom:8px}
+.budget-display{font-size:48px;font-weight:800;text-align:center;margin:16px 0;background:linear-gradient(135deg,#f7971e,#ffd200);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.budget-display span{font-size:20px}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;background:rgba(255,255,255,.15);border-radius:3px;outline:none;margin:12px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:linear-gradient(135deg,#f7971e,#ffd200);border-radius:50%;cursor:pointer;box-shadow:0 2px 10px rgba(247,151,30,.5)}
+.range-labels{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.35)}
+.search-btn{width:100%;padding:16px;border:none;border-radius:16px;background:linear-gradient(135deg,#f7971e,#ffd200);color:#000;font-size:17px;font-weight:700;cursor:pointer;margin-top:24px;transition:transform .15s}
+.search-btn:active{transform:scale(.97)}
+.features{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.feature-card{background:rgba(255,255,255,.07);border-radius:16px;padding:16px;text-align:center}
+.feature-card .icon{font-size:28px;margin-bottom:6px}
+.feature-card .title{font-size:12px;font-weight:600}
+.feature-card .desc{font-size:10px;color:rgba(255,255,255,.4);margin-top:4px}
+
+/* Results */
+.results-page{background:#f5f5f7}
+.results-header{padding:16px 24px 12px;display:flex;align-items:center;gap:12px}
+.back-btn{width:36px;height:36px;border-radius:50%;background:#fff;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.results-header h2{font-size:18px;font-weight:700}
+.results-header .budget-tag{margin-left:auto;background:linear-gradient(135deg,#f7971e,#ffd200);color:#000;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.comparison-label{display:flex;justify-content:center;gap:16px;padding:8px 24px;font-size:12px;color:#888}
+.comparison-label span{padding:4px 14px;border-radius:12px;font-weight:600}
+.comparison-label .new-label{background:#e8f5e9;color:#2e7d32}
+.comparison-label .used-label{background:#e3f2fd;color:#1565c0}
+.cards-container{padding:0 20px;display:flex;flex-direction:column;gap:16px}
+.car-card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.06);cursor:pointer;transition:transform .15s;position:relative;overflow:hidden}
+.car-card:active{transform:scale(.98)}
+.car-card .badge{position:absolute;top:16px;right:16px;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700}
+.car-card .badge.new{background:#e8f5e9;color:#2e7d32}
+.car-card .badge.used{background:#e3f2fd;color:#1565c0}
+.car-card .car-image{width:100%;height:140px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:64px;margin-bottom:14px}
+.car-card .car-image.new-bg{background:linear-gradient(135deg,#e8f5e9,#c8e6c9)}
+.car-card .car-image.used-bg{background:linear-gradient(135deg,#e3f2fd,#bbdefb)}
+.car-card h3{font-size:17px;font-weight:700}
+.car-card .car-sub{font-size:12px;color:#888;margin-top:2px}
+.car-card .price{font-size:22px;font-weight:800;color:#f7971e;margin-top:10px}
+.car-card .price small{font-size:13px;font-weight:600}
+.car-card .specs-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.car-card .spec-chip{background:#f5f5f7;padding:4px 10px;border-radius:8px;font-size:11px;color:#555}
+.grade-bar{margin-top:14px}
+.grade-bar .label-row{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:4px}
+.grade-bar .bar{height:8px;background:#eee;border-radius:4px;overflow:hidden}
+.grade-bar .bar .fill{height:100%;border-radius:4px;transition:width .6s}
+.grade-bar .bar .fill.high{background:linear-gradient(90deg,#f7971e,#ffd200)}
+.vs-divider{text-align:center;font-size:20px;font-weight:800;color:#ccc;padding:4px 0}
+
+/* Detail */
+.detail-page{background:#f5f5f7}
+.detail-hero{padding:16px 24px 0;position:relative}
+.detail-hero .car-img-large{width:100%;height:180px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:80px}
+.detail-hero .car-img-large.new-bg{background:linear-gradient(135deg,#e8f5e9,#c8e6c9)}
+.detail-hero .car-img-large.used-bg{background:linear-gradient(135deg,#e3f2fd,#bbdefb)}
+.detail-info{padding:20px 24px 0}
+.detail-info h2{font-size:22px;font-weight:800}
+.detail-info .detail-sub{color:#888;font-size:13px;margin-top:2px}
+.detail-info .detail-price{font-size:28px;font-weight:800;color:#f7971e;margin-top:8px}
+.detail-tabs{display:flex;padding:16px 24px 0;gap:8px}
+.detail-tab{padding:8px 16px;border-radius:12px;border:none;font-size:13px;font-weight:600;cursor:pointer;background:#eee;color:#555;transition:all .2s}
+.detail-tab.active{background:#000;color:#fff}
+.detail-content{padding:16px 24px}
+.spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.spec-item{background:#fff;border-radius:14px;padding:14px;text-align:center}
+.spec-item .val{font-size:20px;font-weight:800;color:#333}
+.spec-item .unit{font-size:11px;color:#888;margin-top:2px}
+.spec-item .lbl{font-size:11px;color:#aaa;margin-top:4px}
+.cost-list{display:flex;flex-direction:column;gap:8px}
+.cost-item{background:#fff;border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.cost-item .cost-label{font-size:13px;color:#555}
+.cost-item .cost-val{font-size:15px;font-weight:700}
+.cost-total{background:linear-gradient(135deg,#f7971e22,#ffd20022);border:2px solid #f7971e}
+.cost-total .cost-val{color:#f7971e}
+
+/* Radar Chart */
+.radar-container{display:flex;justify-content:center;padding:12px 0}
+canvas#radarChart{max-width:260px;max-height:260px}
+
+/* Bottom Nav */
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;height:84px;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.06);display:flex;justify-content:space-around;align-items:flex-start;padding-top:8px;z-index:50}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;border:none;background:none;cursor:pointer;padding:4px 12px;color:#999;font-size:10px;font-weight:500;transition:color .2s}
+.nav-item.active{color:#f7971e}
+.nav-item .nav-icon{font-size:24px}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.animate-in{animation:fadeUp .4s ease-out both}
+.delay-1{animation-delay:.1s}.delay-2{animation-delay:.2s}.delay-3{animation-delay:.3s}.delay-4{animation-delay:.4s}
+</style>
+</head>
+<body>
+
+<div class="device">
+<div class="screen">
+  <div class="status-bar">
+    <span class="time" id="statusTime">18:57</span>
+    <span class="icons">
+      <span>📶</span>
+      <span>🔋</span>
+    </span>
+  </div>
+
+  <!-- HOME PAGE -->
+  <div class="page home-page" id="homePage">
+    <div class="home-hero animate-in">
+      <div class="logo">CarScale</div>
+      <div class="sub">同じ予算で、どこまでの車に乗れるか</div>
+    </div>
+    <div class="budget-section animate-in delay-1">
+      <label>予算を設定</label>
+      <div class="budget-display" id="budgetDisplay">400<span>万円</span></div>
+      <input type="range" id="budgetSlider" min="100" max="1500" step="50" value="400">
+      <div class="range-labels"><span>100万</span><span>800万</span><span>1500万</span></div>
+      <button class="search-btn" onclick="showResults()">🔍 この予算で比較する</button>
+    </div>
+    <div class="features animate-in delay-2">
+      <div class="feature-card"><div class="icon">⚖️</div><div class="title">車格比較</div><div class="desc">新車と中古車の格差を可視化</div></div>
+      <div class="feature-card"><div class="icon">💰</div><div class="title">維持費計算</div><div class="desc">5年間のトータルコスト</div></div>
+      <div class="feature-card"><div class="icon">📊</div><div class="title">スコア分析</div><div class="desc">6軸レーダーチャート</div></div>
+      <div class="feature-card"><div class="icon">🚗</div><div class="title">豊富なデータ</div><div class="desc">国産・輸入車を網羅</div></div>
+    </div>
+  </div>
+
+  <!-- RESULTS PAGE -->
+  <div class="page results-page hidden-right" id="resultsPage">
+    <div class="results-header animate-in">
+      <button class="back-btn" onclick="showHome()">←</button>
+      <h2>比較結果</h2>
+      <div class="budget-tag" id="resultsBudgetTag">予算 400万円</div>
+    </div>
+    <div class="comparison-label animate-in delay-1">
+      <span class="new-label">🟢 新車</span>
+      <span>VS</span>
+      <span class="used-label">🔵 中古車</span>
+    </div>
+    <div class="cards-container" id="cardsContainer"></div>
+  </div>
+
+  <!-- DETAIL PAGE -->
+  <div class="page detail-page hidden-right" id="detailPage">
+    <div class="detail-hero">
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+        <button class="back-btn" onclick="showResults()">←</button>
+        <span style="font-size:14px;font-weight:600;color:#555">車両詳細</span>
+      </div>
+      <div class="car-img-large" id="detailImg">🚗</div>
+    </div>
+    <div class="detail-info">
+      <h2 id="detailName">-</h2>
+      <div class="detail-sub" id="detailSub">-</div>
+      <div class="detail-price" id="detailPrice">-</div>
+    </div>
+    <div class="detail-tabs">
+      <button class="detail-tab active" onclick="switchDetailTab('specs',this)">スペック</button>
+      <button class="detail-tab" onclick="switchDetailTab('cost',this)">維持費</button>
+      <button class="detail-tab" onclick="switchDetailTab('radar',this)">車格スコア</button>
+    </div>
+    <div class="detail-content" id="detailContent"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" id="navHome" onclick="showHome()"><span class="nav-icon">🏠</span>ホーム</button>
+    <button class="nav-item" id="navResults" onclick="showResults()"><span class="nav-icon">🔍</span>比較</button>
+    <button class="nav-item" id="navFav"><span class="nav-icon">❤️</span>お気に入り</button>
+    <button class="nav-item" id="navProfile"><span class="nav-icon">👤</span>設定</button>
+  </div>
+</div>
+</div>
+
+<script>
+// Data
+const cars = {
+  400: {
+    newCar: {
+      name: 'トヨタ カムリ', sub: '2026年モデル WS / 新車', price: '398万円', emoji: '🚗',
+      type: 'new',
+      specs: {排気量:'2,487cc', 馬力:'178PS', 燃費:'21.6km/L', 全長:'4,885mm', 全幅:'1,840mm', 車重:'1,600kg'},
+      costs: {自動車税:'43,500円/年', 保険料:'約65,000円/年', 車検費用:'約80,000円/回', 燃料費:'約96,000円/年', '5年維持費合計':'約142万円'},
+      radar: [70, 80, 90, 65, 75, 85], // 高級感, 走行性能, 燃費, ブランド, 快適性, リセール
+    },
+    usedCar: {
+      name: 'メルセデス・ベンツ E300', sub: '2021年式 / 走行2.8万km / 中古', price: '389万円', emoji: '🏎️',
+      type: 'used',
+      specs: {排気量:'1,991cc', 馬力:'258PS', 燃費:'13.2km/L', 全長:'4,940mm', 全幅:'1,850mm', 車重:'1,780kg'},
+      costs: {自動車税:'39,500円/年', 保険料:'約85,000円/年', 車検費用:'約150,000円/回', 燃料費:'約156,000円/年', '5年維持費合計':'約215万円'},
+      radar: [95, 90, 60, 95, 92, 55],
+    }
+  },
+  300: {
+    newCar: {
+      name: 'ホンダ シビック', sub: '2026年モデル EX / 新車', price: '294万円', emoji: '🚗',
+      type: 'new',
+      specs: {排気量:'1,496cc', 馬力:'182PS', 燃費:'24.2km/L', 全長:'4,550mm', 全幅:'1,800mm', 車重:'1,370kg'},
+      costs: {自動車税:'34,500円/年', 保険料:'約55,000円/年', 車検費用:'約70,000円/回', 燃料費:'約78,000円/年', '5年維持費合計':'約110万円'},
+      radar: [55, 75, 92, 60, 68, 70],
+    },
+    usedCar: {
+      name: 'BMW 320i', sub: '2022年式 / 走行3.2万km / 中古', price: '298万円', emoji: '🏎️',
+      type: 'used',
+      specs: {排気量:'1,998cc', 馬力:'184PS', 燃費:'13.8km/L', 全長:'4,715mm', 全幅:'1,825mm', 車重:'1,570kg'},
+      costs: {自動車税:'39,500円/年', 保険料:'約78,000円/年', 車検費用:'約130,000円/回', 燃料費:'約144,000円/年', '5年維持費合計':'約195万円'},
+      radar: [85, 88, 58, 90, 82, 50],
+    }
+  }
+};
+
+let currentBudget = 400;
+let currentCar = null;
+
+// Time
+function updateTime(){
+  const n=new Date(); document.getElementById('statusTime').textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+}
+updateTime(); setInterval(updateTime,30000);
+
+// Slider
+const slider=document.getElementById('budgetSlider');
+slider.addEventListener('input',()=>{
+  document.getElementById('budgetDisplay').innerHTML=slider.value+'<span>万円</span>';
+  currentBudget=parseInt(slider.value);
+});
+
+// Navigation
+function setNav(id){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+function showHome(){
+  document.getElementById('homePage').className='page home-page';
+  document.getElementById('resultsPage').className='page results-page hidden-right';
+  document.getElementById('detailPage').className='page detail-page hidden-right';
+  setNav('navHome');
+}
+
+function showResults(){
+  const budget=currentBudget;
+  // Find closest data
+  const keys=Object.keys(cars).map(Number).sort((a,b)=>Math.abs(a-budget)-Math.abs(b-budget));
+  const data=cars[keys[0]];
+  document.getElementById('resultsBudgetTag').textContent='予算 '+budget+'万円';
+  renderCards(data);
+  document.getElementById('homePage').className='page home-page hidden-left';
+  document.getElementById('resultsPage').className='page results-page';
+  document.getElementById('detailPage').className='page detail-page hidden-right';
+  setNav('navResults');
+}
+
+function renderCards(data){
+  const c=document.getElementById('cardsContainer');
+  c.innerHTML=`
+    <div class="car-card animate-in" onclick='showDetail(${JSON.stringify(data.newCar).replace(/'/g,"&#39;")})'>
+      <div class="badge new">🟢 新車</div>
+      <div class="car-image new-bg">${data.newCar.emoji}</div>
+      <h3>${data.newCar.name}</h3>
+      <div class="car-sub">${data.newCar.sub}</div>
+      <div class="price">${data.newCar.price}</div>
+      <div class="specs-row">
+        <span class="spec-chip">${data.newCar.specs['馬力']}</span>
+        <span class="spec-chip">${data.newCar.specs['燃費']}</span>
+        <span class="spec-chip">${data.newCar.specs['全長']}</span>
+      </div>
+      <div class="grade-bar"><div class="label-row"><span>車格スコア</span><span>${Math.round(data.newCar.radar.reduce((a,b)=>a+b)/6)}点</span></div><div class="bar"><div class="fill high" style="width:${Math.round(data.newCar.radar.reduce((a,b)=>a+b)/6)}%"></div></div></div>
+    </div>
+    <div class="vs-divider animate-in delay-1">VS</div>
+    <div class="car-card animate-in delay-2" onclick='showDetail(${JSON.stringify(data.usedCar).replace(/'/g,"&#39;")})'>
+      <div class="badge used">🔵 中古車</div>
+      <div class="car-image used-bg">${data.usedCar.emoji}</div>
+      <h3>${data.usedCar.name}</h3>
+      <div class="car-sub">${data.usedCar.sub}</div>
+      <div class="price">${data.usedCar.price}</div>
+      <div class="specs-row">
+        <span class="spec-chip">${data.usedCar.specs['馬力']}</span>
+        <span class="spec-chip">${data.usedCar.specs['燃費']}</span>
+        <span class="spec-chip">${data.usedCar.specs['全長']}</span>
+      </div>
+      <div class="grade-bar"><div class="label-row"><span>車格スコア</span><span>${Math.round(data.usedCar.radar.reduce((a,b)=>a+b)/6)}点</span></div><div class="bar"><div class="fill high" style="width:${Math.round(data.usedCar.radar.reduce((a,b)=>a+b)/6)}%"></div></div></div>
+    </div>`;
+}
+
+function showDetail(car){
+  currentCar=car;
+  const img=document.getElementById('detailImg');
+  img.className='car-img-large '+(car.type==='new'?'new-bg':'used-bg');
+  img.textContent=car.emoji;
+  document.getElementById('detailName').textContent=car.name;
+  document.getElementById('detailSub').textContent=car.sub;
+  document.getElementById('detailPrice').textContent=car.price;
+  switchDetailTab('specs',document.querySelector('.detail-tab'));
+  document.querySelectorAll('.detail-tab').forEach((t,i)=>{t.classList.toggle('active',i===0)});
+  document.getElementById('resultsPage').className='page results-page hidden-left';
+  document.getElementById('detailPage').className='page detail-page';
+}
+
+function switchDetailTab(tab,btn){
+  document.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const c=document.getElementById('detailContent');
+  if(tab==='specs'){
+    let h='<div class="spec-grid">';
+    const icons={排気量:'⚙️',馬力:'💪',燃費:'⛽',全長:'📏',全幅:'↔️',車重:'🏋️'};
+    for(const[k,v]of Object.entries(currentCar.specs)){
+      h+=`<div class="spec-item"><div class="val">${icons[k]||''}</div><div class="val" style="font-size:16px;margin-top:4px">${v}</div><div class="lbl">${k}</div></div>`;
+    }
+    c.innerHTML=h+'</div>';
+  } else if(tab==='cost'){
+    let h='<div class="cost-list">';
+    for(const[k,v]of Object.entries(currentCar.costs)){
+      const isTotal=k.includes('合計');
+      h+=`<div class="cost-item ${isTotal?'cost-total':''}"><span class="cost-label">${k}</span><span class="cost-val">${v}</span></div>`;
+    }
+    c.innerHTML=h+'</div>';
+  } else if(tab==='radar'){
+    c.innerHTML='<div class="radar-container"><canvas id="radarChart" width="260" height="260"></canvas></div>';
+    drawRadar(currentCar.radar);
+  }
+}
+
+function drawRadar(values){
+  const canvas=document.getElementById('radarChart');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const w=260,h=260,cx=w/2,cy=h/2,r=100;
+  const labels=['高級感','走行性能','燃費','ブランド','快適性','リセール'];
+  const n=6;
+  ctx.clearRect(0,0,w,h);
+  // Grid
+  for(let level=1;level<=5;level++){
+    ctx.beginPath();
+    for(let i=0;i<=n;i++){
+      const angle=Math.PI*2/n*i-Math.PI/2;
+      const x=cx+Math.cos(angle)*r*level/5;
+      const y=cy+Math.sin(angle)*r*level/5;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle='rgba(0,0,0,.1)';ctx.lineWidth=1;ctx.stroke();
+  }
+  // Axes + labels
+  ctx.font='11px -apple-system, sans-serif';ctx.fillStyle='#555';ctx.textAlign='center';
+  for(let i=0;i<n;i++){
+    const angle=Math.PI*2/n*i-Math.PI/2;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(angle)*r,cy+Math.sin(angle)*r);
+    ctx.strokeStyle='rgba(0,0,0,.1)';ctx.stroke();
+    const lx=cx+Math.cos(angle)*(r+18);
+    const ly=cy+Math.sin(angle)*(r+18);
+    ctx.fillText(labels[i],lx,ly+4);
+  }
+  // Data
+  ctx.beginPath();
+  for(let i=0;i<=n;i++){
+    const idx=i%n;
+    const angle=Math.PI*2/n*idx-Math.PI/2;
+    const v=values[idx]/100*r;
+    const x=cx+Math.cos(angle)*v;
+    const y=cy+Math.sin(angle)*v;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.fillStyle='rgba(247,151,30,.2)';ctx.fill();
+  ctx.strokeStyle='#f7971e';ctx.lineWidth=2.5;ctx.stroke();
+  // Dots
+  for(let i=0;i<n;i++){
+    const angle=Math.PI*2/n*i-Math.PI/2;
+    const v=values[i]/100*r;
+    ctx.beginPath();
+    ctx.arc(cx+Math.cos(angle)*v,cy+Math.sin(angle)*v,4,0,Math.PI*2);
+    ctx.fillStyle='#f7971e';ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+  }
+}
+
+// Touch swipe
+let touchStartX=0;
+document.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX},{passive:true});
+document.addEventListener('touchend',e=>{
+  const diff=e.changedTouches[0].clientX-touchStartX;
+  if(Math.abs(diff)<60)return;
+  const rp=document.getElementById('resultsPage');
+  const dp=document.getElementById('detailPage');
+  if(diff>0){ // swipe right = back
+    if(!dp.classList.contains('hidden-right'))showResults();
+    else if(!rp.classList.contains('hidden-right')&&!rp.classList.contains('hidden-left'))showHome();
+  }
+});
+</script>
+</body>
+</html>
