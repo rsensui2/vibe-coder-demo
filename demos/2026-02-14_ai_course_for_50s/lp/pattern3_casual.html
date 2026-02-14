@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>50代からのAI講座 | スマホでらくらくAI活用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", "Hiragino Sans", "Meiryo", sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background-color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        header {
+            padding: 20px 0;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff6b6b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+        }
+
+        .header-cta {
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .header-cta:hover {
+            background: #ff5252;
+            transform: scale(1.05);
+        }
+
+        /* ヒーローセクション */
+        .hero {
+            padding: 60px 0 80px;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 50%, #fff5f5 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '📱';
+            position: absolute;
+            font-size: 200px;
+            opacity: 0.05;
+            top: -50px;
+            right: -50px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero::after {
+            content: '🤖';
+            position: absolute;
+            font-size: 150px;
+            opacity: 0.05;
+            bottom: -30px;
+            left: -30px;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: #fff;
+            color: #ff6b6b;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 24px;
+            border: 2px solid #ff6b6b;
+        }
+
+        .hero h1 {
+            font-size: 44px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.3;
+            color: #333;
+        }
+
+        .hero h1 .highlight {
+            color: #ff6b6b;
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero h1 .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: rgba(255, 107, 107, 0.2);
+            z-index: -1;
+        }
+
+        .hero .subtitle {
+            font-size: 22px;
+            color: #555;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+
+        .hero .features-list {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .hero .features-list li {
+            list-style: none;
+            font-size: 18px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero .features-list li::before {
+            content: '✓';
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: 700;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+            color: white;
+            padding: 20px 50px;
+            font-size: 20px;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(255, 107, 107, 0.4);
+        }
+
+        .cta-note {
+            margin-top: 16px;
+            font-size: 15px;
+            color: #888;
+        }
+
+        /* 特徴セクション */
+        .features {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 56px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+        }
+
+        .feature-card {
+            background: #fff;
+            padding: 32px 28px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            border-color: #ff6b6b;
+        }
+
+        .feature-icon {
+            font-size: 56px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .feature-card p {
+            font-size: 17px;
+            color: #666;
+            line-height: 1.7;
+        }
+
+        /* プラン比較 */
+        .plans {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #fff9f0 0%, #fff5e8 50%, #fff9f0 100%);
+        }
+
+        .plans-intro {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 56px;
+        }
+
+        .plans-intro p {
+            font-size: 18px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 48px;
+        }
+
+        .plan-card {
+            background: white;
+            padding: 40px 32px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            border: 3px solid #e0e0e0;
+        }
+
+        .plan-card.featured {
+            border-color: #ff6b6b;
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(255, 107, 107, 0.2);
+        }
+
+        .plan-badge {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: #ff6b6b;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .plan-card.featured:hover {
+            transform: scale(1.05) translateY(-8px);
+        }
+
+        .plan-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ff6b6b;
+            margin-bottom: 16px;
+        }
+
+        .plan-price {
+            font-size: 48px;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .plan-price span {
+            font-size: 18px;
+            color: #999;
+            font-weight: 500;
+        }
+
+        .plan-description {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 28px;
+            min-height: 44px;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin: 24px 0;
+            padding: 24px 0;
+            border-top: 2px dashed #e0e0e0;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            font-size: 16px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            width: 24px;
+            height: 24px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .plan-button {
+            width: 100%;
+            padding: 16px;
+            font-size: 17px;
+            font-weight: 700;
+            border: none;
+            background: #f5f5f5;
+            color: #333;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .plan-card.featured .plan-button {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+            color: white;
+        }
+
+        .plan-button:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .plan-card.featured .plan-button:hover {
+            background: linear-gradient(135deg, #ff5252 0%, #ff3838 100%);
+        }
+
+        /* 受講者の声 */
+        .testimonials {
+            padding: 80px 0;
+            background: #fafafa;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            margin-top: 48px;
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .author-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .author-info h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .author-info p {
+            font-size: 15px;
+            color: #999;
+        }
+
+        .testimonial-text {
+            font-size: 17px;
+            color: #555;
+            line-height: 1.8;
+            border-left: 4px solid #ff6b6b;
+            padding-left: 20px;
+        }
+
+        .stars {
+            color: #ffd93d;
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        /* CTA セクション */
+        .cta-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '🎉';
+            position: absolute;
+            font-size: 180px;
+            opacity: 0.1;
+            top: -40px;
+            left: -40px;
+            animation: rotate 20s linear infinite;
+        }
+
+        .cta-section::after {
+            content: '✨';
+            position: absolute;
+            font-size: 120px;
+            opacity: 0.1;
+            bottom: -20px;
+            right: -20px;
+            animation: rotate 15s linear infinite reverse;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section h2 {
+            font-size: 38px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        .cta-section .cta-button {
+            background: white;
+            color: #ff6b6b;
+        }
+
+        .cta-section .cta-button:hover {
+            background: #fff5f5;
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        /* フッター */
+        footer {
+            padding: 48px 0;
+            text-align: center;
+            background: #2c2c2c;
+            color: #999;
+        }
+
+        footer p {
+            font-size: 15px;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero .subtitle {
+                font-size: 18px;
+            }
+
+            .hero .features-list {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+                max-width: 300px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .features-grid,
+            .plans-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .plan-card.featured {
+                transform: scale(1);
+            }
+
+            .header-cta {
+                display: none;
+            }
+        }
+
+        /* アニメーション用クラス */
+        .bounce {
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🌟</span>
+                    50代からのAI講座
+                </div>
+                <a href="#plans" class="header-cta">無料で試してみる</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ヒーローセクション -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="container">
+                <div class="hero-badge">🎓 初心者大歓迎！</div>
+                <h1>スマホで<span class="highlight">らくらく</span><br>AI使いこなし講座</h1>
+                <p class="subtitle">パソコン不要！スマホだけで今日から始められます</p>
+                
+                <ul class="features-list">
+                    <li>週1回のわかりやすいライブ講座</li>
+                    <li>いつでも質問できるLINE</li>
+                    <li>月1回のリアル交流会</li>
+                </ul>
+
+                <a href="#plans" class="cta-button bounce">今すぐ無料体験してみる 🎁</a>
+                <p class="cta-note">※7日間無料・いつでも解約OK</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 特徴セクション -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">こんな方におすすめです！</h2>
+            <p class="section-subtitle">一つでも当てはまったら、ぜひご参加ください</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">📱</span>
+                    <h3>スマホしか持ってない</h3>
+                    <p>パソコンは持っていないし、使い方もわからない…そんな方でも大丈夫！スマホだけで全部学べます。</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">👨‍🏫</span>
+                    <h3>ひとりじゃ不安</h3>
+                    <p>YouTube見ても途中でわからなくなっちゃう…講師に直接質問できるので、つまずいてもすぐ解決できます。</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">🤝</span>
+                    <h3>仲間と楽しく学びたい</h3>
+                    <p>同世代の仲間と一緒だから楽しく続けられる！LINEで日々の疑問を共有したり、お茶会で直接会えたり。</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">✨</span>
+                    <h3>人生をもっと豊かに</h3>
+                    <p>AIを使えば、日々の悩みがスッと解決！孫との会話のネタ、旅行の計画、手紙の文章作りなど、生活が便利に。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- プラン比較 -->
+    <section class="plans" id="plans">
+        <div class="container">
+            <h2 class="section-title">あなたに合ったプランを選んでください</h2>
+            <div class="plans-intro">
+                <p>どのプランも<strong>最初の7日間は無料</strong>でお試しいただけます。<br>気に入らなければいつでも解約OK。安心してスタートできます！</p>
+            </div>
+            
+            <div class="plans-grid">
+                <div class="plan-card">
+                    <div class="plan-name">💡 まずはお試しプラン</div>
+                    <div class="plan-price">¥4,980<span> /月</span></div>
+                    <div class="plan-description">気軽に始めたい方向け</div>
+                    <ul class="plan-features">
+                        <li>録画で見るライブ講座</li>
+                        <li>LINEコミュニティ参加</li>
+                        <li>基本的なAI活用</li>
+                        <li>メールで質問OK</li>
+                    </ul>
+                    <button class="plan-button">このプランで始める</button>
+                </div>
+
+                <div class="plan-card featured">
+                    <div class="plan-badge">👑 一番人気！</div>
+                    <div class="plan-name">🌟 しっかり学べるプラン</div>
+                    <div class="plan-price">¥9,800<span> /月</span></div>
+                    <div class="plan-description">バランスよく学びたい方向け</div>
+                    <ul class="plan-features">
+                        <li>ライブ講座に参加＆質問</li>
+                        <li>LINEコミュニティ参加</li>
+                        <li>実践的なAI活用法</li>
+                        <li>優先サポート</li>
+                        <li>月1回お茶会参加</li>
+                        <li>個別相談（月1回）</li>
+                    </ul>
+                    <button class="plan-button">このプランで始める</button>
+                </div>
+
+                <div class="plan-card">
+                    <div class="plan-name">🎖️ とことんプラン</div>
+                    <div class="plan-price">¥19,800<span> /月</span></div>
+                    <div class="plan-description">本気で使いこなしたい方向け</div>
+                    <ul class="plan-features">
+                        <li>ライブ講座に参加＆質問</li>
+                        <li>LINEコミュニティ参加</li>
+                        <li>上級テクニックも学べる</li>
+                        <li>24時間いつでもサポート</li>
+                        <li>月2回お茶会参加</li>
+                        <li>個別相談（無制限）</li>
+                        <li>特別セミナー招待</li>
+                    </ul>
+                    <button class="plan-button">このプランで始める</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 受講者の声 -->
+    <section class="testimonials">
+        <div class="container">
+            <h2 class="section-title">みんなの喜びの声</h2>
+            <p class="section-subtitle">実際に受講された方々の感想です</p>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="author-avatar">田</div>
+                        <div class="author-info">
+                            <h4>田中 花子さん</h4>
+                            <p>62歳・主婦</p>
+                        </div>
+                    </div>
+                    <div class="stars">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">
+                        パソコンが苦手で諦めていましたが、スマホだけで学べると聞いて挑戦！今では孫とのLINEでAIを使って楽しい文章を送れるようになりました。同世代の友達もできて、毎週のライブ講座が楽しみです♪
+                    </p>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="author-avatar">佐</div>
+                        <div class="author-info">
+                            <h4>佐藤 太郎さん</h4>
+                            <p>58歳・会社員</p>
+                        </div>
+                    </div>
+                    <div class="stars">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">
+                        仕事でメールを書くのに毎回時間がかかっていましたが、AIの力を借りることでサクサク書けるように！定年後も役立つスキルが身について、自信がつきました。講師の方も優しくて安心です。
+                    </p>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="author-avatar">鈴</div>
+                        <div class="author-info">
+                            <h4>鈴木 良子さん</h4>
+                            <p>67歳・パート</p>
+                        </div>
+                    </div>
+                    <div class="stars">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">
+                        最初は「私に使えるかしら？」と不安でしたが、みんな同じレベルからスタートするから恥ずかしくない！LINEでいつでも質問できるし、月1回の交流会で実際に会えるのも嬉しいです。人生が豊かになりました！
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <div class="container">
+                <h2>さぁ、今日から始めましょう！</h2>
+                <p>
+                    7日間の無料体験で、AIの便利さを実感してください。<br>
+                    気に入らなければいつでも解約OK。リスクはゼロです！
+                </p>
+                <a href="#" class="cta-button">🎁 無料体験に申し込む（7日間無料）</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 50代からのAI講座. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // スムーススクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // プランボタンのクリックイベント
+        document.querySelectorAll('.plan-button, .cta-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!this.getAttribute('href') || this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                    const planName = this.closest('.plan-card')?.querySelector('.plan-name')?.textContent || '無料体験';
+                    alert(`${planName}へのお申し込みフォームに移動します！\n\n（このデモでは実際には移動しません）`);
+                }
+            });
+        });
+
+        // スクロールアニメーション
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(30px)';
+                    
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.6s ease-out';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                    
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .plan-card, .testimonial-card').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

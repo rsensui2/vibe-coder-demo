@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>50代からのAI講座 - モックアプリ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* iPhone フレーム */
+        .device-frame {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* ノッチ */
+        .notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 1000;
+        }
+
+        .notch::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 6px;
+            background: #1a1a1a;
+            border-radius: 3px;
+        }
+
+        /* スクリーン */
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: #F5F7FA;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ステータスバー */
+        .status-bar {
+            height: 44px;
+            background: #4A90E2;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 0 20px 8px;
+            color: white;
+            font-size: 14px;
+        }
+
+        /* コンテンツエリア */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* タブバー */
+        .tab-bar {
+            height: 80px;
+            background: white;
+            border-top: 1px solid #E5E9F0;
+            display: flex;
+            padding-bottom: 20px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #8895A7;
+            font-size: 12px;
+            position: relative;
+        }
+
+        .tab-item.active {
+            color: #4A90E2;
+        }
+
+        .tab-icon {
+            font-size: 28px;
+            margin-bottom: 4px;
+            transition: transform 0.3s;
+        }
+
+        .tab-item.active .tab-icon {
+            transform: scale(1.1);
+        }
+
+        /* ホームバー */
+        .home-bar {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 3px;
+        }
+
+        /* 画面コンテンツ */
+        .screen-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .screen-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ホーム画面 */
+        .home-header {
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            padding: 30px 20px;
+            color: white;
+        }
+
+        .greeting {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .streak {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .progress-section {
+            background: white;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .progress-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2D3748;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-container {
+            background: #E5E9F0;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #50C878 0%, #3FA463 100%);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #64748B;
+        }
+
+        .today-lesson {
+            background: white;
+            margin: 0 20px 20px;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .today-lesson:active {
+            transform: scale(0.98);
+        }
+
+        .lesson-badge {
+            display: inline-block;
+            background: #FFD93D;
+            color: #7C5A00;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .lesson-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2D3748;
+            margin-bottom: 8px;
+        }
+
+        .lesson-desc {
+            font-size: 15px;
+            color: #64748B;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .lesson-cta {
+            background: #4A90E2;
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* レッスン画面 */
+        .lesson-screen {
+            padding: 20px;
+        }
+
+        .video-player {
+            background: #000;
+            border-radius: 16px;
+            aspect-ratio: 16/9;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #4A90E2;
+            transition: transform 0.2s;
+        }
+
+        .video-player:active .play-button {
+            transform: translate(-50%, -50%) scale(0.9);
+        }
+
+        .steps-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #E5E9F0;
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: #4A90E2;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-right: 12px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #2D3748;
+            margin-bottom: 6px;
+        }
+
+        .step-desc {
+            font-size: 15px;
+            color: #64748B;
+            line-height: 1.6;
+        }
+
+        /* AIお試し画面 */
+        .ai-screen {
+            padding: 20px;
+        }
+
+        .ai-intro {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .ai-intro-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2D3748;
+            margin-bottom: 12px;
+        }
+
+        .ai-intro-text {
+            font-size: 15px;
+            color: #64748B;
+            line-height: 1.6;
+        }
+
+        .template-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .template-card {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .template-card:active {
+            transform: scale(0.98);
+        }
+
+        .template-card.selected {
+            border-color: #4A90E2;
+            background: #EBF5FF;
+        }
+
+        .template-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .template-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #2D3748;
+            margin-bottom: 6px;
+        }
+
+        .template-example {
+            font-size: 14px;
+            color: #64748B;
+        }
+
+        .ai-input-section {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .ai-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 16px;
+            border: 2px solid #E5E9F0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 12px;
+        }
+
+        .ai-textarea:focus {
+            outline: none;
+            border-color: #4A90E2;
+        }
+
+        .ai-button {
+            width: 100%;
+            padding: 18px;
+            background: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-button:active {
+            transform: scale(0.98);
+            background: #357ABD;
+        }
+
+        .ai-button:disabled {
+            background: #CBD5E0;
+            cursor: not-allowed;
+        }
+
+        .ai-response {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .ai-response.show {
+            display: block;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-response-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #2D3748;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-response-icon {
+            font-size: 24px;
+            margin-right: 8px;
+        }
+
+        .ai-response-text {
+            font-size: 16px;
+            color: #2D3748;
+            line-height: 1.7;
+        }
+
+        /* マイページ */
+        .profile-screen {
+            padding: 20px;
+        }
+
+        .profile-header {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 16px;
+        }
+
+        .profile-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2D3748;
+            margin-bottom: 8px;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #E5E9F0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4A90E2;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #64748B;
+            margin-top: 4px;
+        }
+
+        .badges-section {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2D3748;
+            margin-bottom: 16px;
+        }
+
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .badge-item {
+            text-align: center;
+        }
+
+        .badge-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FFD93D 0%, #FFC107 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 6px;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+        }
+
+        .badge-item.locked .badge-icon {
+            background: #E5E9F0;
+            box-shadow: none;
+        }
+
+        .badge-name {
+            font-size: 11px;
+            color: #64748B;
+        }
+
+        .calendar-section {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #64748B;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .calendar-day.header {
+            font-weight: bold;
+            color: #8895A7;
+        }
+
+        .calendar-day.active {
+            background: #50C878;
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-day.today {
+            border: 2px solid #4A90E2;
+        }
+
+        /* スクロールバー非表示 */
+        .content-area::-webkit-scrollbar {
+            display: none;
+        }
+
+        .content-area {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* ローディングアニメーション */
+        .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            background: #4A90E2;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <div class="notch"></div>
+        <div class="screen">
+            <!-- ステータスバー -->
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>●●●● 100%</span>
+            </div>
+
+            <!-- コンテンツエリア -->
+            <div class="content-area">
+                <!-- ホーム画面 -->
+                <div class="screen-content active" id="home">
+                    <div class="home-header">
+                        <div class="greeting">おはようございます! 👋</div>
+                        <div class="streak">🔥 7日間連続で学習中!</div>
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-title">全体の進捗</div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: 45%;"></div>
+                        </div>
+                        <div class="progress-text">9レッスン中 4レッスン完了</div>
+                    </div>
+
+                    <div class="today-lesson" onclick="switchTab('lesson')">
+                        <div class="lesson-badge">📚 今日のレッスン</div>
+                        <div class="lesson-title">レッスン5: 写真から文章を作ってもらおう</div>
+                        <div class="lesson-desc">スマホで撮った写真をAIに見せて、説明文やSNS投稿を作ってもらう方法を学びます</div>
+                        <div class="lesson-cta">レッスンを始める →</div>
+                    </div>
+
+                    <div class="today-lesson">
+                        <div class="lesson-badge">✅ 復習レッスン</div>
+                        <div class="lesson-title">レッスン4: 音声でAIと話そう</div>
+                        <div class="lesson-desc">文字を打たずに、声でAIに質問する方法</div>
+                    </div>
+                </div>
+
+                <!-- レッスン画面 -->
+                <div class="screen-content" id="lesson">
+                    <div class="lesson-screen">
+                        <div class="video-player" onclick="playVideo()">
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+                                📹 レッスン動画
+                            </div>
+                            <div class="play-button">▶</div>
+                        </div>
+
+                        <div class="steps-container">
+                            <div class="progress-title" style="margin-bottom: 20px;">📝 ステップガイド</div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <div class="step-title">ChatGPTアプリを開く</div>
+                                    <div class="step-desc">ホーム画面の緑色のアイコンをタップしてください</div>
+                                </div>
+                            </div>
+
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <div class="step-title">カメラボタンを押す</div>
+                                    <div class="step-desc">画面下の📷マークをタップします</div>
+                                </div>
+                            </div>
+
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <div class="step-title">写真を選ぶ</div>
+                                    <div class="step-desc">「アルバムから選択」をタップして、説明してほしい写真を選びます</div>
+                                </div>
+                            </div>
+
+                            <div class="step-item">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <div class="step-title">質問を入力</div>
+                                    <div class="step-desc">「この写真について教えて」と入力して送信ボタンを押します</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AIお試し画面 -->
+                <div class="screen-content" id="ai">
+                    <div class="ai-screen">
+                        <div class="ai-intro">
+                            <div class="ai-intro-title">🤖 AIにお試し質問</div>
+                            <div class="ai-intro-text">下のテンプレートから選ぶだけで、簡単にAIに質問できます！</div>
+                        </div>
+
+                        <div class="template-grid">
+                            <div class="template-card" onclick="selectTemplate(0)">
+                                <div class="template-icon">📧</div>
+                                <div class="template-title">メールの書き方</div>
+                                <div class="template-example">例: お礼メールを書いて</div>
+                            </div>
+
+                            <div class="template-card" onclick="selectTemplate(1)">
+                                <div class="template-icon">🍳</div>
+                                <div class="template-title">料理のレシピ</div>
+                                <div class="template-example">例: 肉じゃがの作り方</div>
+                            </div>
+
+                            <div class="template-card" onclick="selectTemplate(2)">
+                                <div class="template-icon">✈️</div>
+                                <div class="template-title">旅行プラン</div>
+                                <div class="template-example">例: 京都1日観光プラン</div>
+                            </div>
+
+                            <div class="template-card" onclick="selectTemplate(3)">
+                                <div class="template-icon">💡</div>
+                                <div class="template-title">言葉の意味</div>
+                                <div class="template-example">例: DXって何？</div>
+                            </div>
+                        </div>
+
+                        <div class="ai-input-section">
+                            <textarea 
+                                class="ai-textarea" 
+                                id="aiInput" 
+                                placeholder="ここに質問を入力してください..."></textarea>
+                            <button class="ai-button" onclick="askAI()">AIに質問する</button>
+                        </div>
+
+                        <div class="ai-response" id="aiResponse">
+                            <div class="ai-response-title">
+                                <span class="ai-response-icon">🤖</span>
+                                AIの回答
+                            </div>
+                            <div class="ai-response-text" id="aiResponseText"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- マイページ -->
+                <div class="screen-content" id="profile">
+                    <div class="profile-screen">
+                        <div class="profile-header">
+                            <div class="profile-avatar">👨</div>
+                            <div class="profile-name">山田太郎さん</div>
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">7</div>
+                                    <div class="stat-label">連続日数</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">4</div>
+                                    <div class="stat-label">完了レッスン</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">18</div>
+                                    <div class="stat-label">学習時間</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="badges-section">
+                            <div class="section-title">🏆 獲得バッジ</div>
+                            <div class="badges-grid">
+                                <div class="badge-item">
+                                    <div class="badge-icon">🌟</div>
+                                    <div class="badge-name">初心者</div>
+                                </div>
+                                <div class="badge-item">
+                                    <div class="badge-icon">🔥</div>
+                                    <div class="badge-name">7日連続</div>
+                                </div>
+                                <div class="badge-item">
+                                    <div class="badge-icon">📚</div>
+                                    <div class="badge-name">熱心な学習者</div>
+                                </div>
+                                <div class="badge-item locked">
+                                    <div class="badge-icon">👑</div>
+                                    <div class="badge-name">マスター</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="calendar-section">
+                            <div class="section-title">📅 学習カレンダー</div>
+                            <div class="calendar-grid">
+                                <div class="calendar-day header">日</div>
+                                <div class="calendar-day header">月</div>
+                                <div class="calendar-day header">火</div>
+                                <div class="calendar-day header">水</div>
+                                <div class="calendar-day header">木</div>
+                                <div class="calendar-day header">金</div>
+                                <div class="calendar-day header">土</div>
+                                
+                                <div class="calendar-day"></div>
+                                <div class="calendar-day"></div>
+                                <div class="calendar-day"></div>
+                                <div class="calendar-day"></div>
+                                <div class="calendar-day">1</div>
+                                <div class="calendar-day">2</div>
+                                <div class="calendar-day">3</div>
+                                
+                                <div class="calendar-day">4</div>
+                                <div class="calendar-day">5</div>
+                                <div class="calendar-day">6</div>
+                                <div class="calendar-day">7</div>
+                                <div class="calendar-day active">8</div>
+                                <div class="calendar-day active">9</div>
+                                <div class="calendar-day active">10</div>
+                                
+                                <div class="calendar-day active">11</div>
+                                <div class="calendar-day active">12</div>
+                                <div class="calendar-day active">13</div>
+                                <div class="calendar-day active today">14</div>
+                                <div class="calendar-day">15</div>
+                                <div class="calendar-day">16</div>
+                                <div class="calendar-day">17</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- タブバー -->
+            <div class="tab-bar">
+                <div class="tab-item active" onclick="switchTab('home')">
+                    <div class="tab-icon">🏠</div>
+                    <div>ホーム</div>
+                </div>
+                <div class="tab-item" onclick="switchTab('lesson')">
+                    <div class="tab-icon">📚</div>
+                    <div>レッスン</div>
+                </div>
+                <div class="tab-item" onclick="switchTab('ai')">
+                    <div class="tab-icon">🤖</div>
+                    <div>AIお試し</div>
+                </div>
+                <div class="tab-item" onclick="switchTab('profile')">
+                    <div class="tab-icon">👤</div>
+                    <div>マイページ</div>
+                </div>
+                <div class="home-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // タブ切り替え
+        function switchTab(tabName) {
+            // すべてのコンテンツを非表示
+            document.querySelectorAll('.screen-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // すべてのタブアイテムを非アクティブ
+            document.querySelectorAll('.tab-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // 選択されたコンテンツを表示
+            document.getElementById(tabName).classList.add('active');
+            
+            // 選択されたタブをアクティブ化
+            event.currentTarget.classList.add('active');
+            
+            // コンテンツエリアを一番上にスクロール
+            document.querySelector('.content-area').scrollTop = 0;
+        }
+
+        // ビデオ再生
+        function playVideo() {
+            const playButton = document.querySelector('.play-button');
+            playButton.innerHTML = '⏸';
+            setTimeout(() => {
+                playButton.innerHTML = '▶';
+            }, 2000);
+        }
+
+        // テンプレート選択
+        const templates = [
+            "お世話になっている取引先へのお礼メールを書いてください",
+            "冷蔵庫にある鶏肉とじゃがいもで作れる簡単な料理のレシピを教えてください",
+            "京都で1日観光するおすすめプランを教えてください。昼食や移動手段も含めて",
+            "最近よく聞く「DX（デジタルトランスフォーメーション）」という言葉を、50代にもわかりやすく説明してください"
+        ];
+
+        let selectedTemplateIndex = -1;
+
+        function selectTemplate(index) {
+            // すべてのテンプレートカードの選択を解除
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // クリックされたカードを選択状態に
+            event.currentTarget.classList.add('selected');
+            
+            // テキストエリアにテンプレートをセット
+            document.getElementById('aiInput').value = templates[index];
+            selectedTemplateIndex = index;
+        }
+
+        // AI質問
+        const aiResponses = [
+            "お世話になっております。\n\n日頃より格別のお引き立てを賜り、誠にありがとうございます。\n\n先日は貴重なお時間を頂戴し、また丁寧にご対応いただきましたこと、心より感謝申し上げます。\n\nおかげさまで、スムーズに進めることができました。\n\n今後とも何卒よろしくお願い申し上げます。",
+            
+            "【鶏肉とじゃがいもの簡単煮物】\n\n材料:\n- 鶏もも肉 300g\n- じゃがいも 3個\n- しょうゆ 大さじ3\n- みりん 大さじ2\n- 砂糖 大さじ1\n- 水 200ml\n\n作り方:\n1. じゃがいもは一口大に切り、水にさらす\n2. 鶏肉も一口大に切る\n3. フライパンで鶏肉を炒め、色が変わったらじゃがいもを加える\n4. 調味料と水を入れ、蓋をして15分煮込む\n5. じゃがいもが柔らかくなったら完成！\n\nポイント: 煮汁が少なくなったら水を足してください。",
+            
+            "【京都1日観光プラン】\n\n9:00 清水寺\n- 早朝の静かな境内を散策\n- 清水の舞台からの絶景\n\n11:00 産寧坂・二年坂でお土産探し\n\n12:30 昼食（湯豆腐や京料理）\n- 順正などがおすすめ\n\n14:00 金閣寺\n- バスで移動（約30分）\n- 黄金に輝く舎利殿を見学\n\n16:00 嵐山・渡月橋\n- バスで移動（約20分）\n- 竹林の小径を散策\n\n移動は市バス1日券（700円）がお得です！",
+            
+            "「DX（デジタルトランスフォーメーション）」を分かりやすく説明しますね。\n\n簡単に言うと、\n「今までアナログや紙でやっていた仕事を、デジタル技術を使って便利に変えていくこと」です。\n\n例えば:\n📄 紙の書類 → パソコンやスマホで管理\n🏪 実店舗だけ → ネット通販も追加\n📞 電話や対面 → ビデオ会議やチャット\n\nただの「デジタル化」と違うのは、\n仕事のやり方そのものを見直して、もっと効率的で便利にすることです。\n\nコロナ禍でリモートワークが増えたのも、DXの一例ですね！"
+        ];
+
+        function askAI() {
+            const input = document.getElementById('aiInput').value.trim();
+            if (!input) {
+                alert('質問を入力してください');
+                return;
+            }
+
+            const button = event.currentTarget;
+            const originalText = button.innerHTML;
+            
+            // ボタンをローディング状態に
+            button.disabled = true;
+            button.innerHTML = '<div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>';
+
+            // 2秒後に回答を表示
+            setTimeout(() => {
+                const responseDiv = document.getElementById('aiResponse');
+                const responseText = document.getElementById('aiResponseText');
+                
+                // レスポンステキストを設定
+                if (selectedTemplateIndex >= 0) {
+                    responseText.innerHTML = aiResponses[selectedTemplateIndex].replace(/\n/g, '<br>');
+                } else {
+                    responseText.innerHTML = 'ご質問ありがとうございます！<br><br>AIがあなたの質問について考えています...<br><br>実際のアプリでは、ここにChatGPTやGeminiなどのAIが生成した回答が表示されます。<br><br>上のテンプレートを選んでいただくと、具体的な回答例をご覧いただけます！';
+                }
+                
+                // 回答を表示
+                responseDiv.classList.add('show');
+                
+                // ボタンを元に戻す
+                button.disabled = false;
+                button.innerHTML = originalText;
+                
+                // 回答までスクロール
+                setTimeout(() => {
+                    responseDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }, 2000);
+        }
+
+        // Enter キーで送信（Shift+Enter で改行）
+        document.getElementById('aiInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                askAI();
+            }
+        });
+    </script>
+</body>
+</html>
