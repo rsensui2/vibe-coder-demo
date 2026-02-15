@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pre-Onboarding Mission | プレミアムオンボーディング体験</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#1A3A5C;--orange:#FF6B2B;--white:#FFFFFF;--gray:#F7F8FA;--text:#2d3748;--text-light:#718096;--gold:#C9A84C;--radius:16px}
+body{font-family:'Hiragino Mincho ProN','Noto Serif JP',Georgia,serif;color:var(--text);line-height:1.9;background:var(--white)}
+h1,h2,h3,h4,h5,h6,.sans{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif}
+a{text-decoration:none;color:inherit}
+img{max-width:100%}
+.container{max-width:1080px;margin:0 auto;padding:0 24px}
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .3s}
+nav.scrolled{background:rgba(26,58,92,.97);backdrop-filter:blur(8px)}
+nav .container{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{font-size:20px;font-weight:700;color:#fff;letter-spacing:.02em}
+.logo span{color:var(--orange)}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{color:rgba(255,255,255,.8);font-size:14px;font-weight:500;transition:.2s}
+.nav-links a:hover{color:#fff}
+.nav-links .cta-nav{background:var(--orange);color:#fff;padding:10px 24px;border-radius:8px;font-weight:700}
+/* Hero */
+.hero{min-height:100vh;display:flex;align-items:center;background:linear-gradient(135deg,#0d2640 0%,var(--navy) 50%,#1e4d7a 100%);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;right:-20%;width:800px;height:800px;background:radial-gradient(circle,rgba(255,107,43,.08) 0%,transparent 70%);border-radius:50%}
+.hero::after{content:'';position:absolute;bottom:-30%;left:-10%;width:600px;height:600px;background:radial-gradient(circle,rgba(255,255,255,.03) 0%,transparent 70%);border-radius:50%}
+.hero .container{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.hero-text{color:#fff}
+.hero-eyebrow{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:24px;font-weight:600}
+.hero h1{font-size:clamp(32px,5vw,52px);font-weight:800;line-height:1.25;margin-bottom:24px}
+.hero h1 .accent{background:linear-gradient(90deg,var(--orange),#ff8f5a);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:17px;color:rgba(255,255,255,.7);margin-bottom:40px;line-height:1.8}
+.hero-cta{display:flex;gap:16px;flex-wrap:wrap}
+.btn-gold{display:inline-block;background:linear-gradient(135deg,var(--orange),#e55a1b);color:#fff;font-size:16px;font-weight:700;padding:18px 44px;border-radius:12px;transition:.3s;letter-spacing:.02em;box-shadow:0 8px 32px rgba(255,107,43,.3)}
+.btn-gold:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(255,107,43,.45)}
+.btn-ghost{display:inline-block;border:1px solid rgba(255,255,255,.3);color:#fff;font-size:15px;padding:16px 36px;border-radius:12px;transition:.2s;font-weight:500}
+.btn-ghost:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.5)}
+.hero-visual{position:relative}
+.hero-card{background:rgba(255,255,255,.08);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:40px;color:#fff}
+.hero-card .chat{margin-top:24px}
+.chat-msg{display:flex;gap:12px;margin-bottom:16px;align-items:flex-start}
+.chat-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+.chat-avatar.ai{background:var(--orange)}
+.chat-avatar.user{background:rgba(255,255,255,.2)}
+.chat-bubble{background:rgba(255,255,255,.06);border-radius:12px;padding:12px 16px;font-size:14px;line-height:1.6;max-width:280px}
+.typing{display:flex;gap:4px;padding:12px 16px}
+.typing span{width:6px;height:6px;background:rgba(255,255,255,.4);border-radius:50%;animation:blink 1.4s infinite both}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+/* Sections */
+section{padding:100px 0}
+section.alt{background:var(--gray)}
+.sec-eyebrow{font-size:12px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.15em;text-align:center;margin-bottom:12px}
+.sec-title{font-size:clamp(26px,3.5vw,40px);font-weight:800;color:var(--navy);text-align:center;margin-bottom:16px}
+.sec-desc{text-align:center;color:var(--text-light);max-width:560px;margin:0 auto 56px;font-size:16px}
+/* Features */
+.feature-row{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-bottom:80px}
+.feature-row:nth-child(even){direction:rtl}
+.feature-row:nth-child(even) > *{direction:ltr}
+.feature-row:last-child{margin-bottom:0}
+.feature-visual{background:var(--gray);border-radius:var(--radius);padding:48px;display:flex;align-items:center;justify-content:center;min-height:300px;font-size:64px}
+.feature-content .tag{display:inline-block;background:rgba(255,107,43,.1);color:var(--orange);font-size:12px;font-weight:700;padding:6px 14px;border-radius:6px;margin-bottom:16px}
+.feature-content h3{font-size:28px;font-weight:800;color:var(--navy);margin-bottom:16px}
+.feature-content p{color:var(--text-light);font-size:15px;margin-bottom:20px}
+.feature-list{list-style:none}
+.feature-list li{padding:6px 0;font-size:14px;color:var(--text)}
+.feature-list li::before{content:'●';color:var(--orange);margin-right:10px;font-size:8px;vertical-align:middle}
+/* Data */
+.data-showcase{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid #e2e8f0;border-radius:var(--radius);overflow:hidden}
+.data-item{padding:40px 24px;text-align:center;border-right:1px solid #e2e8f0}
+.data-item:last-child{border-right:none}
+.data-number{font-size:48px;font-weight:800;color:var(--navy);line-height:1}
+.data-number span{color:var(--orange)}
+.data-text{font-size:13px;color:var(--text-light);margin-top:12px;line-height:1.5}
+/* Pricing */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;max-width:960px;margin:0 auto;border:1px solid #e2e8f0;border-radius:var(--radius);overflow:hidden}
+.price-col{padding:48px 32px;text-align:center;border-right:1px solid #e2e8f0;position:relative}
+.price-col:last-child{border-right:none}
+.price-col.featured{background:var(--navy);color:#fff}
+.price-col.featured .price-tier{color:var(--orange)}
+.price-col.featured .price-val{color:#fff}
+.price-col.featured .price-list li{color:rgba(255,255,255,.8);border-color:rgba(255,255,255,.1)}
+.price-tier{font-size:14px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:20px}
+.price-val{font-size:36px;font-weight:800;color:var(--navy);margin-bottom:4px}
+.price-val small{font-size:14px;font-weight:400;color:var(--text-light)}
+.price-col.featured .price-val small{color:rgba(255,255,255,.6)}
+.price-per{font-size:13px;color:var(--text-light);margin-bottom:28px}
+.price-col.featured .price-per{color:rgba(255,255,255,.6)}
+.price-list{list-style:none;text-align:left;margin-bottom:32px}
+.price-list li{padding:10px 0;font-size:14px;border-bottom:1px solid #f0f0f0}
+.price-list li::before{content:'✓';color:var(--orange);font-weight:700;margin-right:10px}
+.btn-plan{display:block;padding:14px;border-radius:10px;font-size:15px;font-weight:700;text-align:center;transition:.2s}
+.btn-plan-outline{border:2px solid var(--navy);color:var(--navy)}
+.btn-plan-outline:hover{background:var(--navy);color:#fff}
+.btn-plan-fill{background:var(--orange);color:#fff;border:none}
+.btn-plan-fill:hover{background:#e55a1b}
+/* CTA */
+.final-cta{background:var(--navy);padding:100px 0;text-align:center;color:#fff;position:relative;overflow:hidden}
+.final-cta::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center,rgba(255,107,43,.08) 0%,transparent 70%)}
+.final-cta h2{font-size:clamp(28px,4vw,42px);font-weight:800;margin-bottom:20px;position:relative}
+.final-cta p{font-size:17px;color:rgba(255,255,255,.7);margin-bottom:40px;position:relative}
+/* Footer */
+footer{background:#0a1f33;color:rgba(255,255,255,.4);padding:40px 0;text-align:center;font-size:13px}
+/* Responsive */
+@media(max-width:768px){
+  .hero .container{grid-template-columns:1fr}
+  .hero-visual{display:none}
+  .nav-links a:not(.cta-nav){display:none}
+  .feature-row{grid-template-columns:1fr}
+  .feature-row:nth-child(even){direction:ltr}
+  .feature-visual{min-height:200px}
+  .data-showcase{grid-template-columns:1fr 1fr}
+  .data-item{border-bottom:1px solid #e2e8f0}
+  .data-item:nth-child(2){border-right:none}
+  .pricing-grid{grid-template-columns:1fr}
+  .price-col{border-right:none;border-bottom:1px solid #e2e8f0}
+  .price-col:last-child{border-bottom:none}
+}
+</style>
+</head>
+<body>
+<nav id="nav"><div class="container">
+  <div class="logo">Pre-On<span>Mission</span></div>
+  <div class="nav-links">
+    <a href="#features">機能</a><a href="#data">導入効果</a><a href="#pricing">料金</a>
+    <a href="#cta" class="cta-nav sans">無料相談</a>
+  </div>
+</div></nav>
+
+<section class="hero">
+<div class="container">
+  <div class="hero-text">
+    <div class="hero-eyebrow sans">Pre-Onboarding Mission</div>
+    <h1>入社前に、<br><span class="accent">自分だけのミッション</span>を<br>見つける。</h1>
+    <p class="hero-sub">内定から入社までの空白期間を、最も価値ある時間に。<br>AI対話が導く、パーソナルミッションの発見。</p>
+    <div class="hero-cta">
+      <a href="#cta" class="btn-gold sans">無料デモを体験する</a>
+      <a href="#features" class="btn-ghost sans">サービス詳細</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-card sans">
+      <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:8px">AI Mission Navigator</div>
+      <div style="font-size:18px;font-weight:700">ミッション対話セッション</div>
+      <div class="chat">
+        <div class="chat-msg"><div class="chat-avatar ai">AI</div><div class="chat-bubble">これまでのキャリアで、最もやりがいを感じた瞬間を教えてください。</div></div>
+        <div class="chat-msg" style="justify-content:flex-end"><div class="chat-bubble" style="background:rgba(255,107,43,.15)">新規事業の立ち上げで、チームと一緒に0→1を作り上げた時です。</div><div class="chat-avatar user">You</div></div>
+        <div class="chat-msg"><div class="chat-avatar ai">AI</div><div class="chat-bubble"><div class="typing"><span></span><span></span><span></span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="features">
+<div class="container">
+  <div class="sec-eyebrow sans">Features</div>
+  <div class="sec-title">3つのフェーズで、ミッションを確立</div>
+  <div class="sec-desc">AIが導く体系的なプログラムで、内定者一人ひとりに最適化されたミッション発見の旅を提供します。</div>
+
+  <div class="feature-row">
+    <div class="feature-visual">🔍</div>
+    <div class="feature-content">
+      <div class="tag sans">Phase 01</div>
+      <h3>Mission Discovery</h3>
+      <p>あなたの原体験・価値観・強みをAI対話で深掘りし、キャリアの根幹にある「動機」を明らかにします。</p>
+      <ul class="feature-list sans">
+        <li>パーソナリティ分析と価値観マッピング</li>
+        <li>キャリアストーリーの再構築</li>
+        <li>潜在的な強みの発見</li>
+      </ul>
+    </div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-visual">🏛️</div>
+    <div class="feature-content">
+      <div class="tag sans">Phase 02</div>
+      <h3>Culture Immersion</h3>
+      <p>入社先のカルチャー・ビジョン・チーム構成をAIが分析。あなたとの最適な接点を見つけ出します。</p>
+      <ul class="feature-list sans">
+        <li>企業カルチャーの多角的分析</li>
+        <li>チームダイナミクスの把握</li>
+        <li>バリューフィット診断</li>
+      </ul>
+    </div>
+  </div>
+  <div class="feature-row">
+    <div class="feature-visual">✨</div>
+    <div class="feature-content">
+      <div class="tag sans">Phase 03</div>
+      <h3>Mission Statement</h3>
+      <p>発見と理解を統合し、入社初日に語れる「自分だけのミッションステートメント」を言語化します。</p>
+      <ul class="feature-list sans">
+        <li>パーソナルミッションの言語化支援</li>
+        <li>90日アクションプランの作成</li>
+        <li>Day1プレゼンテーション準備</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="alt" id="data">
+<div class="container">
+  <div class="sec-eyebrow sans">Impact</div>
+  <div class="sec-title">導入効果</div>
+  <div class="sec-desc">Pre-Onboarding Mission導入企業における平均的な改善効果です。</div>
+  <div class="data-showcase">
+    <div class="data-item"><div class="data-number">93<span>%</span></div><div class="data-text sans">入社後エンゲージメント<br>スコア向上</div></div>
+    <div class="data-item"><div class="data-number">-67<span>%</span></div><div class="data-text sans">1年以内<br>早期離職率</div></div>
+    <div class="data-item"><div class="data-number">2.4<span>x</span></div><div class="data-text sans">オンボーディング<br>満足度</div></div>
+    <div class="data-item"><div class="data-number">500<span>+</span></div><div class="data-text sans">導入企業数</div></div>
+  </div>
+</div>
+</section>
+
+<section id="pricing">
+<div class="container">
+  <div class="sec-eyebrow sans">Pricing</div>
+  <div class="sec-title">料金プラン</div>
+  <div class="sec-desc">企業規模やニーズに合わせてお選びいただけます。</div>
+  <div class="pricing-grid sans">
+    <div class="price-col">
+      <div class="price-tier">Starter</div>
+      <div class="price-val">¥50,000<small>/月</small></div>
+      <div class="price-per">年間50名まで</div>
+      <ul class="price-list">
+        <li>基本AI対話テンプレート</li>
+        <li>ミッションステートメント生成</li>
+        <li>管理ダッシュボード</li>
+        <li>メールサポート</li>
+      </ul>
+      <a href="#cta" class="btn-plan btn-plan-outline">お問い合わせ</a>
+    </div>
+    <div class="price-col featured">
+      <div class="price-tier">Professional</div>
+      <div class="price-val">¥150,000<small>/月</small></div>
+      <div class="price-per">年間200名まで</div>
+      <ul class="price-list">
+        <li>カスタムAI対話シナリオ</li>
+        <li>カルチャーイマージョン</li>
+        <li>詳細分析レポート</li>
+        <li>専任CSサポート</li>
+        <li>API / HRIS連携</li>
+      </ul>
+      <a href="#cta" class="btn-plan btn-plan-fill">お問い合わせ</a>
+    </div>
+    <div class="price-col">
+      <div class="price-tier">Enterprise</div>
+      <div class="price-val">要相談</div>
+      <div class="price-per">無制限・フルカスタマイズ</div>
+      <ul class="price-list">
+        <li>全機能アクセス</li>
+        <li>専用AIモデル構築</li>
+        <li>SSO / SAML / SCIM</li>
+        <li>オンプレミス対応</li>
+        <li>SLA保証</li>
+      </ul>
+      <a href="#cta" class="btn-plan btn-plan-outline">お問い合わせ</a>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="final-cta" id="cta">
+<div class="container" style="position:relative">
+  <h2>入社前の"空白"を、<br>最高の"準備期間"に。</h2>
+  <p>Pre-Onboarding Missionで、内定者のDay1を変えませんか。</p>
+  <a href="#" class="btn-gold sans" style="font-size:17px;padding:20px 52px">無料デモを予約する</a>
+</div>
+</section>
+
+<footer class="sans"><div class="container">© 2026 Pre-Onboarding Mission. All rights reserved.</div></footer>
+
+<script>
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>80)});
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));t&&t.scrollIntoView({behavior:'smooth'})})});
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)'}})},{threshold:.15});
+document.querySelectorAll('.feature-row,.data-item,.price-col').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(30px)';el.style.transition='opacity .6s ease,transform .6s ease';obs.observe(el)});
+</script>
+</body>
+</html>
