@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EC Stock Advisor - プレミアム投資体験</title>
+    <title>EC Stock Advisor - Premium Investment Intelligence</title>
     <style>
         * {
             margin: 0;
@@ -12,10 +12,11 @@
         }
         
         body {
-            font-family: 'Hiragino Kaku Gothic ProN', 'Helvetica Neue', Arial, sans-serif;
-            color: #1A1A2E;
-            background: #FFFFFF;
-            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            color: #FFFFFF;
+            background: #0a0a1a;
+            line-height: 1.7;
+            overflow-x: hidden;
         }
         
         .container {
@@ -24,211 +25,155 @@
             padding: 0 40px;
         }
         
-        /* Header */
-        header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 24px 0;
-            position: sticky;
+        /* Animated Background */
+        .bg-gradient {
+            position: fixed;
             top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 20px rgba(15, 76, 129, 0.05);
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #0F4C81 0%, #00C49A 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .cta-button {
-            background: linear-gradient(135deg, #00C49A 0%, #00a885 100%);
-            color: #FFFFFF;
-            padding: 14px 40px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.4s;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            box-shadow: 0 4px 15px rgba(0, 196, 154, 0.3);
-        }
-        
-        .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 196, 154, 0.4);
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(15, 76, 129, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(0, 196, 154, 0.1) 0%, transparent 50%),
+                        linear-gradient(180deg, #0a0a1a 0%, #0d0d24 50%, #0a0a1a 100%);
+            z-index: -1;
         }
         
         /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, #0F4C81 0%, #0a3a5f 50%, #00C49A 100%);
-            padding: 120px 0 160px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             position: relative;
-            overflow: hidden;
+            padding: 100px 0;
         }
         
-        .hero::before {
-            content: '';
+        .ticker-container {
             position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(0, 196, 154, 0.2) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
+            top: 20%;
+            width: 100%;
+            overflow: hidden;
+            opacity: 0.3;
         }
         
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+        .ticker {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            gap: 60px;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        .ticker-item {
+            font-size: 18px;
+            white-space: nowrap;
+            color: #00C49A;
+            text-shadow: 0 0 10px rgba(0, 196, 154, 0.5);
+        }
+        
+        .ticker-item.down {
+            color: #FF6B6B;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
         }
         
         .hero-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: center;
             position: relative;
             z-index: 1;
+            text-align: center;
+            max-width: 1000px;
+            margin: 0 auto;
         }
         
-        .hero-text h1 {
-            font-size: 56px;
-            line-height: 1.2;
-            margin-bottom: 28px;
-            color: #FFFFFF;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .hero-text .highlight {
-            background: linear-gradient(135deg, #00C49A 0%, #00ffc3 100%);
+        .hero h1 {
+            font-size: 72px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            letter-spacing: -0.03em;
+            text-shadow: 0 0 30px rgba(0, 196, 154, 0.3);
+            background: linear-gradient(135deg, #FFFFFF 0%, #00C49A 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
-        .hero-text p {
-            font-size: 22px;
+        .hero-subtitle {
+            font-size: 24px;
+            margin-bottom: 50px;
+            opacity: 0.8;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        
+        .cta-glow {
+            display: inline-block;
+            background: linear-gradient(135deg, #00C49A 0%, #0F4C81 100%);
             color: #FFFFFF;
-            margin-bottom: 40px;
-            opacity: 0.9;
-        }
-        
-        .hero-buttons {
-            display: flex;
-            gap: 20px;
-        }
-        
-        .cta-button-white {
-            background: #FFFFFF;
-            color: #0F4C81;
-            padding: 16px 48px;
-            border-radius: 50px;
+            padding: 22px 70px;
+            font-size: 20px;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 18px;
-            transition: all 0.4s;
-            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
-        }
-        
-        .cta-button-white:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.4);
-        }
-        
-        .cta-button-outline {
-            background: transparent;
-            color: #FFFFFF;
-            padding: 16px 48px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 18px;
-            border: 2px solid #FFFFFF;
-            transition: all 0.4s;
-        }
-        
-        .cta-button-outline:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-3px);
-        }
-        
-        /* Chart Animation */
-        .chart-premium {
+            border-radius: 8px;
+            font-weight: 700;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 30px rgba(0, 196, 154, 0.4);
             position: relative;
-            width: 100%;
-            height: 450px;
+            overflow: hidden;
+        }
+        
+        .cta-glow::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .cta-glow:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 50px rgba(0, 196, 154, 0.6);
+        }
+        
+        /* Glass Card */
+        .glass-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 40px;
+            transition: all 0.4s ease;
         }
         
-        .chart-line-premium {
-            stroke: #00C49A;
-            stroke-width: 4;
-            fill: none;
-            filter: drop-shadow(0 0 8px rgba(0, 196, 154, 0.5));
-            stroke-dasharray: 1200;
-            stroke-dashoffset: 1200;
-            animation: drawLinePremium 3s ease-out forwards;
-        }
-        
-        @keyframes drawLinePremium {
-            to {
-                stroke-dashoffset: 0;
-            }
-        }
-        
-        .chart-gradient-premium {
-            opacity: 0.3;
-        }
-        
-        .chart-dot-premium {
-            fill: #00C49A;
-            filter: drop-shadow(0 0 5px rgba(0, 196, 154, 0.8));
-            animation: pulsePremium 2s ease-in-out infinite;
-        }
-        
-        @keyframes pulsePremium {
-            0%, 100% { r: 8; opacity: 1; }
-            50% { r: 12; opacity: 0.6; }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 196, 154, 0.3);
+            box-shadow: 0 0 20px rgba(0, 196, 154, 0.2);
+            transform: translateY(-5px);
         }
         
         /* Features Section */
         .features {
             padding: 120px 0;
-            background: #F7F9FC;
+            position: relative;
         }
         
         .section-title {
+            font-size: 56px;
             text-align: center;
-            font-size: 48px;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #0F4C81 0%, #00C49A 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .section-subtitle {
-            text-align: center;
-            font-size: 20px;
-            color: #1A1A2E;
-            opacity: 0.7;
-            margin-bottom: 80px;
+            margin-bottom: 100px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
         }
         
         .features-grid {
@@ -237,493 +182,561 @@
             gap: 40px;
         }
         
-        .feature-card-premium {
-            background: #FFFFFF;
-            padding: 50px;
-            border-radius: 20px;
-            transition: all 0.4s;
-            box-shadow: 0 10px 40px rgba(15, 76, 129, 0.08);
-            position: relative;
-            overflow: hidden;
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            margin-bottom: 30px;
         }
         
-        .feature-card-premium::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #00C49A 0%, #0F4C81 100%);
-            transform: scaleX(0);
-            transition: transform 0.4s;
-        }
-        
-        .feature-card-premium:hover::before {
-            transform: scaleX(1);
-        }
-        
-        .feature-card-premium:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 20px 60px rgba(15, 76, 129, 0.15);
-        }
-        
-        .feature-icon-premium {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #00C49A 0%, #00ffc3 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 28px;
-            font-size: 36px;
-            box-shadow: 0 8px 20px rgba(0, 196, 154, 0.3);
-        }
-        
-        .feature-card-premium h3 {
-            font-size: 26px;
-            margin-bottom: 18px;
-            color: #0F4C81;
-        }
-        
-        .feature-card-premium p {
-            color: #1A1A2E;
-            opacity: 0.7;
-            line-height: 1.8;
-            font-size: 16px;
-        }
-        
-        /* Pricing Section */
-        .pricing {
-            padding: 120px 0;
-            background: #FFFFFF;
-        }
-        
-        .pricing-table {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 40px;
-            margin-top: 80px;
-        }
-        
-        .pricing-card-premium {
-            background: linear-gradient(135deg, #F7F9FC 0%, #FFFFFF 100%);
-            border-radius: 24px;
-            padding: 50px;
-            text-align: center;
-            transition: all 0.4s;
-            border: 2px solid transparent;
-            position: relative;
-        }
-        
-        .pricing-card-premium.featured {
-            background: linear-gradient(135deg, #0F4C81 0%, #0a3a5f 100%);
-            border-color: #00C49A;
-            transform: scale(1.08);
-            box-shadow: 0 20px 60px rgba(15, 76, 129, 0.3);
-        }
-        
-        .pricing-card-premium.featured * {
-            color: #FFFFFF !important;
-        }
-        
-        .pricing-card-premium.featured .cta-button {
-            background: #00C49A;
-            color: #FFFFFF;
-        }
-        
-        .pricing-badge {
-            position: absolute;
-            top: -15px;
-            right: 30px;
-            background: #00C49A;
-            color: #FFFFFF;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(0, 196, 154, 0.4);
-        }
-        
-        .pricing-card-premium:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 20px 60px rgba(15, 76, 129, 0.15);
-        }
-        
-        .pricing-card-premium.featured:hover {
-            transform: scale(1.08) translateY(-12px);
-        }
-        
-        .plan-name {
+        .feature-card h3 {
             font-size: 28px;
             margin-bottom: 20px;
-            color: #0F4C81;
             font-weight: 700;
-        }
-        
-        .plan-price {
-            font-size: 56px;
-            font-weight: 700;
-            color: #1A1A2E;
-            margin-bottom: 12px;
-        }
-        
-        .plan-price span {
-            font-size: 22px;
-            color: #1A1A2E;
-            opacity: 0.6;
-        }
-        
-        .plan-features {
-            list-style: none;
-            margin: 40px 0;
-            text-align: left;
-        }
-        
-        .plan-features li {
-            padding: 16px 0;
-            border-bottom: 1px solid rgba(15, 76, 129, 0.1);
-            font-size: 16px;
-        }
-        
-        .plan-features li:before {
-            content: "✓";
             color: #00C49A;
-            font-weight: 700;
-            margin-right: 16px;
-            font-size: 18px;
         }
         
-        /* Stocks Section */
+        .feature-card p {
+            font-size: 17px;
+            line-height: 1.8;
+            opacity: 0.8;
+        }
+        
+        /* Chart Visualization */
+        .chart-section {
+            padding: 100px 0;
+            position: relative;
+        }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 60px;
+            text-align: center;
+        }
+        
+        .chart-svg {
+            width: 100%;
+            max-width: 900px;
+            height: 300px;
+            margin: 0 auto;
+        }
+        
+        /* Stocks Grid */
         .stocks {
             padding: 120px 0;
-            background: linear-gradient(180deg, #F7F9FC 0%, #FFFFFF 100%);
         }
         
         .stocks-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
+            gap: 30px;
             margin-top: 80px;
         }
         
-        .stock-card-premium {
-            background: #FFFFFF;
-            padding: 32px;
-            border-radius: 16px;
-            transition: all 0.4s;
-            box-shadow: 0 4px 20px rgba(15, 76, 129, 0.08);
-            position: relative;
-            overflow: hidden;
+        .stock-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px 25px;
+            text-align: center;
+            transition: all 0.3s ease;
         }
         
-        .stock-card-premium::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(180deg, #00C49A 0%, #0F4C81 100%);
-            transform: scaleY(0);
-            transition: transform 0.4s;
-        }
-        
-        .stock-card-premium:hover::before {
-            transform: scaleY(1);
-        }
-        
-        .stock-card-premium:hover {
-            transform: translateX(8px);
-            box-shadow: 0 8px 30px rgba(15, 76, 129, 0.15);
-        }
-        
-        .stock-code {
-            font-size: 14px;
-            color: #0F4C81;
-            font-weight: 700;
-            opacity: 0.7;
+        .stock-card:hover {
+            border-color: rgba(0, 196, 154, 0.5);
+            box-shadow: 0 0 25px rgba(0, 196, 154, 0.2);
+            transform: translateY(-3px);
         }
         
         .stock-name {
             font-size: 20px;
             font-weight: 700;
-            margin: 12px 0;
-            color: #1A1A2E;
+            margin-bottom: 8px;
+        }
+        
+        .stock-code {
+            font-size: 15px;
+            opacity: 0.6;
+            margin-bottom: 15px;
         }
         
         .stock-change {
             font-size: 18px;
-            font-weight: 700;
+            font-weight: 600;
             color: #00C49A;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .stock-change::before {
-            content: '▲';
-            font-size: 12px;
         }
         
         .stock-change.down {
             color: #FF6B6B;
         }
         
-        .stock-change.down::before {
-            content: '▼';
+        /* Pricing Section */
+        .pricing {
+            padding: 120px 0;
+            position: relative;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 80px;
+        }
+        
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 60px 45px;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+        
+        .pricing-card.premium {
+            background: rgba(255, 215, 0, 0.08);
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .pricing-card.premium::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #0a0a1a;
+            padding: 8px 30px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+        }
+        
+        .pricing-card:hover {
+            border-color: rgba(0, 196, 154, 0.5);
+            box-shadow: 0 0 30px rgba(0, 196, 154, 0.2);
+        }
+        
+        .plan-name {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -0.01em;
+        }
+        
+        .plan-price {
+            font-size: 64px;
+            font-weight: 800;
+            color: #00C49A;
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+        
+        .pricing-card.premium .plan-price {
+            color: #FFD700;
+        }
+        
+        .plan-period {
+            font-size: 18px;
+            opacity: 0.6;
+            margin-bottom: 40px;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 50px;
+            text-align: left;
+        }
+        
+        .plan-features li {
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 17px;
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .plan-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #00C49A;
+            font-weight: 700;
+        }
+        
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .plan-cta {
+            display: block;
+            background: linear-gradient(135deg, #00C49A 0%, #0F4C81 100%);
+            color: #FFFFFF;
+            padding: 18px 50px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 196, 154, 0.3);
+        }
+        
+        .plan-cta:hover {
+            box-shadow: 0 0 35px rgba(0, 196, 154, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .pricing-card.premium .plan-cta {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #0a0a1a;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+        }
+        
+        .pricing-card.premium .plan-cta:hover {
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
         }
         
         /* CTA Section */
         .cta-section {
-            padding: 120px 0;
-            background: linear-gradient(135deg, #0F4C81 0%, #0a3a5f 50%, #00C49A 100%);
+            padding: 140px 0;
             text-align: center;
-            color: #FFFFFF;
             position: relative;
-            overflow: hidden;
-        }
-        
-        .cta-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -10%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: float 8s ease-in-out infinite;
+            background: radial-gradient(circle at center, rgba(0, 196, 154, 0.1) 0%, transparent 70%);
         }
         
         .cta-section h2 {
-            font-size: 48px;
-            margin-bottom: 28px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            font-size: 56px;
+            margin-bottom: 30px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
         }
         
         .cta-section p {
             font-size: 22px;
-            margin-bottom: 48px;
-            opacity: 0.9;
+            margin-bottom: 60px;
+            opacity: 0.8;
         }
         
         /* Footer */
         footer {
-            background: #1A1A2E;
-            color: #FFFFFF;
-            padding: 50px 0;
+            padding: 60px 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
         }
         
         footer p {
             opacity: 0.6;
-            font-size: 14px;
+            font-size: 15px;
         }
         
         /* Responsive */
-        @media (max-width: 768px) {
-            .hero-content {
-                grid-template-columns: 1fr;
+        @media (max-width: 1200px) {
+            .hero h1 {
+                font-size: 56px;
             }
             
-            .hero-text h1 {
+            .features-grid, .pricing-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .stocks-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .pricing-card.premium {
+                transform: scale(1);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            
+            .hero h1 {
+                font-size: 40px;
+            }
+            
+            .hero-subtitle {
+                font-size: 18px;
+            }
+            
+            .section-title {
                 font-size: 36px;
             }
             
-            .features-grid,
-            .pricing-table,
             .stocks-grid {
                 grid-template-columns: 1fr;
             }
             
-            .pricing-card-premium.featured {
-                transform: scale(1);
+            .features, .stocks, .pricing, .cta-section {
+                padding: 80px 0;
             }
             
-            .hero-buttons {
-                flex-direction: column;
+            .chart-container {
+                padding: 30px 20px;
             }
-            
-            .container {
-                padding: 0 20px;
-            }
+        }
+        
+        /* Pulse Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">💎 EC Stock Advisor</div>
-                <a href="#cta" class="cta-button">無料トライアル</a>
+    <div class="bg-gradient"></div>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="ticker-container">
+            <div class="ticker">
+                <span class="ticker-item">楽天G ¥1,245 <span style="color: #00C49A;">+2.3%</span></span>
+                <span class="ticker-item">ZOZO ¥3,890 <span style="color: #00C49A;">+1.8%</span></span>
+                <span class="ticker-item down">メルカリ ¥5,420 <span style="color: #FF6B6B;">-0.5%</span></span>
+                <span class="ticker-item">BASE ¥2,150 <span style="color: #00C49A;">+3.2%</span></span>
+                <span class="ticker-item">MonotaRO ¥1,890 <span style="color: #00C49A;">+1.1%</span></span>
+                <span class="ticker-item down">カカクコム ¥2,340 <span style="color: #FF6B6B;">-1.2%</span></span>
+                <span class="ticker-item">Zホールディングス ¥456 <span style="color: #00C49A;">+0.9%</span></span>
+                <span class="ticker-item">BEENOS ¥1,678 <span style="color: #00C49A;">+2.7%</span></span>
+                <!-- Duplicate for seamless scroll -->
+                <span class="ticker-item">楽天G ¥1,245 <span style="color: #00C49A;">+2.3%</span></span>
+                <span class="ticker-item">ZOZO ¥3,890 <span style="color: #00C49A;">+1.8%</span></span>
+                <span class="ticker-item down">メルカリ ¥5,420 <span style="color: #FF6B6B;">-0.5%</span></span>
+                <span class="ticker-item">BASE ¥2,150 <span style="color: #00C49A;">+3.2%</span></span>
+                <span class="ticker-item">MonotaRO ¥1,890 <span style="color: #00C49A;">+1.1%</span></span>
+                <span class="ticker-item down">カカクコム ¥2,340 <span style="color: #FF6B6B;">-1.2%</span></span>
+                <span class="ticker-item">Zホールディングス ¥456 <span style="color: #00C49A;">+0.9%</span></span>
+                <span class="ticker-item">BEENOS ¥1,678 <span style="color: #00C49A;">+2.7%</span></span>
             </div>
         </div>
-    </header>
-
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h1><span class="highlight">データドリブン</span>で<br>投資を次のステージへ</h1>
-                    <p>EC業界に特化したプロフェッショナル投資プラットフォーム</p>
-                    <div class="hero-buttons">
-                        <a href="#cta" class="cta-button-white">14日間無料トライアル</a>
-                        <a href="#features" class="cta-button-outline">詳しく見る</a>
-                    </div>
-                </div>
-                <div class="chart-premium">
-                    <svg width="100%" height="100%" viewBox="0 0 600 400">
-                        <defs>
-                            <linearGradient id="gradient2" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#00C49A;stop-opacity:0.4" />
-                                <stop offset="100%" style="stop-color:#00C49A;stop-opacity:0" />
-                            </linearGradient>
-                        </defs>
-                        <path class="chart-line-premium" d="M 30 320 Q 80 300, 130 260 T 230 200 T 330 140 T 430 100 T 530 50" />
-                        <path class="chart-gradient-premium" d="M 30 320 Q 80 300, 130 260 T 230 200 T 330 140 T 430 100 T 530 50 L 530 380 L 30 380 Z" fill="url(#gradient2)" />
-                        <circle class="chart-dot-premium" cx="530" cy="50" r="8" />
-                    </svg>
-                </div>
-            </div>
+        
+        <div class="hero-content">
+            <div class="hero-subtitle">Premium Investment Intelligence</div>
+            <h1>EC市場を支配する、<br>次世代の投資戦略</h1>
+            <p style="font-size: 20px; opacity: 0.8; margin-bottom: 60px;">AIとビッグデータが生み出す、圧倒的な投資優位性。富裕層のためのプレミアム分析プラットフォーム。</p>
+            <a href="#pricing" class="cta-glow">エクスクルーシブアクセスを取得</a>
         </div>
     </section>
-
+    
+    <!-- Features Section -->
     <section class="features" id="features">
         <div class="container">
-            <h2 class="section-title">プレミアム機能</h2>
-            <p class="section-subtitle">最先端のテクノロジーで投資判断をサポート</p>
+            <h2 class="section-title">最先端のインテリジェンス</h2>
+            
             <div class="features-grid">
-                <div class="feature-card-premium">
-                    <div class="feature-icon-premium">📊</div>
-                    <h3>トレンドスコアリング</h3>
-                    <p>EC業界特化の独自アルゴリズムで、50以上の銘柄を多角的に分析。売上トレンド、市場シェア、成長性を統合スコア化します。</p>
+                <div class="glass-card feature-card">
+                    <svg class="feature-icon" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00C49A;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#0F4C81;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle cx="35" cy="35" r="30" fill="none" stroke="url(#grad1)" stroke-width="3"/>
+                        <polyline points="15,45 25,32 35,38 45,25 55,18" fill="none" stroke="#00C49A" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="25" cy="32" r="4" fill="#00C49A"/>
+                        <circle cx="35" cy="38" r="4" fill="#00C49A"/>
+                        <circle cx="45" cy="25" r="4" fill="#00C49A"/>
+                    </svg>
+                    <h3>トレンドスコア</h3>
+                    <p>独自開発のマルチファクターモデルにより、市場トレンドを定量化。機関投資家レベルの分析精度を提供します。</p>
                 </div>
-                <div class="feature-card-premium">
-                    <div class="feature-icon-premium">🤖</div>
+                
+                <div class="glass-card feature-card">
+                    <svg class="feature-icon" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="10" y="10" width="50" height="50" rx="8" fill="none" stroke="url(#grad1)" stroke-width="3"/>
+                        <path d="M20,35 L30,45 L50,25" fill="none" stroke="#00C49A" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="20" cy="20" r="3" fill="#00C49A" class="pulse"/>
+                        <circle cx="50" cy="20" r="3" fill="#00C49A" class="pulse"/>
+                    </svg>
                     <h3>AI投資提案</h3>
-                    <p>ディープラーニングモデルが過去10年のデータを学習。あなたのリスク許容度に合わせた最適なポートフォリオを提案します。</p>
+                    <p>深層学習モデルが膨大な市場データを解析。あなただけの投資戦略を、リアルタイムで最適化します。</p>
                 </div>
-                <div class="feature-card-premium">
-                    <div class="feature-icon-premium">🔔</div>
-                    <h3>リアルタイムアラート</h3>
-                    <p>株価急変動、決算発表、アナリストレポート、業界ニュースを瞬時に通知。スマホ・メール・Slackに対応。</p>
+                
+                <div class="glass-card feature-card">
+                    <svg class="feature-icon" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="35" cy="30" r="18" fill="none" stroke="url(#grad1)" stroke-width="3"/>
+                        <path d="M25,42 Q30,50 35,47 T45,42" fill="none" stroke="url(#grad1)" stroke-width="3"/>
+                        <circle cx="50" cy="15" r="10" fill="none" stroke="#FF6B6B" stroke-width="3"/>
+                        <line x1="45" y1="12" x2="55" y2="18" stroke="#FF6B6B" stroke-width="2"/>
+                        <line x1="55" y1="12" x2="45" y2="18" stroke="#FF6B6B" stroke-width="2"/>
+                    </svg>
+                    <h3>インスタントアラート</h3>
+                    <p>ミリ秒単位で市場を監視。重要な投資機会とリスクを、誰よりも早くキャッチします。</p>
                 </div>
             </div>
         </div>
     </section>
-
-    <section class="pricing">
+    
+    <!-- Chart Visualization -->
+    <section class="chart-section">
         <div class="container">
-            <h2 class="section-title">料金プラン</h2>
-            <p class="section-subtitle">あなたに最適なプランを選択</p>
-            <div class="pricing-table">
-                <div class="pricing-card-premium">
-                    <h3 class="plan-name">ベーシック</h3>
-                    <div class="plan-price">¥0<span>/月</span></div>
-                    <ul class="plan-features">
-                        <li>基本トレンドスコア閲覧</li>
-                        <li>週次業界レポート</li>
-                        <li>最大10銘柄監視</li>
-                        <li>メールサポート</li>
-                        <li>履歴データ30日間</li>
-                    </ul>
-                    <a href="#cta" class="cta-button">無料で始める</a>
-                </div>
-                <div class="pricing-card-premium featured">
-                    <div class="pricing-badge">人気No.1</div>
-                    <h3 class="plan-name">プレミアム</h3>
-                    <div class="plan-price">¥2,980<span>/月</span></div>
-                    <ul class="plan-features">
-                        <li>全機能フルアクセス</li>
-                        <li>AI投資提案（週次）</li>
-                        <li>リアルタイムアラート</li>
-                        <li>無制限銘柄監視</li>
-                        <li>優先サポート</li>
-                        <li>履歴データ無制限</li>
-                        <li>カスタムダッシュボード</li>
-                    </ul>
-                    <a href="#cta" class="cta-button">14日間無料トライアル</a>
-                </div>
-                <div class="pricing-card-premium">
-                    <h3 class="plan-name">エンタープライズ</h3>
-                    <div class="plan-price">¥9,800<span>/月</span></div>
-                    <ul class="plan-features">
-                        <li>プレミアム全機能</li>
-                        <li>専属アナリスト相談</li>
-                        <li>カスタムレポート作成</li>
-                        <li>API アクセス</li>
-                        <li>24/7 電話サポート</li>
-                        <li>複数ユーザーアカウント</li>
-                        <li>オンボーディング支援</li>
-                    </ul>
-                    <a href="#cta" class="cta-button">お問い合わせ</a>
-                </div>
+            <div class="chart-container">
+                <h3 style="font-size: 32px; margin-bottom: 50px; font-weight: 700;">リアルタイム市場分析</h3>
+                <svg class="chart-svg" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00C49A;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#00C49A;stop-opacity:0" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Grid -->
+                    <line x1="0" y1="250" x2="900" y2="250" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                    <line x1="0" y1="200" x2="900" y2="200" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                    <line x1="0" y1="150" x2="900" y2="150" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                    <line x1="0" y1="100" x2="900" y2="100" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                    <line x1="0" y1="50" x2="900" y2="50" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                    <!-- Chart Line -->
+                    <polyline
+                        points="0,240 100,220 200,180 300,160 400,140 500,120 600,100 700,80 800,60 900,40"
+                        fill="none"
+                        stroke="#00C49A"
+                        stroke-width="3"
+                        filter="drop-shadow(0 0 8px rgba(0,196,154,0.6))"
+                    />
+                    <!-- Area Fill -->
+                    <polygon
+                        points="0,240 100,220 200,180 300,160 400,140 500,120 600,100 700,80 800,60 900,40 900,250 0,250"
+                        fill="url(#chartGrad)"
+                    />
+                    <!-- Data Points -->
+                    <circle cx="300" cy="160" r="5" fill="#00C49A" filter="drop-shadow(0 0 6px rgba(0,196,154,0.8))"/>
+                    <circle cx="600" cy="100" r="5" fill="#00C49A" filter="drop-shadow(0 0 6px rgba(0,196,154,0.8))"/>
+                    <circle cx="900" cy="40" r="5" fill="#00C49A" filter="drop-shadow(0 0 6px rgba(0,196,154,0.8))"/>
+                </svg>
             </div>
         </div>
     </section>
-
+    
+    <!-- Stocks Section -->
     <section class="stocks">
         <div class="container">
-            <h2 class="section-title">対象銘柄</h2>
-            <p class="section-subtitle">EC業界を代表する上場企業を網羅</p>
+            <h2 class="section-title">プレミアム銘柄カバレッジ</h2>
+            
             <div class="stocks-grid">
-                <div class="stock-card-premium">
-                    <div class="stock-code">4755</div>
+                <div class="stock-card">
                     <div class="stock-name">楽天グループ</div>
-                    <div class="stock-change">+2.4%</div>
+                    <div class="stock-code">4755</div>
+                    <div class="stock-change">+2.3%</div>
                 </div>
-                <div class="stock-card-premium">
-                    <div class="stock-code">4385</div>
-                    <div class="stock-name">メルカリ</div>
-                    <div class="stock-change">+5.1%</div>
-                </div>
-                <div class="stock-card-premium">
-                    <div class="stock-code">3092</div>
+                <div class="stock-card">
                     <div class="stock-name">ZOZO</div>
-                    <div class="stock-change down">-1.2%</div>
-                </div>
-                <div class="stock-card-premium">
-                    <div class="stock-code">4689</div>
-                    <div class="stock-name">ヤフー</div>
+                    <div class="stock-code">3092</div>
                     <div class="stock-change">+1.8%</div>
                 </div>
-                <div class="stock-card-premium">
-                    <div class="stock-code">2432</div>
-                    <div class="stock-name">ディー・エヌ・エー</div>
-                    <div class="stock-change">+3.2%</div>
-                </div>
-                <div class="stock-card-premium">
-                    <div class="stock-code">3088</div>
-                    <div class="stock-name">マツモトキヨシHD</div>
+                <div class="stock-card">
+                    <div class="stock-name">メルカリ</div>
+                    <div class="stock-code">4385</div>
                     <div class="stock-change down">-0.5%</div>
                 </div>
-                <div class="stock-card-premium">
-                    <div class="stock-code">2782</div>
-                    <div class="stock-name">セリア</div>
-                    <div class="stock-change">+4.3%</div>
+                <div class="stock-card">
+                    <div class="stock-name">BASE</div>
+                    <div class="stock-code">4477</div>
+                    <div class="stock-change">+3.2%</div>
                 </div>
-                <div class="stock-card-premium">
-                    <div class="stock-code">3382</div>
-                    <div class="stock-name">セブン&アイHD</div>
+                <div class="stock-card">
+                    <div class="stock-name">MonotaRO</div>
+                    <div class="stock-code">3064</div>
+                    <div class="stock-change">+1.1%</div>
+                </div>
+                <div class="stock-card">
+                    <div class="stock-name">カカクコム</div>
+                    <div class="stock-code">2371</div>
+                    <div class="stock-change down">-1.2%</div>
+                </div>
+                <div class="stock-card">
+                    <div class="stock-name">Zホールディングス</div>
+                    <div class="stock-code">4689</div>
                     <div class="stock-change">+0.9%</div>
+                </div>
+                <div class="stock-card">
+                    <div class="stock-name">BEENOS</div>
+                    <div class="stock-code">3328</div>
+                    <div class="stock-change">+2.7%</div>
                 </div>
             </div>
         </div>
     </section>
-
-    <section class="cta-section" id="cta">
+    
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
         <div class="container">
-            <h2>今すぐプレミアム体験を</h2>
-            <p>14日間無料トライアル｜クレジットカード不要</p>
-            <a href="#" class="cta-button-white">無料で始める</a>
+            <h2 class="section-title">エクスクルーシブメンバーシップ</h2>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="plan-name">Essential</div>
+                    <div class="plan-price">¥9,800</div>
+                    <div class="plan-period">月額</div>
+                    <ul class="plan-features">
+                        <li>主要5銘柄分析</li>
+                        <li>トレンドスコア</li>
+                        <li>週次レポート</li>
+                        <li>基本アラート</li>
+                    </ul>
+                    <a href="#" class="plan-cta">今すぐ始める</a>
+                </div>
+                
+                <div class="pricing-card premium">
+                    <div class="plan-name">Elite</div>
+                    <div class="plan-price">¥24,800</div>
+                    <div class="plan-period">月額</div>
+                    <ul class="plan-features">
+                        <li>全銘柄完全カバレッジ</li>
+                        <li>AI投資提案（無制限）</li>
+                        <li>リアルタイムアラート</li>
+                        <li>日次プレミアムレポート</li>
+                        <li>優先サポート</li>
+                    </ul>
+                    <a href="#" class="plan-cta">Elite会員になる</a>
+                </div>
+                
+                <div class="pricing-card">
+                    <div class="plan-name">Platinum</div>
+                    <div class="plan-price">¥98,000</div>
+                    <div class="plan-period">月額</div>
+                    <ul class="plan-features">
+                        <li>Elite全機能</li>
+                        <li>カスタムAIモデル</li>
+                        <li>専任アナリスト</li>
+                        <li>API統合</li>
+                        <li>月次パーソナルコンサルティング</li>
+                    </ul>
+                    <a href="#" class="plan-cta">VIP相談を予約</a>
+                </div>
+            </div>
         </div>
     </section>
-
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>投資の未来は、今ここに</h2>
+            <p>トップ投資家が選ぶプラットフォーム。14日間、すべての機能を無料体験。</p>
+            <a href="#" class="cta-glow">プレミアムアクセスを取得</a>
+        </div>
+    </section>
+    
+    <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2026 EC Stock Advisor. All rights reserved. | プライバシーポリシー | 利用規約</p>
+            <p>&copy; 2026 EC Stock Advisor. Premium Investment Intelligence Platform.</p>
         </div>
     </footer>
 </body>

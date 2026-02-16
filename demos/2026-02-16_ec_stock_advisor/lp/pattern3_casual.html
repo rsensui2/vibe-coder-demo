@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EC Stock Advisor - 投資をもっと身近に</title>
+    <title>EC Stock Advisor - 初心者でも安心の株式投資サポート！</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,712 +15,830 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+            font-family: 'M PLUS Rounded 1c', -apple-system, sans-serif;
             color: #1A1A2E;
             background: #FFFFFF;
-            line-height: 1.7;
+            line-height: 1.8;
+            overflow-x: hidden;
         }
         
         .container {
-            max-width: 1100px;
+            max-width: 1300px;
             margin: 0 auto;
-            padding: 0 24px;
+            padding: 0 30px;
         }
         
-        /* Header */
-        header {
-            background: #FFFFFF;
-            padding: 20px 0;
-            position: sticky;
+        /* Decorative Background Elements */
+        .bg-decoration {
+            position: fixed;
+            width: 100%;
+            height: 100%;
             top: 0;
-            z-index: 100;
-            border-bottom: 2px solid #F7F9FC;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
         }
         
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.4;
         }
         
-        .logo {
-            font-size: 26px;
-            font-weight: 700;
-            color: #0F4C81;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            background: #E8F8F5;
+            top: -100px;
+            right: -50px;
         }
         
-        .logo-emoji {
-            font-size: 32px;
+        .circle-2 {
+            width: 200px;
+            height: 200px;
+            background: #FFF3E0;
+            top: 40%;
+            left: -80px;
         }
         
-        .cta-button {
-            background: #00C49A;
-            color: #FFFFFF;
-            padding: 12px 28px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-            font-size: 15px;
+        .circle-3 {
+            width: 250px;
+            height: 250px;
+            background: #F3E5F5;
+            bottom: 20%;
+            right: 10%;
         }
         
-        .cta-button:hover {
-            background: #00a885;
-            transform: scale(1.05);
+        .wave {
+            position: absolute;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #E8F8F5 0%, #FFF3E0 100%);
+            opacity: 0.3;
+            bottom: 0;
+            clip-path: ellipse(150% 100% at 50% 100%);
         }
         
         /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, #F7F9FC 0%, #e8f4f8 100%);
-            padding: 60px 0 80px;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            padding: 100px 0 80px;
             position: relative;
-            overflow: hidden;
-        }
-        
-        .hero::after {
-            content: '📈';
-            position: absolute;
-            top: 20%;
-            right: 5%;
-            font-size: 120px;
-            opacity: 0.1;
-            transform: rotate(15deg);
         }
         
         .hero-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 50px;
+            gap: 80px;
             align-items: center;
         }
         
         .hero-text h1 {
-            font-size: 42px;
+            font-size: 52px;
+            font-weight: 800;
             line-height: 1.3;
-            margin-bottom: 20px;
-            color: #0F4C81;
+            margin-bottom: 25px;
+            color: #1A1A2E;
         }
         
-        .hero-text .emoji-highlight {
-            font-size: 48px;
-            vertical-align: middle;
+        .hero-emoji {
+            font-size: 56px;
+            display: inline-block;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
         
         .hero-text p {
-            font-size: 18px;
-            color: #1A1A2E;
-            margin-bottom: 28px;
-            opacity: 0.8;
-        }
-        
-        .hero-features {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 32px;
-        }
-        
-        .hero-feature-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 16px;
-        }
-        
-        .hero-feature-item::before {
-            content: '✓';
-            background: #00C49A;
-            color: #FFFFFF;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-weight: 700;
-            font-size: 14px;
-        }
-        
-        /* Chart Animation */
-        .chart-casual {
-            position: relative;
-            width: 100%;
-            height: 350px;
-            background: #FFFFFF;
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 8px 24px rgba(15, 76, 129, 0.12);
-        }
-        
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        
-        .chart-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #0F4C81;
-        }
-        
-        .chart-value {
             font-size: 20px;
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #00C49A 0%, #0F4C81 100%);
+            color: #FFFFFF;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
             font-weight: 700;
-            color: #00C49A;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 196, 154, 0.3);
         }
         
-        .chart-line-casual {
-            stroke: #00C49A;
-            stroke-width: 3;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-dasharray: 1000;
-            stroke-dashoffset: 1000;
-            animation: drawLineCasual 2.5s ease-out forwards;
+        .cta-fun {
+            display: inline-block;
+            background: linear-gradient(135deg, #00C49A 0%, #0F4C81 100%);
+            color: #FFFFFF;
+            padding: 20px 50px;
+            font-size: 20px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 800;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 196, 154, 0.3);
+            animation: pulse-button 2s ease-in-out infinite;
         }
         
-        @keyframes drawLineCasual {
-            to {
-                stroke-dashoffset: 0;
-            }
+        @keyframes pulse-button {
+            0%, 100% { box-shadow: 0 8px 25px rgba(0, 196, 154, 0.3); }
+            50% { box-shadow: 0 8px 35px rgba(0, 196, 154, 0.5); }
         }
         
-        .chart-gradient-casual {
-            opacity: 0.2;
+        .cta-fun:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 35px rgba(0, 196, 154, 0.5);
         }
         
-        .chart-dot-casual {
-            fill: #00C49A;
-            animation: pulseCasual 2s ease-in-out infinite;
+        .hero-visual {
+            position: relative;
         }
         
-        @keyframes pulseCasual {
-            0%, 100% { r: 5; }
-            50% { r: 7; }
+        .hero-chart-container {
+            background: linear-gradient(135deg, #E8F8F5 0%, #FFF3E0 100%);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
         }
         
         /* Features Section */
         .features {
-            padding: 80px 0;
-            background: #FFFFFF;
+            padding: 100px 0;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F7F9FC 100%);
         }
         
         .section-title {
+            font-size: 48px;
             text-align: center;
-            font-size: 36px;
-            margin-bottom: 16px;
-            color: #0F4C81;
+            margin-bottom: 20px;
+            font-weight: 800;
+            color: #1A1A2E;
         }
         
         .section-subtitle {
             text-align: center;
-            font-size: 16px;
-            color: #1A1A2E;
-            opacity: 0.7;
-            margin-bottom: 60px;
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 70px;
         }
         
         .features-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
+            gap: 40px;
         }
         
-        .feature-card-casual {
+        .feature-bubble {
             background: #FFFFFF;
-            padding: 36px;
-            border-radius: 24px;
-            transition: all 0.3s;
-            border: 2px solid #F7F9FC;
-        }
-        
-        .feature-card-casual:hover {
-            transform: translateY(-8px);
-            border-color: #00C49A;
-            box-shadow: 0 12px 32px rgba(0, 196, 154, 0.15);
-        }
-        
-        .feature-icon-casual {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-        
-        .feature-card-casual h3 {
-            font-size: 22px;
-            margin-bottom: 12px;
-            color: #0F4C81;
-        }
-        
-        .feature-card-casual p {
-            color: #1A1A2E;
-            opacity: 0.7;
-            line-height: 1.7;
-            font-size: 15px;
-        }
-        
-        /* Pricing Section */
-        .pricing {
-            padding: 80px 0;
-            background: #F7F9FC;
-        }
-        
-        .pricing-table {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 28px;
-            margin-top: 60px;
-        }
-        
-        .pricing-card-casual {
-            background: #FFFFFF;
-            border-radius: 24px;
-            padding: 40px;
+            padding: 45px 35px;
+            border-radius: 25px;
             text-align: center;
-            transition: all 0.3s;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
             border: 3px solid transparent;
         }
         
-        .pricing-card-casual.featured {
-            border-color: #00C49A;
-            box-shadow: 0 12px 32px rgba(0, 196, 154, 0.2);
+        .feature-bubble:nth-child(1) {
+            border-color: #E8F8F5;
         }
         
-        .pricing-card-casual:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 32px rgba(15, 76, 129, 0.12);
+        .feature-bubble:nth-child(2) {
+            border-color: #FFF3E0;
         }
         
-        .plan-badge {
-            background: #00C49A;
-            color: #FFFFFF;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+        .feature-bubble:nth-child(3) {
+            border-color: #F3E5F5;
+        }
+        
+        .feature-bubble:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+        }
+        
+        .feature-emoji {
+            font-size: 64px;
+            margin-bottom: 20px;
             display: inline-block;
-            margin-bottom: 16px;
+            animation: bounce 3s ease-in-out infinite;
         }
         
-        .plan-name {
-            font-size: 24px;
-            margin-bottom: 12px;
+        .feature-bubble:nth-child(2) .feature-emoji {
+            animation-delay: 0.3s;
+        }
+        
+        .feature-bubble:nth-child(3) .feature-emoji {
+            animation-delay: 0.6s;
+        }
+        
+        .feature-bubble h3 {
+            font-size: 26px;
+            margin-bottom: 18px;
+            font-weight: 800;
             color: #0F4C81;
-            font-weight: 700;
         }
         
-        .plan-price {
-            font-size: 44px;
-            font-weight: 700;
-            color: #1A1A2E;
-            margin-bottom: 8px;
-        }
-        
-        .plan-price span {
-            font-size: 18px;
-            color: #1A1A2E;
-            opacity: 0.6;
-        }
-        
-        .plan-features {
-            list-style: none;
-            margin: 32px 0;
-            text-align: left;
-        }
-        
-        .plan-features li {
-            padding: 12px 0;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .plan-features li:before {
-            content: "✓";
-            color: #00C49A;
-            font-weight: 700;
-            background: rgba(0, 196, 154, 0.1);
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 12px;
+        .feature-bubble p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #666;
         }
         
         /* Stocks Section */
         .stocks {
-            padding: 80px 0;
+            padding: 100px 0;
             background: #FFFFFF;
         }
         
-        .stocks-grid {
+        .stocks-colorful-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            gap: 25px;
             margin-top: 60px;
         }
         
-        .stock-card-casual {
+        .stock-bubble {
             background: #FFFFFF;
-            padding: 24px;
+            padding: 30px 20px;
             border-radius: 20px;
-            transition: all 0.3s;
-            border: 2px solid #F7F9FC;
-            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 3px solid;
+            position: relative;
+            overflow: hidden;
         }
         
-        .stock-card-casual:hover {
-            transform: scale(1.05);
-            border-color: #00C49A;
-            box-shadow: 0 8px 24px rgba(0, 196, 154, 0.15);
+        .stock-bubble::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
-        .stock-code {
-            font-size: 12px;
-            color: #0F4C81;
-            font-weight: 600;
-            opacity: 0.7;
-            background: #F7F9FC;
-            padding: 4px 8px;
-            border-radius: 8px;
-            display: inline-block;
+        .stock-bubble:hover::before {
+            opacity: 1;
+        }
+        
+        .stock-bubble:nth-child(1) { border-color: #E8F8F5; }
+        .stock-bubble:nth-child(2) { border-color: #FFF3E0; }
+        .stock-bubble:nth-child(3) { border-color: #F3E5F5; }
+        .stock-bubble:nth-child(4) { border-color: #FFE8E8; }
+        .stock-bubble:nth-child(5) { border-color: #E8F4FF; }
+        .stock-bubble:nth-child(6) { border-color: #FFF8E8; }
+        .stock-bubble:nth-child(7) { border-color: #F0E8FF; }
+        .stock-bubble:nth-child(8) { border-color: #E8FFEF; }
+        
+        .stock-bubble:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stock-emoji {
+            font-size: 36px;
+            margin-bottom: 12px;
         }
         
         .stock-name {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 12px 0 8px 0;
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 6px;
             color: #1A1A2E;
         }
         
-        .stock-change {
-            font-size: 18px;
+        .stock-code {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 12px;
+        }
+        
+        .stock-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #00C49A 0%, #0F4C81 100%);
+            color: #FFFFFF;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 12px;
             font-weight: 700;
+        }
+        
+        /* Pricing Section */
+        .pricing {
+            padding: 100px 0;
+            background: linear-gradient(180deg, #F7F9FC 0%, #FFFFFF 100%);
+        }
+        
+        .pricing-fun-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 35px;
+            margin-top: 70px;
+        }
+        
+        .pricing-bubble {
+            background: #FFFFFF;
+            padding: 45px 35px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 12px 45px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 4px solid;
+            position: relative;
+        }
+        
+        .pricing-bubble:nth-child(1) {
+            border-color: #E8F8F5;
+        }
+        
+        .pricing-bubble:nth-child(2) {
+            border-color: #FFD700;
+            transform: scale(1.05);
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.3);
+        }
+        
+        .pricing-bubble:nth-child(3) {
+            border-color: #F3E5F5;
+        }
+        
+        .pricing-bubble:hover {
+            transform: translateY(-8px) scale(1.05);
+        }
+        
+        .pricing-bubble.recommended::before {
+            content: '🎉 初心者おすすめ！';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1A1A2E;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 800;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        .plan-emoji {
+            font-size: 56px;
+            margin-bottom: 20px;
+        }
+        
+        .plan-name {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #0F4C81;
+        }
+        
+        .plan-price {
+            font-size: 52px;
+            font-weight: 800;
             color: #00C49A;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            margin-bottom: 8px;
+            line-height: 1;
         }
         
-        .stock-change::before {
-            content: '↗';
+        .plan-period {
             font-size: 16px;
+            color: #999;
+            margin-bottom: 30px;
         }
         
-        .stock-change.down {
-            color: #FF6B6B;
+        .plan-features-fun {
+            list-style: none;
+            margin-bottom: 35px;
+            text-align: left;
         }
         
-        .stock-change.down::before {
-            content: '↘';
+        .plan-features-fun li {
+            padding: 14px 0;
+            border-bottom: 2px dashed #F0F0F0;
+            font-size: 16px;
+            position: relative;
+            padding-left: 35px;
+        }
+        
+        .plan-features-fun li::before {
+            content: '✨';
+            position: absolute;
+            left: 0;
+            font-size: 20px;
+        }
+        
+        .plan-features-fun li:last-child {
+            border-bottom: none;
+        }
+        
+        .plan-cta-fun {
+            display: block;
+            background: linear-gradient(135deg, #00C49A 0%, #0F4C81 100%);
+            color: #FFFFFF;
+            padding: 18px 40px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 196, 154, 0.3);
+        }
+        
+        .plan-cta-fun:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 196, 154, 0.4);
+        }
+        
+        .pricing-bubble.recommended .plan-cta-fun {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1A1A2E;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+        
+        /* Testimonial Section */
+        .testimonials {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #E8F8F5 0%, #FFF3E0 50%, #F3E5F5 100%);
+        }
+        
+        .testimonial-card {
+            background: #FFFFFF;
+            padding: 40px;
+            border-radius: 25px;
+            margin: 30px auto;
+            max-width: 800px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .testimonial-emoji {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .testimonial-text {
+            font-size: 18px;
+            line-height: 1.9;
+            margin-bottom: 25px;
+            color: #333;
+            font-style: italic;
+        }
+        
+        .testimonial-author {
+            font-weight: 700;
+            color: #0F4C81;
+            font-size: 16px;
         }
         
         /* CTA Section */
         .cta-section {
-            padding: 80px 0;
+            padding: 100px 0;
             background: linear-gradient(135deg, #0F4C81 0%, #00C49A 100%);
-            text-align: center;
             color: #FFFFFF;
-            border-radius: 32px;
-            margin: 40px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-section::before {
+            content: '📈';
+            position: absolute;
+            font-size: 300px;
+            opacity: 0.1;
+            top: -50px;
+            right: -50px;
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .cta-section h2 {
-            font-size: 36px;
-            margin-bottom: 16px;
+            font-size: 48px;
+            margin-bottom: 25px;
+            font-weight: 800;
         }
         
         .cta-section p {
-            font-size: 18px;
-            margin-bottom: 32px;
-            opacity: 0.9;
+            font-size: 22px;
+            margin-bottom: 50px;
+            opacity: 0.95;
         }
         
-        .cta-button-large {
+        .cta-big {
             background: #FFFFFF;
             color: #0F4C81;
-            padding: 18px 48px;
-            border-radius: 30px;
+            padding: 22px 60px;
+            font-size: 22px;
             text-decoration: none;
-            font-weight: 700;
-            font-size: 18px;
+            border-radius: 30px;
+            font-weight: 800;
             display: inline-block;
-            transition: all 0.3s;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
         
-        .cta-button-large:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-        }
-        
-        .cta-note {
-            margin-top: 20px;
-            font-size: 14px;
-            opacity: 0.8;
+        .cta-big:hover {
+            transform: scale(1.08);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
         }
         
         /* Footer */
-        footer {
-            background: #FFFFFF;
-            color: #1A1A2E;
-            padding: 40px 0;
-            text-align: center;
-            border-top: 2px solid #F7F9FC;
-        }
-        
-        footer p {
-            opacity: 0.6;
-            font-size: 14px;
-        }
-        
-        /* Fun Elements */
-        .fun-badge {
-            background: linear-gradient(135deg, #FF6B6B 0%, #FFB74D 100%);
+        .footer {
+            padding: 50px 0;
+            background: #1A1A2E;
             color: #FFFFFF;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            display: inline-block;
-            margin-left: 8px;
-            vertical-align: middle;
+            text-align: center;
+        }
+        
+        .footer-emoji {
+            font-size: 32px;
+            margin-bottom: 15px;
         }
         
         /* Responsive */
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .hero-content {
                 grid-template-columns: 1fr;
+                gap: 50px;
+            }
+            
+            .features-grid, .pricing-fun-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .stocks-colorful-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .pricing-bubble:nth-child(2) {
+                transform: scale(1);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
             }
             
             .hero-text h1 {
+                font-size: 36px;
+            }
+            
+            .section-title {
                 font-size: 32px;
             }
             
-            .features-grid,
-            .pricing-table,
-            .stocks-grid {
+            .stocks-colorful-grid {
                 grid-template-columns: 1fr;
             }
             
-            .chart-casual {
-                height: 250px;
-            }
-            
-            .cta-section {
-                border-radius: 0;
-                margin: 0;
+            .features, .stocks, .pricing, .testimonials, .cta-section {
+                padding: 60px 0;
             }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <span class="logo-emoji">📊</span>
-                    <span>EC Stock Advisor</span>
-                </div>
-                <a href="#cta" class="cta-button">無料で試す</a>
-            </div>
-        </div>
-    </header>
-
+    <div class="bg-decoration">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+        <div class="wave"></div>
+    </div>
+    
+    <!-- Hero Section -->
     <section class="hero">
         <div class="container">
             <div class="hero-content">
                 <div class="hero-text">
-                    <h1><span class="emoji-highlight">📈</span> EC業界の株、<br>もっと賢く投資しよう</h1>
-                    <p>難しいデータ分析はAIにおまかせ。初心者でも安心して始められる投資プラットフォーム</p>
-                    <div class="hero-features">
-                        <div class="hero-feature-item">EC業界特化の銘柄分析</div>
-                        <div class="hero-feature-item">AIが最適な投資を提案</div>
-                        <div class="hero-feature-item">大事なタイミングを通知</div>
-                    </div>
-                    <a href="#cta" class="cta-button">無料で始める</a>
-                    <span class="fun-badge">14日間無料</span>
+                    <div class="badge">📊 初心者でも安心！</div>
+                    <h1>
+                        <span class="hero-emoji">🛒</span>
+                        EC株投資を、<br>もっと楽しく、<br>もっとカンタンに！
+                    </h1>
+                    <p>楽天、ZOZO、メルカリなど人気のEC銘柄をAIが分析！投資初心者でも安心して始められる、優しい株式投資サポートサービスです 💰</p>
+                    <a href="#pricing" class="cta-fun">14日間無料で試してみる 🎉</a>
                 </div>
-                <div class="chart-casual">
-                    <div class="chart-header">
-                        <span class="chart-title">📊 ポートフォリオ成長率</span>
-                        <span class="chart-value">+24.8%</span>
+                <div class="hero-visual">
+                    <div class="hero-chart-container">
+                        <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="funGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#00C49A;stop-opacity:0.8" />
+                                    <stop offset="100%" style="stop-color:#0F4C81;stop-opacity:0.8" />
+                                </linearGradient>
+                            </defs>
+                            <!-- Fun wavy chart -->
+                            <path d="M0,200 Q50,150 100,160 T200,140 T300,120 T400,100" 
+                                  fill="none" 
+                                  stroke="url(#funGrad)" 
+                                  stroke-width="5" 
+                                  stroke-linecap="round"/>
+                            <circle cx="100" cy="160" r="8" fill="#00C49A"/>
+                            <circle cx="200" cy="140" r="8" fill="#00C49A"/>
+                            <circle cx="300" cy="120" r="8" fill="#00C49A"/>
+                            <circle cx="400" cy="100" r="8" fill="#00C49A"/>
+                            <!-- Emoji decorations -->
+                            <text x="100" y="140" font-size="24">📈</text>
+                            <text x="200" y="120" font-size="24">💰</text>
+                            <text x="300" y="100" font-size="24">✨</text>
+                        </svg>
                     </div>
-                    <svg width="100%" height="280" viewBox="0 0 500 280">
-                        <defs>
-                            <linearGradient id="gradient3" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#00C49A;stop-opacity:0.25" />
-                                <stop offset="100%" style="stop-color:#00C49A;stop-opacity:0" />
-                            </linearGradient>
-                        </defs>
-                        <path class="chart-line-casual" d="M 20 220 Q 60 210, 100 180 T 180 140 T 260 100 T 340 70 T 420 40" />
-                        <path class="chart-gradient-casual" d="M 20 220 Q 60 210, 100 180 T 180 140 T 260 100 T 340 70 T 420 40 L 420 260 L 20 260 Z" fill="url(#gradient3)" />
-                        <circle class="chart-dot-casual" cx="420" cy="40" r="5" />
-                    </svg>
                 </div>
             </div>
         </div>
     </section>
-
-    <section class="features">
+    
+    <!-- Features Section -->
+    <section class="features" id="features">
         <div class="container">
-            <h2 class="section-title">選ばれる3つの理由</h2>
-            <p class="section-subtitle">投資初心者から経験者まで、みんなが使いやすい</p>
+            <h2 class="section-title">🌟 3つの安心機能</h2>
+            <p class="section-subtitle">投資が初めてでも大丈夫！わかりやすくサポートします</p>
+            
             <div class="features-grid">
-                <div class="feature-card-casual">
-                    <div class="feature-icon-casual">📊</div>
+                <div class="feature-bubble">
+                    <div class="feature-emoji">📊</div>
                     <h3>トレンドスコア</h3>
-                    <p>EC業界の銘柄を独自のスコアでランキング。今注目すべき企業がひと目でわかります。</p>
+                    <p>難しい数字はAIにおまかせ！EC株のトレンドをわかりやすく点数化。今が買い時かどうかひと目でわかります♪</p>
                 </div>
-                <div class="feature-card-casual">
-                    <div class="feature-icon-casual">🤖</div>
+                
+                <div class="feature-bubble">
+                    <div class="feature-emoji">🤖</div>
                     <h3>AI投資アドバイス</h3>
-                    <p>あなたの予算とリスク許容度に合わせて、AIが最適な投資プランを提案。難しい分析は不要です。</p>
+                    <p>「買う？」「売る？」「待つ？」AIがあなたに最適なタイミングを教えてくれます。初心者の強い味方！</p>
                 </div>
-                <div class="feature-card-casual">
-                    <div class="feature-icon-casual">🔔</div>
-                    <h3>見逃さないアラート</h3>
-                    <p>株価の変動、決算発表、業界ニュースをスマホに通知。忙しくてもチャンスを逃しません。</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="pricing">
-        <div class="container">
-            <h2 class="section-title">シンプルな料金プラン</h2>
-            <p class="section-subtitle">まずは無料で試してみてください</p>
-            <div class="pricing-table">
-                <div class="pricing-card-casual">
-                    <h3 class="plan-name">無料プラン</h3>
-                    <div class="plan-price">¥0<span>/月</span></div>
-                    <ul class="plan-features">
-                        <li>基本的なトレンドスコア</li>
-                        <li>週1回のレポート</li>
-                        <li>10銘柄まで登録OK</li>
-                        <li>メールで質問できる</li>
-                    </ul>
-                    <a href="#cta" class="cta-button">今すぐ始める</a>
-                </div>
-                <div class="pricing-card-casual featured">
-                    <span class="plan-badge">おすすめ！</span>
-                    <h3 class="plan-name">プレミアム</h3>
-                    <div class="plan-price">¥2,980<span>/月</span></div>
-                    <ul class="plan-features">
-                        <li>すべての機能が使える</li>
-                        <li>AIの投資提案が受けられる</li>
-                        <li>リアルタイム通知</li>
-                        <li>銘柄登録数無制限</li>
-                        <li>優先サポート</li>
-                    </ul>
-                    <a href="#cta" class="cta-button">14日間無料で試す</a>
-                </div>
-                <div class="pricing-card-casual">
-                    <h3 class="plan-name">ビジネス</h3>
-                    <div class="plan-price">¥9,800<span>/月</span></div>
-                    <ul class="plan-features">
-                        <li>プレミアムの全機能</li>
-                        <li>専門家に相談できる</li>
-                        <li>カスタムレポート</li>
-                        <li>API連携</li>
-                        <li>24時間電話サポート</li>
-                    </ul>
-                    <a href="#cta" class="cta-button">詳しく聞く</a>
+                
+                <div class="feature-bubble">
+                    <div class="feature-emoji">🔔</div>
+                    <h3>リアルタイム通知</h3>
+                    <p>大事な値動きはスマホにお知らせ！チャンスを逃さないから、忙しいあなたでも安心です。</p>
                 </div>
             </div>
         </div>
     </section>
-
+    
+    <!-- Stocks Section -->
     <section class="stocks">
         <div class="container">
-            <h2 class="section-title">こんな銘柄を分析しています</h2>
-            <p class="section-subtitle">EC業界を代表する企業を網羅</p>
-            <div class="stocks-grid">
-                <div class="stock-card-casual">
-                    <div class="stock-code">4755</div>
+            <h2 class="section-title">🏪 人気のEC銘柄を全部カバー！</h2>
+            <p class="section-subtitle">あなたが知ってるあのサービスの株も分析できます</p>
+            
+            <div class="stocks-colorful-grid">
+                <div class="stock-bubble">
+                    <div class="stock-emoji">🏬</div>
                     <div class="stock-name">楽天グループ</div>
-                    <div class="stock-change">+2.4%</div>
+                    <div class="stock-code">4755</div>
+                    <div class="stock-tag">人気</div>
                 </div>
-                <div class="stock-card-casual">
-                    <div class="stock-code">4385</div>
-                    <div class="stock-name">メルカリ</div>
-                    <div class="stock-change">+5.1%</div>
-                </div>
-                <div class="stock-card-casual">
-                    <div class="stock-code">3092</div>
+                <div class="stock-bubble">
+                    <div class="stock-emoji">👗</div>
                     <div class="stock-name">ZOZO</div>
-                    <div class="stock-change down">-1.2%</div>
+                    <div class="stock-code">3092</div>
+                    <div class="stock-tag">ファッション</div>
                 </div>
-                <div class="stock-card-casual">
+                <div class="stock-bubble">
+                    <div class="stock-emoji">📦</div>
+                    <div class="stock-name">メルカリ</div>
+                    <div class="stock-code">4385</div>
+                    <div class="stock-tag">フリマ</div>
+                </div>
+                <div class="stock-bubble">
+                    <div class="stock-emoji">🛍️</div>
+                    <div class="stock-name">BASE</div>
+                    <div class="stock-code">4477</div>
+                    <div class="stock-tag">ネットショップ</div>
+                </div>
+                <div class="stock-bubble">
+                    <div class="stock-emoji">🔧</div>
+                    <div class="stock-name">MonotaRO</div>
+                    <div class="stock-code">3064</div>
+                    <div class="stock-tag">工具・資材</div>
+                </div>
+                <div class="stock-bubble">
+                    <div class="stock-emoji">💻</div>
+                    <div class="stock-name">カカクコム</div>
+                    <div class="stock-code">2371</div>
+                    <div class="stock-tag">価格比較</div>
+                </div>
+                <div class="stock-bubble">
+                    <div class="stock-emoji">🌐</div>
+                    <div class="stock-name">Zホールディングス</div>
                     <div class="stock-code">4689</div>
-                    <div class="stock-name">ヤフー</div>
-                    <div class="stock-change">+1.8%</div>
+                    <div class="stock-tag">Yahoo!</div>
                 </div>
-                <div class="stock-card-casual">
-                    <div class="stock-code">2432</div>
-                    <div class="stock-name">ディー・エヌ・エー</div>
-                    <div class="stock-change">+3.2%</div>
-                </div>
-                <div class="stock-card-casual">
-                    <div class="stock-code">3088</div>
-                    <div class="stock-name">マツモトキヨシHD</div>
-                    <div class="stock-change down">-0.5%</div>
-                </div>
-                <div class="stock-card-casual">
-                    <div class="stock-code">2782</div>
-                    <div class="stock-name">セリア</div>
-                    <div class="stock-change">+4.3%</div>
-                </div>
-                <div class="stock-card-casual">
-                    <div class="stock-code">3382</div>
-                    <div class="stock-name">セブン&アイHD</div>
-                    <div class="stock-change">+0.9%</div>
+                <div class="stock-bubble">
+                    <div class="stock-emoji">🌏</div>
+                    <div class="stock-name">BEENOS</div>
+                    <div class="stock-code">3328</div>
+                    <div class="stock-tag">越境EC</div>
                 </div>
             </div>
         </div>
     </section>
-
-    <section class="cta-section" id="cta">
+    
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
         <div class="container">
-            <h2>さあ、投資を始めよう 🚀</h2>
-            <p>EC業界の成長を、あなたの資産に変えるチャンス</p>
-            <a href="#" class="cta-button-large">無料で14日間試してみる</a>
-            <p class="cta-note">クレジットカード登録不要 | いつでもキャンセルOK</p>
+            <h2 class="section-title">💰 お財布に優しい料金プラン</h2>
+            <p class="section-subtitle">自分に合ったプランを選べます！いつでも変更OK</p>
+            
+            <div class="pricing-fun-grid">
+                <div class="pricing-bubble">
+                    <div class="plan-emoji">🌱</div>
+                    <div class="plan-name">お試しプラン</div>
+                    <div class="plan-price">¥9,800</div>
+                    <div class="plan-period">月額</div>
+                    <ul class="plan-features-fun">
+                        <li>人気5銘柄の分析</li>
+                        <li>トレンドスコア</li>
+                        <li>週1回のレポート</li>
+                        <li>基本的なアラート</li>
+                    </ul>
+                    <a href="#" class="plan-cta-fun">まずはこれから！</a>
+                </div>
+                
+                <div class="pricing-bubble recommended">
+                    <div class="plan-emoji">⭐</div>
+                    <div class="plan-name">人気プラン</div>
+                    <div class="plan-price">¥24,800</div>
+                    <div class="plan-period">月額</div>
+                    <ul class="plan-features-fun">
+                        <li>全銘柄フル分析</li>
+                        <li>AI投資アドバイス（無制限）</li>
+                        <li>リアルタイム通知</li>
+                        <li>毎日レポート配信</li>
+                        <li>優先サポート</li>
+                    </ul>
+                    <a href="#" class="plan-cta-fun">これがおすすめ！</a>
+                </div>
+                
+                <div class="pricing-bubble">
+                    <div class="plan-emoji">👑</div>
+                    <div class="plan-name">プレミアムプラン</div>
+                    <div class="plan-price">¥98,000</div>
+                    <div class="plan-period">月額</div>
+                    <ul class="plan-features-fun">
+                        <li>人気プランの全機能</li>
+                        <li>あなた専用AI分析</li>
+                        <li>プロのアナリストサポート</li>
+                        <li>API連携</li>
+                        <li>月1回の個別相談</li>
+                    </ul>
+                    <a href="#" class="plan-cta-fun">本格派はこれ！</a>
+                </div>
+            </div>
         </div>
     </section>
-
-    <footer>
+    
+    <!-- Testimonials Section -->
+    <section class="testimonials">
         <div class="container">
-            <p>&copy; 2026 EC Stock Advisor. すべての権利を保有しています。</p>
+            <h2 class="section-title">😊 利用者の声</h2>
+            
+            <div class="testimonial-card">
+                <div class="testimonial-emoji">👨‍💼</div>
+                <p class="testimonial-text">「投資なんて難しそう…」と思っていましたが、EC Stock Advisorのおかげで楽しく始められました！AIが教えてくれるから安心です。</p>
+                <div class="testimonial-author">田中さん（28歳・会社員）</div>
+            </div>
+            
+            <div class="testimonial-card">
+                <div class="testimonial-emoji">👩‍🎨</div>
+                <p class="testimonial-text">普段使ってるZOZOやメルカリの株が買えるなんて！身近なサービスだから投資が楽しくなりました 💕</p>
+                <div class="testimonial-author">佐藤さん（24歳・デザイナー）</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>さあ、投資デビューしよう！ 🎉</h2>
+            <p>14日間すべての機能が無料で使えます。クレジットカード登録も不要です！</p>
+            <a href="#" class="cta-big">今すぐ無料で始める 🚀</a>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-emoji">📈💰🛒</div>
+            <p>&copy; 2026 EC Stock Advisor - あなたの投資を楽しくサポート！</p>
         </div>
     </footer>
-
-    <script>
-        // Simple smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-    </script>
 </body>
 </html>
