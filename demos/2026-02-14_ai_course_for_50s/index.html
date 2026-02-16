@@ -1,230 +1,458 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎓 50代からのAI講座 — Vibe Coder Bootcamp Demo</title>
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif; background: #fafafa; color: #171717; }
-.hero { position: relative; width: 100%; height: 400px; overflow: hidden; }
-.hero img { width: 100%; height: 100%; object-fit: cover; }
-.hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)); display: flex; flex-direction: column; justify-content: flex-end; padding: 48px 40px; }
-.hero-overlay h1 { font-size: 2.2em; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
-.hero-overlay p { font-size: 1.1em; color: rgba(255,255,255,0.85); margin-top: 8px; }
-.breadcrumb { padding: 16px 40px; font-size: 0.85em; color: #a3a3a3; background: #fff; border-bottom: 1px solid #e5e5e5; }
-.breadcrumb a { color: #525252; text-decoration: none; }
-.breadcrumb a:hover { text-decoration: underline; }
-.container { max-width: 960px; margin: 0 auto; padding: 48px 24px; }
-.section { margin-bottom: 48px; }
-.section h2 { font-size: 0.8em; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: #a3a3a3; margin-bottom: 20px; }
-.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
-.card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 24px; transition: border-color 0.2s, box-shadow 0.2s; text-decoration: none; color: inherit; display: block; }
-.card:hover { border-color: #d4d4d4; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-.card h3 { font-size: 1em; font-weight: 600; margin-bottom: 6px; }
-.card p { font-size: 0.85em; color: #737373; line-height: 1.5; }
-.tag { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 0.75em; font-weight: 500; background: #f5f5f5; color: #525252; border: 1px solid #e5e5e5; margin-right: 4px; margin-top: 8px; }
-.footer { text-align: center; padding: 32px 24px; color: #a3a3a3; font-size: 0.8em; border-top: 1px solid #e5e5e5; margin-top: 32px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 50代からのAI講座 - AI for 50+ Generation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 17px;
+            line-height: 1.7;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .hero {
+            position: relative;
+            width: 100%;
+            min-height: 500px;
+            background: linear-gradient(135deg, #4A90E2 0%, #9013FE 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 20px;
+            margin-bottom: 60px;
+        }
+
+        .hero-content {
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 22px;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 80px;
+        }
+
+        h2 {
+            font-size: 32px;
+            margin-bottom: 32px;
+            color: #4A90E2;
+            font-weight: 700;
+        }
+
+        h3 {
+            font-size: 22px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-thumb {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        .card-body p {
+            color: #666;
+            font-size: 15px;
+            margin-top: 8px;
+        }
+
+        .slides-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .slides-grid img {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .slides-grid img:hover {
+            transform: scale(1.05);
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        .download-buttons a {
+            background: linear-gradient(135deg, #4A90E2 0%, #9013FE 100%);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .download-buttons a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
+        }
+
+        .video-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .video-container video {
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        .audio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .audio-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .audio-card h3 {
+            margin-bottom: 16px;
+            color: #4A90E2;
+        }
+
+        .audio-card audio {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .sns-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .sns-grid img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .doc-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .doc-item {
+            background: white;
+            padding: 20px 28px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            text-decoration: none;
+            color: #4A90E2;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .doc-item:hover {
+            background: #f8f9fa;
+            transform: translateX(8px);
+        }
+
+        @media (max-width: 1024px) {
+            .card-grid-3, .slides-grid, .sns-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .audio-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 18px;
+            }
+
+            h2 {
+                font-size: 28px;
+            }
+
+            .card-grid-3, .slides-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sns-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="hero">
+        <div class="hero-content">
+            <h1>🎓 50代からのAI講座</h1>
+            <p>AI for 50+ Generation - 人生100年時代のスキルアップデート</p>
+        </div>
+    </div>
 
-<div class="breadcrumb">
-  <a href="../../">← Demo Portal</a> / 🎓 50代からのAI講座
+    <div class="container">
+        <!-- Landing Pages -->
+        <section>
+            <h2>🎨 Landing Pages</h2>
+            <div class="card-grid-3">
+                <a class="card" href="lp/pattern1_modern.html">
+                    <img src="slides/slides_output/2026-02-15_1020/images/03_solution_overview_01.png" class="card-thumb" alt="Modern LP">
+                    <div class="card-body">
+                        <h3>Pattern 1: Modern</h3>
+                        <p>クリーンでモダンなデザイン</p>
+                    </div>
+                </a>
+                <a class="card" href="lp/pattern2_warm.html">
+                    <img src="slides/slides_output/2026-02-15_1020/images/03_solution_overview_02.png" class="card-thumb" alt="Warm LP">
+                    <div class="card-body">
+                        <h3>Pattern 2: Warm</h3>
+                        <p>温かみのあるフレンドリーなデザイン</p>
+                    </div>
+                </a>
+                <a class="card" href="lp/pattern3_bold.html">
+                    <img src="slides/slides_output/2026-02-15_1020/images/05_market_research_01.png" class="card-thumb" alt="Bold LP">
+                    <div class="card-body">
+                        <h3>Pattern 3: Bold</h3>
+                        <p>インパクトのある大胆なデザイン</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Mock App -->
+        <section>
+            <h2>📱 Mock Application</h2>
+            <a class="card" href="mock/index.html" style="max-width: 800px; margin: 0 auto;">
+                <img src="slides/slides_output/2026-02-15_1020/images/02_business_model_01.png" class="card-thumb" alt="Mock App">
+                <div class="card-body">
+                    <h3>インタラクティブモックアップ</h3>
+                    <p>実際のアプリケーション画面を体験できるプロトタイプ</p>
+                </div>
+            </a>
+        </section>
+
+        <!-- Presentation Slides -->
+        <section>
+            <h2>📊 Presentation</h2>
+            <div class="slides-grid">
+                <img src="slides/slides_output/2026-02-15_1020/images/00_cover_01.png" alt="Slide 1">
+                <img src="slides/slides_output/2026-02-15_1020/images/01_executive_summary_01.png" alt="Slide 2">
+                <img src="slides/slides_output/2026-02-15_1020/images/01_executive_summary_02.png" alt="Slide 3">
+                <img src="slides/slides_output/2026-02-15_1020/images/02_business_model_01.png" alt="Slide 4">
+                <img src="slides/slides_output/2026-02-15_1020/images/02_business_model_02.png" alt="Slide 5">
+                <img src="slides/slides_output/2026-02-15_1020/images/03_solution_overview_01.png" alt="Slide 6">
+                <img src="slides/slides_output/2026-02-15_1020/images/03_solution_overview_02.png" alt="Slide 7">
+                <img src="slides/slides_output/2026-02-15_1020/images/04_risk_analysis_01.png" alt="Slide 8">
+                <img src="slides/slides_output/2026-02-15_1020/images/05_market_research_01.png" alt="Slide 9">
+                <img src="slides/slides_output/2026-02-15_1020/images/05_market_research_02.png" alt="Slide 10">
+                <img src="slides/slides_output/2026-02-15_1020/images/06_summary_01.png" alt="Slide 11">
+                <img src="slides/slides_output/2026-02-15_1020/images/99_cta_01.png" alt="Slide 12">
+            </div>
+            <div class="download-buttons">
+                <a href="slides/slides_output/2026-02-15_1020/50代からのAI講座_v3.pptx" download>📥 Download PPTX</a>
+                <a href="slides/slides_output/2026-02-15_1020/50代からのAI講座_v3.pdf" download>📥 Download PDF</a>
+            </div>
+        </section>
+
+        <!-- Video -->
+        <section>
+            <h2>🎬 Promotional Video</h2>
+            <div class="video-container">
+                <h3 style="margin-bottom: 20px;">プロモーションビデオ</h3>
+                <video controls>
+                    <source src="video/promo.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </section>
+
+        <!-- Audio -->
+        <section>
+            <h2>🎙️ Audio Content</h2>
+            <div class="audio-grid">
+                <div class="audio-card">
+                    <h3>Chapter 1: Introduction</h3>
+                    <audio controls>
+                        <source src="audio/chapter_01.mp3" type="audio/mpeg">
+                    </audio>
+                </div>
+                <div class="audio-card">
+                    <h3>Chapter 2: The Problem</h3>
+                    <audio controls>
+                        <source src="audio/chapter_02.mp3" type="audio/mpeg">
+                    </audio>
+                </div>
+                <div class="audio-card">
+                    <h3>Chapter 3: Our Solution</h3>
+                    <audio controls>
+                        <source src="audio/chapter_03.mp3" type="audio/mpeg">
+                    </audio>
+                </div>
+                <div class="audio-card">
+                    <h3>Chapter 4: Market Opportunity</h3>
+                    <audio controls>
+                        <source src="audio/chapter_04.mp3" type="audio/mpeg">
+                    </audio>
+                </div>
+                <div class="audio-card">
+                    <h3>Chapter 5: Call to Action</h3>
+                    <audio controls>
+                        <source src="audio/chapter_05.mp3" type="audio/mpeg">
+                    </audio>
+                </div>
+                <div class="audio-card">
+                    <h3>Full Episode</h3>
+                    <audio controls>
+                        <source src="audio/full_episode.mp3" type="audio/mpeg">
+                    </audio>
+                </div>
+            </div>
+        </section>
+
+        <!-- SNS Content -->
+        <section>
+            <h2>📱 SNS Content</h2>
+            <h3 style="margin-bottom: 20px;">Instagram Posts</h3>
+            <div class="sns-grid">
+                <img src="sns/instagram/ig_01_service_overview.png" alt="IG Post 1">
+                <img src="sns/instagram/ig_02_problem.png" alt="IG Post 2">
+                <img src="sns/instagram/ig_03_solution.png" alt="IG Post 3">
+                <img src="sns/instagram/ig_04_curriculum.png" alt="IG Post 4">
+                <img src="sns/instagram/ig_05_instructor.png" alt="IG Post 5">
+                <img src="sns/instagram/ig_06_target_users.png" alt="IG Post 6">
+                <img src="sns/instagram/ig_07_pricing.png" alt="IG Post 7">
+                <img src="sns/instagram/ig_08_case_study.png" alt="IG Post 8">
+                <img src="sns/instagram/ig_09_testimonial.png" alt="IG Post 9">
+                <img src="sns/instagram/ig_10_cta.png" alt="IG Post 10">
+            </div>
+            <div style="margin-top: 24px;">
+                <a class="doc-item" href="sns/x_posts_30days.md" target="_blank">
+                    📝 X (Twitter) 30日間投稿プラン
+                </a>
+            </div>
+        </section>
+
+        <!-- Documents -->
+        <section>
+            <h2>📄 Documentation</h2>
+            <div class="doc-list">
+                <a class="doc-item" href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-14_ai_course_for_50s/docs/01_executive_summary.md" target="_blank">
+                    📋 01. Executive Summary
+                </a>
+                <a class="doc-item" href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-14_ai_course_for_50s/docs/02_business_model.md" target="_blank">
+                    💼 02. Business Model
+                </a>
+                <a class="doc-item" href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-14_ai_course_for_50s/docs/03_solution_overview.md" target="_blank">
+                    🎯 03. Solution Overview
+                </a>
+                <a class="doc-item" href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-14_ai_course_for_50s/docs/04_risk_analysis.md" target="_blank">
+                    ⚠️ 04. Risk Analysis
+                </a>
+                <a class="doc-item" href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-14_ai_course_for_50s/docs/05_market_research.md" target="_blank">
+                    📊 05. Market Research
+                </a>
+            </div>
+        </section>
+    </div>
+
+<!-- Lightbox Modal -->
+<div id="lightbox" onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;cursor:zoom-out;align-items:center;justify-content:center;">
+  <img id="lightbox-img" style="max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 4px 32px rgba(0,0,0,0.5);">
+  <span onclick="document.getElementById('lightbox').style.display='none'" style="position:absolute;top:20px;right:28px;color:#fff;font-size:36px;cursor:pointer;font-weight:300;">&#215;</span>
 </div>
-
-<div class="hero">
-  <img src="slides/cover.png" alt="50代からのAI講座">
-  <div class="hero-overlay">
-    <h1>🎓 50代からのAI講座</h1>
-    <p>スマホで文字が打てれば、AIは使える</p>
-  </div>
-</div>
-
-<div class="container">
-
-  <div class="section">
-    <h2>🎨 Landing Pages</h2>
-    <div class="card-grid">
-      <a class="card" href="lp/pattern1_modern.html">
-        <h3>Pattern 1 — Modern</h3>
-        <p>プロフェッショナルで信頼感のある青系クリーンデザイン</p>
-        <span class="tag">HTML</span>
-      </a>
-      <a class="card" href="lp/pattern2_premium.html">
-        <h3>Pattern 2 — Premium</h3>
-        <p>高級感のあるゴールド×ベージュのプレミアムデザイン</p>
-        <span class="tag">HTML</span>
-      </a>
-      <a class="card" href="lp/pattern3_casual.html">
-        <h3>Pattern 3 — Casual</h3>
-        <p>親しみやすく楽しい、絵文字多用のカジュアルデザイン</p>
-        <span class="tag">HTML</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>📱 Mock App</h2>
-    <div class="card-grid">
-      <a class="card" href="mock/app_mock.html">
-        <h3>スマホモックアプリ</h3>
-        <p>iPhone風フレームで4画面（ホーム・レッスン・AIお試し・マイページ）を体験</p>
-        <span class="tag">HTML</span><span class="tag">インタラクティブ</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>📊 Presentation</h2>
-    <div class="card-grid">
-      <a class="card" href="slides/50代からのAI講座.pptx">
-        <h3>プレゼンスライド（PPTX）</h3>
-        <p>12枚のスライド。Gemini 3 Pro画像生成で商用クオリティ。</p>
-        <span class="tag">PPTX</span><span class="tag">12枚</span>
-      </a>
-      <a class="card" href="slides/50代からのAI講座.pdf">
-        <h3>プレゼンスライド（PDF）</h3>
-        <p>PDF版。ブラウザでプレビュー可能。</p>
-        <span class="tag">PDF</span>
-      </a>
-      <a class="card" href="slides/cover.png" target="_blank">
-        <h3>表紙スライド</h3>
-        <p>Apple Keynoteクオリティの商用表紙画像</p>
-        <span class="tag">PNG</span><span class="tag">2560×1440</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>🎬 Promo Video</h2>
-    <div class="card-grid">
-      <a class="card" href="video/promo.mp4">
-        <h3>プロモーション動画CM</h3>
-        <p>Remotionで自動生成した15〜30秒のプロモ動画</p>
-        <span class="tag">MP4</span><span class="tag">動画</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>🔊 Audio Radio</h2>
-    <div class="card-grid">
-      <a class="card" href="audio/full_episode.mp3">
-        <h3>🎧 フルエピソード（結合版）</h3>
-        <p>5チャプターを通して聴ける結合版</p>
-        <span class="tag">MP3</span>
-      </a>
-      <a class="card" href="audio/chapter_01.mp3">
-        <h3>Ch.1 エグゼクティブサマリー</h3>
-        <p>コンセプト・課題・ターゲット</p>
-        <span class="tag">MP3</span>
-      </a>
-      <a class="card" href="audio/chapter_02.mp3">
-        <h3>Ch.2 ビジネスモデル</h3>
-        <p>収益構造・KPI</p>
-        <span class="tag">MP3</span>
-      </a>
-      <a class="card" href="audio/chapter_03.mp3">
-        <h3>Ch.3 ソリューション概要</h3>
-        <p>画面設計・技術スタック</p>
-        <span class="tag">MP3</span>
-      </a>
-      <a class="card" href="audio/chapter_04.mp3">
-        <h3>Ch.4 リスク分析</h3>
-        <p>事業・技術リスクと対策</p>
-        <span class="tag">MP3</span>
-      </a>
-      <a class="card" href="audio/chapter_05.mp3">
-        <h3>Ch.5 市場調査</h3>
-        <p>市場概況・競合・ペルソナ</p>
-        <span class="tag">MP3</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>📱 SNS Content</h2>
-    <div class="card-grid">
-      <a class="card" href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-14_ai_course_for_50s/sns/x_posts_30days.md" target="_blank">
-        <h3>X（Twitter）投稿30日分</h3>
-        <p>曜日別テーマローテーションの30日分投稿文</p>
-        <span class="tag">Markdown</span><span class="tag">30投稿</span>
-      </a>
-      <a class="card" href="sns/instagram/ig_01_overview.png" target="_blank">
-        <h3>Instagram図解 #1 サービス概要</h3>
-        <span class="tag">PNG</span>
-      </a>
-      <a class="card" href="sns/instagram/ig_02_persona.png" target="_blank">
-        <h3>Instagram図解 #2 ペルソナ</h3>
-        <span class="tag">PNG</span>
-      </a>
-      <a class="card" href="sns/instagram/ig_03_before_after.png" target="_blank">
-        <h3>Instagram図解 #3 Before/After</h3>
-        <span class="tag">PNG</span>
-      </a>
-      <a class="card" href="sns/instagram/ig_04_3steps.png" target="_blank">
-        <h3>Instagram図解 #4 3ステップ</h3>
-        <span class="tag">PNG</span>
-      </a>
-      <a class="card" href="sns/instagram/ig_05_pricing.png" target="_blank">
-        <h3>Instagram図解 #5 料金</h3>
-        <span class="tag">PNG</span>
-      </a>
-      <a class="card" href="sns/instagram/ig_06_testimonial.png" target="_blank">
-        <h3>Instagram図解 #6 受講者の声</h3>
-        <span class="tag">PNG</span>
-      </a>
-      <a class="card" href="sns/instagram/ig_07_use_cases.png" target="_blank">
-        <h3>Instagram図解 #7 活用事例</h3>
-        <span class="tag">PNG</span>
-      </a>
-      <a class="card" href="sns/instagram/ig_08_faq.png" target="_blank">
-        <h3>Instagram図解 #8 FAQ</h3>
-        <span class="tag">PNG</span>
-      </a>
-      <a class="card" href="sns/instagram/ig_09_stats.png" target="_blank">
-        <h3>Instagram図解 #9 実績データ</h3>
-        <span class="tag">PNG</span>
-      </a>
-      <a class="card" href="sns/instagram/ig_10_cta.png" target="_blank">
-        <h3>Instagram図解 #10 CTA</h3>
-        <span class="tag">PNG</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>📝 Documents</h2>
-    <div class="card-grid">
-      <a class="card" href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-14_ai_course_for_50s/docs/01_executive_summary.md" target="_blank">
-        <h3>01. エグゼクティブサマリー</h3>
-        <p>コンセプト、課題、ターゲット、差別化ポイント、市場機会</p>
-      </a>
-      <a class="card" href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-14_ai_course_for_50s/docs/02_business_model.md" target="_blank">
-        <h3>02. ビジネスモデル</h3>
-        <p>収益構造、コスト、KPI、ユニットエコノミクス、収益予測</p>
-      </a>
-      <a class="card" href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-14_ai_course_for_50s/docs/03_solution_overview.md" target="_blank">
-        <h3>03. ソリューション概要</h3>
-        <p>画面設計、カリキュラム、技術スタック、MVP計画</p>
-      </a>
-      <a class="card" href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-14_ai_course_for_50s/docs/04_risk_analysis.md" target="_blank">
-        <h3>04. リスク分析</h3>
-        <p>事業・技術・法的リスク、対策、優先度マトリクス</p>
-      </a>
-      <a class="card" href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-14_ai_course_for_50s/docs/05_market_research.md" target="_blank">
-        <h3>05. 市場調査</h3>
-        <p>市場概況、競合分析、ペルソナ3名、参入タイミング</p>
-      </a>
-    </div>
-  </div>
-
-</div>
-
-<div class="footer">
-  <p>Generated by Ryoko 🌸 — Vibe Coder Bootcamp Demo | 2026-02-14</p>
-</div>
+<script>
+document.querySelectorAll(".slides-grid img").forEach(function(img){
+  img.style.cursor="zoom-in";
+  img.addEventListener("click",function(){
+    var lb=document.getElementById("lightbox");
+    document.getElementById("lightbox-img").src=img.src;
+    lb.style.display="flex";
+  });
+});
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape") document.getElementById("lightbox").style.display="none";
+});
+</script>
 
 </body>
 </html>
