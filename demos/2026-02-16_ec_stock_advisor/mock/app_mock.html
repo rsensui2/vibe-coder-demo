@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EC Stock Advisor - モックアップ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* iPhone Frame */
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #1A1A2E;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #FFFFFF;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Notch */
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 28px;
+            background: #1A1A2E;
+            border-radius: 0 0 20px 20px;
+            z-index: 1000;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            background: #0F4C81;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 0 20px 8px;
+            font-size: 12px;
+        }
+
+        /* App Header */
+        .app-header {
+            background: #0F4C81;
+            color: white;
+            padding: 16px 20px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            background: #FFFFFF;
+            position: relative;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: #0F4C81;
+            border-radius: 2px;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            height: 70px;
+            background: #FFFFFF;
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 10px;
+        }
+
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px;
+        }
+
+        .tab-item:active {
+            transform: scale(0.95);
+        }
+
+        .tab-icon {
+            width: 24px;
+            height: 24px;
+            fill: #999;
+            transition: fill 0.3s;
+        }
+
+        .tab-item.active .tab-icon {
+            fill: #0F4C81;
+        }
+
+        .tab-label {
+            font-size: 11px;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .tab-item.active .tab-label {
+            color: #0F4C81;
+            font-weight: 600;
+        }
+
+        /* Screen */
+        .screen {
+            display: none;
+            padding: 20px;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Home Screen */
+        .market-summary {
+            background: linear-gradient(135deg, #0F4C81 0%, #1a6ba8 100%);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .market-summary h2 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            opacity: 0.9;
+        }
+
+        .market-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .market-stat {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .market-stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .market-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .market-stat-change {
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1A1A2E;
+            margin-bottom: 16px;
+        }
+
+        .stock-card {
+            background: white;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .stock-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .stock-info h3 {
+            font-size: 16px;
+            color: #1A1A2E;
+            margin-bottom: 4px;
+        }
+
+        .stock-code {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .stock-price {
+            text-align: right;
+        }
+
+        .price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1A1A2E;
+        }
+
+        .price-change {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .price-change.up {
+            color: #00C49A;
+        }
+
+        .price-change.down {
+            color: #FF6B6B;
+        }
+
+        .trend-score-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .trend-label {
+            font-size: 12px;
+            color: #666;
+            min-width: 100px;
+        }
+
+        .score-track {
+            flex: 1;
+            height: 8px;
+            background: #E0E0E0;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00C49A 0%, #0F4C81 100%);
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+
+        .score-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0F4C81;
+            min-width: 30px;
+            text-align: right;
+        }
+
+        /* Stock List Screen */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .filter-bar::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #0F4C81;
+            background: white;
+            color: #0F4C81;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #0F4C81;
+            color: white;
+        }
+
+        .filter-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Stock Detail Screen */
+        .detail-header {
+            background: linear-gradient(135deg, #0F4C81 0%, #1a6ba8 100%);
+            color: white;
+            padding: 24px 20px;
+            margin: -20px -20px 20px -20px;
+        }
+
+        .detail-company {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .detail-code {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 16px;
+        }
+
+        .detail-price {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #E0E0E0;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(to bottom, rgba(15, 76, 129, 0.1) 0%, rgba(0, 196, 154, 0.1) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 20%;
+            left: 10%;
+            width: 80%;
+            height: 60%;
+        }
+
+        .trend-gauge {
+            background: white;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .gauge-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        .gauge-circle {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+
+        .gauge-bg {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#00C49A 0deg, #0F4C81 180deg, #FF6B6B 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-inner {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-score {
+            font-size: 36px;
+            font-weight: 700;
+            color: #0F4C81;
+        }
+
+        .gauge-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .kpi-card {
+            background: white;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1A1A2E;
+        }
+
+        .kpi-unit {
+            font-size: 12px;
+            color: #999;
+            margin-left: 4px;
+        }
+
+        .news-card {
+            background: white;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .news-date {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .news-title {
+            font-size: 14px;
+            color: #1A1A2E;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .news-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(15, 76, 129, 0.1);
+            color: #0F4C81;
+            font-size: 10px;
+            border-radius: 4px;
+        }
+
+        /* AI Proposal Screen */
+        .style-selector {
+            background: white;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .style-option {
+            padding: 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .style-option:active {
+            transform: scale(0.98);
+        }
+
+        .style-option.selected {
+            border-color: #0F4C81;
+            background: rgba(15, 76, 129, 0.05);
+        }
+
+        .style-option h3 {
+            font-size: 16px;
+            color: #1A1A2E;
+            margin-bottom: 4px;
+        }
+
+        .style-option p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: #0F4C81;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .generate-btn:active {
+            transform: scale(0.98);
+        }
+
+        .portfolio-result {
+            background: white;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .pie-chart {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .pie-slice {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%);
+        }
+
+        .allocation-list {
+            margin-top: 20px;
+        }
+
+        .allocation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .allocation-item:last-child {
+            border-bottom: none;
+        }
+
+        .allocation-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .allocation-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .allocation-percent {
+            font-weight: 700;
+            color: #0F4C81;
+        }
+
+        /* Alert Screen */
+        .alert-card {
+            background: white;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+        }
+
+        .alert-card.urgent::before {
+            background: #FF6B6B;
+        }
+
+        .alert-card.info::before {
+            background: #00C49A;
+        }
+
+        .alert-card.warning::before {
+            background: #FFA500;
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .alert-type {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .alert-type.urgent {
+            background: rgba(255, 107, 107, 0.1);
+            color: #FF6B6B;
+        }
+
+        .alert-type.info {
+            background: rgba(0, 196, 154, 0.1);
+            color: #00C49A;
+        }
+
+        .alert-type.warning {
+            background: rgba(255, 165, 0, 0.1);
+            color: #FFA500;
+        }
+
+        .alert-time {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .alert-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1A1A2E;
+            margin-bottom: 8px;
+        }
+
+        .alert-content {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Settings Screen */
+        .settings-section {
+            margin-bottom: 24px;
+        }
+
+        .settings-item {
+            background: white;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .settings-item:active {
+            background: #F5F5F5;
+        }
+
+        .settings-label {
+            font-size: 14px;
+            color: #1A1A2E;
+        }
+
+        .settings-value {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .toggle {
+            width: 50px;
+            height: 28px;
+            background: #E0E0E0;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle.on {
+            background: #00C49A;
+        }
+
+        .toggle-knob {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s;
+        }
+
+        .toggle.on .toggle-knob {
+            left: 24px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .screen.active {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Home Bar */
+        .home-bar {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: #1A1A2E;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="phone-screen">
+            <div class="notch"></div>
+
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 5G ⚡ 100%</span>
+            </div>
+
+            <div class="app-header" id="appHeader">
+                EC Stock Advisor
+            </div>
+
+            <div class="content" id="contentArea">
+                <!-- Home Screen -->
+                <div class="screen active" id="homeScreen">
+                    <div class="market-summary">
+                        <h2>📈 EC市場サマリー</h2>
+                        <div class="market-stats">
+                            <div class="market-stat">
+                                <div class="market-stat-label">EC市場指数</div>
+                                <div class="market-stat-value">2,847.5</div>
+                                <div class="market-stat-change" style="color: #00C49A;">▲ 1.24%</div>
+                            </div>
+                            <div class="market-stat">
+                                <div class="market-stat-label">平均スコア</div>
+                                <div class="market-stat-value">67.3</div>
+                                <div class="market-stat-change" style="color: #00C49A;">▲ 2.1pt</div>
+                            </div>
+                            <div class="market-stat">
+                                <div class="market-stat-label">取引銘柄数</div>
+                                <div class="market-stat-value">24</div>
+                                <div class="market-stat-change">銘柄</div>
+                            </div>
+                            <div class="market-stat">
+                                <div class="market-stat-label">アクティブアラート</div>
+                                <div class="market-stat-value">7</div>
+                                <div class="market-stat-change" style="color: #FF6B6B;">▲ 3</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 class="section-title">🔥 トレンドスコアTOP5</h2>
+                    
+                    <div class="stock-card" onclick="showStockDetail('楽天グループ', '4755')">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>楽天グループ</h3>
+                                <div class="stock-code">4755</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥863</div>
+                                <div class="price-change up">▲ ¥12 (+1.4%)</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">トレンドスコア</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 85%"></div>
+                            </div>
+                            <div class="score-value">85</div>
+                        </div>
+                    </div>
+
+                    <div class="stock-card" onclick="showStockDetail('メルカリ', '4385')">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>メルカリ</h3>
+                                <div class="stock-code">4385</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥3,240</div>
+                                <div class="price-change up">▲ ¥85 (+2.7%)</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">トレンドスコア</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 82%"></div>
+                            </div>
+                            <div class="score-value">82</div>
+                        </div>
+                    </div>
+
+                    <div class="stock-card">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>ZOZO</h3>
+                                <div class="stock-code">3092</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥4,125</div>
+                                <div class="price-change down">▼ ¥23 (-0.6%)</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">トレンドスコア</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 78%"></div>
+                            </div>
+                            <div class="score-value">78</div>
+                        </div>
+                    </div>
+
+                    <div class="stock-card">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>MonotaRO</h3>
+                                <div class="stock-code">3064</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥2,158</div>
+                                <div class="price-change up">▲ ¥47 (+2.2%)</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">トレンドスコア</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 76%"></div>
+                            </div>
+                            <div class="score-value">76</div>
+                        </div>
+                    </div>
+
+                    <div class="stock-card">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>BASE</h3>
+                                <div class="stock-code">4477</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥465</div>
+                                <div class="price-change up">▲ ¥8 (+1.8%)</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">トレンドスコア</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 73%"></div>
+                            </div>
+                            <div class="score-value">73</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock List Screen -->
+                <div class="screen" id="stocksScreen">
+                    <div class="filter-bar">
+                        <button class="filter-btn active">全て</button>
+                        <button class="filter-btn">高スコア</button>
+                        <button class="filter-btn">上昇中</button>
+                        <button class="filter-btn">下落中</button>
+                        <button class="filter-btn">モール系</button>
+                        <button class="filter-btn">マーケットプレイス</button>
+                    </div>
+
+                    <div class="stock-card" onclick="showStockDetail('楽天グループ', '4755')">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>楽天グループ</h3>
+                                <div class="stock-code">4755 • モール系</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥863</div>
+                                <div class="price-change up">+1.4%</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">スコア 85</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stock-card" onclick="showStockDetail('メルカリ', '4385')">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>メルカリ</h3>
+                                <div class="stock-code">4385 • C2C</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥3,240</div>
+                                <div class="price-change up">+2.7%</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">スコア 82</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 82%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stock-card">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>ZOZO</h3>
+                                <div class="stock-code">3092 • ファッション</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥4,125</div>
+                                <div class="price-change down">-0.6%</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">スコア 78</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 78%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stock-card">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>MonotaRO</h3>
+                                <div class="stock-code">3064 • B2B</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥2,158</div>
+                                <div class="price-change up">+2.2%</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">スコア 76</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 76%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stock-card">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>BASE</h3>
+                                <div class="stock-code">4477 • プラットフォーム</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥465</div>
+                                <div class="price-change up">+1.8%</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">スコア 73</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 73%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stock-card">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>カカクコム</h3>
+                                <div class="stock-code">2371 • 比較サイト</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥1,847</div>
+                                <div class="price-change up">+0.8%</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">スコア 68</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 68%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stock-card">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>Zホールディングス</h3>
+                                <div class="stock-code">4689 • モール系</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥385</div>
+                                <div class="price-change down">-1.3%</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">スコア 65</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 65%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stock-card">
+                        <div class="stock-header">
+                            <div class="stock-info">
+                                <h3>BEENOS</h3>
+                                <div class="stock-code">3328 • 越境EC</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price">¥1,245</div>
+                                <div class="price-change up">+3.2%</div>
+                            </div>
+                        </div>
+                        <div class="trend-score-bar">
+                            <div class="trend-label">スコア 71</div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: 71%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Detail Screen -->
+                <div class="screen" id="detailScreen">
+                    <div class="detail-header">
+                        <div class="detail-company" id="detailCompany">楽天グループ</div>
+                        <div class="detail-code" id="detailCode">4755 • 東証プライム</div>
+                        <div class="detail-price" id="detailPrice">¥863</div>
+                        <div class="price-change up" id="detailChange">▲ ¥12 (+1.4%)</div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 style="margin-bottom: 12px; font-size: 14px; color: #666;">株価チャート（3ヶ月）</h3>
+                        <div class="chart-placeholder">
+                            <svg class="chart-line" viewBox="0 0 300 150" preserveAspectRatio="none">
+                                <polyline
+                                    fill="none"
+                                    stroke="#0F4C81"
+                                    stroke-width="2"
+                                    points="0,120 30,110 60,105 90,115 120,95 150,85 180,90 210,75 240,70 270,60 300,65"
+                                />
+                                <polyline
+                                    fill="url(#gradient)"
+                                    stroke="none"
+                                    points="0,120 30,110 60,105 90,115 120,95 150,85 180,90 210,75 240,70 270,60 300,65 300,150 0,150"
+                                />
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#0F4C81;stop-opacity:0.3" />
+                                        <stop offset="100%" style="stop-color:#00C49A;stop-opacity:0" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="trend-gauge">
+                        <div class="gauge-title">ECトレンドスコア</div>
+                        <div class="gauge-circle">
+                            <div class="gauge-bg">
+                                <div class="gauge-inner">
+                                    <div class="gauge-score">85</div>
+                                    <div class="gauge-label">/100</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p style="font-size: 12px; color: #666;">非常に強い上昇トレンド</p>
+                    </div>
+
+                    <h3 class="section-title">EC固有KPI</h3>
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">GMV（流通総額）</div>
+                            <div class="kpi-value">5.8<span class="kpi-unit">兆円</span></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">テイクレート</div>
+                            <div class="kpi-value">14.2<span class="kpi-unit">%</span></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">アクティブユーザー</div>
+                            <div class="kpi-value">1,850<span class="kpi-unit">万人</span></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">成長率（YoY）</div>
+                            <div class="kpi-value">+12.3<span class="kpi-unit">%</span></div>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">関連ニュース</h3>
+                    <div class="news-card">
+                        <div class="news-date">2026-02-15 14:32</div>
+                        <div class="news-title">楽天市場、春セールで過去最高のGMVを記録。モバイルアプリ経由の購入が前年比+28%</div>
+                        <span class="news-tag">決算速報</span>
+                    </div>
+                    <div class="news-card">
+                        <div class="news-date">2026-02-14 09:15</div>
+                        <div class="news-title">楽天ペイメント、中小EC事業者向け決済手数料を引き下げ。市場シェア拡大を狙う</div>
+                        <span class="news-tag">事業戦略</span>
+                    </div>
+                    <div class="news-card">
+                        <div class="news-date">2026-02-12 16:48</div>
+                        <div class="news-title">アナリスト予想：楽天G株価目標を950円に引き上げ。ECセグメント好調を評価</div>
+                        <span class="news-tag">アナリスト</span>
+                    </div>
+
+                    <button class="generate-btn" style="margin-top: 20px;" onclick="switchTab('stocks')">← 銘柄一覧に戻る</button>
+                </div>
+
+                <!-- AI Proposal Screen -->
+                <div class="screen" id="aiScreen">
+                    <div class="style-selector" id="styleSelector">
+                        <h3 class="section-title">投資スタイルを選択</h3>
+                        <div class="style-option" data-style="growth">
+                            <h3>🚀 グロース重視</h3>
+                            <p>高成長が期待できるEC企業に集中投資。リスク高・リターン高</p>
+                        </div>
+                        <div class="style-option" data-style="balanced">
+                            <h3>⚖️ バランス型</h3>
+                            <p>成長性と安定性のバランスを重視。中リスク・中リターン</p>
+                        </div>
+                        <div class="style-option" data-style="stable">
+                            <h3>🛡️ 安定重視</h3>
+                            <p>確立されたEC大手企業中心。低リスク・安定リターン</p>
+                        </div>
+                        <div class="style-option" data-style="dividend">
+                            <h3>💰 配当重視</h3>
+                            <p>配当利回りの高いEC関連企業。インカムゲイン志向</p>
+                        </div>
+                        <button class="generate-btn" onclick="generatePortfolio()">AI提案を生成</button>
+                    </div>
+
+                    <div class="portfolio-result" id="portfolioResult" style="display: none;">
+                        <h3 class="section-title">💡 おすすめポートフォリオ</h3>
+                        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">
+                            投資額: 100万円 / 期待リターン: +18.5% / リスク: 中
+                        </p>
+
+                        <svg width="200" height="200" style="display: block; margin: 20px auto;">
+                            <circle cx="100" cy="100" r="80" fill="#0F4C81" />
+                            <circle cx="100" cy="100" r="80" fill="#00C49A" 
+                                stroke-dasharray="150.8 502.4" 
+                                stroke-dashoffset="0" 
+                                stroke-width="80" 
+                                fill="none" 
+                                transform="rotate(-90 100 100)" />
+                            <circle cx="100" cy="100" r="80" fill="#FFA500" 
+                                stroke-dasharray="100.5 502.4" 
+                                stroke-dashoffset="-150.8" 
+                                stroke-width="80" 
+                                fill="none" 
+                                transform="rotate(-90 100 100)" />
+                            <circle cx="100" cy="100" r="80" fill="#FF6B6B" 
+                                stroke-dasharray="75.4 502.4" 
+                                stroke-dashoffset="-251.3" 
+                                stroke-width="80" 
+                                fill="none" 
+                                transform="rotate(-90 100 100)" />
+                            <circle cx="100" cy="100" r="80" fill="#9B59B6" 
+                                stroke-dasharray="75.4 502.4" 
+                                stroke-dashoffset="-326.7" 
+                                stroke-width="80" 
+                                fill="none" 
+                                transform="rotate(-90 100 100)" />
+                            <circle cx="100" cy="100" r="40" fill="white" />
+                        </svg>
+
+                        <div class="allocation-list" id="allocationList">
+                            <div class="allocation-item">
+                                <div class="allocation-name">
+                                    <div class="allocation-color" style="background: #0F4C81;"></div>
+                                    <span>楽天グループ</span>
+                                </div>
+                                <div class="allocation-percent">30%</div>
+                            </div>
+                            <div class="allocation-item">
+                                <div class="allocation-name">
+                                    <div class="allocation-color" style="background: #00C49A;"></div>
+                                    <span>メルカリ</span>
+                                </div>
+                                <div class="allocation-percent">25%</div>
+                            </div>
+                            <div class="allocation-item">
+                                <div class="allocation-name">
+                                    <div class="allocation-color" style="background: #FFA500;"></div>
+                                    <span>ZOZO</span>
+                                </div>
+                                <div class="allocation-percent">20%</div>
+                            </div>
+                            <div class="allocation-item">
+                                <div class="allocation-name">
+                                    <div class="allocation-color" style="background: #FF6B6B;"></div>
+                                    <span>MonotaRO</span>
+                                </div>
+                                <div class="allocation-percent">15%</div>
+                            </div>
+                            <div class="allocation-item">
+                                <div class="allocation-name">
+                                    <div class="allocation-color" style="background: #9B59B6;"></div>
+                                    <span>BASE</span>
+                                </div>
+                                <div class="allocation-percent">10%</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 24px; padding: 16px; background: rgba(15, 76, 129, 0.05); border-radius: 8px;">
+                            <h4 style="font-size: 14px; margin-bottom: 8px; color: #1A1A2E;">💬 AIアドバイス</h4>
+                            <p style="font-size: 13px; color: #666; line-height: 1.6;">
+                                楽天グループは国内最大級のECモール運営で安定成長が見込めます。メルカリはC2C市場でシェアを拡大中で高成長期待。ZOZOはファッションEC特化で独自性が強み。分散投資でリスクを抑えつつ、EC市場全体の成長を取り込めるポートフォリオです。
+                            </p>
+                        </div>
+
+                        <button class="generate-btn" style="margin-top: 20px;">このポートフォリオで投資する</button>
+                    </div>
+                </div>
+
+                <!-- Alert Screen -->
+                <div class="screen" id="alertsScreen">
+                    <div class="alert-card urgent">
+                        <div class="alert-header">
+                            <span class="alert-type urgent">緊急</span>
+                            <span class="alert-time">5分前</span>
+                        </div>
+                        <div class="alert-title">🚨 メルカリ 急騰アラート</div>
+                        <div class="alert-content">
+                            株価が直近30分で+4.2%上昇。出来高も平均の2.3倍に増加。大口買いの可能性があります。
+                        </div>
+                    </div>
+
+                    <div class="alert-card info">
+                        <div class="alert-header">
+                            <span class="alert-type info">決算速報</span>
+                            <span class="alert-time">1時間前</span>
+                        </div>
+                        <div class="alert-title">📊 楽天グループ 四半期決算発表</div>
+                        <div class="alert-content">
+                            ECセグメントの売上が予想を上回る好決算。GMVは前年同期比+15.3%の5.8兆円。トレンドスコアが80→85に上昇しました。
+                        </div>
+                    </div>
+
+                    <div class="alert-card warning">
+                        <div class="alert-header">
+                            <span class="alert-type warning">注意</span>
+                            <span class="alert-time">3時間前</span>
+                        </div>
+                        <div class="alert-title">⚠️ ZOZO スコア下落</div>
+                        <div class="alert-content">
+                            トレンドスコアが82→78に下落。競合他社の台頭とアクティブユーザー数の微減が要因と分析されます。
+                        </div>
+                    </div>
+
+                    <div class="alert-card info">
+                        <div class="alert-header">
+                            <span class="alert-type info">ニュース</span>
+                            <span class="alert-time">5時間前</span>
+                        </div>
+                        <div class="alert-title">📰 MonotaRO 新サービス発表</div>
+                        <div class="alert-content">
+                            AI活用の在庫最適化サービスを発表。B2B EC市場での競争力強化が期待され、株価+2.2%上昇。
+                        </div>
+                    </div>
+
+                    <div class="alert-card info">
+                        <div class="alert-header">
+                            <span class="alert-type info">市場動向</span>
+                            <span class="alert-time">8時間前</span>
+                        </div>
+                        <div class="alert-title">📈 EC市場指数が過去最高値を更新</div>
+                        <div class="alert-content">
+                            EC業界全体の好調を受け、市場指数が2,847.5ポイントに到達。春商戦の好調が主因と見られます。
+                        </div>
+                    </div>
+
+                    <div class="alert-card warning">
+                        <div class="alert-header">
+                            <span class="alert-type warning">リスク</span>
+                            <span class="alert-time">12時間前</span>
+                        </div>
+                        <div class="alert-title">⚠️ 為替変動リスク</div>
+                        <div class="alert-content">
+                            ドル円レートが急変動。越境EC関連銘柄（BEENOS等）への影響に注意が必要です。
+                        </div>
+                    </div>
+
+                    <div class="alert-card info">
+                        <div class="alert-header">
+                            <span class="alert-type info">アナリスト</span>
+                            <span class="alert-time">1日前</span>
+                        </div>
+                        <div class="alert-title">💼 BASE 目標株価引き上げ</div>
+                        <div class="alert-content">
+                            大手証券3社がBASEの目標株価を500円に引き上げ。小規模事業者向けEC支援サービスの成長を評価。
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Screen -->
+                <div class="screen" id="settingsScreen">
+                    <h2 class="section-title">⚙️ 設定</h2>
+                    
+                    <div class="settings-section">
+                        <h3 style="font-size: 14px; color: #666; margin-bottom: 12px;">通知設定</h3>
+                        <div class="settings-item">
+                            <span class="settings-label">株価急変動アラート</span>
+                            <div class="toggle on" onclick="toggleSwitch(this)">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">決算速報通知</span>
+                            <div class="toggle on" onclick="toggleSwitch(this)">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">スコア変動通知</span>
+                            <div class="toggle on" onclick="toggleSwitch(this)">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">ニュース通知</span>
+                            <div class="toggle" onclick="toggleSwitch(this)">
+                                <div class="toggle-knob"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 style="font-size: 14px; color: #666; margin-bottom: 12px;">表示設定</h3>
+                        <div class="settings-item">
+                            <span class="settings-label">チャート期間</span>
+                            <span class="settings-value">3ヶ月 ›</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">デフォルトフィルター</span>
+                            <span class="settings-value">全て ›</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">ソート順</span>
+                            <span class="settings-value">スコア順 ›</span>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 style="font-size: 14px; color: #666; margin-bottom: 12px;">アカウント</h3>
+                        <div class="settings-item">
+                            <span class="settings-label">プラン</span>
+                            <span class="settings-value">Premium ›</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">ウォッチリスト</span>
+                            <span class="settings-value">8銘柄 ›</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">投資履歴</span>
+                            <span class="settings-value">表示 ›</span>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 style="font-size: 14px; color: #666; margin-bottom: 12px;">その他</h3>
+                        <div class="settings-item">
+                            <span class="settings-label">ヘルプ・サポート</span>
+                            <span class="settings-value">›</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">利用規約</span>
+                            <span class="settings-value">›</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">プライバシーポリシー</span>
+                            <span class="settings-value">›</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">バージョン</span>
+                            <span class="settings-value">2.1.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-nav">
+                <div class="tab-item active" onclick="switchTab('home')">
+                    <svg class="tab-icon" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                    <div class="tab-label">ホーム</div>
+                </div>
+                <div class="tab-item" onclick="switchTab('stocks')">
+                    <svg class="tab-icon" viewBox="0 0 24 24">
+                        <path d="M3 13h2v8H3v-8zm6-6h2v14H9V7zm6 3h2v11h-2V10zm6-7h2v18h-2V3z"/>
+                    </svg>
+                    <div class="tab-label">銘柄</div>
+                </div>
+                <div class="tab-item" onclick="switchTab('ai')">
+                    <svg class="tab-icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <div class="tab-label">AI提案</div>
+                </div>
+                <div class="tab-item" onclick="switchTab('alerts')">
+                    <svg class="tab-icon" viewBox="0 0 24 24">
+                        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+                    </svg>
+                    <div class="tab-label">アラート</div>
+                </div>
+                <div class="tab-item" onclick="switchTab('settings')">
+                    <svg class="tab-icon" viewBox="0 0 24 24">
+                        <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                    </svg>
+                    <div class="tab-label">設定</div>
+                </div>
+            </div>
+
+            <div class="home-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tabName) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-item').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+
+            // Add active class to clicked tab
+            event.currentTarget.classList.add('active');
+
+            // Show corresponding screen
+            const screenId = tabName + 'Screen';
+            document.getElementById(screenId).classList.add('active');
+
+            // Update header
+            const headers = {
+                'home': 'EC Stock Advisor',
+                'stocks': '銘柄一覧',
+                'ai': 'AI投資提案',
+                'alerts': 'アラート',
+                'settings': '設定'
+            };
+            document.getElementById('appHeader').textContent = headers[tabName];
+
+            // Scroll to top
+            document.getElementById('contentArea').scrollTop = 0;
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Style selection for AI proposal
+        document.querySelectorAll('.style-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Generate portfolio
+        function generatePortfolio() {
+            const selected = document.querySelector('.style-option.selected');
+            if (!selected) {
+                alert('投資スタイルを選択してください');
+                return;
+            }
+
+            document.getElementById('styleSelector').style.display = 'none';
+            document.getElementById('portfolioResult').style.display = 'block';
+        }
+
+        // Toggle switch
+        function toggleSwitch(element) {
+            element.classList.toggle('on');
+        }
+
+        // Show stock detail
+        function showStockDetail(company, code) {
+            document.getElementById('detailCompany').textContent = company;
+            document.getElementById('detailCode').textContent = code + ' • 東証プライム';
+            
+            // Switch to detail screen
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById('detailScreen').classList.add('active');
+            document.getElementById('appHeader').textContent = '銘柄詳細';
+            document.getElementById('contentArea').scrollTop = 0;
+        }
+
+        // Animate score bars on load
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.querySelectorAll('.score-fill').forEach(fill => {
+                    const width = fill.style.width;
+                    fill.style.width = '0';
+                    setTimeout(() => {
+                        fill.style.width = width;
+                    }, 100);
+                });
+            }, 300);
+        });
+    </script>
+</body>
+</html>

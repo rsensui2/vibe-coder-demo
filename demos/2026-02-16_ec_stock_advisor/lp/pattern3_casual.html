@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EC Stock Advisor - 投資をもっと身近に</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+            color: #1A1A2E;
+            background: #FFFFFF;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        /* Header */
+        header {
+            background: #FFFFFF;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid #F7F9FC;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0F4C81;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo-emoji {
+            font-size: 32px;
+        }
+        
+        .cta-button {
+            background: #00C49A;
+            color: #FFFFFF;
+            padding: 12px 28px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        
+        .cta-button:hover {
+            background: #00a885;
+            transform: scale(1.05);
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #F7F9FC 0%, #e8f4f8 100%);
+            padding: 60px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::after {
+            content: '📈';
+            position: absolute;
+            top: 20%;
+            right: 5%;
+            font-size: 120px;
+            opacity: 0.1;
+            transform: rotate(15deg);
+        }
+        
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+        
+        .hero-text h1 {
+            font-size: 42px;
+            line-height: 1.3;
+            margin-bottom: 20px;
+            color: #0F4C81;
+        }
+        
+        .hero-text .emoji-highlight {
+            font-size: 48px;
+            vertical-align: middle;
+        }
+        
+        .hero-text p {
+            font-size: 18px;
+            color: #1A1A2E;
+            margin-bottom: 28px;
+            opacity: 0.8;
+        }
+        
+        .hero-features {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        
+        .hero-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+        }
+        
+        .hero-feature-item::before {
+            content: '✓';
+            background: #00C49A;
+            color: #FFFFFF;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        /* Chart Animation */
+        .chart-casual {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background: #FFFFFF;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(15, 76, 129, 0.12);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0F4C81;
+        }
+        
+        .chart-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #00C49A;
+        }
+        
+        .chart-line-casual {
+            stroke: #00C49A;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawLineCasual 2.5s ease-out forwards;
+        }
+        
+        @keyframes drawLineCasual {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        .chart-gradient-casual {
+            opacity: 0.2;
+        }
+        
+        .chart-dot-casual {
+            fill: #00C49A;
+            animation: pulseCasual 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulseCasual {
+            0%, 100% { r: 5; }
+            50% { r: 7; }
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            background: #FFFFFF;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 16px;
+            color: #0F4C81;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #1A1A2E;
+            opacity: 0.7;
+            margin-bottom: 60px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+        
+        .feature-card-casual {
+            background: #FFFFFF;
+            padding: 36px;
+            border-radius: 24px;
+            transition: all 0.3s;
+            border: 2px solid #F7F9FC;
+        }
+        
+        .feature-card-casual:hover {
+            transform: translateY(-8px);
+            border-color: #00C49A;
+            box-shadow: 0 12px 32px rgba(0, 196, 154, 0.15);
+        }
+        
+        .feature-icon-casual {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card-casual h3 {
+            font-size: 22px;
+            margin-bottom: 12px;
+            color: #0F4C81;
+        }
+        
+        .feature-card-casual p {
+            color: #1A1A2E;
+            opacity: 0.7;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+        
+        /* Pricing Section */
+        .pricing {
+            padding: 80px 0;
+            background: #F7F9FC;
+        }
+        
+        .pricing-table {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+            margin-top: 60px;
+        }
+        
+        .pricing-card-casual {
+            background: #FFFFFF;
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+        
+        .pricing-card-casual.featured {
+            border-color: #00C49A;
+            box-shadow: 0 12px 32px rgba(0, 196, 154, 0.2);
+        }
+        
+        .pricing-card-casual:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(15, 76, 129, 0.12);
+        }
+        
+        .plan-badge {
+            background: #00C49A;
+            color: #FFFFFF;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+        
+        .plan-name {
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: #0F4C81;
+            font-weight: 700;
+        }
+        
+        .plan-price {
+            font-size: 44px;
+            font-weight: 700;
+            color: #1A1A2E;
+            margin-bottom: 8px;
+        }
+        
+        .plan-price span {
+            font-size: 18px;
+            color: #1A1A2E;
+            opacity: 0.6;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin: 32px 0;
+            text-align: left;
+        }
+        
+        .plan-features li {
+            padding: 12px 0;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .plan-features li:before {
+            content: "✓";
+            color: #00C49A;
+            font-weight: 700;
+            background: rgba(0, 196, 154, 0.1);
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        
+        /* Stocks Section */
+        .stocks {
+            padding: 80px 0;
+            background: #FFFFFF;
+        }
+        
+        .stocks-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 60px;
+        }
+        
+        .stock-card-casual {
+            background: #FFFFFF;
+            padding: 24px;
+            border-radius: 20px;
+            transition: all 0.3s;
+            border: 2px solid #F7F9FC;
+            cursor: pointer;
+        }
+        
+        .stock-card-casual:hover {
+            transform: scale(1.05);
+            border-color: #00C49A;
+            box-shadow: 0 8px 24px rgba(0, 196, 154, 0.15);
+        }
+        
+        .stock-code {
+            font-size: 12px;
+            color: #0F4C81;
+            font-weight: 600;
+            opacity: 0.7;
+            background: #F7F9FC;
+            padding: 4px 8px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .stock-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 12px 0 8px 0;
+            color: #1A1A2E;
+        }
+        
+        .stock-change {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00C49A;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .stock-change::before {
+            content: '↗';
+            font-size: 16px;
+        }
+        
+        .stock-change.down {
+            color: #FF6B6B;
+        }
+        
+        .stock-change.down::before {
+            content: '↘';
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #0F4C81 0%, #00C49A 100%);
+            text-align: center;
+            color: #FFFFFF;
+            border-radius: 32px;
+            margin: 40px 24px;
+        }
+        
+        .cta-section h2 {
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+        
+        .cta-section p {
+            font-size: 18px;
+            margin-bottom: 32px;
+            opacity: 0.9;
+        }
+        
+        .cta-button-large {
+            background: #FFFFFF;
+            color: #0F4C81;
+            padding: 18px 48px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 18px;
+            display: inline-block;
+            transition: all 0.3s;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .cta-button-large:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .cta-note {
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        /* Footer */
+        footer {
+            background: #FFFFFF;
+            color: #1A1A2E;
+            padding: 40px 0;
+            text-align: center;
+            border-top: 2px solid #F7F9FC;
+        }
+        
+        footer p {
+            opacity: 0.6;
+            font-size: 14px;
+        }
+        
+        /* Fun Elements */
+        .fun-badge {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FFB74D 100%);
+            color: #FFFFFF;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-text h1 {
+                font-size: 32px;
+            }
+            
+            .features-grid,
+            .pricing-table,
+            .stocks-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-casual {
+                height: 250px;
+            }
+            
+            .cta-section {
+                border-radius: 0;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-emoji">📊</span>
+                    <span>EC Stock Advisor</span>
+                </div>
+                <a href="#cta" class="cta-button">無料で試す</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1><span class="emoji-highlight">📈</span> EC業界の株、<br>もっと賢く投資しよう</h1>
+                    <p>難しいデータ分析はAIにおまかせ。初心者でも安心して始められる投資プラットフォーム</p>
+                    <div class="hero-features">
+                        <div class="hero-feature-item">EC業界特化の銘柄分析</div>
+                        <div class="hero-feature-item">AIが最適な投資を提案</div>
+                        <div class="hero-feature-item">大事なタイミングを通知</div>
+                    </div>
+                    <a href="#cta" class="cta-button">無料で始める</a>
+                    <span class="fun-badge">14日間無料</span>
+                </div>
+                <div class="chart-casual">
+                    <div class="chart-header">
+                        <span class="chart-title">📊 ポートフォリオ成長率</span>
+                        <span class="chart-value">+24.8%</span>
+                    </div>
+                    <svg width="100%" height="280" viewBox="0 0 500 280">
+                        <defs>
+                            <linearGradient id="gradient3" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00C49A;stop-opacity:0.25" />
+                                <stop offset="100%" style="stop-color:#00C49A;stop-opacity:0" />
+                            </linearGradient>
+                        </defs>
+                        <path class="chart-line-casual" d="M 20 220 Q 60 210, 100 180 T 180 140 T 260 100 T 340 70 T 420 40" />
+                        <path class="chart-gradient-casual" d="M 20 220 Q 60 210, 100 180 T 180 140 T 260 100 T 340 70 T 420 40 L 420 260 L 20 260 Z" fill="url(#gradient3)" />
+                        <circle class="chart-dot-casual" cx="420" cy="40" r="5" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">選ばれる3つの理由</h2>
+            <p class="section-subtitle">投資初心者から経験者まで、みんなが使いやすい</p>
+            <div class="features-grid">
+                <div class="feature-card-casual">
+                    <div class="feature-icon-casual">📊</div>
+                    <h3>トレンドスコア</h3>
+                    <p>EC業界の銘柄を独自のスコアでランキング。今注目すべき企業がひと目でわかります。</p>
+                </div>
+                <div class="feature-card-casual">
+                    <div class="feature-icon-casual">🤖</div>
+                    <h3>AI投資アドバイス</h3>
+                    <p>あなたの予算とリスク許容度に合わせて、AIが最適な投資プランを提案。難しい分析は不要です。</p>
+                </div>
+                <div class="feature-card-casual">
+                    <div class="feature-icon-casual">🔔</div>
+                    <h3>見逃さないアラート</h3>
+                    <p>株価の変動、決算発表、業界ニュースをスマホに通知。忙しくてもチャンスを逃しません。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing">
+        <div class="container">
+            <h2 class="section-title">シンプルな料金プラン</h2>
+            <p class="section-subtitle">まずは無料で試してみてください</p>
+            <div class="pricing-table">
+                <div class="pricing-card-casual">
+                    <h3 class="plan-name">無料プラン</h3>
+                    <div class="plan-price">¥0<span>/月</span></div>
+                    <ul class="plan-features">
+                        <li>基本的なトレンドスコア</li>
+                        <li>週1回のレポート</li>
+                        <li>10銘柄まで登録OK</li>
+                        <li>メールで質問できる</li>
+                    </ul>
+                    <a href="#cta" class="cta-button">今すぐ始める</a>
+                </div>
+                <div class="pricing-card-casual featured">
+                    <span class="plan-badge">おすすめ！</span>
+                    <h3 class="plan-name">プレミアム</h3>
+                    <div class="plan-price">¥2,980<span>/月</span></div>
+                    <ul class="plan-features">
+                        <li>すべての機能が使える</li>
+                        <li>AIの投資提案が受けられる</li>
+                        <li>リアルタイム通知</li>
+                        <li>銘柄登録数無制限</li>
+                        <li>優先サポート</li>
+                    </ul>
+                    <a href="#cta" class="cta-button">14日間無料で試す</a>
+                </div>
+                <div class="pricing-card-casual">
+                    <h3 class="plan-name">ビジネス</h3>
+                    <div class="plan-price">¥9,800<span>/月</span></div>
+                    <ul class="plan-features">
+                        <li>プレミアムの全機能</li>
+                        <li>専門家に相談できる</li>
+                        <li>カスタムレポート</li>
+                        <li>API連携</li>
+                        <li>24時間電話サポート</li>
+                    </ul>
+                    <a href="#cta" class="cta-button">詳しく聞く</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stocks">
+        <div class="container">
+            <h2 class="section-title">こんな銘柄を分析しています</h2>
+            <p class="section-subtitle">EC業界を代表する企業を網羅</p>
+            <div class="stocks-grid">
+                <div class="stock-card-casual">
+                    <div class="stock-code">4755</div>
+                    <div class="stock-name">楽天グループ</div>
+                    <div class="stock-change">+2.4%</div>
+                </div>
+                <div class="stock-card-casual">
+                    <div class="stock-code">4385</div>
+                    <div class="stock-name">メルカリ</div>
+                    <div class="stock-change">+5.1%</div>
+                </div>
+                <div class="stock-card-casual">
+                    <div class="stock-code">3092</div>
+                    <div class="stock-name">ZOZO</div>
+                    <div class="stock-change down">-1.2%</div>
+                </div>
+                <div class="stock-card-casual">
+                    <div class="stock-code">4689</div>
+                    <div class="stock-name">ヤフー</div>
+                    <div class="stock-change">+1.8%</div>
+                </div>
+                <div class="stock-card-casual">
+                    <div class="stock-code">2432</div>
+                    <div class="stock-name">ディー・エヌ・エー</div>
+                    <div class="stock-change">+3.2%</div>
+                </div>
+                <div class="stock-card-casual">
+                    <div class="stock-code">3088</div>
+                    <div class="stock-name">マツモトキヨシHD</div>
+                    <div class="stock-change down">-0.5%</div>
+                </div>
+                <div class="stock-card-casual">
+                    <div class="stock-code">2782</div>
+                    <div class="stock-name">セリア</div>
+                    <div class="stock-change">+4.3%</div>
+                </div>
+                <div class="stock-card-casual">
+                    <div class="stock-code">3382</div>
+                    <div class="stock-name">セブン&アイHD</div>
+                    <div class="stock-change">+0.9%</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="cta">
+        <div class="container">
+            <h2>さあ、投資を始めよう 🚀</h2>
+            <p>EC業界の成長を、あなたの資産に変えるチャンス</p>
+            <a href="#" class="cta-button-large">無料で14日間試してみる</a>
+            <p class="cta-note">クレジットカード登録不要 | いつでもキャンセルOK</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 EC Stock Advisor. すべての権利を保有しています。</p>
+        </div>
+    </footer>
+
+    <script>
+        // Simple smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
