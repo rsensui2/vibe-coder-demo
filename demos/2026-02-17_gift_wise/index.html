@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift Wise — デモポートフォリオ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Noto Sans JP', sans-serif; background: #FFF8F5; color: #2D2D2D; font-size: 17px; line-height: 1.7; }
+a { color: #E8567F; text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.75; }
+
+.breadcrumb { padding: 16px 32px; font-size: 14px; color: #7A7A7A; background: #fff; border-bottom: 1px solid #f0e8e5; }
+.breadcrumb a { color: #7A7A7A; }
+.breadcrumb span { color: #2D2D2D; }
+
+.hero { background: linear-gradient(135deg, #E8567F 0%, #FFB347 100%); padding: 80px 32px; text-align: center; color: #fff; }
+.hero h1 { font-size: 48px; font-weight: 700; margin-bottom: 16px; }
+.hero p { font-size: 20px; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+section { padding: 48px 0; }
+section h2 { font-size: 28px; font-weight: 700; margin-bottom: 32px; color: #2D2D2D; display: flex; align-items: center; gap: 12px; }
+section h2::before { content: ''; width: 4px; height: 28px; background: #E8567F; border-radius: 2px; }
+
+/* Cards Grid */
+.cards { display: grid; gap: 24px; }
+.cards-3 { grid-template-columns: repeat(3, 1fr); }
+.cards-2 { grid-template-columns: repeat(2, 1fr); }
+.card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s; }
+.card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.card img { width: 100%; height: 200px; object-fit: cover; }
+.card-body { padding: 24px; }
+.card-body h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+.card-body p { color: #7A7A7A; font-size: 15px; margin-bottom: 16px; }
+.card-body .btn { display: inline-block; padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; }
+.btn-primary { background: #E8567F; color: #fff; }
+.btn-outline { border: 1.5px solid #E8567F; color: #E8567F; }
+.btn-download { background: #FFB347; color: #fff; }
+
+/* Wide card */
+.card-wide { display: flex; align-items: stretch; }
+.card-wide img { width: 400px; height: auto; min-height: 250px; }
+.card-wide .card-body { display: flex; flex-direction: column; justify-content: center; }
+
+/* Media players */
+.media-section { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 24px; }
+video, audio { width: 100%; border-radius: 8px; }
+
+/* IG Grid */
+.ig-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.ig-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; cursor: pointer; transition: transform 0.2s; }
+.ig-grid img:hover { transform: scale(1.03); }
+
+/* Doc list */
+.doc-list { list-style: none; }
+.doc-list li { padding: 16px 24px; background: #fff; border-radius: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.doc-list li::before { content: '📄'; font-size: 24px; }
+
+/* Audio chapters */
+.audio-list { display: flex; flex-direction: column; gap: 16px; }
+.audio-item { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.audio-item h4 { font-size: 16px; margin-bottom: 8px; color: #E8567F; }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; cursor: pointer; }
+.modal-overlay.active { display: flex; }
+.modal-overlay img { max-width: 90vw; max-height: 90vh; border-radius: 8px; }
+
+@media (max-width: 768px) {
+  .cards-3 { grid-template-columns: 1fr; }
+  .cards-2 { grid-template-columns: 1fr; }
+  .card-wide { flex-direction: column; }
+  .card-wide img { width: 100%; }
+  .ig-grid { grid-template-columns: repeat(3, 1fr); }
+  .hero h1 { font-size: 32px; }
+}
+</style>
+</head>
+<body>
+
+<div class="breadcrumb">
+  <a href="../../index.html">← Demo Portal</a> / <span>Gift Wise</span>
+</div>
+
+<div class="hero">
+  <h1>🎁 Gift Wise</h1>
+  <p>プレゼントを選ぶ手間は省きつつも、ちゃんと思いを伝える — ギフトシェア＆管理プラットフォーム</p>
+</div>
+
+<div class="container">
+
+<!-- LP Section -->
+<section>
+  <h2>Landing Pages</h2>
+  <div class="cards cards-3">
+    <div class="card">
+      <img src="screenshots/lp_pattern1.png" alt="LP Modern" onclick="openModal(this.src)">
+      <div class="card-body">
+        <h3>Pattern 1: Modern</h3>
+        <p>ミニマルデザイン。余白を活かしたモダンなレイアウト。</p>
+        <a href="lp/pattern1_modern.html" target="_blank" class="btn btn-primary">Open →</a>
+      </div>
+    </div>
+    <div class="card">
+      <img src="screenshots/lp_pattern2.png" alt="LP Premium" onclick="openModal(this.src)">
+      <div class="card-body">
+        <h3>Pattern 2: Premium</h3>
+        <p>ダークネイビー×ゴールド。高級感のあるデザイン。</p>
+        <a href="lp/pattern2_premium.html" target="_blank" class="btn btn-primary">Open →</a>
+      </div>
+    </div>
+    <div class="card">
+      <img src="screenshots/lp_pattern3.png" alt="LP Casual" onclick="openModal(this.src)">
+      <div class="card-body">
+        <h3>Pattern 3: Casual</h3>
+        <p>パステル×ポップ。親しみやすいカジュアルデザイン。</p>
+        <a href="lp/pattern3_casual.html" target="_blank" class="btn btn-primary">Open →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mock App Section -->
+<section>
+  <h2>Mock App</h2>
+  <div class="card card-wide">
+    <img src="screenshots/mock_app.png" alt="Mock App" onclick="openModal(this.src)">
+    <div class="card-body">
+      <h3>Gift Wise スマホアプリ</h3>
+      <p>5つのタブで構成されたインタラクティブなモックアプリ。ウィッシュリスト、ギフトログ、グループギフト、メッセージカード機能を体験できます。</p>
+      <a href="mock/app_mock.html" target="_blank" class="btn btn-primary">体験する →</a>
+    </div>
+  </div>
+</section>
+
+<!-- Presentation Section -->
+<section>
+  <h2>Presentation</h2>
+  <div class="cards cards-2">
+    <div class="card">
+      <img src="slides/00_cover_01.png" alt="Slide Cover" onclick="openModal(this.src)" style="height:240px;">
+      <div class="card-body">
+        <h3>📊 PowerPoint</h3>
+        <p>10枚のプレゼンテーションスライド（PPTX形式）</p>
+        <a href="slides/gift_wise.pptx" download class="btn btn-download">⬇ Download PPTX</a>
+      </div>
+    </div>
+    <div class="card">
+      <img src="slides/00_cover_01.png" alt="Slide Cover" onclick="openModal(this.src)" style="height:240px;">
+      <div class="card-body">
+        <h3>📑 PDF</h3>
+        <p>10ページのプレゼン資料（PDF形式）</p>
+        <a href="slides/gift_wise.pdf" target="_blank" class="btn btn-outline">📖 Open PDF</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Video Section -->
+<section>
+  <h2>Promotion Video</h2>
+  <div class="media-section">
+    <video controls preload="metadata">
+      <source src="video/promo.mp4" type="video/mp4">
+    </video>
+    <p style="margin-top:12px; color:#7A7A7A; font-size:14px;">30秒プロモーション動画 — テキストアニメーション</p>
+  </div>
+</section>
+
+<!-- Audio Section -->
+<section>
+  <h2>Audio Radio</h2>
+  <div class="audio-list">
+    <div class="audio-item">
+      <h4>📻 Full Episode（全編）</h4>
+      <audio controls preload="metadata" style="width:100%">
+        <source src="audio/full_episode.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+    <div class="audio-item">
+      <h4>Chapter 1: Gift Wiseとは</h4>
+      <audio controls preload="metadata" style="width:100%">
+        <source src="audio/chapter_01.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+    <div class="audio-item">
+      <h4>Chapter 2: ギフト選びの課題</h4>
+      <audio controls preload="metadata" style="width:100%">
+        <source src="audio/chapter_02.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+    <div class="audio-item">
+      <h4>Chapter 3: ソリューション紹介</h4>
+      <audio controls preload="metadata" style="width:100%">
+        <source src="audio/chapter_03.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+    <div class="audio-item">
+      <h4>Chapter 4: ビジネスモデルと市場</h4>
+      <audio controls preload="metadata" style="width:100%">
+        <source src="audio/chapter_04.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+  </div>
+</section>
+
+<!-- SNS Section -->
+<section>
+  <h2>SNS Contents</h2>
+  <h3 style="font-size:20px; margin-bottom:16px;">📸 Instagram 図解（10枚）</h3>
+  <div class="ig-grid">
+    <img src="sns/instagram/ig_01_intro.png" alt="IG 1" onclick="openModal(this.src)">
+    <img src="sns/instagram/ig_02_problems.png" alt="IG 2" onclick="openModal(this.src)">
+    <img src="sns/instagram/ig_03_wishlist.png" alt="IG 3" onclick="openModal(this.src)">
+    <img src="sns/instagram/ig_04_giftlog.png" alt="IG 4" onclick="openModal(this.src)">
+    <img src="sns/instagram/ig_05_group.png" alt="IG 5" onclick="openModal(this.src)">
+    <img src="sns/instagram/ig_06_message.png" alt="IG 6" onclick="openModal(this.src)">
+    <img src="sns/instagram/ig_07_pricing.png" alt="IG 7" onclick="openModal(this.src)">
+    <img src="sns/instagram/ig_08_manners.png" alt="IG 8" onclick="openModal(this.src)">
+    <img src="sns/instagram/ig_09_tips.png" alt="IG 9" onclick="openModal(this.src)">
+    <img src="sns/instagram/ig_10_cta.png" alt="IG 10" onclick="openModal(this.src)">
+  </div>
+  <div style="margin-top:24px;">
+    <a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_gift_wise/sns/x_posts_30days.md" target="_blank" class="btn btn-outline">🐦 X投稿30日分を見る →</a>
+  </div>
+</section>
+
+<!-- Documents Section -->
+<section>
+  <h2>Documents</h2>
+  <ul class="doc-list">
+    <li><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_gift_wise/docs/01_executive_summary.md" target="_blank">エグゼクティブサマリー</a></li>
+    <li><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_gift_wise/docs/02_business_model.md" target="_blank">ビジネスモデル</a></li>
+    <li><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_gift_wise/docs/03_solution_overview.md" target="_blank">ソリューション概要</a></li>
+    <li><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_gift_wise/docs/04_risk_analysis.md" target="_blank">リスク分析</a></li>
+    <li><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_gift_wise/docs/05_market_research.md" target="_blank">市場調査</a></li>
+  </ul>
+</section>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal()">
+  <img id="modal-img" src="" alt="">
+</div>
+
+<script>
+function openModal(src) {
+  document.getElementById('modal-img').src = src;
+  document.getElementById('modal').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+
+</body>
+</html>

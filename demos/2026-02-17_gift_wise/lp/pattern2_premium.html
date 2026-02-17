@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift Wise - 特別な人に、特別な贈り物を。</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --main: #E8567F;
+    --accent: #FFB347;
+    --dark-bg: #1A1A2E;
+    --dark-bg-light: #22223A;
+    --gold: #FFB347;
+    --text-light: #F5F5F5;
+    --text-muted: #B0B0C8;
+    --serif: 'Noto Serif JP', serif;
+    --sans: 'Noto Sans JP', sans-serif;
+    --gold-grad: linear-gradient(135deg, #FFB347 0%, #FFCC80 40%, #FFB347 100%);
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--dark-bg);
+    color: var(--text-light);
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* ===== Utility ===== */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .section-sub {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 56px;
+    font-size: 0.95rem;
+  }
+  .gold-text { color: var(--gold); }
+  .section-pad { padding: 100px 0; }
+
+  /* ===== Animations ===== */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ===== Nav ===== */
+  nav {
+    position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
+    background: rgba(26,26,46,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,179,71,0.12);
+    padding: 16px 0;
+  }
+  nav .container { display: flex; align-items: center; justify-content: space-between; }
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--gold);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+  .nav-cta {
+    background: var(--gold-grad);
+    color: var(--dark-bg);
+    border: none;
+    padding: 8px 24px;
+    border-radius: 24px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .nav-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(255,179,71,0.35);
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: url('https://images.unsplash.com/photo-1549465220-1a8b9238f4e1?w=1400&q=80') center/cover no-repeat;
+    filter: brightness(0.25);
+    z-index: 0;
+  }
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(26,26,46,0.5) 0%, var(--dark-bg) 100%);
+    z-index: 1;
+  }
+  .hero-content { position: relative; z-index: 2; padding: 0 24px; }
+  .hero-badge {
+    display: inline-block;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 6px 20px;
+    border-radius: 24px;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 32px;
+    animation: fadeInDown 1s ease 0.3s both;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 6vw, 3.6rem);
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 24px;
+    animation: fadeInDown 1s ease 0.5s both;
+  }
+  .hero p {
+    color: var(--text-muted);
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    max-width: 520px;
+    margin: 0 auto 40px;
+    animation: fadeInDown 1s ease 0.7s both;
+  }
+  .hero-buttons {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    animation: fadeInDown 1s ease 0.9s both;
+  }
+  .btn-gold {
+    background: var(--gold-grad);
+    color: var(--dark-bg);
+    border: none;
+    padding: 14px 40px;
+    border-radius: 32px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.3s;
+    text-decoration: none;
+  }
+  .btn-gold:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(255,179,71,0.4);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--text-light);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 14px 40px;
+    border-radius: 32px;
+    font-weight: 500;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color 0.3s, color 0.3s;
+    text-decoration: none;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== Problems ===== */
+  .problems { background: var(--dark-bg-light); }
+  .problems-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 32px;
+  }
+  .problem-card {
+    background: rgba(26,26,46,0.7);
+    border: 1px solid rgba(255,179,71,0.1);
+    border-radius: 16px;
+    padding: 40px 32px;
+    text-align: center;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .problem-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(255,179,71,0.35);
+  }
+  .problem-icon {
+    font-size: 2.8rem;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .problem-card h3 {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    color: var(--gold);
+  }
+  .problem-card p { color: var(--text-muted); font-size: 0.9rem; }
+
+  /* ===== Solution ===== */
+  .solution-photo {
+    width: 100%;
+    max-height: 360px;
+    object-fit: cover;
+    border-radius: 16px;
+    margin-bottom: 56px;
+    border: 1px solid rgba(255,179,71,0.15);
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 28px;
+  }
+  .feature-card {
+    background: var(--dark-bg-light);
+    border-radius: 16px;
+    padding: 36px 28px;
+    border: 1px solid rgba(255,179,71,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(255,179,71,0.1);
+  }
+  .feature-num {
+    font-family: var(--serif);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: block;
+  }
+  .feature-card h3 {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+  .feature-card p { color: var(--text-muted); font-size: 0.88rem; }
+
+  /* ===== Steps ===== */
+  .steps { background: var(--dark-bg-light); }
+  .steps-row {
+    display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
+    position: relative;
+  }
+  .step-item {
+    flex: 1; min-width: 220px; max-width: 300px;
+    text-align: center;
+    position: relative;
+  }
+  .step-circle {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--gold-grad);
+    color: var(--dark-bg);
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 32px rgba(255,179,71,0.25);
+  }
+  .step-item h3 {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+  .step-item p { color: var(--text-muted); font-size: 0.88rem; }
+  .step-arrow {
+    position: absolute;
+    top: 40px; right: -28px;
+    color: var(--gold);
+    font-size: 1.4rem;
+    opacity: 0.5;
+  }
+  @media (max-width: 720px) { .step-arrow { display: none; } }
+
+  /* ===== Pricing ===== */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 28px;
+    align-items: stretch;
+  }
+  .price-card {
+    background: var(--dark-bg-light);
+    border: 1px solid rgba(255,179,71,0.1);
+    border-radius: 20px;
+    padding: 44px 32px;
+    text-align: center;
+    position: relative;
+    transition: transform 0.3s;
+  }
+  .price-card.featured {
+    border-color: var(--gold);
+    box-shadow: 0 0 60px rgba(255,179,71,0.12);
+  }
+  .price-card.featured::before {
+    content: 'おすすめ';
+    position: absolute;
+    top: -14px; left: 50%; transform: translateX(-50%);
+    background: var(--gold-grad);
+    color: var(--dark-bg);
+    padding: 4px 20px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .price-card:hover { transform: translateY(-4px); }
+  .price-card h3 {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+  .price-amount {
+    font-family: var(--serif);
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin: 16px 0 4px;
+  }
+  .price-period { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px; }
+  .price-features { list-style: none; margin-bottom: 32px; }
+  .price-features li {
+    padding: 8px 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .price-features li::before { content: '✓ '; color: var(--gold); font-weight: 700; }
+  .btn-price {
+    display: inline-block;
+    padding: 12px 36px;
+    border-radius: 28px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-price.gold { background: var(--gold-grad); color: var(--dark-bg); border: none; }
+  .btn-price.outline { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+  .btn-price:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,179,71,0.25); }
+
+  /* ===== Testimonials ===== */
+  .testimonials { background: var(--dark-bg-light); }
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 28px;
+  }
+  .testimonial-card {
+    background: rgba(26,26,46,0.7);
+    border: 1px solid rgba(255,179,71,0.08);
+    border-radius: 16px;
+    padding: 36px 28px;
+  }
+  .testimonial-stars { color: var(--gold); font-size: 0.9rem; margin-bottom: 16px; }
+  .testimonial-card blockquote {
+    font-size: 0.95rem;
+    line-height: 1.9;
+    margin-bottom: 20px;
+    font-style: italic;
+    color: var(--text-muted);
+  }
+  .testimonial-author {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .testimonial-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--gold-grad);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    color: var(--dark-bg);
+    font-size: 1rem;
+  }
+  .testimonial-name { font-weight: 600; font-size: 0.9rem; }
+  .testimonial-role { color: var(--text-muted); font-size: 0.78rem; }
+
+  /* ===== FAQ ===== */
+  .faq-list { max-width: 760px; margin: 0 auto; }
+  .faq-item {
+    border-bottom: 1px solid rgba(255,179,71,0.1);
+  }
+  .faq-q {
+    width: 100%;
+    background: none; border: none;
+    color: var(--text-light);
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 24px 0;
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    text-align: left;
+    font-family: var(--sans);
+  }
+  .faq-q::after {
+    content: '+';
+    font-size: 1.4rem;
+    color: var(--gold);
+    transition: transform 0.3s;
+    flex-shrink: 0;
+    margin-left: 16px;
+  }
+  .faq-q.open::after { transform: rotate(45deg); }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+  .faq-a.open {
+    max-height: 300px;
+    padding-bottom: 24px;
+  }
+
+  /* ===== Bottom CTA ===== */
+  .bottom-cta {
+    text-align: center;
+    background: linear-gradient(180deg, var(--dark-bg) 0%, var(--dark-bg-light) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .bottom-cta::before {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(255,179,71,0.08) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+  }
+  .bottom-cta .container { position: relative; z-index: 1; }
+  .bottom-cta h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    margin-bottom: 16px;
+  }
+  .bottom-cta p {
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    font-size: 1rem;
+  }
+  .dl-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .dl-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--gold-grad);
+    color: var(--dark-bg);
+    padding: 14px 32px;
+    border-radius: 32px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .dl-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(255,179,71,0.35);
+  }
+  .dl-btn.dark {
+    background: rgba(255,255,255,0.08);
+    color: var(--text-light);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .dl-btn.dark:hover { border-color: var(--gold); color: var(--gold); box-shadow: none; }
+
+  /* ===== Footer ===== */
+  footer {
+    border-top: 1px solid rgba(255,179,71,0.08);
+    padding: 48px 0 32px;
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .footer-links { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+  .footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--gold); }
+  .footer-copy { color: rgba(255,255,255,0.25); font-size: 0.78rem; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 600px) {
+    .section-pad { padding: 64px 0; }
+    .price-card { padding: 32px 20px; }
+    .hero h1 { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="container">
+    <a href="#" class="nav-logo">Gift Wise</a>
+    <button class="nav-cta" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">無料ではじめる</button>
+  </div>
+</nav>
+
+<!-- 1. Hero -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <span class="hero-badge">GIFT SHARING PLATFORM</span>
+    <h1>特別な人に、<br>特別な贈り物を。</h1>
+    <p>ギフト選びの悩みから解放され、<br>大切な人への気持ちをまっすぐに届けるプラットフォーム。</p>
+    <div class="hero-buttons">
+      <a href="#cta" class="btn-gold">無料で始める</a>
+      <a href="#features" class="btn-outline">機能を見る</a>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Problems -->
+<section class="problems section-pad">
+  <div class="container">
+    <h2 class="section-title fade-up">こんな<span class="gold-text">お悩み</span>ありませんか？</h2>
+    <p class="section-sub fade-up">ギフト選びは、想いがあるほど難しい。</p>
+    <div class="problems-grid">
+      <div class="problem-card fade-up">
+        <span class="problem-icon">🎁</span>
+        <h3>何を贈ればいいかわからない</h3>
+        <p>相手に喜んでもらいたいけど、何が欲しいか聞くのは野暮。毎回ネットで検索しては迷ってしまう…。</p>
+      </div>
+      <div class="problem-card fade-up">
+        <span class="problem-icon">🔄</span>
+        <h3>同じものが被ってしまう</h3>
+        <p>せっかく選んだのに、他の人と被ってしまった経験はありませんか？もらう側も気を遣ってしまいます。</p>
+      </div>
+      <div class="problem-card fade-up">
+        <span class="problem-icon">💭</span>
+        <h3>相手の好みがわからない</h3>
+        <p>趣味やサイズ、好きなブランド…。本当に喜ばれるギフトを選ぶには情報が足りないことが多いのです。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Solution / Features -->
+<section id="features" class="section-pad">
+  <div class="container">
+    <h2 class="section-title fade-up"><span class="gold-text">Gift Wise</span>が すべて解決します</h2>
+    <p class="section-sub fade-up">贈る人も、もらう人も、みんなが幸せになるギフト体験を。</p>
+    <img src="https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=1200&q=80" alt="Gift boxes" class="solution-photo fade-up">
+    <div class="features-grid">
+      <div class="feature-card fade-up">
+        <span class="feature-num">01</span>
+        <h3>ウィッシュリスト共有</h3>
+        <p>欲しいものをリストにして家族や友人にシェア。もう「何が欲しい？」と聞く必要はありません。</p>
+      </div>
+      <div class="feature-card fade-up">
+        <span class="feature-num">02</span>
+        <h3>ギフト登録・管理</h3>
+        <p>贈ったギフト・もらったギフトを記録。被りを防ぎ、感謝の気持ちも忘れません。</p>
+      </div>
+      <div class="feature-card fade-up">
+        <span class="feature-num">03</span>
+        <h3>おすすめAI提案</h3>
+        <p>相手の年齢・趣味・関係性からAIが最適なギフトを提案。迷う時間を大幅に短縮します。</p>
+      </div>
+      <div class="feature-card fade-up">
+        <span class="feature-num">04</span>
+        <h3>グループギフト機能</h3>
+        <p>仲間と一緒に贈り物を。割り勘管理やメッセージカードの共同作成もアプリ内で完結。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Steps -->
+<section class="steps section-pad">
+  <div class="container">
+    <h2 class="section-title fade-up">はじめ方は<span class="gold-text">かんたん3ステップ</span></h2>
+    <p class="section-sub fade-up">わずか1分で、スマートなギフト体験が始まります。</p>
+    <div class="steps-row">
+      <div class="step-item fade-up">
+        <div class="step-circle">1</div>
+        <h3>アカウント登録</h3>
+        <p>メールアドレスまたはSNSアカウントで無料登録。面倒な手続きは一切ありません。</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step-item fade-up">
+        <div class="step-circle">2</div>
+        <h3>ウィッシュリスト作成</h3>
+        <p>欲しいものや贈りたい候補をリストに追加。URLを貼るだけで商品情報を自動取得。</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step-item fade-up">
+        <div class="step-circle">3</div>
+        <h3>リンクをシェア</h3>
+        <p>リストのリンクを大切な人にシェア。LINEやメール、SNSで簡単に共有できます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Pricing -->
+<section class="section-pad">
+  <div class="container">
+    <h2 class="section-title fade-up">料金プラン</h2>
+    <p class="section-sub fade-up">すべての基本機能は無料。もっと便利に使いたい方へ。</p>
+    <div class="pricing-grid">
+      <div class="price-card fade-up">
+        <h3>Free</h3>
+        <div class="price-amount">¥0</div>
+        <div class="price-period">ずっと無料</div>
+        <ul class="price-features">
+          <li>ウィッシュリスト3件まで</li>
+          <li>ギフト履歴管理</li>
+          <li>基本AI提案</li>
+          <li>メール通知</li>
+        </ul>
+        <a href="#" class="btn-price outline">無料で始める</a>
+      </div>
+      <div class="price-card featured fade-up">
+        <h3>Premium</h3>
+        <div class="price-amount">¥480<span style="font-size:0.5em;font-weight:400">/月</span></div>
+        <div class="price-period">年払いで¥3,980/年（30%OFF）</div>
+        <ul class="price-features">
+          <li>ウィッシュリスト無制限</li>
+          <li>高精度AI提案</li>
+          <li>グループギフト機能</li>
+          <li>リマインダー通知</li>
+          <li>広告非表示</li>
+        </ul>
+        <a href="#" class="btn-price gold">Premiumを始める</a>
+      </div>
+      <div class="price-card fade-up">
+        <h3>Family</h3>
+        <div class="price-amount">¥980<span style="font-size:0.5em;font-weight:400">/月</span></div>
+        <div class="price-period">最大6人までシェア可能</div>
+        <ul class="price-features">
+          <li>Premium全機能</li>
+          <li>家族6人まで共有</li>
+          <li>家族カレンダー連携</li>
+          <li>予算管理ダッシュボード</li>
+          <li>優先サポート</li>
+        </ul>
+        <a href="#" class="btn-price outline">Familyを始める</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Testimonials -->
+<section class="testimonials section-pad">
+  <div class="container">
+    <h2 class="section-title fade-up">ユーザーの<span class="gold-text">声</span></h2>
+    <p class="section-sub fade-up">Gift Wiseで変わったギフト体験。</p>
+    <div class="testimonials-grid">
+      <div class="testimonial-card fade-up">
+        <div class="testimonial-stars">★★★★★</div>
+        <blockquote>「母の日のプレゼントにいつも悩んでいましたが、ウィッシュリストで母の欲しいものがわかるようになりました。母も大喜びです！」</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">Y</div>
+          <div>
+            <div class="testimonial-name">田中 由美（32歳）</div>
+            <div class="testimonial-role">会社員・2児の母</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up">
+        <div class="testimonial-stars">★★★★★</div>
+        <blockquote>「友人の結婚祝いでグループギフト機能を使いました。割り勘もメッセージカードもアプリ内で完結。幹事の負担が激減しました。」</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">K</div>
+          <div>
+            <div class="testimonial-name">佐藤 健太（28歳）</div>
+            <div class="testimonial-role">ITエンジニア</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up">
+        <div class="testimonial-stars">★★★★★</div>
+        <blockquote>「AI提案が想像以上に的確で驚きました。彼女の誕生日プレゼントにアクセサリーを提案されて贈ったら、大正解でした！」</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">R</div>
+          <div>
+            <div class="testimonial-name">鈴木 涼太（25歳）</div>
+            <div class="testimonial-role">大学院生</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. FAQ -->
+<section class="section-pad">
+  <div class="container">
+    <h2 class="section-title fade-up">よくある質問</h2>
+    <p class="section-sub fade-up">ご不明な点はこちらをご確認ください。</p>
+    <div class="faq-list">
+      <div class="faq-item fade-up">
+        <button class="faq-q" onclick="toggleFaq(this)">Gift Wiseは無料で使えますか？</button>
+        <div class="faq-a">はい、基本機能はすべて無料でご利用いただけます。ウィッシュリストの作成・共有、ギフト履歴管理、基本的なAI提案は無料プランに含まれています。より高度な機能をご利用の場合はPremiumまたはFamilyプランをご検討ください。</div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-q" onclick="toggleFaq(this)">ウィッシュリストは誰でも見られますか？</button>
+        <div class="faq-a">いいえ、公開範囲はご自身で設定できます。「リンクを知っている人のみ」「特定の友人のみ」「完全非公開」など、柔軟なプライバシー設定をご用意しています。</div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-q" onclick="toggleFaq(this)">グループギフトの割り勘はどうやりますか？</button>
+        <div class="faq-a">グループギフト機能では、参加メンバーに自動で均等割りまたはカスタム金額を設定できます。決済は各自のタイミングで行え、支払い状況もリアルタイムで確認できます。</div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-q" onclick="toggleFaq(this)">対応しているECサイトはありますか？</button>
+        <div class="faq-a">Amazon、楽天市場、Yahoo!ショッピングなど主要なECサイトに対応しています。URLを貼るだけで商品画像・価格・名前を自動取得します。対応サイトは順次拡大中です。</div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-q" onclick="toggleFaq(this)">解約はいつでもできますか？</button>
+        <div class="faq-a">はい、有料プランはいつでも解約可能です。解約後も契約期間の終了まではPremium機能をご利用いただけます。解約手続きはアプリ内の設定画面から簡単に行えます。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Bottom CTA -->
+<section id="cta" class="bottom-cta section-pad">
+  <div class="container">
+    <h2 class="fade-up">今すぐ、<span class="gold-text">贈り物上手</span>になろう。</h2>
+    <p class="fade-up">Gift Wiseで、大切な人との絆をもっと深く。</p>
+    <div class="dl-buttons fade-up">
+      <a href="#" class="dl-btn">🍎 App Storeからダウンロード</a>
+      <a href="#" class="dl-btn dark">▶ Google Playで手に入れよう</a>
+    </div>
+  </div>
+</section>
+
+<!-- 9. Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-logo">Gift Wise</div>
+    <div class="footer-links">
+      <a href="#">利用規約</a>
+      <a href="#">プライバシーポリシー</a>
+      <a href="#">特定商取引法に基づく表記</a>
+      <a href="#">お問い合わせ</a>
+      <a href="#">運営会社</a>
+    </div>
+    <div class="footer-copy">&copy; 2026 Gift Wise Inc. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+  // Intersection Observer for fade-up
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+  // FAQ toggle
+  function toggleFaq(btn) {
+    const answer = btn.nextElementSibling;
+    const isOpen = btn.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.faq-q').forEach(q => { q.classList.remove('open'); q.nextElementSibling.classList.remove('open'); });
+    if (!isOpen) { btn.classList.add('open'); answer.classList.add('open'); }
+  }
+</script>
+</body>
+</html>

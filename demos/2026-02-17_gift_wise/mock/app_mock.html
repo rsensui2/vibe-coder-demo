@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift Wise - Mock App</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #2D2D2D;
+}
+.phone-frame {
+  width: 375px;
+  height: 812px;
+  background: #FFF8F5;
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3), inset 0 0 0 2px #333;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.status-bar {
+  height: 44px;
+  background: #FFF8F5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.status-bar .time { font-weight: 700; }
+.status-bar .icons { display: flex; gap: 6px; font-size: 12px; }
+.notch {
+  width: 120px;
+  height: 28px;
+  background: #1a1a1a;
+  border-radius: 0 0 18px 18px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+.screen-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.screen-area::-webkit-scrollbar { display: none; }
+.tab-content { display: none; min-height: 100%; }
+.tab-content.active { display: block; }
+.tab-bar {
+  height: 80px;
+  background: #fff;
+  border-top: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-shrink: 0;
+  padding-bottom: 16px;
+}
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  font-size: 10px;
+  color: #999;
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-item.active { color: #E8567F; }
+.tab-item .tab-icon { font-size: 24px; line-height: 1; }
+.tab-item.add-tab .tab-icon {
+  background: linear-gradient(135deg, #E8567F, #FFB347);
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-top: -16px;
+  box-shadow: 0 4px 12px rgba(232,86,127,0.3);
+}
+
+/* ===== Common ===== */
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #E8567F;
+  padding: 16px 20px 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.page-header {
+  padding: 12px 20px;
+  font-size: 22px;
+  font-weight: 700;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.badge-pink { background: #FCE4EC; color: #E8567F; }
+.badge-orange { background: #FFF3E0; color: #E67E22; }
+.badge-green { background: #E8F5E9; color: #27AE60; }
+.badge-gray { background: #eee; color: #888; }
+
+/* ===== Home ===== */
+.home-hero {
+  background: linear-gradient(135deg, #E8567F 0%, #FFB347 100%);
+  padding: 20px;
+  color: #fff;
+  border-radius: 0 0 24px 24px;
+}
+.home-hero h2 { font-size: 20px; font-weight: 700; }
+.home-hero p { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+.reminder-card {
+  background: #fff;
+  margin: 12px 16px 0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.reminder-card .emoji { font-size: 32px; }
+.reminder-card .info { flex: 1; }
+.reminder-card .info .name { font-weight: 700; font-size: 14px; }
+.reminder-card .info .detail { font-size: 12px; color: #888; margin-top: 2px; }
+.reminder-card .days {
+  background: #E8567F;
+  color: #fff;
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.timeline-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.timeline-item .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E8567F, #FFB347);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.timeline-item .content { flex: 1; }
+.timeline-item .content .text { font-size: 13px; line-height: 1.5; }
+.timeline-item .content .text strong { color: #E8567F; }
+.timeline-item .content .time { font-size: 11px; color: #aaa; margin-top: 4px; }
+.recommend-scroll {
+  display: flex;
+  gap: 12px;
+  padding: 8px 20px 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.recommend-scroll::-webkit-scrollbar { display: none; }
+.recommend-card {
+  min-width: 140px;
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  flex-shrink: 0;
+}
+.recommend-card .img {
+  height: 100px;
+  background: linear-gradient(135deg, #fce4ec, #fff3e0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+}
+.recommend-card .info { padding: 10px; }
+.recommend-card .info .name { font-size: 12px; font-weight: 500; }
+.recommend-card .info .price { font-size: 13px; font-weight: 700; color: #E8567F; margin-top: 2px; }
+
+/* ===== Wishlist ===== */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  padding: 8px 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  background: #f0f0f0;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-family: inherit;
+}
+.filter-chip.active {
+  background: #E8567F;
+  color: #fff;
+}
+.wish-card {
+  background: #fff;
+  margin: 8px 16px;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.wish-card .thumb {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fce4ec, #fff3e0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  flex-shrink: 0;
+}
+.wish-card .info { flex: 1; }
+.wish-card .info .name { font-size: 14px; font-weight: 700; }
+.wish-card .info .brand { font-size: 11px; color: #999; margin-top: 2px; }
+.wish-card .info .bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+.wish-card .info .price { font-size: 15px; font-weight: 700; color: #E8567F; }
+.wish-card .info .stars { color: #FFB347; font-size: 13px; }
+
+/* ===== Add ===== */
+.add-section {
+  padding: 16px 20px;
+}
+.add-option {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.add-option:active { transform: scale(0.98); }
+.add-option .icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+.add-option .icon.pink { background: #FCE4EC; }
+.add-option .icon.orange { background: #FFF3E0; }
+.add-option .icon.purple { background: #F3E5F5; }
+.add-option .text .title { font-size: 15px; font-weight: 700; }
+.add-option .text .desc { font-size: 12px; color: #888; margin-top: 2px; }
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #888;
+  margin-bottom: 6px;
+}
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #eee;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.form-group input:focus, .form-group textarea:focus {
+  border-color: #E8567F;
+}
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #E8567F, #FFB347);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-primary:active { opacity: 0.8; }
+.manual-form { display: none; padding: 0 20px 20px; }
+.manual-form.show { display: block; }
+
+/* ===== Gift Log ===== */
+.log-card {
+  background: #fff;
+  margin: 8px 16px;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.log-card .thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #e3f2fd, #fce4ec);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  flex-shrink: 0;
+}
+.log-card .info { flex: 1; }
+.log-card .info .name { font-size: 14px; font-weight: 700; }
+.log-card .info .from { font-size: 12px; color: #888; margin-top: 2px; }
+.log-card .info .bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+.log-card .info .date { font-size: 11px; color: #aaa; }
+
+/* ===== Friends ===== */
+.friend-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.friend-card .avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.friend-card .info { flex: 1; }
+.friend-card .info .name { font-size: 14px; font-weight: 700; }
+.friend-card .info .detail { font-size: 12px; color: #888; margin-top: 2px; }
+.friend-card .action {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid #E8567F;
+  color: #E8567F;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+.group-gift-banner {
+  margin: 16px;
+  background: linear-gradient(135deg, #E8567F, #FFB347);
+  border-radius: 16px;
+  padding: 20px;
+  color: #fff;
+  text-align: center;
+}
+.group-gift-banner h3 { font-size: 16px; font-weight: 700; }
+.group-gift-banner p { font-size: 12px; opacity: 0.9; margin-top: 4px; }
+.group-gift-banner button {
+  margin-top: 12px;
+  padding: 10px 24px;
+  background: #fff;
+  color: #E8567F;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.search-bar {
+  margin: 8px 16px;
+  padding: 10px 16px;
+  background: #fff;
+  border-radius: 12px;
+  border: 2px solid #eee;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.search-bar input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+  font-family: inherit;
+  background: transparent;
+}
+.empty-footer { height: 20px; }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div class="notch"></div>
+  <div class="status-bar">
+    <span class="time">13:38</span>
+    <span class="icons">📶 🔋 92%</span>
+  </div>
+
+  <div class="screen-area">
+    <!-- ===== ホーム ===== -->
+    <div class="tab-content active" id="tab-home">
+      <div class="home-hero">
+        <h2>こんにちは、美咲さん 👋</h2>
+        <p>今月のギフトイベント: 3件</p>
+      </div>
+
+      <div class="section-title">🔔 リマインダー</div>
+      <div class="reminder-card">
+        <span class="emoji">🎂</span>
+        <div class="info">
+          <div class="name">田中 健太の誕生日</div>
+          <div class="detail">3月5日（水）</div>
+        </div>
+        <span class="days">あと16日</span>
+      </div>
+      <div class="reminder-card">
+        <span class="emoji">💍</span>
+        <div class="info">
+          <div class="name">佐藤夫妻の結婚記念日</div>
+          <div class="detail">3月14日（金）</div>
+        </div>
+        <span class="days">あと25日</span>
+      </div>
+
+      <div class="section-title">📰 タイムライン</div>
+      <div class="timeline-item">
+        <div class="avatar">🎁</div>
+        <div class="content">
+          <div class="text"><strong>山本 彩花</strong>さんがウィッシュリストに「Aesop ハンドクリーム」を追加しました</div>
+          <div class="time">2時間前</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="avatar">💝</div>
+        <div class="content">
+          <div class="text"><strong>鈴木 大輔</strong>さんから「ルームフレグランス」を受け取りました</div>
+          <div class="time">昨日 18:30</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="avatar">🎉</div>
+        <div class="content">
+          <div class="text"><strong>高橋 真由</strong>さんのグループギフトに<strong>中村 翔</strong>さんが参加しました</div>
+          <div class="time">昨日 14:22</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="avatar">⭐</div>
+        <div class="content">
+          <div class="text"><strong>伊藤 愛</strong>さんがあなたのウィッシュリストを閲覧しました</div>
+          <div class="time">2日前</div>
+        </div>
+      </div>
+
+      <div class="section-title">🎯 おすすめギフト</div>
+      <div class="recommend-scroll">
+        <div class="recommend-card">
+          <div class="img">🕯️</div>
+          <div class="info">
+            <div class="name">Jo Malone キャンドル</div>
+            <div class="price">¥8,800</div>
+          </div>
+        </div>
+        <div class="recommend-card">
+          <div class="img">🧴</div>
+          <div class="info">
+            <div class="name">Aesop ボディバーム</div>
+            <div class="price">¥4,950</div>
+          </div>
+        </div>
+        <div class="recommend-card">
+          <div class="img">🍫</div>
+          <div class="info">
+            <div class="name">GODIVA アソート</div>
+            <div class="price">¥3,240</div>
+          </div>
+        </div>
+        <div class="recommend-card">
+          <div class="img">🌸</div>
+          <div class="info">
+            <div class="name">花束 スプリングMix</div>
+            <div class="price">¥5,500</div>
+          </div>
+        </div>
+        <div class="recommend-card">
+          <div class="img">☕</div>
+          <div class="info">
+            <div class="name">Blue Bottle ギフトセット</div>
+            <div class="price">¥3,780</div>
+          </div>
+        </div>
+      </div>
+      <div class="empty-footer"></div>
+    </div>
+
+    <!-- ===== ウィッシュリスト ===== -->
+    <div class="tab-content" id="tab-wishlist">
+      <div class="page-header">ウィッシュリスト</div>
+      <div class="filter-bar">
+        <button class="filter-chip active" onclick="filterWish(this)">すべて</button>
+        <button class="filter-chip" onclick="filterWish(this)">ファッション</button>
+        <button class="filter-chip" onclick="filterWish(this)">コスメ</button>
+        <button class="filter-chip" onclick="filterWish(this)">グルメ</button>
+        <button class="filter-chip" onclick="filterWish(this)">インテリア</button>
+        <button class="filter-chip" onclick="filterWish(this)">体験</button>
+      </div>
+      <div class="wish-card">
+        <div class="thumb">👜</div>
+        <div class="info">
+          <div class="name">FURLA ミニショルダーバッグ</div>
+          <div class="brand">FURLA / ファッション</div>
+          <div class="bottom">
+            <span class="price">¥42,900</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+      </div>
+      <div class="wish-card">
+        <div class="thumb">💄</div>
+        <div class="info">
+          <div class="name">NARS リップスティック #Tolede</div>
+          <div class="brand">NARS / コスメ</div>
+          <div class="bottom">
+            <span class="price">¥4,400</span>
+            <span class="stars">★★</span>
+          </div>
+        </div>
+      </div>
+      <div class="wish-card">
+        <div class="thumb">🍰</div>
+        <div class="info">
+          <div class="name">ピエール・エルメ マカロン 12個入</div>
+          <div class="brand">Pierre Hermé / グルメ</div>
+          <div class="bottom">
+            <span class="price">¥5,076</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+      </div>
+      <div class="wish-card">
+        <div class="thumb">🪴</div>
+        <div class="info">
+          <div class="name">IKEA FEJKA フェイクグリーン</div>
+          <div class="brand">IKEA / インテリア</div>
+          <div class="bottom">
+            <span class="price">¥1,999</span>
+            <span class="stars">★</span>
+          </div>
+        </div>
+      </div>
+      <div class="wish-card">
+        <div class="thumb">🧖‍♀️</div>
+        <div class="info">
+          <div class="name">SHIRO ヘッドスパ 60分コース</div>
+          <div class="brand">SHIRO / 体験</div>
+          <div class="bottom">
+            <span class="price">¥8,800</span>
+            <span class="stars">★★★</span>
+          </div>
+        </div>
+      </div>
+      <div class="wish-card">
+        <div class="thumb">⌚</div>
+        <div class="info">
+          <div class="name">Daniel Wellington Petite 28mm</div>
+          <div class="brand">DW / ファッション</div>
+          <div class="bottom">
+            <span class="price">¥22,000</span>
+            <span class="stars">★★</span>
+          </div>
+        </div>
+      </div>
+      <div class="empty-footer"></div>
+    </div>
+
+    <!-- ===== ギフト追加 ===== -->
+    <div class="tab-content" id="tab-add">
+      <div class="page-header">ギフトを追加</div>
+      <div class="add-section">
+        <div class="add-option" onclick="showManualForm()">
+          <div class="icon pink">📷</div>
+          <div class="text">
+            <div class="title">カメラで撮影</div>
+            <div class="desc">ギフトを撮影して自動登録</div>
+          </div>
+        </div>
+        <div class="add-option" onclick="showManualForm()">
+          <div class="icon orange">🔗</div>
+          <div class="text">
+            <div class="title">URLから追加</div>
+            <div class="desc">商品ページのURLを貼り付け</div>
+          </div>
+        </div>
+        <div class="add-option" onclick="showManualForm()">
+          <div class="icon purple">✏️</div>
+          <div class="text">
+            <div class="title">手動で入力</div>
+            <div class="desc">ギフト情報を自分で入力</div>
+          </div>
+        </div>
+      </div>
+      <div class="manual-form" id="manualForm">
+        <div class="form-group">
+          <label>商品名</label>
+          <input type="text" placeholder="例: Aesop ハンドクリーム">
+        </div>
+        <div class="form-group">
+          <label>URL（任意）</label>
+          <input type="url" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>価格</label>
+          <input type="text" placeholder="¥3,000">
+        </div>
+        <div class="form-group">
+          <label>カテゴリ</label>
+          <select>
+            <option>選択してください</option>
+            <option>ファッション</option>
+            <option>コスメ</option>
+            <option>グルメ</option>
+            <option>インテリア</option>
+            <option>体験</option>
+            <option>その他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>優先度</label>
+          <select>
+            <option>★ 低</option>
+            <option>★★ 中</option>
+            <option selected>★★★ 高</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>メモ</label>
+          <textarea rows="3" placeholder="色やサイズなどの希望を書いてね"></textarea>
+        </div>
+        <button class="btn-primary">ウィッシュリストに追加</button>
+      </div>
+      <div class="empty-footer"></div>
+    </div>
+
+    <!-- ===== ギフトログ ===== -->
+    <div class="tab-content" id="tab-log">
+      <div class="page-header">ギフトログ</div>
+      <div class="filter-bar">
+        <button class="filter-chip active" onclick="filterLog(this)">すべて</button>
+        <button class="filter-chip" onclick="filterLog(this)">もらった</button>
+        <button class="filter-chip" onclick="filterLog(this)">あげた</button>
+      </div>
+      <div class="log-card">
+        <div class="thumb">🎧</div>
+        <div class="info">
+          <div class="name">AirPods Pro (第2世代)</div>
+          <div class="from">田中 健太 → 私</div>
+          <div class="bottom">
+            <span class="date">2026/02/14</span>
+            <span class="badge badge-green">お返し済み ✓</span>
+          </div>
+        </div>
+      </div>
+      <div class="log-card">
+        <div class="thumb">🧣</div>
+        <div class="info">
+          <div class="name">Acne Studios マフラー</div>
+          <div class="from">山本 彩花 → 私</div>
+          <div class="bottom">
+            <span class="date">2025/12/25</span>
+            <span class="badge badge-pink">お返し未</span>
+          </div>
+        </div>
+      </div>
+      <div class="log-card">
+        <div class="thumb">📚</div>
+        <div class="info">
+          <div class="name">「嫌われる勇気」文庫本</div>
+          <div class="from">私 → 鈴木 大輔</div>
+          <div class="bottom">
+            <span class="date">2025/12/24</span>
+            <span class="badge badge-gray">あげた</span>
+          </div>
+        </div>
+      </div>
+      <div class="log-card">
+        <div class="thumb">🍷</div>
+        <div class="info">
+          <div class="name">シャトー・マルゴー 2018</div>
+          <div class="from">伊藤 愛 → 私</div>
+          <div class="bottom">
+            <span class="date">2025/11/15</span>
+            <span class="badge badge-green">お返し済み ✓</span>
+          </div>
+        </div>
+      </div>
+      <div class="log-card">
+        <div class="thumb">🎨</div>
+        <div class="info">
+          <div class="name">似顔絵オーダー（デジタル）</div>
+          <div class="from">私 → 高橋 真由</div>
+          <div class="bottom">
+            <span class="date">2025/10/20</span>
+            <span class="badge badge-gray">あげた</span>
+          </div>
+        </div>
+      </div>
+      <div class="log-card">
+        <div class="thumb">🎿</div>
+        <div class="info">
+          <div class="name">スキーグローブ Burton</div>
+          <div class="from">中村 翔 → 私</div>
+          <div class="bottom">
+            <span class="date">2025/10/03</span>
+            <span class="badge badge-pink">お返し未</span>
+          </div>
+        </div>
+      </div>
+      <div class="empty-footer"></div>
+    </div>
+
+    <!-- ===== フレンド ===== -->
+    <div class="tab-content" id="tab-friends">
+      <div class="page-header">フレンド</div>
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" placeholder="名前で検索">
+      </div>
+
+      <div class="group-gift-banner">
+        <h3>🎁 グループギフトを作ろう</h3>
+        <p>みんなでお金を出し合って素敵なギフトを贈ろう</p>
+        <button>グループを作成</button>
+      </div>
+
+      <div class="section-title">👥 フレンド一覧</div>
+      <div class="friend-card">
+        <div class="avatar" style="background:linear-gradient(135deg,#E8567F,#c2185b)">🌸</div>
+        <div class="info">
+          <div class="name">山本 彩花</div>
+          <div class="detail">ウィッシュリスト 8件 · 誕生日 5/12</div>
+        </div>
+        <button class="action">リスト</button>
+      </div>
+      <div class="friend-card">
+        <div class="avatar" style="background:linear-gradient(135deg,#42A5F5,#1565C0)">⚡</div>
+        <div class="info">
+          <div class="name">田中 健太</div>
+          <div class="detail">ウィッシュリスト 5件 · 誕生日 3/5</div>
+        </div>
+        <button class="action">リスト</button>
+      </div>
+      <div class="friend-card">
+        <div class="avatar" style="background:linear-gradient(135deg,#FFB347,#E67E22)">🎸</div>
+        <div class="info">
+          <div class="name">鈴木 大輔</div>
+          <div class="detail">ウィッシュリスト 12件 · 誕生日 8/21</div>
+        </div>
+        <button class="action">リスト</button>
+      </div>
+      <div class="friend-card">
+        <div class="avatar" style="background:linear-gradient(135deg,#66BB6A,#2E7D32)">🍀</div>
+        <div class="info">
+          <div class="name">高橋 真由</div>
+          <div class="detail">ウィッシュリスト 6件 · 誕生日 11/30</div>
+        </div>
+        <button class="action">リスト</button>
+      </div>
+      <div class="friend-card">
+        <div class="avatar" style="background:linear-gradient(135deg,#AB47BC,#6A1B9A)">✨</div>
+        <div class="info">
+          <div class="name">伊藤 愛</div>
+          <div class="detail">ウィッシュリスト 10件 · 誕生日 1/8</div>
+        </div>
+        <button class="action">リスト</button>
+      </div>
+      <div class="friend-card">
+        <div class="avatar" style="background:linear-gradient(135deg,#26C6DA,#00838F)">🏄</div>
+        <div class="info">
+          <div class="name">中村 翔</div>
+          <div class="detail">ウィッシュリスト 3件 · 誕生日 7/14</div>
+        </div>
+        <button class="action">リスト</button>
+      </div>
+      <div class="friend-card">
+        <div class="avatar" style="background:linear-gradient(135deg,#EF5350,#B71C1C)">🎵</div>
+        <div class="info">
+          <div class="name">渡辺 美月</div>
+          <div class="detail">ウィッシュリスト 7件 · 誕生日 9/2</div>
+        </div>
+        <button class="action">リスト</button>
+      </div>
+      <div class="empty-footer"></div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('home', this)">
+      <span class="tab-icon">🏠</span>
+      <span>ホーム</span>
+    </div>
+    <div class="tab-item" onclick="switchTab('wishlist', this)">
+      <span class="tab-icon">⭐</span>
+      <span>ウィッシュ</span>
+    </div>
+    <div class="tab-item add-tab" onclick="switchTab('add', this)">
+      <span class="tab-icon">+</span>
+      <span></span>
+    </div>
+    <div class="tab-item" onclick="switchTab('log', this)">
+      <span class="tab-icon">📦</span>
+      <span>ログ</span>
+    </div>
+    <div class="tab-item" onclick="switchTab('friends', this)">
+      <span class="tab-icon">👥</span>
+      <span>フレンド</span>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tabId, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+  el.classList.add('active');
+  document.querySelector('.screen-area').scrollTop = 0;
+}
+
+function filterWish(el) {
+  el.parentElement.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function filterLog(el) {
+  el.parentElement.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function showManualForm() {
+  document.getElementById('manualForm').classList.toggle('show');
+}
+</script>
+</body>
+</html>

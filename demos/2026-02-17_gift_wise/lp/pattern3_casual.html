@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift Wise - ギフト選び、もう迷わない！🎁</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --main: #E8567F;
+  --accent: #FFB347;
+  --bg: #FFF8F5;
+  --text: #2D2D2D;
+  --mint: #A8E6CF;
+  --yellow: #FFE5B4;
+  --pink-light: #FFE0E6;
+  --radius: 20px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+a { text-decoration: none; color: inherit; }
+
+/* Animations */
+@keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes float { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes wiggle { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+
+.animate { opacity: 0; }
+.animate.visible { animation: slideUp 0.6s ease forwards; }
+.bounce { animation: bounce 2s ease-in-out infinite; }
+.float { animation: float 3s ease-in-out infinite; }
+
+/* Buttons */
+.btn {
+  display: inline-block; padding: 16px 40px; border-radius: 50px; font-weight: 700;
+  font-size: 1.1rem; cursor: pointer; border: none; transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(232,86,127,0.3); }
+.btn-main { background: var(--main); color: #fff; }
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-outline { background: transparent; border: 3px solid var(--main); color: var(--main); }
+
+.section-title {
+  font-size: 2rem; font-weight: 900; text-align: center; margin-bottom: 16px;
+}
+.section-sub {
+  text-align: center; color: #666; font-size: 1.05rem; margin-bottom: 48px;
+}
+section { padding: 80px 20px; }
+.container { max-width: 1100px; margin: 0 auto; }
+
+/* ===== HEADER ===== */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255,248,245,0.92); backdrop-filter: blur(10px);
+  padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 2px solid var(--pink-light);
+}
+.logo { font-weight: 900; font-size: 1.4rem; color: var(--main); display: flex; align-items: center; gap: 8px; }
+.logo svg { width: 28px; height: 28px; }
+header nav { display: flex; gap: 20px; align-items: center; }
+header nav a { font-weight: 500; font-size: 0.9rem; transition: color 0.2s; }
+header nav a:hover { color: var(--main); }
+.header-cta { padding: 8px 20px; font-size: 0.85rem; }
+@media (max-width: 768px) { header nav { display: none; } }
+
+/* ===== HERO ===== */
+.hero {
+  padding: 140px 20px 100px; text-align: center;
+  background: linear-gradient(180deg, var(--bg) 0%, var(--pink-light) 50%, var(--yellow) 100%);
+  position: relative;
+}
+.hero-badge {
+  display: inline-block; background: var(--mint); color: var(--text); padding: 6px 20px;
+  border-radius: 50px; font-size: 0.85rem; font-weight: 700; margin-bottom: 20px;
+}
+.hero h1 { font-size: 3rem; font-weight: 900; line-height: 1.4; margin-bottom: 20px; }
+.hero h1 span { color: var(--main); }
+.hero p { font-size: 1.2rem; color: #555; margin-bottom: 36px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.hero-icons {
+  display: flex; justify-content: center; gap: 40px; margin-top: 60px;
+}
+.hero-icon { animation: float 3s ease-in-out infinite; }
+.hero-icon:nth-child(2) { animation-delay: 0.5s; }
+.hero-icon:nth-child(3) { animation-delay: 1s; }
+.hero-deco {
+  position: absolute; width: 60px; height: 60px; border-radius: 50%;
+  opacity: 0.3;
+}
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2rem; }
+  .hero p { font-size: 1rem; }
+}
+
+/* ===== PROBLEMS ===== */
+.problems { background: #fff; }
+.problems-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 28px;
+}
+.problem-card {
+  background: var(--bg); border-radius: var(--radius); padding: 36px 28px;
+  text-align: center; border: 2px solid var(--pink-light);
+  transition: transform 0.3s;
+}
+.problem-card:hover { transform: translateY(-6px); }
+.problem-card .icon { width: 72px; height: 72px; margin: 0 auto 20px; animation: wiggle 2s ease-in-out infinite; }
+.problem-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; color: var(--main); }
+.problem-card p { font-size: 0.95rem; color: #666; line-height: 1.7; }
+@media (max-width: 768px) { .problems-grid { grid-template-columns: 1fr; } }
+
+/* ===== FEATURES ===== */
+.features { background: linear-gradient(135deg, var(--yellow) 0%, var(--mint) 100%); }
+.features-grid {
+  display: grid; grid-template-columns: repeat(2,1fr); gap: 28px;
+}
+.feature-card {
+  background: #fff; border-radius: var(--radius); padding: 36px 32px;
+  display: flex; gap: 20px; align-items: flex-start;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: transform 0.3s;
+}
+.feature-card:hover { transform: scale(1.03); }
+.feature-card .icon-wrap {
+  flex-shrink: 0; width: 60px; height: 60px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+.feature-card:nth-child(1) .icon-wrap { background: var(--pink-light); }
+.feature-card:nth-child(2) .icon-wrap { background: var(--yellow); }
+.feature-card:nth-child(3) .icon-wrap { background: #D4F0FF; }
+.feature-card:nth-child(4) .icon-wrap { background: var(--mint); }
+.feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+.feature-card p { font-size: 0.9rem; color: #666; line-height: 1.7; }
+@media (max-width: 768px) { .features-grid { grid-template-columns: 1fr; } }
+
+/* ===== STEPS ===== */
+.steps { background: #fff; }
+.steps-row {
+  display: flex; justify-content: center; gap: 40px; align-items: flex-start; flex-wrap: wrap;
+}
+.step {
+  text-align: center; max-width: 260px; position: relative;
+}
+.step-num {
+  width: 56px; height: 56px; border-radius: 50%; background: var(--main); color: #fff;
+  font-size: 1.5rem; font-weight: 900; display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+.step-icon { margin-bottom: 12px; }
+.step h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+.step p { font-size: 0.9rem; color: #666; line-height: 1.6; }
+.step-arrow {
+  position: absolute; right: -36px; top: 28px; color: var(--accent); font-size: 2rem; font-weight: 900;
+}
+@media (max-width: 768px) { .step-arrow { display: none; } }
+
+/* ===== PRICING ===== */
+.pricing { background: var(--bg); }
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 28px;
+}
+.price-card {
+  background: #fff; border-radius: var(--radius); padding: 40px 28px; text-align: center;
+  border: 3px solid transparent; transition: transform 0.3s, border-color 0.3s;
+  position: relative;
+}
+.price-card:hover { transform: translateY(-6px); }
+.price-card.popular { border-color: var(--main); }
+.price-card.popular::before {
+  content: '🌟 人気No.1'; position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  background: var(--main); color: #fff; padding: 4px 20px; border-radius: 50px;
+  font-size: 0.8rem; font-weight: 700;
+}
+.price-card .plan-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+.price-card .price { font-size: 2.5rem; font-weight: 900; color: var(--main); margin-bottom: 4px; }
+.price-card .price span { font-size: 1rem; font-weight: 500; }
+.price-card .period { font-size: 0.85rem; color: #999; margin-bottom: 24px; }
+.price-card ul { list-style: none; text-align: left; margin-bottom: 28px; }
+.price-card ul li { padding: 8px 0; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+.price-card ul li::before { content: '✓'; color: var(--main); font-weight: 700; }
+@media (max-width: 768px) { .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; } }
+
+/* ===== TESTIMONIALS ===== */
+.testimonials { background: linear-gradient(180deg, #fff 0%, var(--pink-light) 100%); }
+.testimonials-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 28px;
+}
+.testimonial-card {
+  background: #fff; border-radius: var(--radius); padding: 32px 28px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06); position: relative;
+}
+.testimonial-card::before {
+  content: '"'; position: absolute; top: 12px; left: 20px;
+  font-size: 4rem; color: var(--pink-light); font-weight: 900; line-height: 1;
+}
+.testimonial-card .stars { color: var(--accent); margin-bottom: 12px; font-size: 1.1rem; }
+.testimonial-card .text { font-size: 0.95rem; line-height: 1.8; margin-bottom: 20px; color: #555; }
+.testimonial-card .author { display: flex; align-items: center; gap: 12px; }
+.testimonial-card .avatar {
+  width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+}
+.testimonial-card .author-info .name { font-weight: 700; font-size: 0.9rem; }
+.testimonial-card .author-info .role { font-size: 0.8rem; color: #999; }
+@media (max-width: 768px) { .testimonials-grid { grid-template-columns: 1fr; } }
+
+/* ===== FAQ ===== */
+.faq { background: #fff; }
+.faq-list { max-width: 720px; margin: 0 auto; }
+.faq-item {
+  border: 2px solid var(--pink-light); border-radius: var(--radius); margin-bottom: 16px;
+  overflow: hidden; background: var(--bg);
+}
+.faq-q {
+  padding: 20px 24px; font-weight: 700; cursor: pointer; display: flex;
+  justify-content: space-between; align-items: center; font-size: 1rem;
+  transition: background 0.2s;
+}
+.faq-q:hover { background: var(--pink-light); }
+.faq-q .toggle { font-size: 1.4rem; color: var(--main); transition: transform 0.3s; }
+.faq-item.open .faq-q .toggle { transform: rotate(45deg); }
+.faq-a {
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease;
+  padding: 0 24px; font-size: 0.95rem; line-height: 1.8; color: #666;
+}
+.faq-item.open .faq-a { max-height: 300px; padding: 0 24px 20px; }
+
+/* ===== CTA ===== */
+.cta-section {
+  background: linear-gradient(135deg, var(--main) 0%, #FF8BA7 100%);
+  text-align: center; padding: 80px 20px; color: #fff;
+}
+.cta-section h2 { font-size: 2rem; font-weight: 900; margin-bottom: 16px; }
+.cta-section p { font-size: 1.1rem; opacity: 0.9; margin-bottom: 36px; }
+.cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.btn-white { background: #fff; color: var(--main); }
+.btn-white:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--text); color: #ccc; padding: 48px 20px 24px; text-align: center;
+}
+.footer-links { display: flex; gap: 24px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; }
+.footer-links a { color: #aaa; font-size: 0.85rem; transition: color 0.2s; }
+.footer-links a:hover { color: #fff; }
+.footer-copy { font-size: 0.8rem; color: #777; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 28 28" fill="none"><rect x="2" y="12" width="24" height="14" rx="3" fill="#E8567F"/><rect x="12" y="12" width="4" height="14" fill="#FFB347"/><path d="M14 12C14 12 8 2 4 6C0 10 14 12 14 12Z" fill="#A8E6CF"/><path d="M14 12C14 12 20 2 24 6C28 10 14 12 14 12Z" fill="#FFE5B4"/></svg>
+    Gift Wise
+  </div>
+  <nav>
+    <a href="#features">機能</a>
+    <a href="#pricing">料金</a>
+    <a href="#faq">FAQ</a>
+    <a href="#cta" class="btn btn-main header-cta">無料ではじめる</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge bounce">✨ 累計10万人が利用中！</div>
+    <h1>ギフト選び、<br>もう<span>迷わない！</span>🎁</h1>
+    <p>大切な人へのプレゼント、「何がいいかな…」って悩む時間とはもうおさらば！<br>Gift Wiseがあなたのギフト体験をもっと楽しくします。</p>
+    <div class="hero-buttons">
+      <a href="#cta" class="btn btn-main">無料で始める 🚀</a>
+      <a href="#features" class="btn btn-outline">くわしく見る</a>
+    </div>
+    <div class="hero-icons">
+      <div class="hero-icon">
+        <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#A8E6CF" opacity="0.5"/><text x="32" y="40" text-anchor="middle" font-size="28">🎁</text></svg>
+      </div>
+      <div class="hero-icon">
+        <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#FFE5B4" opacity="0.5"/><text x="32" y="40" text-anchor="middle" font-size="28">💝</text></svg>
+      </div>
+      <div class="hero-icon">
+        <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#FFE0E6" opacity="0.5"/><text x="32" y="40" text-anchor="middle" font-size="28">🎉</text></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMS -->
+<section class="problems" id="problems">
+  <div class="container">
+    <div class="section-title animate">こんなお悩み、ありませんか？😥</div>
+    <p class="section-sub animate">ギフト選びって、実はけっこう大変…</p>
+    <div class="problems-grid">
+      <div class="problem-card animate">
+        <div class="icon">
+          <svg viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="34" fill="#FFE0E6"/><text x="36" y="46" text-anchor="middle" font-size="32">🤔</text></svg>
+        </div>
+        <h3>何を贈ればいいか<br>わからない！</h3>
+        <p>誕生日、記念日、お祝い… イベントのたびに「何がいいんだろう？」って悩んじゃう。ネットで検索しても選択肢が多すぎて余計に迷う…</p>
+      </div>
+      <div class="problem-card animate">
+        <div class="icon">
+          <svg viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="34" fill="#FFE5B4"/><text x="36" y="46" text-anchor="middle" font-size="32">😱</text></svg>
+        </div>
+        <h3>同じものが<br>被っちゃう！</h3>
+        <p>せっかく選んだのに「あ、それもう持ってる…」って言われた時のあの気まずさ。グループでプレゼントする時も誰が何を買ったかわからない！</p>
+      </div>
+      <div class="problem-card animate">
+        <div class="icon">
+          <svg viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="34" fill="#A8E6CF"/><text x="36" y="46" text-anchor="middle" font-size="32">😅</text></svg>
+        </div>
+        <h3>相手の好みが<br>わからない！</h3>
+        <p>「趣味じゃないかも…」「サイズ合うかな…」って不安になる。直接聞くのもなんかサプライズ感なくなるし…</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-title animate">Gift Wiseならぜ〜んぶ解決！🎊</div>
+    <p class="section-sub animate" style="color:#444">4つのコア機能でギフト体験をアップデート</p>
+    <div class="features-grid">
+      <div class="feature-card animate">
+        <div class="icon-wrap">
+          <svg width="32" height="32" viewBox="0 0 32 32"><path d="M6 4h20a2 2 0 012 2v20a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" fill="#E8567F" opacity="0.2"/><path d="M10 14l4 4 8-8" stroke="#E8567F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <h3>📋 ウィッシュリスト共有</h3>
+          <p>ほしいものリストを作って家族や友達とシェア！もらう側もあげる側もハッピーに。「何がほしい？」って聞く手間もなくなるよ。</p>
+        </div>
+      </div>
+      <div class="feature-card animate">
+        <div class="icon-wrap">
+          <svg width="32" height="32" viewBox="0 0 32 32"><rect x="4" y="8" width="24" height="18" rx="3" fill="#FFB347" opacity="0.3"/><path d="M4 14h24M12 14v12" stroke="#FFB347" stroke-width="2"/><circle cx="22" cy="12" r="3" fill="#FFB347"/></svg>
+        </div>
+        <div>
+          <h3>🎁 ギフト登録・管理</h3>
+          <p>贈ったギフト・もらったギフトをカンタン記録。「去年何あげたっけ？」がなくなる！予算管理もバッチリ。</p>
+        </div>
+      </div>
+      <div class="feature-card animate">
+        <div class="icon-wrap">
+          <svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="#87CEEB" opacity="0.3"/><path d="M12 20c0-4 8-4 8 0M13 13a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M18 13a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0" stroke="#4A90D9" stroke-width="1.5" fill="none"/></svg>
+        </div>
+        <div>
+          <h3>🤖 おすすめAI提案</h3>
+          <p>相手のプロフィールや過去のギフト履歴から、AIがぴったりのプレゼントを提案！もう迷わない。</p>
+        </div>
+      </div>
+      <div class="feature-card animate">
+        <div class="icon-wrap">
+          <svg width="32" height="32" viewBox="0 0 32 32"><circle cx="10" cy="16" r="5" fill="#A8E6CF" opacity="0.5"/><circle cx="22" cy="16" r="5" fill="#A8E6CF" opacity="0.5"/><circle cx="16" cy="10" r="5" fill="#A8E6CF" opacity="0.5"/></svg>
+        </div>
+        <div>
+          <h3>👥 グループギフト機能</h3>
+          <p>みんなでお金を出し合って贈り物するのもラクラク。集金管理、メッセージカードもアプリ内で完結！</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section class="steps" id="steps">
+  <div class="container">
+    <div class="section-title animate">カンタン3ステップ 🚀</div>
+    <p class="section-sub animate">始めるのはとってもカンタン！</p>
+    <div class="steps-row">
+      <div class="step animate">
+        <div class="step-num">1</div>
+        <div class="step-icon">
+          <svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="38" fill="#FFE0E6"/><text x="40" y="48" text-anchor="middle" font-size="32">📱</text></svg>
+        </div>
+        <h3>アプリをダウンロード</h3>
+        <p>App Store / Google Playから無料でダウンロード。メールかSNSアカウントで30秒で登録完了！</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step animate">
+        <div class="step-num">2</div>
+        <div class="step-icon">
+          <svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="38" fill="#FFE5B4"/><text x="40" y="48" text-anchor="middle" font-size="32">📝</text></svg>
+        </div>
+        <h3>ウィッシュリストを作成</h3>
+        <p>ほしいものをポンポン追加するだけ。URLを貼ればお店の情報も自動取得してくれるよ！</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step animate">
+        <div class="step-num">3</div>
+        <div class="step-icon">
+          <svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="38" fill="#A8E6CF"/><text x="40" y="48" text-anchor="middle" font-size="32">🔗</text></svg>
+        </div>
+        <h3>家族・友達にシェア</h3>
+        <p>LINEやSNSでリンクを送るだけ！相手もアプリなしでリストを見られるから気軽にシェアできる。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-title animate">料金プラン 💰</div>
+    <p class="section-sub animate">まずは無料でお試し！いつでもアップグレードOK</p>
+    <div class="pricing-grid">
+      <div class="price-card animate">
+        <div class="plan-name">Free</div>
+        <div class="price">¥0</div>
+        <div class="period">ずっと無料</div>
+        <ul>
+          <li>ウィッシュリスト3個まで</li>
+          <li>ギフト履歴（直近3ヶ月）</li>
+          <li>基本のAI提案</li>
+          <li>グループギフト参加</li>
+        </ul>
+        <a href="#" class="btn btn-outline" style="width:100%">無料で始める</a>
+      </div>
+      <div class="price-card popular animate">
+        <div class="plan-name">Premium</div>
+        <div class="price">¥480<span>/月</span></div>
+        <div class="period">年払いなら¥4,800/年（17%お得）</div>
+        <ul>
+          <li>ウィッシュリスト無制限</li>
+          <li>ギフト履歴（無制限）</li>
+          <li>高精度AI提案</li>
+          <li>グループギフト作成</li>
+          <li>リマインダー機能</li>
+          <li>広告なし</li>
+        </ul>
+        <a href="#" class="btn btn-main" style="width:100%">Premiumを始める</a>
+      </div>
+      <div class="price-card animate">
+        <div class="plan-name">Family</div>
+        <div class="price">¥980<span>/月</span></div>
+        <div class="period">最大6人まで利用可能</div>
+        <ul>
+          <li>Premiumの全機能</li>
+          <li>家族6人まで共有</li>
+          <li>家族カレンダー連携</li>
+          <li>予算管理ダッシュボード</li>
+          <li>優先サポート</li>
+        </ul>
+        <a href="#" class="btn btn-accent" style="width:100%">Familyを始める</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="testimonials">
+  <div class="container">
+    <div class="section-title animate">みんなの声 💬</div>
+    <p class="section-sub animate">Gift Wiseを使ってくれてるユーザーさんの声をご紹介！</p>
+    <div class="testimonials-grid">
+      <div class="testimonial-card animate">
+        <div class="stars">★★★★★</div>
+        <p class="text">毎年クリスマスに子どもたちへのプレゼントが被って困ってたけど、Gift Wiseのおかげでそんな心配がなくなりました！家族みんなでウィッシュリストを共有してます。</p>
+        <div class="author">
+          <div class="avatar" style="background:#FFE0E6">👩</div>
+          <div class="author-info">
+            <div class="name">田中さくらさん</div>
+            <div class="role">30代・2児のママ</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card animate">
+        <div class="stars">★★★★★</div>
+        <p class="text">友達の誕生日プレゼント選びにいつも2時間かけてたのが、AI提案のおかげで10分で決まるように！しかも前より喜ばれるようになった（笑）</p>
+        <div class="author">
+          <div class="avatar" style="background:#FFE5B4">👨</div>
+          <div class="author-info">
+            <div class="name">鈴木けんたさん</div>
+            <div class="role">20代・大学生</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card animate">
+        <div class="stars">★★★★★</div>
+        <p class="text">職場の送別会で毎回幹事になるんだけど、グループギフト機能が神！集金もメッセージカードもアプリで完結するから本当にラク。もう手放せません。</p>
+        <div class="author">
+          <div class="avatar" style="background:#A8E6CF">👩‍💼</div>
+          <div class="author-info">
+            <div class="name">山本あいさん</div>
+            <div class="role">30代・会社員</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="section-title animate">よくある質問 🙋</div>
+    <p class="section-sub animate">気になることがあったらチェックしてね！</p>
+    <div class="faq-list">
+      <div class="faq-item animate">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Gift Wiseは本当に無料で使えますか？</span>
+          <span class="toggle">+</span>
+        </div>
+        <div class="faq-a">はい！Freeプランはずっと無料です。ウィッシュリスト3個、基本的なAI提案など十分な機能が使えます。もっと便利に使いたくなったらPremiumへのアップグレードも簡単です。</div>
+      </div>
+      <div class="faq-item animate">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>相手がGift Wiseを使っていなくてもリストを見られますか？</span>
+          <span class="toggle">+</span>
+        </div>
+        <div class="faq-a">もちろん！共有リンクを送れば、アプリをインストールしていない人でもブラウザからウィッシュリストを見ることができます。相手に負担をかけません。</div>
+      </div>
+      <div class="faq-item animate">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>グループギフトの集金はどうやって行いますか？</span>
+          <span class="toggle">+</span>
+        </div>
+        <div class="faq-a">アプリ内で参加者に通知が届き、各自が支払い方法を選んで決済できます。銀行振込、クレジットカード、各種電子マネーに対応。幹事さんが立て替える必要はありません！</div>
+      </div>
+      <div class="faq-item animate">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>プランの変更やキャンセルはいつでもできますか？</span>
+          <span class="toggle">+</span>
+        </div>
+        <div class="faq-a">はい、いつでも可能です！アプリの設定画面からワンタップでプラン変更・キャンセルができます。キャンセル後も期間終了まではPremium機能を使い続けられます。</div>
+      </div>
+      <div class="faq-item animate">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>個人情報やウィッシュリストのセキュリティは大丈夫ですか？</span>
+          <span class="toggle">+</span>
+        </div>
+        <div class="faq-a">万全です！すべてのデータは暗号化して保管しています。ウィッシュリストの公開範囲も「全体公開」「リンクを知っている人だけ」「特定の人だけ」から選べるので安心です。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <div class="container">
+    <h2 class="animate">さあ、ギフト選びをもっと楽しく！🎁</h2>
+    <p class="animate">無料で始められるから、まずは試してみてね。</p>
+    <div class="cta-buttons animate">
+      <a href="#" class="btn btn-white">
+        <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;margin-right:8px"><path d="M15.5 1H4.5A1.5 1.5 0 003 2.5v15A1.5 1.5 0 004.5 19h11a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0015.5 1zM10 17.5a1 1 0 110-2 1 1 0 010 2z" fill="#E8567F"/></svg>
+        App Store
+      </a>
+      <a href="#" class="btn btn-white">
+        <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;margin-right:8px"><polygon points="3,1 17,10 3,19" fill="#E8567F"/></svg>
+        Google Play
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="logo" style="justify-content:center;margin-bottom:24px;color:#fff">
+      <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="2" y="12" width="24" height="14" rx="3" fill="#E8567F"/><rect x="12" y="12" width="4" height="14" fill="#FFB347"/><path d="M14 12C14 12 8 2 4 6C0 10 14 12 14 12Z" fill="#A8E6CF"/><path d="M14 12C14 12 20 2 24 6C28 10 14 12 14 12Z" fill="#FFE5B4"/></svg>
+      Gift Wise
+    </div>
+    <div class="footer-links">
+      <a href="#">利用規約</a>
+      <a href="#">プライバシーポリシー</a>
+      <a href="#">特定商取引法に基づく表記</a>
+      <a href="#">お問い合わせ</a>
+      <a href="#">運営会社</a>
+    </div>
+    <p class="footer-copy">© 2026 Gift Wise Inc. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+// FAQ toggle
+function toggleFaq(el) {
+  const item = el.parentElement;
+  item.classList.toggle('open');
+}
+
+// Scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 100);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.animate').forEach(el => observer.observe(el));
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>
