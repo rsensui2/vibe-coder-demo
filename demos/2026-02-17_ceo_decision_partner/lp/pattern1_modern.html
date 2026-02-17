@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CEO Decision Partner | 経営者の意思決定を、速く、正しく、孤独にしない</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--main:#1B2A4A;--accent:#C9A96E;--sub:#3B7DD8;--bg:#F8F6F3;--text:#2C2C2C}
+body{font-family:'Noto Sans JP',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+.fade-up{opacity:0;transform:translateY(40px);transition:opacity .8s,transform .8s}.fade-up.visible{opacity:1;transform:translateY(0)}
+
+/* Hero */
+.hero{min-height:100vh;background:linear-gradient(135deg,#1B2A4A 0%,#2a3f6a 50%,#1B2A4A 100%);display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;padding:2rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;width:600px;height:600px;border:1px solid rgba(201,169,110,.15);border-radius:50%;top:-100px;right:-100px}
+.hero::after{content:'';position:absolute;width:400px;height:400px;border:1px solid rgba(201,169,110,.1);border-radius:50%;bottom:-80px;left:-80px}
+.hero-inner{max-width:800px;z-index:1}
+.hero-tag{color:var(--accent);font-size:.9rem;letter-spacing:.3em;margin-bottom:1.5rem;font-weight:500}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;line-height:1.3;margin-bottom:1rem}
+.hero h1 span{color:var(--accent)}
+.hero p{font-size:1.1rem;opacity:.85;margin-bottom:2.5rem;line-height:1.8;font-weight:300}
+.btn{display:inline-block;padding:1rem 2.5rem;border-radius:4px;font-weight:700;font-size:1rem;text-decoration:none;transition:all .3s}
+.btn-gold{background:var(--accent);color:var(--main)}.btn-gold:hover{background:#d4b87a;transform:translateY(-2px);box-shadow:0 8px 30px rgba(201,169,110,.4)}
+.btn-outline{border:2px solid #fff;color:#fff;margin-left:1rem}.btn-outline:hover{background:#fff;color:var(--main)}
+
+/* Section common */
+section{padding:6rem 2rem}
+.container{max-width:1100px;margin:0 auto}
+.section-label{color:var(--accent);font-size:.8rem;letter-spacing:.3em;text-transform:uppercase;margin-bottom:.5rem}
+.section-title{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:900;margin-bottom:1rem;color:var(--main)}
+.section-desc{color:#666;line-height:1.8;max-width:700px;margin-bottom:3rem}
+
+/* Problem */
+.problem{background:#fff}
+.problem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem}
+.problem-card{padding:2rem;border-left:3px solid var(--accent);background:var(--bg);border-radius:0 8px 8px 0}
+.problem-card h3{font-size:1.1rem;margin-bottom:.5rem;color:var(--main)}
+.problem-card p{font-size:.9rem;color:#666;line-height:1.7}
+.stat-row{display:flex;gap:3rem;margin-top:3rem;flex-wrap:wrap}
+.stat{text-align:center}
+.stat .num{font-size:3rem;font-weight:900;color:var(--main)}.stat .num span{color:var(--accent)}
+.stat .label{font-size:.85rem;color:#888}
+
+/* Solution - Decision Canvas */
+.solution{background:var(--main);color:#fff}
+.solution .section-title{color:#fff}
+.solution .section-desc{color:rgba(255,255,255,.7)}
+.canvas-diagram{background:rgba(255,255,255,.05);border:1px solid rgba(201,169,110,.3);border-radius:12px;padding:3rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;position:relative}
+.canvas-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--accent);color:var(--main);width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.85rem;text-align:center;z-index:2}
+.canvas-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:1.5rem}
+.canvas-box h4{color:var(--accent);font-size:.85rem;letter-spacing:.1em;margin-bottom:.5rem}
+.canvas-box p{font-size:.9rem;opacity:.8;line-height:1.6}
+
+/* Features */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2rem}
+.feature-card{background:#fff;border-radius:12px;padding:2.5rem 2rem;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.05);transition:transform .3s}
+.feature-card:hover{transform:translateY(-4px)}
+.feature-icon{width:60px;height:60px;background:linear-gradient(135deg,var(--main),var(--sub));border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:1.5rem;color:#fff}
+.feature-card h3{font-size:1.1rem;margin-bottom:.5rem;color:var(--main)}
+.feature-card p{font-size:.85rem;color:#888;line-height:1.7}
+
+/* Pricing */
+.pricing{background:#fff}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}
+.price-card{border:2px solid #eee;border-radius:12px;padding:2.5rem;text-align:center;transition:all .3s;position:relative}
+.price-card.popular{border-color:var(--accent);transform:scale(1.03)}
+.price-card.popular::before{content:'人気No.1';position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--main);padding:.3rem 1.5rem;border-radius:20px;font-size:.75rem;font-weight:700}
+.price-card h3{font-size:1.2rem;color:var(--main);margin-bottom:.5rem}
+.price-card .price{font-size:2.5rem;font-weight:900;color:var(--main);margin:1rem 0}.price span{font-size:1rem;font-weight:400;color:#888}
+.price-card ul{list-style:none;text-align:left;margin:1.5rem 0}
+.price-card li{padding:.5rem 0;font-size:.9rem;color:#555;border-bottom:1px solid #f0f0f0}
+.price-card li::before{content:'✓';color:var(--accent);margin-right:.5rem;font-weight:700}
+.btn-plan{display:block;padding:.8rem;border-radius:6px;text-decoration:none;font-weight:700;margin-top:1.5rem;transition:all .3s}
+.btn-plan-primary{background:var(--accent);color:var(--main)}.btn-plan-primary:hover{background:#d4b87a}
+.btn-plan-outline{border:2px solid var(--main);color:var(--main)}.btn-plan-outline:hover{background:var(--main);color:#fff}
+
+/* FAQ */
+.faq-item{border-bottom:1px solid #e0e0e0;padding:1.5rem 0}
+.faq-q{font-weight:700;font-size:1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--main)}
+.faq-q::after{content:'+';font-size:1.5rem;color:var(--accent);transition:transform .3s}
+.faq-q.open::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s;color:#666;line-height:1.8;font-size:.9rem}
+.faq-a.open{max-height:300px;padding-top:1rem}
+
+/* CTA */
+.cta{background:linear-gradient(135deg,#1B2A4A,#2a3f6a);color:#fff;text-align:center;padding:5rem 2rem}
+.cta h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:900;margin-bottom:1rem}
+.cta p{opacity:.8;margin-bottom:2rem;font-size:1.05rem}
+
+/* Footer */
+footer{background:var(--main);color:rgba(255,255,255,.5);text-align:center;padding:2rem;font-size:.8rem}
+
+@media(max-width:768px){
+  .canvas-diagram{grid-template-columns:1fr}
+  .canvas-center{position:relative;top:auto;left:auto;transform:none;margin:0 auto}
+  .btn-outline{margin-left:0;margin-top:1rem;display:inline-block}
+  .stat-row{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-inner">
+    <p class="hero-tag">CEO DECISION PARTNER</p>
+    <h1>経営者の意思決定を、<br><span>速く、正しく、孤独にしない。</span></h1>
+    <p>Ryoko_AIが24時間365日、あなたの経営判断に伴走。<br>判断の構造化・優先順位付け・材料整理を、AIが即座にサポートします。</p>
+    <a href="#pricing" class="btn btn-gold">14日間無料で始める</a>
+    <a href="#solution" class="btn btn-outline">詳しく見る</a>
+  </div>
+</section>
+
+<section class="problem">
+  <div class="container">
+    <p class="section-label fade-up">Problem</p>
+    <h2 class="section-title fade-up">経営者は、なぜ孤独に決断するのか</h2>
+    <p class="section-desc fade-up">日本の中小企業382万社。その82%が、意思決定にAIを活用していません。</p>
+    <div class="problem-grid">
+      <div class="problem-card fade-up"><h3>相談相手がいない</h3><p>重要な経営判断ほど、社内で相談できる相手がいない。顧問やコンサルは月1回の面談だけ。</p></div>
+      <div class="problem-card fade-up"><h3>判断材料が散逸</h3><p>財務データ、市場情報、社内の声。必要な情報はあるのに、整理する時間がない。</p></div>
+      <div class="problem-card fade-up"><h3>決断の先送り</h3><p>「もう少し情報を集めてから」が口癖に。機会損失は、見えないコストとして積み上がる。</p></div>
+    </div>
+    <div class="stat-row fade-up">
+      <div class="stat"><p class="num">382<span>万社</span></p><p class="label">日本の中小企業数</p></div>
+      <div class="stat"><p class="num">82<span>%</span></p><p class="label">AI未活用の経営者</p></div>
+      <div class="stat"><p class="num">73<span>%</span></p><p class="label">孤独を感じている</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="solution" id="solution">
+  <div class="container">
+    <p class="section-label fade-up">Solution</p>
+    <h2 class="section-title fade-up">Decision Canvas™ で判断を構造化</h2>
+    <p class="section-desc fade-up">経営判断に必要な4つの視点を、AIが自動で整理。あなたは「決める」ことに集中できます。</p>
+    <div class="canvas-diagram fade-up">
+      <div class="canvas-box"><h4>📊 現状分析</h4><p>財務状況・市場環境・競合動向をリアルタイムに把握</p></div>
+      <div class="canvas-box"><h4>⚖️ リスク評価</h4><p>最悪のシナリオと最良のシナリオを定量的に比較</p></div>
+      <div class="canvas-center">Decision<br>Canvas</div>
+      <div class="canvas-box"><h4>🎯 優先順位</h4><p>緊急度×重要度マトリクスで今やるべきことを明確に</p></div>
+      <div class="canvas-box"><h4>🚀 実行計画</h4><p>決断後の具体的なアクションプランを自動生成</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="container">
+    <p class="section-label fade-up">Features</p>
+    <h2 class="section-title fade-up">4つのコア機能</h2>
+    <p class="section-desc fade-up">経営者の意思決定プロセスを、すべてのフェーズでサポートします。</p>
+    <div class="features-grid">
+      <div class="feature-card fade-up">
+        <div class="feature-icon">🧠</div>
+        <h3>判断構造化エンジン</h3>
+        <p>複雑な経営課題をDecision Canvas™で分解。論点を見える化し、思考の抜け漏れを防ぎます。</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon">⚡</div>
+        <h3>24/365 即時対話</h3>
+        <p>深夜の緊急判断にも対応。Ryoko_AIは常にスタンバイ。待ち時間ゼロで壁打ちできます。</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon">📈</div>
+        <h3>データ統合分析</h3>
+        <p>財務データ、市場レポート、ニュースを統合的に分析。判断に必要な材料を瞬時に整理。</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon">🔒</div>
+        <h3>経営者専用セキュリティ</h3>
+        <p>機密情報を扱う経営判断だからこそ、エンタープライズグレードの暗号化と完全プライベート環境。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="container">
+    <p class="section-label fade-up">Pricing</p>
+    <h2 class="section-title fade-up">あなたに合ったプランを</h2>
+    <p class="section-desc fade-up">すべてのプランに14日間の無料トライアル付き。クレジットカード不要で今すぐ始められます。</p>
+    <div class="pricing-grid">
+      <div class="price-card fade-up">
+        <h3>Starter</h3>
+        <p class="price">¥50,000<span>/月</span></p>
+        <ul>
+          <li>月30回のAI相談</li>
+          <li>Decision Canvas™ 基本機能</li>
+          <li>メール/チャットサポート</li>
+          <li>レポート月次出力</li>
+        </ul>
+        <a href="#" class="btn-plan btn-plan-outline">無料で試す</a>
+      </div>
+      <div class="price-card popular fade-up">
+        <h3>Growth</h3>
+        <p class="price">¥150,000<span>/月</span></p>
+        <ul>
+          <li>無制限のAI相談</li>
+          <li>Decision Canvas™ 全機能</li>
+          <li>データ統合分析</li>
+          <li>優先サポート</li>
+          <li>週次エグゼクティブレポート</li>
+        </ul>
+        <a href="#" class="btn-plan btn-plan-primary">無料で試す</a>
+      </div>
+      <div class="price-card fade-up">
+        <h3>Enterprise</h3>
+        <p class="price">¥300,000〜<span>/月</span></p>
+        <ul>
+          <li>Growth全機能</li>
+          <li>専任カスタマーサクセス</li>
+          <li>カスタムAIモデル調整</li>
+          <li>オンプレミス対応可</li>
+          <li>役員会向けレポート</li>
+        </ul>
+        <a href="#" class="btn-plan btn-plan-outline">お問い合わせ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="faq-section" style="background:var(--bg)">
+  <div class="container">
+    <p class="section-label fade-up">FAQ</p>
+    <h2 class="section-title fade-up">よくある質問</h2>
+    <div style="margin-top:2rem">
+      <div class="faq-item fade-up"><div class="faq-q">AIが経営判断を代わりにしてくれるのですか？</div><div class="faq-a">いいえ。CEO Decision Partnerは判断を「代行」するのではなく、「支援」します。判断材料の整理、リスク分析、選択肢の比較をAIが行い、最終的な意思決定は経営者ご自身が行います。</div></div>
+      <div class="faq-item fade-up"><div class="faq-q">機密情報のセキュリティは大丈夫ですか？</div><div class="faq-a">エンタープライズグレードの暗号化を採用し、データは完全にプライベートな環境で処理されます。他社のデータと混在することは一切ありません。SOC2 Type II認証取得済み。</div></div>
+      <div class="faq-item fade-up"><div class="faq-q">導入にどのくらい時間がかかりますか？</div><div class="faq-a">アカウント作成から最短5分でご利用開始いただけます。既存の会計ソフトやCRMとの連携もAPIで簡単に設定可能です。</div></div>
+      <div class="faq-item fade-up"><div class="faq-q">無料トライアル後の自動課金はありますか？</div><div class="faq-a">ありません。14日間の無料トライアルはクレジットカード登録不要です。トライアル終了後、ご自身でプランを選択して初めて課金が開始されます。</div></div>
+      <div class="faq-item fade-up"><div class="faq-q">既存のコンサルタントとの併用は可能ですか？</div><div class="faq-a">もちろんです。むしろ併用を推奨しています。AIが日常的な判断支援を行い、コンサルタントが戦略的な助言を行う。この組み合わせが最も効果的です。</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="container">
+    <h2 class="fade-up">まずは14日間、無料で体験してください</h2>
+    <p class="fade-up">クレジットカード不要。5分で始められます。</p>
+    <a href="#" class="btn btn-gold fade-up">無料トライアルを始める</a>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 CEO Decision Partner. All rights reserved.</p>
+</footer>
+
+<script>
+const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.15});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+document.querySelectorAll('.faq-q').forEach(q=>{q.addEventListener('click',()=>{q.classList.toggle('open');q.nextElementSibling.classList.toggle('open')})});
+</script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CEO Decision Partner — Demo Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --main: #1B2A4A;
+    --accent: #C9A96E;
+    --blue: #3B7DD8;
+    --bg: #F8F6F3;
+    --text: #2C2C2C;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); font-size: 17px; line-height: 1.7; }
+  
+  /* Header */
+  .header { background: var(--main); color: #fff; padding: 16px 32px; position: sticky; top: 0; z-index: 100; }
+  .header nav { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 16px; }
+  .header a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; }
+  .header a:hover { color: #fff; }
+  .header .brand { color: var(--accent); font-weight: 700; font-size: 15px; }
+
+  /* Hero */
+  .hero { background: linear-gradient(135deg, var(--main) 0%, #2a3f6a 100%); color: #fff; padding: 80px 32px; text-align: center; }
+  .hero h1 { font-size: 42px; font-weight: 700; color: var(--accent); margin-bottom: 12px; }
+  .hero p { font-size: 20px; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+  .hero .badge { display: inline-block; background: var(--accent); color: var(--main); padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-top: 20px; }
+
+  /* Section */
+  .section { max-width: 1200px; margin: 0 auto; padding: 48px 24px; }
+  .section h2 { font-size: 28px; font-weight: 700; color: var(--main); margin-bottom: 8px; }
+  .section .subtitle { font-size: 14px; color: #888; margin-bottom: 24px; }
+
+  /* Cards Grid */
+  .cards { display: grid; gap: 20px; }
+  .cards-3 { grid-template-columns: repeat(3, 1fr); }
+  .cards-2 { grid-template-columns: repeat(2, 1fr); }
+  .cards-1 { grid-template-columns: 1fr; }
+  @media (max-width: 768px) {
+    .cards-3, .cards-2 { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 28px; }
+  }
+
+  .card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s; }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+  .card img { width: 100%; height: 200px; object-fit: cover; }
+  .card .card-body { padding: 20px; }
+  .card .card-body h3 { font-size: 18px; font-weight: 600; margin-bottom: 6px; color: var(--main); }
+  .card .card-body p { font-size: 14px; color: #666; }
+  .card .card-body a { display: inline-block; margin-top: 10px; color: var(--blue); text-decoration: none; font-weight: 500; font-size: 14px; }
+  .card .card-body a:hover { text-decoration: underline; }
+
+  /* Wide card */
+  .card-wide { display: grid; grid-template-columns: 400px 1fr; }
+  .card-wide img { height: 100%; min-height: 240px; }
+  @media (max-width: 768px) { .card-wide { grid-template-columns: 1fr; } }
+
+  /* Media players */
+  .player-section { background: var(--main); border-radius: 12px; padding: 32px; color: #fff; margin-bottom: 20px; }
+  .player-section h3 { color: var(--accent); margin-bottom: 16px; }
+  video, audio { width: 100%; border-radius: 8px; }
+
+  /* IG Grid */
+  .ig-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .ig-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; cursor: pointer; transition: transform 0.2s; }
+  .ig-grid img:hover { transform: scale(1.05); }
+  @media (max-width: 768px) { .ig-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  /* Doc list */
+  .doc-list { list-style: none; }
+  .doc-list li { padding: 12px 16px; border-bottom: 1px solid #eee; }
+  .doc-list li:last-child { border-bottom: none; }
+  .doc-list a { color: var(--blue); text-decoration: none; font-weight: 500; }
+  .doc-list a:hover { text-decoration: underline; }
+  .doc-list .icon { margin-right: 8px; }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; cursor: pointer; }
+  .modal-overlay.active { display: flex; }
+  .modal-overlay img { max-width: 90%; max-height: 90%; border-radius: 8px; }
+
+  /* Footer */
+  .footer { text-align: center; padding: 32px; color: #999; font-size: 13px; border-top: 1px solid #eee; margin-top: 48px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <nav>
+    <a href="../../" class="brand">← Demo Portal</a>
+    <span style="color: rgba(255,255,255,0.4);">/</span>
+    <span style="color: #fff; font-weight: 500;">CEO Decision Partner</span>
+  </nav>
+</div>
+
+<div class="hero">
+  <h1>CEO Decision Partner</h1>
+  <p>経営者の意思決定を、速く、正しく、孤独にしない</p>
+  <div class="badge">Powered by Ryoko_AI — Vibe Coder Bootcamp Demo</div>
+</div>
+
+<!-- LP Section -->
+<div class="section">
+  <h2>🌐 ランディングページ</h2>
+  <p class="subtitle">3パターンのLP — コンセプトに合わせた異なるデザインアプローチ</p>
+  <div class="cards cards-3">
+    <div class="card">
+      <img src="screenshots/lp_pattern1.png" alt="Modern LP">
+      <div class="card-body">
+        <h3>Pattern 1: Modern</h3>
+        <p>ミニマルでモダンなデザイン。ダークネイビーとゴールドのコントラスト。</p>
+        <a href="lp/pattern1_modern.html" target="_blank">プレビュー →</a>
+      </div>
+    </div>
+    <div class="card">
+      <img src="screenshots/lp_pattern2.png" alt="Premium LP">
+      <div class="card-body">
+        <h3>Pattern 2: Premium</h3>
+        <p>ラグジュアリーな黒背景。経営者の孤独から解決へのストーリーテリング。</p>
+        <a href="lp/pattern2_premium.html" target="_blank">プレビュー →</a>
+      </div>
+    </div>
+    <div class="card">
+      <img src="screenshots/lp_pattern3.png" alt="Casual LP">
+      <div class="card-body">
+        <h3>Pattern 3: Casual</h3>
+        <p>親しみやすいデザイン。チャットUI風デモとペルソナ別事例。</p>
+        <a href="lp/pattern3_casual.html" target="_blank">プレビュー →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mock App Section -->
+<div class="section">
+  <h2>📱 モックアプリ</h2>
+  <p class="subtitle">スマートフォンアプリのインタラクティブモック</p>
+  <div class="cards cards-1">
+    <div class="card card-wide">
+      <img src="screenshots/mock_app.png" alt="Mock App">
+      <div class="card-body">
+        <h3>CEO Decision Partner App</h3>
+        <p>チャットベースのAI伴走UI、Strategic Radarダッシュボード、Decision Journalの3画面をタブ切り替えで体験。ダークモードのプレミアムUI。</p>
+        <a href="mock/app_mock.html" target="_blank">デモを開く →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Presentation Section -->
+<div class="section">
+  <h2>📊 プレゼンテーション</h2>
+  <p class="subtitle">13枚のピッチスライド — Gemini 3 Pro画像生成で2K解像度</p>
+  <div class="cards cards-2">
+    <div class="card">
+      <img src="screenshots/slide_cover.png" alt="Slides Cover">
+      <div class="card-body">
+        <h3>PowerPoint (PPTX)</h3>
+        <p>34MB / 13スライド / 2752×1536px</p>
+        <a href="slides/ceo_decision_partner.pptx" download>ダウンロード →</a>
+      </div>
+    </div>
+    <div class="card">
+      <img src="screenshots/slide_cover.png" alt="Slides PDF">
+      <div class="card-body">
+        <h3>PDF</h3>
+        <p>4.4MB / 13ページ</p>
+        <a href="slides/ceo_decision_partner.pdf" target="_blank">表示 →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Video Section -->
+<div class="section">
+  <h2>🎬 プロモーション動画</h2>
+  <p class="subtitle">30秒のモーションタイポグラフィCM — Remotionで生成</p>
+  <div class="player-section">
+    <h3>Promo Video (30s)</h3>
+    <video controls preload="metadata">
+      <source src="video/promo.mp4" type="video/mp4">
+    </video>
+  </div>
+</div>
+
+<!-- Audio Section -->
+<div class="section">
+  <h2>🎙️ 音声ラジオ</h2>
+  <p class="subtitle">3チャプターの音声コンテンツ — Edge TTS (NanamiNeural)</p>
+  <div class="player-section">
+    <h3>Full Episode</h3>
+    <audio controls preload="metadata">
+      <source src="audio/full_episode.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 12px;">
+    <div class="player-section">
+      <h3>Ch.1 サービス概要</h3>
+      <audio controls preload="metadata" style="width:100%">
+        <source src="audio/chapter_01.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+    <div class="player-section">
+      <h3>Ch.2 経営者の課題</h3>
+      <audio controls preload="metadata" style="width:100%">
+        <source src="audio/chapter_02.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+    <div class="player-section">
+      <h3>Ch.3 Decision Canvas</h3>
+      <audio controls preload="metadata" style="width:100%">
+        <source src="audio/chapter_03.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+  </div>
+</div>
+
+<!-- SNS Section -->
+<div class="section">
+  <h2>📣 SNSコンテンツ</h2>
+  <p class="subtitle">X投稿30日分 + Instagram図解10枚</p>
+  
+  <h3 style="margin-bottom: 16px; color: var(--main);">Instagram 図解</h3>
+  <div class="ig-grid">
+    <img src="sns/instagram/ig_01_decision_canvas.png" alt="Decision Canvas" onclick="openModal(this)">
+    <img src="sns/instagram/ig_02_problem.png" alt="Problem" onclick="openModal(this)">
+    <img src="sns/instagram/ig_03_features.png" alt="Features" onclick="openModal(this)">
+    <img src="sns/instagram/ig_04_pricing.png" alt="Pricing" onclick="openModal(this)">
+    <img src="sns/instagram/ig_05_persona.png" alt="Persona" onclick="openModal(this)">
+    <img src="sns/instagram/ig_06_tips.png" alt="Tips" onclick="openModal(this)">
+    <img src="sns/instagram/ig_07_comparison.png" alt="Comparison" onclick="openModal(this)">
+    <img src="sns/instagram/ig_08_roadmap.png" alt="Roadmap" onclick="openModal(this)">
+    <img src="sns/instagram/ig_09_testimonial.png" alt="Testimonial" onclick="openModal(this)">
+    <img src="sns/instagram/ig_10_cta.png" alt="CTA" onclick="openModal(this)">
+  </div>
+
+  <div style="margin-top: 24px;">
+    <a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_ceo_decision_partner/sns/x_posts_30days.md" target="_blank" style="color: var(--blue); font-weight: 500;">📝 X投稿30日分を見る →</a>
+  </div>
+</div>
+
+<!-- Documents Section -->
+<div class="section">
+  <h2>📄 企画ドキュメント</h2>
+  <p class="subtitle">5本の企画構成書 — スタートアップピッチレベル</p>
+  <div class="card">
+    <div class="card-body">
+      <ul class="doc-list">
+        <li><span class="icon">📋</span><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_ceo_decision_partner/docs/01_executive_summary.md" target="_blank">01. エグゼクティブサマリー</a></li>
+        <li><span class="icon">💰</span><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_ceo_decision_partner/docs/02_business_model.md" target="_blank">02. ビジネスモデル</a></li>
+        <li><span class="icon">💡</span><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_ceo_decision_partner/docs/03_solution_overview.md" target="_blank">03. ソリューション概要</a></li>
+        <li><span class="icon">⚠️</span><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_ceo_decision_partner/docs/04_risk_analysis.md" target="_blank">04. リスク分析</a></li>
+        <li><span class="icon">📊</span><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_ceo_decision_partner/docs/05_market_research.md" target="_blank">05. 市場調査</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Generated by Ryoko_AI — Vibe Coder Bootcamp Demo | <a href="../../" style="color: var(--accent);">Back to Portal</a>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal()">
+  <img id="modal-img" src="" alt="">
+</div>
+
+<script>
+function openModal(el) {
+  document.getElementById('modal-img').src = el.src;
+  document.getElementById('modal').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+
+</body>
+</html>

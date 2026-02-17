@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CEO Decision Partner - App Mock</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #F8F6F3; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; }
+
+  /* iPhone Frame */
+  .iphone-frame {
+    width: 375px; height: 812px; background: #000; border-radius: 44px; padding: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), inset 0 0 0 2px #333;
+    position: relative; overflow: hidden;
+  }
+  .iphone-screen {
+    width: 100%; height: 100%; background: #1B2A4A; border-radius: 34px; overflow: hidden;
+    display: flex; flex-direction: column; position: relative;
+  }
+  .notch {
+    width: 150px; height: 28px; background: #000; border-radius: 0 0 18px 18px;
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 100;
+  }
+  .status-bar {
+    height: 48px; display: flex; align-items: flex-end; justify-content: space-between;
+    padding: 0 24px 4px; color: #fff; font-size: 12px; font-weight: 600; flex-shrink: 0;
+  }
+  .status-bar .time { font-size: 14px; font-weight: 700; }
+
+  /* Tab Content */
+  .tab-content { flex: 1; overflow: hidden; display: none; flex-direction: column; }
+  .tab-content.active { display: flex; }
+
+  /* Bottom Tab Bar */
+  .tab-bar {
+    height: 80px; background: rgba(12,18,36,0.95); backdrop-filter: blur(20px);
+    display: flex; align-items: flex-start; justify-content: space-around; padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
+  }
+  .tab-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
+    color: rgba(255,255,255,0.4); font-size: 10px; transition: color 0.2s; background: none; border: none;
+  }
+  .tab-item.active { color: #C9A96E; }
+  .tab-item svg { width: 24px; height: 24px; fill: currentColor; }
+
+  /* ===== CHAT SCREEN ===== */
+  .chat-header {
+    padding: 8px 16px 12px; display: flex; align-items: center; gap: 10px;
+  }
+  .chat-header .avatar {
+    width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #C9A96E, #3B7DD8);
+    display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff;
+  }
+  .chat-header .info h2 { color: #fff; font-size: 15px; font-weight: 600; }
+  .chat-header .info p { color: rgba(255,255,255,0.5); font-size: 11px; }
+
+  .chat-messages {
+    flex: 1; overflow-y: auto; padding: 0 12px 12px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .msg { max-width: 82%; padding: 10px 14px; border-radius: 18px; font-size: 13.5px; line-height: 1.55; animation: msgIn 0.3s ease; }
+  .msg.user { align-self: flex-end; background: #3B7DD8; color: #fff; border-bottom-right-radius: 4px; }
+  .msg.ai { align-self: flex-start; background: rgba(255,255,255,0.08); color: #e8e8e8; border-bottom-left-radius: 4px; }
+  .msg.ai .label { color: #C9A96E; font-size: 10px; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
+  .msg.ai strong { color: #C9A96E; }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Decision Canvas Mini */
+  .canvas-panel {
+    margin: 0 12px 8px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 14px;
+    border: 1px solid rgba(201,169,110,0.25);
+  }
+  .canvas-panel h4 { color: #C9A96E; font-size: 11px; letter-spacing: 1px; margin-bottom: 8px; }
+  .canvas-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .canvas-row:last-child { border: none; }
+  .canvas-row .k { color: rgba(255,255,255,0.5); font-size: 11px; }
+  .canvas-row .v { color: #fff; font-size: 11px; font-weight: 600; }
+  .canvas-row .v.risk { color: #E85D5D; }
+  .canvas-row .v.ok { color: #5DD89B; }
+
+  .typing-indicator { align-self: flex-start; display: flex; gap: 4px; padding: 12px 16px; background: rgba(255,255,255,0.08); border-radius: 18px; }
+  .typing-indicator span { width: 7px; height: 7px; background: rgba(255,255,255,0.4); border-radius: 50%; animation: blink 1.4s infinite; }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,60%,100% { opacity: 0.3; transform: scale(0.8); } 30% { opacity: 1; transform: scale(1); } }
+
+  .chat-input-bar {
+    padding: 8px 12px 4px; display: flex; gap: 8px; align-items: center;
+  }
+  .chat-input-bar input {
+    flex: 1; background: rgba(255,255,255,0.08); border: none; border-radius: 20px;
+    padding: 10px 16px; color: #fff; font-size: 13px; outline: none;
+  }
+  .chat-input-bar input::placeholder { color: rgba(255,255,255,0.3); }
+  .chat-input-bar .send-btn {
+    width: 34px; height: 34px; border-radius: 50%; background: #C9A96E; border: none;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .chat-input-bar .send-btn svg { width: 16px; height: 16px; fill: #1B2A4A; }
+
+  /* ===== DASHBOARD ===== */
+  .dash-scroll { flex: 1; overflow-y: auto; padding: 0 16px 16px; }
+  .dash-header { padding: 8px 16px 12px; }
+  .dash-header h2 { color: #fff; font-size: 20px; font-weight: 700; }
+  .dash-header p { color: rgba(255,255,255,0.45); font-size: 12px; margin-top: 2px; }
+
+  .stat-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .stat-card {
+    background: rgba(255,255,255,0.06); border-radius: 14px; padding: 14px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .stat-card .num { font-size: 28px; font-weight: 800; color: #fff; }
+  .stat-card .lbl { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+  .stat-card.accent .num { color: #C9A96E; }
+  .stat-card.blue .num { color: #3B7DD8; }
+  .stat-card.red .num { color: #E85D5D; }
+  .stat-card.green .num { color: #5DD89B; }
+
+  /* Radar Chart */
+  .radar-section { margin-bottom: 16px; }
+  .radar-section h3 { color: #C9A96E; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 12px; }
+  .radar-wrap { display: flex; justify-content: center; }
+  .radar-wrap svg { filter: drop-shadow(0 0 8px rgba(59,125,216,0.2)); }
+
+  .agenda-section h3 { color: #C9A96E; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .agenda-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    background: rgba(255,255,255,0.04); border-radius: 10px; margin-bottom: 6px;
+  }
+  .agenda-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .agenda-item .dot.gold { background: #C9A96E; }
+  .agenda-item .dot.blue { background: #3B7DD8; }
+  .agenda-item .dot.red { background: #E85D5D; }
+  .agenda-item .text { font-size: 12.5px; color: #e0e0e0; }
+  .agenda-item .time { font-size: 11px; color: rgba(255,255,255,0.35); margin-left: auto; white-space: nowrap; }
+
+  /* ===== DECISION JOURNAL ===== */
+  .journal-scroll { flex: 1; overflow-y: auto; padding: 0 16px 16px; }
+  .journal-header { padding: 8px 16px 12px; }
+  .journal-header h2 { color: #fff; font-size: 20px; font-weight: 700; }
+  .journal-header p { color: rgba(255,255,255,0.45); font-size: 12px; margin-top: 2px; }
+
+  .journal-filter {
+    display: flex; gap: 8px; margin-bottom: 14px;
+  }
+  .filter-chip {
+    padding: 5px 12px; border-radius: 16px; font-size: 11px; font-weight: 600;
+    background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); border: none; cursor: pointer;
+  }
+  .filter-chip.active { background: rgba(201,169,110,0.2); color: #C9A96E; }
+
+  .journal-card {
+    background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px;
+    margin-bottom: 10px; border-left: 3px solid #3B7DD8;
+  }
+  .journal-card.decided { border-left-color: #5DD89B; }
+  .journal-card.pending { border-left-color: #C9A96E; }
+  .journal-card.rejected { border-left-color: #E85D5D; }
+  .journal-card .j-title { color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .journal-card .j-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .journal-card .j-date { color: rgba(255,255,255,0.35); font-size: 11px; }
+  .journal-card .j-cat {
+    font-size: 10px; padding: 2px 8px; border-radius: 8px;
+    background: rgba(59,125,216,0.15); color: #3B7DD8; font-weight: 600;
+  }
+  .journal-card .j-status {
+    font-size: 10px; padding: 2px 8px; border-radius: 8px; font-weight: 700; margin-left: auto;
+  }
+  .j-status.decided { background: rgba(93,216,155,0.15); color: #5DD89B; }
+  .j-status.pending { background: rgba(201,169,110,0.15); color: #C9A96E; }
+  .j-status.rejected { background: rgba(232,93,93,0.15); color: #E85D5D; }
+  .j-status.monitoring { background: rgba(59,125,216,0.15); color: #3B7DD8; }
+  .journal-card .j-summary { color: rgba(255,255,255,0.55); font-size: 12px; margin-top: 8px; line-height: 1.5; }
+
+  /* Home Indicator */
+  .home-indicator {
+    width: 134px; height: 5px; background: rgba(255,255,255,0.2); border-radius: 3px;
+    margin: 4px auto 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="iphone-frame">
+  <div class="iphone-screen">
+    <div class="notch"></div>
+    <div class="status-bar">
+      <span class="time">10:28</span>
+      <span>⚡ 5G</span>
+    </div>
+
+    <!-- ===== CHAT TAB ===== -->
+    <div class="tab-content active" id="tab-chat">
+      <div class="chat-header">
+        <div class="avatar">🧠</div>
+        <div class="info">
+          <h2>Decision Partner</h2>
+          <p>AI伴走 • オンライン</p>
+        </div>
+      </div>
+
+      <div class="chat-messages">
+        <div class="msg user">来期の新規事業として、SaaS型のHRテックか、既存顧客向けのコンサルDXか迷っている。どう整理すべき？</div>
+        <div class="msg ai">
+          <div class="label">DECISION PARTNER</div>
+          大きな意思決定ですね。まず<strong>判断軸</strong>を整理しましょう。<br><br>
+          ① <strong>市場規模</strong>と成長性<br>
+          ② 既存アセットとの<strong>シナジー</strong><br>
+          ③ 必要な<strong>初期投資</strong>と回収期間<br>
+          ④ チームの<strong>実行可能性</strong><br><br>
+          Decision Canvasに軸を反映しました。それぞれ、現時点での仮評価を聞かせてください。
+        </div>
+        <div class="msg user">HRテックは市場は大きいが競合が多い。コンサルDXは市場は小さいが既存顧客の声が強い。投資余力は1.5億まで。</div>
+        <div class="msg ai">
+          <div class="label">DECISION PARTNER</div>
+          なるほど。Canvas更新しました。<br><br>
+          🔵 <strong>HRテック</strong>：市場◎ / 競合リスク高 / 投資1.2億〜<br>
+          🟡 <strong>コンサルDX</strong>：市場△ / 競合優位◎ / 投資0.5億〜<br><br>
+          <strong>注目ポイント</strong>：投資余力1.5億なら、コンサルDXで<strong>早期黒字化→HRテック段階参入</strong>という二段構えも選択肢です。次にリスクシナリオを見ましょうか？
+        </div>
+        <div class="msg user">二段構えは面白い。リスクを見せて。</div>
+        <div class="msg ai">
+          <div class="label">DECISION PARTNER</div>
+          3つのシナリオで整理します：<br><br>
+          🟢 <strong>楽観</strong>：DX黒字化6ヶ月→HRテック参入資金確保<br>
+          🟡 <strong>基本</strong>：DX黒字化12ヶ月→HRテック参入は来々期<br>
+          🔴 <strong>悲観</strong>：DX収益化遅延→HRテック断念、DX一本集中<br><br>
+          <strong>最大リスク</strong>は人材の分散です。今のチーム規模で二正面作戦は厳しい場合も。キーパーソンの配置を決めることが先決かもしれません。
+        </div>
+        <div class="typing-indicator"><span></span><span></span><span></span></div>
+      </div>
+
+      <div class="canvas-panel">
+        <h4>📋 DECISION CANVAS</h4>
+        <div class="canvas-row"><span class="k">テーマ</span><span class="v">来期 新規事業選定</span></div>
+        <div class="canvas-row"><span class="k">選択肢</span><span class="v">HRテック / コンサルDX / 二段構え</span></div>
+        <div class="canvas-row"><span class="k">投資上限</span><span class="v">1.5億円</span></div>
+        <div class="canvas-row"><span class="k">最大リスク</span><span class="v risk">人材分散</span></div>
+        <div class="canvas-row"><span class="k">推奨Next</span><span class="v ok">キーパーソン配置検討</span></div>
+      </div>
+
+      <div class="chat-input-bar">
+        <input type="text" placeholder="経営課題を相談する...">
+        <button class="send-btn"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+      </div>
+    </div>
+
+    <!-- ===== DASHBOARD TAB ===== -->
+    <div class="tab-content" id="tab-dash">
+      <div class="dash-header">
+        <h2>Dashboard</h2>
+        <p>2026年2月17日 (火)</p>
+      </div>
+      <div class="dash-scroll">
+        <div class="stat-cards">
+          <div class="stat-card accent"><div class="num">7</div><div class="lbl">今月の意思決定</div></div>
+          <div class="stat-card red"><div class="num">3</div><div class="lbl">未決事項</div></div>
+          <div class="stat-card blue"><div class="num">82%</div><div class="lbl">決定実行率</div></div>
+          <div class="stat-card green"><div class="num">4.2</div><div class="lbl">判断速度 (日)</div></div>
+        </div>
+
+        <div class="radar-section">
+          <h3>STRATEGIC RADAR</h3>
+          <div class="radar-wrap">
+            <svg width="220" height="220" viewBox="0 0 220 220">
+              <!-- Grid -->
+              <polygon points="110,20 190,65 190,155 110,200 30,155 30,65" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+              <polygon points="110,44 172,77 172,143 110,176 48,143 48,77" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+              <polygon points="110,68 154,89 154,131 110,152 66,131 66,89" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+              <!-- Labels -->
+              <text x="110" y="14" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="9">財務</text>
+              <text x="200" y="65" text-anchor="start" fill="rgba(255,255,255,0.5)" font-size="9">市場</text>
+              <text x="200" y="158" text-anchor="start" fill="rgba(255,255,255,0.5)" font-size="9">組織</text>
+              <text x="110" y="216" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="9">技術</text>
+              <text x="18" y="158" text-anchor="end" fill="rgba(255,255,255,0.5)" font-size="9">競合</text>
+              <text x="18" y="65" text-anchor="end" fill="rgba(255,255,255,0.5)" font-size="9">顧客</text>
+              <!-- Data -->
+              <polygon points="110,32 180,72 165,150 110,185 50,130 42,68" fill="rgba(59,125,216,0.15)" stroke="#3B7DD8" stroke-width="2"/>
+              <circle cx="110" cy="32" r="4" fill="#C9A96E"/>
+              <circle cx="180" cy="72" r="4" fill="#C9A96E"/>
+              <circle cx="165" cy="150" r="4" fill="#C9A96E"/>
+              <circle cx="110" cy="185" r="4" fill="#C9A96E"/>
+              <circle cx="50" cy="130" r="4" fill="#C9A96E"/>
+              <circle cx="42" cy="68" r="4" fill="#C9A96E"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="agenda-section">
+          <h3>📅 今週のアジェンダ</h3>
+          <div class="agenda-item"><div class="dot gold"></div><div class="text">新規事業 最終方針決定</div><div class="time">火 14:00</div></div>
+          <div class="agenda-item"><div class="dot blue"></div><div class="text">Q1予算レビュー</div><div class="time">水 10:00</div></div>
+          <div class="agenda-item"><div class="dot red"></div><div class="text">人事戦略 緊急MTG</div><div class="time">木 09:00</div></div>
+          <div class="agenda-item"><div class="dot gold"></div><div class="text">取締役会 資料最終確認</div><div class="time">金 16:00</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== JOURNAL TAB ===== -->
+    <div class="tab-content" id="tab-journal">
+      <div class="journal-header">
+        <h2>Decision Journal</h2>
+        <p>意思決定の記録と振り返り</p>
+      </div>
+      <div class="journal-scroll">
+        <div class="journal-filter">
+          <button class="filter-chip active">すべて</button>
+          <button class="filter-chip">戦略</button>
+          <button class="filter-chip">人事</button>
+          <button class="filter-chip">財務</button>
+        </div>
+
+        <div class="journal-card decided">
+          <div class="j-title">東南アジア市場 進出決定</div>
+          <div class="j-meta">
+            <span class="j-date">2026/02/12</span>
+            <span class="j-cat">戦略</span>
+            <span class="j-status decided">決定済</span>
+          </div>
+          <div class="j-summary">タイ・ベトナムを第一候補に。現地パートナー3社と面談完了。4月にPoC開始。</div>
+        </div>
+
+        <div class="journal-card pending">
+          <div class="j-title">CTO採用 最終候補選定</div>
+          <div class="j-meta">
+            <span class="j-date">2026/02/15</span>
+            <span class="j-cat">人事</span>
+            <span class="j-status pending">検討中</span>
+          </div>
+          <div class="j-summary">最終候補2名。技術力はA氏優位、カルチャーフィットはB氏。来週最終面談。</div>
+        </div>
+
+        <div class="journal-card decided">
+          <div class="j-title">SaaS価格体系リニューアル</div>
+          <div class="j-meta">
+            <span class="j-date">2026/02/08</span>
+            <span class="j-cat">財務</span>
+            <span class="j-status decided">決定済</span>
+          </div>
+          <div class="j-summary">3tier→2tierに簡素化。エンタープライズはカスタム見積もりへ移行。3月適用。</div>
+        </div>
+
+        <div class="journal-card rejected">
+          <div class="j-title">自社データセンター構築</div>
+          <div class="j-meta">
+            <span class="j-date">2026/02/03</span>
+            <span class="j-cat">技術</span>
+            <span class="j-status rejected">見送り</span>
+          </div>
+          <div class="j-summary">コスト試算の結果、クラウド継続が合理的と判断。年間2,000万円の差。</div>
+        </div>
+
+        <div class="journal-card">
+          <div class="j-title">ブランドリニューアル投資</div>
+          <div class="j-meta">
+            <span class="j-date">2026/01/28</span>
+            <span class="j-cat">戦略</span>
+            <span class="j-status monitoring">モニタリング</span>
+          </div>
+          <div class="j-summary">CI刷新を外部エージェンシーに委託。3月中間報告予定。予算800万円。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab-item active" onclick="switchTab('chat')">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+        <span>チャット</span>
+      </button>
+      <button class="tab-item" onclick="switchTab('dash')">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="tab-item" onclick="switchTab('journal')">
+        <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H6V4h2v8l2.5-1.5L13 12V4h5v16z"/></svg>
+        <span>Journal</span>
+      </button>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const idx = {chat:0, dash:1, journal:2}[name];
+  document.querySelectorAll('.tab-item')[idx].classList.add('active');
+}
+</script>
+</body>
+</html>
