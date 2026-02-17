@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KaFun Shield — 花粉アラートマップ</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--main:#2E7D32;--main-light:#a5d6a7;--main-pale:#c8e6c9;--accent:#FF6F00;--accent-light:#ffcc80;--bg:#F5F9F5;--text:#1A1A2E;--p1:#81c784;--p2:#fff176;--p3:#ffb74d;--p4:#ef9a9a;--p5:#ce93d8;--radius:24px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+.container{max-width:900px;margin:0 auto;padding:0 20px}
+/* Hero */
+.hero{background:linear-gradient(135deg,#e8f5e9 0%,#c8e6c9 50%,#dcedc8 100%);padding:80px 20px 60px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"🌸";position:absolute;top:20px;left:10%;font-size:40px;opacity:.4;animation:float 4s ease-in-out infinite}
+.hero::after{content:"🌿";position:absolute;top:40px;right:10%;font-size:36px;opacity:.4;animation:float 3s ease-in-out infinite .5s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+.hero-emoji{font-size:72px;margin-bottom:16px}
+.hero h1{font-size:clamp(1.6rem,5vw,2.4rem);color:var(--main);margin-bottom:8px;font-weight:800}
+.hero .sub{font-size:clamp(.95rem,3vw,1.15rem);color:#558b2f;margin-bottom:8px}
+.hero .desc{font-size:.95rem;color:#555;margin-bottom:32px;max-width:520px;margin-left:auto;margin-right:auto}
+.btn{display:inline-block;background:linear-gradient(135deg,var(--accent),#ff8f00);color:#fff;padding:16px 40px;border-radius:50px;font-size:1.1rem;font-weight:700;text-decoration:none;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(255,111,0,.3);transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(255,111,0,.4)}
+.btn-sub{display:block;margin-top:12px;font-size:.8rem;color:#777}
+/* Sections */
+section{padding:60px 20px}
+.section-title{text-align:center;font-size:clamp(1.3rem,4vw,1.8rem);color:var(--main);margin-bottom:40px;font-weight:800}
+.section-title .emoji{font-size:1.4em;vertical-align:middle}
+/* Problems - speech bubbles */
+.problems{display:flex;flex-direction:column;gap:24px;max-width:600px;margin:0 auto}
+.bubble{background:#fff;border-radius:var(--radius);padding:24px 28px;position:relative;box-shadow:0 2px 12px rgba(0,0,0,.06);font-size:1rem}
+.bubble::after{content:"";position:absolute;bottom:-12px;left:40px;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:14px solid #fff}
+.bubble:nth-child(2){align-self:flex-end}
+.bubble:nth-child(2)::after{left:auto;right:40px}
+.bubble .b-emoji{font-size:2rem;margin-bottom:8px;display:block}
+.bubble .b-title{font-weight:700;color:var(--main);margin-bottom:4px}
+/* Features */
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;max-width:800px;margin:0 auto}
+.feature-card{background:#fff;border-radius:var(--radius);padding:32px 24px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06);transition:transform .2s}
+.feature-card:hover{transform:translateY(-4px)}
+.feature-card .f-icon{font-size:3rem;margin-bottom:12px;display:block}
+.feature-card h3{color:var(--main);font-size:1.05rem;margin-bottom:8px}
+.feature-card p{font-size:.88rem;color:#666}
+/* Heatmap demo */
+.map-section{background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border-radius:var(--radius);overflow:hidden}
+.map-demo{max-width:500px;margin:0 auto;position:relative}
+.map-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;padding:20px;aspect-ratio:1.2}
+.map-cell{border-radius:8px;opacity:.75;transition:opacity .3s}
+.map-legend{display:flex;justify-content:center;gap:12px;padding:16px;flex-wrap:wrap}
+.map-legend span{display:flex;align-items:center;gap:4px;font-size:.78rem;color:#555}
+.map-legend .dot{width:14px;height:14px;border-radius:50%;display:inline-block}
+.map-label{text-align:center;font-size:.85rem;color:#777;padding-bottom:16px}
+.map-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.92);border-radius:20px;padding:16px 24px;text-align:center;box-shadow:0 2px 16px rgba(0,0,0,.1);pointer-events:none}
+.map-overlay .pin{font-size:2rem}
+.map-overlay .info{font-size:.85rem;color:var(--main);font-weight:700}
+/* Pricing */
+.pricing{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;max-width:800px;margin:0 auto}
+.price-card{background:#fff;border-radius:var(--radius);padding:36px 28px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06);position:relative;border:3px solid transparent}
+.price-card.popular{border-color:var(--accent-light);background:linear-gradient(180deg,#fff8e1 0%,#fff 40%)}
+.price-card.popular::before{content:"🌟 人気No.1";position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:4px 16px;border-radius:20px;font-size:.78rem;font-weight:700;white-space:nowrap}
+.price-card .p-icon{font-size:2.5rem;margin-bottom:8px}
+.price-card h3{font-size:1.2rem;color:var(--main);margin-bottom:8px}
+.price-card .price{font-size:2rem;font-weight:800;color:var(--text);margin-bottom:4px}
+.price-card .price small{font-size:.85rem;font-weight:400}
+.price-card ul{list-style:none;text-align:left;margin:16px 0;font-size:.88rem}
+.price-card li{padding:6px 0;border-bottom:1px solid #f0f0f0}
+.price-card li::before{content:"✅ ";font-size:.8rem}
+.price-btn{display:inline-block;padding:12px 32px;border-radius:50px;font-weight:700;font-size:.95rem;text-decoration:none;transition:transform .2s}
+.price-btn.free{background:var(--main-pale);color:var(--main)}
+.price-btn.plus{background:linear-gradient(135deg,var(--accent),#ff8f00);color:#fff}
+.price-btn.family{background:var(--main-light);color:#1b5e20}
+/* Testimonials */
+.testimonials{display:flex;flex-direction:column;gap:28px;max-width:600px;margin:0 auto}
+.testi{display:flex;gap:16px;align-items:flex-start}
+.testi:nth-child(2){flex-direction:row-reverse}
+.testi-avatar{width:56px;height:56px;border-radius:50%;background:var(--main-pale);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0}
+.testi-bubble{background:#fff;border-radius:var(--radius);padding:20px 24px;position:relative;box-shadow:0 2px 12px rgba(0,0,0,.06);flex:1}
+.testi-bubble::before{content:"";position:absolute;top:18px;width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent}
+.testi:nth-child(odd) .testi-bubble::before{left:-10px;border-right:12px solid #fff}
+.testi:nth-child(2) .testi-bubble::before{right:-10px;left:auto;border-left:12px solid #fff;border-right:none}
+.testi-bubble p{font-size:.92rem;margin-bottom:8px}
+.testi-bubble .name{font-size:.8rem;color:#888;font-weight:600}
+.testi-bubble .stars{color:#ffc107;font-size:.9rem;letter-spacing:2px}
+/* FAQ */
+.faq-list{max-width:650px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.faq-item{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.faq-q{padding:18px 24px;cursor:pointer;font-weight:700;display:flex;justify-content:space-between;align-items:center;font-size:.95rem;user-select:none}
+.faq-q::after{content:"＋";font-size:1.2rem;color:var(--main);transition:transform .3s}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;padding:0 24px}
+.faq-item.open .faq-a{max-height:300px;padding:0 24px 18px}
+.faq-a p{font-size:.88rem;color:#555;line-height:1.8}
+/* Bottom CTA */
+.bottom-cta{text-align:center;background:linear-gradient(135deg,#c8e6c9,#dcedc8,#f1f8e9);padding:60px 20px;border-radius:0}
+.bottom-cta .cta-emoji{font-size:3.5rem;margin-bottom:16px}
+.bottom-cta h2{font-size:clamp(1.3rem,4vw,1.8rem);color:var(--main);margin-bottom:12px}
+.bottom-cta p{color:#555;margin-bottom:28px;font-size:.95rem}
+/* Footer */
+footer{text-align:center;padding:32px 20px;font-size:.78rem;color:#999}
+@media(max-width:600px){
+ .features{grid-template-columns:1fr 1fr;gap:14px}
+ .feature-card{padding:24px 16px}
+ .pricing{grid-template-columns:1fr}
+ .testi{flex-direction:column!important;align-items:center;text-align:center}
+ .testi-bubble::before{display:none}
+ section{padding:48px 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+<div class="container">
+<div class="hero-emoji">🛡️🌸</div>
+<h1>KaFun Shield</h1>
+<p class="sub">花粉アラートマップ</p>
+<p class="desc">リアルタイム花粉ヒートマップで、家族みんなの花粉症をやさしくマネジメント。500mメッシュの高精度データ × AIレコメンドで、おでかけをもっと快適に 🌿</p>
+<a href="#" class="btn">📱 無料ではじめる</a>
+<span class="btn-sub">ダウンロード無料・登録30秒 ✨</span>
+</div>
+</section>
+
+<!-- Problems -->
+<section>
+<div class="container">
+<h2 class="section-title"><span class="emoji">😫</span> こんなお悩みありませんか？</h2>
+<div class="problems">
+<div class="bubble">
+<span class="b-emoji">🤧</span>
+<div class="b-title">天気予報の花粉情報、ざっくりすぎ…</div>
+<p>「東京都：非常に多い」って言われても、うちの近所はどうなの？ってなりますよね。</p>
+</div>
+<div class="bubble">
+<span class="b-emoji">👨‍👩‍👧</span>
+<div class="b-title">子どもの外遊び、いつならOK？</div>
+<p>公園に連れて行きたいけど、花粉がひどい時間帯がわからない。帰ってからくしゃみ連発…😢</p>
+</div>
+<div class="bubble">
+<span class="b-emoji">💊</span>
+<div class="b-title">薬のタイミングがわからない</div>
+<p>「今日飲んだほうがいい？」毎朝悩む。飲み忘れた日に限ってひどくなるパターン…。</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Features -->
+<section style="background:#fff">
+<div class="container">
+<h2 class="section-title"><span class="emoji">✨</span> KaFun Shieldの4つの機能</h2>
+<div class="features">
+<div class="feature-card">
+<span class="f-icon">🗺️</span>
+<h3>リアルタイム花粉マップ</h3>
+<p>500mメッシュの超細かいヒートマップ。今いる場所の花粉量がひと目でわかる！</p>
+</div>
+<div class="feature-card">
+<span class="f-icon">🔔</span>
+<h3>おでかけアラート</h3>
+<p>登録エリアの花粉が増えたらプッシュ通知。お出かけ前にサクッと確認できるよ。</p>
+</div>
+<div class="feature-card">
+<span class="f-icon">🤖</span>
+<h3>AI対策レコメンド</h3>
+<p>あなたの症状・花粉量・天気から、今日のベストな対策をAIが提案してくれる。</p>
+</div>
+<div class="feature-card">
+<span class="f-icon">📊</span>
+<h3>花粉カレンダー</h3>
+<p>週間予報＆シーズン傾向をチェック。旅行やイベントの計画にも使えるよ。</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Heatmap Demo -->
+<section>
+<div class="container">
+<h2 class="section-title"><span class="emoji">🌈</span> 花粉マップのイメージ</h2>
+<div class="map-section">
+<div class="map-demo">
+<div class="map-grid" id="mapGrid"></div>
+<div class="map-overlay">
+<div class="pin">📍</div>
+<div class="info">現在地: やや少なめ 😊</div>
+</div>
+</div>
+<div class="map-legend">
+<span><span class="dot" style="background:var(--p1)"></span>少ない</span>
+<span><span class="dot" style="background:var(--p2)"></span>やや多い</span>
+<span><span class="dot" style="background:var(--p3)"></span>多い</span>
+<span><span class="dot" style="background:var(--p4)"></span>非常に多い</span>
+<span><span class="dot" style="background:var(--p5)"></span>超多い</span>
+</div>
+<p class="map-label">※ イメージです。実際のアプリではリアルタイムデータを表示します 🌸</p>
+</div>
+</div>
+</section>
+
+<!-- Pricing -->
+<section style="background:#fff">
+<div class="container">
+<h2 class="section-title"><span class="emoji">💰</span> 料金プラン</h2>
+<div class="pricing">
+<div class="price-card">
+<div class="p-icon">🌱</div>
+<h3>Free</h3>
+<div class="price">¥0 <small>/月</small></div>
+<ul>
+<li>花粉マップ閲覧</li>
+<li>1エリア登録</li>
+<li>基本アラート</li>
+<li>広告あり</li>
+</ul>
+<a href="#" class="price-btn free">無料で使う</a>
+</div>
+<div class="price-card popular">
+<div class="p-icon">🌟</div>
+<h3>Plus</h3>
+<div class="price">¥380 <small>/月</small></div>
+<ul>
+<li>AIレコメンド</li>
+<li>5エリア登録</li>
+<li>週間花粉予報</li>
+<li>広告なし</li>
+</ul>
+<a href="#" class="price-btn plus">Plusを始める</a>
+</div>
+<div class="price-card">
+<div class="p-icon">👨‍👩‍👧‍👦</div>
+<h3>Family</h3>
+<div class="price">¥580 <small>/月</small></div>
+<ul>
+<li>家族5人まで共有</li>
+<li>10エリア登録</li>
+<li>キッズモード 🧒</li>
+<li>家族カレンダー連携</li>
+</ul>
+<a href="#" class="price-btn family">Familyを始める</a>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Testimonials -->
+<section>
+<div class="container">
+<h2 class="section-title"><span class="emoji">💬</span> ユーザーの声</h2>
+<div class="testimonials">
+<div class="testi">
+<div class="testi-avatar">👩</div>
+<div class="testi-bubble">
+<div class="stars">★★★★★</div>
+<p>「子どもの公園遊びの時間帯を決めるのに大活躍！ 花粉少ない時間に外遊びさせてます。家族全員の鼻がラクになりました 😆」</p>
+<div class="name">ゆきこさん（30代・ママ）</div>
+</div>
+</div>
+<div class="testi">
+<div class="testi-avatar">👨</div>
+<div class="testi-bubble">
+<div class="stars">★★★★★</div>
+<p>「通勤ルートの花粉量がわかるのが神。マスクするかどうかの判断がラクになった。AIの薬リマインドも地味に助かる 👍」</p>
+<div class="name">たけしさん（40代・会社員）</div>
+</div>
+</div>
+<div class="testi">
+<div class="testi-avatar">👧</div>
+<div class="testi-bubble">
+<div class="stars">★★★★☆</div>
+<p>「花粉マップかわいい！友達にもおすすめしてます。予報が当たるので信頼してます 🌸 Familyプランで家族と共有してるのもいい感じ！」</p>
+<div class="name">あいりさん（20代・学生）</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section style="background:#fff">
+<div class="container">
+<h2 class="section-title"><span class="emoji">❓</span> よくある質問</h2>
+<div class="faq-list">
+<div class="faq-item">
+<div class="faq-q">🌸 どの花粉に対応していますか？</div>
+<div class="faq-a"><p>スギ、ヒノキ、ブタクサ、イネ科など主要な花粉に対応しています。地域ごとの飛散状況をリアルタイムで表示します。</p></div>
+</div>
+<div class="faq-item">
+<div class="faq-q">📱 どの端末で使えますか？</div>
+<div class="faq-a"><p>iPhone・Android・PC、どれでもOK！ブラウザベースのWebアプリなので、インストール不要ですぐ使えます。ホーム画面に追加すればアプリ感覚で使えますよ。</p></div>
+</div>
+<div class="faq-item">
+<div class="faq-q">🔒 位置情報は安全ですか？</div>
+<div class="faq-a"><p>はい、安心してください！位置情報はデバイス上で処理され、サーバーに個人を特定できる形では保存されません。プライバシーファーストで設計しています。</p></div>
+</div>
+<div class="faq-item">
+<div class="faq-q">💳 無料プランだけでも使えますか？</div>
+<div class="faq-a"><p>もちろん！花粉マップの基本機能は無料でずっと使えます。AIレコメンドや複数エリア登録が欲しくなったらPlusをどうぞ 😊</p></div>
+</div>
+<div class="faq-item">
+<div class="faq-q">🤖 AIレコメンドって何を教えてくれるの？</div>
+<div class="faq-a"><p>今日の花粉量×天気×あなたの症状パターンをもとに、「マスクした方がいいよ」「窓開けOKだよ」「薬は朝飲んでおこう」といった具体的なアドバイスをお届けします。</p></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Bottom CTA -->
+<section class="bottom-cta">
+<div class="container">
+<div class="cta-emoji">🛡️🌸✨</div>
+<h2>今年の花粉シーズン、<br>KaFun Shieldと一緒に乗りきろう！</h2>
+<p>無料ではじめて、快適な毎日を手に入れよう 🌿</p>
+<a href="#" class="btn">📱 無料ではじめる</a>
+<span class="btn-sub">30秒で登録完了 🎉</span>
+</div>
+</section>
+
+<footer>
+<p>© 2026 KaFun Shield — 花粉アラートマップ 🌸 All rights reserved.</p>
+</footer>
+
+<script>
+// Generate heatmap cells
+(function(){
+var g=document.getElementById('mapGrid');
+var colors=['var(--p1)','var(--p1)','var(--p1)','var(--p2)','var(--p2)','var(--p3)','var(--p3)','var(--p4)','var(--p5)'];
+var pattern=[
+0,0,1,1,0,0,0,0,
+0,1,3,2,1,0,0,0,
+0,2,4,3,2,1,0,0,
+1,3,3,2,1,1,0,0,
+0,2,2,1,1,0,0,0,
+0,1,1,0,0,0,1,1,
+0,0,0,0,0,1,2,1,
+0,0,0,0,0,0,1,0
+];
+for(var i=0;i<pattern.length;i++){
+var d=document.createElement('div');
+d.className='map-cell';
+d.style.background=colors[pattern[i]];
+g.appendChild(d);
+}
+})();
+// FAQ accordion
+document.querySelectorAll('.faq-q').forEach(function(q){
+q.addEventListener('click',function(){
+var item=this.parentElement;
+var wasOpen=item.classList.contains('open');
+document.querySelectorAll('.faq-item').forEach(function(i){i.classList.remove('open')});
+if(!wasOpen)item.classList.add('open');
+});
+});
+</script>
+</body>
+</html>

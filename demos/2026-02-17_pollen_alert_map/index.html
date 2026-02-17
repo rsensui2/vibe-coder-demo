@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KaFun Shield — 花粉アラートマップ | Vibe Coder Demo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',sans-serif;color:#1A1A2E;background:#F5F9F5;font-size:17px;line-height:1.7}
+a{color:#2E7D32;text-decoration:none}
+a:hover{text-decoration:underline}
+
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+
+/* Header */
+.breadcrumb{padding:16px 0;font-size:14px;color:#666}
+.breadcrumb a{color:#2E7D32}
+
+.hero{background:linear-gradient(135deg,#2E7D32 0%,#1B5E20 60%,#FF6F00 100%);color:#fff;padding:64px 0 48px;text-align:center;border-radius:0 0 24px 24px;margin-bottom:48px}
+.hero h1{font-size:36px;margin-bottom:12px;font-weight:800}
+.hero p{font-size:18px;opacity:.9;max-width:600px;margin:0 auto}
+.hero .badge{display:inline-block;background:rgba(255,255,255,.2);padding:6px 16px;border-radius:20px;font-size:13px;margin-top:16px}
+
+/* Sections */
+section{margin-bottom:48px}
+section h2{font-size:28px;font-weight:700;margin-bottom:24px;padding-bottom:8px;border-bottom:3px solid #2E7D32}
+
+/* Card Grid */
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+
+@media(max-width:768px){
+  .grid-3,.grid-2,.grid-5{grid-template-columns:1fr}
+  .hero h1{font-size:26px}
+}
+
+.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.card img{width:100%;aspect-ratio:16/10;object-fit:cover;cursor:pointer}
+.card .card-body{padding:20px}
+.card .card-body h3{font-size:20px;margin-bottom:8px;font-weight:600}
+.card .card-body p{font-size:15px;color:#555}
+.card .card-body .btn{display:inline-block;margin-top:12px;padding:8px 20px;background:#2E7D32;color:#fff;border-radius:8px;font-size:14px;font-weight:600;transition:background .2s}
+.card .card-body .btn:hover{background:#1B5E20;text-decoration:none}
+.card .card-body .btn-outline{background:transparent;border:2px solid #2E7D32;color:#2E7D32}
+.card .card-body .btn-outline:hover{background:#2E7D32;color:#fff}
+
+/* Wide card */
+.card-wide{display:grid;grid-template-columns:1fr 1fr;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.card-wide img{width:100%;height:100%;object-fit:cover;cursor:pointer}
+@media(max-width:768px){.card-wide{grid-template-columns:1fr}}
+
+/* Media players */
+.player-section{background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+video,audio{width:100%;border-radius:8px;margin-top:12px}
+
+/* IG Grid */
+.ig-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.ig-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer;transition:transform .2s}
+.ig-grid img:hover{transform:scale(1.03)}
+@media(max-width:768px){.ig-grid{grid-template-columns:repeat(3,1fr)}}
+
+/* Document list */
+.doc-list{list-style:none;padding:0}
+.doc-list li{padding:12px 16px;background:#fff;border-radius:10px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;align-items:center;gap:12px}
+.doc-list li .icon{font-size:24px}
+.doc-list li a{font-weight:600;font-size:16px}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:1000;justify-content:center;align-items:center;cursor:pointer}
+.modal-overlay.active{display:flex}
+.modal-overlay img{max-width:92%;max-height:92%;object-fit:contain;border-radius:8px}
+.modal-close{position:fixed;top:20px;right:28px;color:#fff;font-size:36px;cursor:pointer;z-index:1001}
+
+footer{text-align:center;padding:32px 0;color:#888;font-size:14px;border-top:1px solid #ddd;margin-top:48px}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <div class="breadcrumb" style="color:rgba(255,255,255,.7)"><a href="../../" style="color:rgba(255,255,255,.9)">← Demo Portal</a> / KaFun Shield</div>
+    <h1>🛡️ KaFun Shield — 花粉アラートマップ</h1>
+    <p>「今日、あなたの街の花粉は何色？」<br>リアルタイム花粉ヒートマップで、花粉症をマネジメントする時代へ。</p>
+    <span class="badge">🌸 Vibe Coder Bootcamp — 全自動生成デモ</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- LP Section -->
+  <section>
+    <h2>🖥️ ランディングページ（3パターン）</h2>
+    <div class="grid-3">
+      <div class="card">
+        <img src="screenshots/lp_pattern1.png" alt="Modern LP" onclick="openModal(this.src)">
+        <div class="card-body">
+          <h3>Pattern 1: Modern</h3>
+          <p>ミニマルで洗練されたデザイン。白ベースに緑のアクセント。</p>
+          <a href="lp/pattern1_modern.html" target="_blank" class="btn">プレビュー →</a>
+        </div>
+      </div>
+      <div class="card">
+        <img src="screenshots/lp_pattern2.png" alt="Premium LP" onclick="openModal(this.src)">
+        <div class="card-body">
+          <h3>Pattern 2: Premium</h3>
+          <p>ダークテーマでプレミアム感。データビジュアライゼーション重視。</p>
+          <a href="lp/pattern2_premium.html" target="_blank" class="btn">プレビュー →</a>
+        </div>
+      </div>
+      <div class="card">
+        <img src="screenshots/lp_pattern3.png" alt="Casual LP" onclick="openModal(this.src)">
+        <div class="card-body">
+          <h3>Pattern 3: Casual</h3>
+          <p>パステルグリーンでカジュアル。ファミリー層向けの親しみやすさ。</p>
+          <a href="lp/pattern3_casual.html" target="_blank" class="btn">プレビュー →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mock App Section -->
+  <section>
+    <h2>📱 モックアプリ</h2>
+    <div class="card-wide">
+      <img src="screenshots/mock_app.png" alt="Mock App" onclick="openModal(this.src)">
+      <div class="card-body" style="display:flex;flex-direction:column;justify-content:center;padding:32px">
+        <h3>花粉マップアプリ — インタラクティブモック</h3>
+        <p style="margin-bottom:16px">4つの画面（マップ・予報・通知・プロフィール）をタブ切り替えで体験できるHTML版モックアプリ。ヒートマップ、時間スライダー、花粉レベルの色分けなど実際のUIを再現。</p>
+        <div>
+          <a href="mock/app_mock.html" target="_blank" class="btn">アプリを体験 →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Presentation Section -->
+  <section>
+    <h2>📊 プレゼンテーション</h2>
+    <div class="grid-2">
+      <div class="card">
+        <img src="slides/slide_01.png" alt="Slide Cover" onclick="openModal(this.src)">
+        <div class="card-body">
+          <h3>ピッチスライド（10枚）</h3>
+          <p>コンセプトから市場分析、ビジネスモデルまで網羅したスタートアップピッチ資料。</p>
+          <a href="slides/kafun_shield.pptx" download class="btn">📥 PPTX</a>
+          <a href="slides/kafun_shield.pdf" target="_blank" class="btn btn-outline" style="margin-left:8px">📄 PDF</a>
+        </div>
+      </div>
+      <div class="card" style="background:#f8f8f8;display:flex;flex-direction:column;justify-content:center;padding:24px">
+        <h3 style="margin-bottom:16px">スライドギャラリー</h3>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+          <img src="slides/slide_01.png" style="width:100%;border-radius:4px;cursor:pointer" onclick="openModal(this.src)">
+          <img src="slides/slide_02.png" style="width:100%;border-radius:4px;cursor:pointer" onclick="openModal(this.src)">
+          <img src="slides/slide_03.png" style="width:100%;border-radius:4px;cursor:pointer" onclick="openModal(this.src)">
+          <img src="slides/slide_04.png" style="width:100%;border-radius:4px;cursor:pointer" onclick="openModal(this.src)">
+          <img src="slides/slide_05.png" style="width:100%;border-radius:4px;cursor:pointer" onclick="openModal(this.src)">
+          <img src="slides/slide_06.png" style="width:100%;border-radius:4px;cursor:pointer" onclick="openModal(this.src)">
+          <img src="slides/slide_07.png" style="width:100%;border-radius:4px;cursor:pointer" onclick="openModal(this.src)">
+          <img src="slides/slide_08.png" style="width:100%;border-radius:4px;cursor:pointer" onclick="openModal(this.src)">
+          <img src="slides/slide_09.png" style="width:100%;border-radius:4px;cursor:pointer" onclick="openModal(this.src)">
+          <img src="slides/slide_10.png" style="width:100%;border-radius:4px;cursor:pointer" onclick="openModal(this.src)">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video Section -->
+  <section>
+    <h2>🎬 プロモーション動画</h2>
+    <div class="player-section">
+      <h3>KaFun Shield — 25秒CM</h3>
+      <p>花粉症の課題提起からソリューション紹介までを凝縮したプロモーション映像。</p>
+      <video controls preload="metadata">
+        <source src="video/promo.mp4" type="video/mp4">
+      </video>
+    </div>
+  </section>
+
+  <!-- Audio Section -->
+  <section>
+    <h2>🎙️ 音声コンテンツ（ラジオ）</h2>
+    <div class="player-section">
+      <h3>KaFun Shield Radio — 全3チャプター</h3>
+      <p>花粉症の現状、KaFun Shieldの機能紹介、活用シーンをラジオ形式でお届け。</p>
+      <div style="margin-top:16px">
+        <p style="font-weight:600;margin-bottom:4px">📻 フルエピソード</p>
+        <audio controls preload="metadata">
+          <source src="audio/full_episode.mp3" type="audio/mpeg">
+        </audio>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px">
+        <div>
+          <p style="font-size:14px;font-weight:600">Ch.1 花粉症の現状</p>
+          <audio controls preload="metadata" style="width:100%">
+            <source src="audio/chapter_01.mp3" type="audio/mpeg">
+          </audio>
+        </div>
+        <div>
+          <p style="font-size:14px;font-weight:600">Ch.2 KaFun Shieldとは</p>
+          <audio controls preload="metadata" style="width:100%">
+            <source src="audio/chapter_02.mp3" type="audio/mpeg">
+          </audio>
+        </div>
+        <div>
+          <p style="font-size:14px;font-weight:600">Ch.3 活用シーン</p>
+          <audio controls preload="metadata" style="width:100%">
+            <source src="audio/chapter_03.mp3" type="audio/mpeg">
+          </audio>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SNS Section -->
+  <section>
+    <h2>📱 SNSコンテンツ</h2>
+    <h3 style="margin-bottom:16px">Instagram 図解画像（10枚）</h3>
+    <div class="ig-grid">
+      <img src="sns/instagram/ig_01_basics.png" alt="花粉症の基礎知識" onclick="openModal(this.src)">
+      <img src="sns/instagram/ig_02_levels.png" alt="花粉レベルの見方" onclick="openModal(this.src)">
+      <img src="sns/instagram/ig_03_checklist.png" alt="対策チェックリスト" onclick="openModal(this.src)">
+      <img src="sns/instagram/ig_04_calendar.png" alt="花粉カレンダー" onclick="openModal(this.src)">
+      <img src="sns/instagram/ig_05_indoor.png" alt="室内対策" onclick="openModal(this.src)">
+      <img src="sns/instagram/ig_06_outdoor.png" alt="外出時の注意" onclick="openModal(this.src)">
+      <img src="sns/instagram/ig_07_food.png" alt="食事で改善" onclick="openModal(this.src)">
+      <img src="sns/instagram/ig_08_howto.png" alt="アプリの使い方" onclick="openModal(this.src)">
+      <img src="sns/instagram/ig_09_vs_cold.png" alt="花粉症vs風邪" onclick="openModal(this.src)">
+      <img src="sns/instagram/ig_10_kids.png" alt="子どもの花粉症" onclick="openModal(this.src)">
+    </div>
+    <div style="margin-top:24px">
+      <a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_pollen_alert_map/sns/x_posts_30days.md" target="_blank" class="btn" style="display:inline-block;padding:10px 24px;background:#2E7D32;color:#fff;border-radius:8px;font-weight:600">𝕏 投稿文30日分を見る →</a>
+    </div>
+  </section>
+
+  <!-- Documents Section -->
+  <section>
+    <h2>📄 企画構成ドキュメント</h2>
+    <ul class="doc-list">
+      <li><span class="icon">📋</span><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_pollen_alert_map/docs/01_executive_summary.md" target="_blank">01. エグゼクティブサマリー</a></li>
+      <li><span class="icon">💰</span><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_pollen_alert_map/docs/02_business_model.md" target="_blank">02. ビジネスモデル</a></li>
+      <li><span class="icon">⚙️</span><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_pollen_alert_map/docs/03_solution_overview.md" target="_blank">03. ソリューション概要</a></li>
+      <li><span class="icon">⚠️</span><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_pollen_alert_map/docs/04_risk_analysis.md" target="_blank">04. リスク分析</a></li>
+      <li><span class="icon">🔍</span><a href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-17_pollen_alert_map/docs/05_market_research.md" target="_blank">05. 市場調査</a></li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>
+  <p>🛡️ KaFun Shield — Generated by <strong>Ryoko</strong> (AI Agent) via Vibe Coder Bootcamp Demo Generator</p>
+  <p style="margin-top:4px">© 2026 TEKION Group. All rights reserved.</p>
+</footer>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal()">
+  <span class="modal-close" onclick="closeModal()">✕</span>
+  <img id="modal-img" src="" alt="">
+</div>
+
+<script>
+function openModal(src){
+  document.getElementById('modal-img').src=src;
+  document.getElementById('modal').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('active');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+</script>
+</body>
+</html>

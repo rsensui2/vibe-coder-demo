@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KaFun Shield — 花粉アラートマップ</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--main:#2E7D32;--accent:#FF6F00;--bg:#0A0E27;--text:#E0E0E0;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--p1:#4CAF50;--p2:#FFEB3B;--p3:#FF9800;--p4:#F44336;--p5:#9C27B0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none}
+.container{max-width:1100px;margin:0 auto;padding:0 20px}
+/* Hero */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(46,125,50,0.3),transparent 70%);top:-100px;left:-100px;animation:pulse 6s ease-in-out infinite}
+.hero::after{content:"";position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(255,111,0,0.2),transparent 70%);bottom:-100px;right:-100px;animation:pulse 6s ease-in-out infinite 3s}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.2);opacity:1}}
+.hero-content{position:relative;z-index:1}
+.hero-badge{display:inline-block;padding:6px 20px;border:1px solid var(--main);border-radius:30px;font-size:.85rem;color:var(--p1);margin-bottom:24px;letter-spacing:.1em}
+.hero h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:900;margin-bottom:16px;background:linear-gradient(135deg,var(--p1),var(--p2),var(--p3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:clamp(1rem,2.5vw,1.25rem);color:rgba(224,224,224,0.7);max-width:600px;margin:0 auto 40px}
+.btn{display:inline-block;padding:16px 40px;border-radius:50px;font-size:1.1rem;font-weight:700;cursor:pointer;border:none;transition:all .3s}
+.btn-primary{background:linear-gradient(135deg,var(--main),var(--accent));color:#fff;box-shadow:0 0 30px rgba(46,125,50,0.4),0 0 60px rgba(255,111,0,0.2)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(46,125,50,0.6),0 0 80px rgba(255,111,0,0.3)}
+.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:48px;flex-wrap:wrap}
+.hero-stat-num{font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--p1),var(--p2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-stat-label{font-size:.8rem;color:rgba(224,224,224,0.5)}
+/* Section common */
+section{padding:100px 0}
+.section-label{text-transform:uppercase;font-size:.75rem;letter-spacing:.2em;color:var(--accent);margin-bottom:12px}
+.section-title{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;margin-bottom:16px}
+.section-sub{color:rgba(224,224,224,0.6);max-width:600px;margin-bottom:60px}
+.text-center{text-align:center}
+.text-center .section-sub{margin-left:auto;margin-right:auto}
+/* Problems */
+.problems{background:linear-gradient(180deg,var(--bg),#0d1233)}
+.problem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px}
+.problem-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px 30px;text-align:center;position:relative;overflow:hidden}
+.problem-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--p4),var(--p5))}
+.problem-num{font-size:4.5rem;font-weight:900;background:linear-gradient(135deg,var(--p4),var(--p3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.problem-unit{font-size:1.2rem;color:rgba(224,224,224,0.5);margin-bottom:12px}
+.problem-card h3{font-size:1.1rem;margin-bottom:8px}
+.problem-card p{font-size:.9rem;color:rgba(224,224,224,0.5)}
+/* Solutions */
+.solutions{background:linear-gradient(180deg,#0d1233,var(--bg))}
+.sol-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+.sol-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px 24px;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s}
+.sol-card:hover{transform:translateY(-4px);box-shadow:0 10px 40px rgba(46,125,50,0.15)}
+.sol-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:16px}
+.sol-card h3{font-size:1.05rem;margin-bottom:8px;font-weight:700}
+.sol-card p{font-size:.85rem;color:rgba(224,224,224,0.5)}
+.sol-metric{margin-top:16px;font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--p1),var(--p2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sol-metric-label{font-size:.75rem;color:rgba(224,224,224,0.4)}
+/* Heatmap */
+.heatmap-section{background:#080c20;padding:100px 0}
+.heatmap-wrap{max-width:700px;margin:0 auto;position:relative}
+.heatmap-container{background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:20px;padding:24px;position:relative;overflow:hidden}
+.heatmap-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.heatmap-header h3{font-size:1rem;font-weight:700}
+.heatmap-live{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--p1)}
+.heatmap-live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--p1);animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.heatmap-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
+.hm-cell{aspect-ratio:1;border-radius:4px;opacity:.8;transition:opacity .3s}
+.hm-cell:hover{opacity:1;transform:scale(1.1)}
+.heatmap-legend{display:flex;justify-content:space-between;align-items:center;margin-top:20px;font-size:.75rem;color:rgba(224,224,224,0.4)}
+.legend-bar{height:8px;flex:1;margin:0 12px;border-radius:4px;background:linear-gradient(90deg,var(--p1),var(--p2),var(--p3),var(--p4),var(--p5))}
+.heatmap-info{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+.hm-info-card{background:rgba(255,255,255,0.03);border-radius:12px;padding:16px;text-align:center}
+.hm-info-num{font-size:1.6rem;font-weight:900;color:var(--p3)}
+.hm-info-label{font-size:.7rem;color:rgba(224,224,224,0.4)}
+/* Pricing */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:960px;margin:0 auto}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 30px;text-align:center;position:relative;transition:transform .3s}
+.price-card:hover{transform:translateY(-4px)}
+.price-card.featured{border-color:var(--main);box-shadow:0 0 40px rgba(46,125,50,0.2)}
+.price-card.featured::before{content:"人気No.1";position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--main),var(--accent));color:#fff;font-size:.75rem;font-weight:700;padding:4px 16px;border-radius:20px}
+.price-name{font-size:1rem;color:rgba(224,224,224,0.6);margin-bottom:8px}
+.price-amount{font-size:3rem;font-weight:900}
+.price-amount span{font-size:1rem;font-weight:400;color:rgba(224,224,224,0.4)}
+.price-desc{font-size:.85rem;color:rgba(224,224,224,0.4);margin:12px 0 24px}
+.price-features{list-style:none;text-align:left;margin-bottom:32px}
+.price-features li{padding:8px 0;font-size:.9rem;border-bottom:1px solid var(--border)}
+.price-features li::before{content:"✓";color:var(--p1);margin-right:8px;font-weight:700}
+.btn-outline{border:1px solid var(--border);background:transparent;color:var(--text)}
+.btn-outline:hover{border-color:var(--main);background:rgba(46,125,50,0.1)}
+.btn-sm{padding:12px 32px;font-size:.95rem}
+/* Testimonials */
+.testi-section{background:linear-gradient(180deg,var(--bg),#0d1233)}
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+.testi-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px}
+.testi-stars{color:var(--p2);margin-bottom:12px;font-size:1.1rem}
+.testi-text{font-size:.95rem;margin-bottom:20px;font-style:italic;color:rgba(224,224,224,0.7)}
+.testi-author{display:flex;align-items:center;gap:12px}
+.testi-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem}
+.testi-name{font-size:.9rem;font-weight:600}
+.testi-role{font-size:.75rem;color:rgba(224,224,224,0.4)}
+/* FAQ */
+.faq-list{max-width:700px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{width:100%;background:none;border:none;color:var(--text);font-size:1rem;padding:20px 0;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-family:inherit}
+.faq-q::after{content:"+";font-size:1.5rem;color:var(--accent);transition:transform .3s}
+.faq-q.active::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s;font-size:.9rem;color:rgba(224,224,224,0.6)}
+.faq-a-inner{padding:0 0 20px}
+/* Final CTA */
+.final-cta{text-align:center;padding:120px 20px;position:relative;overflow:hidden}
+.final-cta::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(46,125,50,0.15),transparent 70%)}
+.final-cta h2{font-size:clamp(1.8rem,5vw,3rem);font-weight:900;margin-bottom:16px;position:relative}
+.final-cta p{color:rgba(224,224,224,0.6);margin-bottom:40px;position:relative}
+.final-cta .btn{position:relative}
+.dl-badges{display:flex;gap:16px;justify-content:center;margin-top:24px;position:relative}
+.dl-badge{background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:12px;padding:12px 24px;font-size:.9rem;color:var(--text);transition:background .3s}
+.dl-badge:hover{background:rgba(255,255,255,0.12)}
+footer{text-align:center;padding:40px 20px;font-size:.8rem;color:rgba(224,224,224,0.3);border-top:1px solid var(--border)}
+@media(max-width:600px){.hero-stats{gap:24px}.heatmap-grid{grid-template-columns:repeat(8,1fr)}.heatmap-info{grid-template-columns:1fr}.dl-badges{flex-direction:column;align-items:center}}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+<div class="hero-content">
+<div class="hero-badge">🛡 花粉対策 AI プラットフォーム</div>
+<h1>花粉を、見える化する。</h1>
+<p>500mメッシュのリアルタイム花粉ヒートマップとAI対策レコメンドで、花粉症の日常を変える。</p>
+<a href="#pricing" class="btn btn-primary">無料ではじめる →</a>
+<div class="hero-stats">
+<div><div class="hero-stat-num">500m</div><div class="hero-stat-label">メッシュ粒度</div></div>
+<div><div class="hero-stat-num">3秒</div><div class="hero-stat-label">更新間隔</div></div>
+<div><div class="hero-stat-num">98.2%</div><div class="hero-stat-label">予測精度</div></div>
+</div>
+</div>
+</section>
+
+<!-- Problems -->
+<section class="problems">
+<div class="container text-center">
+<div class="section-label">Problem</div>
+<h2 class="section-title">花粉症、もう我慢しなくていい</h2>
+<p class="section-sub">日本人の3人に1人が花粉症。それなのに対策は「なんとなく」のまま。</p>
+<div class="problem-grid">
+<div class="problem-card">
+<div class="problem-num">3,800</div>
+<div class="problem-unit">万人</div>
+<h3>日本の花粉症患者数</h3>
+<p>年々増加し続け、国民病とも呼ばれる花粉症。経済損失は年間数千億円に。</p>
+</div>
+<div class="problem-card">
+<div class="problem-num">72</div>
+<div class="problem-unit">%</div>
+<h3>「対策が不十分」と回答</h3>
+<p>花粉情報が大まかすぎて自分の生活圏に当てはまらないと感じる人が大多数。</p>
+</div>
+<div class="problem-card">
+<div class="problem-num">¥15,800</div>
+<div class="problem-unit">/年</div>
+<h3>一人あたりの花粉症コスト</h3>
+<p>通院費、薬代、生産性低下。見えないコストが毎年のしかかる。</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Solutions -->
+<section class="solutions">
+<div class="container text-center">
+<div class="section-label">Solution</div>
+<h2 class="section-title">KaFun Shield の4つの核心機能</h2>
+<p class="section-sub">データドリブンな花粉対策を、誰でも手のひらに。</p>
+<div class="sol-grid">
+<div class="sol-card">
+<div class="sol-icon" style="background:rgba(76,175,80,0.15);color:var(--p1)">📍</div>
+<h3>500mメッシュ ヒートマップ</h3>
+<p>街区レベルの高精度花粉濃度をリアルタイムに可視化。通勤ルートの花粉量がひと目でわかる。</p>
+<div class="sol-metric">1/25</div>
+<div class="sol-metric-label">従来比の粒度</div>
+</div>
+<div class="sol-card">
+<div class="sol-icon" style="background:rgba(255,235,59,0.15);color:var(--p2)">🤖</div>
+<h3>AI 対策レコメンド</h3>
+<p>あなたの症状・行動パターン・気象データからパーソナライズされた対策をAIが提案。</p>
+<div class="sol-metric">94%</div>
+<div class="sol-metric-label">ユーザー満足度</div>
+</div>
+<div class="sol-card">
+<div class="sol-icon" style="background:rgba(255,152,0,0.15);color:var(--p3)">⏰</div>
+<h3>先読みアラート</h3>
+<p>6時間先の花粉飛散を予測し、外出タイミングや薬の服用をプッシュ通知でガイド。</p>
+<div class="sol-metric">6h</div>
+<div class="sol-metric-label">先読み予測</div>
+</div>
+<div class="sol-card">
+<div class="sol-icon" style="background:rgba(156,39,176,0.15);color:var(--p5)">📊</div>
+<h3>症状ダッシュボード</h3>
+<p>日々の症状を記録・分析。花粉量と症状の相関を可視化し、自分だけのトリガーを発見。</p>
+<div class="sol-metric">30日</div>
+<div class="sol-metric-label">トレンド分析</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Heatmap Demo -->
+<section class="heatmap-section">
+<div class="container text-center">
+<div class="section-label">Live Demo</div>
+<h2 class="section-title">リアルタイム花粉ヒートマップ</h2>
+<p class="section-sub">東京都心部の花粉飛散状況（デモデータ）</p>
+<div class="heatmap-wrap">
+<div class="heatmap-container">
+<div class="heatmap-header">
+<h3>🗺 東京都 渋谷区・新宿区エリア</h3>
+<div class="heatmap-live">LIVE</div>
+</div>
+<div class="heatmap-grid" id="heatmapGrid"></div>
+<div class="heatmap-legend">
+<span>少ない</span><div class="legend-bar"></div><span>非常に多い</span>
+</div>
+<div class="heatmap-info">
+<div class="hm-info-card"><div class="hm-info-num">847</div><div class="hm-info-label">個/m³ ピーク値</div></div>
+<div class="hm-info-card"><div class="hm-info-num" style="color:var(--p2)">中程度</div><div class="hm-info-label">現在の飛散レベル</div></div>
+<div class="hm-info-card"><div class="hm-info-num" style="color:var(--p4)">14:00</div><div class="hm-info-label">本日のピーク予測</div></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Pricing -->
+<section id="pricing">
+<div class="container text-center">
+<div class="section-label">Pricing</div>
+<h2 class="section-title">あなたに合ったプランを</h2>
+<p class="section-sub">まずは無料プランで花粉マップを体験。</p>
+<div class="pricing-grid">
+<div class="price-card">
+<div class="price-name">Free</div>
+<div class="price-amount">¥0<span>/月</span></div>
+<div class="price-desc">花粉マップの基本機能</div>
+<ul class="price-features">
+<li>リアルタイム花粉マップ</li>
+<li>1km メッシュ粒度</li>
+<li>1日3回の通知</li>
+<li>基本的な対策アドバイス</li>
+</ul>
+<a href="#" class="btn btn-outline btn-sm">無料で始める</a>
+</div>
+<div class="price-card featured">
+<div class="price-name">Plus</div>
+<div class="price-amount">¥480<span>/月</span></div>
+<div class="price-desc">AIレコメンド + 高精度マップ</div>
+<ul class="price-features">
+<li>500m メッシュ高精度マップ</li>
+<li>AI パーソナルレコメンド</li>
+<li>6時間先読みアラート</li>
+<li>症状ダッシュボード</li>
+<li>無制限プッシュ通知</li>
+</ul>
+<a href="#" class="btn btn-primary btn-sm">Plus を始める</a>
+</div>
+<div class="price-card">
+<div class="price-name">Family</div>
+<div class="price-amount">¥780<span>/月</span></div>
+<div class="price-desc">家族5人まで利用可能</div>
+<ul class="price-features">
+<li>Plus の全機能</li>
+<li>家族5人までシェア</li>
+<li>子どもの通学路アラート</li>
+<li>家族ダッシュボード</li>
+<li>優先サポート</li>
+</ul>
+<a href="#" class="btn btn-outline btn-sm">Family を始める</a>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Testimonials -->
+<section class="testi-section">
+<div class="container text-center">
+<div class="section-label">Voice</div>
+<h2 class="section-title">ユーザーの声</h2>
+<p class="section-sub">KaFun Shield で花粉シーズンの過ごし方が変わりました。</p>
+<div class="testi-grid">
+<div class="testi-card">
+<div class="testi-stars">★★★★★</div>
+<div class="testi-text">「通勤ルートの花粉量が見えるようになって、迂回ルートを選べるように。薬を飲むタイミングもAIが教えてくれるので症状が格段に軽くなりました。」</div>
+<div class="testi-author">
+<div class="testi-avatar" style="background:rgba(76,175,80,0.2);color:var(--p1)">田</div>
+<div><div class="testi-name">田中 美咲さん</div><div class="testi-role">30代・会社員・東京都</div></div>
+</div>
+</div>
+<div class="testi-card">
+<div class="testi-stars">★★★★★</div>
+<div class="testi-text">「子どもの通学路の花粉レベルがわかるのが本当にありがたい。Familyプランで家族全員分を管理しています。去年より通院回数が半分に。」</div>
+<div class="testi-author">
+<div class="testi-avatar" style="background:rgba(255,152,0,0.2);color:var(--p3)">鈴</div>
+<div><div class="testi-name">鈴木 健太さん</div><div class="testi-role">40代・二児の父・埼玉県</div></div>
+</div>
+</div>
+<div class="testi-card">
+<div class="testi-stars">★★★★★</div>
+<div class="testi-text">「花粉症歴20年ですが、ここまで精度の高い花粉マップは初めて。500mメッシュだと公園の横を通るかどうかで全然違うのが分かる。」</div>
+<div class="testi-author">
+<div class="testi-avatar" style="background:rgba(156,39,176,0.2);color:var(--p5)">佐</div>
+<div><div class="testi-name">佐藤 恵理さん</div><div class="testi-role">30代・フリーランス・大阪府</div></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section>
+<div class="container text-center">
+<div class="section-label">FAQ</div>
+<h2 class="section-title">よくある質問</h2>
+<p class="section-sub">お問い合わせの多い質問をまとめました。</p>
+<div class="faq-list">
+<div class="faq-item"><button class="faq-q">花粉データはどこから取得していますか？</button><div class="faq-a"><div class="faq-a-inner">環境省の花粉観測システム（はなこさん）、気象庁データ、独自IoTセンサーネットワーク、ユーザーからのクラウドソーシングデータを統合し、AIで500mメッシュに補間しています。</div></div></div>
+<div class="faq-item"><button class="faq-q">対応地域はどこですか？</button><div class="faq-a"><div class="faq-a-inner">現在、関東・関西・中部の主要都市圏をカバーしています。2026年春までに全国47都道府県に拡大予定です。</div></div></div>
+<div class="faq-item"><button class="faq-q">無料プランでもマップは使えますか？</button><div class="faq-a"><div class="faq-a-inner">はい、無料プランでは1kmメッシュの花粉マップをご利用いただけます。500mメッシュの高精度マップはPlusプラン以上でご利用可能です。</div></div></div>
+<div class="faq-item"><button class="faq-q">バッテリー消費は大きいですか？</button><div class="faq-a"><div class="faq-a-inner">バックグラウンドでの位置情報取得を最適化しており、1日あたりのバッテリー消費は約3%以下です。省電力モードにも対応しています。</div></div></div>
+<div class="faq-item"><button class="faq-q">解約はいつでもできますか？</button><div class="faq-a"><div class="faq-a-inner">はい、いつでも解約可能です。日割り返金にも対応しています。解約後も無料プランとしてご利用いただけます。</div></div></div>
+</div>
+</div>
+</section>
+
+<!-- Final CTA -->
+<section class="final-cta">
+<div class="container">
+<h2>花粉シーズンを、<br>データで乗り越えよう。</h2>
+<p>まずは無料プランで、あなたの街の花粉を見てみませんか？</p>
+<a href="#" class="btn btn-primary">無料ではじめる →</a>
+<div class="dl-badges">
+<a href="#" class="dl-badge">📱 App Store</a>
+<a href="#" class="dl-badge">▶ Google Play</a>
+</div>
+</div>
+</section>
+
+<footer>
+<div class="container">© 2026 KaFun Shield. All rights reserved. 花粉データは参考値です。医療判断には医師にご相談ください。</div>
+</footer>
+
+<script>
+// Heatmap
+(function(){
+var colors=['#4CAF50','#FFEB3B','#FF9800','#F44336','#9C27B0'];
+var grid=document.getElementById('heatmapGrid');
+var cols=window.innerWidth<=600?8:12;
+var rows=8;
+var cells=[];
+function rng(s){return function(){s=(s*16807+0)%2147483647;return(s-1)/2147483646}}
+var rand=rng(42);
+for(var i=0;i<rows*cols;i++){
+var d=document.createElement('div');d.className='hm-cell';
+cells.push(d);grid.appendChild(d);
+}
+function update(){
+for(var i=0;i<cells.length;i++){
+var r=Math.floor(i/cols),c=i%cols;
+var cx=cols/2,cy=rows/2;
+var dist=Math.sqrt((c-cx)*(c-cx)+(r-cy)*(r-cy));
+var base=Math.max(0,1-dist/(Math.max(cols,rows)*0.6));
+var v=Math.min(1,base+rand()*0.4-0.1);
+var idx=Math.min(4,Math.floor(v*5));
+cells[i].style.background=colors[idx];
+cells[i].style.opacity=0.5+v*0.5;
+}
+}
+update();setInterval(function(){rand=rng(Date.now()%10000);update()},3000);
+})();
+// FAQ
+document.querySelectorAll('.faq-q').forEach(function(btn){
+btn.addEventListener('click',function(){
+var a=this.nextElementSibling;
+var open=this.classList.contains('active');
+document.querySelectorAll('.faq-q').forEach(function(b){b.classList.remove('active');b.nextElementSibling.style.maxHeight=null;});
+if(!open){this.classList.add('active');a.style.maxHeight=a.scrollHeight+'px';}
+});
+});
+</script>
+</body>
+</html>
