@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxViz - スマホモックアップ</title>
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+    background: #e2e8f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  /* ===== Color Variables ===== */
+  :root {
+    --main: #1A56DB;
+    --accent: #10B981;
+    --warning: #F59E0B;
+    --negative: #EF4444;
+    --bg: #F8FAFC;
+    --text: #1E293B;
+    --text-secondary: #64748B;
+    --border: #E2E8F0;
+    --card-bg: #FFFFFF;
+    --main-light: #DBEAFE;
+    --accent-light: #D1FAE5;
+    --warning-light: #FEF3C7;
+    --negative-light: #FEE2E2;
+  }
+
+  /* ===== iPhone Frame ===== */
+  .iphone-frame {
+    width: 375px;
+    height: 812px;
+    background: #000;
+    border-radius: 44px;
+    padding: 12px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.3), 0 0 0 2px #333;
+    position: relative;
+  }
+  .iphone-screen {
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    border-radius: 34px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ===== Notch ===== */
+  .notch {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 28px;
+    background: #000;
+    border-radius: 0 0 18px 18px;
+    z-index: 100;
+  }
+
+  /* ===== Status Bar ===== */
+  .status-bar {
+    height: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 24px 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    flex-shrink: 0;
+    background: var(--bg);
+    position: relative;
+    z-index: 50;
+  }
+  .status-bar .time { font-size: 14px; font-weight: 700; }
+  .status-bar .icons { display: flex; gap: 4px; align-items: center; }
+  .status-bar .icons svg { width: 16px; height: 16px; }
+
+  /* ===== Header ===== */
+  .app-header {
+    padding: 4px 20px 12px;
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .app-header h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--main);
+    letter-spacing: -0.5px;
+  }
+  .app-header .tagline {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 1px;
+  }
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .refund-badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .refund-badge.animate {
+    transform: scale(1.2);
+    background: var(--warning);
+  }
+
+  /* ===== Content Area ===== */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .screen {
+    display: none;
+    padding: 0 16px 16px;
+    min-height: 100%;
+  }
+  .screen.active { display: block; }
+
+  /* ===== Tab Bar ===== */
+  .tab-bar {
+    height: 80px;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding-top: 8px;
+    flex-shrink: 0;
+  }
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    border: none;
+    background: none;
+    padding: 4px 12px;
+    transition: all 0.2s;
+  }
+  .tab-item svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--text-secondary);
+    transition: fill 0.2s;
+  }
+  .tab-item span {
+    font-size: 10px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .tab-item.active svg { fill: var(--main); }
+  .tab-item.active span { color: var(--main); font-weight: 700; }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ===== Dashboard Screen ===== */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .summary-item {
+    background: var(--card-bg);
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    position: relative;
+    overflow: hidden;
+  }
+  .summary-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: 4px 0 0 4px;
+  }
+  .summary-item.income::before { background: var(--main); }
+  .summary-item.deduction::before { background: var(--accent); }
+  .summary-item.taxable::before { background: var(--warning); }
+  .summary-item.tax::before { background: var(--negative); }
+  .summary-item .label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .summary-item .value {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .summary-item .value.blue { color: var(--main); }
+  .summary-item .value.green { color: var(--accent); }
+  .summary-item .value.orange { color: var(--warning); }
+  .summary-item .value.red { color: var(--negative); }
+
+  /* Refund hero card */
+  .refund-hero {
+    background: linear-gradient(135deg, var(--main) 0%, #3B82F6 100%);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .refund-hero::after {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 100px; height: 100px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  .refund-hero .refund-label {
+    font-size: 13px;
+    opacity: 0.9;
+    font-weight: 600;
+  }
+  .refund-hero .refund-amount {
+    font-size: 36px;
+    font-weight: 900;
+    margin: 6px 0;
+    letter-spacing: -1px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .refund-hero .refund-note {
+    font-size: 11px;
+    opacity: 0.7;
+  }
+  .refund-hero .refund-amount.animate {
+    transform: scale(1.08);
+    text-shadow: 0 0 20px rgba(255,255,255,0.5);
+  }
+
+  /* Chart area */
+  .chart-container {
+    height: 160px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    padding: 10px 0;
+    gap: 8px;
+  }
+  .chart-bar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+  .chart-bar {
+    width: 100%;
+    max-width: 40px;
+    border-radius: 8px 8px 4px 4px;
+    transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+  .chart-bar.income { background: linear-gradient(180deg, var(--main), #3B82F6); }
+  .chart-bar.deduction { background: linear-gradient(180deg, var(--accent), #34D399); }
+  .chart-bar.taxable { background: linear-gradient(180deg, var(--warning), #FBBF24); }
+  .chart-bar.tax { background: linear-gradient(180deg, var(--negative), #F87171); }
+  .chart-bar.refund { background: linear-gradient(180deg, #8B5CF6, #A78BFA); }
+  .chart-bar-label {
+    font-size: 9px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-align: center;
+  }
+  .chart-bar-value {
+    font-size: 8px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+  }
+
+  /* Progress ring */
+  .progress-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress-ring-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+  }
+  .progress-ring {
+    transform: rotate(-90deg);
+  }
+  .progress-ring-bg {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 8;
+  }
+  .progress-ring-fill {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 201;
+    stroke-dashoffset: 60;
+    transition: stroke-dashoffset 1s ease;
+  }
+  .progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .progress-info .progress-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .progress-info .progress-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* ===== Input Screen ===== */
+  .input-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 4px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .input-section-title .icon {
+    width: 28px;
+    height: 28px;
+    background: var(--main-light);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+  .deduction-categories {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .deduction-categories::-webkit-scrollbar { display: none; }
+  .deduction-chip {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    transition: all 0.2s;
+  }
+  .deduction-chip.active {
+    background: var(--main);
+    color: #fff;
+    border-color: var(--main);
+  }
+  .form-group {
+    margin-bottom: 14px;
+  }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--card-bg);
+    transition: border-color 0.2s;
+    outline: none;
+    font-family: inherit;
+  }
+  .form-input:focus {
+    border-color: var(--main);
+  }
+  .form-input::placeholder {
+    color: #CBD5E1;
+    font-weight: 400;
+  }
+  .form-hint {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .form-select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--card-bg);
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    font-family: inherit;
+  }
+
+  /* Real-time calculation display */
+  .calc-display {
+    background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .calc-display .calc-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .calc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .calc-row .calc-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .calc-row .calc-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    transition: all 0.3s;
+  }
+  .calc-row .calc-value.highlight {
+    color: var(--accent);
+    font-size: 18px;
+  }
+  .calc-divider {
+    border: none;
+    border-top: 1px dashed var(--accent);
+    margin: 8px 0;
+    opacity: 0.4;
+  }
+
+  /* Entry list */
+  .entry-list-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .entry-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .entry-item:last-child { border-bottom: none; }
+  .entry-item .entry-name {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .entry-item .entry-amount {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--main);
+  }
+  .add-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--main);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+    font-family: inherit;
+  }
+  .add-btn:active { background: #1E40AF; }
+
+  /* ===== Flow Map Screen ===== */
+  .flow-container {
+    padding: 8px 0;
+  }
+  .flow-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .flow-subtitle {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+  .sankey-svg {
+    width: 100%;
+    height: 420px;
+  }
+  .flow-node {
+    cursor: pointer;
+    transition: opacity 0.3s;
+  }
+  .flow-node:hover { opacity: 0.85; }
+  .flow-node-rect {
+    rx: 6;
+    ry: 6;
+  }
+  .flow-node-text {
+    font-size: 10px;
+    font-weight: 700;
+    fill: #fff;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .flow-node-value {
+    font-size: 9px;
+    font-weight: 600;
+    fill: var(--text-secondary);
+    text-anchor: middle;
+  }
+  .flow-link {
+    fill: none;
+    stroke-opacity: 0.25;
+    transition: stroke-opacity 0.3s;
+  }
+  .flow-link:hover { stroke-opacity: 0.5; }
+
+  /* Flow legend */
+  .flow-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .flow-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .flow-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  /* ===== Settings Screen ===== */
+  .settings-profile {
+    text-align: center;
+    padding: 20px 0;
+  }
+  .settings-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--main), #3B82F6);
+    color: #fff;
+    font-size: 28px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+  }
+  .settings-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .settings-email {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .settings-group-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 16px 0 8px;
+  }
+  .settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--card-bg);
+    margin-bottom: 1px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .settings-item:first-of-type { border-radius: 12px 12px 0 0; }
+  .settings-item:last-of-type { border-radius: 0 0 12px 12px; margin-bottom: 0; }
+  .settings-item:only-of-type { border-radius: 12px; }
+  .settings-item:active { background: #F1F5F9; }
+  .settings-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .settings-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .settings-icon.blue { background: var(--main-light); }
+  .settings-icon.green { background: var(--accent-light); }
+  .settings-icon.orange { background: var(--warning-light); }
+  .settings-icon.red { background: var(--negative-light); }
+  .settings-item-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .settings-item-arrow {
+    font-size: 14px;
+    color: #CBD5E1;
+  }
+  .toggle-switch {
+    width: 44px;
+    height: 26px;
+    background: #CBD5E1;
+    border-radius: 13px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s;
+    border: none;
+  }
+  .toggle-switch.on { background: var(--accent); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle-switch.on::after { transform: translateX(18px); }
+  .settings-version {
+    text-align: center;
+    padding: 24px 0 8px;
+    font-size: 11px;
+    color: #CBD5E1;
+  }
+
+  /* ===== Animations ===== */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .screen.active .card,
+  .screen.active .summary-item,
+  .screen.active .refund-hero {
+    animation: fadeInUp 0.35s ease-out backwards;
+  }
+  .screen.active .summary-item:nth-child(1) { animation-delay: 0.05s; }
+  .screen.active .summary-item:nth-child(2) { animation-delay: 0.1s; }
+  .screen.active .summary-item:nth-child(3) { animation-delay: 0.15s; }
+  .screen.active .summary-item:nth-child(4) { animation-delay: 0.2s; }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  /* Toast notification */
+  .toast {
+    position: absolute;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 200;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Home indicator */
+  .home-indicator {
+    height: 5px;
+    width: 134px;
+    background: #000;
+    border-radius: 3px;
+    margin: 0 auto;
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.2;
+  }
+
+  /* Scroll styling */
+  .content::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<div class="iphone-frame">
+  <div class="iphone-screen">
+    <div class="notch"></div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="time" id="statusTime">10:19</span>
+      <div class="icons">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+    </div>
+
+    <!-- App Header -->
+    <div class="app-header">
+      <div class="header-row">
+        <div>
+          <h1>TaxViz</h1>
+          <div class="tagline">入力しながら、全体が見える確定申告</div>
+        </div>
+        <div class="refund-badge" id="headerRefund">還付 ¥127,500</div>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content">
+
+      <!-- ===== Dashboard Screen ===== -->
+      <div class="screen active" id="screen-home">
+        <!-- Refund Hero -->
+        <div class="refund-hero">
+          <div class="refund-label">💰 還付見込額</div>
+          <div class="refund-amount" id="dashRefund">¥127,500</div>
+          <div class="refund-note">令和7年分 確定申告</div>
+        </div>
+
+        <!-- Summary Grid -->
+        <div class="summary-grid">
+          <div class="summary-item income">
+            <div class="label">収入</div>
+            <div class="value blue" id="dashIncome">¥8,500,000</div>
+          </div>
+          <div class="summary-item deduction">
+            <div class="label">控除合計</div>
+            <div class="value green" id="dashDeduction">¥1,230,000</div>
+          </div>
+          <div class="summary-item taxable">
+            <div class="label">課税所得</div>
+            <div class="value orange" id="dashTaxable">¥5,270,000</div>
+          </div>
+          <div class="summary-item tax">
+            <div class="label">所得税</div>
+            <div class="value red" id="dashTax">¥532,500</div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="card">
+          <div class="card-title">📊 税額内訳チャート</div>
+          <div class="chart-container" id="dashChart">
+            <div class="chart-bar-group">
+              <div class="chart-bar-value" id="chartIncomeVal">850万</div>
+              <div class="chart-bar income" style="height: 130px;"></div>
+              <div class="chart-bar-label">収入</div>
+            </div>
+            <div class="chart-bar-group">
+              <div class="chart-bar-value" id="chartDeductionVal">123万</div>
+              <div class="chart-bar deduction" style="height: 24px;" id="chartDeductionBar"></div>
+              <div class="chart-bar-label">控除</div>
+            </div>
+            <div class="chart-bar-group">
+              <div class="chart-bar-value" id="chartTaxableVal">527万</div>
+              <div class="chart-bar taxable" style="height: 80px;" id="chartTaxableBar"></div>
+              <div class="chart-bar-label">課税所得</div>
+            </div>
+            <div class="chart-bar-group">
+              <div class="chart-bar-value" id="chartTaxVal">53.2万</div>
+              <div class="chart-bar tax" style="height: 12px;" id="chartTaxBar"></div>
+              <div class="chart-bar-label">所得税</div>
+            </div>
+            <div class="chart-bar-group">
+              <div class="chart-bar-value" id="chartRefundVal">12.7万</div>
+              <div class="chart-bar refund" style="height: 6px;" id="chartRefundBar"></div>
+              <div class="chart-bar-label">還付</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="card">
+          <div class="card-title">📋 入力進捗</div>
+          <div class="progress-section">
+            <div class="progress-ring-container">
+              <svg class="progress-ring" width="80" height="80">
+                <circle class="progress-ring-bg" cx="40" cy="40" r="32"/>
+                <circle class="progress-ring-fill" cx="40" cy="40" r="32"/>
+              </svg>
+              <div class="progress-text">70%</div>
+            </div>
+            <div class="progress-info">
+              <div class="progress-title">あと3項目</div>
+              <div class="progress-desc">医療費控除、ふるさと納税、<br>住宅ローン控除が未入力です</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent entries -->
+        <div class="card">
+          <div class="card-title">🕒 最近の入力</div>
+          <div class="entry-item">
+            <div class="entry-name">給与所得</div>
+            <div class="entry-amount">¥8,500,000</div>
+          </div>
+          <div class="entry-item">
+            <div class="entry-name">社会保険料控除</div>
+            <div class="entry-amount">¥1,100,000</div>
+          </div>
+          <div class="entry-item">
+            <div class="entry-name">基礎控除</div>
+            <div class="entry-amount">¥480,000</div>
+          </div>
+          <div class="entry-item">
+            <div class="entry-name">生命保険料控除</div>
+            <div class="entry-amount">¥130,000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Input Screen ===== -->
+      <div class="screen" id="screen-input">
+        <div class="input-section-title">
+          <div class="icon">🏥</div>
+          控除を入力
+        </div>
+
+        <!-- Category chips -->
+        <div class="deduction-categories">
+          <div class="deduction-chip active" data-cat="medical">医療費</div>
+          <div class="deduction-chip" data-cat="furusato">ふるさと納税</div>
+          <div class="deduction-chip" data-cat="housing">住宅ローン</div>
+          <div class="deduction-chip" data-cat="insurance">保険料</div>
+          <div class="deduction-chip" data-cat="ideco">iDeCo</div>
+        </div>
+
+        <!-- Real-time calc -->
+        <div class="calc-display">
+          <div class="calc-title">⚡ リアルタイム計算</div>
+          <div class="calc-row">
+            <span class="calc-label">医療費合計</span>
+            <span class="calc-value" id="calcMedTotal">¥0</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-label">足切額（10万円）</span>
+            <span class="calc-value">-¥100,000</span>
+          </div>
+          <hr class="calc-divider">
+          <div class="calc-row">
+            <span class="calc-label">医療費控除額</span>
+            <span class="calc-value" id="calcMedDeduction">¥0</span>
+          </div>
+          <div class="calc-row">
+            <span class="calc-label">還付増加額</span>
+            <span class="calc-value highlight" id="calcRefundIncrease">+¥0</span>
+          </div>
+        </div>
+
+        <!-- Medical entry form -->
+        <div class="card" id="medicalForm">
+          <div class="card-title">🏥 医療費を追加</div>
+          <div class="form-group">
+            <label class="form-label">医療機関名</label>
+            <input type="text" class="form-input" placeholder="例：○○クリニック" id="inputHospital">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">受診者</label>
+              <select class="form-select" id="inputPerson">
+                <option>本人</option>
+                <option>配偶者</option>
+                <option>子供</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">区分</label>
+              <select class="form-select" id="inputCategory">
+                <option>診療費</option>
+                <option>医薬品</option>
+                <option>交通費</option>
+                <option>入院費</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">支払金額</label>
+            <input type="number" class="form-input" placeholder="0" id="inputMedAmount"
+                   inputmode="numeric" style="font-size: 20px; text-align: right;">
+            <div class="form-hint">💡 金額を入力すると還付額がリアルタイムで変化します</div>
+          </div>
+          <button class="add-btn" id="addMedBtn">＋ 医療費を追加</button>
+        </div>
+
+        <!-- Existing entries -->
+        <div class="card">
+          <div class="card-title">📝 入力済み医療費</div>
+          <div id="medicalEntries">
+            <div class="entry-item">
+              <div>
+                <div class="entry-name">山田内科</div>
+                <div style="font-size:10px;color:var(--text-secondary)">本人・診療費</div>
+              </div>
+              <div class="entry-amount">¥35,000</div>
+            </div>
+            <div class="entry-item">
+              <div>
+                <div class="entry-name">田中歯科</div>
+                <div style="font-size:10px;color:var(--text-secondary)">本人・診療費</div>
+              </div>
+              <div class="entry-amount">¥82,000</div>
+            </div>
+            <div class="entry-item">
+              <div>
+                <div class="entry-name">スギ薬局</div>
+                <div style="font-size:10px;color:var(--text-secondary)">配偶者・医薬品</div>
+              </div>
+              <div class="entry-amount">¥15,600</div>
+            </div>
+          </div>
+          <div style="margin-top:10px; padding:10px; background:var(--main-light); border-radius:10px; text-align:center;">
+            <span style="font-size:12px; font-weight:600; color:var(--main);">
+              医療費合計: <span id="medTotalDisplay">¥132,600</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Flow Map Screen ===== -->
+      <div class="screen" id="screen-flow">
+        <div class="flow-container">
+          <div class="flow-title">タックスフローマップ</div>
+          <div class="flow-subtitle">収入から還付までのお金の流れ</div>
+
+          <svg class="sankey-svg" viewBox="0 0 310 420" id="sankeyChart">
+            <!-- Links -->
+            <!-- Income -> Expenses -->
+            <path class="flow-link" d="M75,40 C150,40 160,95 235,95" stroke="#1A56DB" stroke-width="18"/>
+            <!-- Income -> Deductions -->
+            <path class="flow-link" d="M75,55 C140,55 150,155 235,155" stroke="#10B981" stroke-width="12" id="flowLinkDeduction"/>
+            <!-- Income -> Taxable Income -->
+            <path class="flow-link" d="M75,35 C130,35 140,235 235,235" stroke="#F59E0B" stroke-width="20"/>
+
+            <!-- Expenses -> (absorbed) -->
+            <path class="flow-link" d="M280,95 C300,95 290,160 280,160" stroke="#64748B" stroke-width="6" opacity="0.15"/>
+
+            <!-- Taxable Income -> Income Tax -->
+            <path class="flow-link" d="M75,265 C140,265 150,315 235,315" stroke="#EF4444" stroke-width="8"/>
+
+            <!-- Withholding -> Refund -->
+            <path class="flow-link" d="M75,335 C140,335 150,390 235,390" stroke="#8B5CF6" stroke-width="5" id="flowLinkRefund"/>
+
+            <!-- Nodes -->
+            <!-- Income -->
+            <g class="flow-node" transform="translate(40, 20)">
+              <rect class="flow-node-rect" x="-35" y="-16" width="70" height="56" fill="#1A56DB"/>
+              <text class="flow-node-text" y="-2">収入</text>
+              <text class="flow-node-value" y="18" fill="#fff" opacity="0.8" font-size="8">¥8,500,000</text>
+            </g>
+
+            <!-- Expenses -->
+            <g class="flow-node" transform="translate(255, 80)">
+              <rect class="flow-node-rect" x="-30" y="-14" width="60" height="36" fill="#64748B"/>
+              <text class="flow-node-text" y="4">経費</text>
+            </g>
+
+            <!-- Deductions -->
+            <g class="flow-node" transform="translate(255, 140)">
+              <rect class="flow-node-rect" x="-35" y="-16" width="70" height="42" fill="#10B981"/>
+              <text class="flow-node-text" y="-1">控除</text>
+              <text class="flow-node-value" y="14" fill="#fff" opacity="0.8" font-size="8" id="flowDeductionVal">¥1,230,000</text>
+            </g>
+
+            <!-- Taxable Income -->
+            <g class="flow-node" transform="translate(40, 240)">
+              <rect class="flow-node-rect" x="-35" y="-16" width="70" height="48" fill="#F59E0B"/>
+              <text class="flow-node-text" y="-1">課税所得</text>
+              <text class="flow-node-value" y="15" fill="#fff" opacity="0.8" font-size="8" id="flowTaxableVal">¥5,270,000</text>
+            </g>
+
+            <!-- Income Tax -->
+            <g class="flow-node" transform="translate(255, 300)">
+              <rect class="flow-node-rect" x="-35" y="-16" width="70" height="42" fill="#EF4444"/>
+              <text class="flow-node-text" y="-1">所得税</text>
+              <text class="flow-node-value" y="14" fill="#fff" opacity="0.8" font-size="8" id="flowTaxVal">¥532,500</text>
+            </g>
+
+            <!-- Withholding Tax -->
+            <g class="flow-node" transform="translate(40, 320)">
+              <rect class="flow-node-rect" x="-35" y="-16" width="70" height="42" fill="#6366F1"/>
+              <text class="flow-node-text" y="-1">源泉徴収</text>
+              <text class="flow-node-value" y="14" fill="#fff" opacity="0.8" font-size="8">¥660,000</text>
+            </g>
+
+            <!-- Refund -->
+            <g class="flow-node" transform="translate(255, 375)">
+              <rect class="flow-node-rect" x="-35" y="-16" width="70" height="42" fill="#8B5CF6"/>
+              <text class="flow-node-text" y="-1">還付</text>
+              <text class="flow-node-value" y="14" fill="#fff" opacity="0.8" font-size="8" id="flowRefundVal">¥127,500</text>
+            </g>
+
+            <!-- Arrow indicators -->
+            <text x="140" y="60" font-size="16" text-anchor="middle" fill="#1A56DB" opacity="0.4">→</text>
+            <text x="140" y="155" font-size="16" text-anchor="middle" fill="#10B981" opacity="0.4">→</text>
+            <text x="140" y="240" font-size="16" text-anchor="middle" fill="#F59E0B" opacity="0.4">→</text>
+            <text x="140" y="320" font-size="16" text-anchor="middle" fill="#EF4444" opacity="0.4">→</text>
+            <text x="140" y="395" font-size="16" text-anchor="middle" fill="#8B5CF6" opacity="0.4">→</text>
+          </svg>
+
+          <!-- Legend -->
+          <div class="flow-legend">
+            <div class="flow-legend-item">
+              <div class="flow-legend-dot" style="background:#1A56DB"></div>
+              収入
+            </div>
+            <div class="flow-legend-item">
+              <div class="flow-legend-dot" style="background:#10B981"></div>
+              控除
+            </div>
+            <div class="flow-legend-item">
+              <div class="flow-legend-dot" style="background:#F59E0B"></div>
+              課税所得
+            </div>
+            <div class="flow-legend-item">
+              <div class="flow-legend-dot" style="background:#EF4444"></div>
+              所得税
+            </div>
+            <div class="flow-legend-item">
+              <div class="flow-legend-dot" style="background:#8B5CF6"></div>
+              還付
+            </div>
+          </div>
+
+          <!-- Detail card -->
+          <div class="card" style="margin-top:12px;">
+            <div class="card-title">📐 税率テーブル</div>
+            <div class="entry-item">
+              <div class="entry-name">〜195万円</div>
+              <div class="entry-amount" style="color:var(--accent)">5%</div>
+            </div>
+            <div class="entry-item">
+              <div class="entry-name">195〜330万円</div>
+              <div class="entry-amount" style="color:var(--warning)">10%</div>
+            </div>
+            <div class="entry-item" style="background:var(--warning-light);border-radius:8px;padding:10px;">
+              <div class="entry-name" style="font-weight:700;">330〜695万円 ← 該当</div>
+              <div class="entry-amount" style="color:var(--negative)">20%</div>
+            </div>
+            <div class="entry-item">
+              <div class="entry-name">695〜900万円</div>
+              <div class="entry-amount" style="color:var(--text-secondary)">23%</div>
+            </div>
+            <div class="entry-item">
+              <div class="entry-name">900〜1800万円</div>
+              <div class="entry-amount" style="color:var(--text-secondary)">33%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Settings Screen ===== -->
+      <div class="screen" id="screen-settings">
+        <div class="settings-profile">
+          <div class="settings-avatar">田</div>
+          <div class="settings-name">田中 太郎</div>
+          <div class="settings-email">tanaka@example.com</div>
+        </div>
+
+        <div class="settings-group-title">プロフィール</div>
+        <div class="settings-item" style="border-radius:12px 12px 0 0;">
+          <div class="settings-item-left">
+            <div class="settings-icon blue">👤</div>
+            <span class="settings-item-label">基本情報</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-icon blue">🏠</div>
+            <span class="settings-item-label">住所</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item" style="border-radius:0 0 12px 12px;">
+          <div class="settings-item-left">
+            <div class="settings-icon blue">👨‍👩‍👧</div>
+            <span class="settings-item-label">扶養家族</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+
+        <div class="settings-group-title">申告設定</div>
+        <div class="settings-item" style="border-radius:12px 12px 0 0;">
+          <div class="settings-item-left">
+            <div class="settings-icon green">📄</div>
+            <span class="settings-item-label">申告種別</span>
+          </div>
+          <span style="font-size:13px;color:var(--text-secondary)">会社員（給与所得）</span>
+        </div>
+        <div class="settings-item" style="border-radius:0 0 12px 12px;">
+          <div class="settings-item-left">
+            <div class="settings-icon green">📅</div>
+            <span class="settings-item-label">対象年度</span>
+          </div>
+          <span style="font-size:13px;color:var(--text-secondary)">令和7年（2025年）</span>
+        </div>
+
+        <div class="settings-group-title">通知</div>
+        <div class="settings-item" style="border-radius:12px 12px 0 0;">
+          <div class="settings-item-left">
+            <div class="settings-icon orange">🔔</div>
+            <span class="settings-item-label">プッシュ通知</span>
+          </div>
+          <button class="toggle-switch on" id="toggleNotif" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-icon orange">📧</div>
+            <span class="settings-item-label">メール通知</span>
+          </div>
+          <button class="toggle-switch" id="toggleEmail" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="settings-item" style="border-radius:0 0 12px 12px;">
+          <div class="settings-item-left">
+            <div class="settings-icon orange">⏰</div>
+            <span class="settings-item-label">締切リマインダー</span>
+          </div>
+          <button class="toggle-switch on" id="toggleReminder" onclick="this.classList.toggle('on')"></button>
+        </div>
+
+        <div class="settings-group-title">その他</div>
+        <div class="settings-item" style="border-radius:12px 12px 0 0;">
+          <div class="settings-item-left">
+            <div class="settings-icon red">📤</div>
+            <span class="settings-item-label">データエクスポート</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-icon red">❓</div>
+            <span class="settings-item-label">ヘルプ・FAQ</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+        <div class="settings-item" style="border-radius:0 0 12px 12px;">
+          <div class="settings-item-left">
+            <div class="settings-icon red">📋</div>
+            <span class="settings-item-label">利用規約</span>
+          </div>
+          <span class="settings-item-arrow">›</span>
+        </div>
+
+        <div class="settings-version">TaxViz v1.0.0 (Build 2026.02)</div>
+      </div>
+
+    </div><!-- /content -->
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab-item active" data-tab="home" onclick="switchTab('home')">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>ホーム</span>
+      </button>
+      <button class="tab-item" data-tab="input" onclick="switchTab('input')">
+        <svg viewBox="0 0 24 24"><path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"/></svg>
+        <span>入力</span>
+      </button>
+      <button class="tab-item" data-tab="flow" onclick="switchTab('flow')">
+        <svg viewBox="0 0 24 24"><path d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3h7zM7 9H4V5h3v4zm10 6h3v4h-3v-4zm0-10h3v4h-3V5z"/></svg>
+        <span>フロー</span>
+      </button>
+      <button class="tab-item" data-tab="settings" onclick="switchTab('settings')">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg>
+        <span>設定</span>
+      </button>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Home Indicator -->
+    <div class="home-indicator"></div>
+
+  </div><!-- /iphone-screen -->
+</div><!-- /iphone-frame -->
+
+<script>
+  // ===== State =====
+  const state = {
+    income: 8500000,
+    baseDeductions: 1230000,      // existing deductions (social insurance + basic + life insurance)
+    medicalEntries: [
+      { name: '山田内科', person: '本人', category: '診療費', amount: 35000 },
+      { name: '田中歯科', person: '本人', category: '診療費', amount: 82000 },
+      { name: 'スギ薬局', person: '配偶者', category: '医薬品', amount: 15600 }
+    ],
+    withholdingTax: 660000
+  };
+
+  // ===== Tab Switching =====
+  function switchTab(tab) {
+    // Update screens
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + tab).classList.add('active');
+
+    // Update tabs
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
+
+    // Scroll to top
+    document.querySelector('.content').scrollTop = 0;
+
+    // Recalc when switching to dashboard
+    if (tab === 'home') updateDashboard();
+  }
+
+  // ===== Medical Total =====
+  function getMedicalTotal() {
+    return state.medicalEntries.reduce((sum, e) => sum + e.amount, 0);
+  }
+
+  function getMedicalDeduction() {
+    const total = getMedicalTotal();
+    return Math.max(0, total - 100000); // 10万円の足切り
+  }
+
+  // ===== Tax Calculation =====
+  function calcTax(taxableIncome) {
+    // 日本の所得税率（超過累進税率）
+    if (taxableIncome <= 0) return 0;
+    let tax = 0;
+    const brackets = [
+      { limit: 1950000, rate: 0.05, deduction: 0 },
+      { limit: 3300000, rate: 0.10, deduction: 97500 },
+      { limit: 6950000, rate: 0.20, deduction: 427500 },
+      { limit: 9000000, rate: 0.23, deduction: 636000 },
+      { limit: 18000000, rate: 0.33, deduction: 1536000 },
+      { limit: 40000000, rate: 0.40, deduction: 2796000 },
+      { limit: Infinity, rate: 0.45, deduction: 4796000 }
+    ];
+    for (const b of brackets) {
+      if (taxableIncome <= b.limit) {
+        tax = taxableIncome * b.rate - b.deduction;
+        break;
+      }
+    }
+    return Math.max(0, Math.floor(tax));
+  }
+
+  function getFullCalc() {
+    const totalDeductions = state.baseDeductions + getMedicalDeduction();
+    const taxableIncome = Math.max(0, state.income - totalDeductions);
+    const incomeTax = calcTax(taxableIncome);
+    const refund = Math.max(0, state.withholdingTax - incomeTax);
+    return { totalDeductions, taxableIncome, incomeTax, refund };
+  }
+
+  // ===== Format Currency =====
+  function fmt(n) {
+    return '¥' + n.toLocaleString('ja-JP');
+  }
+  function fmtMan(n) {
+    return (n / 10000).toFixed(1) + '万';
+  }
+
+  // ===== Update Dashboard =====
+  function updateDashboard() {
+    const c = getFullCalc();
+
+    // Hero refund
+    animateValue('dashRefund', fmt(c.refund));
+
+    // Summary items
+    document.getElementById('dashIncome').textContent = fmt(state.income);
+    document.getElementById('dashDeduction').textContent = fmt(c.totalDeductions);
+    document.getElementById('dashTaxable').textContent = fmt(c.taxableIncome);
+    document.getElementById('dashTax').textContent = fmt(c.incomeTax);
+
+    // Header badge
+    document.getElementById('headerRefund').textContent = '還付 ' + fmt(c.refund);
+
+    // Chart bars (proportional to income)
+    const max = state.income;
+    const barH = (v) => Math.max(4, (v / max) * 130);
+    document.getElementById('chartDeductionBar').style.height = barH(c.totalDeductions) + 'px';
+    document.getElementById('chartTaxableBar').style.height = barH(c.taxableIncome) + 'px';
+    document.getElementById('chartTaxBar').style.height = barH(c.incomeTax) + 'px';
+    document.getElementById('chartRefundBar').style.height = barH(c.refund) + 'px';
+
+    // Chart values
+    document.getElementById('chartDeductionVal').textContent = fmtMan(c.totalDeductions);
+    document.getElementById('chartTaxableVal').textContent = fmtMan(c.taxableIncome);
+    document.getElementById('chartTaxVal').textContent = fmtMan(c.incomeTax);
+    document.getElementById('chartRefundVal').textContent = fmtMan(c.refund);
+
+    // Flow map values
+    document.getElementById('flowDeductionVal').textContent = fmt(c.totalDeductions);
+    document.getElementById('flowTaxableVal').textContent = fmt(c.taxableIncome);
+    document.getElementById('flowTaxVal').textContent = fmt(c.incomeTax);
+    document.getElementById('flowRefundVal').textContent = fmt(c.refund);
+  }
+
+  // ===== Update Input Screen Calc =====
+  function updateInputCalc(newAmount) {
+    const currentAmount = typeof newAmount === 'number' ? newAmount : 0;
+    const totalMed = getMedicalTotal() + currentAmount;
+    const medDeduction = Math.max(0, totalMed - 100000);
+
+    document.getElementById('calcMedTotal').textContent = fmt(totalMed);
+    document.getElementById('calcMedDeduction').textContent = fmt(medDeduction);
+
+    // Calculate refund increase
+    const baseCalc = getFullCalc();
+    const newTotalDeductions = state.baseDeductions + medDeduction;
+    const newTaxable = Math.max(0, state.income - newTotalDeductions);
+    const newTax = calcTax(newTaxable);
+    const newRefund = Math.max(0, state.withholdingTax - newTax);
+    const increase = newRefund - baseCalc.refund;
+
+    const el = document.getElementById('calcRefundIncrease');
+    el.textContent = '+' + fmt(Math.max(0, increase));
+    if (increase > 0) {
+      el.style.color = 'var(--accent)';
+      el.style.fontSize = '18px';
+    } else {
+      el.style.fontSize = '14px';
+    }
+
+    // Animate header badge
+    if (currentAmount > 0) {
+      const badge = document.getElementById('headerRefund');
+      badge.textContent = '還付 ' + fmt(newRefund);
+      badge.classList.add('animate');
+      setTimeout(() => badge.classList.remove('animate'), 400);
+    }
+  }
+
+  // ===== Animate value change =====
+  function animateValue(id, newVal) {
+    const el = document.getElementById(id);
+    if (el.textContent !== newVal) {
+      el.textContent = newVal;
+      el.classList.add('animate');
+      setTimeout(() => el.classList.remove('animate'), 500);
+    }
+  }
+
+  // ===== Medical Amount Input Handler =====
+  const medAmountInput = document.getElementById('inputMedAmount');
+  let inputTimeout;
+  medAmountInput.addEventListener('input', function() {
+    clearTimeout(inputTimeout);
+    inputTimeout = setTimeout(() => {
+      const val = parseInt(this.value) || 0;
+      updateInputCalc(val);
+    }, 100);
+  });
+
+  // ===== Add Medical Entry =====
+  document.getElementById('addMedBtn').addEventListener('click', function() {
+    const hospital = document.getElementById('inputHospital').value.trim();
+    const person = document.getElementById('inputPerson').value;
+    const category = document.getElementById('inputCategory').value;
+    const amount = parseInt(medAmountInput.value) || 0;
+
+    if (!hospital || amount <= 0) {
+      showToast('⚠️ 医療機関名と金額を入力してください');
+      return;
+    }
+
+    // Add entry
+    state.medicalEntries.push({ name: hospital, person, category, amount });
+
+    // Update entry list
+    renderMedicalEntries();
+
+    // Clear form
+    document.getElementById('inputHospital').value = '';
+    medAmountInput.value = '';
+    updateInputCalc(0);
+
+    // Update dashboard
+    updateDashboard();
+
+    showToast('✅ ' + hospital + ' を追加しました');
+  });
+
+  // ===== Render Medical Entries =====
+  function renderMedicalEntries() {
+    const container = document.getElementById('medicalEntries');
+    container.innerHTML = state.medicalEntries.map(e => `
+      <div class="entry-item">
+        <div>
+          <div class="entry-name">${e.name}</div>
+          <div style="font-size:10px;color:var(--text-secondary)">${e.person}・${e.category}</div>
+        </div>
+        <div class="entry-amount">${fmt(e.amount)}</div>
+      </div>
+    `).join('');
+
+    document.getElementById('medTotalDisplay').textContent = fmt(getMedicalTotal());
+  }
+
+  // ===== Deduction Category Chips =====
+  document.querySelectorAll('.deduction-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('.deduction-chip').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+
+      const cat = this.dataset.cat;
+      const form = document.getElementById('medicalForm');
+      if (cat === 'medical') {
+        form.style.display = 'block';
+      } else {
+        form.style.display = 'none';
+        showToast('📝 ' + this.textContent + 'の入力画面は開発中です');
+      }
+    });
+  });
+
+  // ===== Toast =====
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // ===== Status Bar Time =====
+  function updateTime() {
+    const now = new Date();
+    const h = now.getHours().toString().padStart(2, '0');
+    const m = now.getMinutes().toString().padStart(2, '0');
+    document.getElementById('statusTime').textContent = h + ':' + m;
+  }
+  updateTime();
+  setInterval(updateTime, 30000);
+
+  // ===== Initial calc =====
+  updateInputCalc(0);
+  updateDashboard();
+</script>
+
+</body>
+</html>

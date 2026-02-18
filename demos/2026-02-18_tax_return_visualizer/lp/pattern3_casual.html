@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxViz（タックスビズ）- 入力しながら、全体が見える確定申告</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --main: #1A56DB;
+  --main-light: #DBEAFE;
+  --main-pale: #EFF6FF;
+  --accent: #10B981;
+  --accent-light: #D1FAE5;
+  --accent-pale: #F0FDF4;
+  --peach: #FFF5F5;
+  --peach-mid: #FECACA;
+  --lavender: #EDE9FE;
+  --lavender-mid: #C4B5FD;
+  --mint: #D1FAE5;
+  --mint-mid: #6EE7B7;
+  --blue-pastel: #BFDBFE;
+  --text: #1E293B;
+  --text-sub: #64748B;
+  --white: #FFFFFF;
+  --shadow-soft: 0 4px 24px rgba(0,0,0,0.06);
+  --shadow-card: 0 2px 16px rgba(0,0,0,0.08);
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans JP', 'Inter', sans-serif;
+  color: var(--text);
+  background: var(--white);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+h1, h2, h3, h4 { font-weight: 700; line-height: 1.4; }
+
+/* ===== NAV ===== */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 0 24px;
+}
+nav .nav-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 800; font-size: 1.25rem; color: var(--main);
+  text-decoration: none;
+}
+.nav-logo svg { width: 36px; height: 36px; }
+.nav-links { display: flex; gap: 28px; list-style: none; }
+.nav-links a { text-decoration: none; color: var(--text-sub); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+.nav-links a:hover { color: var(--main); }
+.nav-cta {
+  background: var(--main); color: white; border: none; padding: 10px 24px;
+  border-radius: 50px; font-weight: 600; font-size: 0.9rem; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s; text-decoration: none;
+}
+.nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,86,219,0.3); }
+.hamburger { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+.hamburger span { display: block; width: 24px; height: 2px; background: var(--text); margin: 6px 0; border-radius: 2px; transition: 0.3s; }
+
+/* ===== HERO ===== */
+.hero {
+  padding: 140px 0 80px;
+  background: linear-gradient(160deg, var(--main-pale) 0%, var(--peach) 50%, var(--lavender) 100%);
+  position: relative; overflow: hidden;
+}
+.hero::after {
+  content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 80px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 80'%3E%3Cpath fill='%23ffffff' d='M0,40 C360,80 720,0 1080,40 C1260,60 1380,50 1440,40 L1440,80 L0,80 Z'/%3E%3C/svg%3E") no-repeat bottom center;
+  background-size: cover;
+}
+.hero .container { display: flex; align-items: center; gap: 60px; }
+.hero-text { flex: 1; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-light); color: var(--accent); font-weight: 600;
+  font-size: 0.85rem; padding: 6px 16px; border-radius: 50px; margin-bottom: 20px;
+}
+.hero h1 {
+  font-size: 2.8rem; font-weight: 800; line-height: 1.3;
+  background: linear-gradient(135deg, var(--main), #7C3AED);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 16px;
+}
+.hero p { font-size: 1.1rem; color: var(--text-sub); margin-bottom: 32px; max-width: 480px; }
+.hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--main); color: white; padding: 16px 36px;
+  border-radius: 50px; font-weight: 700; font-size: 1.05rem;
+  text-decoration: none; transition: all 0.3s; border: none; cursor: pointer;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,86,219,0.35); }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--white); color: var(--main); padding: 16px 36px;
+  border-radius: 50px; font-weight: 600; font-size: 1.05rem;
+  text-decoration: none; border: 2px solid var(--main-light); transition: all 0.3s;
+}
+.btn-secondary:hover { background: var(--main-pale); }
+
+/* Hero Mascot */
+.hero-visual { flex: 0 0 380px; position: relative; }
+.mascot-container {
+  width: 320px; height: 320px; margin: 0 auto; position: relative;
+}
+.mascot-body {
+  width: 180px; height: 200px; background: var(--blue-pastel);
+  border-radius: 50% 50% 45% 45%; position: absolute;
+  top: 60px; left: 50%; transform: translateX(-50%);
+  box-shadow: 0 8px 32px rgba(26,86,219,0.15);
+}
+.mascot-face {
+  position: absolute; top: 30px; left: 50%; transform: translateX(-50%); width: 120px; height: 90px;
+}
+.mascot-eye {
+  width: 16px; height: 20px; background: var(--text);
+  border-radius: 50%; position: absolute; top: 10px;
+  animation: blink 3s infinite;
+}
+.mascot-eye.left { left: 25px; }
+.mascot-eye.right { right: 25px; }
+@keyframes blink {
+  0%, 95%, 100% { transform: scaleY(1); }
+  97% { transform: scaleY(0.1); }
+}
+.mascot-mouth {
+  width: 30px; height: 15px; border: 3px solid var(--text);
+  border-top: none; border-radius: 0 0 50% 50%;
+  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+}
+.mascot-cheek {
+  width: 24px; height: 16px; background: var(--peach-mid);
+  border-radius: 50%; position: absolute; top: 40px; opacity: 0.7;
+}
+.mascot-cheek.left { left: 8px; }
+.mascot-cheek.right { right: 8px; }
+.mascot-hand {
+  width: 40px; height: 50px; background: var(--blue-pastel);
+  border-radius: 50%; position: absolute; top: 140px;
+  box-shadow: 0 4px 12px rgba(26,86,219,0.1);
+}
+.mascot-hand.left { left: 20px; transform: rotate(15deg); }
+.mascot-hand.right { right: 20px; transform: rotate(-15deg); animation: wave 2s ease-in-out infinite; }
+@keyframes wave {
+  0%, 100% { transform: rotate(-15deg); }
+  50% { transform: rotate(-30deg) translateY(-5px); }
+}
+.mascot-doc {
+  width: 60px; height: 75px; background: white; border-radius: 8px;
+  position: absolute; right: 10px; top: 110px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); transform: rotate(-10deg);
+}
+.mascot-doc::before {
+  content: ''; position: absolute; top: 12px; left: 10px; right: 10px;
+  height: 3px; background: var(--main-light); border-radius: 2px;
+  box-shadow: 0 8px 0 var(--accent-light), 0 16px 0 var(--lavender), 0 24px 0 var(--main-light);
+}
+.float-icon {
+  position: absolute; border-radius: 16px; padding: 12px;
+  box-shadow: var(--shadow-card); animation: floaty 4s ease-in-out infinite;
+  background: white;
+}
+.float-icon:nth-child(1) { top: 0; right: 30px; animation-delay: 0s; }
+.float-icon:nth-child(2) { bottom: 20px; left: 0; animation-delay: 1.5s; }
+.float-icon:nth-child(3) { top: 30px; left: 20px; animation-delay: 3s; }
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ===== SECTIONS ===== */
+section { padding: 80px 0; }
+.section-header { text-align: center; margin-bottom: 56px; }
+.section-label {
+  display: inline-block; font-size: 0.8rem; font-weight: 700;
+  color: var(--main); background: var(--main-light);
+  padding: 4px 16px; border-radius: 50px; margin-bottom: 12px; letter-spacing: 0.05em;
+}
+.section-header h2 { font-size: 2rem; margin-bottom: 12px; }
+.section-header p { font-size: 1.05rem; color: var(--text-sub); max-width: 600px; margin: 0 auto; }
+
+/* ===== PAIN POINTS ===== */
+.pain-section { background: var(--peach); }
+.pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.pain-card {
+  background: white; border-radius: var(--radius); padding: 36px 28px;
+  text-align: center; box-shadow: var(--shadow-soft);
+  transition: transform 0.3s;
+}
+.pain-card:hover { transform: translateY(-4px); }
+.pain-icon { font-size: 3rem; margin-bottom: 16px; display: block; }
+.pain-card h3 { font-size: 1.15rem; margin-bottom: 10px; color: #DC2626; }
+.pain-card p { font-size: 0.95rem; color: var(--text-sub); }
+
+/* ===== SOLUTION ===== */
+.solution-section { background: var(--accent-pale); }
+.solution-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.solution-card {
+  background: white; border-radius: var(--radius); padding: 40px 28px;
+  text-align: center; box-shadow: var(--shadow-soft);
+  position: relative; overflow: hidden; transition: transform 0.3s;
+}
+.solution-card:hover { transform: translateY(-4px); }
+.solution-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--main), var(--accent));
+}
+.solution-icon {
+  width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 20px;
+  display: flex; align-items: center; justify-content: center; font-size: 2rem;
+}
+.solution-card:nth-child(1) .solution-icon { background: var(--main-light); }
+.solution-card:nth-child(2) .solution-icon { background: var(--accent-light); }
+.solution-card:nth-child(3) .solution-icon { background: var(--lavender); }
+.solution-card h3 { font-size: 1.2rem; margin-bottom: 10px; }
+.solution-card p { font-size: 0.95rem; color: var(--text-sub); }
+
+/* ===== FEATURES / STEPS ===== */
+.features-section { background: var(--main-pale); }
+.step-list { display: flex; flex-direction: column; gap: 40px; }
+.step-item {
+  display: flex; align-items: center; gap: 40px;
+  background: white; border-radius: var(--radius); padding: 40px;
+  box-shadow: var(--shadow-soft); transition: transform 0.3s;
+}
+.step-item:hover { transform: translateY(-3px); }
+.step-item:nth-child(even) { flex-direction: row-reverse; }
+.step-number {
+  flex: 0 0 80px; height: 80px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; font-weight: 800; color: white;
+  font-family: 'Inter', sans-serif;
+}
+.step-item:nth-child(1) .step-number { background: linear-gradient(135deg, #60A5FA, var(--main)); }
+.step-item:nth-child(2) .step-number { background: linear-gradient(135deg, var(--mint-mid), var(--accent)); }
+.step-item:nth-child(3) .step-number { background: linear-gradient(135deg, var(--lavender-mid), #7C3AED); }
+.step-item:nth-child(4) .step-number { background: linear-gradient(135deg, var(--peach-mid), #F59E0B); }
+.step-content { flex: 1; }
+.step-label {
+  font-size: 0.8rem; font-weight: 700; color: var(--main);
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;
+}
+.step-content h3 { font-size: 1.35rem; margin-bottom: 10px; }
+.step-content p { color: var(--text-sub); font-size: 0.95rem; }
+.step-visual {
+  flex: 0 0 200px; height: 150px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+}
+.step-item:nth-child(1) .step-visual { background: var(--main-light); }
+.step-item:nth-child(2) .step-visual { background: var(--accent-light); }
+.step-item:nth-child(3) .step-visual { background: var(--lavender); }
+.step-item:nth-child(4) .step-visual { background: var(--peach); }
+
+/* Step connector */
+.step-connector {
+  display: flex; justify-content: center; padding: 0;
+}
+.step-connector svg { width: 40px; height: 40px; color: var(--main); opacity: 0.4; }
+
+/* ===== PRICING ===== */
+.pricing-section { background: white; }
+.pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.pricing-card {
+  background: white; border: 2px solid #E2E8F0; border-radius: var(--radius);
+  padding: 36px 24px; text-align: center; position: relative;
+  transition: transform 0.3s, border-color 0.3s;
+}
+.pricing-card:hover { transform: translateY(-4px); }
+.pricing-card.popular {
+  border-color: var(--main); box-shadow: 0 8px 32px rgba(26,86,219,0.15);
+}
+.pricing-badge {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  background: var(--main); color: white; font-size: 0.75rem; font-weight: 700;
+  padding: 4px 20px; border-radius: 50px;
+}
+.pricing-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+.pricing-card h3 { font-size: 1.15rem; margin-bottom: 8px; }
+.pricing-price {
+  font-size: 2.2rem; font-weight: 800; color: var(--main);
+  font-family: 'Inter', sans-serif; margin-bottom: 4px;
+}
+.pricing-price span { font-size: 0.9rem; font-weight: 500; color: var(--text-sub); }
+.pricing-period { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 20px; }
+.pricing-features { list-style: none; text-align: left; margin-bottom: 28px; }
+.pricing-features li {
+  font-size: 0.9rem; padding: 6px 0; display: flex; align-items: flex-start; gap: 8px;
+}
+.pricing-features li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+.pricing-btn {
+  display: block; width: 100%; padding: 12px; border-radius: 50px;
+  font-weight: 600; font-size: 0.95rem; cursor: pointer;
+  transition: all 0.3s; text-decoration: none; text-align: center;
+  border: 2px solid var(--main); color: var(--main); background: white;
+}
+.pricing-btn:hover { background: var(--main-pale); }
+.pricing-card.popular .pricing-btn {
+  background: var(--main); color: white; border-color: var(--main);
+}
+.pricing-card.popular .pricing-btn:hover { box-shadow: 0 4px 16px rgba(26,86,219,0.3); }
+
+/* ===== FAQ ===== */
+.faq-section { background: var(--lavender); }
+.faq-list { max-width: 740px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.faq-item {
+  background: white; border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-soft); overflow: hidden;
+}
+.faq-question {
+  width: 100%; padding: 20px 24px; border: none; background: none;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 1rem; font-weight: 600; color: var(--text);
+  cursor: pointer; text-align: left; font-family: inherit; gap: 16px;
+}
+.faq-question:hover { background: rgba(0,0,0,0.02); }
+.faq-chevron {
+  width: 24px; height: 24px; flex-shrink: 0;
+  transition: transform 0.3s; color: var(--text-sub);
+}
+.faq-item.open .faq-chevron { transform: rotate(180deg); }
+.faq-answer {
+  max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+}
+.faq-answer-inner { padding: 0 24px 20px; color: var(--text-sub); font-size: 0.95rem; line-height: 1.8; }
+
+/* ===== FINAL CTA ===== */
+.cta-section {
+  background: linear-gradient(135deg, var(--main) 0%, #7C3AED 100%);
+  padding: 80px 0; text-align: center; color: white; position: relative; overflow: hidden;
+}
+.cta-section::before {
+  content: ''; position: absolute; top: -100px; right: -100px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+}
+.cta-section h2 { font-size: 2rem; margin-bottom: 12px; }
+.cta-section p { font-size: 1.05rem; opacity: 0.9; margin-bottom: 36px; }
+.cta-form {
+  display: flex; gap: 12px; justify-content: center; max-width: 500px; margin: 0 auto;
+}
+.cta-input {
+  flex: 1; padding: 16px 24px; border: none; border-radius: 50px;
+  font-size: 1rem; font-family: inherit; outline: none;
+}
+.cta-input::placeholder { color: #94A3B8; }
+.cta-submit {
+  background: var(--accent); color: white; border: none; padding: 16px 32px;
+  border-radius: 50px; font-weight: 700; font-size: 1rem; cursor: pointer;
+  font-family: inherit; transition: all 0.3s; white-space: nowrap;
+}
+.cta-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+.cta-note { font-size: 0.8rem; opacity: 0.7; margin-top: 12px; }
+
+/* ===== FOOTER ===== */
+footer {
+  background: #0F172A; color: #94A3B8; padding: 48px 0 24px; text-align: center;
+}
+footer .footer-logo { color: white; font-weight: 800; font-size: 1.3rem; margin-bottom: 16px; }
+footer .footer-links { display: flex; justify-content: center; gap: 28px; margin-bottom: 24px; flex-wrap: wrap; }
+footer .footer-links a { color: #94A3B8; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+footer .footer-links a:hover { color: white; }
+footer .copyright { font-size: 0.8rem; border-top: 1px solid #1E293B; padding-top: 20px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .hero .container { flex-direction: column; text-align: center; }
+  .hero p { margin-left: auto; margin-right: auto; }
+  .hero-actions { justify-content: center; }
+  .hero-visual { flex: none; }
+  .pain-grid, .solution-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+  .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+  .step-item, .step-item:nth-child(even) { flex-direction: column; text-align: center; padding: 32px 24px; }
+  .step-visual { flex: none; width: 100%; height: 120px; }
+  .nav-links { display: none; }
+  .hamburger { display: block; }
+  .hero h1 { font-size: 2rem; }
+}
+@media (max-width: 600px) {
+  .pricing-grid { grid-template-columns: 1fr; max-width: 360px; margin: 0 auto; }
+  .cta-form { flex-direction: column; }
+  section { padding: 60px 0; }
+  .hero { padding: 120px 0 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <svg viewBox="0 0 36 36" fill="none">
+        <rect width="36" height="36" rx="10" fill="#1A56DB"/>
+        <path d="M8 14h20M8 20h14M8 26h18" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="28" cy="10" r="5" fill="#10B981"/>
+        <path d="M26 10l1.5 1.5L30 8.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      TaxViz
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">機能</a></li>
+      <li><a href="#pricing">料金</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a href="#cta" class="nav-cta">無料で始める</a>
+    <button class="hamburger" onclick="this.classList.toggle('active')" aria-label="メニュー">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-text">
+      <div class="hero-badge">🎉 確定申告をもっとカンタンに</div>
+      <h1>入力しながら、<br>全体が見える<br>確定申告</h1>
+      <p>数字を入れるたびに、税額がリアルタイムで変わる。<br>はじめての確定申告でも、TaxVizなら迷わずゴールへ。</p>
+      <div class="hero-actions">
+        <a href="#cta" class="btn-primary">🚀 無料で確定申告を始める</a>
+        <a href="#features" class="btn-secondary">✨ 機能を見る</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="mascot-container">
+        <div class="float-icon">📊</div>
+        <div class="float-icon">💰</div>
+        <div class="float-icon">✅</div>
+        <div class="mascot-body">
+          <div class="mascot-face">
+            <div class="mascot-eye left"></div>
+            <div class="mascot-eye right"></div>
+            <div class="mascot-cheek left"></div>
+            <div class="mascot-cheek right"></div>
+            <div class="mascot-mouth"></div>
+          </div>
+        </div>
+        <div class="mascot-hand left"></div>
+        <div class="mascot-hand right"></div>
+        <div class="mascot-doc"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAIN POINTS -->
+<section class="pain-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">PROBLEM</span>
+      <h2>確定申告、こんなお悩みありませんか？ 😰</h2>
+      <p>副業を始めたサラリーマン、主婦、フリーランスの方…初めての確定申告は不安がいっぱい。</p>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <span class="pain-icon">😵‍💫</span>
+        <h3>数字が多すぎて<br>何がなんだか…</h3>
+        <p>所得、控除、税額…専門用語と数字の嵐。全体像が見えないまま入力するのは不安ですよね。</p>
+      </div>
+      <div class="pain-card">
+        <span class="pain-icon">😱</span>
+        <h3>「これ合ってる？」<br>提出が怖い</h3>
+        <p>計算ミスや記入漏れが怖くて、何度も見直し。結局ギリギリまで手が付けられない…。</p>
+      </div>
+      <div class="pain-card">
+        <span class="pain-icon">😩</span>
+        <h3>節税テクニック<br>わからない</h3>
+        <p>「もっと控除できたのに…」と後から気づくパターン。お金を損してるかもしれません。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="solution-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">SOLUTION</span>
+      <h2>TaxVizが、ぜんぶ解決します ✨</h2>
+      <p>「見える化」で確定申告のストレスをゼロに。</p>
+    </div>
+    <div class="solution-grid">
+      <div class="solution-card">
+        <div class="solution-icon">👁️</div>
+        <h3>リアルタイムで<br>全体が見える</h3>
+        <p>入力するたびにダッシュボードが更新。今の税額・還付額が一目でわかります。</p>
+      </div>
+      <div class="solution-card">
+        <div class="solution-icon">🛡️</div>
+        <h3>ミスを自動で<br>チェック</h3>
+        <p>入力内容をAIが自動チェック。計算ミスや記入漏れを提出前にキャッチします。</p>
+      </div>
+      <div class="solution-card">
+        <div class="solution-icon">💡</div>
+        <h3>あなただけの<br>節税アドバイス</h3>
+        <p>あなたの収入と状況に合わせて、使える控除や節税のヒントを自動で提案します。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES / STEPS -->
+<section class="features-section" id="features">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">FEATURES</span>
+      <h2>かんたん4ステップで確定申告 🎯</h2>
+      <p>直感的な操作で、はじめてでもサクサク進みます。</p>
+    </div>
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <div class="step-label">Step 1</div>
+          <h3>📊 リアルタイムダッシュボード</h3>
+          <p>収入・経費・控除・税額がグラフで一覧表示。数字を入力するたびにリアルタイムで更新されるので、「今いくら？」がすぐわかります。棒グラフ・円グラフ・ゲージで直感的に把握。</p>
+        </div>
+        <div class="step-visual">
+          <svg width="120" height="80" viewBox="0 0 120 80">
+            <rect x="10" y="50" width="18" height="25" rx="4" fill="#BFDBFE"/>
+            <rect x="35" y="30" width="18" height="45" rx="4" fill="#93C5FD"/>
+            <rect x="60" y="15" width="18" height="60" rx="4" fill="#60A5FA"/>
+            <rect x="85" y="40" width="18" height="35" rx="4" fill="#1A56DB"/>
+            <circle cx="95" cy="15" r="8" fill="#10B981" opacity="0.8"/>
+            <path d="M92 15l2 2 4-4" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step-connector">
+        <svg viewBox="0 0 40 40"><path d="M20 8v24M12 24l8 8 8-8" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <div class="step-item">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <div class="step-label">Step 2</div>
+          <h3>🗺️ お金のフローマップ</h3>
+          <p>収入がどう税金に変わるのか、フローチャートで視覚化。「給与→所得控除→課税所得→税額」の流れが一目瞭然。お金の流れを理解しながら入力できます。</p>
+        </div>
+        <div class="step-visual">
+          <svg width="140" height="80" viewBox="0 0 140 80">
+            <rect x="5" y="10" width="35" height="24" rx="6" fill="#D1FAE5" stroke="#10B981" stroke-width="1.5"/>
+            <text x="22" y="26" text-anchor="middle" font-size="8" fill="#065F46" font-weight="600">収入</text>
+            <path d="M42 22h16" stroke="#94A3B8" stroke-width="2" marker-end="url(#arrow)"/>
+            <rect x="60" y="10" width="35" height="24" rx="6" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+            <text x="77" y="26" text-anchor="middle" font-size="8" fill="#5B21B6" font-weight="600">控除</text>
+            <path d="M97 22h16" stroke="#94A3B8" stroke-width="2"/>
+            <rect x="100" y="10" width="35" height="24" rx="6" fill="#DBEAFE" stroke="#1A56DB" stroke-width="1.5"/>
+            <text x="117" y="26" text-anchor="middle" font-size="8" fill="#1E40AF" font-weight="600">税額</text>
+            <rect x="30" y="50" width="80" height="20" rx="6" fill="#FFF5F5" stroke="#F59E0B" stroke-width="1.5"/>
+            <text x="70" y="64" text-anchor="middle" font-size="8" fill="#92400E" font-weight="600">💰 還付金 ¥52,400</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step-connector">
+        <svg viewBox="0 0 40 40"><path d="M20 8v24M12 24l8 8 8-8" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <div class="step-item">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <div class="step-label">Step 3</div>
+          <h3>⚡ インパクトインジケーター</h3>
+          <p>控除額を変えると、税額がどれだけ変わるかリアルタイムで表示。「ふるさと納税を5万円追加すると…税額が○○円減る！」がすぐわかる。節税シミュレーションが楽しくなります。</p>
+        </div>
+        <div class="step-visual">
+          <svg width="120" height="80" viewBox="0 0 120 80">
+            <rect x="10" y="15" width="100" height="12" rx="6" fill="#E2E8F0"/>
+            <rect x="10" y="15" width="65" height="12" rx="6" fill="url(#grad1)"/>
+            <text x="60" y="48" text-anchor="middle" font-size="11" fill="#1A56DB" font-weight="800">-¥15,200</text>
+            <text x="60" y="65" text-anchor="middle" font-size="8" fill="#64748B">税額が減りました！🎉</text>
+            <defs><linearGradient id="grad1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#60A5FA"/><stop offset="1" stop-color="#10B981"/></linearGradient></defs>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step-connector">
+        <svg viewBox="0 0 40 40"><path d="M20 8v24M12 24l8 8 8-8" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <div class="step-item">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <div class="step-label">Step 4</div>
+          <h3>🤖 AIアドバイザー</h3>
+          <p>あなたの入力内容を分析して「医療費控除が使えそうです」「iDeCoの所得控除を忘れていませんか？」など、パーソナライズされた節税アドバイスを自動で提案します。</p>
+        </div>
+        <div class="step-visual">
+          <svg width="110" height="80" viewBox="0 0 110 80">
+            <rect x="5" y="8" width="100" height="50" rx="12" fill="#FFF5F5" stroke="#FECACA" stroke-width="1.5"/>
+            <text x="55" y="28" text-anchor="middle" font-size="8" fill="#64748B">💬 AIからのアドバイス</text>
+            <text x="55" y="44" text-anchor="middle" font-size="7" fill="#1E293B" font-weight="600">医療費控除で¥8,400おトクに！</text>
+            <circle cx="55" cy="70" r="8" fill="#1A56DB"/>
+            <text x="55" y="73" text-anchor="middle" font-size="8" fill="#fff">AI</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">PRICING</span>
+      <h2>あなたにぴったりのプランを選ぼう 🎁</h2>
+      <p>まずは無料プランからお気軽にどうぞ。いつでもアップグレードできます。</p>
+    </div>
+    <div class="pricing-grid">
+      <!-- Free -->
+      <div class="pricing-card">
+        <span class="pricing-icon">🌱</span>
+        <h3>Free</h3>
+        <div class="pricing-price">¥0</div>
+        <div class="pricing-period">ずっと無料</div>
+        <ul class="pricing-features">
+          <li>基本ダッシュボード</li>
+          <li>収支入力（月10件）</li>
+          <li>フローマップ閲覧</li>
+          <li>確定申告書プレビュー</li>
+        </ul>
+        <a href="#cta" class="pricing-btn">無料で始める</a>
+      </div>
+      <!-- Standard -->
+      <div class="pricing-card popular">
+        <span class="pricing-badge">🔥 人気No.1</span>
+        <span class="pricing-icon">⭐</span>
+        <h3>Standard</h3>
+        <div class="pricing-price">¥980<span>/月</span></div>
+        <div class="pricing-period">年払い ¥9,800（2ヶ月分おトク）</div>
+        <ul class="pricing-features">
+          <li>Freeの全機能</li>
+          <li>収支入力 無制限</li>
+          <li>インパクトインジケーター</li>
+          <li>AIアドバイザー（基本）</li>
+          <li>e-Tax連携・提出</li>
+        </ul>
+        <a href="#cta" class="pricing-btn">このプランで始める</a>
+      </div>
+      <!-- Pro -->
+      <div class="pricing-card">
+        <span class="pricing-icon">🚀</span>
+        <h3>Pro</h3>
+        <div class="pricing-price">¥2,480<span>/月</span></div>
+        <div class="pricing-period">年払い ¥24,800</div>
+        <ul class="pricing-features">
+          <li>Standardの全機能</li>
+          <li>AIアドバイザー（詳細分析）</li>
+          <li>過去5年分データ管理</li>
+          <li>レシートOCR読み取り</li>
+          <li>会計ソフト連携</li>
+        </ul>
+        <a href="#cta" class="pricing-btn">このプランで始める</a>
+      </div>
+      <!-- Tax Advisor -->
+      <div class="pricing-card">
+        <span class="pricing-icon">👨‍💼</span>
+        <h3>Tax Advisor</h3>
+        <div class="pricing-price">¥4,980<span>/月</span></div>
+        <div class="pricing-period">年払い ¥49,800</div>
+        <ul class="pricing-features">
+          <li>Proの全機能</li>
+          <li>税理士チャットサポート</li>
+          <li>申告書レビュー（年1回）</li>
+          <li>節税レポート</li>
+          <li>優先サポート</li>
+        </ul>
+        <a href="#cta" class="pricing-btn">このプランで始める</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">FAQ</span>
+      <h2>よくあるご質問 🙋</h2>
+      <p>はじめての方からよく聞かれる質問をまとめました。</p>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>確定申告が初めてでも使えますか？</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">もちろんです！TaxVizは確定申告初心者の方に向けて設計されています。ステップごとのガイド、用語の解説ツールチップ、AIアドバイザーのサポートで、初めてでも安心して最後まで進められます。副業サラリーマンの方や主婦の方にも多くご利用いただいています。</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>無料プランでもちゃんと確定申告できますか？</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">はい。無料プランでも確定申告書のプレビューと基本的なダッシュボード機能をご利用いただけます。ただし、e-Tax提出やAIアドバイザーなどの便利な機能はStandard以上のプランで利用できます。まずは無料でお試しいただき、必要に応じてアップグレードがおすすめです。</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>データのセキュリティは大丈夫ですか？</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">TaxVizでは、すべてのデータを256bit SSL暗号化で保護しています。また、個人情報は国内データセンターで厳重に管理し、第三者への提供は一切行いません。ISMS（ISO 27001）認証も取得済みです。安心してご利用ください。</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>副業の確定申告にも対応していますか？</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">はい、副業収入の確定申告に完全対応しています。給与所得に加えて、雑所得（副業・アフィリエイト）、事業所得（フリーランス）、不動産所得など、複数の所得区分を管理できます。フローマップで「本業＋副業」の全体像を見ながら申告できるのはTaxVizならではの強みです。</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>途中でプランを変更できますか？</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">はい、いつでもアップグレード・ダウングレードが可能です。アップグレードは即時反映、ダウングレードは次回更新日から適用されます。年払いプランの途中変更の場合は、残りの期間分を日割りで計算いたします。</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span>スマホからでも使えますか？</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">はい、TaxVizはスマートフォン・タブレット・PCすべてに対応したレスポンシブデザインです。通勤中にスマホでレシートを撮影、自宅でPCからじっくり入力、といった使い方も可能です。データはクラウドで同期されるので、どのデバイスからでも続きから作業できます。</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <div class="container">
+    <h2>さあ、ストレスフリーな確定申告を始めよう 🎉</h2>
+    <p>メールアドレスだけで、今すぐ無料アカウントを作成できます。</p>
+    <form class="cta-form" onsubmit="event.preventDefault(); alert('ご登録ありがとうございます！🎉');">
+      <input type="email" class="cta-input" placeholder="メールアドレスを入力" required>
+      <button type="submit" class="cta-submit">無料で確定申告を始める</button>
+    </form>
+    <p class="cta-note">※ クレジットカード不要・30秒で登録完了</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-logo">TaxViz（タックスビズ）</div>
+    <div class="footer-links">
+      <a href="#">機能紹介</a>
+      <a href="#">料金プラン</a>
+      <a href="#">利用規約</a>
+      <a href="#">プライバシーポリシー</a>
+      <a href="#">特定商取引法に基づく表記</a>
+      <a href="#">お問い合わせ</a>
+    </div>
+    <p class="copyright">© 2026 TaxViz Inc. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(btn) {
+  const item = btn.parentElement;
+  const answer = item.querySelector('.faq-answer');
+  const isOpen = item.classList.contains('open');
+  // close all
+  document.querySelectorAll('.faq-item').forEach(i => {
+    i.classList.remove('open');
+    i.querySelector('.faq-answer').style.maxHeight = null;
+  });
+  if (!isOpen) {
+    item.classList.add('open');
+    answer.style.maxHeight = answer.scrollHeight + 'px';
+  }
+}
+
+// Scroll animation
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.pain-card, .solution-card, .step-item, .pricing-card, .faq-item').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(24px)';
+  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>

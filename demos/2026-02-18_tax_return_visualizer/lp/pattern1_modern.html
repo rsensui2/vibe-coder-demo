@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxViz（タックスビズ）- 入力しながら、全体が見える確定申告</title>
+<meta name="description" content="TaxVizは確定申告をリアルタイムで可視化。入力しながら全体像が見える、まったく新しい確定申告体験。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --main: #1A56DB;
+  --main-light: #3B82F6;
+  --main-dark: #1E40AF;
+  --accent: #10B981;
+  --accent-light: #34D399;
+  --warning: #F59E0B;
+  --negative: #EF4444;
+  --bg: #F8FAFC;
+  --text: #1E293B;
+  --text-light: #64748B;
+  --text-lighter: #94A3B8;
+  --white: #FFFFFF;
+  --border: #E2E8F0;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.03);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.03);
+  --radius: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: 'Noto Sans JP', 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+
+a { color: var(--main); text-decoration: none; }
+
+img { max-width: 100%; height: auto; }
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section {
+  padding: 100px 0;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.section-label {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--main);
+  background: rgba(26,86,219,0.08);
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.section-desc {
+  font-size: 1.1rem;
+  color: var(--text-light);
+  max-width: 640px;
+  margin-bottom: 48px;
+}
+
+.text-center { text-align: center; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+/* ============================================
+   HEADER / NAV
+   ============================================ */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(248,250,252,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow 0.3s;
+}
+
+.header.scrolled {
+  box-shadow: var(--shadow-md);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: var(--text);
+}
+
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--main), var(--main-light));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.nav { display: flex; align-items: center; gap: 32px; }
+
+.nav a {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-light);
+  transition: color 0.2s;
+}
+
+.nav a:hover { color: var(--main); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--main), var(--main-light));
+  color: white;
+  box-shadow: 0 4px 14px rgba(26,86,219,0.35);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26,86,219,0.45);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--main);
+  border: 2px solid var(--main);
+}
+
+.btn-outline:hover {
+  background: var(--main);
+  color: white;
+}
+
+.btn-sm { padding: 8px 20px; font-size: 0.85rem; }
+.btn-lg { padding: 16px 40px; font-size: 1.1rem; }
+
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text);
+}
+
+/* ============================================
+   HERO
+   ============================================ */
+.hero {
+  padding: 140px 0 80px;
+  position: relative;
+  overflow: hidden;
+  opacity: 1;
+  transform: none;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(26,86,219,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -100px; left: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-content { animation: fadeInUp 1s ease forwards; }
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16,185,129,0.1);
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  margin-bottom: 24px;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.hero-title {
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+}
+
+.hero-title span {
+  background: linear-gradient(135deg, var(--main), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-light);
+  margin-bottom: 36px;
+  max-width: 480px;
+  line-height: 1.9;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 40px;
+}
+
+.hero-stat-num {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--main);
+}
+
+.hero-stat-label {
+  font-size: 0.82rem;
+  color: var(--text-lighter);
+}
+
+/* Dashboard Mockup */
+.dashboard-mock {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  animation: fadeInRight 1s 0.3s ease both;
+  position: relative;
+}
+
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.dash-dots {
+  display: flex; gap: 6px;
+}
+
+.dash-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+
+.dash-dot:nth-child(1) { background: var(--negative); }
+.dash-dot:nth-child(2) { background: var(--warning); }
+.dash-dot:nth-child(3) { background: var(--accent); }
+
+.dash-tab-bar {
+  display: flex; gap: 4px;
+}
+
+.dash-tab {
+  font-size: 0.7rem;
+  padding: 4px 12px;
+  border-radius: 6px;
+  color: var(--text-lighter);
+  background: transparent;
+}
+
+.dash-tab.active {
+  background: var(--main);
+  color: white;
+  font-weight: 600;
+}
+
+.dash-body {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.dash-card {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 16px;
+  border: 1px solid var(--border);
+}
+
+.dash-card-label {
+  font-size: 0.7rem;
+  color: var(--text-lighter);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.dash-card-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.dash-card-value.positive { color: var(--accent); }
+.dash-card-value.negative { color: var(--negative); }
+.dash-card-value.warn { color: var(--warning); }
+
+.dash-card-change {
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.dash-card-change.up { color: var(--accent); }
+.dash-card-change.down { color: var(--negative); }
+
+/* SVG Chart Area */
+.dash-chart-area {
+  grid-column: 1 / -1;
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 16px;
+  border: 1px solid var(--border);
+}
+
+.dash-chart-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+
+.dash-chart-svg {
+  width: 100%;
+  height: 120px;
+}
+
+/* Mini bar chart */
+.dash-bars-area {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 16px;
+  border: 1px solid var(--border);
+}
+
+.dash-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 60px;
+}
+
+.dash-bar {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  animation: barGrow 1.5s ease forwards;
+  transform-origin: bottom;
+}
+
+@keyframes barGrow {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+/* Donut */
+.dash-donut-area {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 16px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dash-donut-svg {
+  width: 70px; height: 70px;
+  flex-shrink: 0;
+}
+
+.dash-donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dash-donut-item {
+  font-size: 0.65rem;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dash-donut-color {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Animated line */
+.chart-line {
+  stroke-dasharray: 500;
+  stroke-dashoffset: 500;
+  animation: drawLine 2s ease forwards;
+}
+
+@keyframes drawLine {
+  to { stroke-dashoffset: 0; }
+}
+
+.chart-area-fill {
+  opacity: 0;
+  animation: fadeIn 2s ease forwards;
+}
+
+/* ============================================
+   PAIN POINTS
+   ============================================ */
+.pain-section {
+  background: linear-gradient(180deg, var(--bg) 0%, #EFF6FF 100%);
+}
+
+.pain-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.pain-big-number {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 900;
+  color: var(--main);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.pain-big-label {
+  font-size: 1.2rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.pain-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.pain-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  border: 1px solid var(--border);
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.pain-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--negative);
+  border-radius: 4px 4px 0 0;
+}
+
+.pain-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.pain-icon {
+  width: 56px; height: 56px;
+  background: rgba(239,68,68,0.08);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.pain-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.pain-card p {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  line-height: 1.8;
+}
+
+.pain-stat {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--negative);
+  margin-top: 16px;
+}
+
+.pain-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-lighter);
+}
+
+/* ============================================
+   SOLUTION
+   ============================================ */
+.solution-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.solution-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  border: 1px solid var(--border);
+  text-align: center;
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.solution-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.solution-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--main), var(--accent));
+  border-radius: 0 0 4px 4px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.solution-card:hover::after { opacity: 1; }
+
+.solution-num {
+  font-family: 'Inter', sans-serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: rgba(26,86,219,0.1);
+  margin-bottom: 16px;
+}
+
+.solution-icon {
+  width: 64px; height: 64px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, rgba(26,86,219,0.08), rgba(16,185,129,0.08));
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+
+.solution-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.solution-card p {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  line-height: 1.8;
+}
+
+/* ============================================
+   FEATURES
+   ============================================ */
+.features-section {
+  background: linear-gradient(180deg, var(--bg) 0%, #F0FDF4 50%, var(--bg) 100%);
+}
+
+.feature-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  margin-bottom: 80px;
+}
+
+.feature-item:nth-child(even) {
+  direction: rtl;
+}
+
+.feature-item:nth-child(even) > * {
+  direction: ltr;
+}
+
+.feature-item:last-child { margin-bottom: 0; }
+
+.feature-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--main);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+.feature-label-dot {
+  width: 6px; height: 6px;
+  background: var(--main);
+  border-radius: 50%;
+}
+
+.feature-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.feature-desc {
+  font-size: 1rem;
+  color: var(--text-light);
+  margin-bottom: 24px;
+  line-height: 1.9;
+}
+
+.feature-points {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feature-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.95rem;
+  color: var(--text-light);
+}
+
+.feature-check {
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  background: rgba(16,185,129,0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.feature-visual {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Feature visual: mini dashboard */
+.fv-dashboard {
+  width: 100%;
+}
+
+.fv-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.fv-metric {
+  flex: 1;
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+}
+
+.fv-metric-label {
+  font-size: 0.65rem;
+  color: var(--text-lighter);
+  margin-bottom: 4px;
+}
+
+.fv-metric-val {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* Feature visual: flow map */
+.fv-flow {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fv-flow-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fv-flow-node {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.fv-flow-arrow {
+  font-size: 1.2rem;
+  color: var(--main);
+  flex-shrink: 0;
+}
+
+.fv-flow-node.income { border-left: 3px solid var(--accent); }
+.fv-flow-node.deduction { border-left: 3px solid var(--warning); }
+.fv-flow-node.tax { border-left: 3px solid var(--negative); }
+.fv-flow-node.refund { border-left: 3px solid var(--main); }
+
+/* Feature visual: impact indicator */
+.fv-impact {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fv-impact-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fv-impact-label {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.fv-impact-bar-bg {
+  flex: 1;
+  height: 28px;
+  background: var(--bg);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.fv-impact-bar {
+  height: 100%;
+  border-radius: 14px;
+  transition: width 1.5s ease;
+}
+
+.fv-impact-val {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  width: 80px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Feature visual: AI */
+.fv-ai {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fv-ai-bubble {
+  padding: 14px 18px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  max-width: 85%;
+}
+
+.fv-ai-bubble.bot {
+  background: rgba(26,86,219,0.06);
+  border: 1px solid rgba(26,86,219,0.12);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.fv-ai-bubble.user {
+  background: var(--main);
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+/* ============================================
+   PRICING
+   ============================================ */
+.pricing-section {
+  background: linear-gradient(180deg, var(--bg), #EFF6FF);
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.pricing-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 36px 28px;
+  border: 1px solid var(--border);
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.pricing-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.pricing-card.popular {
+  border-color: var(--main);
+  box-shadow: 0 0 0 1px var(--main), var(--shadow-lg);
+}
+
+.pricing-popular-badge {
+  position: absolute;
+  top: -12px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--main);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 16px;
+  border-radius: var(--radius-full);
+}
+
+.pricing-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.pricing-price {
+  font-family: 'Inter', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.pricing-price span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-lighter);
+}
+
+.pricing-desc {
+  font-size: 0.85rem;
+  color: var(--text-lighter);
+  margin-bottom: 24px;
+  min-height: 40px;
+}
+
+.pricing-features {
+  list-style: none;
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pricing-features li {
+  font-size: 0.88rem;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pricing-features li::before {
+  content: '✓';
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.pricing-features li.disabled {
+  color: var(--text-lighter);
+  text-decoration: line-through;
+}
+
+.pricing-features li.disabled::before {
+  content: '—';
+  color: var(--text-lighter);
+}
+
+.pricing-btn {
+  width: 100%;
+  text-align: center;
+}
+
+/* ============================================
+   FAQ
+   ============================================ */
+.faq-list {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faq-item {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+}
+
+.faq-item:hover { box-shadow: var(--shadow-sm); }
+
+.faq-question {
+  width: 100%;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: left;
+}
+
+.faq-arrow {
+  font-size: 1.2rem;
+  color: var(--text-lighter);
+  transition: transform 0.3s;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.faq-item.open .faq-arrow {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+}
+
+.faq-item.open .faq-answer {
+  max-height: 400px;
+}
+
+.faq-answer-inner {
+  padding: 0 24px 20px;
+  font-size: 0.95rem;
+  color: var(--text-light);
+  line-height: 1.9;
+}
+
+/* ============================================
+   FINAL CTA
+   ============================================ */
+.cta-section {
+  background: linear-gradient(135deg, var(--main-dark), var(--main), var(--main-light));
+  color: white;
+  text-align: center;
+  padding: 100px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.06) 0%, transparent 50%);
+}
+
+.cta-title {
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 900;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.cta-desc {
+  font-size: 1.1rem;
+  opacity: 0.85;
+  margin-bottom: 40px;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+
+.cta-form {
+  display: flex;
+  max-width: 480px;
+  margin: 0 auto 24px;
+  gap: 12px;
+  position: relative;
+}
+
+.cta-input {
+  flex: 1;
+  padding: 16px 24px;
+  border: 2px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-full);
+  color: white;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.cta-input::placeholder { color: rgba(255,255,255,0.55); }
+.cta-input:focus { border-color: rgba(255,255,255,0.6); }
+
+.cta-submit {
+  padding: 16px 32px;
+  background: white;
+  color: var(--main);
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.cta-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+}
+
+.cta-note {
+  font-size: 0.82rem;
+  opacity: 0.6;
+  position: relative;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.footer {
+  background: var(--text);
+  color: rgba(255,255,255,0.6);
+  padding: 48px 0 32px;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-logo {
+  color: white;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-links a {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: white; }
+
+.footer-copy {
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+  .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+  .feature-item { grid-template-columns: 1fr; gap: 40px; }
+  .feature-item:nth-child(even) { direction: ltr; }
+}
+
+@media (max-width: 768px) {
+  .section { padding: 60px 0; }
+  .nav { display: none; }
+  .mobile-toggle { display: block; }
+  .pain-grid { grid-template-columns: 1fr; }
+  .solution-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+  .hero-stats { gap: 24px; }
+  .hero-stat-num { font-size: 1.5rem; }
+  .dash-body { grid-template-columns: 1fr; }
+  .cta-form { flex-direction: column; }
+  .footer-inner { flex-direction: column; gap: 20px; text-align: center; }
+  .footer-links { flex-wrap: wrap; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<header class="header" id="header">
+  <div class="container header-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">T</div>
+      TaxViz
+    </a>
+    <nav class="nav">
+      <a href="#features">機能</a>
+      <a href="#pricing">料金</a>
+      <a href="#faq">FAQ</a>
+      <a href="#cta" class="btn btn-primary btn-sm">無料で始める</a>
+    </nav>
+    <button class="mobile-toggle" onclick="document.querySelector('.nav').style.display=document.querySelector('.nav').style.display==='flex'?'none':'flex'">☰</button>
+  </div>
+</header>
+
+<!-- ========== HERO ========== -->
+<section class="hero section visible">
+  <div class="container hero-grid">
+    <div class="hero-content">
+      <div class="hero-badge">2026年確定申告対応</div>
+      <h1 class="hero-title">
+        入力しながら、<br><span>全体が見える</span><br>確定申告。
+      </h1>
+      <p class="hero-subtitle">
+        TaxVizは、確定申告の全プロセスをリアルタイムで可視化。
+        数字を入力するたびにダッシュボードが更新され、
+        税額の変化を直感的に把握できます。
+      </p>
+      <div class="hero-actions">
+        <a href="#cta" class="btn btn-primary btn-lg">無料で始める →</a>
+        <a href="#features" class="btn btn-outline btn-lg">機能を見る</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num">2,400万</div>
+          <div class="hero-stat-label">確定申告者数/年</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">平均8h</div>
+          <div class="hero-stat-label">従来の作業時間</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">→ 45min</div>
+          <div class="hero-stat-label">TaxViz利用時</div>
+        </div>
+      </div>
+    </div>
+    <div class="dashboard-mock">
+      <div class="dash-header">
+        <div class="dash-dots">
+          <div class="dash-dot"></div>
+          <div class="dash-dot"></div>
+          <div class="dash-dot"></div>
+        </div>
+        <div class="dash-tab-bar">
+          <div class="dash-tab active">ダッシュボード</div>
+          <div class="dash-tab">収入</div>
+          <div class="dash-tab">控除</div>
+          <div class="dash-tab">結果</div>
+        </div>
+      </div>
+      <div class="dash-body">
+        <div class="dash-card">
+          <div class="dash-card-label">総収入</div>
+          <div class="dash-card-value">¥7,840,000</div>
+          <div class="dash-card-change up">＋12.3% 前年比</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">所得控除合計</div>
+          <div class="dash-card-value positive">¥2,180,000</div>
+          <div class="dash-card-change up">4件の控除適用中</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">課税所得</div>
+          <div class="dash-card-value warn">¥5,660,000</div>
+          <div class="dash-card-change">税率 20%</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">納税額（見込み）</div>
+          <div class="dash-card-value negative">¥574,500</div>
+          <div class="dash-card-change down">還付の可能性あり</div>
+        </div>
+
+        <!-- Line Chart -->
+        <div class="dash-chart-area">
+          <div class="dash-chart-title">月別収入推移</div>
+          <svg class="dash-chart-svg" viewBox="0 0 500 120" fill="none">
+            <defs>
+              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1A56DB" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#1A56DB" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path class="chart-area-fill" d="M0,100 L42,85 L84,90 L126,60 L168,65 L210,40 L252,45 L294,30 L336,35 L378,20 L420,25 L462,15 L500,10 L500,120 L0,120Z" fill="url(#chartGrad)"/>
+            <polyline class="chart-line" points="0,100 42,85 84,90 126,60 168,65 210,40 252,45 294,30 336,35 378,20 420,25 462,15 500,10" stroke="#1A56DB" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <g font-size="9" fill="#94A3B8">
+              <text x="0" y="118">1月</text><text x="80" y="118">3月</text><text x="164" y="118">5月</text>
+              <text x="248" y="118">7月</text><text x="332" y="118">9月</text><text x="416" y="118">11月</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Bar Chart -->
+        <div class="dash-bars-area">
+          <div class="dash-chart-title">控除内訳</div>
+          <div class="dash-bars">
+            <div class="dash-bar" style="height:80%;background:var(--main);" title="基礎控除"></div>
+            <div class="dash-bar" style="height:55%;background:var(--accent);" title="社会保険"></div>
+            <div class="dash-bar" style="height:70%;background:var(--warning);" title="医療費"></div>
+            <div class="dash-bar" style="height:35%;background:var(--main-light);" title="生命保険"></div>
+            <div class="dash-bar" style="height:45%;background:var(--accent-light);" title="ふるさと納税"></div>
+            <div class="dash-bar" style="height:25%;background:var(--text-lighter);" title="その他"></div>
+          </div>
+        </div>
+
+        <!-- Donut Chart -->
+        <div class="dash-donut-area">
+          <svg class="dash-donut-svg" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="14" fill="none" stroke="#E2E8F0" stroke-width="4"/>
+            <circle cx="18" cy="18" r="14" fill="none" stroke="#1A56DB" stroke-width="4"
+              stroke-dasharray="44 88" stroke-dashoffset="-22" stroke-linecap="round"/>
+            <circle cx="18" cy="18" r="14" fill="none" stroke="#10B981" stroke-width="4"
+              stroke-dasharray="22 88" stroke-dashoffset="-66" stroke-linecap="round"/>
+            <circle cx="18" cy="18" r="14" fill="none" stroke="#F59E0B" stroke-width="4"
+              stroke-dasharray="11 88" stroke-dashoffset="-88" stroke-linecap="round"/>
+            <text x="18" y="19" text-anchor="middle" font-size="5" font-weight="700" fill="#1E293B">50%</text>
+          </svg>
+          <div class="dash-donut-legend">
+            <div class="dash-donut-item"><div class="dash-donut-color" style="background:var(--main)"></div>給与所得 50%</div>
+            <div class="dash-donut-item"><div class="dash-donut-color" style="background:var(--accent)"></div>事業所得 25%</div>
+            <div class="dash-donut-item"><div class="dash-donut-color" style="background:var(--warning)"></div>雑所得 12.5%</div>
+            <div class="dash-donut-item"><div class="dash-donut-color" style="background:var(--border)"></div>その他 12.5%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PAIN POINTS ========== -->
+<section class="section pain-section" id="pain">
+  <div class="container">
+    <div class="pain-header">
+      <div class="section-label">課題</div>
+      <div class="pain-big-number">2,400万人</div>
+      <div class="pain-big-label">が毎年、確定申告に苦しんでいます</div>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-icon">😵</div>
+        <h3>全体像が見えない恐怖</h3>
+        <p>入力を進めても、最終的な税額がわからない。「このまま進めて大丈夫？」という不安が常につきまとい、何度も手を止めてしまう。</p>
+        <div class="pain-stat">72%</div>
+        <div class="pain-stat-label">が「途中で不安になる」と回答</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">⏰</div>
+        <h3>膨大な時間の浪費</h3>
+        <p>領収書の整理、項目の入力、計算の確認…。平均8時間以上かかる作業の大半は「調べる」と「迷う」時間。本来の仕事に使うべき時間が消えていく。</p>
+        <div class="pain-stat">8.2時間</div>
+        <div class="pain-stat-label">平均作業時間（個人事業主）</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">💸</div>
+        <h3>控除の見落とし</h3>
+        <p>使えるはずの控除を知らずに申告。平均で年間12万円もの「払いすぎ」が発生。専門知識がなければ気づくことすらできない。</p>
+        <div class="pain-stat">¥120,000</div>
+        <div class="pain-stat-label">平均的な控除見落とし額</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SOLUTION ========== -->
+<section class="section" id="solution">
+  <div class="container">
+    <div class="text-center" style="margin-bottom:60px;">
+      <div class="section-label">ソリューション</div>
+      <h2 class="section-title mx-auto" style="max-width:600px;">TaxVizが変える、<br>確定申告の体験</h2>
+      <p class="section-desc mx-auto">見えない不安を、見える安心に。TaxVizは3つのアプローチで確定申告の常識を変えます。</p>
+    </div>
+    <div class="solution-grid">
+      <div class="solution-card">
+        <div class="solution-num">01</div>
+        <div class="solution-icon">👁️</div>
+        <h3>リアルタイム可視化</h3>
+        <p>数字を入力した瞬間にダッシュボードが更新。収入・控除・税額の関係が一目でわかり、常に全体像を把握できます。</p>
+      </div>
+      <div class="solution-card">
+        <div class="solution-num">02</div>
+        <div class="solution-icon">🧭</div>
+        <h3>インテリジェントガイド</h3>
+        <p>AIがあなたの入力データを分析し、適用可能な控除や節税ポイントを自動で提案。見落としゼロの申告を実現します。</p>
+      </div>
+      <div class="solution-card">
+        <div class="solution-num">03</div>
+        <div class="solution-icon">⚡</div>
+        <h3>圧倒的なスピード</h3>
+        <p>直感的なUI設計と自動計算で、従来8時間の作業を45分に短縮。確定申告はもう「苦行」ではありません。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FEATURES ========== -->
+<section class="section features-section" id="features">
+  <div class="container">
+    <div class="text-center" style="margin-bottom:80px;">
+      <div class="section-label">機能紹介</div>
+      <h2 class="section-title">すべてが見える、だから安心</h2>
+      <p class="section-desc mx-auto">TaxVizの4つのコア機能が、確定申告の不安を解消します。</p>
+    </div>
+
+    <!-- Feature 1: Dashboard -->
+    <div class="feature-item">
+      <div>
+        <div class="feature-label"><span class="feature-label-dot"></span> FEATURE 01</div>
+        <h3 class="feature-title">リアルタイム<br>ダッシュボード</h3>
+        <p class="feature-desc">
+          入力と同時にグラフや数値が動的に変化。収入・控除・課税所得・納税額の関係をひと目で把握。
+          「今いくら？」がいつでもわかる安心感。
+        </p>
+        <ul class="feature-points">
+          <li><span class="feature-check">✓</span>入力と同時にリアルタイム更新</li>
+          <li><span class="feature-check">✓</span>前年比較グラフで変化を把握</li>
+          <li><span class="feature-check">✓</span>税率ブレイクポイント表示</li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <div class="fv-dashboard">
+          <div class="fv-row">
+            <div class="fv-metric">
+              <div class="fv-metric-label">課税所得</div>
+              <div class="fv-metric-val" style="color:var(--warning);">¥5,660,000</div>
+            </div>
+            <div class="fv-metric">
+              <div class="fv-metric-label">税率</div>
+              <div class="fv-metric-val" style="color:var(--main);">20%</div>
+            </div>
+          </div>
+          <div class="fv-row">
+            <div class="fv-metric">
+              <div class="fv-metric-label">算出税額</div>
+              <div class="fv-metric-val" style="color:var(--negative);">¥574,500</div>
+            </div>
+            <div class="fv-metric">
+              <div class="fv-metric-label">還付見込み</div>
+              <div class="fv-metric-val" style="color:var(--accent);">¥83,200</div>
+            </div>
+          </div>
+          <svg viewBox="0 0 280 60" style="width:100%;margin-top:12px;">
+            <rect x="0" y="45" width="280" height="1" fill="#E2E8F0"/>
+            <rect x="10" y="20" width="30" height="25" rx="3" fill="#1A56DB" opacity="0.7"/>
+            <rect x="50" y="10" width="30" height="35" rx="3" fill="#1A56DB" opacity="0.8"/>
+            <rect x="90" y="15" width="30" height="30" rx="3" fill="#1A56DB" opacity="0.75"/>
+            <rect x="130" y="5" width="30" height="40" rx="3" fill="#1A56DB"/>
+            <rect x="170" y="25" width="30" height="20" rx="3" fill="#10B981" opacity="0.7"/>
+            <rect x="210" y="30" width="30" height="15" rx="3" fill="#10B981" opacity="0.6"/>
+            <rect x="250" y="35" width="20" height="10" rx="3" fill="#10B981" opacity="0.5"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 2: Flow Map -->
+    <div class="feature-item">
+      <div>
+        <div class="feature-label"><span class="feature-label-dot"></span> FEATURE 02</div>
+        <h3 class="feature-title">フローマップ</h3>
+        <p class="feature-desc">
+          お金の流れを視覚的に表現。「収入 → 控除 → 課税所得 → 税額」の流れが一本の線でつながり、
+          どこで何が起きているか直感的に理解できます。
+        </p>
+        <ul class="feature-points">
+          <li><span class="feature-check">✓</span>Sankey図でお金の流れを可視化</li>
+          <li><span class="feature-check">✓</span>控除項目ごとの影響度を色分け</li>
+          <li><span class="feature-check">✓</span>タップで詳細ドリルダウン</li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <div class="fv-flow">
+          <div class="fv-flow-row">
+            <div class="fv-flow-node income">給与収入 ¥6.2M</div>
+            <div class="fv-flow-arrow">→</div>
+            <div class="fv-flow-node income">事業収入 ¥1.6M</div>
+            <div class="fv-flow-arrow">→</div>
+            <div class="fv-flow-node" style="border-left:3px solid var(--main);font-weight:800;">総収入 ¥7.8M</div>
+          </div>
+          <div style="text-align:center;color:var(--text-lighter);font-size:1.5rem;">↓</div>
+          <div class="fv-flow-row">
+            <div class="fv-flow-node deduction">基礎控除 ¥48万</div>
+            <div class="fv-flow-node deduction">社保 ¥98万</div>
+            <div class="fv-flow-node deduction">医療費 ¥32万</div>
+            <div class="fv-flow-node deduction">その他 ¥40万</div>
+          </div>
+          <div style="text-align:center;color:var(--text-lighter);font-size:1.5rem;">↓</div>
+          <div class="fv-flow-row" style="justify-content:center;">
+            <div class="fv-flow-node tax" style="font-weight:800;font-size:1rem;">課税所得 ¥5,660,000 → 納税 ¥574,500</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 3: Impact Indicator -->
+    <div class="feature-item">
+      <div>
+        <div class="feature-label"><span class="feature-label-dot"></span> FEATURE 03</div>
+        <h3 class="feature-title">インパクト<br>インジケーター</h3>
+        <p class="feature-desc">
+          「この控除を追加したらいくら変わる？」をリアルタイムシミュレーション。
+          変更前後の差分を即座にハイライト表示します。
+        </p>
+        <ul class="feature-points">
+          <li><span class="feature-check">✓</span>控除追加時の節税効果を即時表示</li>
+          <li><span class="feature-check">✓</span>What-if シミュレーション</li>
+          <li><span class="feature-check">✓</span>税率ジャンプの警告アラート</li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <div class="fv-impact">
+          <div class="fv-impact-row">
+            <div class="fv-impact-label">医療費控除</div>
+            <div class="fv-impact-bar-bg"><div class="fv-impact-bar" style="width:72%;background:linear-gradient(90deg,var(--accent),var(--accent-light));"></div></div>
+            <div class="fv-impact-val" style="color:var(--accent);">-¥64,000</div>
+          </div>
+          <div class="fv-impact-row">
+            <div class="fv-impact-label">ふるさと納税</div>
+            <div class="fv-impact-bar-bg"><div class="fv-impact-bar" style="width:58%;background:linear-gradient(90deg,var(--main),var(--main-light));"></div></div>
+            <div class="fv-impact-val" style="color:var(--main);">-¥48,000</div>
+          </div>
+          <div class="fv-impact-row">
+            <div class="fv-impact-label">iDeCo</div>
+            <div class="fv-impact-bar-bg"><div class="fv-impact-bar" style="width:85%;background:linear-gradient(90deg,var(--warning),#FBBF24);"></div></div>
+            <div class="fv-impact-val" style="color:var(--warning);">-¥81,600</div>
+          </div>
+          <div class="fv-impact-row">
+            <div class="fv-impact-label">住宅ローン</div>
+            <div class="fv-impact-bar-bg"><div class="fv-impact-bar" style="width:95%;background:linear-gradient(90deg,var(--negative),#F87171);"></div></div>
+            <div class="fv-impact-val" style="color:var(--negative);">-¥210,000</div>
+          </div>
+          <div style="text-align:center;padding-top:12px;border-top:1px solid var(--border);">
+            <div style="font-size:0.8rem;color:var(--text-lighter);">合計節税効果</div>
+            <div style="font-family:'Inter';font-size:1.6rem;font-weight:800;color:var(--accent);">-¥403,600</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 4: AI Advisor -->
+    <div class="feature-item">
+      <div>
+        <div class="feature-label"><span class="feature-label-dot"></span> FEATURE 04</div>
+        <h3 class="feature-title">AIアドバイザー</h3>
+        <p class="feature-desc">
+          入力データをAIが分析し、見落としている控除や節税チャンスを提案。
+          わからないことはチャットで即座に質問できます。
+        </p>
+        <ul class="feature-points">
+          <li><span class="feature-check">✓</span>適用可能な控除を自動提案</li>
+          <li><span class="feature-check">✓</span>自然言語で税務相談</li>
+          <li><span class="feature-check">✓</span>申告ミスの事前検出</li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <div class="fv-ai">
+          <div class="fv-ai-bubble bot">
+            💡 医療費が10万円を超えています。<strong>医療費控除</strong>を適用すると、<strong>約64,000円</strong>の節税が見込めます。適用しますか？
+          </div>
+          <div class="fv-ai-bubble user">
+            はい、適用してください
+          </div>
+          <div class="fv-ai-bubble bot">
+            ✅ 医療費控除を適用しました。納税額が<strong>¥638,500 → ¥574,500</strong>に更新されました。<br><br>
+            💡 さらに、<strong>セルフメディケーション税制</strong>との比較もできます。確認しますか？
+          </div>
+          <div class="fv-ai-bubble user">
+            どちらがお得か比較して
+          </div>
+          <div class="fv-ai-bubble bot">
+            📊 比較結果：<br>
+            ・医療費控除：<strong>-¥64,000</strong><br>
+            ・セルフメディケーション：<strong>-¥26,400</strong><br><br>
+            今回は<strong>医療費控除</strong>の方が有利です。現在の設定のまま進めることをおすすめします。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PRICING ========== -->
+<section class="section pricing-section" id="pricing">
+  <div class="container">
+    <div class="text-center" style="margin-bottom:60px;">
+      <div class="section-label">料金プラン</div>
+      <h2 class="section-title">シンプルで透明な料金体系</h2>
+      <p class="section-desc mx-auto">すべてのプランに14日間の無料トライアル付き。クレジットカード不要で今すぐ始められます。</p>
+    </div>
+    <div class="pricing-grid">
+      <!-- Free -->
+      <div class="pricing-card">
+        <div class="pricing-name">Free</div>
+        <div class="pricing-price">¥0<span>/年</span></div>
+        <div class="pricing-desc">まずは体験してみたい方に</div>
+        <ul class="pricing-features">
+          <li>基本ダッシュボード</li>
+          <li>収入・控除入力</li>
+          <li>税額自動計算</li>
+          <li class="disabled">フローマップ</li>
+          <li class="disabled">AIアドバイザー</li>
+          <li class="disabled">e-Tax連携</li>
+        </ul>
+        <a href="#cta" class="btn btn-outline pricing-btn">無料で始める</a>
+      </div>
+      <!-- Standard -->
+      <div class="pricing-card popular">
+        <div class="pricing-popular-badge">人気 No.1</div>
+        <div class="pricing-name">Standard</div>
+        <div class="pricing-price">¥1,980<span>/年</span></div>
+        <div class="pricing-desc">個人の確定申告を完全サポート</div>
+        <ul class="pricing-features">
+          <li>全ダッシュボード機能</li>
+          <li>フローマップ</li>
+          <li>インパクトインジケーター</li>
+          <li>AIアドバイザー（月10回）</li>
+          <li>e-Tax連携</li>
+          <li class="disabled">税理士レビュー</li>
+        </ul>
+        <a href="#cta" class="btn btn-primary pricing-btn">14日間無料で試す</a>
+      </div>
+      <!-- Pro -->
+      <div class="pricing-card">
+        <div class="pricing-name">Pro</div>
+        <div class="pricing-price">¥4,980<span>/年</span></div>
+        <div class="pricing-desc">副業・フリーランスの方に最適</div>
+        <ul class="pricing-features">
+          <li>Standard全機能</li>
+          <li>AIアドバイザー無制限</li>
+          <li>複数年比較分析</li>
+          <li>事業収支レポート</li>
+          <li>仕訳帳インポート</li>
+          <li>優先サポート</li>
+        </ul>
+        <a href="#cta" class="btn btn-outline pricing-btn">14日間無料で試す</a>
+      </div>
+      <!-- Tax Advisor -->
+      <div class="pricing-card">
+        <div class="pricing-name">Tax Advisor</div>
+        <div class="pricing-price">¥29,800<span>/年</span></div>
+        <div class="pricing-desc">税理士による完全サポート付き</div>
+        <ul class="pricing-features">
+          <li>Pro全機能</li>
+          <li>税理士による申告レビュー</li>
+          <li>個別税務相談（年3回）</li>
+          <li>税務調査対応サポート</li>
+          <li>確定申告代行</li>
+          <li>専属担当者</li>
+        </ul>
+        <a href="#cta" class="btn btn-outline pricing-btn">相談する</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FAQ ========== -->
+<section class="section" id="faq">
+  <div class="container">
+    <div class="text-center" style="margin-bottom:60px;">
+      <div class="section-label">FAQ</div>
+      <h2 class="section-title">よくあるご質問</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          TaxVizはどのような人に向いていますか？
+          <span class="faq-arrow">▼</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          フリーランス、副業をお持ちの会社員、個人事業主、不動産収入のある方など、確定申告が必要なすべての方にご利用いただけます。特に「確定申告の全体像が見えなくて不安」という方に最適です。医療費控除やふるさと納税のみの会社員の方もFreeプランでご利用いただけます。
+        </div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          e-Taxとの連携はどのように行いますか？
+          <span class="faq-arrow">▼</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          Standard以上のプランで、マイナンバーカードを使ったe-Tax連携が可能です。TaxVizで作成した申告データをワンクリックでe-Taxに送信できます。XMLエクスポートにも対応しているため、e-Taxソフトへの取り込みも可能です。
+        </div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          データのセキュリティは大丈夫ですか？
+          <span class="faq-arrow">▼</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          すべてのデータは256ビットAES暗号化で保護され、AWS東京リージョンのサーバーに保存されます。SOC2 Type II認証を取得しており、金融機関レベルのセキュリティを確保しています。また、二要素認証（2FA）にも対応しています。
+        </div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          AIアドバイザーの精度はどの程度ですか？
+          <span class="faq-arrow">▼</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          AIアドバイザーは最新の税法データベースに基づいて提案を行います。控除の適用判定精度は98.5%です。ただし、AIの提案はあくまで参考情報であり、最終的な判断はご自身または税理士にご確認ください。Tax Advisorプランでは、税理士によるレビューが含まれます。
+        </div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          途中で解約できますか？返金はありますか？
+          <span class="faq-arrow">▼</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          いつでも解約可能です。年額プランの場合、購入から30日以内であれば全額返金いたします。解約後もデータは90日間保持されますので、再開したい場合もスムーズに移行できます。
+        </div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+          スマートフォンでも利用できますか？
+          <span class="faq-arrow">▼</span>
+        </button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          はい、TaxVizは完全レスポンシブ対応です。PC・タブレット・スマートフォンのいずれからでもご利用いただけます。外出先で領収書を撮影してアップロードし、帰宅後にPCで仕上げる、といった使い方も可能です。iOS/Androidアプリも2026年春にリリース予定です。
+        </div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CTA ========== -->
+<section class="cta-section section visible" id="cta">
+  <div class="container">
+    <h2 class="cta-title">確定申告を、見える化しよう</h2>
+    <p class="cta-desc">メールアドレスを入力するだけで、すぐに始められます。クレジットカードは不要です。</p>
+    <form class="cta-form" onsubmit="event.preventDefault();alert('ご登録ありがとうございます！確認メールをお送りしました。');">
+      <input type="email" class="cta-input" placeholder="メールアドレスを入力" required>
+      <button type="submit" class="cta-submit">無料で始める</button>
+    </form>
+    <p class="cta-note">※ 14日間無料・いつでも解約可能・クレジットカード不要</p>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo">TaxViz</div>
+      <div class="footer-links">
+        <a href="#">利用規約</a>
+        <a href="#">プライバシーポリシー</a>
+        <a href="#">特定商取引法に基づく表記</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">ヘルプセンター</a>
+      </div>
+    </div>
+    <div class="footer-copy">© 2026 TaxViz Inc. All rights reserved.</div>
+  </div>
+</footer>
+
+<!-- ========== JAVASCRIPT ========== -->
+<script>
+// ---- Intersection Observer for scroll animations ----
+document.addEventListener('DOMContentLoaded', () => {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+  document.querySelectorAll('.section:not(.visible)').forEach(el => observer.observe(el));
+
+  // ---- Header scroll effect ----
+  const header = document.getElementById('header');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // ---- Smooth scroll for anchor links ----
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(anchor.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // ---- Animate impact bars on scroll ----
+  const impactObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.fv-impact-bar').forEach((bar, i) => {
+          bar.style.width = '0%';
+          setTimeout(() => {
+            bar.style.width = bar.parentElement.querySelector('.fv-impact-bar')
+              ? bar.getAttribute('style').match(/width:(\d+)%/)?.[1] + '%' : '50%';
+          }, i * 200);
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.fv-impact').forEach(el => impactObserver.observe(el));
+
+  // ---- Counter animation for hero stats ----
+  const animateCount = (el, target, suffix = '') => {
+    let current = 0;
+    const step = target / 40;
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+      }
+      el.textContent = Math.floor(current).toLocaleString() + suffix;
+    }, 30);
+  };
+
+  // Animate big number in pain section
+  const painObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const bigNum = entry.target.querySelector('.pain-big-number');
+        if (bigNum && !bigNum.dataset.animated) {
+          bigNum.dataset.animated = 'true';
+          let count = 0;
+          const target = 2400;
+          const timer = setInterval(() => {
+            count += 60;
+            if (count >= target) {
+              count = target;
+              clearInterval(timer);
+            }
+            bigNum.textContent = count.toLocaleString() + '万人';
+          }, 20);
+        }
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.pain-section').forEach(el => painObserver.observe(el));
+});
+</script>
+</body>
+</html>
