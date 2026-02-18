@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ryoko AI — 田中部長の課題を解決するAIエージェント</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --main: #1A1A2E;
+    --accent: #00D4AA;
+    --secondary: #6C63FF;
+    --text: #2D3436;
+    --text-light: #636E72;
+    --text-mid: #4A5568;
+    --white: #FFFFFF;
+    --bg: #F8F9FA;
+    --bg2: #F0F4F8;
+    --border: #E2E8F0;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    background: var(--white);
+    color: var(--text);
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.95); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+  }
+  .nav-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    height: 68px;
+  }
+  .logo { font-size: 1.5rem; font-weight: 800; color: var(--main); }
+  .logo em { color: var(--accent); font-style: normal; }
+  nav ul { list-style: none; display: flex; gap: 36px; align-items: center; }
+  nav a { color: var(--text-light); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+  nav a:hover { color: var(--main); }
+  .nav-cta {
+    background: var(--main); color: var(--white) !important;
+    padding: 10px 24px; border-radius: 8px; font-weight: 700;
+  }
+  .nav-cta:hover { background: var(--secondary) !important; color: var(--white) !important; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #F8F9FA 0%, #EEF2FF 50%, #F0FDF9 100%);
+    padding: 80px 40px 0;
+    overflow: hidden;
+  }
+  .hero-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,212,170,0.1); color: #00A88A;
+    border-radius: 6px; padding: 4px 12px; font-size: 0.8rem; font-weight: 700;
+    letter-spacing: 0.05em; margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 900; line-height: 1.25;
+    color: var(--main); margin-bottom: 20px;
+  }
+  .hero h1 .accent { color: var(--accent); }
+  .hero-lead {
+    font-size: 1.1rem; color: var(--text-mid); margin-bottom: 32px; line-height: 1.9;
+  }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+  .btn-primary {
+    background: var(--main); color: var(--white);
+    padding: 14px 32px; border-radius: 8px; font-weight: 700; font-size: 1rem;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: all 0.2s; box-shadow: 0 4px 16px rgba(26,26,46,0.3);
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--secondary); transform: translateY(-2px); }
+  .btn-ghost {
+    color: var(--text-mid); padding: 14px 24px; border-radius: 8px;
+    text-decoration: none; font-size: 1rem; transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-ghost:hover { color: var(--main); }
+  .trust-bar {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    padding: 16px 0; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--text-light);
+  }
+  .trust-item { display: flex; align-items: center; gap: 6px; }
+  .trust-item span { font-weight: 700; color: var(--text); }
+  .hero-visual {
+    position: relative;
+  }
+  .chat-mock {
+    background: var(--white); border-radius: 20px; padding: 24px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+  }
+  .chat-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+    padding-bottom: 16px; border-bottom: 1px solid var(--border);
+  }
+  .chat-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--secondary));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+  .chat-name { font-weight: 700; font-size: 0.9rem; color: var(--main); }
+  .chat-status { font-size: 0.75rem; color: #00A88A; display: flex; align-items: center; gap: 4px; }
+  .chat-status::before { content: '●'; font-size: 0.5rem; }
+  .message { margin-bottom: 12px; }
+  .msg-user {
+    text-align: right;
+  }
+  .msg-bubble {
+    display: inline-block; padding: 10px 16px; border-radius: 16px;
+    font-size: 0.85rem; max-width: 85%; line-height: 1.6;
+  }
+  .msg-user .msg-bubble { background: var(--main); color: var(--white); border-bottom-right-radius: 4px; }
+  .msg-ryoko .msg-bubble { background: var(--bg); color: var(--text); border-bottom-left-radius: 4px; }
+  .msg-label { font-size: 0.7rem; color: var(--text-light); margin-bottom: 4px; }
+  .msg-typing { display: flex; gap: 4px; align-items: center; padding: 10px 16px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: bounce 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+  .floating-badge {
+    position: absolute; background: var(--white); border-radius: 12px;
+    padding: 10px 16px; box-shadow: var(--shadow);
+    font-size: 0.8rem; font-weight: 700; color: var(--main);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .badge-tl { top: -20px; left: -40px; }
+  .badge-br { bottom: 20px; right: -40px; }
+
+  /* STORY */
+  .story { padding: 100px 40px; }
+  .story-inner { max-width: 860px; margin: 0 auto; }
+  .story h2 {
+    font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 900;
+    color: var(--main); text-align: center; margin-bottom: 60px; line-height: 1.3;
+  }
+  .story-scene {
+    display: grid; grid-template-columns: auto 1fr; gap: 32px; margin-bottom: 48px;
+    align-items: start;
+  }
+  .story-icon {
+    width: 56px; height: 56px; border-radius: 16px;
+    background: linear-gradient(135deg, #EEF2FF, #E0F7F3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; flex-shrink: 0;
+  }
+  .story-content h3 { font-size: 1.2rem; font-weight: 800; color: var(--main); margin-bottom: 10px; }
+  .story-content p { color: var(--text-mid); line-height: 1.9; }
+  .story-divider {
+    text-align: center; padding: 40px 0;
+    font-size: 2rem; color: var(--border);
+  }
+  .story-solution {
+    background: linear-gradient(135deg, #1A1A2E, #16213E);
+    border-radius: 24px; padding: 48px;
+    color: var(--white); text-align: center;
+  }
+  .story-solution .eyebrow {
+    color: var(--accent); font-size: 0.8rem; letter-spacing: 0.15em; font-weight: 700;
+    text-transform: uppercase; margin-bottom: 16px;
+  }
+  .story-solution h3 { font-size: 1.8rem; font-weight: 900; margin-bottom: 16px; line-height: 1.3; }
+  .story-solution p { color: rgba(255,255,255,0.7); margin-bottom: 28px; }
+
+  /* SOLUTION */
+  .solution { background: var(--bg); padding: 100px 40px; }
+  .solution-inner { max-width: 1100px; margin: 0 auto; }
+  .section-label { font-size: 0.75rem; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+  .section-title { font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 900; color: var(--main); line-height: 1.2; margin-bottom: 12px; }
+  .section-sub { color: var(--text-mid); margin-bottom: 56px; font-size: 1.05rem; max-width: 560px; }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;
+  }
+  .feature-card {
+    background: var(--white); border-radius: 16px; padding: 32px;
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .feature-num { font-size: 0.75rem; color: var(--accent); font-weight: 700; letter-spacing: 0.1em; margin-bottom: 16px; }
+  .feature-card h3 { font-size: 1.15rem; font-weight: 800; color: var(--main); margin-bottom: 10px; }
+  .feature-card p { color: var(--text-mid); font-size: 0.9rem; line-height: 1.8; }
+  .skills-showcase {
+    margin-top: 64px;
+    background: var(--white); border-radius: 20px; padding: 40px;
+    border: 1px solid var(--border);
+  }
+  .skills-showcase h3 { font-size: 1.2rem; font-weight: 800; color: var(--main); margin-bottom: 28px; }
+  .skill-categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
+  .skill-cat h4 { font-size: 0.8rem; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+  .skill-cat ul { list-style: none; }
+  .skill-cat li { padding: 4px 0; font-size: 0.85rem; color: var(--text-mid); display: flex; align-items: center; gap: 6px; }
+  .skill-cat li::before { content: '·'; color: var(--accent); font-weight: 700; }
+
+  /* LOGOS */
+  .logos-section { padding: 80px 40px; text-align: center; }
+  .logos-inner { max-width: 1100px; margin: 0 auto; }
+  .logos-label { font-size: 0.85rem; color: var(--text-light); margin-bottom: 40px; }
+  .logos-row {
+    display: flex; justify-content: center; align-items: center;
+    gap: 48px; flex-wrap: wrap;
+  }
+  .logo-placeholder {
+    width: 120px; height: 40px; border-radius: 8px;
+    background: var(--bg2); display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; color: var(--text-light); font-weight: 600;
+    border: 1px dashed var(--border);
+  }
+  .testimonial {
+    max-width: 700px; margin: 60px auto 0;
+    background: var(--bg); border-radius: 20px; padding: 40px;
+    border-left: 4px solid var(--accent);
+    text-align: left;
+  }
+  .testimonial blockquote { font-size: 1.1rem; color: var(--text-mid); line-height: 1.9; margin-bottom: 20px; font-style: italic; }
+  .testimonial cite { font-size: 0.9rem; color: var(--text-light); display: flex; align-items: center; gap: 12px; font-style: normal; }
+  .cite-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+
+  /* PRICING */
+  .pricing { padding: 100px 40px; background: var(--bg); }
+  .pricing-inner { max-width: 1100px; margin: 0 auto; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 56px; align-items: start; }
+  .pricing-card {
+    background: var(--white); border-radius: 20px; padding: 40px 32px;
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+    transition: transform 0.2s;
+  }
+  .pricing-card:hover { transform: translateY(-4px); }
+  .pricing-card.featured { border: 2px solid var(--accent); position: relative; }
+  .featured-badge {
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: var(--main);
+    font-size: 0.75rem; font-weight: 700; padding: 4px 20px;
+    border-radius: 24px; white-space: nowrap; letter-spacing: 0.05em;
+  }
+  .plan-name { font-size: 0.8rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 8px; }
+  .plan-price { font-size: 3rem; font-weight: 900; color: var(--main); line-height: 1; }
+  .plan-price sup { font-size: 1rem; font-weight: 600; vertical-align: super; }
+  .plan-price sub { font-size: 0.9rem; font-weight: 400; color: var(--text-light); }
+  .plan-tagline { color: var(--text-mid); font-size: 0.9rem; margin: 12px 0 28px; }
+  .plan-divider { height: 1px; background: var(--border); margin-bottom: 24px; }
+  .plan-features { list-style: none; margin-bottom: 32px; }
+  .plan-features li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 8px 0; font-size: 0.9rem; color: var(--text-mid);
+    border-bottom: 1px solid var(--bg);
+  }
+  .plan-features li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .plan-features li:last-child { border-bottom: none; }
+  .btn-plan {
+    display: block; text-align: center; padding: 13px;
+    border-radius: 8px; font-weight: 700; font-size: 0.95rem;
+    text-decoration: none; transition: all 0.2s;
+    border: 2px solid var(--main); color: var(--main);
+  }
+  .btn-plan:hover { background: var(--main); color: var(--white); }
+  .pricing-card.featured .btn-plan { background: var(--main); color: var(--white); }
+  .pricing-card.featured .btn-plan:hover { background: var(--secondary); border-color: var(--secondary); }
+
+  /* FLOW */
+  .flow { padding: 100px 40px; }
+  .flow-inner { max-width: 1100px; margin: 0 auto; }
+  .flow-timeline {
+    margin-top: 56px; position: relative;
+    padding-left: 40px;
+  }
+  .flow-timeline::before {
+    content: ''; position: absolute; left: 19px; top: 0; bottom: 0;
+    width: 2px; background: linear-gradient(to bottom, var(--accent), var(--secondary));
+  }
+  .flow-item {
+    position: relative; margin-bottom: 48px;
+    padding-left: 40px;
+  }
+  .flow-item:last-child { margin-bottom: 0; }
+  .flow-dot {
+    position: absolute; left: -40px; top: 4px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--secondary));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 900; color: var(--main);
+    z-index: 1; margin-left: -10px;
+  }
+  .flow-item h3 { font-size: 1.15rem; font-weight: 800; color: var(--main); margin-bottom: 8px; }
+  .flow-item p { color: var(--text-mid); font-size: 0.95rem; }
+  .flow-time {
+    display: inline-block; font-size: 0.75rem; color: var(--accent);
+    font-weight: 700; letter-spacing: 0.05em; margin-bottom: 8px;
+  }
+  .flow-highlight {
+    background: linear-gradient(135deg, rgba(0,212,170,0.06), rgba(108,99,255,0.04));
+    border: 1px solid rgba(0,212,170,0.2); border-radius: 16px;
+    padding: 28px 32px; margin-top: 48px;
+    text-align: center;
+  }
+  .flow-highlight strong { color: var(--accent); }
+
+  /* FAQ */
+  .faq { padding: 100px 40px; background: var(--bg); }
+  .faq-inner { max-width: 760px; margin: 0 auto; }
+  .faq-list { margin-top: 48px; }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-q {
+    padding: 22px 0; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    font-weight: 700; font-size: 1rem; color: var(--text); user-select: none;
+  }
+  .faq-q:hover { color: var(--main); }
+  .faq-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--bg2); display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; color: var(--accent); flex-shrink: 0; margin-left: 16px;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .faq-icon.open { transform: rotate(45deg); background: var(--accent); color: var(--main); }
+  .faq-a {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+    color: var(--text-mid); font-size: 0.95rem; line-height: 1.9;
+  }
+  .faq-a.open { max-height: 300px; padding-bottom: 22px; }
+
+  /* CTA */
+  .cta-section {
+    padding: 100px 40px;
+    background: linear-gradient(135deg, var(--main), #16213E);
+    text-align: center; color: var(--white);
+  }
+  .cta-section h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; margin-bottom: 16px; line-height: 1.3; }
+  .cta-section p { color: rgba(255,255,255,0.7); margin-bottom: 40px; font-size: 1.05rem; }
+  .cta-card {
+    max-width: 560px; margin: 0 auto;
+    background: rgba(255,255,255,0.06); border-radius: 20px;
+    padding: 48px; border: 1px solid rgba(255,255,255,0.12);
+  }
+  .cta-benefits { list-style: none; margin-bottom: 32px; text-align: left; }
+  .cta-benefits li {
+    padding: 8px 0; display: flex; gap: 10px; align-items: center;
+    font-size: 0.95rem; color: rgba(255,255,255,0.85);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .cta-benefits li:last-child { border-bottom: none; }
+  .cta-benefits li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+  .cta-input {
+    width: 100%; padding: 14px 20px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08);
+    color: var(--white); font-size: 1rem; margin-bottom: 12px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .cta-input:focus { border-color: var(--accent); }
+  .cta-input::placeholder { color: rgba(255,255,255,0.35); }
+  .btn-cta {
+    width: 100%; padding: 15px; background: var(--accent); color: var(--main);
+    border: none; border-radius: 8px; font-weight: 800; font-size: 1.05rem;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-cta:hover { background: #00f0c0; transform: translateY(-2px); }
+
+  /* FOOTER */
+  footer {
+    background: #0D0D1A; padding: 48px 40px 32px;
+    color: rgba(255,255,255,0.4);
+  }
+  .footer-inner { max-width: 1100px; margin: 0 auto; }
+  .footer-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 40px; flex-wrap: wrap; margin-bottom: 40px;
+  }
+  .footer-brand .logo { color: var(--white); font-size: 1.3rem; font-weight: 800; }
+  .footer-brand p { font-size: 0.85rem; margin-top: 8px; max-width: 240px; }
+  .footer-links { display: flex; gap: 48px; flex-wrap: wrap; }
+  .footer-col h4 { color: rgba(255,255,255,0.7); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 8px; }
+  .footer-col a { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .footer-col a:hover { color: var(--accent); }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+  }
+  .footer-bottom p { font-size: 0.8rem; }
+  .legal { font-size: 0.7rem; color: rgba(255,255,255,0.2); margin-top: 12px; }
+
+  @media (max-width: 768px) {
+    nav .nav-inner { padding: 0 20px; }
+    nav ul { display: none; }
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero { padding: 60px 20px 0; }
+    .chat-mock { margin-top: 40px; }
+    .badge-tl, .badge-br { display: none; }
+    section { padding: 60px 20px; }
+    .story, .solution, .logos-section, .pricing, .flow, .faq, .cta-section { padding: 60px 20px; }
+    .footer-top { flex-direction: column; }
+    .footer-bottom { flex-direction: column; text-align: center; }
+    .flow-timeline { padding-left: 20px; }
+    .flow-item { padding-left: 30px; }
+    .flow-dot { margin-left: -5px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Ryoko<em>.ai</em></div>
+    <ul>
+      <li><a href="#story">なぜRyoko？</a></li>
+      <li><a href="#solution">できること</a></li>
+      <li><a href="#pricing">料金</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#cta" class="nav-cta">無料デモ予約</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">🤖 AIエージェント・アズ・ア・サービス</div>
+      <h1>
+        優秀な<span class="accent">AI同僚</span>を、<br>
+        月30万円で<br>
+        チームに迎える。
+      </h1>
+      <p class="hero-lead">
+        採用できない。育てる時間もない。<br>
+        でも、仕事量は増え続ける——<br>
+        そんな経営者・管理職の課題を<br>
+        Ryokoが解決します。
+      </p>
+      <div class="hero-ctas">
+        <a href="#cta" class="btn-primary">30分の無料デモを予約する →</a>
+        <a href="#story" class="btn-ghost">💡 詳しく見る</a>
+      </div>
+      <div class="trust-bar">
+        <div class="trust-item">✓ <span>契約期間の縛りなし</span></div>
+        <div class="trust-item">✓ <span>即日稼働</span></div>
+        <div class="trust-item">✓ <span>1週間無料トライアル</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="floating-badge badge-tl">📊 月報作成 完了 ✓</div>
+      <div class="chat-mock">
+        <div class="chat-header">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div class="chat-name">Ryoko</div>
+            <div class="chat-status">オンライン — 今すぐ返答できます</div>
+          </div>
+        </div>
+        <div class="message msg-user">
+          <div class="msg-label">田中部長</div>
+          <div class="msg-bubble">Ryoko、今週の営業レポートをまとめてSlackに投稿しておいて</div>
+        </div>
+        <div class="message msg-ryoko" style="margin-top:12px;">
+          <div class="msg-label">Ryoko</div>
+          <div class="msg-bubble">承知しました！Salesforceのデータを取得して、先週比・月次目標達成率を含めたレポートを30分以内に作成します。グラフも添付しますね。</div>
+        </div>
+        <div class="message msg-ryoko">
+          <div class="msg-label">Ryoko — 5分後</div>
+          <div class="msg-bubble">✅ #営業-報告 に投稿しました。今週の達成率は87%です。来週に向けてフォローが必要な案件も3件ピックアップしました。</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px 0;border-top:1px solid var(--border);">
+          <div class="chat-avatar" style="width:28px;height:28px;font-size:0.9rem;">🤖</div>
+          <div class="msg-typing">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+        </div>
+      </div>
+      <div class="floating-badge badge-br">⚡ 平均応答時間 2分</div>
+    </div>
+  </div>
+</section>
+
+<!-- STORY -->
+<section class="story" id="story">
+  <div class="story-inner">
+    <h2>田中部長、<br>こんな状況に心当たりはありませんか？</h2>
+    <div class="story-scene">
+      <div class="story-icon">😮‍💨</div>
+      <div class="story-content">
+        <h3>「AI人材を雇いたいけど、採用できない」</h3>
+        <p>AIエンジニアやデータサイエンティストの市場価値は高騰。年収800万円以上は当たり前で、採用できても大手に引き抜かれる。「ウチの規模では無理」と諦めていませんか？</p>
+      </div>
+    </div>
+    <div class="story-scene">
+      <div class="story-icon">🤯</div>
+      <div class="story-content">
+        <h3>「ツールを導入したけど誰も使いこなせない」</h3>
+        <p>ChatGPT法人契約、Copilot、Notion AI……毎月コストはかかるのに、使いこなせているのは一部の社員だけ。「どう活用すればいいか分からない」まま時間だけが過ぎていく。</p>
+      </div>
+    </div>
+    <div class="story-scene">
+      <div class="story-icon">😰</div>
+      <div class="story-content">
+        <h3>「部下に仕事を任せたいのに、キャパが足りない」</h3>
+        <p>優秀な部下は手一杯。ルーティン業務に追われて、本来やるべき戦略的な仕事ができていない。人を増やしたいが、採用・教育のコストと時間が……</p>
+      </div>
+    </div>
+    <div class="story-divider">↓</div>
+    <div class="story-solution">
+      <div class="eyebrow">SOLUTION</div>
+      <h3>だから、Ryokoを「雇う」という選択肢があります。</h3>
+      <p>月額30万円。採用コストも研修費用もゼロ。<br>翌日から30以上のスキルを持つAI同僚が、あなたのチームで働き始めます。</p>
+      <a href="#cta" class="btn-primary">Ryokoを試してみる →</a>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="solution" id="solution">
+  <div class="solution-inner">
+    <div class="section-label">WHAT RYOKO CAN DO</div>
+    <h2 class="section-title">Ryokoができること</h2>
+    <p class="section-sub">30以上のビジネススキルを保有。あなたのチームの「なんでも屋」として即戦力になります。</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-num">FEATURE 01</div>
+        <h3>自律的なタスク実行</h3>
+        <p>「〇〇しておいて」で動く。リサーチから資料作成、Slack投稿まで、指示一つで最後まで完遂します。途中で止まりません。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">FEATURE 02</div>
+        <h3>24時間・365日稼働</h3>
+        <p>深夜でも休日でも、あなたが送ったメッセージには必ず返答。締切前の土日も、帰国後の深夜も、Ryokoは稼働しています。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">FEATURE 03</div>
+        <h3>チームナレッジの蓄積</h3>
+        <p>会議の議事録、意思決定の背景、過去のプロジェクト情報をRyokoが記憶。「あれどこだっけ？」をなくします。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">FEATURE 04</div>
+        <h3>既存ツールとのシームレス連携</h3>
+        <p>Slack・Teams・Salesforce・Notionなど主要ツールと連携。今の業務フローを変えずにAIの力を取り込めます。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">FEATURE 05</div>
+        <h3>マルチメンバー対応</h3>
+        <p>Starterプランで最大5名、Businessで最大20名が同時利用可能。チーム全員のアシスタントになります。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">FEATURE 06</div>
+        <h3>継続的な学習・改善</h3>
+        <p>使えば使うほど、あなたの会社・チームの文化や言葉を学習。独自のコンテキストを理解したアシスタントに育ちます。</p>
+      </div>
+    </div>
+    <div class="skills-showcase">
+      <h3>🛠️ Ryokoが対応するスキルカテゴリ（30種以上）</h3>
+      <div class="skill-categories">
+        <div class="skill-cat">
+          <h4>📊 分析・レポート</h4>
+          <ul>
+            <li>データ分析・可視化</li>
+            <li>競合調査・市場分析</li>
+            <li>KPIダッシュボード</li>
+            <li>月次・週次レポート</li>
+          </ul>
+        </div>
+        <div class="skill-cat">
+          <h4>✍️ コンテンツ</h4>
+          <ul>
+            <li>営業資料・提案書</li>
+            <li>メール・文書作成</li>
+            <li>SNS投稿・ブログ</li>
+            <li>多言語翻訳</li>
+          </ul>
+        </div>
+        <div class="skill-cat">
+          <h4>⚙️ 業務効率化</h4>
+          <ul>
+            <li>議事録・要約</li>
+            <li>スケジュール管理</li>
+            <li>ワークフロー自動化</li>
+            <li>ナレッジベース構築</li>
+          </ul>
+        </div>
+        <div class="skill-cat">
+          <h4>💼 ビジネス支援</h4>
+          <ul>
+            <li>採用・面接サポート</li>
+            <li>法務チェック補助</li>
+            <li>CS対応補助</li>
+            <li>マーケ戦略立案</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGOS -->
+<section class="logos-section">
+  <div class="logos-inner">
+    <p class="logos-label">各業界のリーダー企業に導入いただいています（イメージ）</p>
+    <div class="logos-row">
+      <div class="logo-placeholder">製造業 A社</div>
+      <div class="logo-placeholder">IT企業 B社</div>
+      <div class="logo-placeholder">コンサル C社</div>
+      <div class="logo-placeholder">小売 D社</div>
+      <div class="logo-placeholder">人材 E社</div>
+    </div>
+    <div class="testimonial">
+      <blockquote>"正直、半信半疑で導入しました。でも1週間で営業チームの月報作成時間が週8時間から30分になった。今ではRyokoなしの業務は考えられません。"</blockquote>
+      <cite>
+        <div class="cite-avatar">👔</div>
+        <div>
+          <strong style="color:var(--text);">田中 一郎</strong><br>
+          <span>株式会社〇〇 営業部長 / Businessプラン利用</span>
+        </div>
+      </cite>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <div class="section-label">PRICING</div>
+    <h2 class="section-title">料金プラン</h2>
+    <p class="section-sub">すべてのプランに無料トライアル付き。途中解約は不可能でOK、解約はいつでも月末締めで。</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price"><sup>¥</sup>30万<sub>/月</sub></div>
+        <div class="plan-tagline">小規模チームの試験導入に</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li>利用ユーザー 最大5名</li>
+          <li>全スキルアクセス（30以上）</li>
+          <li>Slack / Teams 連携</li>
+          <li>月次利用レポート</li>
+          <li>メール＋チャットサポート</li>
+          <li>1週間無料トライアル</li>
+        </ul>
+        <a href="#cta" class="btn-plan">デモを予約する</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="featured-badge">⭐ 最も選ばれています</div>
+        <div class="plan-name">Business</div>
+        <div class="plan-price"><sup>¥</sup>60万<sub>/月</sub></div>
+        <div class="plan-tagline">成長企業の本格導入に</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li>利用ユーザー 最大20名</li>
+          <li>全スキルアクセス（30以上）</li>
+          <li>Slack / Teams / LINE WORKS 連携</li>
+          <li>週次パフォーマンスレポート</li>
+          <li>専任カスタマーサクセス</li>
+          <li>カスタムスキル開発 月2件</li>
+          <li>API連携（主要ツール）</li>
+          <li>1週間無料トライアル</li>
+        </ul>
+        <a href="#cta" class="btn-plan">デモを予約する</a>
+      </div>
+      <div class="pricing-card">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price" style="font-size:2rem;">個別見積</div>
+        <div class="plan-tagline">大企業・高セキュリティ要件</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li>ユーザー数・スキル無制限</li>
+          <li>オンプレミス対応</li>
+          <li>専用AIモデル構築</li>
+          <li>SLA 99.9% 保証</li>
+          <li>24時間電話サポート</li>
+          <li>セキュリティ監査・ISO対応</li>
+          <li>専任実装コンサルタント</li>
+        </ul>
+        <a href="#cta" class="btn-plan">お問い合わせ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FLOW -->
+<section class="flow" id="flow">
+  <div class="flow-inner">
+    <div class="section-label">ONBOARDING</div>
+    <h2 class="section-title">導入の流れ</h2>
+    <p class="section-sub">申し込みから稼働開始まで、複雑な手続きは一切ありません。</p>
+    <div class="flow-timeline">
+      <div class="flow-item">
+        <div class="flow-dot">1</div>
+        <div class="flow-time">Day 1 — 30分</div>
+        <h3>無料デモ・ヒアリング</h3>
+        <p>オンラインで30分のデモをご覧いただきます。お使いの業務ツールや課題をヒアリングし、最適なプランをご提案します。</p>
+      </div>
+      <div class="flow-item">
+        <div class="flow-dot">2</div>
+        <div class="flow-time">Day 2-3</div>
+        <h3>プラン選択・電子契約</h3>
+        <p>ご希望のプランを選んで電子契約を締結。審査不要でスムーズに進みます。請求書払い・クレジットカード払いに対応。</p>
+      </div>
+      <div class="flow-item">
+        <div class="flow-dot">3</div>
+        <div class="flow-time">Day 3-4</div>
+        <h3>初期設定・ツール連携</h3>
+        <p>弊社エンジニアがSlack/Teamsへの招待URLを送付。既存ツールとの連携設定もすべてサポートします。お客様の作業は最小限です。</p>
+      </div>
+      <div class="flow-item">
+        <div class="flow-dot">🎉</div>
+        <div class="flow-time">Day 4-5</div>
+        <h3>稼働開始！</h3>
+        <p>Ryokoがチームに参加。最初のタスクを割り振るだけでOK。キックオフミーティングで活用のコツもお伝えします。</p>
+      </div>
+    </div>
+    <div class="flow-highlight">
+      <strong>📅 最短5営業日で本稼働。</strong>一般的な社員採用（平均3〜6ヶ月）と比べて圧倒的にスピーディーです。
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="faq-inner">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title">よくあるご質問</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          IT担当者がいなくても導入できますか？
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a">
+          はい、問題ありません。初期設定はすべて弊社のエンジニアがサポートします。Slackに招待するだけであれば、管理者権限をお持ちの方であれば誰でも実施できます。技術的な知識は一切不要です。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          社内の機密情報が外部に漏れたりしませんか？
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a">
+          データはお客様専用の暗号化された環境で処理・保存されます。第三者へのデータ提供・AIの学習への流用は行いません。Businessプラン以上ではデータの保存リージョンをご指定いただけます。詳細はプライバシーポリシーをご確認ください。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          どんな業種・業務に向いていますか？
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a">
+          業種を問わずご利用いただけますが、特にホワイトカラー業務（営業、マーケティング、企画、管理部門）での効果が高いです。資料作成、分析、情報収集、コミュニケーション支援など、デスクワーク全般に対応しています。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          複数の部署で同時に使えますか？
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a">
+          はい、1つのプランで複数の部署のメンバーが利用できます。Starterは5名まで、Businessは20名まで同時利用可能です。部署ごとにRyokoの「役割」を設定することも可能です。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          効果が出なかった場合、返金はありますか？
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a">
+          導入後1週間の無料トライアル期間中であれば、理由を問わず全額返金します。トライアル後も最低契約期間なしでいつでも解約できます。解約は月末締めで翌月から停止となります。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          「AIエージェント派遣」とは何を意味しますか？
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a">
+          「派遣」はサービスの分かりやすい表現として使用しています。実際には、弊社が開発・運用するAIソフトウェア（SaaS）をご提供するサービスです。人材派遣法に基づく人材派遣サービスとは異なります。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <h2>まず、30分間の<br>無料デモを見てください。</h2>
+  <p>「思ったより使える」と感じた企業に、後悔はありません。</p>
+  <div class="cta-card">
+    <ul class="cta-benefits">
+      <li>30分で主要機能をすべてご覧いただけます</li>
+      <li>貴社の業務課題に合わせたデモをご用意</li>
+      <li>しつこい営業・勧誘は一切しません</li>
+      <li>デモ後1週間の無料トライアルを提供</li>
+    </ul>
+    <input type="text" class="cta-input" placeholder="お名前（フルネーム）">
+    <input type="text" class="cta-input" placeholder="会社名">
+    <input type="email" class="cta-input" placeholder="会社のメールアドレス">
+    <button class="btn-cta" onclick="location.href='#'">無料デモを予約する（30分・完全無料）</button>
+    <p style="margin-top:14px;font-size:0.78rem;color:rgba(255,255,255,0.3);">スパムなし。個人情報はデモの連絡にのみ使用します。</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">Ryoko.ai</div>
+        <p>次世代AIエージェントサービス。あなたのチームの一員として、24時間365日働き続けます。</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>サービス</h4>
+          <ul>
+            <li><a href="#">機能一覧</a></li>
+            <li><a href="#">料金プラン</a></li>
+            <li><a href="#">導入事例</a></li>
+            <li><a href="#">セキュリティ</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>会社情報</h4>
+          <ul>
+            <li><a href="#">会社概要</a></li>
+            <li><a href="#">ニュース</a></li>
+            <li><a href="#">採用情報</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>サポート</h4>
+          <ul>
+            <li><a href="#">ヘルプセンター</a></li>
+            <li><a href="#">お問い合わせ</a></li>
+            <li><a href="#">プライバシーポリシー</a></li>
+            <li><a href="#">利用規約</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Ryoko AI Inc. All rights reserved.</p>
+    </div>
+    <p class="legal">※ 「AIエージェント派遣」は当社サービスの通称表現であり、法的にはクラウドソフトウェア（SaaS）の提供サービスです。人材派遣法に基づく人材派遣サービスではありません。本サービスはAIソフトウェアをご提供するものであり、人材・従業員の紹介・派遣を行うものではありません。</p>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(el) {
+  const answer = el.nextElementSibling;
+  const icon = el.querySelector('.faq-icon');
+  answer.classList.toggle('open');
+  icon.classList.toggle('open');
+}
+
+// Intersection Observer for scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.feature-card, .pricing-card, .flow-item, .story-scene').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(24px)';
+  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(el);
+  const originalObserve = observer.observe.bind(observer);
+});
+
+const styleEl = document.createElement('style');
+styleEl.textContent = '.visible { opacity: 1 !important; transform: translateY(0) !important; }';
+document.head.appendChild(styleEl);
+
+document.querySelectorAll('.feature-card, .pricing-card, .flow-item, .story-scene').forEach(el => {
+  const ioCallback = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; }
+    });
+  }, { threshold: 0.08 });
+  ioCallback.observe(el);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ryoko — 人材派遣の10分の1のコストで最高のAI同僚を</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --main: #1A1A2E;
+    --accent: #00D4AA;
+    --secondary: #6C63FF;
+    --text: #2D3436;
+    --text-light: #636E72;
+    --white: #FFFFFF;
+    --bg: #F7F8FC;
+    --bg2: #EEF0FA;
+    --border: #E8EAF0;
+    --success: #00B894;
+    --danger: #D63031;
+    --warning: #FDCB6E;
+    --shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    background: var(--white);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--white); border-bottom: 2px solid var(--main);
+    padding: 0 32px; position: sticky; top: 0; z-index: 100;
+  }
+  .nav-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center; height: 64px;
+  }
+  .logo { font-size: 1.5rem; font-weight: 900; color: var(--main); }
+  .logo span { color: var(--accent); }
+  nav ul { list-style: none; display: flex; gap: 28px; align-items: center; }
+  nav a { color: var(--text-light); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: color 0.2s; }
+  nav a:hover { color: var(--main); }
+  .nav-cta {
+    background: var(--accent); color: var(--main) !important;
+    padding: 9px 20px; border-radius: 8px; font-weight: 800 !important;
+  }
+  .nav-cta:hover { background: #00f0c0; transform: scale(1.03); }
+
+  /* ANNOUNCEMENT */
+  .announcement {
+    background: var(--main); color: var(--white);
+    text-align: center; padding: 10px 20px; font-size: 0.85rem; font-weight: 600;
+  }
+  .announcement span { color: var(--accent); }
+
+  /* HERO */
+  .hero { padding: 80px 32px 60px; background: var(--white); }
+  .hero-inner { max-width: 1100px; margin: 0 auto; text-align: center; }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--bg2); border-radius: 24px; padding: 6px 16px;
+    font-size: 0.8rem; font-weight: 700; color: var(--secondary);
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5.5vw, 4rem); font-weight: 900;
+    color: var(--main); line-height: 1.2; margin-bottom: 20px;
+  }
+  .hero h1 .accent { color: var(--accent); }
+  .hero h1 .cross {
+    text-decoration: line-through; color: var(--text-light);
+    font-size: 0.85em;
+  }
+  .hero-sub { font-size: 1.1rem; color: var(--text-light); max-width: 600px; margin: 0 auto 40px; }
+  .hero-cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-main {
+    background: var(--main); color: var(--white);
+    padding: 15px 36px; border-radius: 10px; font-weight: 800; font-size: 1.05rem;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: all 0.2s; display: inline-block;
+  }
+  .btn-main:hover { background: var(--secondary); transform: translateY(-2px); }
+  .btn-secondary {
+    background: transparent; color: var(--main);
+    padding: 15px 28px; border-radius: 10px; font-weight: 700; font-size: 1.05rem;
+    text-decoration: none; border: 2px solid var(--border);
+    cursor: pointer; transition: all 0.2s; display: inline-block;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .hero-proof {
+    margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border);
+    display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+  }
+  .proof-item { text-align: center; }
+  .proof-num { font-size: 2rem; font-weight: 900; color: var(--main); line-height: 1; }
+  .proof-label { font-size: 0.8rem; color: var(--text-light); margin-top: 4px; }
+
+  /* COMPARISON TABLE */
+  .comparison { background: var(--bg); padding: 100px 32px; }
+  .comparison-inner { max-width: 1000px; margin: 0 auto; }
+  .section-label { font-size: 0.75rem; color: var(--accent); font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px; }
+  .section-title { font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 900; color: var(--main); margin-bottom: 10px; line-height: 1.25; }
+  .section-sub { color: var(--text-light); margin-bottom: 48px; font-size: 1rem; }
+  .compare-table { width: 100%; border-collapse: collapse; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
+  .compare-table thead tr { background: var(--main); color: var(--white); }
+  .compare-table th {
+    padding: 18px 24px; font-size: 0.95rem; font-weight: 700; text-align: center;
+  }
+  .compare-table th:first-child { text-align: left; }
+  .compare-table th.highlight { background: var(--accent); color: var(--main); }
+  .compare-table tbody tr { background: var(--white); border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  .compare-table tbody tr:hover { background: #F0FDF9; }
+  .compare-table tbody tr:last-child { border-bottom: none; }
+  .compare-table td { padding: 16px 24px; font-size: 0.92rem; text-align: center; }
+  .compare-table td:first-child { text-align: left; font-weight: 600; color: var(--text); }
+  .compare-table td.highlight { background: rgba(0,212,170,0.06); font-weight: 700; color: var(--main); }
+  .val-good { color: var(--success); font-weight: 800; font-size: 1rem; }
+  .val-bad { color: var(--danger); font-weight: 600; }
+  .val-mid { color: var(--text-light); }
+  .compare-note {
+    margin-top: 24px; padding: 20px 24px;
+    background: rgba(0,212,170,0.08); border-radius: 12px;
+    border-left: 4px solid var(--accent);
+    font-size: 0.9rem; color: var(--text-light);
+  }
+  .compare-note strong { color: var(--main); }
+
+  /* PROBLEM */
+  .problem { padding: 100px 32px; }
+  .problem-inner { max-width: 1100px; margin: 0 auto; }
+  .pain-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px; margin-top: 48px;
+  }
+  .pain-card {
+    background: var(--bg); border-radius: 14px; padding: 28px;
+    border: 1px solid var(--border); position: relative; overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .pain-card:hover { transform: translateY(-4px); }
+  .pain-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--secondary));
+  }
+  .pain-emoji { font-size: 2rem; margin-bottom: 12px; display: block; }
+  .pain-card h3 { font-size: 1rem; font-weight: 800; color: var(--main); margin-bottom: 8px; }
+  .pain-card p { font-size: 0.88rem; color: var(--text-light); line-height: 1.7; }
+
+  /* SKILLS */
+  .skills { background: var(--bg); padding: 100px 32px; }
+  .skills-inner { max-width: 1100px; margin: 0 auto; }
+  .skills-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 48px; margin-bottom: 32px;
+  }
+  .tab-btn {
+    padding: 8px 18px; border-radius: 24px; border: 2px solid var(--border);
+    background: var(--white); color: var(--text-light); font-size: 0.85rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .tab-btn.active, .tab-btn:hover { border-color: var(--accent); color: var(--main); background: rgba(0,212,170,0.08); }
+  .skills-list {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .skill-pill {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--white); border-radius: 10px; padding: 12px 16px;
+    border: 1px solid var(--border); font-size: 0.88rem; font-weight: 600;
+    color: var(--text); transition: all 0.2s;
+  }
+  .skill-pill:hover { border-color: var(--accent); background: rgba(0,212,170,0.04); transform: translateX(4px); }
+  .skill-pill .skill-icon { font-size: 1.1rem; }
+
+  /* PRICING */
+  .pricing { padding: 100px 32px; }
+  .pricing-inner { max-width: 1100px; margin: 0 auto; }
+  .pricing-table-wrap { margin-top: 48px; overflow-x: auto; }
+  .pricing-table { width: 100%; border-collapse: collapse; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
+  .pricing-table th {
+    background: var(--main); color: var(--white);
+    padding: 20px 24px; font-weight: 700; text-align: center; font-size: 0.95rem;
+  }
+  .pricing-table th.featured-col { background: var(--accent); color: var(--main); }
+  .pricing-table tbody tr { background: var(--white); border-bottom: 1px solid var(--border); }
+  .pricing-table tbody tr:last-child { border-bottom: none; }
+  .pricing-table td { padding: 14px 24px; font-size: 0.9rem; text-align: center; color: var(--text-light); }
+  .pricing-table td:first-child { text-align: left; font-weight: 600; color: var(--text); }
+  .pricing-table td.featured-col { background: rgba(0,212,170,0.05); font-weight: 700; color: var(--main); }
+  .pricing-table .price-row { background: var(--bg); }
+  .pricing-table .price-row td { font-size: 1.8rem; font-weight: 900; color: var(--main); padding: 24px; }
+  .pricing-table .price-row td.featured-col { color: var(--main); font-size: 2rem; }
+  .pricing-table .cta-row td { padding: 20px 24px; }
+  .btn-table {
+    display: inline-block; padding: 10px 24px; border-radius: 8px;
+    font-weight: 700; font-size: 0.9rem; text-decoration: none;
+    border: 2px solid var(--main); color: var(--main); transition: all 0.2s;
+  }
+  .btn-table:hover { background: var(--main); color: var(--white); }
+  .btn-table.featured { background: var(--accent); border-color: var(--accent); color: var(--main); }
+  .btn-table.featured:hover { background: #00f0c0; }
+  .check { color: var(--success); font-weight: 800; font-size: 1.1rem; }
+  .cross-x { color: var(--danger); font-weight: 800; }
+
+  /* FLOW */
+  .flow { background: var(--bg); padding: 100px 32px; }
+  .flow-inner { max-width: 1100px; margin: 0 auto; }
+  .flow-cards {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0; margin-top: 48px; position: relative;
+  }
+  .flow-cards::before {
+    content: ''; position: absolute; top: 40px; left: 10%; right: 10%; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--secondary));
+    z-index: 0;
+  }
+  .flow-card {
+    text-align: center; padding: 24px 16px; position: relative; z-index: 1;
+    background: var(--bg);
+  }
+  .flow-num {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--white); border: 3px solid var(--accent);
+    color: var(--main); font-weight: 900; font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px; position: relative; z-index: 2;
+  }
+  .flow-card.done .flow-num { background: var(--accent); }
+  .flow-card h3 { font-size: 0.95rem; font-weight: 800; color: var(--main); margin-bottom: 8px; }
+  .flow-card p { font-size: 0.82rem; color: var(--text-light); }
+  .flow-time-badge {
+    display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--accent);
+    background: rgba(0,212,170,0.1); border-radius: 12px; padding: 2px 10px; margin-bottom: 8px;
+  }
+  .flow-cta {
+    margin-top: 48px; text-align: center;
+    background: var(--main); border-radius: 16px; padding: 36px;
+    color: var(--white);
+  }
+  .flow-cta h3 { font-size: 1.5rem; font-weight: 900; margin-bottom: 8px; }
+  .flow-cta p { color: rgba(255,255,255,0.7); margin-bottom: 20px; font-size: 0.95rem; }
+
+  /* FAQ */
+  .faq { padding: 100px 32px; }
+  .faq-inner { max-width: 800px; margin: 0 auto; }
+  .faq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-top: 48px; }
+  .faq-card {
+    background: var(--bg); border-radius: 14px; padding: 24px;
+    border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;
+  }
+  .faq-card:hover { border-color: var(--accent); }
+  .faq-card-q { font-weight: 700; font-size: 0.95rem; color: var(--main); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .faq-card-q .faq-toggle { color: var(--accent); font-size: 1.2rem; flex-shrink: 0; transition: transform 0.2s; }
+  .faq-card-q .faq-toggle.open { transform: rotate(45deg); }
+  .faq-card-a { font-size: 0.88rem; color: var(--text-light); line-height: 1.8; max-height: 0; overflow: hidden; transition: max-height 0.3s; }
+  .faq-card-a.open { max-height: 300px; }
+  .faq-more {
+    text-align: center; margin-top: 32px;
+    color: var(--text-light); font-size: 0.9rem;
+  }
+  .faq-more a { color: var(--accent); text-decoration: none; font-weight: 700; }
+
+  /* CTA */
+  .cta-section { padding: 80px 32px; background: var(--bg); }
+  .cta-section-inner { max-width: 680px; margin: 0 auto; text-align: center; }
+  .cta-section h2 { font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 900; color: var(--main); margin-bottom: 12px; line-height: 1.3; }
+  .cta-section p { color: var(--text-light); margin-bottom: 32px; }
+  .cta-box {
+    background: var(--white); border-radius: 20px; padding: 40px;
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+  }
+  .trial-badge {
+    display: inline-block; background: rgba(0,212,170,0.1); color: var(--success);
+    border-radius: 24px; padding: 6px 16px; font-size: 0.8rem; font-weight: 800;
+    margin-bottom: 24px;
+  }
+  .cta-form { display: flex; flex-direction: column; gap: 10px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-input {
+    padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);
+    font-size: 0.95rem; color: var(--text); outline: none;
+    transition: border-color 0.2s; background: var(--bg);
+  }
+  .form-input:focus { border-color: var(--accent); background: var(--white); }
+  .form-input::placeholder { color: rgba(0,0,0,0.3); }
+  .btn-try {
+    padding: 15px; background: var(--accent); color: var(--main);
+    border: none; border-radius: 10px; font-weight: 800; font-size: 1.05rem;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-try:hover { background: #00f0c0; transform: translateY(-2px); }
+  .cta-micro { font-size: 0.78rem; color: var(--text-light); margin-top: 12px; }
+
+  /* FOOTER */
+  footer { background: var(--main); color: rgba(255,255,255,0.5); padding: 60px 32px 32px; }
+  .footer-inner { max-width: 1100px; margin: 0 auto; }
+  .footer-logo { font-size: 1.5rem; font-weight: 900; color: var(--white); margin-bottom: 8px; }
+  .footer-logo span { color: var(--accent); }
+  .footer-tagline { font-size: 0.85rem; margin-bottom: 40px; }
+  .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 32px; margin-bottom: 40px; }
+  .footer-col h4 { color: rgba(255,255,255,0.8); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 8px; }
+  .footer-col a { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .footer-col a:hover { color: var(--accent); }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; font-size: 0.8rem; }
+  .legal-note { font-size: 0.7rem; color: rgba(255,255,255,0.2); margin-top: 10px; }
+
+  @media (max-width: 768px) {
+    nav ul { display: none; }
+    section, .comparison, .problem, .skills, .pricing, .flow, .faq, .cta-section { padding: 60px 20px; }
+    .compare-table { font-size: 0.82rem; }
+    .compare-table th, .compare-table td { padding: 12px 12px; }
+    .form-row { grid-template-columns: 1fr; }
+    .faq-grid { grid-template-columns: 1fr; }
+    .flow-cards::before { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ANNOUNCEMENT -->
+<div class="announcement">
+  🎁 今なら<span>1週間無料トライアル</span>実施中 — クレジットカード登録不要
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Ryoko<span>.ai</span></div>
+    <ul>
+      <li><a href="#compare">比較</a></li>
+      <li><a href="#skills">できること</a></li>
+      <li><a href="#pricing">料金</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#cta" class="nav-cta">まず1ヶ月試す →</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">💰 コスパ最強のAI人材サービス</div>
+    <h1>
+      人材派遣の<span class="cross">150万円/月</span>が<br>
+      <span class="accent">月30万円</span>で実現する。
+    </h1>
+    <p class="hero-sub">
+      Ryokoは30以上のスキルを持つAIエージェント。<br>
+      採用・研修ゼロ。残業代ゼロ。24時間365日稼働。<br>
+      まずは1ヶ月、試してみてください。
+    </p>
+    <div class="hero-cta-group">
+      <a href="#cta" class="btn-main">まず1ヶ月試してみる →</a>
+      <a href="#compare" class="btn-secondary">コスト比較を見る</a>
+    </div>
+    <div class="hero-proof">
+      <div class="proof-item">
+        <div class="proof-num">1/5</div>
+        <div class="proof-label">人材派遣との比較コスト</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">24/365</div>
+        <div class="proof-label">稼働時間</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">30+</div>
+        <div class="proof-label">対応スキル数</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">即日</div>
+        <div class="proof-label">稼働開始</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="comparison" id="compare">
+  <div class="comparison-inner">
+    <div class="section-label">COST COMPARISON</div>
+    <h2 class="section-title">「同じ仕事」をするコスト、<br>比べたことありますか？</h2>
+    <p class="section-sub">月30万円vs他の選択肢。数字で見ると一目瞭然です。</p>
+    
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>比較項目</th>
+          <th>正社員採用<br><small style="font-weight:400;font-size:0.8rem;">AIエンジニア</small></th>
+          <th>人材派遣<br><small style="font-weight:400;font-size:0.8rem;">専門職</small></th>
+          <th>SaaS複数契約<br><small style="font-weight:400;font-size:0.8rem;">AI系ツール5本</small></th>
+          <th class="highlight">Ryoko.ai<br><small style="font-weight:400;font-size:0.8rem;">Starterプラン</small></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>月間コスト（目安）</td>
+          <td class="val-bad">80〜120万円</td>
+          <td class="val-bad">50〜80万円</td>
+          <td class="val-mid">10〜30万円</td>
+          <td class="val-good highlight">30万円</td>
+        </tr>
+        <tr>
+          <td>初期費用</td>
+          <td class="val-bad">採用費50〜200万</td>
+          <td class="val-bad">手数料あり</td>
+          <td class="val-mid">設定費用あり</td>
+          <td class="val-good highlight">0円</td>
+        </tr>
+        <tr>
+          <td>稼働開始まで</td>
+          <td class="val-bad">3〜6ヶ月</td>
+          <td class="val-bad">2〜4週間</td>
+          <td class="val-mid">1〜2週間</td>
+          <td class="val-good highlight">即日〜5日</td>
+        </tr>
+        <tr>
+          <td>稼働時間</td>
+          <td class="val-bad">8h/日（平日のみ）</td>
+          <td class="val-bad">8h/日（平日のみ）</td>
+          <td class="val-mid">利用時のみ</td>
+          <td class="val-good highlight">24時間・365日</td>
+        </tr>
+        <tr>
+          <td>病欠・有給</td>
+          <td class="val-bad">あり</td>
+          <td class="val-bad">あり</td>
+          <td class="val-good">なし</td>
+          <td class="val-good highlight">なし</td>
+        </tr>
+        <tr>
+          <td>対応スキル数</td>
+          <td class="val-mid">専門領域のみ</td>
+          <td class="val-mid">専門領域のみ</td>
+          <td class="val-mid">各ツールの範囲</td>
+          <td class="val-good highlight">30種以上</td>
+        </tr>
+        <tr>
+          <td>スケールアップ</td>
+          <td class="val-bad">再採用が必要</td>
+          <td class="val-bad">追加契約が必要</td>
+          <td class="val-mid">プラン変更</td>
+          <td class="val-good highlight">プラン変更のみ</td>
+        </tr>
+        <tr>
+          <td>解約・変更</td>
+          <td class="val-bad">退職手続き必要</td>
+          <td class="val-bad">契約期間あり</td>
+          <td class="val-mid">各サービスで個別</td>
+          <td class="val-good highlight">いつでも月末で可</td>
+        </tr>
+        <tr>
+          <td>社会保険・福利厚生</td>
+          <td class="val-bad">負担あり</td>
+          <td class="val-mid">一部負担</td>
+          <td class="val-good">不要</td>
+          <td class="val-good highlight">不要</td>
+        </tr>
+        <tr>
+          <td>使いこなすための教育</td>
+          <td class="val-bad">数ヶ月必要</td>
+          <td class="val-bad">オンボード必要</td>
+          <td class="val-bad">各ツールの学習</td>
+          <td class="val-good highlight">不要（即戦力）</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="compare-note">
+      💡 <strong>まとめると：</strong>AIエンジニアを正社員で雇うと月間コストは福利厚生込みで最低でも100万円超。Ryokoなら月30万円で即日・24時間・30スキル対応のAI同僚が手に入ります。コスパの差は明白です。
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="problem-inner">
+    <div class="section-label">PROBLEM</div>
+    <h2 class="section-title">こんな悩み、ありませんか？</h2>
+    <p class="section-sub">Ryokoを導入した企業のほとんどが、最初はこの3つの壁にぶつかっていました。</p>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <span class="pain-emoji">🤷</span>
+        <h3>AI人材、採れない問題</h3>
+        <p>「AIを活用したい」と思っても、使える人材がいない。採用しようにも高すぎて手が届かない。結局、誰もAIを使いこなせないまま。</p>
+      </div>
+      <div class="pain-card">
+        <span class="pain-emoji">🧰</span>
+        <h3>ツール疲れ問題</h3>
+        <p>ChatGPT、Copilot、Notion AI…導入しすぎてどれも中途半端。毎月の費用だけが積み上がり、ROIが不明なまま継続する状態に。</p>
+      </div>
+      <div class="pain-card">
+        <span class="pain-emoji">🕳️</span>
+        <h3>属人化・ブラックボックス問題</h3>
+        <p>「これは田中さんしか知らない」業務が多すぎる。異動・退職のたびにナレッジが消える。業務マニュアルを作る時間もない。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="skills" id="skills">
+  <div class="skills-inner">
+    <div class="section-label">SKILLS</div>
+    <h2 class="section-title">Ryokoの30以上のスキル</h2>
+    <p class="section-sub">専門の派遣スタッフを5人雇うコストで、30種のスキルが手に入ります。</p>
+    <div class="skills-tabs">
+      <button class="tab-btn active" onclick="filterSkills('all', this)">すべて</button>
+      <button class="tab-btn" onclick="filterSkills('analysis', this)">分析・レポート</button>
+      <button class="tab-btn" onclick="filterSkills('content', this)">コンテンツ</button>
+      <button class="tab-btn" onclick="filterSkills('ops', this)">業務効率化</button>
+      <button class="tab-btn" onclick="filterSkills('biz', this)">ビジネス支援</button>
+    </div>
+    <div class="skills-list" id="skillsList">
+      <div class="skill-pill" data-cat="analysis"><span class="skill-icon">📊</span>データ分析・可視化</div>
+      <div class="skill-pill" data-cat="analysis"><span class="skill-icon">📈</span>KPIダッシュボード</div>
+      <div class="skill-pill" data-cat="analysis"><span class="skill-icon">🔍</span>競合・市場調査</div>
+      <div class="skill-pill" data-cat="analysis"><span class="skill-icon">📉</span>売上・コスト分析</div>
+      <div class="skill-pill" data-cat="content"><span class="skill-icon">📝</span>議事録・要約</div>
+      <div class="skill-pill" data-cat="content"><span class="skill-icon">📧</span>メール・文書作成</div>
+      <div class="skill-pill" data-cat="content"><span class="skill-icon">💼</span>営業資料・提案書</div>
+      <div class="skill-pill" data-cat="content"><span class="skill-icon">📱</span>SNS投稿・ブログ</div>
+      <div class="skill-pill" data-cat="content"><span class="skill-icon">🌐</span>多言語翻訳</div>
+      <div class="skill-pill" data-cat="content"><span class="skill-icon">🎨</span>デザイン指示</div>
+      <div class="skill-pill" data-cat="ops"><span class="skill-icon">📅</span>スケジュール管理</div>
+      <div class="skill-pill" data-cat="ops"><span class="skill-icon">🔧</span>ワークフロー自動化</div>
+      <div class="skill-pill" data-cat="ops"><span class="skill-icon">📚</span>ナレッジベース構築</div>
+      <div class="skill-pill" data-cat="ops"><span class="skill-icon">🔔</span>リマインダー・通知</div>
+      <div class="skill-pill" data-cat="ops"><span class="skill-icon">📋</span>タスク管理補助</div>
+      <div class="skill-pill" data-cat="biz"><span class="skill-icon">🎯</span>マーケ戦略立案</div>
+      <div class="skill-pill" data-cat="biz"><span class="skill-icon">👥</span>採用・面接サポート</div>
+      <div class="skill-pill" data-cat="biz"><span class="skill-icon">⚖️</span>法務チェック補助</div>
+      <div class="skill-pill" data-cat="biz"><span class="skill-icon">💬</span>CSサポート補助</div>
+      <div class="skill-pill" data-cat="biz"><span class="skill-icon">🚀</span>新規事業調査</div>
+      <div class="skill-pill" data-cat="analysis"><span class="skill-icon">🗂️</span>月次・週次レポート</div>
+      <div class="skill-pill" data-cat="content"><span class="skill-icon">🎤</span>プレゼン資料作成</div>
+      <div class="skill-pill" data-cat="ops"><span class="skill-icon">🔗</span>API・ツール連携</div>
+      <div class="skill-pill" data-cat="biz"><span class="skill-icon">💡</span>アイデア出し・企画</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <div class="section-label">PRICING</div>
+    <h2 class="section-title">シンプルな3プラン</h2>
+    <p class="section-sub">すべてのプランに1週間の無料トライアル付き。解約はいつでも月末締めでOK。</p>
+    <div class="pricing-table-wrap">
+      <table class="pricing-table">
+        <thead>
+          <tr>
+            <th style="text-align:left; width:220px;">プラン内容</th>
+            <th>Starter</th>
+            <th class="featured-col">Business<br><small>⭐ 人気No.1</small></th>
+            <th>Enterprise</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="price-row">
+            <td>月額料金</td>
+            <td>¥30万</td>
+            <td class="featured-col">¥60万</td>
+            <td>要相談</td>
+          </tr>
+          <tr>
+            <td>利用ユーザー数</td>
+            <td>最大5名</td>
+            <td class="featured-col">最大20名</td>
+            <td>無制限</td>
+          </tr>
+          <tr>
+            <td>スキル数</td>
+            <td>30以上</td>
+            <td class="featured-col">30以上</td>
+            <td>カスタム</td>
+          </tr>
+          <tr>
+            <td>Slack / Teams</td>
+            <td><span class="check">✓</span></td>
+            <td class="featured-col"><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td>LINE WORKS連携</td>
+            <td><span class="cross-x">✕</span></td>
+            <td class="featured-col"><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td>週次レポート</td>
+            <td><span class="cross-x">✕</span></td>
+            <td class="featured-col"><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td>専任CS担当</td>
+            <td><span class="cross-x">✕</span></td>
+            <td class="featured-col"><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td>カスタムスキル開発</td>
+            <td><span class="cross-x">✕</span></td>
+            <td class="featured-col">月2件</td>
+            <td>無制限</td>
+          </tr>
+          <tr>
+            <td>API連携</td>
+            <td><span class="cross-x">✕</span></td>
+            <td class="featured-col"><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td>SLA保証</td>
+            <td><span class="cross-x">✕</span></td>
+            <td class="featured-col"><span class="cross-x">✕</span></td>
+            <td>99.9%</td>
+          </tr>
+          <tr>
+            <td>オンプレミス対応</td>
+            <td><span class="cross-x">✕</span></td>
+            <td class="featured-col"><span class="cross-x">✕</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td>無料トライアル</td>
+            <td>1週間</td>
+            <td class="featured-col">1週間</td>
+            <td>POCご相談</td>
+          </tr>
+          <tr class="cta-row">
+            <td></td>
+            <td><a href="#cta" class="btn-table">試してみる</a></td>
+            <td class="featured-col"><a href="#cta" class="btn-table featured">試してみる</a></td>
+            <td><a href="#cta" class="btn-table">お問い合わせ</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- FLOW -->
+<section class="flow" id="flow">
+  <div class="flow-inner">
+    <div class="section-label">HOW IT WORKS</div>
+    <h2 class="section-title">申込から稼働まで<br>最短5日間</h2>
+    <p class="section-sub">難しい設定は一切なし。お任せください。</p>
+    <div class="flow-cards">
+      <div class="flow-card">
+        <div class="flow-time-badge">Day 1</div>
+        <div class="flow-num">1</div>
+        <h3>デモ申込</h3>
+        <p>フォームに情報入力。30分のオンラインデモを予約するだけ。</p>
+      </div>
+      <div class="flow-card">
+        <div class="flow-time-badge">Day 2-3</div>
+        <div class="flow-num">2</div>
+        <h3>ヒアリング＆<br>プラン確定</h3>
+        <p>課題を聞いて最適プランをご提案。電子契約で即完結。</p>
+      </div>
+      <div class="flow-card">
+        <div class="flow-time-badge">Day 3-4</div>
+        <div class="flow-num">3</div>
+        <h3>セットアップ</h3>
+        <p>弊社がSlack/Teams招待URLを送付。ツール連携もフルサポート。</p>
+      </div>
+      <div class="flow-card done">
+        <div class="flow-time-badge">Day 4-5 🎉</div>
+        <div class="flow-num">🚀</div>
+        <h3>稼働開始！</h3>
+        <p>Ryokoがチームに参加。その日から仕事を割り振れます。</p>
+      </div>
+    </div>
+    <div class="flow-cta">
+      <h3>⚡ 研修不要・オンボーディング不要</h3>
+      <p>一般的な正社員採用（平均3〜6ヶ月）や派遣スタッフ（2〜4週間）と比べて圧倒的にスピーディーです。</p>
+      <a href="#cta" class="btn-main">まず1ヶ月試してみる →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="faq-inner">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title">よくある質問</h2>
+    <p class="section-sub">迷ったらまず読んでください。</p>
+    <div class="faq-grid">
+      <div class="faq-card">
+        <div class="faq-card-q" onclick="toggleFaqCard(this)">
+          ChatGPTとの違いは何ですか？
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-card-a">
+          ChatGPTは「会話して回答する」ツールです。Ryokoは「タスクを与えたら自律的に完遂する」エージェントです。社内ツールと連携し、継続的に学習し、チームメンバーとして協働します。導入・運用サポートも含まれています。
+        </div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-card-q" onclick="toggleFaqCard(this)">
+          IT担当者がいなくても使えますか？
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-card-a">
+          はい。初期設定は弊社のエンジニアが完全サポートします。Slackなら管理者権限があれば招待するだけ。技術的な知識は一切不要です。
+        </div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-card-q" onclick="toggleFaqCard(this)">
+          情報漏洩が心配です。セキュリティは？
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-card-a">
+          お客様データは暗号化された専用環境で処理・保存されます。AIの学習や第三者への提供は行いません。SOC2認定取得済みのインフラを使用しています。
+        </div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-card-q" onclick="toggleFaqCard(this)">
+          途中解約はできますか？
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-card-a">
+          はい、最低契約期間なし・違約金なしでいつでも解約できます。解約は月末締めで翌月から停止となります。解約後30日間はデータエクスポートが可能です。
+        </div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-card-q" onclick="toggleFaqCard(this)">
+          複数の部署で同時に使えますか？
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-card-a">
+          はい。Starterプランで最大5名、Businessで最大20名が同時利用できます。部署ごとにRyokoの「役割」や「ペルソナ」を設定することも可能です。
+        </div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-card-q" onclick="toggleFaqCard(this)">
+          「派遣」というサービス名ですが、人材派遣ですか？
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-card-a">
+          「派遣」はサービスの分かりやすい表現として使用しています。法的にはクラウドソフトウェア（SaaS）の提供です。人材派遣法に基づく人材派遣サービスとは異なります。
+        </div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-card-q" onclick="toggleFaqCard(this)">
+          どんな業種・規模の会社でも使えますか？
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-card-a">
+          業種・規模を問わずご利用いただけます。特に従業員10〜300名規模の会社で導入効果が高い傾向にあります。ホワイトカラー業務が中心の企業なら、ほぼすべての業種に対応できます。
+        </div>
+      </div>
+      <div class="faq-card">
+        <div class="faq-card-q" onclick="toggleFaqCard(this)">
+          トライアル期間中に効果がなければどうなりますか？
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-card-a">
+          1週間の無料トライアル期間中であれば、理由を問わず費用は一切かかりません。「使ってみたけど合わなかった」は大歓迎です。その際のフィードバックがサービス改善に役立ちます。
+        </div>
+      </div>
+    </div>
+    <div class="faq-more">まだ疑問がある場合は <a href="#">ヘルプセンター</a> をご覧ください。</div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <div class="cta-section-inner">
+    <h2>まず、1ヶ月だけ<br>試してみてください。</h2>
+    <p>最初の1週間は完全無料。クレジットカード登録も不要。</p>
+    <div class="cta-box">
+      <div class="trial-badge">🎁 1週間 完全無料トライアル中</div>
+      <div class="cta-form">
+        <div class="form-row">
+          <input type="text" class="form-input" placeholder="お名前">
+          <input type="text" class="form-input" placeholder="会社名">
+        </div>
+        <input type="email" class="form-input" placeholder="会社のメールアドレス">
+        <select class="form-input" style="cursor:pointer;">
+          <option value="">気になるプランを選んでください</option>
+          <option>Starter（月30万・5名まで）</option>
+          <option>Business（月60万・20名まで）</option>
+          <option>Enterprise（要相談）</option>
+          <option>まだ決めていない</option>
+        </select>
+        <button class="btn-try" onclick="location.href='#'">まず1ヶ月試す（デモ申込）→</button>
+      </div>
+      <p class="cta-micro">スパムなし。個人情報はデモ・サービス案内にのみ使用します。</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Ryoko<span>.ai</span></div>
+    <p class="footer-tagline">24時間365日稼働のAIエージェントサービス</p>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>サービス</h4>
+        <ul>
+          <li><a href="#">機能一覧</a></li>
+          <li><a href="#">料金プラン</a></li>
+          <li><a href="#">導入事例</a></li>
+          <li><a href="#">セキュリティ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>会社情報</h4>
+        <ul>
+          <li><a href="#">会社概要</a></li>
+          <li><a href="#">採用情報</a></li>
+          <li><a href="#">ニュース</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>サポート</h4>
+        <ul>
+          <li><a href="#">ヘルプセンター</a></li>
+          <li><a href="#">お問い合わせ</a></li>
+          <li><a href="#">利用規約</a></li>
+          <li><a href="#">プライバシー</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Ryoko AI Inc. All rights reserved.</p>
+      <p class="legal-note">※ 「AIエージェント派遣」は当社サービスの通称表現であり、法的にはクラウドソフトウェア（SaaS）の提供サービスです。人材派遣法に基づく人材派遣サービスではありません。</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleFaqCard(el) {
+  const answer = el.nextElementSibling;
+  const toggle = el.querySelector('.faq-toggle');
+  answer.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+
+function filterSkills(cat, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.skill-pill').forEach(pill => {
+    if (cat === 'all' || pill.dataset.cat === cat) {
+      pill.style.display = 'flex';
+    } else {
+      pill.style.display = 'none';
+    }
+  });
+}
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.05 });
+
+document.querySelectorAll('.pain-card, .flow-card, .faq-card').forEach((el, i) => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = `opacity 0.4s ease ${i * 0.05}s, transform 0.4s ease ${i * 0.05}s`;
+  observer.observe(el);
+});
+
+// Compare table row highlight on hover (already handled by CSS)
+</script>
+</body>
+</html>

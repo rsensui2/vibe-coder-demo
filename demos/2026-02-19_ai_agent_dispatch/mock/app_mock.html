@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AIエージェント派遣 - Ryoko Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --main: #1A1A2E;
+    --main-light: #22223F;
+    --accent: #00D4AA;
+    --accent-dim: rgba(0,212,170,0.15);
+    --secondary: #6C63FF;
+    --secondary-dim: rgba(108,99,255,0.15);
+    --text: #E8E8F0;
+    --text-dim: #9090A8;
+    --card: #212140;
+    --card2: #1E1E38;
+    --border: rgba(255,255,255,0.08);
+    --danger: #FF6B6B;
+    --warning: #FFD93D;
+    --success: #00D4AA;
+    --font: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+  }
+
+  body {
+    background: #0D0D1A;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: var(--font);
+    padding: 20px;
+  }
+
+  .phone-frame {
+    width: 390px;
+    height: 844px;
+    background: var(--main);
+    border-radius: 48px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.12),
+      0 30px 80px rgba(0,0,0,0.7),
+      0 0 120px rgba(0,212,170,0.08);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    height: 54px;
+    background: var(--main);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 24px 10px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+  .status-bar .notch {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 36px;
+    background: #000;
+    border-radius: 0 0 20px 20px;
+  }
+  .status-time { font-size: 15px; font-weight: 600; color: var(--text); }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .status-icons svg { width: 16px; height: 16px; fill: var(--text); }
+  .battery { font-size: 12px; color: var(--text); font-weight: 500; }
+
+  /* Header */
+  .app-header {
+    height: 60px;
+    background: var(--main-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .app-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .app-logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--secondary));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .app-logo-text { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+  .app-logo-sub { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
+  .header-avatar {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--secondary), #9B8FF5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    border: 2px solid var(--accent);
+  }
+
+  /* Screens */
+  .screen-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  .screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow-y: auto;
+    padding: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .screen.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Nav Bar */
+  .nav-bar {
+    height: 82px;
+    background: var(--main-light);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    padding-top: 8px;
+    flex-shrink: 0;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 8px 4px;
+    transition: all 0.2s ease;
+    border-radius: 12px;
+    margin: 0 4px;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); }
+  .nav-icon { font-size: 20px; transition: transform 0.2s; }
+  .nav-label { font-size: 10px; color: var(--text-dim); font-weight: 500; }
+  .nav-item.active .nav-label { color: var(--accent); }
+  .nav-item.active .nav-icon { transform: scale(1.1); }
+  .nav-item.active .nav-dot { display: block; }
+  .nav-dot { display: none; width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+  }
+
+  /* ===== SCREEN 1: DASHBOARD ===== */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .summary-card {
+    background: var(--card2);
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .summary-card.done::before { background: var(--accent); }
+  .summary-card.active::before { background: var(--secondary); }
+  .summary-card.artifact::before { background: var(--warning); }
+  .summary-num { font-size: 28px; font-weight: 800; color: var(--text); line-height: 1; }
+  .summary-card.done .summary-num { color: var(--accent); }
+  .summary-card.active .summary-num { color: var(--secondary); }
+  .summary-card.artifact .summary-num { color: var(--warning); }
+  .summary-label { font-size: 10px; color: var(--text-dim); margin-top: 4px; line-height: 1.3; }
+
+  .agent-card {
+    background: linear-gradient(135deg, rgba(0,212,170,0.12), rgba(108,99,255,0.1));
+    border: 1px solid rgba(0,212,170,0.3);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .agent-avatar {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, var(--accent), var(--secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .agent-status-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    background: #2ECC71;
+    border-radius: 50%;
+    border: 2px solid var(--card);
+    animation: pulse-green 2s infinite;
+  }
+  @keyframes pulse-green {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(46,204,113,0.6); }
+    50% { box-shadow: 0 0 0 6px rgba(46,204,113,0); }
+  }
+  .agent-info { flex: 1; }
+  .agent-name { font-size: 16px; font-weight: 700; color: var(--text); }
+  .agent-status { font-size: 12px; color: var(--accent); margin-top: 2px; font-weight: 600; }
+  .agent-task { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+  .agent-badge {
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .notif-icon.success { background: rgba(0,212,170,0.15); }
+  .notif-icon.info { background: rgba(108,99,255,0.15); }
+  .notif-icon.warn { background: rgba(255,217,61,0.15); }
+  .notif-content { flex: 1; }
+  .notif-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .notif-desc { font-size: 11px; color: var(--text-dim); margin-top: 2px; line-height: 1.4; }
+  .notif-time { font-size: 10px; color: var(--text-dim); white-space: nowrap; flex-shrink: 0; }
+
+  /* ===== SCREEN 2: TASKS (KANBAN) ===== */
+  .kanban-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+    margin: 0 -16px;
+    padding: 0 16px 8px;
+  }
+  .kanban-col {
+    flex-shrink: 0;
+    width: 200px;
+    background: var(--card2);
+    border-radius: 14px;
+    padding: 12px;
+    border: 1px solid var(--border);
+  }
+  .kanban-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .kanban-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .kanban-count {
+    background: var(--card);
+    color: var(--text-dim);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .task-card {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .task-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .task-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.4; }
+  .task-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .badge-todo { background: rgba(144,144,168,0.2); color: var(--text-dim); }
+  .badge-progress { background: rgba(108,99,255,0.2); color: var(--secondary); }
+  .badge-done { background: rgba(0,212,170,0.2); color: var(--accent); }
+  .task-agent { font-size: 10px; color: var(--text-dim); }
+  .task-priority {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .priority-high { background: var(--danger); }
+  .priority-med { background: var(--warning); }
+  .priority-low { background: var(--accent); }
+
+  /* ===== SCREEN 3: ARTIFACTS ===== */
+  .artifact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .artifact-card {
+    background: var(--card);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .artifact-card:hover { transform: scale(1.02); }
+  .artifact-thumb {
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    position: relative;
+  }
+  .artifact-thumb.pdf { background: linear-gradient(135deg, #FF6B6B22, #FF6B6B11); }
+  .artifact-thumb.pptx { background: linear-gradient(135deg, #FF980022, #FF980011); }
+  .artifact-thumb.xlsx { background: linear-gradient(135deg, #00D4AA22, #00D4AA11); }
+  .artifact-thumb.doc { background: linear-gradient(135deg, #6C63FF22, #6C63FF11); }
+  .artifact-type-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+  .type-pdf { background: #FF6B6B; color: #fff; }
+  .type-pptx { background: #FF9800; color: #fff; }
+  .type-xlsx { background: var(--accent); color: #000; }
+  .type-doc { background: var(--secondary); color: #fff; }
+  .artifact-info { padding: 10px; }
+  .artifact-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .artifact-date { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+  .artifact-size { font-size: 10px; color: var(--text-dim); }
+
+  /* ===== SCREEN 4: SKILLS ===== */
+  .skill-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .skill-item:last-child { border-bottom: none; }
+  .skill-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .skill-info { flex: 1; min-width: 0; }
+  .skill-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .skill-desc { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .skill-cron {
+    font-size: 9px;
+    color: var(--accent);
+    font-family: monospace;
+    background: var(--accent-dim);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+    display: inline-block;
+  }
+  .toggle {
+    width: 44px;
+    height: 26px;
+    border-radius: 13px;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle.off { background: rgba(255,255,255,0.1); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    transition: left 0.3s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  .toggle.on::after { left: 21px; }
+  .toggle.off::after { left: 3px; }
+
+  /* ===== SCREEN 5: REPORTS ===== */
+  .chart-container {
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+  }
+  .chart-svg { width: 100%; height: 100%; }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .stat-item {
+    text-align: center;
+    padding: 12px 8px;
+    background: var(--card2);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .stat-val { font-size: 20px; font-weight: 800; color: var(--text); }
+  .stat-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .report-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .report-bar-label { font-size: 11px; color: var(--text-dim); width: 70px; flex-shrink: 0; }
+  .report-bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+  .report-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+  .report-bar-val { font-size: 11px; color: var(--text); width: 40px; text-align: right; flex-shrink: 0; }
+
+  .cost-card {
+    background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(0,212,170,0.1));
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cost-label { font-size: 12px; color: var(--text-dim); }
+  .cost-value { font-size: 24px; font-weight: 800; color: var(--text); margin-top: 4px; }
+  .cost-sub { font-size: 10px; color: var(--accent); margin-top: 2px; }
+  .cost-badge { font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-dim); padding: 6px 14px; border-radius: 20px; }
+
+  /* ===== SCREEN 6: SETTINGS ===== */
+  .settings-section { margin-bottom: 20px; }
+  .settings-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .settings-row:first-of-type { border-radius: 14px 14px 0 0; }
+  .settings-row:last-of-type { border-radius: 0 0 14px 14px; border-bottom: none; }
+  .settings-row:only-of-type { border-radius: 14px; }
+  .settings-row:hover { background: rgba(255,255,255,0.04); }
+  .settings-row-icon { font-size: 20px; margin-right: 12px; }
+  .settings-row-info { flex: 1; }
+  .settings-row-title { font-size: 14px; color: var(--text); font-weight: 500; }
+  .settings-row-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .settings-row-right { display: flex; align-items: center; gap: 8px; }
+  .conn-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+  }
+  .conn-on { background: rgba(0,212,170,0.2); color: var(--accent); }
+  .conn-off { background: rgba(144,144,168,0.15); color: var(--text-dim); }
+  .chevron { color: var(--text-dim); font-size: 16px; }
+
+  .plan-card {
+    background: linear-gradient(135deg, #1A1A3E, #2A1A4E);
+    border: 1px solid rgba(108,99,255,0.4);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .plan-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(108,99,255,0.3), transparent 70%);
+  }
+  .plan-badge { font-size: 10px; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; }
+  .plan-name { font-size: 22px; font-weight: 800; color: var(--text); margin-top: 4px; }
+  .plan-price { font-size: 32px; font-weight: 800; color: var(--secondary); margin-top: 8px; }
+  .plan-price span { font-size: 14px; color: var(--text-dim); font-weight: 400; }
+  .plan-features { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+  .plan-feature { font-size: 12px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+  .plan-feature::before { content: '✓'; color: var(--accent); font-weight: 700; }
+
+  /* Section header helper */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .section-title { font-size: 14px; font-weight: 700; color: var(--text); }
+  .see-all { font-size: 12px; color: var(--accent); font-weight: 600; cursor: pointer; }
+
+  /* Scrollable kanban fix */
+  #screen-tasks {
+    padding: 16px 0 16px 16px;
+    overflow: hidden;
+  }
+  #screen-tasks .kanban-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Welcome */
+  .greeting { font-size: 12px; color: var(--text-dim); margin-bottom: 2px; }
+  .greeting-name { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 16px; }
+  .greeting-name span { color: var(--accent); }
+
+  /* Chart legend */
+  .chart-legend { display: flex; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text-dim); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="notch"></div>
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24"><path d="M1.5 8.5C5.7 4.3 10.5 2 12 2s6.3 2.3 10.5 6.5L21 10c-3.5-3.5-7.5-5.5-9-5.5S6.5 6.5 3 10L1.5 8.5z"/><path d="M4.5 11.5C7.5 8.5 10 7 12 7s4.5 1.5 7.5 4.5L18 13c-2.5-2.5-4-3.5-6-3.5S9 10.5 6 13l-1.5-1.5z"/><circle cx="12" cy="18" r="2"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      <span class="battery">87%</span>
+    </div>
+  </div>
+
+  <!-- App Header -->
+  <div class="app-header">
+    <div class="app-logo">
+      <div class="app-logo-icon">🤖</div>
+      <div>
+        <div class="app-logo-text">Ryoko Agent</div>
+        <div class="app-logo-sub">AIエージェント派遣</div>
+      </div>
+    </div>
+    <div class="header-avatar">🌸</div>
+  </div>
+
+  <!-- Screens -->
+  <div class="screen-container">
+
+    <!-- Screen 1: Dashboard -->
+    <div class="screen active" id="screen-dashboard">
+      <div class="greeting">おはようございます 👋</div>
+      <div class="greeting-name">今日も<span>全力稼働</span>中！</div>
+
+      <!-- Summary -->
+      <div class="summary-grid">
+        <div class="summary-card done">
+          <div class="summary-num">8</div>
+          <div class="summary-label">完了<br>タスク</div>
+        </div>
+        <div class="summary-card active">
+          <div class="summary-num">2</div>
+          <div class="summary-label">進行中<br>タスク</div>
+        </div>
+        <div class="summary-card artifact">
+          <div class="summary-num">5</div>
+          <div class="summary-label">成果物<br>生成</div>
+        </div>
+      </div>
+
+      <!-- Active Agent -->
+      <div class="agent-card">
+        <div class="agent-avatar">
+          🌸
+          <div class="agent-status-dot"></div>
+        </div>
+        <div class="agent-info">
+          <div class="agent-name">Ryoko 🌸</div>
+          <div class="agent-status">● オンライン</div>
+          <div class="agent-task">営業資料作成を実行中...</div>
+        </div>
+        <div class="agent-badge">稼働中</div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="card">
+        <div class="section-header">
+          <div class="card-title" style="margin:0">最新の通知</div>
+          <div class="see-all">すべて見る</div>
+        </div>
+
+        <div class="notif-item">
+          <div class="notif-icon success">✅</div>
+          <div class="notif-content">
+            <div class="notif-title">月次レポート生成完了</div>
+            <div class="notif-desc">2026年1月分 PDF 生成・Slack送信済み</div>
+          </div>
+          <div class="notif-time">9:30</div>
+        </div>
+
+        <div class="notif-item">
+          <div class="notif-icon info">📊</div>
+          <div class="notif-content">
+            <div class="notif-title">データ分析タスク完了</div>
+            <div class="notif-desc">競合比較レポート (Q1) を成果物に追加</div>
+          </div>
+          <div class="notif-time">8:45</div>
+        </div>
+
+        <div class="notif-item">
+          <div class="notif-icon success">📧</div>
+          <div class="notif-content">
+            <div class="notif-title">メルマガ配信完了</div>
+            <div class="notif-desc">3社へ自動送信完了（開封率 42%）</div>
+          </div>
+          <div class="notif-time">8:00</div>
+        </div>
+
+        <div class="notif-item">
+          <div class="notif-icon warn">⚠️</div>
+          <div class="notif-content">
+            <div class="notif-title">API使用量 80% 到達</div>
+            <div class="notif-desc">今月の残量: 4,000トークン</div>
+          </div>
+          <div class="notif-time">昨日</div>
+        </div>
+
+        <div class="notif-item">
+          <div class="notif-icon info">🔗</div>
+          <div class="notif-content">
+            <div class="notif-title">Slack連携 更新</div>
+            <div class="notif-desc">#sales チャンネルへの投稿権限を確認</div>
+          </div>
+          <div class="notif-time">昨日</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: Tasks (Kanban) -->
+    <div class="screen" id="screen-tasks">
+      <div style="padding-right:16px; margin-bottom:12px;" class="section-header">
+        <div class="section-title">タスク一覧</div>
+        <div class="see-all">+ 追加</div>
+      </div>
+
+      <div class="kanban-scroll">
+        <!-- TODO -->
+        <div class="kanban-col">
+          <div class="kanban-header">
+            <div class="kanban-title">📋 Todo</div>
+            <div class="kanban-count">4</div>
+          </div>
+          <div class="task-card">
+            <div class="task-title">競合他社SNS分析レポート作成</div>
+            <div class="task-meta">
+              <span class="badge badge-todo">Todo</span>
+              <span class="task-priority priority-high"></span>
+            </div>
+            <div class="task-agent" style="margin-top:6px;">🌸 Ryoko</div>
+          </div>
+          <div class="task-card">
+            <div class="task-title">新規顧客向けウェルカムメール</div>
+            <div class="task-meta">
+              <span class="badge badge-todo">Todo</span>
+              <span class="task-priority priority-med"></span>
+            </div>
+            <div class="task-agent" style="margin-top:6px;">🌸 Ryoko</div>
+          </div>
+          <div class="task-card">
+            <div class="task-title">Q2戦略スライド (10枚)</div>
+            <div class="task-meta">
+              <span class="badge badge-todo">Todo</span>
+              <span class="task-priority priority-high"></span>
+            </div>
+            <div class="task-agent" style="margin-top:6px;">🌸 Ryoko</div>
+          </div>
+          <div class="task-card">
+            <div class="task-title">採用JD 3件リライト</div>
+            <div class="task-meta">
+              <span class="badge badge-todo">Todo</span>
+              <span class="task-priority priority-low"></span>
+            </div>
+            <div class="task-agent" style="margin-top:6px;">🌸 Ryoko</div>
+          </div>
+        </div>
+
+        <!-- IN PROGRESS -->
+        <div class="kanban-col">
+          <div class="kanban-header">
+            <div class="kanban-title" style="color:#9B8FF5;">⚡ 進行中</div>
+            <div class="kanban-count">2</div>
+          </div>
+          <div class="task-card" style="border-color:rgba(108,99,255,0.3);">
+            <div class="task-title">2月度営業資料リニューアル</div>
+            <div class="task-meta">
+              <span class="badge badge-progress">進行中</span>
+              <span class="task-priority priority-high"></span>
+            </div>
+            <div class="task-agent" style="margin-top:6px;">🌸 Ryoko</div>
+            <div style="margin-top:8px; background:rgba(108,99,255,0.1); border-radius:4px; height:4px; overflow:hidden;">
+              <div style="width:65%; height:100%; background:var(--secondary); border-radius:4px;"></div>
+            </div>
+            <div style="font-size:10px; color:var(--text-dim); margin-top:4px;">65%</div>
+          </div>
+          <div class="task-card" style="border-color:rgba(108,99,255,0.3);">
+            <div class="task-title">技術ブログ記事 3本（SEO最適化）</div>
+            <div class="task-meta">
+              <span class="badge badge-progress">進行中</span>
+              <span class="task-priority priority-med"></span>
+            </div>
+            <div class="task-agent" style="margin-top:6px;">🌸 Ryoko</div>
+            <div style="margin-top:8px; background:rgba(108,99,255,0.1); border-radius:4px; height:4px; overflow:hidden;">
+              <div style="width:30%; height:100%; background:var(--secondary); border-radius:4px;"></div>
+            </div>
+            <div style="font-size:10px; color:var(--text-dim); margin-top:4px;">30%</div>
+          </div>
+        </div>
+
+        <!-- DONE -->
+        <div class="kanban-col">
+          <div class="kanban-header">
+            <div class="kanban-title" style="color:var(--accent);">✅ 完了</div>
+            <div class="kanban-count">8</div>
+          </div>
+          <div class="task-card" style="border-color:rgba(0,212,170,0.2); opacity:0.8;">
+            <div class="task-title">月次活動レポート PDF</div>
+            <div class="task-meta">
+              <span class="badge badge-done">完了</span>
+            </div>
+            <div class="task-agent" style="margin-top:6px;">🌸 Ryoko · 今日</div>
+          </div>
+          <div class="task-card" style="border-color:rgba(0,212,170,0.2); opacity:0.8;">
+            <div class="task-title">競合比較分析 Q1</div>
+            <div class="task-meta">
+              <span class="badge badge-done">完了</span>
+            </div>
+            <div class="task-agent" style="margin-top:6px;">🌸 Ryoko · 今日</div>
+          </div>
+          <div class="task-card" style="border-color:rgba(0,212,170,0.2); opacity:0.8;">
+            <div class="task-title">メルマガ 3社送信</div>
+            <div class="task-meta">
+              <span class="badge badge-done">完了</span>
+            </div>
+            <div class="task-agent" style="margin-top:6px;">🌸 Ryoko · 今日</div>
+          </div>
+          <div class="task-card" style="border-color:rgba(0,212,170,0.2); opacity:0.8;">
+            <div class="task-title">採用LP コピーライティング</div>
+            <div class="task-meta">
+              <span class="badge badge-done">完了</span>
+            </div>
+            <div class="task-agent" style="margin-top:6px;">🌸 Ryoko · 昨日</div>
+          </div>
+          <div class="task-card" style="border-color:rgba(0,212,170,0.2); opacity:0.8;">
+            <div class="task-title">社内FAQ 自動更新</div>
+            <div class="task-meta">
+              <span class="badge badge-done">完了</span>
+            </div>
+            <div class="task-agent" style="margin-top:6px;">🌸 Ryoko · 昨日</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: Artifacts -->
+    <div class="screen" id="screen-artifacts">
+      <div class="section-header" style="margin-bottom:16px;">
+        <div class="section-title">成果物ライブラリ</div>
+        <div class="see-all">フィルター</div>
+      </div>
+
+      <div class="artifact-grid">
+        <div class="artifact-card">
+          <div class="artifact-thumb pdf">📄<span class="artifact-type-badge type-pdf">PDF</span></div>
+          <div class="artifact-info">
+            <div class="artifact-title">月次活動レポート 2026.01</div>
+            <div class="artifact-date">2026/02/01</div>
+            <div class="artifact-size">2.4 MB</div>
+          </div>
+        </div>
+        <div class="artifact-card">
+          <div class="artifact-thumb pptx">📊<span class="artifact-type-badge type-pptx">PPTX</span></div>
+          <div class="artifact-info">
+            <div class="artifact-title">Q1戦略プレゼン資料</div>
+            <div class="artifact-date">2026/01/28</div>
+            <div class="artifact-size">5.1 MB</div>
+          </div>
+        </div>
+        <div class="artifact-card">
+          <div class="artifact-thumb pdf">📋<span class="artifact-type-badge type-pdf">PDF</span></div>
+          <div class="artifact-info">
+            <div class="artifact-title">競合分析レポート Q1</div>
+            <div class="artifact-date">2026/01/25</div>
+            <div class="artifact-size">1.8 MB</div>
+          </div>
+        </div>
+        <div class="artifact-card">
+          <div class="artifact-thumb xlsx">📈<span class="artifact-type-badge type-xlsx">XLSX</span></div>
+          <div class="artifact-info">
+            <div class="artifact-title">KPIダッシュボード</div>
+            <div class="artifact-date">2026/01/20</div>
+            <div class="artifact-size">890 KB</div>
+          </div>
+        </div>
+        <div class="artifact-card">
+          <div class="artifact-thumb doc">📝<span class="artifact-type-badge type-doc">DOC</span></div>
+          <div class="artifact-info">
+            <div class="artifact-title">採用LP コピー案</div>
+            <div class="artifact-date">2026/01/18</div>
+            <div class="artifact-size">340 KB</div>
+          </div>
+        </div>
+        <div class="artifact-card">
+          <div class="artifact-thumb pptx">🎯<span class="artifact-type-badge type-pptx">PPTX</span></div>
+          <div class="artifact-info">
+            <div class="artifact-title">新規事業ピッチデック</div>
+            <div class="artifact-date">2026/01/15</div>
+            <div class="artifact-size">7.2 MB</div>
+          </div>
+        </div>
+        <div class="artifact-card">
+          <div class="artifact-thumb pdf">📑<span class="artifact-type-badge type-pdf">PDF</span></div>
+          <div class="artifact-info">
+            <div class="artifact-title">市場調査レポート</div>
+            <div class="artifact-date">2026/01/12</div>
+            <div class="artifact-size">3.6 MB</div>
+          </div>
+        </div>
+        <div class="artifact-card">
+          <div class="artifact-thumb xlsx">💹<span class="artifact-type-badge type-xlsx">XLSX</span></div>
+          <div class="artifact-info">
+            <div class="artifact-title">財務予測モデル</div>
+            <div class="artifact-date">2026/01/08</div>
+            <div class="artifact-size">1.2 MB</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: Skills -->
+    <div class="screen" id="screen-skills">
+      <div class="section-header" style="margin-bottom:16px;">
+        <div class="section-title">スキル設定</div>
+        <div style="font-size:12px; color:var(--text-dim);">32スキル</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🤖 AI・生成系</div>
+        <div id="skills-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📤 アウトプット</div>
+        <div id="skills-list-2"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔗 連携・自動化</div>
+        <div id="skills-list-3"></div>
+      </div>
+    </div>
+
+    <!-- Screen 5: Reports -->
+    <div class="screen" id="screen-reports">
+      <div class="section-title" style="margin-bottom:16px;">レポート</div>
+
+      <!-- Cost overview -->
+      <div class="cost-card">
+        <div>
+          <div class="cost-label">今月のコスト</div>
+          <div class="cost-value">¥247,800</div>
+          <div class="cost-sub">▼ 前月比 -3.2%</div>
+        </div>
+        <div class="cost-badge">予算内 ✓</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid" style="margin-bottom:16px; margin-top:0;">
+        <div class="stat-item">
+          <div class="stat-val" style="color:var(--accent);">142</div>
+          <div class="stat-label">完了<br>タスク</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val" style="color:var(--secondary);">98.2<span style="font-size:12px;">%</span></div>
+          <div class="stat-label">稼働率</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val" style="color:var(--warning);">4.8<span style="font-size:12px;">M</span></div>
+          <div class="stat-label">API<br>トークン</div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="card">
+        <div class="section-header">
+          <div class="card-title" style="margin:0;">月間タスク完了数</div>
+          <div style="font-size:10px; color:var(--text-dim);">過去6ヶ月</div>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent);"></div>完了タスク</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--secondary);"></div>API使用量(万)</div>
+        </div>
+        <div class="chart-container">
+          <svg class="chart-svg" viewBox="0 0 340 140" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00D4AA" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#00D4AA" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="grad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#6C63FF" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#6C63FF" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid lines -->
+            <line x1="0" y1="20" x2="340" y2="20" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <line x1="0" y1="50" x2="340" y2="50" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <line x1="0" y1="80" x2="340" y2="80" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <line x1="0" y1="110" x2="340" y2="110" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <!-- Area fill 1 (tasks) -->
+            <path d="M0,100 L57,85 L114,70 L171,55 L228,45 L285,30 L340,15 L340,140 L0,140 Z" fill="url(#grad1)"/>
+            <!-- Line 1 (tasks) -->
+            <polyline points="0,100 57,85 114,70 171,55 228,45 285,30 340,15" fill="none" stroke="#00D4AA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Dots 1 -->
+            <circle cx="0" cy="100" r="4" fill="#00D4AA"/>
+            <circle cx="57" cy="85" r="4" fill="#00D4AA"/>
+            <circle cx="114" cy="70" r="4" fill="#00D4AA"/>
+            <circle cx="171" cy="55" r="4" fill="#00D4AA"/>
+            <circle cx="228" cy="45" r="4" fill="#00D4AA"/>
+            <circle cx="285" cy="30" r="4" fill="#00D4AA"/>
+            <circle cx="340" cy="15" r="4" fill="#00D4AA"/>
+            <!-- Area fill 2 (API) -->
+            <path d="M0,110 L57,100 L114,95 L171,80 L228,70 L285,60 L340,45 L340,140 L0,140 Z" fill="url(#grad2)"/>
+            <!-- Line 2 (API) -->
+            <polyline points="0,110 57,100 114,95 171,80 228,70 285,60 340,45" fill="none" stroke="#6C63FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5,3"/>
+            <!-- Labels -->
+            <text x="0" y="135" fill="rgba(255,255,255,0.3)" font-size="9" font-family="sans-serif">9月</text>
+            <text x="52" y="135" fill="rgba(255,255,255,0.3)" font-size="9" font-family="sans-serif">10月</text>
+            <text x="109" y="135" fill="rgba(255,255,255,0.3)" font-size="9" font-family="sans-serif">11月</text>
+            <text x="163" y="135" fill="rgba(255,255,255,0.3)" font-size="9" font-family="sans-serif">12月</text>
+            <text x="222" y="135" fill="rgba(255,255,255,0.3)" font-size="9" font-family="sans-serif">1月</text>
+            <text x="280" y="135" fill="rgba(255,255,255,0.3)" font-size="9" font-family="sans-serif">2月</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Breakdown bars -->
+      <div class="card">
+        <div class="card-title">カテゴリ別実績</div>
+        <div class="report-bar-row">
+          <div class="report-bar-label">資料作成</div>
+          <div class="report-bar-track"><div class="report-bar-fill" style="width:85%; background:var(--accent);"></div></div>
+          <div class="report-bar-val">51件</div>
+        </div>
+        <div class="report-bar-row">
+          <div class="report-bar-label">調査・分析</div>
+          <div class="report-bar-track"><div class="report-bar-fill" style="width:65%; background:var(--secondary);"></div></div>
+          <div class="report-bar-val">39件</div>
+        </div>
+        <div class="report-bar-row">
+          <div class="report-bar-label">メール対応</div>
+          <div class="report-bar-track"><div class="report-bar-fill" style="width:50%; background:var(--warning);"></div></div>
+          <div class="report-bar-val">30件</div>
+        </div>
+        <div class="report-bar-row">
+          <div class="report-bar-label">SNS投稿</div>
+          <div class="report-bar-track"><div class="report-bar-fill" style="width:35%; background:#FF6B6B;"></div></div>
+          <div class="report-bar-val">22件</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 6: Settings -->
+    <div class="screen" id="screen-settings">
+      <div class="section-title" style="margin-bottom:16px;">設定</div>
+
+      <!-- Plan Card -->
+      <div class="plan-card">
+        <div class="plan-badge">現在のプラン</div>
+        <div class="plan-name">Starter Plan</div>
+        <div class="plan-price">¥300,000<span>/月</span></div>
+        <div class="plan-features">
+          <div class="plan-feature">Ryoko 🌸 専任エージェント 1名</div>
+          <div class="plan-feature">月間タスク 200件まで</div>
+          <div class="plan-feature">APIトークン 10M/月</div>
+          <div class="plan-feature">Slack / Teams 連携</div>
+          <div class="plan-feature">月次レポート自動生成</div>
+        </div>
+        <div style="margin-top:14px; padding:10px 14px; background:rgba(108,99,255,0.15); border-radius:10px; border:1px solid rgba(108,99,255,0.3);">
+          <div style="font-size:11px; color:var(--secondary); font-weight:700;">💎 Business プランにアップグレード</div>
+          <div style="font-size:10px; color:var(--text-dim); margin-top:3px;">エージェント3名 + 無制限タスク</div>
+        </div>
+      </div>
+
+      <!-- Channels -->
+      <div class="settings-section">
+        <div class="settings-title">チャンネル連携</div>
+        <div class="settings-row" style="border-radius:14px 14px 0 0;">
+          <div class="settings-row-icon">💬</div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Slack</div>
+            <div class="settings-row-sub">ワークスペース: tekion-group.slack.com</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="conn-badge conn-on">接続済</span>
+            <span class="chevron">›</span>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-icon">🔷</div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Microsoft Teams</div>
+            <div class="settings-row-sub">未接続</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="conn-badge conn-off">未接続</span>
+            <span class="chevron">›</span>
+          </div>
+        </div>
+        <div class="settings-row" style="border-radius:0 0 14px 14px;">
+          <div class="settings-row-icon">📧</div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">Gmail</div>
+            <div class="settings-row-sub">agent@company.co.jp</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="conn-badge conn-on">接続済</span>
+            <span class="chevron">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="settings-section">
+        <div class="settings-title">通知設定</div>
+        <div class="settings-row" style="border-radius:14px 14px 0 0;">
+          <div class="settings-row-icon">🔔</div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">タスク完了通知</div>
+            <div class="settings-row-sub">Slackへ即時通知</div>
+          </div>
+          <div class="settings-row-right">
+            <button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"></button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-icon">📊</div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">日次サマリー</div>
+            <div class="settings-row-sub">毎日 18:00 に送信</div>
+          </div>
+          <div class="settings-row-right">
+            <button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"></button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-icon">⚠️</div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">エラー・警告通知</div>
+            <div class="settings-row-sub">即時 + メール</div>
+          </div>
+          <div class="settings-row-right">
+            <button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"></button>
+          </div>
+        </div>
+        <div class="settings-row" style="border-radius:0 0 14px 14px;">
+          <div class="settings-row-icon">📈</div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">月次レポート</div>
+            <div class="settings-row-sub">毎月1日 自動生成</div>
+          </div>
+          <div class="settings-row-right">
+            <button class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account -->
+      <div class="settings-section">
+        <div class="settings-title">アカウント</div>
+        <div class="settings-row" style="border-radius:14px 14px 0 0;">
+          <div class="settings-row-icon">👤</div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">管理者アカウント</div>
+            <div class="settings-row-sub">admin@company.co.jp</div>
+          </div>
+          <span class="chevron">›</span>
+        </div>
+        <div class="settings-row" style="border-radius:0 0 14px 14px;">
+          <div class="settings-row-icon">🔐</div>
+          <div class="settings-row-info">
+            <div class="settings-row-title">APIキー管理</div>
+            <div class="settings-row-sub">最終更新: 2026/01/15</div>
+          </div>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+
+      <div style="height:8px;"></div>
+    </div>
+
+  </div><!-- /screen-container -->
+
+  <!-- Navigation Bar -->
+  <div class="nav-bar">
+    <div class="nav-item active" data-screen="dashboard" onclick="switchScreen('dashboard', this)">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">ホーム</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" data-screen="tasks" onclick="switchScreen('tasks', this)">
+      <div class="nav-icon">📋</div>
+      <div class="nav-label">タスク</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" data-screen="artifacts" onclick="switchScreen('artifacts', this)">
+      <div class="nav-icon">📁</div>
+      <div class="nav-label">成果物</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" data-screen="skills" onclick="switchScreen('skills', this)">
+      <div class="nav-icon">⚙️</div>
+      <div class="nav-label">スキル</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" data-screen="reports" onclick="switchScreen('reports', this)">
+      <div class="nav-icon">📊</div>
+      <div class="nav-label">レポート</div>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item" data-screen="settings" onclick="switchScreen('settings', this)">
+      <div class="nav-icon">🔧</div>
+      <div class="nav-label">設定</div>
+      <div class="nav-dot"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Tab switching
+function switchScreen(name, el) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  // Show target
+  document.getElementById('screen-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+// Skills data
+const skillsAI = [
+  { icon: '✍️', name: '文章作成', desc: 'ブログ・メール・LP コピー自動生成', cron: '手動実行', on: true, bg: '#00D4AA22' },
+  { icon: '📊', name: 'データ分析', desc: 'CSV/Excel 解析・インサイト抽出', cron: '手動実行', on: true, bg: '#6C63FF22' },
+  { icon: '🎨', name: '画像生成', desc: 'DALL-E 3 / Stable Diffusion', cron: '手動実行', on: true, bg: '#FF6B6B22' },
+  { icon: '🔍', name: 'Web検索', desc: 'リアルタイム情報収集・要約', cron: '手動実行', on: true, bg: '#FFD93D22' },
+  { icon: '💡', name: 'アイデア出し', desc: 'ブレスト・企画立案サポート', cron: '手動実行', on: false, bg: '#9B59B622' },
+  { icon: '🌐', name: '多言語翻訳', desc: '日英中韓 ±30言語対応', cron: '手動実行', on: true, bg: '#3498DB22' },
+  { icon: '📝', name: '要約・議事録', desc: '音声/テキストから自動生成', cron: '手動実行', on: true, bg: '#2ECC7122' },
+];
+
+const skillsOutput = [
+  { icon: '📄', name: 'PDF生成', desc: 'レポート・請求書・資料をPDF出力', cron: '毎月1日 9:00', on: true, bg: '#FF6B6B22' },
+  { icon: '📊', name: 'PowerPoint', desc: 'テンプレートからPPTX自動生成', cron: '手動実行', on: true, bg: '#FF980022' },
+  { icon: '📈', name: 'Excel出力', desc: 'データをXLSX形式でエクスポート', cron: '毎週月曜 8:00', on: true, bg: '#00D4AA22' },
+  { icon: '📧', name: 'メール送信', desc: 'Gmail / SendGrid 経由で自動送信', cron: '毎日 9:00', on: true, bg: '#6C63FF22' },
+  { icon: '📱', name: 'SNS投稿', desc: 'Twitter/X・LinkedIn 自動投稿', cron: '毎日 12:00', on: false, bg: '#1DA1F222' },
+  { icon: '🎙️', name: '音声合成', desc: 'ElevenLabs TTS で音声ファイル生成', cron: '手動実行', on: false, bg: '#9B59B622' },
+];
+
+const skillsIntegration = [
+  { icon: '💬', name: 'Slack 連携', desc: '自動投稿・通知・コマンド対応', cron: 'リアルタイム', on: true, bg: '#4A154B22' },
+  { icon: '🔷', name: 'Teams 連携', desc: 'チャンネル投稿・ミーティング連携', cron: '未設定', on: false, bg: '#00457422' },
+  { icon: '📅', name: 'カレンダー同期', desc: 'Google/Outlook スケジュール管理', cron: '毎時', on: true, bg: '#4285F422' },
+  { icon: '🗂️', name: 'Drive保存', desc: '成果物をGoogleDriveへ自動保存', cron: '即時', on: true, bg: '#34A85322' },
+  { icon: '🔗', name: 'Notion同期', desc: 'ページ作成・データベース更新', cron: '手動実行', on: true, bg: '#00000022' },
+  { icon: '📞', name: '議事録Bot', desc: 'Zoom/Meet の文字起こし自動処理', cron: '会議終了後', on: false, bg: '#2D8CFF22' },
+  { icon: '⚡', name: 'Zapier連携', desc: '3,000+ アプリとノーコード連携', cron: 'トリガー式', on: true, bg: '#FF4A0022' },
+  { icon: '🐙', name: 'GitHub連携', desc: 'PRサマリー・issue対応補助', cron: '手動実行', on: false, bg: '#24292E22' },
+  { icon: '📊', name: 'Salesforce', desc: 'CRM データ自動更新・レポート生成', cron: '毎日 18:00', on: true, bg: '#00A1E022' },
+  { icon: '🛒', name: 'EC連携', desc: 'Shopify 商品説明・在庫管理', cron: '毎日 6:00', on: false, bg: '#96BF4822' },
+  { icon: '📬', name: 'HubSpot', desc: 'リード管理・メールシーケンス', cron: '毎日 10:00', on: true, bg: '#FF7A5922' },
+  { icon: '🌿', name: 'Airtable', desc: 'ベース更新・ビュー自動生成', cron: '手動実行', on: false, bg: '#18BFFF22' },
+];
+
+function renderSkills(data, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = data.map(skill => `
+    <div class="skill-item">
+      <div class="skill-icon" style="background:${skill.bg};">${skill.icon}</div>
+      <div class="skill-info">
+        <div class="skill-name">${skill.name}</div>
+        <div class="skill-desc">${skill.desc}</div>
+        <span class="skill-cron">${skill.cron}</span>
+      </div>
+      <button class="toggle ${skill.on ? 'on' : 'off'}" onclick="this.classList.toggle('on');this.classList.toggle('off');"></button>
+    </div>
+  `).join('');
+}
+
+renderSkills(skillsAI, 'skills-list');
+renderSkills(skillsOutput, 'skills-list-2');
+renderSkills(skillsIntegration, 'skills-list-3');
+
+// Clock update
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2, '0');
+  const m = now.getMinutes().toString().padStart(2, '0');
+  document.querySelector('.status-time').textContent = h + ':' + m;
+}
+updateClock();
+setInterval(updateClock, 60000);
+</script>
+</body>
+</html>
