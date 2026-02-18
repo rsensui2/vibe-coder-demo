@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>カクスキャン（KakuScan） - 撮るだけで、確定申告が終わる。</title>
+<style>
+/* ========== RESET & BASE ========== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: "Georgia", "Times New Roman", "游明朝", "YuMincho", "ヒラギノ明朝 ProN", serif;
+  background: #0D1B2A;
+  color: #E8E8E8;
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; }
+img { max-width: 100%; }
+
+/* ========== UTILITY ========== */
+.container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+.section-label {
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-size: 0.75rem;
+  color: #C9A84C;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+.section-title .gold { color: #C9A84C; }
+.section-subtitle {
+  font-size: 1.05rem;
+  color: #A0AEC0;
+  max-width: 640px;
+  margin: 0 auto 48px;
+}
+.text-center { text-align: center; }
+.gold-line {
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #C9A84C, #FF8F00);
+  margin: 0 auto 24px;
+  border-radius: 2px;
+}
+.btn-primary {
+  display: inline-block;
+  padding: 16px 48px;
+  background: linear-gradient(135deg, #00C853, #00E676);
+  color: #0D1B2A;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  letter-spacing: 1px;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,200,83,0.35);
+}
+.btn-outline {
+  display: inline-block;
+  padding: 14px 40px;
+  border: 2px solid #C9A84C;
+  color: #C9A84C;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-outline:hover {
+  background: #C9A84C;
+  color: #0D1B2A;
+}
+
+/* ========== HEADER / NAV ========== */
+header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(13,27,42,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(201,168,76,0.15);
+  transition: background 0.3s;
+}
+header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.logo span { color: #C9A84C; }
+nav { display: flex; gap: 32px; align-items: center; }
+nav a {
+  font-size: 0.9rem;
+  color: #A0AEC0;
+  transition: color 0.2s;
+  letter-spacing: 1px;
+}
+nav a:hover { color: #C9A84C; }
+.nav-cta {
+  padding: 8px 24px;
+  background: linear-gradient(135deg, #00C853, #00E676);
+  color: #0D1B2A !important;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+.hamburger span { display: block; width: 24px; height: 2px; background: #C9A84C; transition: 0.3s; }
+
+/* ========== HERO ========== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(170deg, #0D1B2A 0%, #152238 40%, #0D1B2A 100%);
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -150px; left: -150px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(30,58,95,0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero .container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  padding-top: 72px;
+}
+.hero-content { position: relative; z-index: 2; }
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(201,168,76,0.12);
+  border: 1px solid rgba(201,168,76,0.3);
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  color: #C9A84C;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+}
+.hero h1 {
+  font-size: 3.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+.hero h1 .accent-text {
+  background: linear-gradient(135deg, #C9A84C, #FF8F00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-tagline {
+  font-size: 1.2rem;
+  color: #A0AEC0;
+  margin-bottom: 40px;
+  line-height: 1.7;
+}
+.hero-buttons { display: flex; gap: 16px; margin-bottom: 48px; flex-wrap: wrap; }
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(201,168,76,0.2);
+}
+.hero-stat-number {
+  font-size: 2.6rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #C9A84C, #FF8F00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+.hero-stat-label {
+  font-size: 0.8rem;
+  color: #7A8BA0;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+.hero-visual {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-phone {
+  width: 280px;
+  height: 560px;
+  background: linear-gradient(145deg, #1a2d47, #0f1e33);
+  border-radius: 36px;
+  border: 2px solid rgba(201,168,76,0.25);
+  position: relative;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 60px rgba(201,168,76,0.08);
+  overflow: hidden;
+}
+.hero-phone::before {
+  content: '';
+  position: absolute;
+  top: 12px; left: 50%; transform: translateX(-50%);
+  width: 80px; height: 6px;
+  background: rgba(201,168,76,0.2);
+  border-radius: 3px;
+}
+.phone-screen {
+  position: absolute;
+  top: 30px; left: 12px; right: 12px; bottom: 12px;
+  background: linear-gradient(180deg, #152238, #1a2d47);
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.phone-screen .scan-icon {
+  width: 80px; height: 80px;
+  margin-bottom: 16px;
+}
+.phone-screen .scan-text {
+  font-size: 0.9rem;
+  color: #C9A84C;
+  letter-spacing: 2px;
+  text-align: center;
+}
+.phone-scan-line {
+  position: absolute;
+  left: 24px; right: 24px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00C853, transparent);
+  animation: scanLine 2.5s ease-in-out infinite;
+}
+@keyframes scanLine {
+  0%, 100% { top: 80px; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 500px; opacity: 0; }
+}
+
+/* ========== PROBLEMS ========== */
+.problems {
+  padding: 120px 0;
+  background: linear-gradient(180deg, #0D1B2A, #0a1520, #0D1B2A);
+  position: relative;
+}
+.problems::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+}
+.problems-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 48px;
+}
+.problem-card {
+  background: linear-gradient(145deg, rgba(26,45,71,0.6), rgba(13,27,42,0.8));
+  border: 1px solid rgba(201,168,76,0.12);
+  border-radius: 16px;
+  padding: 40px 32px;
+  text-align: center;
+  transition: transform 0.3s, border-color 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.problem-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #C9A84C, #FF8F00);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.problem-card:hover { transform: translateY(-4px); border-color: rgba(201,168,76,0.3); }
+.problem-card:hover::before { opacity: 1; }
+.problem-icon {
+  width: 64px; height: 64px;
+  margin: 0 auto 20px;
+}
+.problem-number {
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: #FF8F00;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.problem-unit {
+  font-size: 1rem;
+  color: #C9A84C;
+  margin-bottom: 16px;
+}
+.problem-card h3 {
+  font-size: 1.15rem;
+  margin-bottom: 12px;
+  color: #E8E8E8;
+}
+.problem-card p {
+  font-size: 0.9rem;
+  color: #7A8BA0;
+  line-height: 1.7;
+}
+
+/* ========== SOLUTION / STEPS ========== */
+.solution {
+  padding: 120px 0;
+  background: #0D1B2A;
+  position: relative;
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 56px;
+  position: relative;
+}
+.steps::before {
+  content: '';
+  position: absolute;
+  top: 60px;
+  left: 12.5%;
+  right: 12.5%;
+  height: 2px;
+  background: linear-gradient(90deg, #C9A84C, #FF8F00, #C9A84C);
+  opacity: 0.3;
+  z-index: 0;
+}
+.step {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.step-circle {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #152238, #1a2d47);
+  border: 2px solid rgba(201,168,76,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.step:hover .step-circle {
+  border-color: #C9A84C;
+  box-shadow: 0 0 30px rgba(201,168,76,0.15);
+}
+.step-circle svg { width: 48px; height: 48px; }
+.step-num {
+  font-size: 0.75rem;
+  color: #C9A84C;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+}
+.step h3 {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+.step p {
+  font-size: 0.85rem;
+  color: #7A8BA0;
+  line-height: 1.7;
+  max-width: 220px;
+  margin: 0 auto;
+}
+.step-arrow {
+  position: absolute;
+  top: 56px; right: -18px;
+  color: #C9A84C;
+  font-size: 1.4rem;
+  opacity: 0.5;
+  z-index: 2;
+}
+
+/* ========== FEATURES ========== */
+.features {
+  padding: 120px 0;
+  background: linear-gradient(180deg, #0a1520, #0D1B2A);
+  position: relative;
+}
+.features::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 56px;
+}
+.feature-card {
+  background: linear-gradient(145deg, rgba(26,45,71,0.5), rgba(13,27,42,0.7));
+  border: 1px solid rgba(201,168,76,0.1);
+  border-radius: 16px;
+  padding: 48px 32px;
+  text-align: center;
+  transition: all 0.3s;
+  position: relative;
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201,168,76,0.3);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+}
+.feature-icon {
+  width: 72px; height: 72px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(255,143,0,0.05));
+  border-radius: 16px;
+}
+.feature-icon svg { width: 36px; height: 36px; }
+.feature-big-number {
+  font-size: 3.6rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #C9A84C, #FF8F00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.feature-big-unit {
+  font-size: 1rem;
+  color: #C9A84C;
+  margin-bottom: 16px;
+}
+.feature-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+}
+.feature-card p {
+  font-size: 0.9rem;
+  color: #7A8BA0;
+  line-height: 1.7;
+}
+
+/* ========== PRICING ========== */
+.pricing {
+  padding: 120px 0;
+  background: #0D1B2A;
+  position: relative;
+}
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 56px;
+  align-items: start;
+}
+.price-card {
+  background: linear-gradient(145deg, rgba(26,45,71,0.5), rgba(13,27,42,0.8));
+  border: 1px solid rgba(201,168,76,0.1);
+  border-radius: 16px;
+  padding: 40px 24px;
+  text-align: center;
+  transition: all 0.3s;
+  position: relative;
+}
+.price-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201,168,76,0.25);
+}
+.price-card.recommended {
+  border: 2px solid #C9A84C;
+  background: linear-gradient(145deg, rgba(40,60,90,0.6), rgba(20,35,55,0.9));
+  transform: scale(1.05);
+  box-shadow: 0 20px 60px rgba(201,168,76,0.15);
+}
+.price-card.recommended:hover { transform: scale(1.05) translateY(-4px); }
+.price-badge {
+  position: absolute;
+  top: -14px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, #C9A84C, #FF8F00);
+  color: #0D1B2A;
+  padding: 4px 20px;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.price-name {
+  font-size: 1.1rem;
+  color: #C9A84C;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+.price-amount {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.price-amount .yen { font-size: 1.2rem; vertical-align: top; }
+.price-period {
+  font-size: 0.8rem;
+  color: #7A8BA0;
+  margin-bottom: 24px;
+}
+.price-features {
+  text-align: left;
+  margin-bottom: 32px;
+}
+.price-features li {
+  font-size: 0.85rem;
+  color: #A0AEC0;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(201,168,76,0.06);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.price-features li svg { width: 16px; height: 16px; flex-shrink: 0; }
+.price-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 0;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+.price-btn-outline {
+  background: transparent;
+  border: 2px solid rgba(201,168,76,0.3);
+  color: #C9A84C;
+}
+.price-btn-outline:hover { background: rgba(201,168,76,0.1); }
+.price-btn-gold {
+  background: linear-gradient(135deg, #C9A84C, #FF8F00);
+  color: #0D1B2A;
+}
+.price-btn-gold:hover { box-shadow: 0 8px 24px rgba(201,168,76,0.3); }
+
+/* ========== FAQ ========== */
+.faq {
+  padding: 120px 0;
+  background: linear-gradient(180deg, #0D1B2A, #0a1520);
+}
+.faq-list {
+  max-width: 760px;
+  margin: 48px auto 0;
+}
+.faq-item {
+  border-bottom: 1px solid rgba(201,168,76,0.12);
+}
+.faq-question {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #E8E8E8;
+  font-size: 1.05rem;
+  font-family: inherit;
+  text-align: left;
+  padding: 24px 40px 24px 0;
+  cursor: pointer;
+  position: relative;
+  line-height: 1.6;
+}
+.faq-question::after {
+  content: '+';
+  position: absolute;
+  right: 0; top: 50%; transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: #C9A84C;
+  transition: transform 0.3s;
+}
+.faq-question.active::after {
+  content: '−';
+}
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s;
+  padding: 0 0;
+}
+.faq-answer.open {
+  max-height: 300px;
+  padding: 0 0 24px;
+}
+.faq-answer p {
+  font-size: 0.95rem;
+  color: #7A8BA0;
+  line-height: 1.8;
+}
+
+/* ========== FINAL CTA ========== */
+.final-cta {
+  padding: 120px 0;
+  background: linear-gradient(145deg, #152238, #0D1B2A);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.final-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #C9A84C, transparent);
+}
+.final-cta::after {
+  content: '';
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.final-cta h2 {
+  font-size: 2.8rem;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+.final-cta .cta-sub {
+  font-size: 1.1rem;
+  color: #7A8BA0;
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 1;
+}
+.final-cta .btn-primary { position: relative; z-index: 1; }
+.cta-trust {
+  margin-top: 32px;
+  font-size: 0.8rem;
+  color: #5A6A7A;
+  position: relative;
+  z-index: 1;
+}
+
+/* ========== FOOTER ========== */
+footer {
+  padding: 64px 0 32px;
+  background: #080f1a;
+  border-top: 1px solid rgba(201,168,76,0.1);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 48px;
+}
+.footer-brand .logo { margin-bottom: 16px; }
+.footer-brand p {
+  font-size: 0.85rem;
+  color: #5A6A7A;
+  line-height: 1.7;
+}
+.footer-col h4 {
+  font-size: 0.85rem;
+  color: #C9A84C;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+.footer-col a {
+  display: block;
+  font-size: 0.85rem;
+  color: #5A6A7A;
+  padding: 4px 0;
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: #C9A84C; }
+.footer-bottom {
+  text-align: center;
+  padding-top: 32px;
+  border-top: 1px solid rgba(201,168,76,0.08);
+  font-size: 0.8rem;
+  color: #3A4A5A;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1024px) {
+  .hero .container { grid-template-columns: 1fr; text-align: center; }
+  .hero-visual { display: none; }
+  .hero-stats { justify-content: center; }
+  .hero-buttons { justify-content: center; }
+  .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+  .price-card.recommended { transform: scale(1.02); }
+  .price-card.recommended:hover { transform: scale(1.02) translateY(-4px); }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2.2rem; }
+  .section-title { font-size: 1.8rem; }
+  .problems-grid { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: repeat(2, 1fr); }
+  .steps::before { display: none; }
+  .step-arrow { display: none; }
+  .features-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .hero-stats { flex-direction: column; gap: 20px; align-items: center; }
+  nav { display: none; }
+  .hamburger { display: flex; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .final-cta h2 { font-size: 2rem; }
+}
+@media (max-width: 480px) {
+  .hero h1 { font-size: 1.7rem; }
+  .hero { min-height: auto; padding: 120px 0 80px; }
+  .section-title { font-size: 1.5rem; }
+  .steps { grid-template-columns: 1fr; }
+}
+
+/* ========== ANIMATIONS ========== */
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<header>
+  <div class="container">
+    <div class="logo"><span>Kaku</span>Scan</div>
+    <nav>
+      <a href="#problems">課題</a>
+      <a href="#solution">使い方</a>
+      <a href="#features">機能</a>
+      <a href="#pricing">料金</a>
+      <a href="#faq">FAQ</a>
+      <a href="#" class="nav-cta">無料で始める</a>
+    </nav>
+    <div class="hamburger" onclick="document.querySelector('nav').classList.toggle('open')">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</header>
+
+<!-- ========== HERO ========== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content fade-up">
+      <div class="hero-badge">
+        <!-- award icon -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+        税理士事務所 導入実績No.1
+      </div>
+      <h1>撮るだけで、<br><span class="accent-text">確定申告が終わる。</span></h1>
+      <p class="hero-tagline">
+        領収書をスマホで撮影するだけ。AI-OCRが自動で読取・仕分けし、<br>
+        確定申告書類をワンストップで生成。煩雑な経理業務から解放されます。
+      </p>
+      <div class="hero-buttons">
+        <a href="#" class="btn-primary">まずは無料で試す</a>
+        <a href="#solution" class="btn-outline">使い方を見る</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-number">500+</div>
+          <div class="hero-stat-label">導入事務所</div>
+        </div>
+        <div>
+          <div class="hero-stat-number">100万+</div>
+          <div class="hero-stat-label">月間処理枚数</div>
+        </div>
+        <div>
+          <div class="hero-stat-number">98.7%</div>
+          <div class="hero-stat-label">OCR認識精度</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual fade-up">
+      <div class="hero-phone">
+        <div class="phone-screen">
+          <svg class="scan-icon" viewBox="0 0 80 80" fill="none">
+            <rect x="8" y="8" width="64" height="64" rx="8" stroke="#C9A84C" stroke-width="2" stroke-dasharray="8 4"/>
+            <rect x="20" y="24" width="40" height="4" rx="2" fill="rgba(201,168,76,0.3)"/>
+            <rect x="20" y="34" width="32" height="4" rx="2" fill="rgba(201,168,76,0.2)"/>
+            <rect x="20" y="44" width="36" height="4" rx="2" fill="rgba(201,168,76,0.2)"/>
+            <rect x="20" y="54" width="28" height="4" rx="2" fill="rgba(201,168,76,0.15)"/>
+          </svg>
+          <div class="scan-text">SCANNING...</div>
+        </div>
+        <div class="phone-scan-line"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PROBLEMS ========== -->
+<section class="problems" id="problems">
+  <div class="container">
+    <div class="text-center fade-up">
+      <div class="section-label">PROBLEMS</div>
+      <div class="gold-line"></div>
+      <h2 class="section-title">紙の領収書が、<span class="gold">事務所の生産性</span>を奪っている</h2>
+      <p class="section-subtitle">手作業による経理処理は、膨大な時間とコストを生み出しています。</p>
+    </div>
+    <div class="problems-grid">
+      <div class="problem-card fade-up">
+        <svg class="problem-icon" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="28" stroke="#FF8F00" stroke-width="2" opacity="0.3"/>
+          <path d="M32 18v16l10 6" stroke="#FF8F00" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div class="problem-number">240</div>
+        <div class="problem-unit">時間 / 年</div>
+        <h3>手入力にかかる膨大な時間</h3>
+        <p>1枚あたり平均2分の手入力作業。年間7,200枚処理する事務所では、年間240時間が失われています。</p>
+      </div>
+      <div class="problem-card fade-up">
+        <svg class="problem-icon" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="28" stroke="#FF8F00" stroke-width="2" opacity="0.3"/>
+          <path d="M22 32h20M32 22v20" stroke="#FF8F00" stroke-width="2.5" stroke-linecap="round" transform="rotate(45 32 32)"/>
+        </svg>
+        <div class="problem-number">3.2%</div>
+        <div class="problem-unit">平均入力ミス率</div>
+        <h3>ヒューマンエラーの蓄積</h3>
+        <p>手入力では金額・日付の転記ミスが避けられません。修正対応にさらに工数がかかります。</p>
+      </div>
+      <div class="problem-card fade-up">
+        <svg class="problem-icon" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="28" stroke="#FF8F00" stroke-width="2" opacity="0.3"/>
+          <rect x="18" y="22" width="28" height="20" rx="3" stroke="#FF8F00" stroke-width="2"/>
+          <path d="M24 30h16M24 36h10" stroke="#FF8F00" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div class="problem-number">¥480万</div>
+        <div class="problem-unit">年間コスト（10名事務所）</div>
+        <h3>見えない人件費の浪費</h3>
+        <p>経理補助スタッフの人件費は時給換算で膨大に。本来注力すべきコンサル業務に時間を割けません。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SOLUTION ========== -->
+<section class="solution" id="solution">
+  <div class="container">
+    <div class="text-center fade-up">
+      <div class="section-label">SOLUTION</div>
+      <div class="gold-line"></div>
+      <h2 class="section-title">たった<span class="gold">4ステップ</span>で、申告書類が完成</h2>
+      <p class="section-subtitle">複雑な経理フローを、スマホひとつでシンプルに完結。</p>
+    </div>
+    <div class="steps">
+      <div class="step fade-up">
+        <div class="step-circle">
+          <svg viewBox="0 0 48 48" fill="none">
+            <rect x="12" y="8" width="24" height="32" rx="4" stroke="#C9A84C" stroke-width="2"/>
+            <circle cx="24" cy="34" r="2" fill="#C9A84C"/>
+            <rect x="18" y="14" width="12" height="12" rx="2" stroke="#C9A84C" stroke-width="1.5"/>
+            <circle cx="24" cy="20" r="3" stroke="#C9A84C" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="step-num">STEP 01</div>
+        <h3>スマホで撮影</h3>
+        <p>領収書をカメラで撮るだけ。自動で傾き補正・画質最適化。</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step fade-up">
+        <div class="step-circle">
+          <svg viewBox="0 0 48 48" fill="none">
+            <rect x="8" y="12" width="32" height="24" rx="4" stroke="#C9A84C" stroke-width="2"/>
+            <path d="M16 22h16M16 28h10" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="36" cy="16" r="6" fill="#152238" stroke="#00C853" stroke-width="2"/>
+            <path d="M34 16l1.5 1.5L38 14.5" stroke="#00C853" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="step-num">STEP 02</div>
+        <h3>AI-OCR自動読取</h3>
+        <p>独自AIが金額・日付・店舗名を瞬時に認識。精度98%以上。</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step fade-up">
+        <div class="step-circle">
+          <svg viewBox="0 0 48 48" fill="none">
+            <rect x="8" y="10" width="14" height="12" rx="2" stroke="#C9A84C" stroke-width="1.5"/>
+            <rect x="26" y="10" width="14" height="12" rx="2" stroke="#C9A84C" stroke-width="1.5"/>
+            <rect x="8" y="26" width="14" height="12" rx="2" stroke="#C9A84C" stroke-width="1.5"/>
+            <rect x="26" y="26" width="14" height="12" rx="2" stroke="#C9A84C" stroke-width="1.5"/>
+            <path d="M15 16h0M33 16h0M15 32h0M33 32h0" stroke="#C9A84C" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="step-num">STEP 03</div>
+        <h3>学習型自動仕分け</h3>
+        <p>勘定科目を自動分類。使うほど学習し精度が向上します。</p>
+        <span class="step-arrow">→</span>
+      </div>
+      <div class="step fade-up">
+        <div class="step-circle">
+          <svg viewBox="0 0 48 48" fill="none">
+            <rect x="10" y="8" width="28" height="32" rx="3" stroke="#C9A84C" stroke-width="2"/>
+            <path d="M16 16h16M16 22h16M16 28h12" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M30 30l4 4 8-8" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="step-num">STEP 04</div>
+        <h3>申告書類自動生成</h3>
+        <p>確定申告に必要な書類をワンクリックで自動生成・出力。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FEATURES ========== -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="text-center fade-up">
+      <div class="section-label">FEATURES</div>
+      <div class="gold-line"></div>
+      <h2 class="section-title"><span class="gold">圧倒的な実績</span>が証明する信頼性</h2>
+      <p class="section-subtitle">数字が物語る、カクスキャンの実力。</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card fade-up">
+        <div class="feature-icon">
+          <svg viewBox="0 0 36 36" fill="none">
+            <circle cx="18" cy="18" r="14" stroke="#C9A84C" stroke-width="2"/>
+            <path d="M18 10v8l5 3" stroke="#C9A84C" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="feature-big-number">98.7%</div>
+        <div class="feature-big-unit">OCR認識精度</div>
+        <h3>AI-OCR 超高精度エンジン</h3>
+        <p>独自開発のディープラーニングモデルにより、手書き・レシート・領収書を問わず業界最高水準の認識精度を実現。日本語特化のチューニングで、旧字体や特殊フォントにも対応。</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon">
+          <svg viewBox="0 0 36 36" fill="none">
+            <path d="M6 28l8-10 6 6 10-14" stroke="#C9A84C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="28" cy="10" r="4" stroke="#00C853" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="feature-big-number">95%</div>
+        <div class="feature-big-unit">自動仕分け精度</div>
+        <h3>学習型スマート仕分け</h3>
+        <p>過去の仕分けパターンを学習し、勘定科目を自動提案。事務所ごとの独自ルールにも適応し、使い込むほど精度が向上。手動修正は最小限に。</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon">
+          <svg viewBox="0 0 36 36" fill="none">
+            <rect x="6" y="6" width="24" height="24" rx="4" stroke="#C9A84C" stroke-width="2"/>
+            <path d="M12 18l4 4 8-8" stroke="#00C853" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="feature-big-number">80%</div>
+        <div class="feature-big-unit">業務時間削減</div>
+        <h3>ワンストップ申告生成</h3>
+        <p>読取から仕分け、確定申告書類の生成までを一気通貫で完結。e-Tax連携にも対応し、提出までシームレス。経理業務時間を最大80%削減します。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PRICING ========== -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="text-center fade-up">
+      <div class="section-label">PRICING</div>
+      <div class="gold-line"></div>
+      <h2 class="section-title">ビジネスの規模に合わせた<span class="gold">最適プラン</span></h2>
+      <p class="section-subtitle">すべてのプランで14日間の無料トライアル付き。</p>
+    </div>
+    <div class="pricing-grid">
+      <!-- Free -->
+      <div class="price-card fade-up">
+        <div class="price-name">FREE</div>
+        <div class="price-amount"><span class="yen">¥</span>0</div>
+        <div class="price-period">永年無料</div>
+        <ul class="price-features">
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>月30枚まで読取</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>基本OCR機能</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>CSV出力</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>メールサポート</li>
+        </ul>
+        <a href="#" class="price-btn price-btn-outline">無料で始める</a>
+      </div>
+      <!-- Standard -->
+      <div class="price-card fade-up">
+        <div class="price-name">STANDARD</div>
+        <div class="price-amount"><span class="yen">¥</span>980</div>
+        <div class="price-period">/ 月（税別）</div>
+        <ul class="price-features">
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>月300枚まで読取</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>高精度AI-OCR</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>自動仕分け</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>確定申告書類生成</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>チャットサポート</li>
+        </ul>
+        <a href="#" class="price-btn price-btn-outline">14日間無料体験</a>
+      </div>
+      <!-- Pro -->
+      <div class="price-card fade-up">
+        <div class="price-name">PRO</div>
+        <div class="price-amount"><span class="yen">¥</span>2,980</div>
+        <div class="price-period">/ 月（税別）</div>
+        <ul class="price-features">
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>月1,000枚まで読取</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>全AI-OCR機能</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>学習型仕分け</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>e-Tax連携</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>API連携</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>優先サポート</li>
+        </ul>
+        <a href="#" class="price-btn price-btn-outline">14日間無料体験</a>
+      </div>
+      <!-- Office -->
+      <div class="price-card recommended fade-up">
+        <div class="price-badge">おすすめ</div>
+        <div class="price-name">OFFICE</div>
+        <div class="price-amount"><span class="yen">¥</span>9,800</div>
+        <div class="price-period">/ 月（税別）</div>
+        <ul class="price-features">
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>枚数無制限</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>全機能利用可能</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>マルチユーザー（10名）</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>顧問先管理機能</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>カスタム仕分けルール</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>専任サポート担当</li>
+          <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>SLA保証 99.9%</li>
+        </ul>
+        <a href="#" class="price-btn price-btn-gold">14日間無料体験</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FAQ ========== -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="text-center fade-up">
+      <div class="section-label">FAQ</div>
+      <div class="gold-line"></div>
+      <h2 class="section-title">よくある<span class="gold">ご質問</span></h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item fade-up">
+        <button class="faq-question" onclick="toggleFaq(this)">手書きの領収書も読み取れますか？</button>
+        <div class="faq-answer">
+          <p>はい、カクスキャンのAI-OCRは手書き文字にも対応しています。日本語の手書き領収書を数十万枚学習しており、金額・日付・宛名を高精度で認識します。認識が困難な場合は、確認画面で簡単に修正いただけます。</p>
+        </div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-question" onclick="toggleFaq(this)">セキュリティは大丈夫ですか？</button>
+        <div class="faq-answer">
+          <p>万全のセキュリティ体制を整えています。通信はすべてTLS 1.3で暗号化、データはAES-256で保存時暗号化。SOC 2 Type II認証取得済み、ISMAP登録済みで、官公庁・金融機関のセキュリティ基準にも準拠しています。</p>
+        </div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-question" onclick="toggleFaq(this)">既存の会計ソフトと連携できますか？</button>
+        <div class="faq-answer">
+          <p>freee、マネーフォワード、弥生会計、TKC等の主要会計ソフトとCSV/API連携が可能です。プロプラン以上では、仕分けデータを直接APIで送信する自動連携にも対応しています。</p>
+        </div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-question" onclick="toggleFaq(this)">電子帳簿保存法に対応していますか？</button>
+        <div class="faq-answer">
+          <p>はい、電子帳簿保存法のスキャナ保存要件に完全対応しています。タイムスタンプ付与、検索機能、訂正削除履歴の管理など、法的要件をすべて満たしています。JIIMAの認証も取得済みです。</p>
+        </div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-question" onclick="toggleFaq(this)">無料プランから有料プランへの移行は簡単ですか？</button>
+        <div class="faq-answer">
+          <p>はい、管理画面からワンクリックでアップグレードできます。無料プランで蓄積したデータはそのまま引き継がれ、すぐに上位機能をご利用いただけます。もちろんダウングレードも自由です。</p>
+        </div>
+      </div>
+      <div class="faq-item fade-up">
+        <button class="faq-question" onclick="toggleFaq(this)">導入サポートはありますか？</button>
+        <div class="faq-answer">
+          <p>事務所プランでは、専任のカスタマーサクセス担当がオンボーディングから運用定着まで伴走します。初期設定、仕分けルールの構築、スタッフへのトレーニングまで、包括的にサポートいたします。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FINAL CTA ========== -->
+<section class="final-cta">
+  <div class="container fade-up">
+    <div class="section-label">GET STARTED</div>
+    <div class="gold-line"></div>
+    <h2>まずは<span style="background:linear-gradient(135deg,#C9A84C,#FF8F00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">無料</span>で試す</h2>
+    <p class="cta-sub">14日間すべての機能を無料でお試しいただけます。<br>クレジットカード不要、いつでもキャンセル可能。</p>
+    <a href="#" class="btn-primary">無料トライアルを開始する</a>
+    <div class="cta-trust">
+      <svg style="vertical-align:middle;margin-right:4px" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1l2.5 5 5.5.8-4 3.9 1 5.3L8 13.3 2.8 16l1-5.3L0 6.8l5.5-.8z" fill="#C9A84C"/></svg>
+      500社以上の税理士事務所が導入済み ・ 初期費用無料 ・ 解約手数料なし
+    </div>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo"><span>Kaku</span>Scan</div>
+        <p>領収書をスマホで撮影するだけでAI-OCRが自動読取・仕分けし、確定申告書類を自動生成。税理士事務所の経理業務を革新します。</p>
+      </div>
+      <div class="footer-col">
+        <h4>PRODUCT</h4>
+        <a href="#">機能一覧</a>
+        <a href="#">料金プラン</a>
+        <a href="#">導入事例</a>
+        <a href="#">セキュリティ</a>
+        <a href="#">API連携</a>
+      </div>
+      <div class="footer-col">
+        <h4>SUPPORT</h4>
+        <a href="#">ヘルプセンター</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">導入サポート</a>
+        <a href="#">ステータス</a>
+      </div>
+      <div class="footer-col">
+        <h4>COMPANY</h4>
+        <a href="#">会社概要</a>
+        <a href="#">採用情報</a>
+        <a href="#">プライバシーポリシー</a>
+        <a href="#">利用規約</a>
+        <a href="#">特定商取引法</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 KakuScan Inc. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<!-- ========== SCRIPTS ========== -->
+<script>
+/* FAQ Toggle */
+function toggleFaq(btn) {
+  const answer = btn.nextElementSibling;
+  const isOpen = answer.classList.contains('open');
+  /* Close all */
+  document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+  document.querySelectorAll('.faq-question').forEach(q => q.classList.remove('active'));
+  if (!isOpen) {
+    answer.classList.add('open');
+    btn.classList.add('active');
+  }
+}
+
+/* Scroll Animation */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+/* Header scroll effect */
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+  const header = document.querySelector('header');
+  const currentScroll = window.pageYOffset;
+  if (currentScroll > 100) {
+    header.style.background = 'rgba(8,15,26,0.97)';
+  } else {
+    header.style.background = 'rgba(13,27,42,0.92)';
+  }
+  lastScroll = currentScroll;
+});
+
+/* Smooth scroll for nav links */
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    const href = this.getAttribute('href');
+    if (href === '#') return;
+    e.preventDefault();
+    const target = document.querySelector(href);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+/* Counter animation */
+function animateCounters() {
+  document.querySelectorAll('.hero-stat-number').forEach(el => {
+    const text = el.textContent;
+    if (el.dataset.animated) return;
+    el.dataset.animated = 'true';
+  });
+}
+animateCounters();
+</script>
+
+</body>
+</html>

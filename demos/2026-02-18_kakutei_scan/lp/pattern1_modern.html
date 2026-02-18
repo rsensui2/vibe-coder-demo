@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>カクスキャン（KakuScan） - 撮るだけで、確定申告が終わる。</title>
+<style>
+/* ===== Reset & Base ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  color: #2D3748;
+  background: #FAFBFC;
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; }
+img { max-width: 100%; }
+
+/* ===== Utility ===== */
+.container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+.section-title {
+  font-size: 2rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #1E3A5F;
+}
+.section-subtitle {
+  text-align: center;
+  color: #718096;
+  font-size: 1.1rem;
+  margin-bottom: 3.5rem;
+}
+.btn-primary {
+  display: inline-block;
+  background: #00C853;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 16px 40px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+  box-shadow: 0 4px 14px rgba(0,200,83,.35);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,200,83,.45);
+}
+.btn-secondary {
+  display: inline-block;
+  background: transparent;
+  color: #1E3A5F;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 14px 36px;
+  border-radius: 8px;
+  border: 2px solid #1E3A5F;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.btn-secondary:hover {
+  background: #1E3A5F;
+  color: #fff;
+}
+
+/* ===== Fade-in Animation ===== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-in-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+.fade-in-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.fade-in-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+.fade-in-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ===== Navigation ===== */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(250,251,252,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(30,58,95,.08);
+  transition: box-shadow .3s;
+}
+.nav.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,.06); }
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.nav-logo {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1E3A5F;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-logo svg { width: 28px; height: 28px; }
+.nav-links { display: flex; gap: 28px; align-items: center; }
+.nav-links a {
+  font-size: .9rem;
+  font-weight: 600;
+  color: #4A5568;
+  transition: color .2s;
+}
+.nav-links a:hover { color: #1E3A5F; }
+.nav-cta {
+  background: #00C853;
+  color: #fff !important;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: .85rem !important;
+  transition: opacity .2s;
+}
+.nav-cta:hover { opacity: .9; }
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+.nav-hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: #1E3A5F;
+  border-radius: 2px;
+  transition: transform .3s, opacity .3s;
+}
+
+/* ===== Hero ===== */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+  overflow: hidden;
+}
+.hero-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(30,58,95,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30,58,95,.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 0;
+}
+.hero-gradient {
+  position: absolute;
+  top: -200px;
+  right: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0,200,83,.08) 0%, transparent 70%);
+  z-index: 0;
+}
+.hero-gradient-2 {
+  position: absolute;
+  bottom: -150px;
+  left: -150px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(30,58,95,.06) 0%, transparent 70%);
+  z-index: 0;
+}
+.hero-content { position: relative; z-index: 1; max-width: 800px; }
+.hero-badge {
+  display: inline-block;
+  background: rgba(30,58,95,.08);
+  color: #1E3A5F;
+  font-size: .85rem;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+  letter-spacing: .02em;
+}
+.hero-badge svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; }
+.hero h1 {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1.3;
+  color: #1E3A5F;
+  margin-bottom: 24px;
+  letter-spacing: -.02em;
+}
+.hero h1 .accent { color: #00C853; }
+.hero p {
+  font-size: 1.25rem;
+  color: #4A5568;
+  margin-bottom: 40px;
+  line-height: 1.9;
+}
+.hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.hero-code {
+  margin-top: 48px;
+  background: #1E3A5F;
+  border-radius: 12px;
+  padding: 24px 32px;
+  text-align: left;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: .9rem;
+  color: #A0AEC0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(30,58,95,.2);
+}
+.hero-code::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #FF5F56;
+  box-shadow: 16px 0 #FFBD2E, 32px 0 #27C93F;
+}
+.hero-code code { display: block; margin-top: 12px; }
+.hero-code .kw { color: #00C853; }
+.hero-code .str { color: #FF8F00; }
+.hero-code .cm { color: #718096; }
+
+/* ===== Section: Problems ===== */
+.problems {
+  padding: 120px 0;
+  background: #fff;
+}
+.problems-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+.problem-card {
+  background: #FAFBFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 40px 32px;
+  text-align: center;
+  transition: transform .3s, box-shadow .3s;
+}
+.problem-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.06);
+}
+.problem-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(255,143,0,.1);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+.problem-icon svg { width: 32px; height: 32px; color: #FF8F00; }
+.problem-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1E3A5F;
+  margin-bottom: 12px;
+}
+.problem-card p {
+  color: #718096;
+  font-size: .95rem;
+  line-height: 1.8;
+}
+
+/* ===== Section: Solution / Steps ===== */
+.solution {
+  padding: 120px 0;
+  background: #FAFBFC;
+  position: relative;
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  position: relative;
+}
+.steps::before {
+  content: '';
+  position: absolute;
+  top: 48px;
+  left: calc(12.5% + 12px);
+  right: calc(12.5% + 12px);
+  height: 3px;
+  background: linear-gradient(90deg, #00C853, #1E3A5F);
+  border-radius: 2px;
+  z-index: 0;
+}
+.step {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.step-number {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #00C853;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 4px 20px rgba(0,200,83,.15);
+}
+.step-number svg { width: 40px; height: 40px; color: #1E3A5F; }
+.step-label {
+  display: inline-block;
+  background: #1E3A5F;
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+.step h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1E3A5F;
+  margin-bottom: 8px;
+}
+.step p {
+  font-size: .9rem;
+  color: #718096;
+  line-height: 1.7;
+}
+.step-arrow {
+  display: none;
+}
+
+/* ===== Section: Features ===== */
+.features {
+  padding: 120px 0;
+  background: #fff;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+.feature-card {
+  background: #FAFBFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 40px 32px;
+  transition: transform .3s, box-shadow .3s;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #00C853, #1E3A5F);
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.06);
+}
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(0,200,83,.1);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.feature-icon svg { width: 28px; height: 28px; color: #00C853; }
+.feature-card h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1E3A5F;
+  margin-bottom: 12px;
+}
+.feature-stat {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #00C853;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.feature-card p {
+  color: #718096;
+  font-size: .95rem;
+  line-height: 1.8;
+}
+.feature-tag {
+  display: inline-block;
+  margin-top: 16px;
+  background: rgba(30,58,95,.06);
+  color: #1E3A5F;
+  font-size: .8rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+
+/* ===== Section: Pricing ===== */
+.pricing {
+  padding: 120px 0;
+  background: #FAFBFC;
+}
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.pricing-card {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 36px 28px;
+  text-align: center;
+  transition: transform .3s, box-shadow .3s;
+  position: relative;
+}
+.pricing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.06);
+}
+.pricing-card.popular {
+  border-color: #00C853;
+  box-shadow: 0 8px 30px rgba(0,200,83,.15);
+  transform: scale(1.03);
+}
+.pricing-card.popular:hover {
+  transform: scale(1.03) translateY(-4px);
+}
+.pricing-popular-badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #00C853;
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 700;
+  padding: 4px 16px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+.pricing-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1E3A5F;
+  margin-bottom: 8px;
+}
+.pricing-price {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #1E3A5F;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+.pricing-price span { font-size: 1rem; font-weight: 600; color: #718096; }
+.pricing-period {
+  font-size: .85rem;
+  color: #A0AEC0;
+  margin-bottom: 24px;
+}
+.pricing-features {
+  text-align: left;
+  margin-bottom: 28px;
+}
+.pricing-features li {
+  padding: 8px 0;
+  font-size: .9rem;
+  color: #4A5568;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pricing-features li svg { width: 18px; height: 18px; color: #00C853; flex-shrink: 0; }
+.pricing-features li.disabled { color: #CBD5E0; }
+.pricing-features li.disabled svg { color: #CBD5E0; }
+.pricing-card .btn-primary { width: 100%; text-align: center; font-size: 1rem; padding: 12px; }
+.pricing-card .btn-secondary { width: 100%; text-align: center; font-size: 1rem; padding: 10px; }
+
+/* ===== Section: FAQ ===== */
+.faq {
+  padding: 120px 0;
+  background: #fff;
+}
+.faq-list { max-width: 720px; margin: 0 auto; }
+.faq-item {
+  border-bottom: 1px solid #E2E8F0;
+}
+.faq-question {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 24px 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1E3A5F;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: inherit;
+  line-height: 1.6;
+}
+.faq-question svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  transition: transform .3s;
+  color: #A0AEC0;
+}
+.faq-item.open .faq-question svg { transform: rotate(180deg); }
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .4s ease, padding .3s ease;
+}
+.faq-item.open .faq-answer {
+  max-height: 300px;
+  padding-bottom: 24px;
+}
+.faq-answer p {
+  color: #718096;
+  font-size: .95rem;
+  line-height: 1.9;
+}
+
+/* ===== Section: CTA Bottom ===== */
+.cta-bottom {
+  padding: 100px 0;
+  background: linear-gradient(135deg, #1E3A5F 0%, #2D5A8E 100%);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-bottom::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.cta-bottom-content { position: relative; z-index: 1; }
+.cta-bottom h2 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 16px;
+}
+.cta-bottom p {
+  color: rgba(255,255,255,.7);
+  font-size: 1.15rem;
+  margin-bottom: 40px;
+}
+.cta-bottom .btn-primary {
+  font-size: 1.2rem;
+  padding: 18px 48px;
+}
+
+/* ===== Footer ===== */
+.footer {
+  padding: 60px 0 32px;
+  background: #1A202C;
+  color: #A0AEC0;
+}
+.footer-inner {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+.footer-brand h3 {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.footer-brand h3 svg { width: 24px; height: 24px; }
+.footer-brand p { font-size: .9rem; line-height: 1.8; }
+.footer-col h4 {
+  color: #fff;
+  font-size: .9rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.footer-col ul li { margin-bottom: 10px; }
+.footer-col ul li a {
+  font-size: .9rem;
+  color: #A0AEC0;
+  transition: color .2s;
+}
+.footer-col ul li a:hover { color: #fff; }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding-top: 24px;
+  text-align: center;
+  font-size: .85rem;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+  .steps { grid-template-columns: repeat(2, 1fr); gap: 40px; }
+  .steps::before { display: none; }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2.2rem; }
+  .hero p { font-size: 1.05rem; }
+  .section-title { font-size: 1.6rem; }
+  .problems-grid, .features-grid { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+  .pricing-card.popular { transform: none; }
+  .pricing-card.popular:hover { transform: translateY(-4px); }
+  .nav-links { display: none; }
+  .nav-hamburger { display: flex; }
+  .nav-links.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: #fff;
+    padding: 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.1);
+    gap: 16px;
+  }
+  .hero-code { padding: 20px; font-size: .8rem; }
+  .footer-inner { grid-template-columns: 1fr; }
+  .cta-bottom h2 { font-size: 1.8rem; }
+  .hero-buttons { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Navigation ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <svg viewBox="0 0 28 28" fill="none"><rect x="2" y="4" width="24" height="20" rx="3" stroke="#1E3A5F" stroke-width="2"/><path d="M8 11h12M8 15h8" stroke="#00C853" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="20" r="5" fill="#00C853"/><path d="M20 20h4M22 18v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+      KakuScan
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="#problems">課題</a>
+      <a href="#solution">使い方</a>
+      <a href="#features">機能</a>
+      <a href="#pricing">料金</a>
+      <a href="#faq">FAQ</a>
+      <a href="#" class="nav-cta">無料で始める</a>
+    </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="メニュー">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== Hero ===== -->
+<section class="hero" id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-gradient"></div>
+  <div class="hero-gradient-2"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M7 1l1.76 3.57L13 5.46l-3 2.92.71 4.12L7 10.5 3.29 12.5 4 8.38 1 5.46l4.24-.89L7 1z" fill="#FF8F00"/></svg>
+      フリーランスエンジニアのための確定申告ツール
+    </div>
+    <h1>撮るだけで、<br><span class="accent">確定申告</span>が終わる。</h1>
+    <p>領収書をスマホで撮影するだけ。<br>AI-OCRが自動で読み取り・仕分けし、確定申告書類を生成します。<br>もう、手入力も仕分け作業も不要です。</p>
+    <div class="hero-buttons">
+      <a href="#" class="btn-primary">まずは無料で試す →</a>
+      <a href="#solution" class="btn-secondary">使い方を見る</a>
+    </div>
+    <div class="hero-code fade-in">
+      <code>
+        <span class="cm">// 確定申告、こんなに簡単でした。</span><br>
+        <span class="kw">const</span> receipts = <span class="kw">await</span> KakuScan.<span class="kw">scan</span>(<span class="str">'📸 領収書'</span>);<br>
+        <span class="kw">const</span> sorted = <span class="kw">await</span> KakuScan.<span class="kw">classify</span>(receipts);<br>
+        <span class="kw">const</span> 申告書 = <span class="kw">await</span> KakuScan.<span class="kw">generate</span>(sorted);<br>
+        <span class="cm">// → 確定申告書類が完成 ✅</span>
+      </code>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Problems ===== -->
+<section class="problems" id="problems">
+  <div class="container">
+    <p class="section-subtitle fade-in">😩 こんな経験、ありませんか？</p>
+    <h2 class="section-title fade-in">紙の領収書管理、もう限界。</h2>
+    <p class="section-subtitle fade-in">確定申告シーズンに毎年繰り返される苦行を、もう終わりにしましょう。</p>
+    <div class="problems-grid">
+      <div class="problem-card fade-in">
+        <div class="problem-icon">
+          <svg viewBox="0 0 32 32" fill="none"><path d="M8 6h16a2 2 0 012 2v16a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z" stroke="#FF8F00" stroke-width="2"/><path d="M12 13h8M12 17h5" stroke="#FF8F00" stroke-width="2" stroke-linecap="round"/><path d="M22 22l4 4" stroke="#FF8F00" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h3>手入力がつらい</h3>
+        <p>1枚ずつ日付・金額・項目を手打ち。100枚超の領収書で丸一日つぶれることも。タイプミスの不安も常につきまといます。</p>
+      </div>
+      <div class="problem-card fade-in">
+        <div class="problem-icon">
+          <svg viewBox="0 0 32 32" fill="none"><rect x="4" y="6" width="10" height="14" rx="1" stroke="#FF8F00" stroke-width="2"/><rect x="18" y="6" width="10" height="14" rx="1" stroke="#FF8F00" stroke-width="2"/><path d="M7 24h18M10 27h12" stroke="#FF8F00" stroke-width="2" stroke-linecap="round"/><path d="M16 10v6" stroke="#FF8F00" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h3>仕分けが分からない</h3>
+        <p>交通費？通信費？消耗品費？正しい勘定科目が分からず毎回ネット検索。判断に迷って時間だけが過ぎていきます。</p>
+      </div>
+      <div class="problem-card fade-in">
+        <div class="problem-icon">
+          <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="11" stroke="#FF8F00" stroke-width="2"/><path d="M16 10v7l4 3" stroke="#FF8F00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 4l4 4M28 4l-4 4" stroke="#FF8F00" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h3>期限ギリギリで焦る</h3>
+        <p>年末に溜め込んだ領収書の山。3月15日の締切直前に徹夜で書類作成。本業に集中できない確定申告シーズンはもう嫌。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Solution / Steps ===== -->
+<section class="solution" id="solution">
+  <div class="container">
+    <p class="section-subtitle fade-in">✨ カクスキャンなら</p>
+    <h2 class="section-title fade-in">4ステップで確定申告が完了。</h2>
+    <p class="section-subtitle fade-in">撮って、待つだけ。あとはAIがすべてやります。</p>
+    <div class="steps">
+      <div class="step fade-in">
+        <div class="step-number">
+          <svg viewBox="0 0 40 40" fill="none"><rect x="8" y="6" width="24" height="28" rx="4" stroke="#1E3A5F" stroke-width="2"/><circle cx="20" cy="32" r="3" fill="#1E3A5F"/><circle cx="20" cy="18" r="6" stroke="#00C853" stroke-width="2"/><circle cx="20" cy="18" r="2" fill="#00C853"/></svg>
+        </div>
+        <span class="step-label">STEP 1</span>
+        <h3>スマホで撮影</h3>
+        <p>領収書をカメラで撮るだけ。傾きや影もAIが自動補正します。</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-number">
+          <svg viewBox="0 0 40 40" fill="none"><rect x="6" y="8" width="28" height="24" rx="3" stroke="#1E3A5F" stroke-width="2"/><path d="M12 16h16M12 20h12M12 24h8" stroke="#00C853" stroke-width="2" stroke-linecap="round"/><path d="M30 14l3-3M30 18h4" stroke="#1E3A5F" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <span class="step-label">STEP 2</span>
+        <h3>AI-OCR読取</h3>
+        <p>日付・金額・店名・品目を98%以上の精度で自動認識。手書きにも対応。</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-number">
+          <svg viewBox="0 0 40 40" fill="none"><path d="M8 12h8v8H8zM24 12h8v8h-8zM16 24h8v8h-8z" stroke="#1E3A5F" stroke-width="2" rx="2"/><path d="M12 20v4h4M28 20v6h-4" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="step-label">STEP 3</span>
+        <h3>自動仕分け</h3>
+        <p>学習型AIが過去の傾向から最適な勘定科目を提案。使うほど賢くなります。</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-number">
+          <svg viewBox="0 0 40 40" fill="none"><path d="M10 8h20a2 2 0 012 2v20a2 2 0 01-2 2H10a2 2 0 01-2-2V10a2 2 0 012-2z" stroke="#1E3A5F" stroke-width="2"/><path d="M14 18l4 4 8-8" stroke="#00C853" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="step-label">STEP 4</span>
+        <h3>申告書を自動生成</h3>
+        <p>確定申告書B・収支内訳書をワンクリックで出力。e-Tax対応形式で書き出せます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Features ===== -->
+<section class="features" id="features">
+  <div class="container">
+    <p class="section-subtitle fade-in">🚀 機能紹介</p>
+    <h2 class="section-title fade-in">テクノロジーで、申告をハックする。</h2>
+    <p class="section-subtitle fade-in">最先端のAI技術で、面倒な確定申告をエンジニアリングします。</p>
+    <div class="features-grid">
+      <div class="feature-card fade-in-left">
+        <div class="feature-icon">
+          <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="10" stroke="#00C853" stroke-width="2"/><path d="M10 14l3 3 5-6" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="feature-stat">98.7%</div>
+        <h3>AI-OCR 認識精度</h3>
+        <p>最新のディープラーニングモデルによる高精度OCR。手書き文字、感熱紙の薄い印字、レシートの小さな文字も正確に読み取ります。</p>
+        <span class="feature-tag">Deep Learning</span>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">
+          <svg viewBox="0 0 28 28" fill="none"><path d="M4 14h4l3-6 4 12 3-8h6" stroke="#00C853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="feature-stat">AI仕分け</div>
+        <h3>学習型カテゴリ分類</h3>
+        <p>あなたの仕分けパターンを学習し、次回から自動で最適な勘定科目を提案。使い込むほど精度が向上する進化型AIです。</p>
+        <span class="feature-tag">Machine Learning</span>
+      </div>
+      <div class="feature-card fade-in-right">
+        <div class="feature-icon">
+          <svg viewBox="0 0 28 28" fill="none"><rect x="4" y="4" width="20" height="20" rx="3" stroke="#00C853" stroke-width="2"/><path d="M9 10h10M9 14h7M9 18h4" stroke="#00C853" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="feature-stat">1-Click</div>
+        <h3>ワンストップ申告</h3>
+        <p>確定申告書B・青色申告決算書・収支内訳書をワンクリックで生成。e-Tax対応のXML形式で直接提出可能です。</p>
+        <span class="feature-tag">e-Tax Ready</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Pricing ===== -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <p class="section-subtitle fade-in">💰 料金プラン</p>
+    <h2 class="section-title fade-in">あなたに合ったプランを。</h2>
+    <p class="section-subtitle fade-in">まずは無料プランで体験。いつでもアップグレードできます。</p>
+    <div class="pricing-grid">
+      <!-- Free -->
+      <div class="pricing-card fade-in">
+        <h3>フリー</h3>
+        <div class="pricing-price">¥0</div>
+        <div class="pricing-period">ずっと無料</div>
+        <ul class="pricing-features">
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>月30枚までスキャン</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>AI-OCR読取</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>基本仕分け機能</li>
+          <li class="disabled"><svg viewBox="0 0 18 18" fill="none"><path d="M5 5l8 8M13 5l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>申告書生成</li>
+          <li class="disabled"><svg viewBox="0 0 18 18" fill="none"><path d="M5 5l8 8M13 5l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>メールサポート</li>
+        </ul>
+        <a href="#" class="btn-secondary">無料で始める</a>
+      </div>
+      <!-- Standard -->
+      <div class="pricing-card popular fade-in">
+        <div class="pricing-popular-badge">🔥 一番人気</div>
+        <h3>スタンダード</h3>
+        <div class="pricing-price">¥980<span>/月</span></div>
+        <div class="pricing-period">年払い ¥9,800/年（2ヶ月分お得）</div>
+        <ul class="pricing-features">
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>月200枚までスキャン</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>AI-OCR読取</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>学習型AI仕分け</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>確定申告書生成</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>メールサポート</li>
+        </ul>
+        <a href="#" class="btn-primary">このプランで始める</a>
+      </div>
+      <!-- Pro -->
+      <div class="pricing-card fade-in">
+        <h3>プロ</h3>
+        <div class="pricing-price">¥2,980<span>/月</span></div>
+        <div class="pricing-period">年払い ¥29,800/年</div>
+        <ul class="pricing-features">
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>無制限スキャン</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>AI-OCR読取</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>学習型AI仕分け</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>確定申告書＋青色申告</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>優先チャットサポート</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>API連携（freee/MFクラウド）</li>
+        </ul>
+        <a href="#" class="btn-secondary">プロを選ぶ</a>
+      </div>
+      <!-- Office -->
+      <div class="pricing-card fade-in">
+        <h3>事務所</h3>
+        <div class="pricing-price">¥9,800<span>/月</span></div>
+        <div class="pricing-period">年払い ¥98,000/年</div>
+        <ul class="pricing-features">
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>無制限スキャン</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>チームメンバー10名</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>クライアント管理機能</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>一括申告書生成</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>専任担当サポート</li>
+          <li><svg viewBox="0 0 18 18" fill="none"><path d="M4 9l3.5 3.5L14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>SLA 99.9%保証</li>
+        </ul>
+        <a href="#" class="btn-secondary">お問い合わせ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="faq" id="faq">
+  <div class="container">
+    <p class="section-subtitle fade-in">❓ よくある質問</p>
+    <h2 class="section-title fade-in">FAQ</h2>
+    <p class="section-subtitle fade-in">お問い合わせの多い質問をまとめました。</p>
+    <div class="faq-list">
+      <div class="faq-item fade-in">
+        <button class="faq-question">
+          カクスキャンはどんな領収書に対応していますか？
+          <svg viewBox="0 0 20 20" fill="none"><path d="M5 7l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="faq-answer">
+          <p>レシート、手書き領収書、コンビニ領収書、交通系ICカード利用明細など、一般的な領収書のほとんどに対応しています。感熱紙の薄くなった印字や、多少の折り目・汚れがあっても高精度で読み取ります。</p>
+        </div>
+      </div>
+      <div class="faq-item fade-in">
+        <button class="faq-question">
+          データのセキュリティは大丈夫ですか？
+          <svg viewBox="0 0 20 20" fill="none"><path d="M5 7l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="faq-answer">
+          <p>すべてのデータはAES-256で暗号化され、国内のデータセンターで保管されています。通信はTLS 1.3で暗号化。SOC2 Type II準拠のセキュリティ体制を整えており、税理士事務所にもご利用いただいています。</p>
+        </div>
+      </div>
+      <div class="faq-item fade-in">
+        <button class="faq-question">
+          e-Taxにそのまま提出できますか？
+          <svg viewBox="0 0 20 20" fill="none"><path d="M5 7l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="faq-answer">
+          <p>はい。カクスキャンで生成した確定申告書はe-Tax対応のXTX形式で出力できます。そのままe-Taxソフトに読み込んで電子申告が可能です。もちろん紙での印刷・郵送にも対応しています。</p>
+        </div>
+      </div>
+      <div class="faq-item fade-in">
+        <button class="faq-question">
+          freeeやマネーフォワードと連携できますか？
+          <svg viewBox="0 0 20 20" fill="none"><path d="M5 7l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="faq-answer">
+          <p>プロプラン以上で、freee会計・マネーフォワードクラウド確定申告とのAPI連携が可能です。カクスキャンで読み取ったデータを自動で連携先に同期できます。CSVエクスポートは全プランで利用可能です。</p>
+        </div>
+      </div>
+      <div class="faq-item fade-in">
+        <button class="faq-question">
+          無料プランの制限は何ですか？
+          <svg viewBox="0 0 20 20" fill="none"><path d="M5 7l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="faq-answer">
+          <p>無料プランでは月30枚までのスキャンとAI-OCR読取、基本的な仕分け機能をご利用いただけます。確定申告書の自動生成機能はスタンダードプラン以上でご利用可能です。無料プランに期間制限はありません。</p>
+        </div>
+      </div>
+      <div class="faq-item fade-in">
+        <button class="faq-question">
+          途中でプラン変更はできますか？
+          <svg viewBox="0 0 20 20" fill="none"><path d="M5 7l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="faq-answer">
+          <p>はい、いつでもアップグレード・ダウングレードが可能です。アップグレードは即座に反映され、差額は日割りで計算されます。ダウングレードは次の請求サイクルから適用されます。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA Bottom ===== -->
+<section class="cta-bottom" id="cta">
+  <div class="container">
+    <div class="cta-bottom-content fade-in">
+      <h2>確定申告、もう悩まない。</h2>
+      <p>30秒で登録完了。クレジットカード不要で今すぐ無料で始められます。</p>
+      <a href="#" class="btn-primary">まずは無料で試す →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="3" stroke="#fff" stroke-width="1.5"/><path d="M7 10h10M7 14h7" stroke="#00C853" stroke-width="1.5" stroke-linecap="round"/></svg>
+          KakuScan
+        </h3>
+        <p>領収書をスマホで撮影するだけで、AI-OCRが自動読取・仕分けし、確定申告書類を自動生成。フリーランスエンジニアの確定申告をテクノロジーで解決します。</p>
+      </div>
+      <div class="footer-col">
+        <h4>プロダクト</h4>
+        <ul>
+          <li><a href="#">機能紹介</a></li>
+          <li><a href="#">料金プラン</a></li>
+          <li><a href="#">導入事例</a></li>
+          <li><a href="#">API ドキュメント</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>サポート</h4>
+        <ul>
+          <li><a href="#">ヘルプセンター</a></li>
+          <li><a href="#">お問い合わせ</a></li>
+          <li><a href="#">ステータス</a></li>
+          <li><a href="#">リリースノート</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>会社情報</h4>
+        <ul>
+          <li><a href="#">会社概要</a></li>
+          <li><a href="#">プライバシーポリシー</a></li>
+          <li><a href="#">利用規約</a></li>
+          <li><a href="#">特定商取引法</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 KakuScan Inc. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ===== Intersection Observer for Fade-in ===== */
+(function() {
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-in, .fade-in-left, .fade-in-right').forEach(function(el) {
+    observer.observe(el);
+  });
+})();
+
+/* ===== Navbar scroll effect ===== */
+(function() {
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll', function() {
+    if (window.scrollY > 20) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+  });
+})();
+
+/* ===== Hamburger menu ===== */
+(function() {
+  var hamburger = document.getElementById('hamburger');
+  var navLinks = document.getElementById('navLinks');
+  hamburger.addEventListener('click', function() {
+    navLinks.classList.toggle('open');
+  });
+  navLinks.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      navLinks.classList.remove('open');
+    });
+  });
+})();
+
+/* ===== FAQ Accordion ===== */
+(function() {
+  document.querySelectorAll('.faq-question').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var item = this.parentElement;
+      var isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(function(i) {
+        i.classList.remove('open');
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+      }
+    });
+  });
+})();
+
+/* ===== Smooth scroll for anchor links ===== */
+(function() {
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

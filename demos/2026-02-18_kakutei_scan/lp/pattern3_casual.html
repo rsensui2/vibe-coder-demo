@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>カクスキャン（KakuScan） - 撮るだけで、確定申告が終わる。</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', Meiryo, sans-serif;
+  color: #2D3748; background: #FAFBFC; line-height: 1.8; overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; }
+
+/* ── Utility ── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.text-center { text-align: center; }
+.btn {
+  display: inline-block; padding: 18px 48px; border-radius: 60px; font-size: 1.15rem;
+  font-weight: 700; cursor: pointer; border: none; transition: transform .2s, box-shadow .2s;
+}
+.btn:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+.btn-primary { background: #00C853; color: #fff; }
+.btn-accent  { background: #FF8F00; color: #fff; }
+.btn-outline { background: transparent; border: 2px solid #1E3A5F; color: #1E3A5F; }
+.section-title {
+  font-size: 2rem; font-weight: 800; margin-bottom: 12px; color: #1E3A5F;
+}
+.section-sub {
+  font-size: 1.1rem; color: #5A6A7A; margin-bottom: 48px;
+}
+
+/* ── Header ── */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
+  box-shadow: 0 1px 8px rgba(0,0,0,.06); padding: 0 24px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+header .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.25rem; color: #1E3A5F; }
+header nav { display: flex; gap: 24px; align-items: center; }
+header nav a { font-size: .9rem; font-weight: 600; color: #2D3748; transition: color .2s; }
+header nav a:hover { color: #00C853; }
+header .nav-cta { padding: 10px 24px; font-size: .85rem; border-radius: 40px; }
+@media (max-width: 768px) {
+  header nav a:not(.nav-cta) { display: none; }
+}
+
+/* ── Hero ── */
+.hero {
+  padding: 140px 0 80px; background: linear-gradient(135deg, #E8F5E9 0%, #FFF8E1 50%, #E3F2FD 100%);
+  position: relative; overflow: hidden;
+}
+.hero::after {
+  content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 80px;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,40 C360,80 720,0 1440,40 L1440,80 L0,80 Z' fill='%23FAFBFC'/%3E%3C/svg%3E") no-repeat bottom/cover;
+}
+.hero-inner { display: flex; align-items: center; gap: 48px; flex-wrap: wrap; }
+.hero-text { flex: 1; min-width: 300px; }
+.hero-text .badge {
+  display: inline-block; background: #FFF3E0; color: #FF8F00; font-weight: 700;
+  padding: 6px 18px; border-radius: 30px; font-size: .85rem; margin-bottom: 20px;
+}
+.hero-text h1 { font-size: 2.6rem; font-weight: 900; line-height: 1.35; color: #1E3A5F; margin-bottom: 16px; }
+.hero-text h1 em { font-style: normal; color: #00C853; }
+.hero-text p { font-size: 1.15rem; color: #4A5568; margin-bottom: 32px; }
+.hero-text .cta-group { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+.hero-text .cta-note { font-size: .85rem; color: #888; margin-top: 8px; }
+.hero-visual { flex: 1; min-width: 280px; display: flex; justify-content: center; }
+.hero-visual svg { width: 100%; max-width: 380px; height: auto; }
+@media (max-width: 768px) {
+  .hero-text h1 { font-size: 1.9rem; }
+  .hero-inner { flex-direction: column; text-align: center; }
+  .hero-text .cta-group { justify-content: center; }
+}
+
+/* ── Problems (吹き出し) ── */
+.problems {
+  padding: 80px 0; background: #FFF9F0;
+}
+.problems-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; }
+.problem-card {
+  background: #fff; border-radius: 20px; padding: 36px 28px; position: relative;
+  box-shadow: 0 4px 20px rgba(0,0,0,.06); border: 2px solid #FFE0B2;
+}
+.problem-card::before {
+  content: ''; position: absolute; top: -12px; left: 32px;
+  width: 24px; height: 24px; background: #fff; border-left: 2px solid #FFE0B2;
+  border-top: 2px solid #FFE0B2; transform: rotate(45deg);
+}
+.problem-card .icon { margin-bottom: 16px; }
+.problem-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; color: #1E3A5F; }
+.problem-card p { color: #5A6A7A; font-size: .95rem; }
+
+/* ── Steps ── */
+.steps {
+  padding: 80px 0; background: linear-gradient(180deg, #FAFBFC 0%, #E8F5E9 100%);
+}
+.steps-flow { display: flex; align-items: flex-start; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.step-item {
+  background: #fff; border-radius: 24px; padding: 36px 24px; text-align: center;
+  width: 220px; box-shadow: 0 6px 24px rgba(0,0,0,.07); position: relative;
+}
+.step-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px; border-radius: 50%; background: #00C853; color: #fff;
+  font-size: 1.3rem; font-weight: 800; margin-bottom: 16px;
+}
+.step-item h3 { font-size: 1.05rem; font-weight: 700; margin: 12px 0 8px; color: #1E3A5F; }
+.step-item p { font-size: .88rem; color: #5A6A7A; }
+.step-arrow {
+  display: flex; align-items: center; padding-top: 60px; color: #00C853; font-size: 2rem; font-weight: 700;
+}
+@media (max-width: 768px) {
+  .steps-flow { flex-direction: column; align-items: center; }
+  .step-arrow { transform: rotate(90deg); padding: 0; }
+}
+
+/* ── Features ── */
+.features {
+  padding: 80px 0; background: #F0F4FF;
+}
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; }
+.feature-card {
+  background: #fff; border-radius: 20px; padding: 40px 28px; text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06); transition: transform .2s;
+}
+.feature-card:hover { transform: translateY(-6px); }
+.feature-card .icon-wrap {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 80px; height: 80px; border-radius: 50%; margin-bottom: 20px;
+}
+.feature-card h3 { font-size: 1.15rem; font-weight: 700; color: #1E3A5F; margin-bottom: 8px; }
+.feature-card p { font-size: .92rem; color: #5A6A7A; }
+
+/* ── Testimonials ── */
+.testimonials { padding: 80px 0; background: #F9FBE7; }
+.testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; }
+.testimonial-card {
+  background: #fff; border-radius: 20px; padding: 32px 28px; position: relative;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.testimonial-card::before {
+  content: '"'; position: absolute; top: 12px; left: 20px;
+  font-size: 3rem; color: #00C853; opacity: .3; font-family: Georgia, serif; line-height: 1;
+}
+.testimonial-card .stars { color: #FFD600; font-size: 1.1rem; margin-bottom: 12px; letter-spacing: 2px; }
+.testimonial-card p { font-size: .95rem; color: #4A5568; margin-bottom: 16px; font-style: italic; }
+.testimonial-card .author { display: flex; align-items: center; gap: 12px; }
+.testimonial-card .avatar {
+  width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 1.2rem; color: #fff; font-weight: 700;
+}
+.testimonial-card .author-info { font-size: .85rem; }
+.testimonial-card .author-info strong { color: #1E3A5F; display: block; }
+.testimonial-card .author-info span { color: #888; }
+
+/* ── Numbers ── */
+.numbers { padding: 60px 0; background: linear-gradient(135deg, #1E3A5F 0%, #2C5282 100%); color: #fff; }
+.numbers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; text-align: center; }
+.number-item .num { font-size: 2.8rem; font-weight: 900; color: #00C853; }
+.number-item .label { font-size: .95rem; opacity: .8; margin-top: 4px; }
+
+/* ── Pricing ── */
+.pricing { padding: 80px 0; background: #FAFBFC; }
+.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 24px; }
+.price-card {
+  background: #fff; border-radius: 20px; padding: 36px 24px; text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06); border: 2px solid transparent; position: relative;
+}
+.price-card.recommended {
+  border-color: #00C853; transform: scale(1.04);
+}
+.price-card.recommended::before {
+  content: '🌟 おすすめ'; position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  background: #00C853; color: #fff; font-size: .8rem; font-weight: 700;
+  padding: 4px 18px; border-radius: 20px;
+}
+.price-card h3 { font-size: 1.2rem; font-weight: 700; color: #1E3A5F; margin-bottom: 8px; }
+.price-card .price { font-size: 2.2rem; font-weight: 900; color: #1E3A5F; margin-bottom: 4px; }
+.price-card .price span { font-size: .9rem; font-weight: 400; color: #888; }
+.price-card ul { list-style: none; text-align: left; margin: 20px 0; }
+.price-card ul li { padding: 6px 0; font-size: .9rem; color: #4A5568; display: flex; align-items: center; gap: 8px; }
+.price-card ul li::before { content: '✅'; font-size: .8rem; }
+.price-card .btn { width: 100%; padding: 14px; font-size: .95rem; }
+
+/* ── FAQ ── */
+.faq { padding: 80px 0; background: #FFF9F0; }
+.faq-list { max-width: 720px; margin: 0 auto; }
+.faq-item { margin-bottom: 16px; }
+.faq-q {
+  width: 100%; background: #fff; border: 2px solid #FFE0B2; border-radius: 16px;
+  padding: 20px 24px; font-size: 1rem; font-weight: 700; color: #1E3A5F;
+  cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  transition: background .2s;
+}
+.faq-q:hover { background: #FFF3E0; }
+.faq-q .arrow { font-size: 1.3rem; transition: transform .3s; color: #FF8F00; }
+.faq-q.active .arrow { transform: rotate(180deg); }
+.faq-a {
+  max-height: 0; overflow: hidden; transition: max-height .35s ease;
+  background: #fff; border-radius: 0 0 16px 16px; padding: 0 24px;
+  font-size: .95rem; color: #5A6A7A; line-height: 1.9;
+}
+.faq-a.open { max-height: 300px; padding: 20px 24px; }
+
+/* ── CTA Bottom ── */
+.cta-bottom {
+  padding: 80px 0; text-align: center;
+  background: linear-gradient(135deg, #1E3A5F 0%, #2C5282 100%); color: #fff;
+}
+.cta-bottom h2 { font-size: 2rem; font-weight: 800; margin-bottom: 16px; }
+.cta-bottom p { font-size: 1.1rem; margin-bottom: 36px; opacity: .9; }
+.cta-bottom .btn-primary { font-size: 1.25rem; padding: 20px 56px; }
+.cta-bottom .note { margin-top: 16px; font-size: .85rem; opacity: .7; }
+
+/* ── Footer ── */
+footer {
+  padding: 48px 0 32px; background: #1E3A5F; color: rgba(255,255,255,.7); font-size: .85rem;
+}
+.footer-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 32px; }
+.footer-col h4 { color: #fff; font-weight: 700; margin-bottom: 12px; font-size: .95rem; }
+.footer-col a { display: block; padding: 3px 0; color: rgba(255,255,255,.6); transition: color .2s; }
+.footer-col a:hover { color: #00C853; }
+.footer-bottom { text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.1); }
+
+/* ── Animations ── */
+@keyframes floatUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.animate { opacity: 0; }
+.animate.visible { animation: floatUp .6s ease forwards; }
+</style>
+</head>
+<body>
+
+<!-- ════════ Header ════════ -->
+<header>
+  <div class="logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <rect x="2" y="4" width="28" height="24" rx="6" fill="#E8F5E9" stroke="#00C853" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M9 13h14M9 18h10" stroke="#1E3A5F" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="24" cy="22" r="6" fill="#00C853"/>
+      <path d="M22 22l1.5 1.5L26 20" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    カクスキャン
+  </div>
+  <nav>
+    <a href="#features">機能</a>
+    <a href="#pricing">料金</a>
+    <a href="#faq">FAQ</a>
+    <a href="#" class="btn btn-primary nav-cta">無料で始める 🚀</a>
+  </nav>
+</header>
+
+<!-- ════════ Hero ════════ -->
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="hero-text animate">
+      <span class="badge">📸 確定申告アプリ</span>
+      <h1>確定申告、<br>もう<em>怖くない！</em> 😊</h1>
+      <p>領収書をスマホでパシャッ📱と撮るだけ。<br>AI が読み取って、仕分けして、申告書まで作っちゃいます。<br><strong>撮るだけで、確定申告が終わる。</strong></p>
+      <div class="cta-group">
+        <a href="#" class="btn btn-primary">無料で始める ✨</a>
+        <a href="#steps" class="btn btn-outline">使い方を見る →</a>
+      </div>
+      <p class="cta-note">🔓 クレカ登録不要・3分で開始</p>
+    </div>
+    <div class="hero-visual">
+      <!-- イラスト風の人物+スマホSVG -->
+      <svg viewBox="0 0 400 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- 背景の丸 -->
+        <circle cx="200" cy="190" r="160" fill="#E8F5E9" opacity=".5"/>
+        <!-- 体 -->
+        <ellipse cx="200" cy="320" rx="60" ry="30" fill="#FFE0B2" opacity=".4"/>
+        <!-- 足 -->
+        <rect x="175" y="290" width="20" height="40" rx="10" fill="#5A6A7A"/>
+        <rect x="205" y="290" width="20" height="40" rx="10" fill="#5A6A7A"/>
+        <!-- 胴体 -->
+        <rect x="160" y="200" width="80" height="100" rx="20" fill="#42A5F5"/>
+        <!-- 頭 -->
+        <circle cx="200" cy="170" r="50" fill="#FFCC80"/>
+        <!-- 目 -->
+        <circle cx="185" cy="165" r="5" fill="#2D3748"/>
+        <circle cx="215" cy="165" r="5" fill="#2D3748"/>
+        <!-- 口(にっこり) -->
+        <path d="M188 182 Q200 195 212 182" stroke="#2D3748" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <!-- 髪 -->
+        <path d="M155 155 Q155 115 200 110 Q245 115 245 155" fill="#5D4037" stroke="none"/>
+        <!-- 左手(スマホ持ってる) -->
+        <path d="M160 230 Q130 240 120 260" stroke="#FFCC80" stroke-width="14" stroke-linecap="round" fill="none"/>
+        <!-- 右手 -->
+        <path d="M240 230 Q260 250 270 240" stroke="#FFCC80" stroke-width="14" stroke-linecap="round" fill="none"/>
+        <!-- スマホ -->
+        <rect x="96" y="248" width="50" height="80" rx="10" fill="#1E3A5F"/>
+        <rect x="100" y="254" width="42" height="62" rx="4" fill="#E3F2FD"/>
+        <!-- スマホ画面の領収書 -->
+        <rect x="106" y="260" width="30" height="8" rx="2" fill="#FFE0B2"/>
+        <rect x="106" y="272" width="24" height="4" rx="1" fill="#C8E6C9"/>
+        <rect x="106" y="280" width="28" height="4" rx="1" fill="#C8E6C9"/>
+        <rect x="106" y="288" width="18" height="4" rx="1" fill="#C8E6C9"/>
+        <!-- キラキラ -->
+        <g fill="#FFD600">
+          <polygon points="300,130 304,140 314,140 306,147 309,157 300,150 291,157 294,147 286,140 296,140"/>
+          <polygon points="100,140 103,147 110,147 105,152 107,159 100,154 93,159 95,152 90,147 97,147" transform="scale(.7) translate(40,60)"/>
+          <polygon points="320,200 323,207 330,207 325,212 327,219 320,214 313,219 315,212 310,207 317,207" transform="scale(.6) translate(150,10)"/>
+        </g>
+        <!-- チェックマーク吹き出し -->
+        <g transform="translate(270,150)">
+          <rect x="0" y="0" width="60" height="40" rx="12" fill="#00C853"/>
+          <polygon points="20,40 30,52 35,40" fill="#00C853"/>
+          <path d="M16 18 L24 26 L44 10" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ Problems ════════ -->
+<section class="problems">
+  <div class="container text-center">
+    <p class="section-sub" style="margin-bottom:12px;font-size:1rem;">😥 こんなお悩みありませんか？</p>
+    <h2 class="section-title">確定申告の「あるある」困りごと</h2>
+    <p class="section-sub">紙の領収書管理、もう限界じゃないですか？</p>
+    <div class="problems-grid">
+      <!-- Card 1 -->
+      <div class="problem-card animate">
+        <div class="icon">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <circle cx="28" cy="28" r="26" fill="#FFF3E0"/>
+            <rect x="14" y="16" width="28" height="24" rx="4" fill="#FFE0B2" stroke="#FF8F00" stroke-width="2"/>
+            <path d="M20 24h16M20 30h12M20 36h8" stroke="#FF8F00" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="40" cy="40" r="8" fill="#FF5252"/>
+            <path d="M37 40h6M40 37v6" stroke="#fff" stroke-width="2" stroke-linecap="round" transform="rotate(45 40 40)"/>
+          </svg>
+        </div>
+        <h3>📦 領収書が山積み…</h3>
+        <p>引き出しの中にレシートがぐちゃぐちゃ。いざ確定申告の時期になって「どこいった！？」とパニック 😱</p>
+      </div>
+      <!-- Card 2 -->
+      <div class="problem-card animate">
+        <div class="icon">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <circle cx="28" cy="28" r="26" fill="#E3F2FD"/>
+            <rect x="16" y="12" width="24" height="32" rx="4" fill="#BBDEFB" stroke="#1E88E5" stroke-width="2"/>
+            <path d="M22 20h12M22 26h8M22 32h10" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="28" cy="28" r="14" fill="none" stroke="#FF8F00" stroke-width="2.5" stroke-dasharray="4 3"/>
+          </svg>
+        </div>
+        <h3>⏰ 手入力がとにかく大変</h3>
+        <p>1枚ずつ金額を入力して、科目を選んで…。100枚あったら何時間かかるの？ 気が遠くなりますよね 😮‍💨</p>
+      </div>
+      <!-- Card 3 -->
+      <div class="problem-card animate">
+        <div class="icon">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <circle cx="28" cy="28" r="26" fill="#FCE4EC"/>
+            <path d="M18 38 L28 18 L38 38 Z" fill="#FFCDD2" stroke="#E53935" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="28" cy="33" r="2" fill="#E53935"/>
+            <rect x="27" y="24" width="2" height="6" rx="1" fill="#E53935"/>
+          </svg>
+        </div>
+        <h3>😰 仕分けが分からない！</h3>
+        <p>「これは消耗品？通信費？」勘定科目の判断に毎回悩む。間違えたらどうしよう…という不安も 💦</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ Steps ════════ -->
+<section class="steps" id="steps">
+  <div class="container text-center">
+    <p class="section-sub" style="margin-bottom:12px;font-size:1rem;">✨ こんなにカンタン！</p>
+    <h2 class="section-title">たった4ステップで確定申告 完了 🎉</h2>
+    <p class="section-sub">むずかしい知識は一切不要。スマホがあればOKです！</p>
+    <div class="steps-flow">
+      <!-- Step 1 -->
+      <div class="step-item animate">
+        <div class="step-num">1</div>
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <rect x="18" y="8" width="28" height="48" rx="8" fill="#E8F5E9" stroke="#00C853" stroke-width="2.5"/>
+          <circle cx="32" cy="50" r="3" fill="#00C853"/>
+          <rect x="22" y="14" width="20" height="28" rx="3" fill="#fff"/>
+          <circle cx="32" cy="28" r="8" fill="none" stroke="#FF8F00" stroke-width="2" stroke-dasharray="3 2"/>
+          <rect x="28" y="24" width="8" height="8" rx="1" fill="#FFE0B2" opacity=".7"/>
+        </svg>
+        <h3>📸 レシートを撮影</h3>
+        <p>スマホのカメラで<br>パシャッと撮るだけ！</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <!-- Step 2 -->
+      <div class="step-item animate">
+        <div class="step-num">2</div>
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <rect x="10" y="14" width="44" height="36" rx="8" fill="#E3F2FD" stroke="#1E88E5" stroke-width="2.5"/>
+          <path d="M20 28h24M20 36h16" stroke="#1E88E5" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="48" cy="18" r="10" fill="#00C853"/>
+          <text x="48" y="23" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">AI</text>
+        </svg>
+        <h3>🤖 AIが自動読取</h3>
+        <p>AI-OCRが金額・日付・<br>店名を瞬時に認識</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <!-- Step 3 -->
+      <div class="step-item animate">
+        <div class="step-num">3</div>
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <rect x="8" y="16" width="20" height="32" rx="6" fill="#FFF3E0" stroke="#FF8F00" stroke-width="2"/>
+          <rect x="36" y="16" width="20" height="32" rx="6" fill="#E8F5E9" stroke="#00C853" stroke-width="2"/>
+          <path d="M28 32 L36 32" stroke="#2D3748" stroke-width="2" stroke-dasharray="3 2" marker-end="url(#arr)"/>
+          <rect x="12" y="22" width="12" height="4" rx="1" fill="#FFE0B2"/>
+          <rect x="12" y="30" width="10" height="4" rx="1" fill="#FFE0B2"/>
+          <rect x="40" y="22" width="12" height="4" rx="1" fill="#C8E6C9"/>
+          <rect x="40" y="30" width="10" height="4" rx="1" fill="#C8E6C9"/>
+          <rect x="40" y="38" width="8" height="4" rx="1" fill="#C8E6C9"/>
+        </svg>
+        <h3>📂 自動で仕分け</h3>
+        <p>勘定科目をAIが<br>学習して自動分類</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <!-- Step 4 -->
+      <div class="step-item animate">
+        <div class="step-num">4</div>
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <rect x="12" y="10" width="40" height="44" rx="6" fill="#E8F5E9" stroke="#00C853" stroke-width="2.5"/>
+          <path d="M20 22h24M20 30h20M20 38h16" stroke="#1E3A5F" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="46" cy="46" r="12" fill="#00C853"/>
+          <path d="M40 46 L44 50 L52 42" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <h3>📄 申告書を自動生成</h3>
+        <p>確定申告書類が<br>ワンタップで完成！</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ Features ════════ -->
+<section class="features" id="features">
+  <div class="container text-center">
+    <p class="section-sub" style="margin-bottom:12px;font-size:1rem;">💪 カクスキャンのすごいところ</p>
+    <h2 class="section-title">安心の機能がいっぱい！</h2>
+    <p class="section-sub">初めての確定申告でも大丈夫。全部おまかせください 🙌</p>
+    <div class="features-grid">
+      <div class="feature-card animate">
+        <div class="icon-wrap" style="background:#E8F5E9;">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="18" fill="#C8E6C9"/>
+            <text x="24" y="22" text-anchor="middle" fill="#1E3A5F" font-size="10" font-weight="800">98%</text>
+            <text x="24" y="32" text-anchor="middle" fill="#00C853" font-size="8" font-weight="700">+</text>
+          </svg>
+        </div>
+        <h3>🎯 AI-OCR 読取精度 98%以上</h3>
+        <p>手書きのレシートだって大丈夫！最新のAI-OCR技術で、金額・日付・店舗名を正確に読み取ります。</p>
+      </div>
+      <div class="feature-card animate">
+        <div class="icon-wrap" style="background:#FFF3E0;">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="18" fill="#FFE0B2"/>
+            <path d="M16 24 Q24 16 32 24 Q24 32 16 24Z" fill="#FF8F00" opacity=".6"/>
+            <circle cx="24" cy="24" r="4" fill="#FF8F00"/>
+          </svg>
+        </div>
+        <h3>🧠 学習型かしこい仕分け</h3>
+        <p>使えば使うほど賢くなる！あなたの仕分けパターンをAIが学習して、次からは自動で正しく分類。</p>
+      </div>
+      <div class="feature-card animate">
+        <div class="icon-wrap" style="background:#E3F2FD;">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="18" fill="#BBDEFB"/>
+            <rect x="14" y="14" width="20" height="20" rx="4" fill="#fff" stroke="#1E88E5" stroke-width="2"/>
+            <path d="M19 24 L22 27 L29 20" stroke="#00C853" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        <h3>📋 ワンストップ確定申告</h3>
+        <p>読み取りから申告書類の生成まで、全部このアプリ1つで完結。もう他のツールは要りません！</p>
+      </div>
+      <div class="feature-card animate">
+        <div class="icon-wrap" style="background:#FFF3E0;">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="18" fill="#FFE0B2"/>
+            <rect x="12" y="16" width="24" height="16" rx="4" fill="#fff" stroke="#FF8F00" stroke-width="2"/>
+            <path d="M12 20 L24 28 L36 20" stroke="#FF8F00" stroke-width="2" fill="none"/>
+          </svg>
+        </div>
+        <h3>📊 CSV/PDFエクスポート</h3>
+        <p>作成したデータはCSV・PDF形式でエクスポート可能。税理士さんへの共有もワンクリックで。</p>
+      </div>
+      <div class="feature-card animate">
+        <div class="icon-wrap" style="background:#FCE4EC;">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="18" fill="#F8BBD0"/>
+            <rect x="14" y="12" width="20" height="24" rx="4" fill="#fff" stroke="#E91E63" stroke-width="2"/>
+            <path d="M20 20h8M20 26h6" stroke="#E91E63" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="34" cy="34" r="8" fill="#00C853"/>
+            <path d="M31 34h6M34 31v6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>🔄 複数事業を一元管理</h3>
+        <p>副業が複数あっても大丈夫！事業ごとにデータを分けて管理し、まとめて確定申告できます。</p>
+      </div>
+      <div class="feature-card animate">
+        <div class="icon-wrap" style="background:#E0F7FA;">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="18" fill="#B2EBF2"/>
+            <path d="M16 32 Q16 16 24 16 Q32 16 32 32" fill="none" stroke="#00ACC1" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="24" cy="16" r="6" fill="#fff" stroke="#00ACC1" stroke-width="2"/>
+            <circle cx="16" cy="32" r="4" fill="#fff" stroke="#00ACC1" stroke-width="2"/>
+            <circle cx="32" cy="32" r="4" fill="#fff" stroke="#00ACC1" stroke-width="2"/>
+          </svg>
+        </div>
+        <h3>👥 税理士さんと共有</h3>
+        <p>プロプラン以上なら、税理士さんを招待してデータを共有。遠隔でチェック・修正してもらえます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ Testimonials ════════ -->
+<section class="testimonials">
+  <div class="container text-center">
+    <p class="section-sub" style="margin-bottom:12px;font-size:1rem;">💬 みんなの声</p>
+    <h2 class="section-title">ユーザーさんの感想をご紹介！</h2>
+    <p class="section-sub">カクスキャンを使ってくれた方のリアルな声です 📣</p>
+    <div class="testimonials-grid">
+      <div class="testimonial-card animate">
+        <div class="stars">★★★★★</div>
+        <p>確定申告がこんなにラクだったなんて！レシートを撮るだけで自動で仕分けしてくれるので、もう手入力に戻れません。初めての青色申告もこれで乗り切れました 🎊</p>
+        <div class="author">
+          <div class="avatar" style="background:#42A5F5;">T</div>
+          <div class="author-info">
+            <strong>田中さん（30代）</strong>
+            <span>フリーランスWebデザイナー</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card animate">
+        <div class="stars">★★★★★</div>
+        <p>副業の確定申告が不安だったけど、カクスキャンのおかげでサクッと終わりました！UIがかわいくて使いやすいのも最高です。無料プランで十分でした 😄</p>
+        <div class="author">
+          <div class="avatar" style="background:#FF8F00;">M</div>
+          <div class="author-info">
+            <strong>森さん（20代）</strong>
+            <span>会社員＋副業ライター</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card animate">
+        <div class="stars">★★★★★</div>
+        <p>個人事業を始めて3年目、ずっとExcelで管理してたけどもう限界…。カクスキャンに変えたら作業時間が1/10に！もっと早く出会いたかった 🥹</p>
+        <div class="author">
+          <div class="avatar" style="background:#00C853;">S</div>
+          <div class="author-info">
+            <strong>佐藤さん（40代）</strong>
+            <span>個人事業主（カフェ経営）</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ Numbers ════════ -->
+<section class="numbers">
+  <div class="container">
+    <div class="numbers-grid">
+      <div class="number-item animate">
+        <div class="num">50,000+</div>
+        <div class="label">ダウンロード数</div>
+      </div>
+      <div class="number-item animate">
+        <div class="num">98.5%</div>
+        <div class="label">OCR読取精度</div>
+      </div>
+      <div class="number-item animate">
+        <div class="num">4.8</div>
+        <div class="label">App Store評価 ⭐</div>
+      </div>
+      <div class="number-item animate">
+        <div class="num">90%</div>
+        <div class="label">作業時間削減</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ Pricing ════════ -->
+<section class="pricing" id="pricing">
+  <div class="container text-center">
+    <p class="section-sub" style="margin-bottom:12px;font-size:1rem;">💰 わかりやすい料金体系</p>
+    <h2 class="section-title">まずは無料から始めよう！</h2>
+    <p class="section-sub">ずっと無料のフリープランあり。必要に応じてアップグレード 🆙</p>
+    <div class="pricing-grid">
+      <!-- Free -->
+      <div class="price-card recommended animate">
+        <h3>フリー</h3>
+        <div class="price">¥0 <span>/ 永久無料</span></div>
+        <ul>
+          <li>月30枚まで読取</li>
+          <li>AI自動仕分け</li>
+          <li>確定申告書生成（白色）</li>
+          <li>メールサポート</li>
+        </ul>
+        <a href="#" class="btn btn-primary">無料で始める 🎉</a>
+      </div>
+      <!-- Standard -->
+      <div class="price-card animate">
+        <h3>スタンダード</h3>
+        <div class="price">¥980 <span>/ 月</span></div>
+        <ul>
+          <li>月200枚まで読取</li>
+          <li>AI自動仕分け</li>
+          <li>青色申告対応</li>
+          <li>CSV/PDFエクスポート</li>
+          <li>チャットサポート</li>
+        </ul>
+        <a href="#" class="btn btn-outline">プランを選ぶ</a>
+      </div>
+      <!-- Pro -->
+      <div class="price-card animate">
+        <h3>プロ</h3>
+        <div class="price">¥2,980 <span>/ 月</span></div>
+        <ul>
+          <li>枚数無制限</li>
+          <li>複数事業対応</li>
+          <li>税理士共有機能</li>
+          <li>API連携</li>
+          <li>優先サポート</li>
+        </ul>
+        <a href="#" class="btn btn-outline">プランを選ぶ</a>
+      </div>
+      <!-- Office -->
+      <div class="price-card animate">
+        <h3>事務所</h3>
+        <div class="price">¥9,800 <span>/ 月</span></div>
+        <ul>
+          <li>クライアント10名まで</li>
+          <li>一括処理・管理画面</li>
+          <li>スタッフアカウント</li>
+          <li>専用サポート</li>
+          <li>カスタム帳票</li>
+        </ul>
+        <a href="#" class="btn btn-outline">お問い合わせ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ FAQ ════════ -->
+<section class="faq" id="faq">
+  <div class="container text-center">
+    <p class="section-sub" style="margin-bottom:12px;font-size:1rem;">❓ 気になること、まとめました</p>
+    <h2 class="section-title">よくある質問</h2>
+    <p class="section-sub">分からないことがあったら、いつでもお気軽に！</p>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>📱 スマホだけで使えますか？</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">はい！iPhone・Androidどちらでも使えます。アプリをインストールするだけでOK。パソコンからもWebブラウザでアクセスできます。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>🔒 データのセキュリティは大丈夫？</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">もちろんです！256bit SSL暗号化通信、データは国内サーバーで厳重に管理しています。金融機関レベルのセキュリティ体制です。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>📝 青色申告にも対応していますか？</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">スタンダードプラン以上で青色申告（65万円控除）に対応しています。複式簿記の帳簿も自動で作成されます。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>💳 フリープランは本当に無料？</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">はい、完全無料です！クレジットカードの登録も不要。月30枚までの読み取りと白色申告の書類生成が無料でお使いいただけます。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>🤔 手書きの領収書も読み取れますか？</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">はい、手書きの領収書にも対応しています！AI-OCRが文字を高精度で認識します。読み取り精度は98%以上。万が一の時は手動修正も簡単です。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>🔄 他の会計ソフトからの乗り換えは簡単？</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">CSVインポート機能で、他の会計ソフトのデータを簡単に取り込めます。乗り換えガイドも用意していますので、スムーズに移行できますよ！</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>📊 e-Taxとの連携はできますか？</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">はい、カクスキャンで作成した確定申告書類はe-Tax形式（.xtx）で出力できます。そのままe-Taxにアップロードして電子申告が可能です。マイナンバーカードがあればスマホからも提出できますよ！</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>🏢 法人でも使えますか？</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">現在は個人事業主・フリーランス向けのサービスとなっています。法人向けの機能は2026年後半にリリース予定です。事務所プランでは税理士事務所のクライアント管理に対応しています。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span>🌐 オフラインでも使えますか？</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">レシートの撮影はオフラインでも可能です！撮影した画像はアプリ内に保存され、次にネットに接続した時にまとめてAI-OCR処理されます。外出先でもサクサク撮影できますよ 📸</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ CTA Bottom ════════ -->
+<section class="cta-bottom">
+  <div class="container">
+    <h2>さあ、確定申告をラクにしよう！ 🚀</h2>
+    <p>まずは無料プランで、カクスキャンのかんたんさを体験してみてください。</p>
+    <a href="#" class="btn btn-primary">まずは無料で試してみる ✨</a>
+    <p class="note">🔓 クレジットカード不要 ・ 3分で登録完了 ・ いつでも解約OK</p>
+  </div>
+</section>
+
+<!-- ════════ Footer ════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>カクスキャン</h4>
+        <p style="font-size:.85rem;line-height:1.7;opacity:.7;">撮るだけで、確定申告が終わる。<br>個人事業主・副業者のための<br>AI確定申告アプリ。</p>
+      </div>
+      <div class="footer-col">
+        <h4>サービス</h4>
+        <a href="#">機能紹介</a>
+        <a href="#">料金プラン</a>
+        <a href="#">導入事例</a>
+        <a href="#">アップデート情報</a>
+      </div>
+      <div class="footer-col">
+        <h4>サポート</h4>
+        <a href="#">ヘルプセンター</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">使い方ガイド</a>
+        <a href="#">コミュニティ</a>
+      </div>
+      <div class="footer-col">
+        <h4>会社情報</h4>
+        <a href="#">運営会社</a>
+        <a href="#">利用規約</a>
+        <a href="#">プライバシーポリシー</a>
+        <a href="#">特定商取引法に基づく表記</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 カクスキャン（KakuScan）All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ════════ JavaScript ════════ -->
+<script>
+/* FAQ accordion */
+function toggleFaq(btn) {
+  const answer = btn.nextElementSibling;
+  const isOpen = answer.classList.contains('open');
+  /* close all */
+  document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'));
+  document.querySelectorAll('.faq-q').forEach(q => q.classList.remove('active'));
+  if (!isOpen) {
+    answer.classList.add('open');
+    btn.classList.add('active');
+  }
+}
+
+/* Scroll animations */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.animate').forEach(el => observer.observe(el));
+
+/* Smooth scroll for nav links */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>
