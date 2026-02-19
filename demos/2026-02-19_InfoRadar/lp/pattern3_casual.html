@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InfoRadar — Google アラートをアップグレードしよう</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --main: #0B1120;
+      --surface: #14213D;
+      --surface2: #1A2B45;
+      --surface3: #203354;
+      --accent: #00D4FF;
+      --accent-soft: rgba(0, 212, 255, 0.12);
+      --accent-glow: rgba(0, 212, 255, 0.4);
+      --accent-hover: #22DFFF;
+      --text-primary: #EFF4FF;
+      --text-secondary: #8BA3CC;
+      --text-muted: #4A607F;
+      --border: rgba(0, 212, 255, 0.25);
+      --border-subtle: rgba(255,255,255,0.07);
+      --green: #22C55E;
+      --red: #EF4444;
+      --yellow: #F59E0B;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--main);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      background: rgba(11,17,32,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .nav-logo {
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: -0.025em;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-center {
+      display: flex;
+      gap: 2rem;
+    }
+    .nav-center a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-center a:hover { color: var(--text-primary); }
+    .nav-right {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .nav-login {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-login:hover { color: var(--text-primary); }
+    .nav-signup {
+      background: var(--accent);
+      color: #000;
+      padding: 0.55rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 800;
+      text-decoration: none;
+      transition: box-shadow 0.2s, transform 0.15s;
+    }
+    .nav-signup:hover {
+      box-shadow: 0 0 20px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 140px 5% 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 500px;
+      background: radial-gradient(ellipse, rgba(0,212,255,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; z-index: 1; }
+
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 1.75rem;
+    }
+    .hero-chip .dot {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .hero-title {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      margin-bottom: 1.25rem;
+    }
+    .hero-title .accent { color: var(--accent); }
+    .hero-title .line2 {
+      display: block;
+      font-size: 0.65em;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: -0.01em;
+      margin-top: 0.35rem;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 580px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    .hero-cta-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      padding: 0.9rem 2rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 28px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      padding: 0.9rem 2rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid var(--border-subtle);
+      display: inline-block;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--border); color: var(--accent); }
+
+    .hero-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials {
+      padding: 60px 5% 80px;
+      background: var(--surface);
+    }
+    .testimonials-inner { max-width: 1200px; margin: 0 auto; }
+    .section-label {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    .testimonial-card {
+      background: var(--surface2);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 1.5rem;
+      transition: border-color 0.2s;
+    }
+    .testimonial-card:hover { border-color: var(--border); }
+    .t-stars {
+      color: var(--yellow);
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+      letter-spacing: 0.1em;
+    }
+    .t-body {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .t-author {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .t-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--surface3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .t-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .t-role {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ── COMPARISON ── */
+    .comparison {
+      padding: 100px 5%;
+    }
+    .comparison-inner { max-width: 900px; margin: 0 auto; }
+    .section-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+    .section-desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+    .compare-table thead tr {
+      background: var(--surface2);
+    }
+    .compare-table th {
+      padding: 1.1rem 1.5rem;
+      text-align: left;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .compare-table th:nth-child(2) { text-align: center; color: var(--text-muted); }
+    .compare-table th:nth-child(3) {
+      text-align: center;
+      color: var(--accent);
+      background: rgba(0,212,255,0.08);
+    }
+    .compare-table tbody tr {
+      border-top: 1px solid var(--border-subtle);
+      transition: background 0.15s;
+    }
+    .compare-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+    .compare-table td {
+      padding: 1rem 1.5rem;
+      font-size: 0.875rem;
+    }
+    .compare-table td:first-child { color: var(--text-secondary); }
+    .compare-table td:nth-child(2) { text-align: center; }
+    .compare-table td:nth-child(3) {
+      text-align: center;
+      background: rgba(0,212,255,0.04);
+    }
+    .icon-check { color: var(--green); font-weight: 700; font-size: 1rem; }
+    .icon-cross { color: var(--red); font-weight: 700; font-size: 1rem; }
+    .icon-partial { color: var(--yellow); font-size: 0.85rem; }
+
+    .compare-note {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    /* ── PROBLEM SECTION ── */
+    .problem-section {
+      background: var(--surface);
+      padding: 100px 5%;
+    }
+    .problem-inner { max-width: 1100px; margin: 0 auto; }
+
+    .problem-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      margin-top: 3rem;
+    }
+    .problem-text h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      line-height: 1.3;
+    }
+    .problem-text p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      margin-bottom: 1rem;
+    }
+    .problem-text p strong { color: var(--text-primary); }
+
+    .problem-visual {
+      background: var(--surface2);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+    .pv-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+    .pv-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .pv-item:last-child { border-bottom: none; }
+    .pv-bar-wrap {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .pv-bar {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--accent);
+    }
+    .pv-bar.red { background: var(--red); opacity: 0.6; }
+    .pv-bar.yellow { background: var(--yellow); opacity: 0.6; }
+    .pv-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      width: 120px;
+      flex-shrink: 0;
+    }
+    .pv-pct {
+      font-size: 0.8rem;
+      font-weight: 700;
+      width: 36px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .pv-pct.red { color: var(--red); }
+    .pv-pct.yellow { color: var(--yellow); }
+    .pv-pct.green { color: var(--green); }
+
+    /* ── SOLUTION ── */
+    .solution-section {
+      padding: 100px 5%;
+    }
+    .solution-inner { max-width: 1100px; margin: 0 auto; }
+
+    .solution-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-top: 3rem;
+    }
+    .sol-card {
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 1.75rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+    }
+    .sol-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .sol-card:hover {
+      border-color: var(--border);
+      box-shadow: 0 4px 24px rgba(0,212,255,0.08);
+      transform: translateY(-3px);
+    }
+    .sol-card:hover::after { opacity: 1; }
+
+    .sol-step-num {
+      width: 32px; height: 32px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .sol-card h3 {
+      font-size: 1rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+    .sol-card p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* ── FEATURES GRID ── */
+    .features-section {
+      background: var(--surface);
+      padding: 100px 5%;
+    }
+    .features-inner { max-width: 1100px; margin: 0 auto; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+      margin-top: 3rem;
+    }
+    .feat-card {
+      background: var(--surface2);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 1.75rem;
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 1.25rem;
+      align-items: start;
+      transition: border-color 0.2s;
+    }
+    .feat-card:hover { border-color: var(--border); }
+    .feat-icon {
+      width: 48px; height: 48px;
+      background: var(--accent-soft);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .feat-body h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+    .feat-body p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ── SOURCES ── */
+    .sources-section {
+      padding: 100px 5%;
+    }
+    .sources-inner { max-width: 1100px; margin: 0 auto; }
+
+    .sources-categories {
+      margin-top: 3rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    .source-cat {
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+    .source-cat-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .source-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .source-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .source-list li::before {
+      content: '';
+      width: 5px; height: 5px;
+      background: var(--accent);
+      border-radius: 50%;
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    /* ── PRICING ── */
+    .pricing-section {
+      background: var(--surface);
+      padding: 100px 5%;
+    }
+    .pricing-inner { max-width: 1100px; margin: 0 auto; }
+
+    .pricing-toggle {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      justify-content: center;
+      margin: 1.5rem 0 3rem;
+    }
+    .toggle-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    .toggle-wrap {
+      width: 48px; height: 26px;
+      background: var(--surface3);
+      border-radius: 100px;
+      position: relative;
+      cursor: pointer;
+      border: 1px solid var(--border-subtle);
+    }
+    .toggle-knob {
+      width: 20px; height: 20px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: absolute;
+      top: 2px; left: 2px;
+      transition: left 0.25s;
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+    .toggle-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem;
+      border-radius: 100px;
+    }
+
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+    .price-card {
+      background: var(--surface2);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 2rem;
+      position: relative;
+      transition: transform 0.2s;
+    }
+    .price-card:hover { transform: translateY(-4px); }
+    .price-card.featured {
+      background: linear-gradient(160deg, var(--surface2) 0%, rgba(0,212,255,0.06) 100%);
+      border-color: var(--accent);
+      box-shadow: 0 0 48px rgba(0,212,255,0.12);
+    }
+    .price-popular {
+      position: absolute;
+      top: -13px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #000;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.28rem 0.9rem;
+      border-radius: 100px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .price-plan {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+    }
+    .price-amount {
+      display: flex;
+      align-items: baseline;
+      gap: 0.25rem;
+      margin-bottom: 0.4rem;
+    }
+    .price-amount .currency { font-size: 1.1rem; font-weight: 700; color: var(--text-secondary); }
+    .price-amount .num { font-size: 2.75rem; font-weight: 900; letter-spacing: -0.04em; }
+    .price-amount .period { font-size: 0.9rem; color: var(--text-muted); }
+    .price-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .price-divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin-bottom: 1.5rem;
+    }
+    .price-features { list-style: none; margin-bottom: 1.75rem; }
+    .price-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+      margin-bottom: 0.7rem;
+      color: var(--text-secondary);
+    }
+    .price-features li .chk { color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .price-features li.bold { color: var(--text-primary); font-weight: 600; }
+    .price-cta {
+      display: block;
+      text-align: center;
+      padding: 0.875rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .price-cta.outline {
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+    }
+    .price-cta.outline:hover { border-color: var(--accent); color: var(--accent); }
+    .price-cta.filled {
+      background: var(--accent);
+      color: #000;
+      border: none;
+    }
+    .price-cta.filled:hover { box-shadow: 0 0 24px var(--accent-glow); opacity: 0.92; }
+
+    /* ── FAQ ── */
+    .faq-section {
+      padding: 100px 5%;
+    }
+    .faq-inner {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+    .faq-card {
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .faq-card:hover { border-color: var(--border); }
+    .faq-card h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .faq-card h4 .q-mark {
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .faq-card p {
+      font-size: 0.83rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* Additional FAQ Accordion below grid */
+    .faq-accordion {
+      margin-top: 2rem;
+    }
+    .faq-item {
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      margin-bottom: 0.6rem;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .faq-item:hover { border-color: var(--border); }
+    .faq-item.open { border-color: var(--border); }
+    .faq-q {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.1rem 1.25rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    .faq-icon {
+      color: var(--accent);
+      font-size: 1.1rem;
+      transition: transform 0.3s;
+      flex-shrink: 0;
+      margin-left: 1rem;
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.2s;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .faq-item.open .faq-a {
+      max-height: 250px;
+      padding: 0 1.25rem 1.1rem;
+    }
+
+    /* ── FINAL CTA ── */
+    .final-cta {
+      padding: 100px 5%;
+      text-align: center;
+      background: var(--surface);
+      position: relative;
+      overflow: hidden;
+    }
+    .final-cta-glow {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px; height: 400px;
+      background: radial-gradient(ellipse, rgba(0,212,255,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .final-cta-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+    .final-cta h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .final-cta h2 .accent { color: var(--accent); }
+    .final-cta p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+    .cta-bundle {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+    .cta-perks {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .perk {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .perk .icon { color: var(--green); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #070C18;
+      border-top: 1px solid var(--border-subtle);
+      padding: 3rem 5% 2rem;
+    }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 2.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .footer-brand-logo {
+      font-size: 1.3rem;
+      font-weight: 900;
+      margin-bottom: 0.6rem;
+    }
+    .footer-brand-logo span { color: var(--accent); }
+    .footer-brand p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .footer-col h4 {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 0.55rem; }
+    .footer-col a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: var(--accent); }
+    .footer-bottom {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .footer-bottom p { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
+      .sources-categories { grid-template-columns: 1fr 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .nav-center { display: none; }
+      .compare-table th:nth-child(2), .compare-table td:nth-child(2) { display: none; }
+      .problem-layout { grid-template-columns: 1fr; }
+      .solution-grid { grid-template-columns: 1fr; }
+      .pricing-cards { grid-template-columns: 1fr; max-width: 380px; margin: 0 auto; }
+      .faq-grid { grid-template-columns: 1fr; }
+      .sources-categories { grid-template-columns: 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    }
+    @media (max-width: 480px) {
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; }
+      .cta-perks { flex-direction: column; align-items: center; gap: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Info<span>Radar</span></div>
+  <div class="nav-center">
+    <a href="#compare">比較</a>
+    <a href="#features">機能</a>
+    <a href="#pricing">料金</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="nav-login">ログイン</a>
+    <a href="#cta" class="nav-signup">無料で試す →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-chip">
+      <span class="dot"></span>
+      Google アラートの次世代AI版
+    </div>
+    <h1 class="hero-title">
+      Google アラートを<br>
+      <span class="accent">卒業しよう。</span>
+      <span class="line2">一次情報だけが、あなたに届く — InfoRadar</span>
+    </h1>
+    <p class="hero-sub">
+      転載記事・低品質ニュースを完全排除。
+      Google公式ブログ、論文、プレスリリースのみをAIが収集・要約・配信。
+      毎朝5分で、業界の動きが全部わかる。
+    </p>
+    <div class="hero-cta-wrap">
+      <a href="#cta" class="btn-primary">無料で始める →</a>
+      <a href="#compare" class="btn-outline">Google アラートと比較</a>
+    </div>
+    <p class="hero-note">クレジットカード不要 · 30秒でセットアップ · いつでもキャンセル可</p>
+  </div>
+</section>
+
+<!-- TESTIMONIALS (前半配置) -->
+<section class="testimonials">
+  <div class="testimonials-inner">
+    <div class="section-label">500人以上がすでに利用中</div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="t-stars">★★★★★</div>
+        <p class="t-body">
+          「Google アラートで毎日50通届いていたのに、本当に必要なのは2〜3本だけだった。InfoRadarに切り替えたら、<strong style="color:var(--text-primary)">ノイズが消えて情報収集が楽しくなった。</strong>」
+        </p>
+        <div class="t-author">
+          <div class="t-avatar">👩‍💻</div>
+          <div>
+            <div class="t-name">田中 彩夏</div>
+            <div class="t-role">AIスタートアップ / リサーチャー</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="t-stars">★★★★★</div>
+        <p class="t-body">
+          「arXivの論文をAIが3行に要約してくれるのが最高。<strong style="color:var(--text-primary)">英語が苦手でも最新研究に追いつける。</strong>チーム全員でSlack共有するのが日課になった。」
+        </p>
+        <div class="t-author">
+          <div class="t-avatar">👨‍🔬</div>
+          <div>
+            <div class="t-name">鈴木 浩二</div>
+            <div class="t-role">機械学習エンジニア</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="t-stars">★★★★☆</div>
+        <p class="t-body">
+          「Google アラートとRSSリーダーを使い分けていたのを一本化できた。<strong style="color:var(--text-primary)">一次情報に絞ってくれるのでS/N比が全然違う。</strong>競合リサーチが劇的に効率化。」
+        </p>
+        <div class="t-author">
+          <div class="t-avatar">👔</div>
+          <div>
+            <div class="t-name">山本 健太</div>
+            <div class="t-role">プロダクトマネージャー</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON TABLE -->
+<section class="comparison" id="compare">
+  <div class="comparison-inner">
+    <div class="section-tag">Comparison</div>
+    <h2 class="section-title">Google アラート vs InfoRadar</h2>
+    <p class="section-desc">「似たようなもの」に見えて、本質が違う。何が変わるか確認してください。</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>機能・特徴</th>
+          <th>Google アラート</th>
+          <th>InfoRadar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>一次情報のみフィルタリング</td>
+          <td><span class="icon-cross">✗</span></td>
+          <td><span class="icon-check">✓</span></td>
+        </tr>
+        <tr>
+          <td>AI要約（3行でポイント抽出）</td>
+          <td><span class="icon-cross">✗</span></td>
+          <td><span class="icon-check">✓</span></td>
+        </tr>
+        <tr>
+          <td>重要度ランキング</td>
+          <td><span class="icon-cross">✗</span></td>
+          <td><span class="icon-check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Slack / Webhook配信</td>
+          <td><span class="icon-cross">✗</span></td>
+          <td><span class="icon-check">✓</span> (Pro)</td>
+        </tr>
+        <tr>
+          <td>論文（arXiv・IEEE）対応</td>
+          <td><span class="icon-partial">△ 部分的</span></td>
+          <td><span class="icon-check">✓ 専用対応</span></td>
+        </tr>
+        <tr>
+          <td>英語→日本語 自動翻訳要約</td>
+          <td><span class="icon-cross">✗</span></td>
+          <td><span class="icon-check">✓</span> (Pro)</td>
+        </tr>
+        <tr>
+          <td>リアルタイムアラート</td>
+          <td><span class="icon-partial">△ 遅延あり</span></td>
+          <td><span class="icon-check">✓ 即時</span> (Pro)</td>
+        </tr>
+        <tr>
+          <td>トレンド分析ダッシュボード</td>
+          <td><span class="icon-cross">✗</span></td>
+          <td><span class="icon-check">✓</span> (Pro)</td>
+        </tr>
+        <tr>
+          <td>チーム共有・権限管理</td>
+          <td><span class="icon-cross">✗</span></td>
+          <td><span class="icon-check">✓</span> (Team)</td>
+        </tr>
+        <tr>
+          <td>APIアクセス</td>
+          <td><span class="icon-cross">✗</span></td>
+          <td><span class="icon-check">✓</span> (Team)</td>
+        </tr>
+        <tr>
+          <td>料金</td>
+          <td>無料</td>
+          <td>無料〜¥4,980/月</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="compare-note">* Google アラートは Google LLC の登録商標です。本比較はInfoRadarの独自調査に基づきます。</p>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem-section" id="problem">
+  <div class="problem-inner">
+    <div class="section-tag">The Problem</div>
+    <h2 class="section-title">なぜGoogle アラートでは<br>不十分なのか</h2>
+    <div class="problem-layout">
+      <div class="problem-text">
+        <h3>届くのは<br>「二次情報の転載」ばかり</h3>
+        <p>
+          Google アラートはキーワードにマッチするページを広く収集します。
+          その結果、<strong>同じプレスリリースを言い換えた記事が5〜10本届く</strong>一方、
+          肝心の「元のプレスリリース」が埋もれてしまうことがほとんどです。
+        </p>
+        <p>
+          また、重要度に関係なく時系列で届くため、
+          <strong>マイナーな発表も重大発表も同列に並んでしまい</strong>、
+          毎朝のメール確認が苦痛になります。
+        </p>
+        <p>
+          InfoRadarは「一次情報か否か」をAIが判定し、
+          二次記事を自動除外。届く情報の質が根本から変わります。
+        </p>
+      </div>
+      <div class="problem-visual">
+        <div class="pv-title">Google アラートで届く情報の内訳（例）</div>
+        <div class="pv-item">
+          <span class="pv-label">転載・要約記事</span>
+          <div class="pv-bar-wrap">
+            <div class="pv-bar red" style="width:72%"></div>
+          </div>
+          <span class="pv-pct red">72%</span>
+        </div>
+        <div class="pv-item">
+          <span class="pv-label">関係ない記事</span>
+          <div class="pv-bar-wrap">
+            <div class="pv-bar yellow" style="width:18%"></div>
+          </div>
+          <span class="pv-pct yellow">18%</span>
+        </div>
+        <div class="pv-item">
+          <span class="pv-label">本当の一次情報</span>
+          <div class="pv-bar-wrap">
+            <div class="pv-bar" style="width:10%"></div>
+          </div>
+          <span class="pv-pct green">10%</span>
+        </div>
+        <div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border-subtle);">
+          <div class="pv-title" style="margin-bottom:0.75rem">InfoRadarに切り替えると</div>
+          <div class="pv-item">
+            <span class="pv-label">一次情報のみ</span>
+            <div class="pv-bar-wrap">
+              <div class="pv-bar" style="width:98%"></div>
+            </div>
+            <span class="pv-pct green">98%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="solution-section" id="solution">
+  <div class="solution-inner">
+    <div class="section-tag">How It Works</div>
+    <h2 class="section-title">3ステップで<br>情報収集を自動化</h2>
+    <p class="section-desc">設定は一度。あとはInfoRadarが毎日、あなたの代わりに動きます。</p>
+    <div class="solution-grid">
+      <div class="sol-card">
+        <div class="sol-step-num">01</div>
+        <h3>トピックを設定する</h3>
+        <p>監視したいキーワードを入力するだけ。「AI Overview」「Claude 4」「量子コンピュータ」など複数トピックを自由に設定。</p>
+      </div>
+      <div class="sol-card">
+        <div class="sol-step-num">02</div>
+        <h3>AIが一次情報を選別</h3>
+        <p>50以上の一次情報源（Google公式ブログ・arXiv・プレスリリース等）を24時間監視し、関連情報のみを自動収集・重要度評価。</p>
+      </div>
+      <div class="sol-card">
+        <div class="sol-step-num">03</div>
+        <h3>毎朝ダイジストが届く</h3>
+        <p>重要度順にランキングした3行要約をメール・Slackへ配信。読む時間5分で、業界の最新動向をすべて把握できる。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div class="features-inner">
+    <div class="section-tag">Features</div>
+    <h2 class="section-title">機能一覧</h2>
+    <p class="section-desc">一次情報の収集・理解・活用をワンストップでサポート。</p>
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon">🔬</div>
+        <div class="feat-body">
+          <h3>一次情報フィルター</h3>
+          <p>公式ブログ・論文・プレスリリースのみを対象に収集。ソース権威スコアでリアルタイム判定。転載・SEO記事を98%排除。</p>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🤖</div>
+        <div class="feat-body">
+          <h3>AI要約エンジン</h3>
+          <p>長文論文・発表資料を「何が発表・なぜ重要・何が変わる」の3点に絞って日本語要約。英語ソースも自動翻訳。</p>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-body">
+          <h3>リアルタイムアラート</h3>
+          <p>重大発表（主要モデルリリース・規制動向等）を検知次第、即時プッシュ通知。重要度スコアで通知閾値を設定可能。</p>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">💬</div>
+        <div class="feat-body">
+          <h3>Slack / Webhook連携</h3>
+          <p>指定チャンネルへ自動配信。チャンネルごとにトピックを割り当て可能。Webhook URLでNotionやDiscordにも送信。</p>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📊</div>
+        <div class="feat-body">
+          <h3>トレンド分析</h3>
+          <p>キーワード言及頻度を時系列グラフで可視化。研究・開発の盛り上がりをデータで把握し、先手を打つ判断が可能。</p>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">👥</div>
+        <div class="feat-body">
+          <h3>チーム共有ダッシュボード</h3>
+          <p>チームでトピックを共有・管理。管理者/閲覧者の権限設定。APIアクセスで社内ツールへ組み込み可能。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="sources-section">
+  <div class="sources-inner">
+    <div class="section-tag">Sources</div>
+    <h2 class="section-title">対応一次情報源</h2>
+    <p class="section-desc">厳選した50以上の一次情報源のみ対応。まとめサイト・個人ブログは対象外。</p>
+    <div class="sources-categories">
+      <div class="source-cat">
+        <div class="source-cat-title">🏢 企業公式ブログ</div>
+        <ul class="source-list">
+          <li>Google Official Blog</li>
+          <li>Google Research Blog</li>
+          <li>OpenAI Research</li>
+          <li>Anthropic Blog</li>
+          <li>DeepMind Blog</li>
+          <li>Meta AI Research</li>
+          <li>Microsoft Research</li>
+          <li>AWS News Blog</li>
+          <li>NVIDIA Developer Blog</li>
+          <li>Hugging Face Blog</li>
+          <li>Mistral AI</li>
+          <li>GitHub Blog</li>
+        </ul>
+      </div>
+      <div class="source-cat">
+        <div class="source-cat-title">📄 学術・研究</div>
+        <ul class="source-list">
+          <li>arXiv.org（CS・AI）</li>
+          <li>IEEE Xplore</li>
+          <li>ACM Digital Library</li>
+          <li>Papers With Code</li>
+          <li>Nature Machine Intelligence</li>
+          <li>Science Robotics</li>
+          <li>JMLR</li>
+          <li>NeurIPS Proceedings</li>
+          <li>ICML Proceedings</li>
+          <li>ICLR OpenReview</li>
+          <li>Semantic Scholar</li>
+          <li>Google Scholar Alert</li>
+        </ul>
+      </div>
+      <div class="source-cat">
+        <div class="source-cat-title">📰 プレスリリース・規制</div>
+        <ul class="source-list">
+          <li>PR Newswire</li>
+          <li>Business Wire</li>
+          <li>GlobeNewswire</li>
+          <li>EU AI Act Official</li>
+          <li>内閣府AI戦略</li>
+          <li>経産省 DX関連</li>
+          <li>FTC AI Reports</li>
+          <li>NIST AI Framework</li>
+          <li>SEC Tech Filings</li>
+          <li>GitHub Releases</li>
+          <li>PyPI Announcements</li>
+          <li>+ カスタム追加可能</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="pricing-inner">
+    <div class="section-tag">Pricing</div>
+    <h2 class="section-title">シンプルな料金プラン</h2>
+    <p class="section-desc">まず無料で体験。使い込んだらアップグレード。</p>
+    <div class="pricing-toggle">
+      <span class="toggle-label">月額払い</span>
+      <div class="toggle-wrap">
+        <div class="toggle-knob"></div>
+      </div>
+      <span class="toggle-label">年額払い</span>
+      <span class="toggle-badge">2ヶ月分お得</span>
+    </div>
+    <div class="pricing-cards">
+      <div class="price-card">
+        <div class="price-plan">Free</div>
+        <div class="price-amount">
+          <span class="currency">¥</span>
+          <span class="num">0</span>
+        </div>
+        <div class="price-desc">永久無料 · クレカ不要</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li><span class="chk">✓</span> トピック 2件まで</li>
+          <li><span class="chk">✓</span> 主要10情報源</li>
+          <li><span class="chk">✓</span> 1日1回メール配信</li>
+          <li><span class="chk">✓</span> AI要約（1日5件）</li>
+          <li><span class="chk">✓</span> 過去7日間アーカイブ</li>
+        </ul>
+        <a href="#" class="price-cta outline">無料で始める</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-popular">人気 No.1</div>
+        <div class="price-plan">Pro</div>
+        <div class="price-amount">
+          <span class="currency">¥</span>
+          <span class="num">1,480</span>
+          <span class="period">/月</span>
+        </div>
+        <div class="price-desc">年払い ¥14,800 · 2ヶ月分お得</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li class="bold"><span class="chk">✓</span> トピック 20件まで</li>
+          <li class="bold"><span class="chk">✓</span> 全50以上の情報源</li>
+          <li class="bold"><span class="chk">✓</span> AI要約 無制限</li>
+          <li class="bold"><span class="chk">✓</span> リアルタイムアラート</li>
+          <li class="bold"><span class="chk">✓</span> Slack / Webhook連携</li>
+          <li class="bold"><span class="chk">✓</span> トレンド分析</li>
+          <li class="bold"><span class="chk">✓</span> 英語→日本語 自動要約</li>
+          <li class="bold"><span class="chk">✓</span> 過去90日間アーカイブ</li>
+        </ul>
+        <a href="#" class="price-cta filled">Pro を始める</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-plan">Team</div>
+        <div class="price-amount">
+          <span class="currency">¥</span>
+          <span class="num">4,980</span>
+          <span class="period">/月</span>
+        </div>
+        <div class="price-desc">5名まで · 追加 ¥800/名</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li><span class="chk">✓</span> Proの全機能</li>
+          <li><span class="chk">✓</span> チーム共有ダッシュボード</li>
+          <li><span class="chk">✓</span> 権限管理（管理者/閲覧）</li>
+          <li><span class="chk">✓</span> チームSlack一括配信</li>
+          <li><span class="chk">✓</span> APIアクセス</li>
+          <li><span class="chk">✓</span> 無制限アーカイブ</li>
+          <li><span class="chk">✓</span> 優先サポート</li>
+        </ul>
+        <a href="#" class="price-cta outline">Teamを試す</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="faq-inner">
+    <div class="section-tag" style="text-align:center">FAQ</div>
+    <h2 class="section-title" style="text-align:center">よくある質問</h2>
+
+    <!-- Quick Cards -->
+    <div class="faq-grid">
+      <div class="faq-card">
+        <h4><span class="q-mark">Q.</span> 無料プランでも十分使える？</h4>
+        <p>個人利用なら十分です。2トピック・10情報源・1日5件のAI要約を無料で利用できます。まず試してみてください。</p>
+      </div>
+      <div class="faq-card">
+        <h4><span class="q-mark">Q.</span> すぐにキャンセルできる？</h4>
+        <p>はい。いつでもダッシュボードからキャンセル可能。次の更新日まで利用を継続でき、解約手数料は一切ありません。</p>
+      </div>
+      <div class="faq-card">
+        <h4><span class="q-mark">Q.</span> 論文は日本語で読める？</h4>
+        <p>Proプランでは英語論文を自動で日本語要約します。専門用語は原語を保持しつつ、読みやすい日本語で提供します。</p>
+      </div>
+      <div class="faq-card">
+        <h4><span class="q-mark">Q.</span> Slackへの設定は難しい？</h4>
+        <p>OAuth認証でSlack連携し、送信チャンネルを選ぶだけです。5分以内に設定が完了します（Proプラン以上）。</p>
+      </div>
+    </div>
+
+    <!-- Additional Accordion -->
+    <div class="faq-accordion">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Google アラートからの移行は簡単ですか？
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          はい、Google アラートと同じキーワードをInfoRadarに入力するだけです。既存のアラートを削除する必要もありません。並行して使い比べて、InfoRadarで満足してからGoogle アラートを停止する方も多いです。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          一次情報かどうかの判定精度はどのくらい？
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          独自のソース権威スコアモデルと、許可リストベースの一次情報源データベースを組み合わせています。誤判定率は1%以下を目標に、継続的に改善しています。誤判定を見つけた場合はフィードバックいただければ即座に対応します。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          カスタム情報源（自社ブログ等）を追加できますか？
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          Proプラン以上では、RSSフィードのURLを追加することで、InfoRadarが標準対応していないソースも監視できます。一次情報のガイドラインに合致するソースのみ有効となります（個人ブログ等は不可）。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          複数人のチームで使う場合の料金は？
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          Teamプランは5名まで¥4,980/月。6名以上は1名追加ごとに¥800/月追加となります。大規模チームの場合はエンタープライズプランについてお問い合わせください。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          配信される要約の言語は選べますか？
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          現在は日本語・英語に対応しています。ダッシュボードの「言語設定」から選択可能です。トピックごとに言語を変えることもできます（例：英語トピックは英語要約、日本語トピックは日本語要約）。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta" id="cta">
+  <div class="final-cta-glow"></div>
+  <div class="final-cta-inner">
+    <h2>Google アラートを<br><span class="accent">アップグレードしよう。</span></h2>
+    <p>
+      一次情報だけが、毎朝あなたに届く。
+      無料プランで今すぐ体験。30秒でセットアップ完了。
+    </p>
+    <div class="cta-bundle">
+      <a href="#" class="btn-primary">無料で始める →</a>
+      <a href="#" class="btn-outline">料金プランを見る</a>
+    </div>
+    <div class="cta-perks">
+      <span class="perk"><span class="icon">✓</span> クレカ不要</span>
+      <span class="perk"><span class="icon">✓</span> 30秒セットアップ</span>
+      <span class="perk"><span class="icon">✓</span> いつでもキャンセル</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-brand-logo">Info<span>Radar</span></div>
+        <p>一次情報だけが、あなたに届く。<br>Google アラートの次世代AI版。</p>
+      </div>
+      <div class="footer-col">
+        <h4>プロダクト</h4>
+        <ul>
+          <li><a href="#">機能一覧</a></li>
+          <li><a href="#">対応情報源</a></li>
+          <li><a href="#">料金プラン</a></li>
+          <li><a href="#">API</a></li>
+          <li><a href="#">変更ログ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>会社</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">ブログ</a></li>
+          <li><a href="#">採用情報</a></li>
+          <li><a href="#">お問い合わせ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>法的情報</h4>
+        <ul>
+          <li><a href="#">利用規約</a></li>
+          <li><a href="#">プライバシー</a></li>
+          <li><a href="#">特定商取引法</a></li>
+          <li><a href="#">Cookie設定</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 InfoRadar. All rights reserved.</p>
+      <p>本ページはデモ用サンプルです。</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleFaq(el) {
+    const item = el.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+</script>
+</body>
+</html>

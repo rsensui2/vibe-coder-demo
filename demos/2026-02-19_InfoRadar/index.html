@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InfoRadar — Vibe Coder Bootcamp Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg: #0A0E1A;
+      --bg2: #1E2D45;
+      --accent: #00D4FF;
+      --accent2: #0066FF;
+      --text: #F0F4FF;
+      --text2: #8BA3CC;
+      --green: #00E5A0;
+      --border: rgba(0,212,255,0.2);
+    }
+    
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.7;
+    }
+    
+    /* Hero */
+    .hero {
+      padding: 100px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(0,212,255,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .radar-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      position: relative;
+    }
+    .radar-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(0,212,255,0.1);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    h1 span { color: var(--accent); }
+    .hero-sub {
+      color: var(--text2);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+    .hero-meta {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .meta-chip {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+      color: var(--text2);
+    }
+    .meta-chip strong { color: var(--text); }
+    
+    /* Container */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    
+    /* Section */
+    section { padding: 72px 0; }
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    
+    /* Cards */
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+    
+    .card {
+      background: rgba(30,45,69,0.6);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,212,255,0.15);
+    }
+    .card-img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+      background: var(--bg2);
+    }
+    .card-body { padding: 20px; }
+    .card-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+    .card-desc { font-size: 0.875rem; color: var(--text2); line-height: 1.6; }
+    
+    /* LP section */
+    .lp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    
+    /* Docs */
+    .doc-list { display: flex; flex-direction: column; gap: 12px; }
+    .doc-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(30,45,69,0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .doc-item:hover {
+      background: rgba(0,212,255,0.05);
+      border-color: rgba(0,212,255,0.4);
+    }
+    .doc-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .doc-info { flex: 1; }
+    .doc-name { font-weight: 600; font-size: 0.95rem; }
+    .doc-desc { font-size: 0.8rem; color: var(--text2); margin-top: 2px; }
+    .doc-arrow { color: var(--accent); font-size: 1.2rem; }
+    
+    /* Audio player */
+    .audio-card {
+      background: rgba(30,45,69,0.6);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .audio-icon { font-size: 3rem; }
+    .audio-info { flex: 1; }
+    .audio-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+    .audio-player { width: 100%; margin-top: 12px; }
+    audio { width: 100%; filter: invert(0); }
+    
+    /* SNS preview */
+    .sns-card {
+      background: rgba(30,45,69,0.6);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+    .sns-card pre {
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.875rem;
+      color: var(--text2);
+      max-height: 200px;
+      overflow: hidden;
+      position: relative;
+    }
+    .sns-card pre::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(transparent, rgba(30,45,69,0.9));
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-top: 16px;
+    }
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--accent);
+    }
+    .btn-outline:hover { background: rgba(0,212,255,0.1); }
+    
+    /* IG Grid */
+    .ig-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .ig-img {
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 12px;
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+    }
+    .ig-placeholder {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      background: var(--bg2);
+      border: 1px dashed var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text2);
+      font-size: 0.8rem;
+    }
+    
+    /* Status bar */
+    .status-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    .status-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(30,45,69,0.6);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .dot-yellow { background: #FFB547; }
+    .dot-gray { background: #555; }
+    
+    /* Slides */
+    .slides-row {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+    }
+    .slide-thumb {
+      flex-shrink: 0;
+      width: 200px;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    .slide-placeholder {
+      flex-shrink: 0;
+      width: 200px;
+      aspect-ratio: 16/9;
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+      background: var(--bg2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text2);
+      font-size: 12px;
+    }
+    
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+      color: var(--text2);
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    
+    /* Powered by */
+    .powered {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text2);
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="radar-icon">
+    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="38" stroke="#00D4FF" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <circle cx="40" cy="40" r="26" stroke="#00D4FF" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="40" cy="40" r="14" stroke="#00D4FF" stroke-width="1.5" opacity="0.3"/>
+      <circle cx="40" cy="40" r="3" fill="#00D4FF"/>
+      <line x1="40" y1="40" x2="65" y2="18" stroke="#00D4FF" stroke-width="1.5" opacity="0.8"/>
+      <circle cx="58" cy="24" r="3" fill="#00D4FF" opacity="0.9"/>
+      <circle cx="50" cy="15" r="2" fill="#00D4FF" opacity="0.5"/>
+    </svg>
+  </div>
+  <div class="badge">🎓 Vibe Coder Bootcamp — Live Demo</div>
+  <h1>Info<span>Radar</span></h1>
+  <p class="hero-sub">一次情報だけが、あなたに届く。<br>AIがノイズを除去し、毎日知るべき情報を厳選・要約してお届けします。</p>
+  <div class="hero-meta">
+    <div class="meta-chip">📡 <strong>一次情報フィルタリング</strong></div>
+    <div class="meta-chip">🤖 <strong>AI要約エンジン</strong></div>
+    <div class="meta-chip">🔔 <strong>毎日パーソナライズ通知</strong></div>
+    <div class="meta-chip">💰 <strong>Free / Pro ¥1,480</strong></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STATUS -->
+  <div class="status-bar">
+    <div class="status-chip"><div class="dot dot-green"></div>LP × 2完成 (3本目生成中)</div>
+    <div class="status-chip"><div class="dot dot-green"></div>モックアプリ完成</div>
+    <div class="status-chip"><div class="dot dot-green"></div>音声ラジオ完成</div>
+    <div class="status-chip"><div class="dot dot-green"></div>X投稿30日分完成</div>
+    <div class="status-chip"><div class="dot dot-yellow"></div>スライド生成中</div>
+    <div class="status-chip"><div class="dot dot-yellow"></div>IG画像生成中</div>
+    <div class="status-chip"><div class="dot dot-gray"></div>動画CM生成中</div>
+  </div>
+
+  <!-- LP -->
+  <section>
+    <div class="section-title">🖥️ ランディングページ × 3パターン</div>
+    <div class="lp-grid">
+      <a class="card" href="lp/pattern1_modern.html" target="_blank">
+        <img class="card-img" src="screenshots/lp_pattern1.png" alt="LP Pattern 1" onerror="this.style.background='#1E2D45'">
+        <div class="card-body">
+          <div class="card-tag">Pattern 1</div>
+          <div class="card-title">モダン SaaS 型</div>
+          <div class="card-desc">ダーク背景 + シアングロウ。レーダービジュアルで技術力を訴求。</div>
+        </div>
+      </a>
+      <a class="card" href="lp/pattern2_premium.html" target="_blank">
+        <img class="card-img" src="screenshots/lp_pattern2.png" alt="LP Pattern 2" onerror="this.style.background='#1E2D45'">
+        <div class="card-body">
+          <div class="card-tag">Pattern 2</div>
+          <div class="card-title">ストーリーテリング型</div>
+          <div class="card-desc">情報に溺れる悩み→救済の物語。縦長ナラティブ構造。</div>
+        </div>
+      </a>
+      <a class="card" href="lp/pattern3_casual.html" target="_blank">
+        <div class="card-img" style="background: #1E2D45; display:flex; align-items:center; justify-content:center; color:#8BA3CC; font-size:14px;">生成中...</div>
+        <div class="card-body">
+          <div class="card-tag">Pattern 3</div>
+          <div class="card-title">比較訴求型</div>
+          <div class="card-desc">Google アラート vs InfoRadar の比較表を冒頭に。</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- MOCK APP -->
+  <section>
+    <div class="section-title">📱 モックアプリ</div>
+    <a class="card" href="mock/app_mock.html" target="_blank">
+      <img class="card-img" src="screenshots/mock_app.png" alt="Mock App" style="aspect-ratio: 16/7;" onerror="this.style.background='#1E2D45'">
+      <div class="card-body">
+        <div class="card-tag">iPhone Mock</div>
+        <div class="card-title">InfoRadar アプリモック</div>
+        <div class="card-desc">Today's Brief / My Radar / Archive / Insights / Settings の5画面。Dynamic Island付きiPhoneフレームで表示。</div>
+      </div>
+    </a>
+  </section>
+
+  <!-- SLIDES -->
+  <section>
+    <div class="section-title">📊 プレゼンスライド</div>
+    <div class="slides-row">
+      <div class="slide-placeholder">スライド生成中...</div>
+      <div class="slide-placeholder">13枚予定</div>
+      <div class="slide-placeholder">Tech-Premium Dark</div>
+    </div>
+    <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+      <a class="btn btn-outline" href="slides/InfoRadar.pdf" target="_blank">📄 PDF ダウンロード</a>
+      <a class="btn btn-outline" href="slides/InfoRadar.pptx" target="_blank">📑 PPTX ダウンロード</a>
+    </div>
+  </section>
+
+  <!-- AUDIO -->
+  <section>
+    <div class="section-title">🎙️ 音声ラジオ</div>
+    <div class="audio-card">
+      <div class="audio-icon">📡</div>
+      <div class="audio-info">
+        <div class="audio-title">InfoRadar — サービスイントロ</div>
+        <div style="color: var(--text2); font-size: 0.875rem;">「一次情報だけが、あなたに届く時代へ」30秒〜1分のAI音声ナレーション</div>
+        <audio class="audio-player" controls src="audio/intro.mp3">
+          お使いのブラウザはaudioタグに対応していません。
+        </audio>
+      </div>
+    </div>
+  </section>
+
+  <!-- SNS -->
+  <section>
+    <div class="section-title">🐦 X投稿 30日分</div>
+    <div class="sns-card">
+      <div class="card-tag">SNS CONTENT</div>
+      <div style="font-weight: 600; margin-bottom: 12px;">30日分の投稿カレンダー生成済み</div>
+      <div style="color: var(--text2); font-size: 0.875rem; margin-bottom: 16px;">問題提起・機能紹介・統計データ・ユースケース・CTAの5パターンをローテーション</div>
+      <a class="btn btn-outline" href="sns/x_posts_30days.md" target="_blank">📋 投稿一覧を見る →</a>
+    </div>
+  </section>
+
+  <!-- IG -->
+  <section>
+    <div class="section-title">📸 Instagram 図解 × 10枚</div>
+    <div class="ig-grid">
+      <div class="ig-placeholder">生成中...</div>
+      <div class="ig-placeholder">生成中...</div>
+      <div class="ig-placeholder">生成中...</div>
+      <div class="ig-placeholder">生成中...</div>
+      <div class="ig-placeholder">生成中...</div>
+      <div class="ig-placeholder">10枚予定</div>
+    </div>
+  </section>
+
+  <!-- VIDEO -->
+  <section>
+    <div class="section-title">🎬 動画CM</div>
+    <div class="card" style="padding: 32px; text-align: center;">
+      <div style="font-size: 3rem; margin-bottom: 16px;">🎬</div>
+      <div class="card-title">プロモ動画 30秒（Remotion生成中）</div>
+      <div class="card-desc" style="margin-top: 8px;">1920×1080 / 30fps / 課題提起→ソリューション→CTA</div>
+      <div style="margin-top: 16px;">
+        <a class="btn btn-outline" href="video/promo.mp4" target="_blank">🎬 動画を見る</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOCS -->
+  <section>
+    <div class="section-title">📋 企画ドキュメント</div>
+    <div class="doc-list">
+      <a class="doc-item" href="docs/01_executive_summary.md" target="_blank">
+        <div class="doc-icon">📊</div>
+        <div class="doc-info">
+          <div class="doc-name">01. Executive Summary</div>
+          <div class="doc-desc">市場規模・競合優位性・KPI目標・資金調達状況</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+      <a class="doc-item" href="docs/02_product_overview.md" target="_blank">
+        <div class="doc-icon">🔧</div>
+        <div class="doc-info">
+          <div class="doc-name">02. Product Overview</div>
+          <div class="doc-desc">コア機能・技術スタック・ロードマップ</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+      <a class="doc-item" href="docs/03_business_model.md" target="_blank">
+        <div class="doc-icon">💰</div>
+        <div class="doc-info">
+          <div class="doc-name">03. Business Model</div>
+          <div class="doc-desc">収益構造・Unit Economics・財務予測Year 1〜3</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+      <a class="doc-item" href="docs/04_go_to_market.md" target="_blank">
+        <div class="doc-icon">🚀</div>
+        <div class="doc-info">
+          <div class="doc-name">04. Go-to-Market Strategy</div>
+          <div class="doc-desc">フリーミアム×バイラル・チャネル別CAC・タイムライン</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+      <a class="doc-item" href="docs/05_market_research.md" target="_blank">
+        <div class="doc-icon">🔍</div>
+        <div class="doc-info">
+          <div class="doc-name">05. Market Research</div>
+          <div class="doc-desc">市場規模・競合分析・ユーザーリサーチ・参入タイミング</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div>
+    <strong style="color: var(--text);">InfoRadar</strong> — 一次情報だけが、あなたに届く
+  </div>
+  <div style="margin-top: 8px; color: var(--text2);">
+    Vibe Coder Bootcamp セミナーデモ | <a href="https://vibe-coder-bootcamp.com">vibe-coder-bootcamp.com</a>
+  </div>
+  <div class="powered">
+    <span>🤖 Generated by</span>
+    <strong style="color: var(--text);">Ryoko (Claude + OpenClaw)</strong>
+    <span>— 企画→デザイン→実装→公開まで全自動</span>
+  </div>
+</footer>
+
+</body>
+</html>

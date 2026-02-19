@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InfoRadar — 一次情報だけが、あなたに届く</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --main: #0A0E1A;
+      --accent: #00D4FF;
+      --accent-dim: rgba(0, 212, 255, 0.15);
+      --accent-glow: rgba(0, 212, 255, 0.4);
+      --secondary-bg: #1E2D45;
+      --card-bg: #111827;
+      --text-primary: #F0F4FF;
+      --text-secondary: #8BA3CC;
+      --border: rgba(0, 212, 255, 0.2);
+      --border-subtle: rgba(255,255,255,0.06);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--main);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      height: 64px;
+      background: rgba(10, 14, 26, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-logo {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    .nav-cta {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: box-shadow 0.2s, opacity 0.2s;
+      text-decoration: none;
+    }
+    .nav-cta:hover {
+      box-shadow: 0 0 20px var(--accent-glow);
+      opacity: 0.9;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 5% 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 70% 50%, rgba(0,212,255,0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 30% 30%, rgba(0,80,120,0.12) 0%, transparent 60%);
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      max-width: 1200px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent-dim);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 0.35rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%,100%{ opacity:1; } 50%{ opacity:0.3; }
+    }
+
+    .hero-title {
+      font-size: clamp(2.4rem, 4vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
+    }
+    .hero-title .accent { color: var(--accent); }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      max-width: 480px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 0.875rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: box-shadow 0.25s, transform 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 30px var(--accent-glow), 0 4px 20px rgba(0,212,255,0.3);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 0.875rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .hero-note {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* ── RADAR SVG ── */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .radar-container {
+      position: relative;
+      width: 420px;
+      height: 420px;
+    }
+
+    .radar-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .radar-ring {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 1;
+      opacity: 0.2;
+    }
+    .radar-ring.r1 { animation: pulse-ring 3s ease-in-out infinite; }
+    .radar-ring.r2 { animation: pulse-ring 3s ease-in-out infinite 0.5s; }
+    .radar-ring.r3 { animation: pulse-ring 3s ease-in-out infinite 1s; }
+    .radar-ring.r4 { animation: pulse-ring 3s ease-in-out infinite 1.5s; }
+
+    @keyframes pulse-ring {
+      0%,100%{ opacity: 0.15; }
+      50%{ opacity: 0.35; }
+    }
+
+    .radar-sweep {
+      transform-origin: 210px 210px;
+      animation: sweep 4s linear infinite;
+    }
+    @keyframes sweep {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .radar-dot {
+      fill: var(--accent);
+      animation: dot-blink 2s ease-in-out infinite;
+    }
+    @keyframes dot-blink {
+      0%,100%{ opacity:1; r:3px; }
+      50%{ opacity:0.4; r:2px; }
+    }
+
+    .radar-label {
+      fill: var(--text-secondary);
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    .radar-glow {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 160px; height: 160px;
+      background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── STATS ── */
+    .stats {
+      background: var(--secondary-bg);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 2rem 5%;
+    }
+    .stats-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: -0.03em;
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
+    /* ── SECTION ── */
+    section {
+      padding: 100px 5%;
+    }
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      line-height: 1.7;
+    }
+    .text-center { text-align: center; }
+    .text-center .section-desc { margin: 0 auto; }
+
+    /* ── PROBLEM ── */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .problem-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.75rem;
+      transition: border-color 0.2s;
+    }
+    .problem-card:hover { border-color: rgba(0,212,255,0.3); }
+    .problem-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .problem-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .problem-card p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-bg { background: #0D1424; }
+
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+      position: relative;
+    }
+    .how-steps::before {
+      content: '';
+      position: absolute;
+      top: 40px;
+      left: calc(16.66% + 2rem);
+      right: calc(16.66% + 2rem);
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, transparent 100%);
+      opacity: 0.3;
+    }
+
+    .step-card {
+      text-align: center;
+      padding: 2rem 1.5rem;
+    }
+    .step-num {
+      width: 56px; height: 56px;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 0 auto 1.25rem;
+      background: rgba(0,212,255,0.05);
+      box-shadow: 0 0 20px rgba(0,212,255,0.2);
+    }
+    .step-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .step-card p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0,212,255,0.3);
+      box-shadow: 0 8px 32px rgba(0,212,255,0.1);
+    }
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      width: 48px; height: 48px;
+      background: var(--accent-dim);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .feature-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .feature-card p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ── SOURCES ── */
+    .sources-bg { background: var(--secondary-bg); }
+
+    .sources-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+    .source-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .source-item:hover { border-color: var(--border); }
+    .source-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .source-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    /* ── PRICING ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+      align-items: start;
+    }
+    .pricing-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 2rem;
+      position: relative;
+      transition: transform 0.2s;
+    }
+    .pricing-card:hover { transform: translateY(-4px); }
+    .pricing-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 40px rgba(0,212,255,0.15), 0 0 0 1px var(--accent);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #000;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.25rem 0.875rem;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .pricing-plan {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .pricing-price {
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+    .pricing-price sup {
+      font-size: 1.2rem;
+      font-weight: 700;
+      vertical-align: top;
+      margin-top: 0.4rem;
+      display: inline-block;
+    }
+    .pricing-price span { font-size: 1rem; font-weight: 500; }
+    .pricing-mo {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .pricing-divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin-bottom: 1.5rem;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 1.75rem;
+    }
+    .pricing-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+    .pricing-features li .check {
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .pricing-features li.highlight { color: var(--text-primary); font-weight: 500; }
+
+    .pricing-btn {
+      display: block;
+      text-align: center;
+      padding: 0.875rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .pricing-btn.outline {
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      background: transparent;
+    }
+    .pricing-btn.outline:hover { border-color: var(--accent); color: var(--accent); }
+    .pricing-btn.filled {
+      background: var(--accent);
+      color: #000;
+      border: none;
+    }
+    .pricing-btn.filled:hover {
+      box-shadow: 0 0 20px var(--accent-glow);
+      opacity: 0.9;
+    }
+
+    /* ── FAQ ── */
+    .faq-bg { background: #0D1424; }
+
+    .faq-list {
+      max-width: 720px;
+      margin: 3rem auto 0;
+    }
+    .faq-item {
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+    .faq-q {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 1.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      user-select: none;
+      transition: background 0.2s;
+    }
+    .faq-q:hover { background: rgba(0,212,255,0.04); }
+    .faq-q .icon {
+      color: var(--accent);
+      font-size: 1.2rem;
+      transition: transform 0.3s;
+      flex-shrink: 0;
+      margin-left: 1rem;
+    }
+    .faq-item.open .faq-q .icon { transform: rotate(45deg); }
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.2s;
+      padding: 0 1.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .faq-item.open .faq-a {
+      max-height: 300px;
+      padding: 0 1.5rem 1.25rem;
+    }
+
+    /* ── CTA BANNER ── */
+    .cta-banner {
+      padding: 100px 5%;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 70% at 50% 50%, rgba(0,212,255,0.08) 0%, transparent 70%);
+    }
+    .cta-inner {
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .cta-inner h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+    .cta-inner p {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+    .cta-inner .btn-primary {
+      font-size: 1.05rem;
+      padding: 1rem 2.5rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--secondary-bg);
+      border-top: 1px solid var(--border-subtle);
+      padding: 3rem 5% 2rem;
+    }
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+    .footer-brand .logo {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+    .footer-brand .logo span { color: var(--accent); }
+    .footer-brand p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .footer-col h4 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 0.6rem; }
+    .footer-col a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: var(--accent); }
+    .footer-bottom {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-bottom p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .hero-inner { grid-template-columns: 1fr; text-align: center; }
+      .hero-sub { margin: 0 auto 2rem; }
+      .hero-actions { justify-content: center; }
+      .hero-visual { order: -1; }
+      .radar-container { width: 300px; height: 300px; }
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .problem-grid { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .sources-grid { grid-template-columns: repeat(2, 1fr); }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .hero-inner { gap: 2rem; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .how-steps { grid-template-columns: 1fr; }
+      .how-steps::before { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
+      .sources-grid { grid-template-columns: 1fr 1fr; }
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .footer-top { grid-template-columns: 1fr; gap: 2rem; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Info<span>Radar</span></div>
+  <ul class="nav-links">
+    <li><a href="#features">機能</a></li>
+    <li><a href="#pricing">料金</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#cta" class="nav-cta">無料で試す</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        New · AI-Powered Intelligence
+      </div>
+      <h1 class="hero-title">
+        一次情報だけが、<br>
+        <span class="accent">あなたに届く。</span>
+      </h1>
+      <p class="hero-sub">
+        Google公式ブログ、論文、プレスリリース——
+        AIが一次情報だけをフィルタリングし、
+        毎日パーソナライズして要約通知。
+        Google アラートの、次世代版。
+      </p>
+      <div class="hero-actions">
+        <a href="#cta" class="btn-primary">無料で始める →</a>
+        <a href="#how" class="btn-secondary">仕組みを見る</a>
+      </div>
+      <p class="hero-note">クレジットカード不要 · 30秒でセットアップ</p>
+    </div>
+    <div class="hero-visual">
+      <div class="radar-container">
+        <div class="radar-glow"></div>
+        <svg class="radar-svg" viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="sweepGrad" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(210 210) scale(180)">
+              <stop offset="0%" stop-color="#00D4FF" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#00D4FF" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <!-- Cross lines -->
+          <line x1="210" y1="30" x2="210" y2="390" stroke="#00D4FF" stroke-width="0.5" opacity="0.15"/>
+          <line x1="30" y1="210" x2="390" y2="210" stroke="#00D4FF" stroke-width="0.5" opacity="0.15"/>
+          <!-- Rings -->
+          <circle class="radar-ring r1" cx="210" cy="210" r="45"/>
+          <circle class="radar-ring r2" cx="210" cy="210" r="90"/>
+          <circle class="radar-ring r3" cx="210" cy="210" r="135"/>
+          <circle class="radar-ring r4" cx="210" cy="210" r="180"/>
+          <!-- Sweep -->
+          <g class="radar-sweep">
+            <path d="M210,210 L210,30 A180,180 0 0,1 370,165 Z" fill="url(#sweepGrad)" opacity="0.6"/>
+          </g>
+          <!-- Center dot -->
+          <circle cx="210" cy="210" r="5" fill="#00D4FF" opacity="0.9">
+            <animate attributeName="r" values="5;8;5" dur="2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.9;0.5;0.9" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Blips -->
+          <circle class="radar-dot" cx="270" cy="130" r="4" fill="#00D4FF">
+            <animate attributeName="opacity" values="1;0.3;1" dur="2.3s" begin="0.2s" repeatCount="indefinite"/>
+          </circle>
+          <circle class="radar-dot" cx="155" cy="165" r="3" fill="#00D4FF">
+            <animate attributeName="opacity" values="1;0.3;1" dur="1.8s" begin="0.7s" repeatCount="indefinite"/>
+          </circle>
+          <circle class="radar-dot" cx="310" cy="240" r="5" fill="#00D4FF">
+            <animate attributeName="opacity" values="1;0.3;1" dur="2.8s" begin="0.3s" repeatCount="indefinite"/>
+          </circle>
+          <circle class="radar-dot" cx="180" cy="290" r="3" fill="#00D4FF">
+            <animate attributeName="opacity" values="1;0.3;1" dur="1.9s" begin="1s" repeatCount="indefinite"/>
+          </circle>
+          <circle class="radar-dot" cx="240" cy="195" r="4" fill="#00D4FF">
+            <animate attributeName="opacity" values="1;0.3;1" dur="2.1s" begin="0.5s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Labels -->
+          <text class="radar-label" x="215" y="170" opacity="0.6">Google Blog</text>
+          <text class="radar-label" x="268" y="126" opacity="0.8">arxiv.org</text>
+          <text class="radar-label" x="312" y="244" opacity="0.7">PR Newswire</text>
+          <text class="radar-label" x="118" y="165" opacity="0.6">GitHub</text>
+          <text class="radar-label" x="140" y="294" opacity="0.6">TechCrunch</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-inner">
+    <div>
+      <div class="stat-num">50+</div>
+      <div class="stat-label">対応一次情報源</div>
+    </div>
+    <div>
+      <div class="stat-num">98%</div>
+      <div class="stat-label">ノイズ除去率</div>
+    </div>
+    <div>
+      <div class="stat-num">毎日</div>
+      <div class="stat-label">自動配信</div>
+    </div>
+    <div>
+      <div class="stat-num">&lt;30s</div>
+      <div class="stat-label">セットアップ時間</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="section-inner">
+    <div class="section-tag">Problem</div>
+    <h2 class="section-title">情報収集、もう限界では？</h2>
+    <p class="section-desc">
+      毎日流れてくるAI関連ニュース。本当に重要な一次情報を見つけるために、何時間も費やしていませんか。
+    </p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon">🌊</div>
+        <h3>情報の洪水</h3>
+        <p>Twitter、RSS、メディア——どこを見ても同じ「二次情報」の転載。本当の一次ソースがどこにあるか、もはやわからない。</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">⏱️</div>
+        <h3>Google アラートの限界</h3>
+        <p>低品質な記事や無関係な結果が大量に届く。フィルタリングに毎日30分以上かけても、見落としが出る。</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">🎯</div>
+        <h3>パーソナライズ不足</h3>
+        <p>「AIオーバービュー」についての公式発表だけ知りたいのに、関係のないニュースが混入。自分だけの監視リストを作れない。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="how-bg">
+  <div class="section-inner">
+    <div class="section-tag text-center" style="text-align:center">How It Works</div>
+    <h2 class="section-title text-center" style="text-align:center">3ステップで、情報収集を自動化</h2>
+    <p class="section-desc text-center" style="text-align:center; margin: 0 auto;">
+      設定は一度だけ。あとはInfoRadarが毎日、あなたの代わりに一次情報を監視します。
+    </p>
+    <div class="how-steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>トピックを設定</h3>
+        <p>監視したいキーワードを入力。「AI Overview」「GPT-5」「量子コンピュータ」など、何でも対応。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>AIが一次情報のみ抽出</h3>
+        <p>Google公式ブログ、論文、プレスリリースなど、信頼できる一次情報源からのみ情報を収集・フィルタリング。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>毎日ダイジェスト配信</h3>
+        <p>重要度順にランキングした要約をメールまたはSlackで受信。読む時間は1日5分だけ。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-tag text-center" style="text-align:center">Features</div>
+    <h2 class="section-title text-center" style="text-align:center">一次情報に特化した、3つの核心機能</h2>
+    <p class="section-desc text-center" style="text-align:center; margin: 0 auto 3rem;">
+      ただのニュース集約ツールではありません。一次情報の発見・理解・活用に最適化。
+    </p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔬</div>
+        <h3>一次情報フィルター</h3>
+        <p>公式ブログ、論文（arXiv/IEEE）、プレスリリースなど、ソース権威スコアで自動分類。二次情報・転載記事を完全排除。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI要約エンジン</h3>
+        <p>長文の論文や発表資料を、3行の日本語で要約。「なぜ重要か」「何が変わるか」をポイントで解説。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎛️</div>
+        <h3>パーソナライズ配信</h3>
+        <p>複数トピックを設定し、重要度でフィルタリング。メール・Slack・Webhook など複数チャンネルに配信。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>トレンド分析</h3>
+        <p>特定キーワードの言及頻度をグラフで可視化。研究や開発の「盛り上がり」をいち早く察知。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>リアルタイムアラート</h3>
+        <p>重大発表（メジャーモデルリリース、規制動向など）は即時プッシュ通知。翌朝を待つ必要なし。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <h3>ソースリンク保証</h3>
+        <p>全ての情報に一次ソースのURLを付与。すぐに元記事・論文へアクセスし、詳細を確認可能。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="sources-bg">
+  <div class="section-inner">
+    <div class="section-tag text-center" style="text-align:center">Sources</div>
+    <h2 class="section-title text-center" style="text-align:center">50以上の一次情報源に対応</h2>
+    <p class="section-desc" style="text-align:center; margin: 0 auto;">
+      権威ある一次情報源のみを厳選。二次情報・まとめサイトは対象外。
+    </p>
+    <div class="sources-grid">
+      <div class="source-item">
+        <span class="source-icon">📝</span>
+        <span class="source-name">Google Official Blog</span>
+      </div>
+      <div class="source-item">
+        <span class="source-icon">📄</span>
+        <span class="source-name">arXiv.org</span>
+      </div>
+      <div class="source-item">
+        <span class="source-icon">📰</span>
+        <span class="source-name">PR Newswire</span>
+      </div>
+      <div class="source-item">
+        <span class="source-icon">🔬</span>
+        <span class="source-name">IEEE Xplore</span>
+      </div>
+      <div class="source-item">
+        <span class="source-icon">🐙</span>
+        <span class="source-name">GitHub Blog</span>
+      </div>
+      <div class="source-item">
+        <span class="source-icon">🤖</span>
+        <span class="source-name">OpenAI Research</span>
+      </div>
+      <div class="source-item">
+        <span class="source-icon">🧠</span>
+        <span class="source-name">DeepMind Blog</span>
+      </div>
+      <div class="source-item">
+        <span class="source-icon">📡</span>
+        <span class="source-name">Meta AI Research</span>
+      </div>
+      <div class="source-item">
+        <span class="source-icon">☁️</span>
+        <span class="source-name">AWS News Blog</span>
+      </div>
+      <div class="source-item">
+        <span class="source-icon">🔷</span>
+        <span class="source-name">Microsoft Research</span>
+      </div>
+      <div class="source-item">
+        <span class="source-icon">🔑</span>
+        <span class="source-name">Anthropic Blog</span>
+      </div>
+      <div class="source-item">
+        <span class="source-icon">➕</span>
+        <span class="source-name">その他40以上...</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-inner">
+    <div class="section-tag text-center" style="text-align:center">Pricing</div>
+    <h2 class="section-title text-center" style="text-align:center">シンプルな料金プラン</h2>
+    <p class="section-desc" style="text-align:center; margin: 0 auto 3rem;">
+      最初は無料で。必要になったらアップグレード。
+    </p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-plan">Free</div>
+        <div class="pricing-price">¥0</div>
+        <div class="pricing-mo">永久無料</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> トピック 2件まで</li>
+          <li><span class="check">✓</span> 1日1回メール配信</li>
+          <li><span class="check">✓</span> 主要10情報源</li>
+          <li><span class="check">✓</span> AI要約（1日5件）</li>
+          <li><span class="check">✓</span> 過去7日間のアーカイブ</li>
+        </ul>
+        <a href="#" class="pricing-btn outline">無料で始める</a>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="pricing-badge">人気 No.1</div>
+        <div class="pricing-plan">Pro</div>
+        <div class="pricing-price"><sup>¥</sup>1,480<span>/月</span></div>
+        <div class="pricing-mo">年払いで ¥14,800（2ヶ月分お得）</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li class="highlight"><span class="check">✓</span> トピック 20件まで</li>
+          <li class="highlight"><span class="check">✓</span> リアルタイムアラート</li>
+          <li class="highlight"><span class="check">✓</span> 全50以上の情報源</li>
+          <li class="highlight"><span class="check">✓</span> AI要約 無制限</li>
+          <li class="highlight"><span class="check">✓</span> Slack / Webhook連携</li>
+          <li class="highlight"><span class="check">✓</span> トレンド分析ダッシュボード</li>
+          <li class="highlight"><span class="check">✓</span> 過去90日間アーカイブ</li>
+        </ul>
+        <a href="#" class="pricing-btn filled">Pro を始める</a>
+      </div>
+
+      <div class="pricing-card">
+        <div class="pricing-plan">Team</div>
+        <div class="pricing-price"><sup>¥</sup>4,980<span>/月</span></div>
+        <div class="pricing-mo">5名まで · 追加 ¥800/名</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> Proの全機能</li>
+          <li><span class="check">✓</span> チーム共有ダッシュボード</li>
+          <li><span class="check">✓</span> 共有トピック設定</li>
+          <li><span class="check">✓</span> 権限管理（管理者/閲覧者）</li>
+          <li><span class="check">✓</span> チームSlack一括配信</li>
+          <li><span class="check">✓</span> APIアクセス</li>
+          <li><span class="check">✓</span> 優先サポート</li>
+        </ul>
+        <a href="#" class="pricing-btn outline">Teamを試す</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="faq-bg">
+  <div class="section-inner">
+    <div class="section-tag text-center" style="text-align:center">FAQ</div>
+    <h2 class="section-title text-center" style="text-align:center">よくある質問</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Google アラートと何が違うの？
+          <span class="icon">+</span>
+        </div>
+        <div class="faq-a">
+          Google アラートはキーワードマッチングで任意のウェブページを収集しますが、InfoRadarは「一次情報源のみ」に絞り込んでフィルタリングします。また、AIによる要約・重要度ランキング・Slack連携など、情報を活用するための機能が充実しています。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          「一次情報」の定義は？
+          <span class="icon">+</span>
+        </div>
+        <div class="faq-a">
+          企業の公式ブログ、学術論文（arXiv / IEEE など）、公式プレスリリース（PR Newswire 等）、政府・規制機関の公示、オープンソースプロジェクトの公式リリースノートなどを一次情報と定義しています。ニュースメディアや個人ブログは二次情報として分類されます。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          日本語以外のソースにも対応している？
+          <span class="icon">+</span>
+        </div>
+        <div class="faq-a">
+          はい。英語・日本語・中国語・ドイツ語など主要言語に対応しています。外国語の情報は自動的に日本語に翻訳・要約して配信することも可能です（Pro以上のプランで利用可能）。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          自分でカスタムソースを追加できる？
+          <span class="icon">+</span>
+        </div>
+        <div class="faq-a">
+          Pro・Teamプランでは、RSSフィードのURLを追加することで、InfoRadarが標準対応していないソースも監視できます。ただし、一次情報のガイドラインに合致するソースのみ有効となります。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          無料プランからProへのアップグレードはいつでもできる？
+          <span class="icon">+</span>
+        </div>
+        <div class="faq-a">
+          はい。ダッシュボードからいつでも即時アップグレードが可能です。Proプランはクレジットカードで月額・年額払いを選択でき、いつでもキャンセル可能です（次回更新日まで利用継続）。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Slackへの配信はどうやって設定する？
+          <span class="icon">+</span>
+        </div>
+        <div class="faq-a">
+          ダッシュボードの「配信設定」からSlack OAuth連携を行い、送信先チャンネルを選択するだけです。チャンネルごとにトピックを割り当てることも可能で、チームの情報収集フローに組み込めます（Pro以上）。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner" id="cta">
+  <div class="cta-inner">
+    <h2>今日から、一次情報だけを<br><span style="color:var(--accent)">受け取ろう。</span></h2>
+    <p>無料プランで今すぐ開始。クレジットカード不要。セットアップ30秒。</p>
+    <a href="#" class="btn-primary">無料アカウントを作成する →</a>
+    <p style="margin-top:1rem; font-size:0.8rem; color:var(--text-secondary);">
+      すでに500+のリサーチャー・エンジニアが利用中
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">Info<span>Radar</span></div>
+        <p>一次情報だけが、あなたに届く。<br>Google アラートの次世代AI版。</p>
+      </div>
+      <div class="footer-col">
+        <h4>プロダクト</h4>
+        <ul>
+          <li><a href="#">機能一覧</a></li>
+          <li><a href="#">対応情報源</a></li>
+          <li><a href="#">料金プラン</a></li>
+          <li><a href="#">API</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>会社</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">ブログ</a></li>
+          <li><a href="#">採用情報</a></li>
+          <li><a href="#">お問い合わせ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>法的情報</h4>
+        <ul>
+          <li><a href="#">利用規約</a></li>
+          <li><a href="#">プライバシーポリシー</a></li>
+          <li><a href="#">特定商取引法</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 InfoRadar. All rights reserved.</p>
+      <p>本サービスはデモ用サンプルです。</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleFaq(el) {
+    const item = el.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+</script>
+</body>
+</html>
