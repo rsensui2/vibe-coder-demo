@@ -1,0 +1,3387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RailFinder — 失くしたものを、駅が見つける。</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    /* =========================================
+       RESET & BASE
+    ========================================= */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --color-main: #0F2952;
+      --color-accent: #00D4FF;
+      --color-text: #1A1A2E;
+      --color-light-bg: #F0F7FF;
+      --color-white: #FFFFFF;
+      --color-black: #000000;
+      --color-gray-100: #F8F9FA;
+      --color-gray-200: #E9ECEF;
+      --color-gray-300: #DEE2E6;
+      --color-gray-400: #CED4DA;
+      --color-gray-500: #ADB5BD;
+      --color-gray-600: #6C757D;
+      --color-gray-700: #495057;
+      --color-gray-800: #343A40;
+      --color-gray-900: #212529;
+      --font-sans: 'Inter', 'Noto Sans JP', sans-serif;
+      --font-jp: 'Noto Sans JP', 'Inter', sans-serif;
+      --transition-base: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --transition-slow: 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+      --shadow-md: 0 8px 32px rgba(0,0,0,0.12);
+      --shadow-lg: 0 24px 64px rgba(0,0,0,0.18);
+      --shadow-xl: 0 40px 100px rgba(0,0,0,0.24);
+      --border-radius-sm: 8px;
+      --border-radius-md: 16px;
+      --border-radius-lg: 24px;
+      --border-radius-xl: 40px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: var(--font-jp);
+      color: var(--color-text);
+      background-color: var(--color-black);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* =========================================
+       SCROLL ANIMATION BASE CLASSES
+    ========================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(60px);
+      transition: opacity 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-80px);
+      transition: opacity 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .reveal-left.revealed {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(80px);
+      transition: opacity 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .reveal-right.revealed {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .reveal-scale.revealed {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .delay-100 { transition-delay: 0.1s; }
+    .delay-200 { transition-delay: 0.2s; }
+    .delay-300 { transition-delay: 0.3s; }
+    .delay-400 { transition-delay: 0.4s; }
+    .delay-500 { transition-delay: 0.5s; }
+    .delay-600 { transition-delay: 0.6s; }
+    .delay-700 { transition-delay: 0.7s; }
+    .delay-800 { transition-delay: 0.8s; }
+
+    /* =========================================
+       NAVIGATION
+    ========================================= */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.4s ease;
+    }
+
+    .nav.scrolled {
+      background: rgba(15, 41, 82, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 14px 40px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-main) 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-logo-icon::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border: 3px solid white;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .nav-logo-icon::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: white;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .nav-logo-text {
+      font-family: var(--font-sans);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-white);
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.8);
+      transition: color 0.3s ease;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-links a:hover {
+      color: var(--color-accent);
+    }
+
+    .nav-cta {
+      background: var(--color-accent);
+      color: var(--color-main) !important;
+      padding: 10px 22px;
+      border-radius: 100px;
+      font-weight: 700 !important;
+      font-size: 0.875rem !important;
+      transition: all 0.3s ease !important;
+    }
+
+    .nav-cta:hover {
+      background: #fff !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4);
+    }
+
+    /* =========================================
+       SECTION 1: DRAMATIC OPENING
+    ========================================= */
+    .section-hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #000000;
+      overflow: hidden;
+    }
+
+    .hero-background {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .hero-bg-gradient {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(15, 41, 82, 0.8) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                  radial-gradient(ellipse at 50% 100%, rgba(15, 41, 82, 0.6) 0%, transparent 60%),
+                  #000000;
+    }
+
+    .hero-particles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(0, 212, 255, 0.6);
+      border-radius: 50%;
+      animation: particleFloat linear infinite;
+    }
+
+    @keyframes particleFloat {
+      0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px) translateX(50px);
+        opacity: 0;
+      }
+    }
+
+    .hero-grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 80px 80px;
+      animation: gridPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 0 24px;
+      max-width: 900px;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeInUp 1s 0.3s forwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-question {
+      font-family: var(--font-jp);
+      font-size: clamp(2rem, 6vw, 4.5rem);
+      font-weight: 900;
+      color: var(--color-white);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeInUp 1s 0.5s forwards;
+    }
+
+    .hero-question .accent-word {
+      color: var(--color-accent);
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero-question .accent-word::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--color-accent);
+      transform: scaleX(0);
+      animation: lineReveal 0.6s 1.5s forwards;
+      transform-origin: left;
+    }
+
+    @keyframes lineReveal {
+      to { transform: scaleX(1); }
+    }
+
+    .hero-subtext {
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      color: rgba(255,255,255,0.5);
+      font-weight: 400;
+      line-height: 1.8;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeInUp 1s 0.8s forwards;
+    }
+
+    .hero-scroll-indicator {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeInUp 1s 1.5s forwards;
+      cursor: pointer;
+    }
+
+    .hero-scroll-text {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      font-family: var(--font-sans);
+    }
+
+    .hero-scroll-line {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, rgba(0, 212, 255, 0.8), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.1); }
+    }
+
+    .hero-floating-tags {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .floating-tag {
+      position: absolute;
+      background: rgba(0, 212, 255, 0.05);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      border-radius: 100px;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.3);
+      white-space: nowrap;
+      animation: floatTag 6s ease-in-out infinite;
+    }
+
+    @keyframes floatTag {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    /* =========================================
+       SECTION 2: STATISTICS - THE PROBLEM
+    ========================================= */
+    .section-problem {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .problem-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    /* Station-like background using CSS */
+    .station-visual {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(0,0,0,0.9) 0%,
+          rgba(15,41,82,0.6) 40%,
+          rgba(0,0,0,0.85) 100%
+        );
+      z-index: 1;
+    }
+
+    .station-bg-art {
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          transparent 0px,
+          transparent 60px,
+          rgba(0,212,255,0.02) 60px,
+          rgba(0,212,255,0.02) 62px
+        ),
+        repeating-linear-gradient(
+          180deg,
+          transparent 0px,
+          transparent 100px,
+          rgba(255,255,255,0.01) 100px,
+          rgba(255,255,255,0.01) 101px
+        ),
+        radial-gradient(ellipse at 50% 0%, rgba(15,41,82,0.8) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 80%, rgba(0,212,255,0.08) 0%, transparent 40%),
+        radial-gradient(ellipse at 80% 60%, rgba(15,41,82,0.6) 0%, transparent 40%),
+        #050a14;
+    }
+
+    .station-lines {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 30px,
+        rgba(0,212,255,0.05) 30px,
+        rgba(0,212,255,0.05) 31px
+      );
+      transform: perspective(300px) rotateX(30deg);
+      transform-origin: bottom;
+      opacity: 0.5;
+    }
+
+    .problem-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 80px 24px;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    .problem-eyebrow {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 24px;
+    }
+
+    .problem-headline {
+      font-family: var(--font-jp);
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.5;
+      margin-bottom: 64px;
+    }
+
+    .stats-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 64px;
+    }
+
+    .stat-number-wrapper {
+      position: relative;
+    }
+
+    .stat-number {
+      font-family: var(--font-sans);
+      font-size: clamp(5rem, 18vw, 14rem);
+      font-weight: 900;
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #FFFFFF 0%, var(--color-accent) 50%, rgba(255,255,255,0.6) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      z-index: 2;
+    }
+
+    .stat-number-shadow {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-family: var(--font-sans);
+      font-size: clamp(5rem, 18vw, 14rem);
+      font-weight: 900;
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+      color: rgba(0, 212, 255, 0.1);
+      z-index: 1;
+    }
+
+    .stat-unit {
+      font-family: var(--font-jp);
+      font-size: clamp(1.5rem, 4vw, 3rem);
+      font-weight: 700;
+      color: rgba(255,255,255,0.8);
+      letter-spacing: 0.05em;
+    }
+
+    .stat-description {
+      font-family: var(--font-jp);
+      font-size: clamp(0.9rem, 2vw, 1.25rem);
+      color: rgba(255,255,255,0.5);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--border-radius-md);
+      padding: 28px 20px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      background: rgba(0, 212, 255, 0.06);
+      border-color: rgba(0, 212, 255, 0.2);
+      transform: translateY(-4px);
+    }
+
+    .stat-card-number {
+      font-family: var(--font-sans);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-accent);
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .stat-card-label {
+      font-family: var(--font-jp);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+    }
+
+    /* =========================================
+       SECTION 3: RAILFINDER APPEARS
+    ========================================= */
+    .section-product-intro {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .product-intro-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(15, 41, 82, 1) 0%, transparent 60%),
+        radial-gradient(ellipse at 100% 100%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
+        #000000;
+    }
+
+    .product-intro-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.08) 0%, transparent 70%);
+      animation: glowPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    }
+
+    .product-intro-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 80px 24px;
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    .intro-kicker {
+      font-family: var(--font-jp);
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      font-weight: 400;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 16px;
+      letter-spacing: 0.05em;
+    }
+
+    .intro-brand {
+      font-family: var(--font-sans);
+      font-size: clamp(3rem, 10vw, 8rem);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, var(--color-white) 0%, var(--color-accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .intro-tagline {
+      font-family: var(--font-jp);
+      font-size: clamp(1rem, 2.5vw, 1.5rem);
+      font-weight: 300;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.08em;
+      margin-bottom: 60px;
+    }
+
+    .service-visual {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto 60px;
+    }
+
+    .service-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 40px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+    }
+
+    .diagram-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .diagram-icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      position: relative;
+    }
+
+    .diagram-icon-wrap.tag {
+      background: linear-gradient(135deg, var(--color-main) 0%, rgba(0,212,255,0.3) 100%);
+      border: 1px solid rgba(0,212,255,0.3);
+    }
+
+    .diagram-icon-wrap.station {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .diagram-icon-wrap.cloud {
+      background: linear-gradient(135deg, rgba(0,212,255,0.2) 0%, rgba(15,41,82,0.5) 100%);
+      border: 1px solid rgba(0,212,255,0.3);
+    }
+
+    .diagram-icon-wrap.phone {
+      background: linear-gradient(135deg, var(--color-accent) 0%, rgba(0,150,200,0.6) 100%);
+      border: 1px solid rgba(0,212,255,0.4);
+    }
+
+    .diagram-label {
+      font-family: var(--font-jp);
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .diagram-arrow {
+      flex: 0 0 auto;
+      padding: 0 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .arrow-line {
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(0,212,255,0.3) 0%, var(--color-accent) 100%);
+      position: relative;
+    }
+
+    .arrow-line::after {
+      content: '';
+      position: absolute;
+      right: -1px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid var(--color-accent);
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+    }
+
+    .arrow-label {
+      font-family: var(--font-sans);
+      font-size: 0.65rem;
+      color: rgba(0,212,255,0.6);
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--border-radius-md);
+      padding: 32px 24px;
+      text-align: left;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .feature-card:hover {
+      background: rgba(0, 212, 255, 0.04);
+      border-color: rgba(0, 212, 255, 0.15);
+      transform: translateY(-6px);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+    }
+
+    .feature-title {
+      font-family: var(--font-jp);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-white);
+      margin-bottom: 8px;
+    }
+
+    .feature-desc {
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.7;
+    }
+
+    /* =========================================
+       SECTION 4: USER STORY
+    ========================================= */
+    .section-story {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-white);
+      overflow: hidden;
+    }
+
+    .story-bg-accent {
+      position: absolute;
+      top: -20%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .story-bg-dots {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(15, 41, 82, 0.08) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    .story-content {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      width: 100%;
+      padding: 80px 24px;
+    }
+
+    .story-eyebrow {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 16px;
+    }
+
+    .story-headline {
+      font-family: var(--font-jp);
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 900;
+      color: var(--color-main);
+      line-height: 1.3;
+      margin-bottom: 60px;
+      letter-spacing: -0.02em;
+    }
+
+    .story-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    .story-narrative {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .story-chapter {
+      position: relative;
+      padding-left: 28px;
+    }
+
+    .story-chapter::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 4px;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--color-accent), rgba(0,212,255,0.1));
+    }
+
+    .story-chapter-label {
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 8px;
+    }
+
+    .story-chapter-text {
+      font-family: var(--font-jp);
+      font-size: 1rem;
+      color: var(--color-text);
+      line-height: 1.9;
+    }
+
+    .story-chapter-text strong {
+      color: var(--color-main);
+      font-weight: 700;
+    }
+
+    .story-profile {
+      position: sticky;
+      top: 100px;
+    }
+
+    .profile-card {
+      background: var(--color-main);
+      border-radius: var(--border-radius-xl);
+      padding: 40px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%);
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(0,212,255,0.3) 0%, rgba(255,255,255,0.1) 100%);
+      border: 3px solid rgba(0,212,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .profile-name {
+      font-family: var(--font-jp);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .profile-meta {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 24px;
+    }
+
+    .profile-quote {
+      background: rgba(255,255,255,0.06);
+      border-left: 3px solid var(--color-accent);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      font-family: var(--font-jp);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.9);
+      font-style: italic;
+      margin-bottom: 24px;
+    }
+
+    .profile-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .timeline-time {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--color-accent);
+      white-space: nowrap;
+      min-width: 60px;
+      padding-top: 2px;
+    }
+
+    .timeline-event {
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+    }
+
+    .timeline-event.success {
+      color: #4DFFB4;
+      font-weight: 700;
+    }
+
+    .notification-mockup {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--border-radius-md);
+      padding: 16px 20px;
+      margin-top: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .notification-mockup::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+    }
+
+    .notification-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .notification-app-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--color-accent), var(--color-main));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+
+    .notification-app-name {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .notification-time {
+      margin-left: auto;
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .notification-title {
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .notification-body {
+      font-family: var(--font-jp);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.5;
+    }
+
+    /* =========================================
+       SECTION 5: PRODUCT DETAILS
+    ========================================= */
+    .section-product-detail {
+      position: relative;
+      min-height: 100vh;
+      background: var(--color-light-bg);
+      overflow: hidden;
+    }
+
+    .product-detail-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 0% 50%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 0%, rgba(15, 41, 82, 0.08) 0%, transparent 50%),
+        var(--color-light-bg);
+    }
+
+    .product-detail-content {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 120px 24px;
+    }
+
+    .section-label {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: var(--font-jp);
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 900;
+      color: var(--color-main);
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+      margin-bottom: 60px;
+    }
+
+    .product-showcase {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      margin-bottom: 80px;
+    }
+
+    .product-visual-wrap {
+      position: relative;
+    }
+
+    .product-3d-card {
+      background: var(--color-main);
+      border-radius: var(--border-radius-xl);
+      padding: 60px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+    }
+
+    .product-3d-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 30%, rgba(0,212,255,0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 70%, rgba(255,255,255,0.05) 0%, transparent 50%);
+    }
+
+    .product-tag-visual {
+      width: 160px;
+      height: 220px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(0,212,255,0.1) 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      position: relative;
+      z-index: 2;
+      box-shadow:
+        0 20px 60px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .tag-logo {
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: 0.05em;
+    }
+
+    .tag-ble-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ble-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      box-shadow: 0 0 12px rgba(0,212,255,0.8);
+      animation: blePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes blePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .ble-label {
+      font-family: var(--font-sans);
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.1em;
+    }
+
+    .tag-qr-placeholder {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      color: var(--color-main);
+      font-weight: 700;
+    }
+
+    .product-badge-floating {
+      position: absolute;
+      z-index: 3;
+    }
+
+    .product-badge-floating.top-right {
+      top: -16px;
+      right: -16px;
+    }
+
+    .product-badge-floating.bottom-left {
+      bottom: -16px;
+      left: -16px;
+    }
+
+    .badge-pill {
+      background: var(--color-accent);
+      color: var(--color-main);
+      border-radius: 100px;
+      padding: 8px 16px;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(0,212,255,0.4);
+    }
+
+    .product-specs {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .spec-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+
+    .spec-item:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateX(4px);
+    }
+
+    .spec-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--color-light-bg);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .spec-info {
+      flex: 1;
+    }
+
+    .spec-title {
+      font-family: var(--font-jp);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-main);
+      margin-bottom: 4px;
+    }
+
+    .spec-value {
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      color: var(--color-gray-600);
+      line-height: 1.5;
+    }
+
+    .spec-badge {
+      background: linear-gradient(135deg, var(--color-main), rgba(0,212,255,0.3));
+      color: white;
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 600;
+      white-space: nowrap;
+      align-self: flex-start;
+    }
+
+    /* Coverage Map Visual */
+    .coverage-section {
+      background: var(--color-main);
+      border-radius: var(--border-radius-xl);
+      padding: 60px;
+      margin-bottom: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .coverage-bg-pattern {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(rgba(0,212,255,0.1) 1px, transparent 1px),
+        radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px, 20px 20px;
+    }
+
+    .coverage-content {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .coverage-text {
+      color: white;
+    }
+
+    .coverage-title {
+      font-family: var(--font-jp);
+      font-size: 1.8rem;
+      font-weight: 900;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .coverage-desc {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .coverage-stats {
+      display: flex;
+      gap: 32px;
+    }
+
+    .coverage-stat {
+      text-align: center;
+    }
+
+    .coverage-stat-number {
+      font-family: var(--font-sans);
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--color-accent);
+      letter-spacing: -0.02em;
+    }
+
+    .coverage-stat-label {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .coverage-map {
+      position: relative;
+      height: 280px;
+    }
+
+    .map-bg {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      border-radius: var(--border-radius-lg);
+      border: 1px solid rgba(0,212,255,0.15);
+      overflow: hidden;
+    }
+
+    .map-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .map-dots-container {
+      position: absolute;
+      inset: 0;
+    }
+
+    .map-dot {
+      position: absolute;
+      border-radius: 50%;
+      animation: mapDotPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes mapDotPulse {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.5); opacity: 1; }
+    }
+
+    .map-dot::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,212,255,0.3);
+      animation: mapDotRing 3s ease-in-out infinite;
+    }
+
+    @keyframes mapDotRing {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(2); opacity: 0; }
+    }
+
+    .map-label {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      color: rgba(0,212,255,0.6);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* Technical specs table */
+    .tech-specs-table {
+      background: white;
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .tech-specs-header {
+      background: var(--color-main);
+      padding: 24px 32px;
+      color: white;
+    }
+
+    .tech-specs-header-title {
+      font-family: var(--font-jp);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .tech-specs-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .tech-spec-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--color-gray-200);
+      border-right: 1px solid var(--color-gray-200);
+    }
+
+    .tech-spec-row:nth-child(even) {
+      border-right: none;
+    }
+
+    .tech-spec-label {
+      font-family: var(--font-jp);
+      font-size: 0.75rem;
+      color: var(--color-gray-500);
+      font-weight: 500;
+    }
+
+    .tech-spec-value {
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-main);
+    }
+
+    /* =========================================
+       SECTION 6: PRICING & CTA
+    ========================================= */
+    .section-cta {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-main);
+      overflow: hidden;
+    }
+
+    .cta-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 100%, rgba(0, 212, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(ellipse at 0% 100%, rgba(0, 50, 120, 0.8) 0%, transparent 50%),
+        var(--color-main);
+    }
+
+    .cta-pattern {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(rgba(0,212,255,0.08) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .cta-content {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      width: 100%;
+      padding: 80px 24px;
+      text-align: center;
+    }
+
+    .cta-eyebrow {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 20px;
+    }
+
+    .cta-headline {
+      font-family: var(--font-jp);
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      color: white;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .cta-subheadline {
+      font-family: var(--font-jp);
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 64px;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+
+    .pricing-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--border-radius-xl);
+      padding: 40px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      color: white;
+    }
+
+    .pricing-card.featured {
+      background: rgba(0, 212, 255, 0.1);
+      border-color: rgba(0, 212, 255, 0.4);
+      transform: scale(1.03);
+    }
+
+    .pricing-card:hover {
+      transform: scale(1.05) translateY(-4px);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+    }
+
+    .pricing-card.featured:hover {
+      transform: scale(1.08) translateY(-4px);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-accent);
+      color: var(--color-main);
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 20px;
+      border-radius: 0 0 12px 12px;
+    }
+
+    .pricing-plan-name {
+      font-family: var(--font-jp);
+      font-size: 1rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 20px;
+      margin-top: 8px;
+    }
+
+    .pricing-price-wrap {
+      margin-bottom: 8px;
+    }
+
+    .pricing-price {
+      font-family: var(--font-sans);
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .pricing-price.featured-price {
+      background: linear-gradient(135deg, white, var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .pricing-price-unit {
+      font-family: var(--font-jp);
+      font-size: 1rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .pricing-period {
+      font-family: var(--font-jp);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 32px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+      text-align: left;
+    }
+
+    .pricing-feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-family: var(--font-jp);
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.5;
+    }
+
+    .pricing-feature-item.included::before {
+      content: '✓';
+      color: var(--color-accent);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .pricing-feature-item.excluded {
+      opacity: 0.4;
+    }
+
+    .pricing-feature-item.excluded::before {
+      content: '—';
+      flex-shrink: 0;
+    }
+
+    .pricing-cta-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--border-radius-md);
+      font-family: var(--font-jp);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .pricing-cta-btn.primary {
+      background: var(--color-accent);
+      color: var(--color-main);
+    }
+
+    .pricing-cta-btn.primary:hover {
+      background: white;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,212,255,0.4);
+    }
+
+    .pricing-cta-btn.secondary {
+      background: transparent;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .pricing-cta-btn.secondary:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+
+    /* CTA Form Section */
+    .cta-form-section {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .cta-form-title {
+      font-family: var(--font-jp);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .cta-form-subtitle {
+      font-family: var(--font-jp);
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 32px;
+    }
+
+    .cta-form {
+      display: flex;
+      gap: 12px;
+    }
+
+    .cta-input {
+      flex: 1;
+      padding: 16px 20px;
+      border-radius: var(--border-radius-md);
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      color: white;
+      font-family: var(--font-jp);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .cta-input::placeholder {
+      color: rgba(255,255,255,0.3);
+    }
+
+    .cta-input:focus {
+      border-color: var(--color-accent);
+      background: rgba(0, 212, 255, 0.05);
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.15);
+    }
+
+    .cta-submit-btn {
+      padding: 16px 28px;
+      background: var(--color-accent);
+      color: var(--color-main);
+      border: none;
+      border-radius: var(--border-radius-md);
+      font-family: var(--font-jp);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.3s ease;
+    }
+
+    .cta-submit-btn:hover {
+      background: white;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,212,255,0.4);
+    }
+
+    .cta-trust-badges {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-jp);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .trust-badge-icon {
+      color: var(--color-accent);
+    }
+
+    .trust-divider {
+      width: 1px;
+      height: 16px;
+      background: rgba(255,255,255,0.15);
+    }
+
+    /* =========================================
+       RAILWAY PARTNERS SECTION
+    ========================================= */
+    .section-partners {
+      background: var(--color-white);
+      padding: 80px 24px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .partners-label {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-gray-400);
+      margin-bottom: 32px;
+    }
+
+    .partners-scroll-track {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .partners-scroll-track::before,
+    .partners-scroll-track::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 120px;
+      z-index: 2;
+    }
+
+    .partners-scroll-track::before {
+      left: 0;
+      background: linear-gradient(90deg, white, transparent);
+    }
+
+    .partners-scroll-track::after {
+      right: 0;
+      background: linear-gradient(270deg, white, transparent);
+    }
+
+    .partners-scroll {
+      display: flex;
+      gap: 40px;
+      animation: partnersScroll 20s linear infinite;
+      width: max-content;
+    }
+
+    @keyframes partnersScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .partner-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      background: var(--color-light-bg);
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .partner-chip-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .partner-chip-name {
+      font-family: var(--font-jp);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-main);
+    }
+
+    /* =========================================
+       FOOTER
+    ========================================= */
+    .footer {
+      background: var(--color-text);
+      color: rgba(255,255,255,0.5);
+      padding: 60px 40px 40px;
+    }
+
+    .footer-content {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-main) 100%);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer-logo-icon::before {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border: 2px solid white;
+      border-radius: 50%;
+    }
+
+    .footer-logo-icon::after {
+      content: '';
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .footer-logo-name {
+      font-family: var(--font-sans);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .footer-brand-desc {
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.4);
+      max-width: 280px;
+    }
+
+    .footer-col-title {
+      font-family: var(--font-jp);
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 16px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.4);
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--color-accent);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-copyright {
+      font-family: var(--font-jp);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .footer-legal-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .footer-legal-links a {
+      font-family: var(--font-jp);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.3);
+      transition: color 0.3s ease;
+    }
+
+    .footer-legal-links a:hover {
+      color: rgba(255,255,255,0.6);
+    }
+
+    /* =========================================
+       RESPONSIVE
+    ========================================= */
+    @media (max-width: 1024px) {
+      .story-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .story-profile {
+        position: static;
+      }
+
+      .product-showcase {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .coverage-content {
+        grid-template-columns: 1fr;
+      }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .pricing-card.featured {
+        transform: scale(1);
+      }
+
+      .tech-specs-body {
+        grid-template-columns: 1fr;
+      }
+
+      .tech-spec-row {
+        border-right: none;
+      }
+
+      .footer-top {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav {
+        padding: 16px 20px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .stats-cards {
+        grid-template-columns: 1fr;
+        max-width: 320px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cta-form {
+        flex-direction: column;
+      }
+
+      .footer-top {
+        grid-template-columns: 1fr;
+      }
+
+      .service-diagram {
+        flex-direction: column;
+        gap: 16px;
+        padding: 24px;
+      }
+
+      .diagram-arrow {
+        transform: rotate(90deg);
+      }
+
+      .coverage-stats {
+        gap: 16px;
+      }
+
+      .tech-specs-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* =========================================
+       UTILITY
+    ========================================= */
+    .text-center { text-align: center; }
+    .text-accent { color: var(--color-accent); }
+
+    /* Animated gradient border */
+    .gradient-border {
+      position: relative;
+    }
+
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, var(--color-accent), var(--color-main), var(--color-accent));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      background-size: 200% 200%;
+      animation: gradientRotate 4s linear infinite;
+    }
+
+    @keyframes gradientRotate {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 200% 200%; }
+    }
+
+    /* Number counter animation */
+    .counter-number {
+      display: inline-block;
+    }
+
+    /* Typing cursor effect */
+    .typing-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 1em;
+      background: var(--color-accent);
+      margin-left: 4px;
+      vertical-align: text-bottom;
+      animation: typingBlink 1s step-end infinite;
+    }
+
+    @keyframes typingBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================
+       NAVIGATION
+  ========================================= -->
+  <nav class="nav" id="mainNav">
+    <div class="nav-logo">
+      <div class="nav-logo-icon"></div>
+      <span class="nav-logo-text">RailFinder</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#problem">問題</a></li>
+      <li><a href="#service">サービス</a></li>
+      <li><a href="#story">体験談</a></li>
+      <li><a href="#product">プロダクト</a></li>
+      <li><a href="#pricing" class="nav-cta">今すぐ注文</a></li>
+    </ul>
+  </nav>
+
+  <!-- =========================================
+       SECTION 1: HERO - DRAMATIC OPENING
+  ========================================= -->
+  <section class="section-hero" id="hero">
+    <div class="hero-background">
+      <div class="hero-bg-gradient"></div>
+      <div class="hero-grid-lines"></div>
+      <div class="hero-particles" id="heroParticles"></div>
+    </div>
+
+    <!-- Floating tags (background decoration) -->
+    <div class="hero-floating-tags">
+      <div class="floating-tag" style="top:15%;left:5%;animation-delay:0s;">財布</div>
+      <div class="floating-tag" style="top:25%;right:8%;animation-delay:1s;">定期券</div>
+      <div class="floating-tag" style="top:60%;left:3%;animation-delay:2s;">スマホ</div>
+      <div class="floating-tag" style="top:70%;right:5%;animation-delay:0.5s;">鍵</div>
+      <div class="floating-tag" style="top:40%;left:2%;animation-delay:1.5s;">カバン</div>
+      <div class="floating-tag" style="top:80%;left:15%;animation-delay:3s;">ノートPC</div>
+      <div class="floating-tag" style="top:10%;right:15%;animation-delay:2.5s;">傘</div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-tag">Japan Railway × BLE Tracking Technology</div>
+
+      <h1 class="hero-question">
+        あなたは今日、<br />
+        何かを<span class="accent-word">失くし</span>ましたか？
+      </h1>
+
+      <p class="hero-subtext">
+        毎年、日本では数千万件の忘れ物が報告されています。<br />
+        あなたの大切なものが、今この瞬間も——どこかに置き去りにされているかもしれない。
+      </p>
+    </div>
+
+    <div class="hero-scroll-indicator" onclick="document.getElementById('problem').scrollIntoView({behavior:'smooth'})">
+      <span class="hero-scroll-text">Scroll</span>
+      <div class="hero-scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- =========================================
+       SECTION 2: THE PROBLEM - STATISTICS
+  ========================================= -->
+  <section class="section-problem" id="problem">
+    <div class="problem-bg">
+      <div class="station-bg-art"></div>
+      <div class="station-visual"></div>
+      <div class="station-lines"></div>
+    </div>
+
+    <div class="problem-content">
+      <div class="problem-eyebrow reveal">THE SCALE OF THE PROBLEM</div>
+
+      <p class="problem-headline reveal delay-200">
+        これは、あなたひとりの話ではありません。<br />
+        日本全体が、毎年巨大な損失を抱えています。
+      </p>
+
+      <div class="stats-display">
+        <div class="stat-number-wrapper reveal-scale delay-200">
+          <div class="stat-number-shadow" aria-hidden="true">3,200</div>
+          <div class="stat-number" id="mainCounter">3,200</div>
+        </div>
+        <div class="stat-unit reveal delay-400">万件</div>
+        <p class="stat-description reveal delay-500">
+          年間の鉄道忘れ物報告件数（警察庁・拾得物統計より推計）<br />
+          その大半は、持ち主のもとへ戻ってくることがありません。
+        </p>
+      </div>
+
+      <div class="stats-cards">
+        <div class="stat-card reveal delay-300">
+          <div class="stat-card-number">87%</div>
+          <div class="stat-card-label">忘れ物の<br />返却率</div>
+        </div>
+        <div class="stat-card reveal delay-400">
+          <div class="stat-card-number">72h</div>
+          <div class="stat-card-label">平均発見<br />までの時間</div>
+        </div>
+        <div class="stat-card reveal delay-500">
+          <div class="stat-card-number">¥2.4兆</div>
+          <div class="stat-card-label">年間経済<br />損失の推計</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================
+       SECTION 3: RAILFINDER APPEARS
+  ========================================= -->
+  <section class="section-product-intro" id="service">
+    <div class="product-intro-bg"></div>
+    <div class="product-intro-glow"></div>
+
+    <div class="product-intro-content">
+      <p class="intro-kicker reveal">そして、</p>
+      <h2 class="intro-brand reveal delay-200">RailFinder</h2>
+      <p class="intro-tagline reveal delay-300">が、現れた。</p>
+
+      <div class="service-visual reveal delay-400">
+        <div class="service-diagram">
+          <div class="diagram-node">
+            <div class="diagram-icon-wrap tag">📦</div>
+            <div class="diagram-label">RailFinder<br />タグ</div>
+          </div>
+          <div class="diagram-arrow">
+            <div class="arrow-line"></div>
+            <div class="arrow-label">BLE検知</div>
+          </div>
+          <div class="diagram-node">
+            <div class="diagram-icon-wrap station">🚉</div>
+            <div class="diagram-label">駅設置<br />ゲートウェイ</div>
+          </div>
+          <div class="diagram-arrow">
+            <div class="arrow-line"></div>
+            <div class="arrow-label">リアルタイム送信</div>
+          </div>
+          <div class="diagram-node">
+            <div class="diagram-icon-wrap cloud">☁️</div>
+            <div class="diagram-label">RailFinder<br />クラウド</div>
+          </div>
+          <div class="diagram-arrow">
+            <div class="arrow-line"></div>
+            <div class="arrow-label">即時通知</div>
+          </div>
+          <div class="diagram-node">
+            <div class="diagram-icon-wrap phone">📱</div>
+            <div class="diagram-label">あなたの<br />スマートフォン</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card reveal delay-200">
+          <div class="feature-icon">🛤️</div>
+          <div class="feature-title">駅ネットワーク検知</div>
+          <div class="feature-desc">全国の主要鉄道会社と連携。改札・ホームに設置されたゲートウェイが、タグが通過した瞬間を検知します。</div>
+        </div>
+        <div class="feature-card reveal delay-300">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-title">リアルタイム通知</div>
+          <div class="feature-desc">タグを検知した瞬間、あなたのスマートフォンに通知。どの駅で検出されたか、位置情報も確認できます。</div>
+        </div>
+        <div class="feature-card reveal delay-400">
+          <div class="feature-icon">🔒</div>
+          <div class="feature-title">プライバシー保護</div>
+          <div class="feature-desc">GPSではなくBLEを使用。端対端暗号化で、あなたのプライバシーを守りながらトラッキングします。</div>
+        </div>
+        <div class="feature-card reveal delay-200">
+          <div class="feature-icon">🔋</div>
+          <div class="feature-title">2年間電池長持ち</div>
+          <div class="feature-desc">コイン電池で最長2年動作。交換も簡単で、メンテナンスの手間がかかりません。</div>
+        </div>
+        <div class="feature-card reveal delay-300">
+          <div class="feature-icon">💎</div>
+          <div class="feature-title">上質なデザイン</div>
+          <div class="feature-desc">厚さ4mmのスリムボディ。カードケースにも入るコンパクトサイズで、カバンやキーホルダーにも。</div>
+        </div>
+        <div class="feature-card reveal delay-400">
+          <div class="feature-icon">📊</div>
+          <div class="feature-title">行動履歴の確認</div>
+          <div class="feature-desc">アプリで過去の検知履歴を確認。荷物の動線を把握することで、忘れ物の予防にも活用できます。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================
+       SECTION 4: USER STORY - 田中さん
+  ========================================= -->
+  <section class="section-story" id="story">
+    <div class="story-bg-accent"></div>
+    <div class="story-bg-dots"></div>
+
+    <div class="story-content">
+      <div class="story-eyebrow reveal">REAL USER STORY</div>
+      <h2 class="story-headline reveal delay-100">
+        田中さん（38歳）の<br />
+        カバンが戻ってきた話。
+      </h2>
+
+      <div class="story-layout">
+        <div class="story-narrative">
+          <div class="story-chapter reveal delay-100">
+            <div class="story-chapter-label">AM 8:23 — 月曜日の朝</div>
+            <p class="story-chapter-text">
+              田中健一さんは、渋谷駅のホームで急行電車に乗り込んだ。
+              営業職の彼にとって、<strong>月曜の朝は一週間のすべてが詰まっている。</strong>
+              ノートPC、提案書、週次レポート——黒いビジネスバッグには、
+              仕事の核心がすべて入っていた。
+            </p>
+          </div>
+
+          <div class="story-chapter reveal delay-200">
+            <div class="story-chapter-label">AM 9:01 — 会議室で気づく</div>
+            <p class="story-chapter-text">
+              「バッグは……？」
+              <strong>電車を降りた後、棚に置いてきたことを思い出した</strong>のは、
+              会議が始まる直前のことだった。
+              顔が青ざめる。社内の人々の視線が気になる。
+              でも今日は重要な顧客プレゼンがある——。
+            </p>
+          </div>
+
+          <div class="story-chapter reveal delay-300">
+            <div class="story-chapter-label">AM 9:04 — 通知が届いた</div>
+            <p class="story-chapter-text">
+              そのとき、スマートフォンが振動した。
+              <strong>RailFinderアプリからの通知だった。</strong>
+              「あなたのバッグが新宿駅で検出されました。」
+              タグが駅のゲートウェイを通過した——たった3分前のことだ。
+            </p>
+          </div>
+
+          <div class="story-chapter reveal delay-400">
+            <div class="story-chapter-label">AM 9:35 — 問題解決</div>
+            <p class="story-chapter-text">
+              プレゼンを終えた田中さんは、新宿駅の遺失物センターへ直行した。
+              RailFinderの検出通知を見せると、係員は迷わずバッグを取り出した。
+              <strong>「こちらで間違いないですね？」——はい、間違いありません。</strong>
+              その日の昼過ぎ、バッグは田中さんの元に戻った。
+            </p>
+          </div>
+
+          <div class="story-chapter reveal delay-500">
+            <div class="story-chapter-label">EPILOGUE</div>
+            <p class="story-chapter-text">
+              田中さんは今、財布にもノートPCのケースにも、
+              RailFinderタグを入れている。
+              <strong>「安心感が違う。何かあっても、すぐわかるから。」</strong>
+              それが、RailFinderが変えた、ひとりの会社員の日常。
+            </p>
+          </div>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="story-profile">
+          <div class="profile-card reveal-scale delay-300">
+            <div class="profile-avatar">👤</div>
+            <div class="profile-name">田中 健一 さん</div>
+            <div class="profile-meta">38歳 / 営業職 / 東京都在住</div>
+
+            <blockquote class="profile-quote">
+              「通知が来たとき、本当に助かったと思いました。
+              昔なら丸一日、頭の中が真っ白になっていたところです。」
+            </blockquote>
+
+            <div class="profile-timeline">
+              <div class="timeline-item">
+                <div class="timeline-time">08:23</div>
+                <div class="timeline-event">渋谷駅から乗車、荷物を棚へ</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">09:01</div>
+                <div class="timeline-event">忘れ物に気づく</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">09:04</div>
+                <div class="timeline-event timeline-event success">🔔 RailFinder通知「新宿駅で検出」</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">09:35</div>
+                <div class="timeline-event timeline-event success">✅ バッグ回収完了</div>
+              </div>
+            </div>
+
+            <!-- Notification Mockup -->
+            <div class="notification-mockup">
+              <div class="notification-header">
+                <div class="notification-app-icon">🔵</div>
+                <div class="notification-app-name">RailFinder</div>
+                <div class="notification-time">09:04</div>
+              </div>
+              <div class="notification-title">🎯 荷物を検出しました</div>
+              <div class="notification-body">
+                「仕事バッグ」が新宿駅（山手線）で検出されました。
+                駅係員にお知らせください。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================
+       SECTION 5: PRODUCT DETAILS
+  ========================================= -->
+  <section class="section-product-detail" id="product">
+    <div class="product-detail-bg"></div>
+    <div class="product-detail-content">
+
+      <div class="section-label reveal">PRODUCT</div>
+      <h2 class="section-title reveal delay-100">
+        小さなタグが、<br />
+        あなたの日常を守る。
+      </h2>
+
+      <!-- Product Showcase -->
+      <div class="product-showcase">
+        <div class="product-visual-wrap reveal-left delay-200">
+          <div class="product-3d-card">
+            <div class="product-badge-floating top-right">
+              <div class="badge-pill">New 2026</div>
+            </div>
+            <div class="product-badge-floating bottom-left">
+              <div class="badge-pill">防水 IPX5</div>
+            </div>
+            <div class="product-tag-visual">
+              <div class="tag-logo">RF-1</div>
+              <div class="tag-ble-indicator">
+                <div class="ble-dot"></div>
+                <div class="ble-label">BLE 5.3</div>
+              </div>
+              <div class="tag-qr-placeholder">QR</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-specs reveal-right delay-300">
+          <div class="spec-item">
+            <div class="spec-icon">📡</div>
+            <div class="spec-info">
+              <div class="spec-title">BLE 5.3対応</div>
+              <div class="spec-value">最新Bluetooth Low Energyで低消費電力・高精度検知を実現。駅ゲートウェイとの通信範囲は最大70m。</div>
+            </div>
+            <div class="spec-badge">最新規格</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-icon">🔋</div>
+            <div class="spec-info">
+              <div class="spec-title">電池寿命 最長2年</div>
+              <div class="spec-value">CR2032コイン電池採用。通常使用で約24ヶ月の電池寿命。電池残量をアプリで常時確認可能。</div>
+            </div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-icon">💧</div>
+            <div class="spec-info">
+              <div class="spec-title">IPX5防水・防塵</div>
+              <div class="spec-value">雨の日でも安心のIPX5等級防水。砂埃や水しぶきから内部回路を保護します。</div>
+            </div>
+            <div class="spec-badge">防水</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-icon">📐</div>
+            <div class="spec-info">
+              <div class="spec-title">超薄型 4mm / 22g</div>
+              <div class="spec-value">クレジットカードと同じ85.6×54mmサイズ、厚さわずか4mm。カードケースにそのまま収納可能。</div>
+            </div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-icon">🛡️</div>
+            <div class="spec-info">
+              <div class="spec-title">AES-256暗号化</div>
+              <div class="spec-value">軍事グレードの暗号化で通信を保護。あなたの位置情報や個人データは安全に管理されます。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coverage Section -->
+      <div class="coverage-section reveal">
+        <div class="coverage-bg-pattern"></div>
+        <div class="coverage-content">
+          <div class="coverage-text">
+            <h3 class="coverage-title">
+              全国<br />
+              <span style="color: var(--color-accent);">47都道府県</span><br />
+              カバー予定
+            </h3>
+            <p class="coverage-desc">
+              JR、私鉄、地下鉄——主要鉄道会社との連携で、
+              日本全国の主要駅をカバー。
+              サービス開始当初から関東・関西・東海の
+              主要路線でご利用いただけます。
+            </p>
+            <div class="coverage-stats">
+              <div class="coverage-stat">
+                <div class="coverage-stat-number">500+</div>
+                <div class="coverage-stat-label">対応駅（開始時）</div>
+              </div>
+              <div class="coverage-stat">
+                <div class="coverage-stat-number">3,000+</div>
+                <div class="coverage-stat-label">対応駅（2027年目標）</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="coverage-map">
+            <div class="map-bg">
+              <div class="map-grid"></div>
+              <div class="map-dots-container" id="mapDots"></div>
+              <div class="map-label">🗾 JAPAN RAIL NETWORK</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Technical Specs Table -->
+      <div class="tech-specs-table reveal delay-200">
+        <div class="tech-specs-header">
+          <div class="tech-specs-header-title">📋 製品仕様 — RailFinder RF-1</div>
+        </div>
+        <div class="tech-specs-body">
+          <div class="tech-spec-row">
+            <div class="tech-spec-label">通信方式</div>
+            <div class="tech-spec-value">Bluetooth Low Energy 5.3</div>
+          </div>
+          <div class="tech-spec-row">
+            <div class="tech-spec-label">通信距離</div>
+            <div class="tech-spec-value">最大 70m（見通し）</div>
+          </div>
+          <div class="tech-spec-row">
+            <div class="tech-spec-label">電池種類</div>
+            <div class="tech-spec-value">CR2032 × 1個</div>
+          </div>
+          <div class="tech-spec-row">
+            <div class="tech-spec-label">電池寿命</div>
+            <div class="tech-spec-value">約 24ヶ月（通常使用時）</div>
+          </div>
+          <div class="tech-spec-row">
+            <div class="tech-spec-label">サイズ</div>
+            <div class="tech-spec-value">85.6 × 54 × 4.0 mm</div>
+          </div>
+          <div class="tech-spec-row">
+            <div class="tech-spec-label">重量</div>
+            <div class="tech-spec-value">約 22g</div>
+          </div>
+          <div class="tech-spec-row">
+            <div class="tech-spec-label">防水・防塵</div>
+            <div class="tech-spec-value">IPX5（防水）/ IP5X（防塵）</div>
+          </div>
+          <div class="tech-spec-row">
+            <div class="tech-spec-label">動作温度</div>
+            <div class="tech-spec-value">−20°C ～ +60°C</div>
+          </div>
+          <div class="tech-spec-row">
+            <div class="tech-spec-label">カラー展開</div>
+            <div class="tech-spec-value">ネイビー / シルバー / ブラック</div>
+          </div>
+          <div class="tech-spec-row">
+            <div class="tech-spec-label">暗号化</div>
+            <div class="tech-spec-value">AES-256（エンドツーエンド）</div>
+          </div>
+          <div class="tech-spec-row">
+            <div class="tech-spec-label">対応OS</div>
+            <div class="tech-spec-value">iOS 15+ / Android 10+</div>
+          </div>
+          <div class="tech-spec-row">
+            <div class="tech-spec-label">付属品</div>
+            <div class="tech-spec-value">タグ本体 / ストラップ / 予備電池</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================
+       RAILWAY PARTNERS
+  ========================================= -->
+  <section class="section-partners" id="partners">
+    <div class="partners-label reveal">連携鉄道会社（サービス開始予定）</div>
+    <div class="partners-scroll-track">
+      <div class="partners-scroll" id="partnersScroll">
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#009959;"></div><span class="partner-chip-name">JR東日本</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#F26600;"></div><span class="partner-chip-name">JR西日本</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#F52E36;"></div><span class="partner-chip-name">東京メトロ</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#009944;"></div><span class="partner-chip-name">都営地下鉄</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#E60012;"></div><span class="partner-chip-name">近畿日本鉄道</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#0066CC;"></div><span class="partner-chip-name">東急電鉄</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#003087;"></div><span class="partner-chip-name">小田急電鉄</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#D41B30;"></div><span class="partner-chip-name">阪急電鉄</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#009959;"></div><span class="partner-chip-name">JR東日本</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#F26600;"></div><span class="partner-chip-name">JR西日本</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#F52E36;"></div><span class="partner-chip-name">東京メトロ</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#009944;"></div><span class="partner-chip-name">都営地下鉄</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#E60012;"></div><span class="partner-chip-name">近畿日本鉄道</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#0066CC;"></div><span class="partner-chip-name">東急電鉄</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#003087;"></div><span class="partner-chip-name">小田急電鉄</span></div>
+        <div class="partner-chip"><div class="partner-chip-color" style="background:#D41B30;"></div><span class="partner-chip-name">阪急電鉄</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================
+       SECTION 6: PRICING & CTA
+  ========================================= -->
+  <section class="section-cta" id="pricing">
+    <div class="cta-bg"></div>
+    <div class="cta-pattern"></div>
+
+    <div class="cta-content">
+      <div class="cta-eyebrow reveal">PRICING</div>
+      <h2 class="cta-headline reveal delay-100">
+        大切なものを守る、<br />
+        最初の一歩。
+      </h2>
+      <p class="cta-subheadline reveal delay-200">
+        今すぐ始めれば、今日から安心できます。
+      </p>
+
+      <div class="pricing-grid">
+        <!-- Starter -->
+        <div class="pricing-card reveal delay-200">
+          <div class="pricing-plan-name">スターター</div>
+          <div class="pricing-price-wrap">
+            <span class="pricing-price">¥2,980</span>
+          </div>
+          <div class="pricing-period">タグ1個 + 月額 ¥498〜</div>
+          <ul class="pricing-features">
+            <li class="pricing-feature-item included">RailFinderタグ × 1</li>
+            <li class="pricing-feature-item included">リアルタイム駅通知</li>
+            <li class="pricing-feature-item included">30日間の履歴</li>
+            <li class="pricing-feature-item included">iOS / Android対応</li>
+            <li class="pricing-feature-item excluded">複数タグ管理</li>
+            <li class="pricing-feature-item excluded">ファミリー共有</li>
+          </ul>
+          <a href="#signup" class="pricing-cta-btn secondary">スターターを始める</a>
+        </div>
+
+        <!-- Standard (Featured) -->
+        <div class="pricing-card featured reveal delay-300">
+          <div class="pricing-badge">人気No.1</div>
+          <div class="pricing-plan-name">スタンダード</div>
+          <div class="pricing-price-wrap">
+            <span class="pricing-price featured-price">¥5,980</span>
+          </div>
+          <div class="pricing-period">タグ3個セット + 月額 ¥798〜</div>
+          <ul class="pricing-features">
+            <li class="pricing-feature-item included">RailFinderタグ × 3</li>
+            <li class="pricing-feature-item included">リアルタイム駅通知</li>
+            <li class="pricing-feature-item included">90日間の履歴</li>
+            <li class="pricing-feature-item included">iOS / Android対応</li>
+            <li class="pricing-feature-item included">複数タグ管理</li>
+            <li class="pricing-feature-item included">ファミリー共有（4名）</li>
+          </ul>
+          <a href="#signup" class="pricing-cta-btn primary">スタンダードを始める</a>
+        </div>
+
+        <!-- Family -->
+        <div class="pricing-card reveal delay-400">
+          <div class="pricing-plan-name">ファミリー</div>
+          <div class="pricing-price-wrap">
+            <span class="pricing-price">¥9,800</span>
+          </div>
+          <div class="pricing-period">タグ6個セット + 月額 ¥1,280〜</div>
+          <ul class="pricing-features">
+            <li class="pricing-feature-item included">RailFinderタグ × 6</li>
+            <li class="pricing-feature-item included">リアルタイム駅通知</li>
+            <li class="pricing-feature-item included">無制限の履歴</li>
+            <li class="pricing-feature-item included">iOS / Android対応</li>
+            <li class="pricing-feature-item included">複数タグ管理</li>
+            <li class="pricing-feature-item included">ファミリー共有（8名）</li>
+          </ul>
+          <a href="#signup" class="pricing-cta-btn secondary">ファミリーを始める</a>
+        </div>
+      </div>
+
+      <!-- Email Signup Form -->
+      <div class="cta-form-section" id="signup">
+        <h3 class="cta-form-title reveal">先行予約受付中</h3>
+        <p class="cta-form-subtitle reveal delay-100">
+          メールアドレスを登録して、サービス開始前に特別価格でお申し込みください。
+        </p>
+        <form class="cta-form reveal delay-200" onsubmit="handleSignup(event)">
+          <input
+            type="email"
+            class="cta-input"
+            placeholder="メールアドレスを入力"
+            required
+          />
+          <button type="submit" class="cta-submit-btn">先行予約する</button>
+        </form>
+      </div>
+
+      <!-- Trust badges -->
+      <div class="cta-trust-badges reveal delay-300">
+        <div class="trust-badge">
+          <span class="trust-badge-icon">🔒</span>
+          <span>SSL暗号化</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-badge">
+          <span class="trust-badge-icon">↩️</span>
+          <span>30日間返金保証</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-badge">
+          <span class="trust-badge-icon">🇯🇵</span>
+          <span>日本企業運営</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-badge">
+          <span class="trust-badge-icon">📞</span>
+          <span>日本語サポート</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================
+       FOOTER
+  ========================================= -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <div class="footer-logo-icon"></div>
+            <span class="footer-logo-name">RailFinder</span>
+          </div>
+          <p class="footer-brand-desc">
+            鉄道会社と連携した、日本初のBLEトラッキングサービス。
+            失くしたものを、駅が見つける。
+          </p>
+        </div>
+        <div>
+          <div class="footer-col-title">サービス</div>
+          <ul class="footer-links">
+            <li><a href="#">RailFinderタグ</a></li>
+            <li><a href="#">アプリダウンロード</a></li>
+            <li><a href="#">料金プラン</a></li>
+            <li><a href="#">対応駅一覧</a></li>
+            <li><a href="#">法人向け</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">サポート</div>
+          <ul class="footer-links">
+            <li><a href="#">よくある質問</a></li>
+            <li><a href="#">セットアップガイド</a></li>
+            <li><a href="#">お問い合わせ</a></li>
+            <li><a href="#">保証・修理</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">会社</div>
+          <ul class="footer-links">
+            <li><a href="#">会社概要</a></li>
+            <li><a href="#">採用情報</a></li>
+            <li><a href="#">プレスリリース</a></li>
+            <li><a href="#">鉄道会社向け</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-copyright">
+          © 2026 RailFinder, Inc. All rights reserved.
+        </div>
+        <ul class="footer-legal-links">
+          <li><a href="#">プライバシーポリシー</a></li>
+          <li><a href="#">利用規約</a></li>
+          <li><a href="#">特定商取引法</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================================
+       JAVASCRIPT
+  ========================================= -->
+  <script>
+    // =========================================
+    // NAVIGATION SCROLL EFFECT
+    // =========================================
+    const nav = document.getElementById('mainNav');
+
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 80) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    }, { passive: true });
+
+    // =========================================
+    // INTERSECTION OBSERVER — REVEAL ANIMATIONS
+    // =========================================
+    const revealElements = document.querySelectorAll(
+      '.reveal, .reveal-left, .reveal-right, .reveal-scale'
+    );
+
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.12,
+        rootMargin: '0px 0px -60px 0px'
+      }
+    );
+
+    revealElements.forEach(el => revealObserver.observe(el));
+
+    // =========================================
+    // PARTICLE GENERATOR
+    // =========================================
+    function createParticles() {
+      const container = document.getElementById('heroParticles');
+      if (!container) return;
+
+      const particleCount = 40;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+
+        const size = Math.random() * 3 + 1;
+        const left = Math.random() * 100;
+        const duration = Math.random() * 8 + 6;
+        const delay = Math.random() * 8;
+        const opacity = Math.random() * 0.6 + 0.2;
+
+        particle.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          left: ${left}%;
+          bottom: -10px;
+          animation-duration: ${duration}s;
+          animation-delay: -${delay}s;
+          opacity: ${opacity};
+        `;
+
+        container.appendChild(particle);
+      }
+    }
+
+    createParticles();
+
+    // =========================================
+    // MAP DOTS GENERATOR
+    // =========================================
+    function createMapDots() {
+      const container = document.getElementById('mapDots');
+      if (!container) return;
+
+      const cities = [
+        { x: 72, y: 38, label: '東京', size: 10, color: '#00D4FF', delay: 0 },
+        { x: 68, y: 35, label: '埼玉', size: 6, color: '#00D4FF', delay: 0.3 },
+        { x: 75, y: 36, label: '千葉', size: 6, color: '#00D4FF', delay: 0.6 },
+        { x: 70, y: 40, label: '横浜', size: 7, color: '#00D4FF', delay: 0.2 },
+        { x: 55, y: 45, label: '名古屋', size: 8, color: '#00FFAA', delay: 0.8 },
+        { x: 45, y: 50, label: '大阪', size: 9, color: '#00FFAA', delay: 0.4 },
+        { x: 43, y: 48, label: '神戸', size: 6, color: '#00FFAA', delay: 0.7 },
+        { x: 48, y: 46, label: '京都', size: 6, color: '#00FFAA', delay: 0.5 },
+        { x: 30, y: 55, label: '広島', size: 5, color: '#FFD700', delay: 1.0 },
+        { x: 25, y: 65, label: '福岡', size: 7, color: '#FFD700', delay: 1.2 },
+        { x: 72, y: 22, label: '仙台', size: 6, color: '#00D4FF', delay: 0.9 },
+        { x: 75, y: 12, label: '札幌', size: 7, color: '#00D4FF', delay: 1.1 },
+      ];
+
+      cities.forEach(city => {
+        const dot = document.createElement('div');
+        dot.className = 'map-dot';
+        dot.style.cssText = `
+          width: ${city.size}px;
+          height: ${city.size}px;
+          background: ${city.color};
+          left: ${city.x}%;
+          top: ${city.y}%;
+          box-shadow: 0 0 ${city.size * 3}px ${city.color};
+          animation-delay: ${city.delay}s;
+        `;
+        container.appendChild(dot);
+      });
+    }
+
+    createMapDots();
+
+    // =========================================
+    // COUNTER ANIMATION
+    // =========================================
+    function animateCounter(element, target, duration = 2000) {
+      const start = 0;
+      const startTime = performance.now();
+
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Easing function (ease out cubic)
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(start + (target - start) * eased);
+
+        element.textContent = current.toLocaleString('ja-JP');
+
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        } else {
+          element.textContent = target.toLocaleString('ja-JP');
+        }
+      }
+
+      requestAnimationFrame(update);
+    }
+
+    // Trigger counter when it becomes visible
+    const counterElement = document.getElementById('mainCounter');
+    if (counterElement) {
+      const counterObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              animateCounter(counterElement, 3200, 2500);
+              counterObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.5 }
+      );
+      counterObserver.observe(counterElement);
+    }
+
+    // =========================================
+    // FORM HANDLER
+    // =========================================
+    function handleSignup(event) {
+      event.preventDefault();
+      const form = event.target;
+      const input = form.querySelector('.cta-input');
+      const button = form.querySelector('.cta-submit-btn');
+      const email = input.value;
+
+      button.textContent = '登録中...';
+      button.disabled = true;
+
+      // Simulate API call
+      setTimeout(() => {
+        button.textContent = '✅ 登録完了！';
+        button.style.background = '#4DFFB4';
+        input.value = '';
+
+        // Show success message
+        const successMsg = document.createElement('p');
+        successMsg.style.cssText = `
+          color: rgba(255,255,255,0.7);
+          font-size: 0.875rem;
+          margin-top: 12px;
+          font-family: var(--font-jp);
+        `;
+        successMsg.textContent = `${email} に確認メールを送りました。ご確認ください。`;
+        form.parentNode.appendChild(successMsg);
+
+        setTimeout(() => {
+          button.textContent = '先行予約する';
+          button.disabled = false;
+          button.style.background = '';
+          if (successMsg.parentNode) {
+            successMsg.remove();
+          }
+        }, 5000);
+      }, 1500);
+    }
+
+    // =========================================
+    // SMOOTH SCROLL FOR ANCHOR LINKS
+    // =========================================
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href === '#') return;
+
+        const target = document.querySelector(href);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // =========================================
+    // PARALLAX EFFECT ON HERO
+    // =========================================
+    window.addEventListener('scroll', () => {
+      const scrolled = window.scrollY;
+      const heroContent = document.querySelector('.hero-content');
+      const heroFloating = document.querySelector('.hero-floating-tags');
+
+      if (heroContent && scrolled < window.innerHeight) {
+        const speed = scrolled * 0.3;
+        heroContent.style.transform = `translateY(${speed}px)`;
+        heroContent.style.opacity = 1 - scrolled / (window.innerHeight * 0.8);
+      }
+
+      if (heroFloating && scrolled < window.innerHeight) {
+        const speed = scrolled * 0.15;
+        heroFloating.style.transform = `translateY(${speed}px)`;
+      }
+    }, { passive: true });
+
+    // =========================================
+    // FEATURE CARD HOVER EFFECT
+    // =========================================
+    document.querySelectorAll('.feature-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (y - centerY) / 20;
+        const rotateY = -(x - centerX) / 20;
+
+        card.style.transform = `
+          translateY(-6px)
+          perspective(600px)
+          rotateX(${rotateX}deg)
+          rotateY(${rotateY}deg)
+        `;
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+
+    // =========================================
+    // PRICING CARD HOVER EFFECT
+    // =========================================
+    document.querySelectorAll('.pricing-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        card.style.background = `
+          radial-gradient(circle at ${x}px ${y}px,
+            rgba(0, 212, 255, 0.08) 0%,
+            rgba(255,255,255,0.03) 60%
+          )
+        `;
+      });
+
+      card.addEventListener('mouseleave', () => {
+        if (card.classList.contains('featured')) {
+          card.style.background = 'rgba(0, 212, 255, 0.1)';
+        } else {
+          card.style.background = 'rgba(255,255,255,0.05)';
+        }
+      });
+    });
+
+    // =========================================
+    // PROFILE CARD TILT EFFECT
+    // =========================================
+    const profileCard = document.querySelector('.profile-card');
+    if (profileCard) {
+      profileCard.addEventListener('mousemove', (e) => {
+        const rect = profileCard.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (y - centerY) / 30;
+        const rotateY = -(x - centerX) / 30;
+
+        profileCard.style.transform = `
+          perspective(800px)
+          rotateX(${rotateX}deg)
+          rotateY(${rotateY}deg)
+        `;
+      });
+
+      profileCard.addEventListener('mouseleave', () => {
+        profileCard.style.transform = '';
+      });
+    }
+
+    // =========================================
+    // ANIMATE STATS NUMBERS ON SCROLL
+    // =========================================
+    const statNumbers = document.querySelectorAll('.stat-card-number');
+
+    const statObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animated');
+            entry.target.style.animation = 'fadeInUp 0.6s forwards';
+            statObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    statNumbers.forEach(el => statObserver.observe(el));
+
+    // =========================================
+    // COVERAGE MAP ANIMATION ON SCROLL
+    // =========================================
+    const mapSection = document.querySelector('.coverage-section');
+    if (mapSection) {
+      const mapObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              document.querySelectorAll('.map-dot').forEach((dot, index) => {
+                setTimeout(() => {
+                  dot.style.opacity = '1';
+                  dot.style.transform = 'scale(1)';
+                }, index * 120);
+              });
+              mapObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.3 }
+      );
+      mapObserver.observe(mapSection);
+
+      // Initially hide dots
+      document.querySelectorAll('.map-dot').forEach(dot => {
+        dot.style.opacity = '0';
+        dot.style.transform = 'scale(0)';
+        dot.style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      });
+    }
+
+    // =========================================
+    // NOTIFICATION MOCKUP PULSE
+    // =========================================
+    const notification = document.querySelector('.notification-mockup');
+    if (notification) {
+      setInterval(() => {
+        notification.style.boxShadow = '0 0 0 0 rgba(0, 212, 255, 0.4)';
+        notification.style.transition = 'box-shadow 0.1s';
+
+        setTimeout(() => {
+          notification.style.boxShadow = '0 0 0 8px rgba(0, 212, 255, 0)';
+          notification.style.transition = 'box-shadow 0.6s ease-out';
+        }, 100);
+      }, 4000);
+    }
+
+    // =========================================
+    // BLE DOT ANIMATION STAGGER
+    // =========================================
+    document.querySelectorAll('.ble-dot').forEach((dot, index) => {
+      dot.style.animationDelay = `${index * 0.3}s`;
+    });
+
+    // =========================================
+    // SCROLL PROGRESS INDICATOR (Optional visual feedback)
+    // =========================================
+    function updateScrollProgress() {
+      const scrollTop = document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / scrollHeight) * 100;
+      document.documentElement.style.setProperty('--scroll-progress', `${progress}%`);
+    }
+
+    window.addEventListener('scroll', updateScrollProgress, { passive: true });
+    updateScrollProgress();
+
+    // =========================================
+    // PAGE LOAD COMPLETE
+    // =========================================
+    window.addEventListener('load', () => {
+      document.body.style.opacity = '0';
+      document.body.style.transition = 'opacity 0.5s ease';
+      requestAnimationFrame(() => {
+        document.body.style.opacity = '1';
+      });
+    });
+
+    // Ensure body is visible
+    document.body.style.opacity = '1';
+
+    console.log('%c🚉 RailFinder LP Loaded Successfully', 'color: #00D4FF; font-size: 16px; font-weight: bold;');
+    console.log('%c失くしたものを、駅が見つける。', 'color: #0F2952; font-size: 12px;');
+  </script>
+</body>
+</html>

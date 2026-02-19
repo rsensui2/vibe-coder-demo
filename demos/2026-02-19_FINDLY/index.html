@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FINDLY - BLE落とし物防止タグ × 鉄道連携 | Vibe Coder Demo</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --main: #1A6FDB;
+    --accent: #00C9A7;
+    --dark: #0A0F1E;
+    --light: #F4F7FF;
+    --text: #1A1A2E;
+    --muted: #6B7280;
+    --border: #E5E7EB;
+    --radius: 12px;
+  }
+  body {
+    font-family: 'Noto Sans JP', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #F8FAFC;
+    color: var(--text);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Inter:wght@400;600;700&display=swap');
+
+  /* Header */
+  header {
+    background: var(--dark);
+    color: white;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(0,201,167,0.2);
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent); }
+  .badge {
+    background: rgba(0,201,167,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(0,201,167,0.3);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 24px 0;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .breadcrumb a { color: var(--main); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, var(--dark) 0%, #0D1F4A 100%);
+    color: white;
+    padding: 64px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 70% 50%, rgba(0,201,167,0.08) 0%, transparent 60%);
+  }
+  .hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(0,201,167,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(0,201,167,0.3);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+  }
+  .hero h1 {
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .hero h1 .accent { color: var(--accent); }
+  .hero p {
+    font-size: 18px;
+    color: rgba(255,255,255,0.75);
+    max-width: 600px;
+    margin-bottom: 32px;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .stat-item { }
+  .stat-num {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+  }
+
+  /* Main */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  section { margin-bottom: 64px; }
+  section h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+  }
+  section h2::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    margin-left: 8px;
+  }
+
+  /* Cards */
+  .cards-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .cards-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  @media(max-width: 768px) {
+    .cards-3, .cards-2 { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+  .card-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    background: var(--light);
+    display: block;
+    cursor: pointer;
+  }
+  .card-img.square { aspect-ratio: 1/1; }
+  .card-body { padding: 16px; }
+  .card-title { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+  .card-desc { font-size: 13px; color: var(--muted); }
+  .card-wide { grid-column: 1 / -1; }
+
+  /* Slides grid */
+  .slides-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  @media(max-width: 900px) { .slides-grid { grid-template-columns: repeat(2, 1fr); } }
+  .slide-thumb {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .slide-thumb:hover { transform: scale(1.02); }
+  .slide-thumb img { width: 100%; display: block; }
+
+  /* Download row */
+  .download-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--main), var(--accent));
+    color: white;
+  }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-outline {
+    background: white;
+    border: 1.5px solid var(--main);
+    color: var(--main);
+  }
+  .btn-outline:hover { background: var(--light); }
+
+  /* IG grid */
+  .ig-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  @media(max-width: 768px) { .ig-grid { grid-template-columns: repeat(2, 1fr); } }
+  .ig-item {
+    aspect-ratio: 1/1;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    background: var(--light);
+  }
+  .ig-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* Docs list */
+  .docs-list { display: flex; flex-direction: column; gap: 10px; }
+  .doc-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s;
+  }
+  .doc-item:hover { border-color: var(--main); background: var(--light); }
+  .doc-icon { font-size: 20px; flex-shrink: 0; }
+  .doc-name { font-weight: 600; font-size: 15px; }
+  .doc-desc { font-size: 13px; color: var(--muted); }
+
+  /* Video/Audio */
+  .media-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .media-card video, .media-card audio {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 12px;
+  }
+
+  /* Placeholder */
+  .placeholder {
+    background: var(--light);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* Modal */
+  #modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  #modal.open { display: flex; }
+  #modal img { max-width: 90vw; max-height: 88vh; border-radius: 8px; object-fit: contain; }
+  #modal-close {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    font-size: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Footer */
+  footer {
+    background: var(--dark);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 32px 24px;
+    font-size: 13px;
+  }
+  footer strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">FIND<span>LY</span></div>
+    <span class="badge">Vibe Coder Demo</span>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <a href="../../index.html">← Demo Portal</a> / FINDLY
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">🏷️ BLE × 鉄道インフラ</div>
+    <h1>見つかる前提で、<span class="accent">生きる。</span></h1>
+    <p>BLE落とし物防止タグ × 鉄道遺失物センター直結。センター到達からわずか23秒で自動通知。</p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">23秒</div>
+        <div class="stat-label">センター到達→通知</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">400万件</div>
+        <div class="stat-label">日本の年間落とし物</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">¥2,980</div>
+        <div class="stat-label">タグ1個</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">IP67</div>
+        <div class="stat-label">防水規格</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- LP Section -->
+  <section id="lp">
+    <h2>🖥️ ランディングページ（3パターン）</h2>
+    <div class="cards-3">
+      <div class="card">
+        <a href="lp/pattern1_modern.html" target="_blank">
+          <img class="card-img" src="screenshots/lp_pattern1.png" alt="LP Pattern 1 Modern" onerror="this.style.background='#0A0F1E';this.alt='生成中...'">
+        </a>
+        <div class="card-body">
+          <div class="card-title">Pattern 1: モダンSaaS型</div>
+          <div class="card-desc">ダーク背景 × BLEネットワーク × グラスモーフィズム</div>
+        </div>
+      </div>
+      <div class="card">
+        <a href="lp/pattern2_premium.html" target="_blank">
+          <img class="card-img" src="screenshots/lp_pattern2.png" alt="LP Pattern 2 Premium" onerror="this.style.background='#1A2035';this.alt='生成中...'">
+        </a>
+        <div class="card-body">
+          <div class="card-title">Pattern 2: ストーリーテリング型</div>
+          <div class="card-desc">感情訴求 × 鉄道路線モチーフ × ナラティブ</div>
+        </div>
+      </div>
+      <div class="card">
+        <a href="lp/pattern3_casual.html" target="_blank">
+          <img class="card-img" src="screenshots/lp_pattern3.png" alt="LP Pattern 3 Casual" onerror="this.style.background='#F4F7FF';this.alt='生成中...'">
+        </a>
+        <div class="card-body">
+          <div class="card-title">Pattern 3: 比較訴求型</div>
+          <div class="card-desc">白ベース × AirTag vs FINDLY 比較 × 読みやすい</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mock App -->
+  <section id="mock">
+    <h2>📱 モックアプリ</h2>
+    <div class="cards-2">
+      <div class="card card-wide">
+        <a href="mock/app_mock.html" target="_blank">
+          <img class="card-img" src="screenshots/mock_app.png" alt="Mock App" style="aspect-ratio:21/9;" onerror="this.style.background='#0A0F1E';this.alt='生成中...'">
+        </a>
+        <div class="card-body">
+          <div class="card-title">FINDLYアプリ モック</div>
+          <div class="card-desc">iPhoneフレーム内に5画面。ホーム（マイタグ）/ 通知詳細 / 検知履歴 / タグ登録 / 設定</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slides -->
+  <section id="slides">
+    <h2>📊 プレゼンスライド（13枚）</h2>
+    <div class="slides-grid">
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_01.png')"><img src="slides/slides_output/20260219_100150/images/slide_01.png" alt="Slide 1"></div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_02.png')"><img src="slides/slides_output/20260219_100150/images/slide_02.png" alt="Slide 2"></div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_03.png')"><img src="slides/slides_output/20260219_100150/images/slide_03.png" alt="Slide 3"></div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_04.png')"><img src="slides/slides_output/20260219_100150/images/slide_04.png" alt="Slide 4"></div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_05.png')"><img src="slides/slides_output/20260219_100150/images/slide_05.png" alt="Slide 5"></div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_06.png')"><img src="slides/slides_output/20260219_100150/images/slide_06.png" alt="Slide 6"></div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_07.png')"><img src="slides/slides_output/20260219_100150/images/slide_07.png" alt="Slide 7"></div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_08.png')"><img src="slides/slides_output/20260219_100150/images/slide_08.png" alt="Slide 8"></div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_09.png')"><img src="slides/slides_output/20260219_100150/images/slide_09.png" alt="Slide 9"></div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_10.png')"><img src="slides/slides_output/20260219_100150/images/slide_10.png" alt="Slide 10"></div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_11.png')"><img src="slides/slides_output/20260219_100150/images/slide_11.png" alt="Slide 11"></div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_12.png')"><img src="slides/slides_output/20260219_100150/images/slide_12.png" alt="Slide 12"></div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260219_100150/images/slide_13.png')"><img src="slides/slides_output/20260219_100150/images/slide_13.png" alt="Slide 13"></div>
+    </div>
+    <div class="download-row">
+      <a class="btn btn-primary" href="slides/FINDLY.pptx" download>⬇️ PowerPoint (.pptx)</a>
+      <a class="btn btn-outline" href="slides/FINDLY.pdf" download>⬇️ PDF</a>
+    </div>
+  </section>
+
+  <!-- Video -->
+  <section id="video">
+    <h2>🎬 プロモ動画（30秒）</h2>
+    <div class="media-card">
+      <div class="card-title">FINDLY プロモーションCM</div>
+      <div class="card-desc" style="margin-top:6px;color:var(--muted);font-size:14px;">1920×1080 / 30fps / Remotion製</div>
+      <video controls src="video/promo.mp4" onerror="this.parentElement.innerHTML+='<div class=placeholder style=margin-top:12px>🎬 動画生成中...</div>';this.remove()">
+        <p>動画を読み込めませんでした。</p>
+      </video>
+    </div>
+  </section>
+
+  <!-- Audio -->
+  <section id="audio">
+    <h2>🎙️ 音声ラジオ</h2>
+    <div class="media-card">
+      <div class="card-title">FINDLYイントロ音声</div>
+      <div class="card-desc" style="margin-top:6px;color:var(--muted);font-size:14px;">30〜60秒 / 日本語女性ボイス / Fish Audio TTS</div>
+      <audio controls src="audio/intro.mp3" onerror="this.parentElement.innerHTML+='<div class=placeholder style=margin-top:12px>🎙️ 音声生成中...</div>';this.remove()"></audio>
+    </div>
+  </section>
+
+  <!-- SNS -->
+  <section id="sns">
+    <h2>📱 SNSコンテンツ</h2>
+    <h3 style="font-size:17px;margin-bottom:16px;color:var(--muted);">Instagram 図解画像（10枚）</h3>
+    <div class="ig-grid">
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_01.png')"><img src="sns/instagram/ig_01.png" alt="IG 01" onerror="this.parentElement.style.background='#0A0F1E'"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_02.png')"><img src="sns/instagram/ig_02.png" alt="IG 02" onerror="this.parentElement.style.background='#0A0F1E'"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_03.png')"><img src="sns/instagram/ig_03.png" alt="IG 03" onerror="this.parentElement.style.background='#0A0F1E'"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_04.png')"><img src="sns/instagram/ig_04.png" alt="IG 04" onerror="this.parentElement.style.background='#0A0F1E'"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_05.png')"><img src="sns/instagram/ig_05.png" alt="IG 05" onerror="this.parentElement.style.background='#0A0F1E'"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_06.png')"><img src="sns/instagram/ig_06.png" alt="IG 06" onerror="this.parentElement.style.background='#0A0F1E'"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_07.png')"><img src="sns/instagram/ig_07.png" alt="IG 07" onerror="this.parentElement.style.background='#0A0F1E'"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_08.png')"><img src="sns/instagram/ig_08.png" alt="IG 08" onerror="this.parentElement.style.background='#0A0F1E'"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_09.png')"><img src="sns/instagram/ig_09.png" alt="IG 09" onerror="this.parentElement.style.background='#0A0F1E'"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_10.png')"><img src="sns/instagram/ig_10.png" alt="IG 10" onerror="this.parentElement.style.background='#0A0F1E'"></div>
+    </div>
+    <div style="margin-top:28px;">
+      <h3 style="font-size:17px;margin-bottom:16px;color:var(--muted);">X（Twitter）投稿文 30日分</h3>
+      <a class="btn btn-outline" href="sns/x_posts_30days.md" target="_blank">📄 X投稿文を見る</a>
+    </div>
+  </section>
+
+  <!-- Docs -->
+  <section id="docs">
+    <h2>📄 企画ドキュメント</h2>
+    <div class="docs-list">
+      <a class="doc-item" href="docs/01_executive_summary.md" target="_blank">
+        <span class="doc-icon">📋</span>
+        <div>
+          <div class="doc-name">エグゼクティブサマリー</div>
+          <div class="doc-desc">サービス概要・課題・ソリューション・ビジネスモデル・マイルストーン</div>
+        </div>
+      </a>
+      <a class="doc-item" href="docs/02_business_plan.md" target="_blank">
+        <span class="doc-icon">💼</span>
+        <div>
+          <div class="doc-name">ビジネスプラン</div>
+          <div class="doc-desc">収益モデル・コスト構造・3年間財務予測・GTM戦略</div>
+        </div>
+      </a>
+      <a class="doc-item" href="docs/03_technical_architecture.md" target="_blank">
+        <span class="doc-icon">⚙️</span>
+        <div>
+          <div class="doc-name">技術アーキテクチャ</div>
+          <div class="doc-desc">BLEハードウェア仕様・クラウド構成・通知フロー・セキュリティ設計</div>
+        </div>
+      </a>
+      <a class="doc-item" href="docs/04_marketing_strategy.md" target="_blank">
+        <span class="doc-icon">📢</span>
+        <div>
+          <div class="doc-name">マーケティング戦略</div>
+          <div class="doc-desc">ターゲット・チャネル・コンテンツ戦略・PR・グロースハック</div>
+        </div>
+      </a>
+      <a class="doc-item" href="docs/05_market_research.md" target="_blank">
+        <span class="doc-icon">📊</span>
+        <div>
+          <div class="doc-name">市場調査</div>
+          <div class="doc-desc">落とし物統計・スマートタグ市場規模・競合分析・技術トレンド</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<!-- Modal -->
+<div id="modal" onclick="if(event.target===this)closeModal()">
+  <button id="modal-close" onclick="closeModal()">✕</button>
+  <img id="modal-img" src="" alt="">
+</div>
+
+<footer>
+  Generated by <strong>Ryoko</strong> × Vibe Coder Demo System &nbsp;|&nbsp; FINDLY — BLE落とし物防止タグ × 鉄道連携
+</footer>
+
+<script>
+function openModal(src) {
+  document.getElementById('modal-img').src = src;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>

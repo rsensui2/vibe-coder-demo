@@ -1,0 +1,3221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RailFinder — AirTagより確実、地方でも使える紛失防止タグ</title>
+  <meta name="description" content="日本の鉄道ネットワークと連携したBLE紛失防止タグ。全国27,000駅以上がゲートウェイとなり、あなたの大切なものをリアルタイムで追跡します。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================
+       CSS RESET & BASE
+    ============================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --main:     #0F2952;
+      --accent:   #00D4FF;
+      --text:     #1A1A2E;
+      --light-bg: #F0F7FF;
+      --white:    #FFFFFF;
+      --gray-100: #F8FAFC;
+      --gray-200: #E2E8F0;
+      --gray-400: #94A3B8;
+      --gray-600: #64748B;
+      --gray-700: #475569;
+      --green:    #10B981;
+      --yellow:   #F59E0B;
+      --red:      #EF4444;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-xl: 0 20px 60px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.08);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-xl: 32px;
+      --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: var(--white);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    img { max-width: 100%; display: block; }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ============================================
+       UTILITY CLASSES
+    ============================================ */
+    .container {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--main);
+      letter-spacing: -0.02em;
+    }
+
+    .section-subtitle {
+      font-size: 1.05rem;
+      color: var(--gray-600);
+      line-height: 1.7;
+      margin-top: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .badge-accent {
+      background: rgba(0, 212, 255, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+    }
+
+    .badge-main {
+      background: var(--main);
+      color: var(--white);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+      border: none;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #0099CC 100%);
+      color: var(--main);
+      box-shadow: 0 4px 20px rgba(0, 212, 255, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0, 212, 255, 0.45);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--main);
+      border: 2px solid var(--main);
+    }
+
+    .btn-secondary:hover {
+      background: var(--main);
+      color: var(--white);
+    }
+
+    .btn-lg {
+      padding: 18px 40px;
+      font-size: 1.1rem;
+      border-radius: var(--radius-lg);
+    }
+
+    .icon-check {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--green);
+      color: white;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .icon-x {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--red);
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .icon-partial {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--yellow);
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    /* ============================================
+       ANNOUNCEMENT BAR
+    ============================================ */
+    .announce-bar {
+      background: linear-gradient(90deg, var(--main) 0%, #1a3a6e 100%);
+      color: var(--white);
+      text-align: center;
+      padding: 10px 24px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .announce-bar strong {
+      color: var(--accent);
+    }
+
+    .announce-bar-tag {
+      background: var(--accent);
+      color: var(--main);
+      font-weight: 800;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ============================================
+       HEADER / NAV
+    ============================================ */
+    .header {
+      background: var(--light-bg);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+      gap: 32px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--main);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+
+    .nav-logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--main) 0%, #1a3a6e 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .nav-logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      transition: color var(--transition);
+      white-space: nowrap;
+    }
+
+    .nav-links a:hover {
+      color: var(--main);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .nav-cta {
+      background: linear-gradient(135deg, var(--accent) 0%, #0099CC 100%);
+      color: var(--main) !important;
+      padding: 10px 22px;
+      border-radius: var(--radius-md);
+      font-weight: 700 !important;
+      font-size: 0.9rem !important;
+      box-shadow: 0 2px 12px rgba(0, 212, 255, 0.3);
+      transition: all var(--transition) !important;
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
+    }
+
+    /* ============================================
+       HERO SECTION
+    ============================================ */
+    .hero {
+      background: linear-gradient(160deg, var(--light-bg) 0%, #E0F0FF 40%, #D0EBFF 100%);
+      padding: 80px 0 100px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -150px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      left: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(15, 41, 82, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--main);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1.15;
+      color: var(--main);
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+
+    .hero-title .accent-text {
+      color: transparent;
+      background: linear-gradient(135deg, var(--accent) 0%, #007ACC 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--gray-700);
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-stat-value {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--main);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-stat-label {
+      font-size: 0.8rem;
+      color: var(--gray-600);
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    .hero-stat-divider {
+      width: 1px;
+      background: var(--gray-200);
+      align-self: stretch;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .hero-note {
+      font-size: 0.8rem;
+      color: var(--gray-400);
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Hero visual */
+    .hero-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hero-device-wrap {
+      position: relative;
+      width: 320px;
+      height: 320px;
+    }
+
+    .hero-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 2px solid rgba(0, 212, 255, 0.2);
+      animation: pulse-ring 3s ease-in-out infinite;
+    }
+
+    .hero-ring-1 {
+      inset: 0;
+      animation-delay: 0s;
+    }
+
+    .hero-ring-2 {
+      inset: -30px;
+      animation-delay: 0.8s;
+      opacity: 0.6;
+    }
+
+    .hero-ring-3 {
+      inset: -60px;
+      animation-delay: 1.6s;
+      opacity: 0.3;
+    }
+
+    @keyframes pulse-ring {
+      0%, 100% { transform: scale(1); opacity: 0.3; }
+      50% { transform: scale(1.05); opacity: 0.7; }
+    }
+
+    .hero-device {
+      position: absolute;
+      inset: 30px;
+      background: linear-gradient(135deg, var(--main) 0%, #1a3a6e 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      box-shadow: 0 20px 60px rgba(15, 41, 82, 0.4), 0 0 0 3px rgba(0, 212, 255, 0.3);
+    }
+
+    .hero-ping {
+      position: absolute;
+      top: 20px;
+      right: 0;
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--main);
+      animation: float-up 2.5s ease-in-out infinite;
+    }
+
+    .hero-ping-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink 1.5s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    @keyframes float-up {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .hero-ping2 {
+      position: absolute;
+      bottom: 40px;
+      left: -20px;
+      background: var(--main);
+      color: var(--white);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      animation: float-up 2.5s ease-in-out infinite;
+      animation-delay: 1.2s;
+    }
+
+    /* ============================================
+       LOGOS / TRUST STRIP
+    ============================================ */
+    .trust-strip {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 28px 0;
+    }
+
+    .trust-inner {
+      display: flex;
+      align-items: center;
+      gap: 48px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .trust-label {
+      font-size: 0.8rem;
+      color: var(--gray-400);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    .trust-logos {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .trust-logo-item {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gray-400);
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color var(--transition);
+    }
+
+    .trust-logo-item:hover {
+      color: var(--main);
+    }
+
+    /* ============================================
+       COMPARISON SECTION
+    ============================================ */
+    .comparison-section {
+      padding: 100px 0;
+      background: var(--white);
+    }
+
+    .comparison-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .comparison-header .section-title {
+      margin-top: 12px;
+    }
+
+    /* Comparison table */
+    .comparison-table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--gray-200);
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+    }
+
+    /* Table header */
+    .comparison-table thead tr {
+      background: var(--gray-100);
+    }
+
+    .comparison-table th {
+      padding: 20px 24px;
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--gray-600);
+      border-bottom: 2px solid var(--gray-200);
+    }
+
+    .comparison-table th:first-child {
+      text-align: left;
+      width: 260px;
+    }
+
+    /* RailFinder column highlight */
+    .col-railfinder {
+      background: linear-gradient(180deg, rgba(0, 212, 255, 0.06) 0%, rgba(15, 41, 82, 0.04) 100%);
+      position: relative;
+    }
+
+    .th-railfinder {
+      background: linear-gradient(135deg, var(--main) 0%, #1a3a6e 100%) !important;
+      color: var(--white) !important;
+    }
+
+    .th-railfinder .brand-logo {
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-direction: column;
+    }
+
+    .th-railfinder .brand-badge {
+      font-size: 0.65rem;
+      background: var(--accent);
+      color: var(--main);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+
+    .th-other {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .th-other-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--gray-700);
+    }
+
+    .th-other-sub {
+      font-size: 0.7rem;
+      color: var(--gray-400);
+      font-weight: 500;
+    }
+
+    /* Table rows */
+    .comparison-table tbody tr {
+      border-bottom: 1px solid var(--gray-200);
+      transition: background var(--transition);
+    }
+
+    .comparison-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .comparison-table tbody tr:hover {
+      background: var(--gray-100);
+    }
+
+    .comparison-table tbody tr:hover .col-railfinder {
+      background: rgba(0, 212, 255, 0.08);
+    }
+
+    .comparison-table td {
+      padding: 18px 24px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .comparison-table td:first-child {
+      text-align: left;
+    }
+
+    .row-label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .row-label-main {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .row-label-sub {
+      font-size: 0.78rem;
+      color: var(--gray-400);
+    }
+
+    .row-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: var(--main);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 800;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .row-label-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+    }
+
+    .cell-value {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .cell-main {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .cell-sub {
+      font-size: 0.72rem;
+      color: var(--gray-400);
+      font-weight: 500;
+    }
+
+    /* Winner row - RailFinder */
+    .railfinder-best .cell-main {
+      color: var(--main);
+    }
+
+    /* ============================================
+       COVERAGE MAP SECTION
+    ============================================ */
+    .coverage-section {
+      padding: 100px 0;
+      background: linear-gradient(160deg, var(--main) 0%, #1a3a6e 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .coverage-section::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      right: -200px;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.08) 0%, transparent 70%);
+    }
+
+    .coverage-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .coverage-text .section-title {
+      color: var(--white);
+    }
+
+    .coverage-text .section-subtitle {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .coverage-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 36px;
+    }
+
+    .coverage-stat-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: all var(--transition);
+    }
+
+    .coverage-stat-card:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(0, 212, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .cov-stat-value {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .cov-stat-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* Japan SVG Map */
+    .japan-map-wrap {
+      position: relative;
+    }
+
+    .japan-map-container {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .japan-map-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .japan-svg {
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .map-legend {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .map-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
+    }
+
+    .map-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .map-dot-high { background: var(--accent); }
+    .map-dot-mid { background: rgba(0, 212, 255, 0.5); }
+    .map-dot-low { background: rgba(255, 255, 255, 0.25); }
+
+    /* Animated route lines */
+    .route-line {
+      stroke-dasharray: 8 4;
+      animation: dash-flow 20s linear infinite;
+    }
+
+    @keyframes dash-flow {
+      to { stroke-dashoffset: -200; }
+    }
+
+    .station-dot {
+      animation: station-pulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes station-pulse {
+      0%, 100% { opacity: 0.6; r: 3; }
+      50% { opacity: 1; r: 4.5; }
+    }
+
+    /* ============================================
+       WHY SECTION
+    ============================================ */
+    .why-section {
+      padding: 100px 0;
+      background: var(--light-bg);
+    }
+
+    .why-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .why-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 40px 32px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .why-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--main) 0%, var(--accent) 100%);
+    }
+
+    .why-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-xl);
+      border-color: rgba(0, 212, 255, 0.2);
+    }
+
+    .why-number {
+      font-size: 4rem;
+      font-weight: 900;
+      color: rgba(0, 212, 255, 0.15);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 20px;
+    }
+
+    .why-icon {
+      font-size: 2.2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .why-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--main);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .why-body {
+      font-size: 0.92rem;
+      color: var(--gray-600);
+      line-height: 1.7;
+    }
+
+    .why-points {
+      list-style: none;
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .why-points li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--gray-700);
+    }
+
+    .why-vs-box {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, var(--main) 0%, #1a3a6e 100%);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 40px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .vs-side {
+      text-align: center;
+    }
+
+    .vs-side-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .vs-side-value {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1.1;
+    }
+
+    .vs-side-sub {
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 6px;
+    }
+
+    .vs-divider {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .vs-badge {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--accent);
+      background: rgba(0, 212, 255, 0.1);
+      border: 2px solid rgba(0, 212, 255, 0.3);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ============================================
+       PRICING SECTION
+    ============================================ */
+    .pricing-section {
+      padding: 100px 0;
+      background: var(--white);
+    }
+
+    .pricing-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .pricing-table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--gray-200);
+      margin-bottom: 40px;
+    }
+
+    .pricing-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+    }
+
+    .pricing-table thead th {
+      padding: 22px 28px;
+      text-align: center;
+      font-weight: 800;
+      border-bottom: 2px solid var(--gray-200);
+    }
+
+    .pricing-table thead th:first-child {
+      text-align: left;
+      color: var(--gray-500);
+      font-size: 0.85rem;
+    }
+
+    .pricing-table .plan-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .plan-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--main);
+    }
+
+    .plan-price {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--main);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .plan-price span {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--gray-400);
+    }
+
+    .plan-note {
+      font-size: 0.72rem;
+      color: var(--gray-400);
+      font-weight: 500;
+    }
+
+    .pricing-table .th-recommended {
+      background: linear-gradient(135deg, var(--main) 0%, #1a3a6e 100%);
+      color: var(--white) !important;
+    }
+
+    .pricing-table .th-recommended .plan-name {
+      color: var(--accent) !important;
+    }
+
+    .pricing-table .th-recommended .plan-price {
+      color: var(--white) !important;
+    }
+
+    .pricing-table .th-recommended .plan-note {
+      color: rgba(255,255,255,0.6) !important;
+    }
+
+    .pricing-table tbody tr {
+      border-bottom: 1px solid var(--gray-200);
+      transition: background var(--transition);
+    }
+
+    .pricing-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .pricing-table tbody tr:hover {
+      background: var(--gray-100);
+    }
+
+    .pricing-table td {
+      padding: 16px 28px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .pricing-table td:first-child {
+      text-align: left;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .td-recommended {
+      background: rgba(0, 212, 255, 0.04);
+    }
+
+    .pricing-cta-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+
+    .pricing-note {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--gray-400);
+      margin-top: 16px;
+    }
+
+    .guarantee-box {
+      background: var(--light-bg);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: var(--radius-lg);
+      padding: 28px 36px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      max-width: 680px;
+      margin: 40px auto 0;
+    }
+
+    .guarantee-icon {
+      font-size: 2.4rem;
+      flex-shrink: 0;
+    }
+
+    .guarantee-title {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--main);
+      margin-bottom: 4px;
+    }
+
+    .guarantee-body {
+      font-size: 0.85rem;
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       FAQ SECTION
+    ============================================ */
+    .faq-section {
+      padding: 100px 0;
+      background: var(--light-bg);
+    }
+
+    .faq-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200);
+      overflow: hidden;
+      transition: all var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .faq-item:hover {
+      border-color: rgba(0, 212, 255, 0.3);
+      box-shadow: var(--shadow-md);
+    }
+
+    .faq-question {
+      padding: 20px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .faq-question::-webkit-details-marker { display: none; }
+
+    .faq-q-icon {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--main);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      margin-top: 1px;
+    }
+
+    .faq-q-text {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .faq-toggle {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--gray-400);
+      transition: all var(--transition);
+      margin-top: 2px;
+    }
+
+    details[open] .faq-toggle {
+      transform: rotate(45deg);
+      background: var(--accent);
+      color: var(--main);
+    }
+
+    .faq-answer {
+      padding: 0 24px 20px 64px;
+      font-size: 0.88rem;
+      color: var(--gray-600);
+      line-height: 1.7;
+    }
+
+    /* ============================================
+       FINAL CTA SECTION
+    ============================================ */
+    .final-cta-section {
+      padding: 100px 0;
+      background: linear-gradient(135deg, var(--main) 0%, #1a3a6e 100%);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .final-cta-section::before {
+      content: '';
+      position: absolute;
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.08) 0%, transparent 70%);
+    }
+
+    .final-cta-section .section-title {
+      color: var(--white);
+    }
+
+    .final-cta-section .section-subtitle {
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 540px;
+      margin: 12px auto 0;
+    }
+
+    .final-cta-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 40px;
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .final-cta-badges {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 40px;
+    }
+
+    .final-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.65);
+      font-weight: 500;
+    }
+
+    .final-badge-icon {
+      font-size: 1rem;
+    }
+
+    /* ============================================
+       FOOTER
+    ============================================ */
+    .footer {
+      background: #0A1D3A;
+      padding: 60px 0 40px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .footer-inner {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand p {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      margin-top: 12px;
+      max-width: 260px;
+    }
+
+    .footer-col-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.9);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.5);
+      transition: color var(--transition);
+    }
+
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+
+    .footer-bottom {
+      padding-top: 28px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-bottom-left {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .footer-bottom-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-bottom-links a {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.35);
+      transition: color var(--transition);
+    }
+
+    .footer-bottom-links a:hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* ============================================
+       FLOATING CTA (sticky bottom)
+    ============================================ */
+    .floating-cta {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 200;
+      animation: slide-in-right 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2s backwards;
+    }
+
+    @keyframes slide-in-right {
+      from { transform: translateX(120px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .floating-cta-btn {
+      background: linear-gradient(135deg, var(--main) 0%, #1a3a6e 100%);
+      color: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 14px 24px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow-xl);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      border: 2px solid rgba(0, 212, 255, 0.3);
+      transition: all var(--transition);
+    }
+
+    .floating-cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    .floating-cta-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: blink 1.5s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    /* ============================================
+       SCROLL ANIMATIONS
+    ============================================ */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fade-up-delay-1 { transition-delay: 0.1s; }
+    .fade-up-delay-2 { transition-delay: 0.2s; }
+    .fade-up-delay-3 { transition-delay: 0.3s; }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 900px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 48px;
+      }
+
+      .hero-badge-row {
+        justify-content: center;
+      }
+
+      .hero-stats {
+        justify-content: center;
+      }
+
+      .hero-actions {
+        justify-content: center;
+      }
+
+      .hero-note {
+        justify-content: center;
+      }
+
+      .coverage-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .why-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .why-vs-box {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .faq-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-inner {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .coverage-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .footer-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-device-wrap {
+        width: 240px;
+        height: 240px;
+      }
+
+      .floating-cta {
+        bottom: 16px;
+        right: 16px;
+      }
+    }
+
+    /* ============================================
+       HIGHLIGHT ROWS IN TABLE
+    ============================================ */
+    .row-highlight {
+      background: linear-gradient(90deg, rgba(0, 212, 255, 0.03) 0%, rgba(0, 212, 255, 0.01) 100%);
+    }
+
+    .row-highlight td.col-railfinder {
+      background: rgba(0, 212, 255, 0.08);
+    }
+
+    /* Top-recommended badge in table */
+    .recommended-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--main);
+      font-size: 0.6rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* Winner star */
+    .winner-star {
+      font-size: 0.8rem;
+      margin-left: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ================================================
+     ANNOUNCEMENT BAR
+================================================ -->
+<div class="announce-bar">
+  <span class="announce-bar-tag">NEW</span>
+  <span>🎉 先行予約受付中！早割 <strong>20%OFF</strong> + 送料無料 &nbsp;|&nbsp; タグ2個セット ¥7,980（通常¥9,980）</span>
+  <a href="#pricing" style="color: var(--accent); font-weight: 700; text-decoration: underline;">今すぐ予約する →</a>
+</div>
+
+<!-- ================================================
+     HEADER
+================================================ -->
+<header class="header">
+  <div class="container">
+    <nav class="nav">
+      <a href="#" class="nav-logo">
+        <div class="nav-logo-icon">🚃</div>
+        Rail<span>Finder</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#comparison">比較表</a></li>
+        <li><a href="#coverage">カバレッジ</a></li>
+        <li><a href="#why">なぜ鉄道？</a></li>
+        <li><a href="#pricing">料金</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="#pricing" class="nav-cta">🛒 今すぐ購入</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- ================================================
+     HERO SECTION
+================================================ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-inner">
+
+      <!-- Left: Copy -->
+      <div class="hero-copy">
+        <div class="hero-badge-row">
+          <span class="badge badge-accent">🇯🇵 日本特化</span>
+          <span class="hero-eyebrow">BLE紛失防止タグ</span>
+        </div>
+
+        <h1 class="hero-title">
+          AirTagより確実、<br />
+          <span class="accent-text">地方でも使える</span><br />
+          紛失防止タグ
+        </h1>
+
+        <p class="hero-subtitle">
+          日本全国の鉄道ネットワークがそのままゲートウェイに。
+          あなたの大切なものが駅を通過するたびに
+          リアルタイムで通知が届きます。
+          都市も地方も、行き届くカバレッジ。
+        </p>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-value">27,000+</span>
+            <span class="hero-stat-label">全国カバー駅数</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">2秒</span>
+            <span class="hero-stat-label">平均通知遅延</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">1年+</span>
+            <span class="hero-stat-label">バッテリー寿命</span>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#pricing" class="btn btn-primary btn-lg">
+            🛒 先行予約する（早割20%OFF）
+          </a>
+          <a href="#comparison" class="btn btn-secondary btn-lg">
+            比較表を見る
+          </a>
+        </div>
+
+        <div class="hero-note">
+          <span>✅</span>
+          <span>クレジットカード・コンビニ払い対応 &nbsp;｜&nbsp; 30日返金保証 &nbsp;｜&nbsp; 送料無料</span>
+        </div>
+      </div>
+
+      <!-- Right: Visual -->
+      <div class="hero-visual">
+        <div class="hero-device-wrap">
+          <div class="hero-ring hero-ring-1"></div>
+          <div class="hero-ring hero-ring-2"></div>
+          <div class="hero-ring hero-ring-3"></div>
+          <div class="hero-device">🏷️</div>
+        </div>
+
+        <!-- Notification cards -->
+        <div class="hero-ping">
+          <div class="hero-ping-dot"></div>
+          <div>
+            <div style="font-size:0.7rem;color:var(--gray-400);margin-bottom:2px;">渋谷駅 ゲートウェイ検出</div>
+            <div style="font-size:0.85rem;font-weight:800;color:var(--main);">タグを発見しました！</div>
+          </div>
+        </div>
+
+        <div class="hero-ping2">
+          <span>📍</span>
+          <div>
+            <div style="font-size:0.7rem;color:rgba(255,255,255,0.6);margin-bottom:2px;">東京駅 リアルタイム</div>
+            <div style="font-size:0.85rem;font-weight:800;">通過確認 ✓</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     TRUST STRIP
+================================================ -->
+<div class="trust-strip">
+  <div class="container">
+    <div class="trust-inner">
+      <span class="trust-label">連携鉄道会社</span>
+      <div class="trust-logos">
+        <span class="trust-logo-item">🚄 JR東日本</span>
+        <span class="trust-logo-item">🚇 東京メトロ</span>
+        <span class="trust-logo-item">🚃 東急電鉄</span>
+        <span class="trust-logo-item">🚋 阪急電鉄</span>
+        <span class="trust-logo-item">🚉 JR西日本</span>
+        <span class="trust-logo-item">🚆 JR九州</span>
+        <span class="trust-logo-item">+ 120社以上</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================
+     COMPARISON SECTION
+================================================ -->
+<section class="comparison-section" id="comparison">
+  <div class="container">
+    <div class="comparison-header fade-up">
+      <span class="badge badge-accent">🔍 徹底比較</span>
+      <h2 class="section-title">なぜRailFinderなのか？<br />数字で見る圧倒的な違い</h2>
+      <p class="section-subtitle">
+        AirTag・Tileと10項目で徹底比較。日本での使い勝手、圧倒的な差が見えてきます。
+      </p>
+    </div>
+
+    <div class="comparison-table-wrap fade-up">
+      <table class="comparison-table" role="table">
+        <thead>
+          <tr>
+            <th>比較項目</th>
+            <th class="th-railfinder col-railfinder">
+              <div class="brand-logo">
+                🚃 RailFinder
+                <span class="brand-badge">日本特化</span>
+              </div>
+            </th>
+            <th>
+              <div class="th-other">
+                <span class="th-other-name">🍎 AirTag</span>
+                <span class="th-other-sub">Apple / 2021〜</span>
+              </div>
+            </th>
+            <th>
+              <div class="th-other">
+                <span class="th-other-name">🔵 Tile</span>
+                <span class="th-other-sub">Life360 / 海外系</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- Row 1: Coverage -->
+          <tr class="row-highlight">
+            <td>
+              <div class="row-label-wrap">
+                <span class="row-num">1</span>
+                <div class="row-label">
+                  <span class="row-label-main">📡 日本国内カバレッジ</span>
+                  <span class="row-label-sub">地方・過疎地での検出率</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-railfinder railfinder-best">
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">全国27,000駅</span>
+                <span class="cell-sub">地方もカバー</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-partial">△</span>
+                <span class="cell-main">都市部のみ</span>
+                <span class="cell-sub">地方は極端に弱い</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-x">✗</span>
+                <span class="cell-main">限定的</span>
+                <span class="cell-sub">日本ユーザー少ない</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 2: Detection method -->
+          <tr>
+            <td>
+              <div class="row-label-wrap">
+                <span class="row-num">2</span>
+                <div class="row-label">
+                  <span class="row-label-main">🔍 検出の仕組み</span>
+                  <span class="row-label-sub">インフラの堅牢性</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-railfinder railfinder-best">
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">固定ゲートウェイ</span>
+                <span class="cell-sub">駅に24時間常設</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-partial">△</span>
+                <span class="cell-main">他ユーザー依存</span>
+                <span class="cell-sub">近くにiPhoneが必要</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-partial">△</span>
+                <span class="cell-main">他ユーザー依存</span>
+                <span class="cell-sub">ネットワーク密度が低い</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 3: Notification speed -->
+          <tr class="row-highlight">
+            <td>
+              <div class="row-label-wrap">
+                <span class="row-num">3</span>
+                <div class="row-label">
+                  <span class="row-label-main">⚡ 通知速度</span>
+                  <span class="row-label-sub">検出から通知までの時間</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-railfinder railfinder-best">
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">約2秒</span>
+                <span class="cell-sub">リアルタイム通知</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-partial">△</span>
+                <span class="cell-main">数分〜数時間</span>
+                <span class="cell-sub">他端末次第で変動</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-x">✗</span>
+                <span class="cell-main">数時間〜</span>
+                <span class="cell-sub">日本では更に遅延</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 4: Battery -->
+          <tr>
+            <td>
+              <div class="row-label-wrap">
+                <span class="row-num">4</span>
+                <div class="row-label">
+                  <span class="row-label-main">🔋 バッテリー寿命</span>
+                  <span class="row-label-sub">交換・充電の手間</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-railfinder railfinder-best">
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">約12〜15ヶ月</span>
+                <span class="cell-sub">CR2032交換式</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">約12ヶ月</span>
+                <span class="cell-sub">CR2032交換式</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-partial">△</span>
+                <span class="cell-main">約12ヶ月</span>
+                <span class="cell-sub">モデルにより差あり</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 5: Device requirement -->
+          <tr class="row-highlight">
+            <td>
+              <div class="row-label-wrap">
+                <span class="row-num">5</span>
+                <div class="row-label">
+                  <span class="row-label-main">📱 デバイス制限</span>
+                  <span class="row-label-sub">スマートフォンの縛り</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-railfinder railfinder-best">
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">iOS / Android</span>
+                <span class="cell-sub">どちらでもOK</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-x">✗</span>
+                <span class="cell-main">iPhoneのみ</span>
+                <span class="cell-sub">Androidは非対応</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">iOS / Android</span>
+                <span class="cell-sub">両対応</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 6: Monthly fee -->
+          <tr>
+            <td>
+              <div class="row-label-wrap">
+                <span class="row-num">6</span>
+                <div class="row-label">
+                  <span class="row-label-main">💰 月額料金</span>
+                  <span class="row-label-sub">継続コスト</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-railfinder railfinder-best">
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">¥0〜¥398/月</span>
+                <span class="cell-sub">無料プランあり</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">¥0</span>
+                <span class="cell-sub">サービス費用なし</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-partial">△</span>
+                <span class="cell-main">¥0〜¥1,320/月</span>
+                <span class="cell-sub">有料プラン必要な機能あり</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 7: Rural areas -->
+          <tr class="row-highlight">
+            <td>
+              <div class="row-label-wrap">
+                <span class="row-num">7</span>
+                <div class="row-label">
+                  <span class="row-label-main">🗾 地方・過疎地対応</span>
+                  <span class="row-label-sub">人口密度の低い地域</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-railfinder railfinder-best">
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">◎ 問題なし</span>
+                <span class="cell-sub">駅があれば検出可能</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-x">✗</span>
+                <span class="cell-main">✗ 非常に弱い</span>
+                <span class="cell-sub">iPhoneユーザーがいないと無効</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-x">✗</span>
+                <span class="cell-main">✗ ほぼ機能しない</span>
+                <span class="cell-sub">Tileユーザーが少なすぎる</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 8: Privacy -->
+          <tr>
+            <td>
+              <div class="row-label-wrap">
+                <span class="row-num">8</span>
+                <div class="row-label">
+                  <span class="row-label-main">🔒 プライバシー保護</span>
+                  <span class="row-label-sub">個人情報の取り扱い</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-railfinder railfinder-best">
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">国内サーバー管理</span>
+                <span class="cell-sub">個人情報保護法完全準拠</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-partial">△</span>
+                <span class="cell-main">米国サーバー</span>
+                <span class="cell-sub">Apple のポリシー準拠</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-partial">△</span>
+                <span class="cell-main">米国サーバー</span>
+                <span class="cell-sub">データ共有懸念あり</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 9: Family sharing -->
+          <tr class="row-highlight">
+            <td>
+              <div class="row-label-wrap">
+                <span class="row-num">9</span>
+                <div class="row-label">
+                  <span class="row-label-main">👨‍👩‍👧 家族共有</span>
+                  <span class="row-label-sub">複数人での共同管理</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-railfinder railfinder-best">
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">最大5人まで</span>
+                <span class="cell-sub">追加料金なし</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-partial">△</span>
+                <span class="cell-main">Familyプラン必要</span>
+                <span class="cell-sub">Apple IDの共有が前提</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-partial">△</span>
+                <span class="cell-main">有料プランのみ</span>
+                <span class="cell-sub">別途月額が必要</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Row 10: Japan support -->
+          <tr>
+            <td>
+              <div class="row-label-wrap">
+                <span class="row-num">10</span>
+                <div class="row-label">
+                  <span class="row-label-main">🎧 日本語サポート</span>
+                  <span class="row-label-sub">サポートの品質・言語</span>
+                </div>
+              </div>
+            </td>
+            <td class="col-railfinder railfinder-best">
+              <div class="cell-value">
+                <span class="icon-check">✓</span>
+                <span class="cell-main">◎ 完全日本語</span>
+                <span class="cell-sub">24時間チャット対応</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-partial">△</span>
+                <span class="cell-main">△ 日本語あり</span>
+                <span class="cell-sub">海外チーム対応</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span class="icon-x">✗</span>
+                <span class="cell-main">✗ 英語のみ</span>
+                <span class="cell-sub">日本サポートなし</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Summary row -->
+          <tr style="background: linear-gradient(90deg, var(--light-bg) 0%, #E8F4FF 100%);">
+            <td>
+              <div class="row-label" style="padding-left: 32px;">
+                <span class="row-label-main" style="font-size:1rem; color: var(--main);">🏆 総合評価</span>
+                <span class="row-label-sub">10項目中の勝利数</span>
+              </div>
+            </td>
+            <td class="col-railfinder" style="background: rgba(0,212,255,0.1);">
+              <div class="cell-value">
+                <span style="font-size: 2rem; font-weight: 900; color: var(--main);">9/10</span>
+                <span class="cell-sub" style="color: var(--green); font-weight: 700;">圧倒的1位 🥇</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span style="font-size: 1.6rem; font-weight: 800; color: var(--gray-600);">5/10</span>
+                <span class="cell-sub">2位</span>
+              </div>
+            </td>
+            <td>
+              <div class="cell-value">
+                <span style="font-size: 1.6rem; font-weight: 800; color: var(--gray-600);">2/10</span>
+                <span class="cell-sub">3位</span>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Comparison note -->
+    <p style="text-align:center; font-size:0.8rem; color:var(--gray-400); margin-top:16px;">
+      ※ 2026年2月時点の情報に基づく比較です。価格・仕様は変更になる場合があります。
+    </p>
+
+  </div>
+</section>
+
+<!-- ================================================
+     COVERAGE MAP SECTION
+================================================ -->
+<section class="coverage-section" id="coverage">
+  <div class="container">
+    <div class="coverage-inner">
+
+      <!-- Left: Text -->
+      <div class="coverage-text fade-up">
+        <span class="badge" style="background:rgba(0,212,255,0.15);color:var(--accent);border:1px solid rgba(0,212,255,0.3);">📡 全国カバレッジ</span>
+        <h2 class="section-title" style="margin-top:12px;">
+          日本中どこでも、<br />鉄道が届くところに<br />RailFinderが届く
+        </h2>
+        <p class="section-subtitle">
+          新幹線から在来線、地下鉄、路面電車まで。
+          日本の鉄道インフラをそのままゲートウェイとして活用。
+          人口密度に依存せず、線路があれば検出できます。
+        </p>
+
+        <div class="coverage-stats">
+          <div class="coverage-stat-card">
+            <div class="cov-stat-value">27,000+</div>
+            <div class="cov-stat-label">カバー駅数</div>
+          </div>
+          <div class="coverage-stat-card">
+            <div class="cov-stat-value">120+</div>
+            <div class="cov-stat-label">連携鉄道会社</div>
+          </div>
+          <div class="coverage-stat-card">
+            <div class="cov-stat-value">99.8%</div>
+            <div class="cov-stat-label">都市部検出率</div>
+          </div>
+          <div class="coverage-stat-card">
+            <div class="cov-stat-value">87%</div>
+            <div class="cov-stat-label">全国人口カバー</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap;">
+          <a href="#pricing" class="btn btn-primary">🛒 今すぐ購入</a>
+          <a href="#faq" class="btn" style="background:rgba(255,255,255,0.1);color:var(--white);border:2px solid rgba(255,255,255,0.2);">FAQ を見る</a>
+        </div>
+      </div>
+
+      <!-- Right: Map -->
+      <div class="japan-map-wrap fade-up fade-up-delay-2">
+        <div class="japan-map-container">
+          <div class="japan-map-title">🗾 RailFinder カバレッジマップ</div>
+
+          <!-- SVG Japan Map (simplified) -->
+          <svg class="japan-svg" viewBox="0 0 380 560" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background -->
+            <rect width="380" height="560" fill="none"/>
+
+            <!-- Sea grid (subtle) -->
+            <defs>
+              <pattern id="sea-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(0,212,255,0.04)" stroke-width="0.5"/>
+              </pattern>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <rect width="380" height="560" fill="url(#sea-grid)"/>
+
+            <!-- ===== HOKKAIDO ===== -->
+            <path d="M 155,30 L 180,22 L 220,28 L 250,40 L 270,60 L 280,80 L 265,100 L 240,110 L 210,115 L 190,108 L 170,100 L 155,85 L 148,65 Z"
+                  fill="rgba(0,212,255,0.25)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5"/>
+
+            <!-- ===== TOHOKU (Aomori-Miyagi) ===== -->
+            <path d="M 200,118 L 215,115 L 225,125 L 230,145 L 228,165 L 220,178 L 205,185 L 195,180 L 188,165 L 185,148 L 188,130 Z"
+                  fill="rgba(0,212,255,0.22)" stroke="rgba(0,212,255,0.55)" stroke-width="1.5"/>
+
+            <!-- ===== KANTO ===== -->
+            <path d="M 208,188 L 228,180 L 248,185 L 260,200 L 258,220 L 248,232 L 230,238 L 212,232 L 200,220 L 198,205 Z"
+                  fill="rgba(0,212,255,0.45)" stroke="rgba(0,212,255,0.8)" stroke-width="1.5"/>
+
+            <!-- Tokyo highlight -->
+            <circle cx="235" cy="210" r="10" fill="rgba(0,212,255,0.3)" stroke="var(--accent)" stroke-width="2" filter="url(#glow)"/>
+
+            <!-- ===== CHUBU ===== -->
+            <path d="M 195,238 L 215,232 L 238,238 L 250,252 L 248,270 L 235,282 L 215,285 L 198,278 L 188,262 L 188,248 Z"
+                  fill="rgba(0,212,255,0.3)" stroke="rgba(0,212,255,0.6)" stroke-width="1.5"/>
+
+            <!-- ===== KINKI/KANSAI ===== -->
+            <path d="M 170,275 L 195,268 L 218,272 L 232,285 L 230,305 L 218,318 L 198,322 L 178,315 L 165,300 L 162,285 Z"
+                  fill="rgba(0,212,255,0.4)" stroke="rgba(0,212,255,0.7)" stroke-width="1.5"/>
+
+            <!-- Osaka highlight -->
+            <circle cx="192" cy="298" r="8" fill="rgba(0,212,255,0.3)" stroke="var(--accent)" stroke-width="2" filter="url(#glow)"/>
+
+            <!-- ===== CHUGOKU ===== -->
+            <path d="M 128,290 L 158,280 L 175,285 L 175,305 L 162,318 L 140,322 L 118,315 L 108,300 L 112,288 Z"
+                  fill="rgba(0,212,255,0.28)" stroke="rgba(0,212,255,0.55)" stroke-width="1.5"/>
+
+            <!-- ===== SHIKOKU ===== -->
+            <path d="M 148,338 L 175,330 L 198,335 L 205,352 L 195,368 L 175,372 L 152,366 L 140,350 Z"
+                  fill="rgba(0,212,255,0.25)" stroke="rgba(0,212,255,0.5)" stroke-width="1.5"/>
+
+            <!-- ===== KYUSHU ===== -->
+            <path d="M 92,328 L 122,318 L 140,325 L 148,342 L 145,368 L 130,385 L 108,390 L 88,380 L 75,362 L 75,342 Z"
+                  fill="rgba(0,212,255,0.38)" stroke="rgba(0,212,255,0.65)" stroke-width="1.5"/>
+
+            <!-- Fukuoka highlight -->
+            <circle cx="108" cy="340" r="6" fill="rgba(0,212,255,0.3)" stroke="var(--accent)" stroke-width="1.5" filter="url(#glow)"/>
+
+            <!-- ===== OKINAWA (small) ===== -->
+            <path d="M 58,490 L 75,485 L 88,490 L 90,505 L 78,512 L 62,508 L 55,498 Z"
+                  fill="rgba(0,212,255,0.2)" stroke="rgba(0,212,255,0.4)" stroke-width="1.5"/>
+
+            <!-- ===== SHINKANSEN ROUTES ===== -->
+            <!-- Tokaido/Sanyo Shinkansen: Tokyo → Osaka → Fukuoka -->
+            <polyline points="235,210 228,235 215,258 200,280 185,295 162,308 142,320 125,332 108,340"
+                      fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-opacity="0.8"
+                      class="route-line" stroke-dasharray="8 4"/>
+
+            <!-- Tohoku Shinkansen: Tokyo → Sapporo -->
+            <polyline points="235,210 225,195 215,175 210,150 208,125 215,100 230,75 240,55"
+                      fill="none" stroke="var(--accent)" stroke-width="2" stroke-opacity="0.7"
+                      class="route-line" stroke-dasharray="8 4"/>
+
+            <!-- Joetsu/Hokuriku: Tokyo → Niigata area -->
+            <polyline points="235,210 220,200 200,195 180,190 165,200 155,215 148,232"
+                      fill="none" stroke="rgba(0,212,255,0.5)" stroke-width="1.5" stroke-opacity="0.6"
+                      class="route-line" stroke-dasharray="6 4"/>
+
+            <!-- ===== STATION DOTS (major cities) ===== -->
+            <!-- Sapporo -->
+            <circle cx="218" cy="72" r="5" fill="var(--accent)" class="station-dot" filter="url(#glow)"/>
+            <text x="225" y="76" fill="rgba(255,255,255,0.8)" font-size="8" font-family="sans-serif" font-weight="bold">札幌</text>
+
+            <!-- Sendai -->
+            <circle cx="220" cy="168" r="4.5" fill="var(--accent)" class="station-dot"/>
+            <text x="226" y="172" fill="rgba(255,255,255,0.8)" font-size="8" font-family="sans-serif">仙台</text>
+
+            <!-- Tokyo -->
+            <circle cx="238" cy="212" r="7" fill="var(--accent)" class="station-dot" filter="url(#glow)"/>
+            <text x="247" y="216" fill="rgba(255,255,255,0.9)" font-size="9" font-family="sans-serif" font-weight="bold">東京</text>
+
+            <!-- Nagoya -->
+            <circle cx="220" cy="260" r="4.5" fill="var(--accent)" class="station-dot"/>
+            <text x="226" y="264" fill="rgba(255,255,255,0.8)" font-size="8" font-family="sans-serif">名古屋</text>
+
+            <!-- Osaka -->
+            <circle cx="195" cy="298" r="6" fill="var(--accent)" class="station-dot" filter="url(#glow)"/>
+            <text x="204" y="302" fill="rgba(255,255,255,0.9)" font-size="9" font-family="sans-serif" font-weight="bold">大阪</text>
+
+            <!-- Hiroshima -->
+            <circle cx="140" cy="302" r="4" fill="var(--accent)" class="station-dot"/>
+            <text x="146" y="306" fill="rgba(255,255,255,0.8)" font-size="8" font-family="sans-serif">広島</text>
+
+            <!-- Fukuoka -->
+            <circle cx="108" cy="342" r="5" fill="var(--accent)" class="station-dot" filter="url(#glow)"/>
+            <text x="115" y="346" fill="rgba(255,255,255,0.9)" font-size="8" font-family="sans-serif" font-weight="bold">福岡</text>
+
+            <!-- Smaller stations scattered -->
+            <circle cx="190" cy="132" r="3" fill="rgba(0,212,255,0.7)" class="station-dot"/>
+            <circle cx="200" cy="155" r="3" fill="rgba(0,212,255,0.7)" class="station-dot"/>
+            <circle cx="230" cy="190" r="3" fill="rgba(0,212,255,0.6)" class="station-dot"/>
+            <circle cx="245" cy="225" r="3" fill="rgba(0,212,255,0.6)" class="station-dot"/>
+            <circle cx="205" cy="245" r="3" fill="rgba(0,212,255,0.6)" class="station-dot"/>
+            <circle cx="180" cy="265" r="3" fill="rgba(0,212,255,0.6)" class="station-dot"/>
+            <circle cx="210" cy="310" r="3" fill="rgba(0,212,255,0.6)" class="station-dot"/>
+            <circle cx="175" cy="355" r="3" fill="rgba(0,212,255,0.5)" class="station-dot"/>
+            <circle cx="120" cy="358" r="3" fill="rgba(0,212,255,0.5)" class="station-dot"/>
+            <circle cx="95" cy="360" r="3" fill="rgba(0,212,255,0.5)" class="station-dot"/>
+            <circle cx="130" cy="375" r="3" fill="rgba(0,212,255,0.5)" class="station-dot"/>
+            <circle cx="68" cy="498" r="3" fill="rgba(0,212,255,0.5)" class="station-dot"/>
+
+            <!-- Coverage legend text -->
+            <text x="10" y="545" fill="rgba(0,212,255,0.5)" font-size="8" font-family="sans-serif">●=主要駅 ━=新幹線ルート</text>
+          </svg>
+
+          <div class="map-legend">
+            <div class="map-legend-item">
+              <div class="map-dot map-dot-high"></div>
+              <span>高密度カバー</span>
+            </div>
+            <div class="map-legend-item">
+              <div class="map-dot map-dot-mid"></div>
+              <span>標準カバー</span>
+            </div>
+            <div class="map-legend-item">
+              <div class="map-dot map-dot-low"></div>
+              <span>拡張予定エリア</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     WHY RAILWAY SECTION
+================================================ -->
+<section class="why-section" id="why">
+  <div class="container">
+    <div class="why-header fade-up">
+      <span class="badge badge-accent">🚉 鉄道ゲートウェイの優位性</span>
+      <h2 class="section-title" style="margin-top:12px;">
+        なぜ「鉄道ゲートウェイ」が<br />圧倒的に優れているのか？
+      </h2>
+      <p class="section-subtitle">
+        他のサービスとの決定的な違いは、インフラの質にあります。
+      </p>
+    </div>
+
+    <div class="why-grid">
+
+      <!-- Reason 1 -->
+      <div class="why-card fade-up fade-up-delay-1">
+        <div class="why-number">01</div>
+        <span class="why-icon">🏗️</span>
+        <h3 class="why-title">固定インフラだから<br />どこでも確実に検出</h3>
+        <p class="why-body">
+          AirTagやTileは「近くにユーザーのスマホがある」ことが前提。
+          人が少ない地方では、何時間待っても検出されないことも。
+        </p>
+        <ul class="why-points">
+          <li>
+            <span class="icon-check" style="font-size:0.65rem;">✓</span>
+            駅のゲートウェイは24時間365日稼働
+          </li>
+          <li>
+            <span class="icon-check" style="font-size:0.65rem;">✓</span>
+            人口0人の深夜でも確実に検出
+          </li>
+          <li>
+            <span class="icon-check" style="font-size:0.65rem;">✓</span>
+            過疎地・観光地も鉄道があればOK
+          </li>
+          <li>
+            <span class="icon-check" style="font-size:0.65rem;">✓</span>
+            ゲートウェイ密度：全国約14駅/km²
+          </li>
+        </ul>
+      </div>
+
+      <!-- Reason 2 -->
+      <div class="why-card fade-up fade-up-delay-2">
+        <div class="why-number">02</div>
+        <span class="why-icon">⚡</span>
+        <h3 class="why-title">リアルタイム通知で<br />「どこを通ったか」がわかる</h3>
+        <p class="why-body">
+          鉄道のゲートウェイを通過するたびに、リアルタイムで通知。
+          タグの移動経路が時系列でわかるので、捜索がとても簡単。
+        </p>
+        <ul class="why-points">
+          <li>
+            <span class="icon-check" style="font-size:0.65rem;">✓</span>
+            通過駅の履歴を時系列で確認
+          </li>
+          <li>
+            <span class="icon-check" style="font-size:0.65rem;">✓</span>
+            「電車に置き忘れた」場合も追跡可能
+          </li>
+          <li>
+            <span class="icon-check" style="font-size:0.65rem;">✓</span>
+            駅員への問い合わせ時に「○○駅を通過」と情報提供
+          </li>
+          <li>
+            <span class="icon-check" style="font-size:0.65rem;">✓</span>
+            通知遅延：平均わずか2秒
+          </li>
+        </ul>
+      </div>
+
+      <!-- Reason 3 -->
+      <div class="why-card fade-up fade-up-delay-3">
+        <div class="why-number">03</div>
+        <span class="why-icon">🤝</span>
+        <h3 class="why-title">鉄道会社との連携で<br />忘れ物回収もスムーズ</h3>
+        <p class="why-body">
+          RailFinderは単なる追跡ツールではありません。
+          連携鉄道会社の忘れ物センターと直結し、
+          回収手続きをアプリから完結できます。
+        </p>
+        <ul class="why-points">
+          <li>
+            <span class="icon-check" style="font-size:0.65rem;">✓</span>
+            アプリから忘れ物届出を直接送信
+          </li>
+          <li>
+            <span class="icon-check" style="font-size:0.65rem;">✓</span>
+            鉄道会社の遺失物係に自動連携
+          </li>
+          <li>
+            <span class="icon-check" style="font-size:0.65rem;">✓</span>
+            回収後の郵送サービス（オプション）
+          </li>
+          <li>
+            <span class="icon-check" style="font-size:0.65rem;">✓</span>
+            120社以上の鉄道会社と提携
+          </li>
+        </ul>
+      </div>
+
+      <!-- VS Comparison Box -->
+      <div class="why-vs-box">
+        <div class="vs-side">
+          <div class="vs-side-label">他社サービス（AirTag等）</div>
+          <div class="vs-side-value">ユーザー依存</div>
+          <div class="vs-side-sub">近くにスマホがなければゼロ</div>
+
+          <div style="margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div style="background:rgba(255,255,255,0.07); border-radius:8px; padding:12px; text-align:center;">
+              <div style="font-size:1.4rem;font-weight:900;color:rgba(255,255,255,0.5);">〜数時間</div>
+              <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:4px;">地方での通知遅延</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.07); border-radius:8px; padding:12px; text-align:center;">
+              <div style="font-size:1.4rem;font-weight:900;color:rgba(255,255,255,0.5);">不明</div>
+              <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:4px;">地方検出率</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vs-divider">
+          <div class="vs-badge">VS</div>
+          <div style="width:1px;height:80px;background:rgba(255,255,255,0.15);"></div>
+        </div>
+
+        <div class="vs-side">
+          <div class="vs-side-label">🚃 RailFinder</div>
+          <div class="vs-side-value" style="color: var(--accent);">固定インフラ</div>
+          <div class="vs-side-sub">24時間・どこでも確実に検出</div>
+
+          <div style="margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div style="background:rgba(0,212,255,0.12); border:1px solid rgba(0,212,255,0.25); border-radius:8px; padding:12px; text-align:center;">
+              <div style="font-size:1.4rem;font-weight:900;color:var(--accent);">約2秒</div>
+              <div style="font-size:0.7rem;color:rgba(255,255,255,0.5);margin-top:4px;">通知遅延（どこでも）</div>
+            </div>
+            <div style="background:rgba(0,212,255,0.12); border:1px solid rgba(0,212,255,0.25); border-radius:8px; padding:12px; text-align:center;">
+              <div style="font-size:1.4rem;font-weight:900;color:var(--accent);">99.8%</div>
+              <div style="font-size:0.7rem;color:rgba(255,255,255,0.5);margin-top:4px;">駅通過検出率</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     PRICING SECTION
+================================================ -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <div class="pricing-header fade-up">
+      <span class="badge badge-accent">💰 シンプルな料金体系</span>
+      <h2 class="section-title" style="margin-top:12px;">
+        必要なものだけ、わかりやすく
+      </h2>
+      <p class="section-subtitle">
+        初期費用はタグ本体のみ。月額プランは用途に合わせて選択可。<br />
+        まずは無料プランで試してみてください。
+      </p>
+    </div>
+
+    <!-- Pricing Table -->
+    <div class="pricing-table-wrap fade-up">
+      <table class="pricing-table">
+        <thead>
+          <tr>
+            <th>機能・内容</th>
+            <th>
+              <div class="plan-header">
+                <span class="plan-name">🆓 無料プラン</span>
+                <span class="plan-price">¥0<span>/月</span></span>
+                <span class="plan-note">タグ購入のみ</span>
+              </div>
+            </th>
+            <th class="th-recommended">
+              <div class="plan-header">
+                <span style="font-size:0.65rem;background:var(--accent);color:var(--main);padding:2px 8px;border-radius:4px;font-weight:900;letter-spacing:0.05em;">おすすめ</span>
+                <span class="plan-name">⭐ スタンダード</span>
+                <span class="plan-price">¥398<span>/月</span></span>
+                <span class="plan-note">年払い ¥3,980（¥332/月）</span>
+              </div>
+            </th>
+            <th>
+              <div class="plan-header">
+                <span class="plan-name">👨‍👩‍👧 ファミリー</span>
+                <span class="plan-price">¥798<span>/月</span></span>
+                <span class="plan-note">最大5人・タグ10個まで</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🔍 基本的な位置通知</td>
+            <td><span class="icon-check">✓</span></td>
+            <td class="td-recommended"><span class="icon-check">✓</span></td>
+            <td><span class="icon-check">✓</span></td>
+          </tr>
+          <tr>
+            <td>📍 駅通過リアルタイム通知</td>
+            <td>直近5駅まで</td>
+            <td class="td-recommended"><span class="icon-check">✓</span> 無制限</td>
+            <td><span class="icon-check">✓</span> 無制限</td>
+          </tr>
+          <tr>
+            <td>📊 移動履歴の保存期間</td>
+            <td>7日間</td>
+            <td class="td-recommended">90日間</td>
+            <td>365日間</td>
+          </tr>
+          <tr>
+            <td>👨‍👩‍👧 家族共有（複数アカウント）</td>
+            <td><span class="icon-x">✗</span></td>
+            <td class="td-recommended">最大2人</td>
+            <td>最大5人</td>
+          </tr>
+          <tr>
+            <td>🔔 プッシュ通知のカスタマイズ</td>
+            <td><span class="icon-x">✗</span></td>
+            <td class="td-recommended"><span class="icon-check">✓</span></td>
+            <td><span class="icon-check">✓</span></td>
+          </tr>
+          <tr>
+            <td>📦 忘れ物回収サポート</td>
+            <td><span class="icon-x">✗</span></td>
+            <td class="td-recommended"><span class="icon-check">✓</span></td>
+            <td><span class="icon-check">✓</span> 優先対応</td>
+          </tr>
+          <tr>
+            <td>📱 Apple Watch / WearOS 連携</td>
+            <td><span class="icon-x">✗</span></td>
+            <td class="td-recommended"><span class="icon-check">✓</span></td>
+            <td><span class="icon-check">✓</span></td>
+          </tr>
+          <tr>
+            <td>🎧 サポート優先度</td>
+            <td>メールのみ</td>
+            <td class="td-recommended">メール + チャット</td>
+            <td>最優先 24時間</td>
+          </tr>
+          <tr>
+            <td>🏷️ タグ本体価格（1個）</td>
+            <td>¥4,980</td>
+            <td class="td-recommended">¥4,980</td>
+            <td>¥4,480（10%OFF）</td>
+          </tr>
+          <tr>
+            <td style="font-weight:800;color:var(--main);">🚀 先行予約価格</td>
+            <td style="font-weight:800;color:var(--green);">¥3,980 🎉</td>
+            <td class="td-recommended" style="font-weight:800;color:var(--accent);">¥3,980 + 3ヶ月無料🎉</td>
+            <td style="font-weight:800;color:var(--green);">¥3,580×2個 + 3ヶ月無料🎉</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CTA -->
+    <div class="pricing-cta-row fade-up">
+      <a href="#" class="btn btn-primary btn-lg">
+        🛒 無料プランで始める（タグ購入のみ）
+      </a>
+      <a href="#" class="btn btn-secondary btn-lg">
+        ⭐ スタンダードで先行予約
+      </a>
+    </div>
+
+    <p class="pricing-note">
+      ※ 先行予約は出荷開始後に月額が始まります。キャンセルはいつでも可能。<br />
+      ※ タグ本体は1回買い切り。プランはいつでも変更・解約できます。
+    </p>
+
+    <!-- Guarantee -->
+    <div class="guarantee-box fade-up">
+      <div class="guarantee-icon">🛡️</div>
+      <div>
+        <div class="guarantee-title">30日間全額返金保証</div>
+        <div class="guarantee-body">
+          ご購入後30日以内であれば、理由を問わず全額返金します。
+          まずは使ってみて、「これは良い！」と思えなければ返金を申請してください。
+          返送料も当社負担です。
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================================================
+     FAQ SECTION
+================================================ -->
+<section class="faq-section" id="faq">
+  <div class="container">
+    <div class="faq-header fade-up">
+      <span class="badge badge-accent">❓ よくある質問</span>
+      <h2 class="section-title" style="margin-top:12px;">
+        気になることは、<br />全部答えます
+      </h2>
+      <p class="section-subtitle">
+        購入前に知りたいことをまとめました。解決しない場合はチャットでお気軽に。
+      </p>
+    </div>
+
+    <div class="faq-grid fade-up">
+
+      <!-- FAQ 1 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <div class="faq-q-icon">Q</div>
+          <span class="faq-q-text">iPhoneでもAndroidでも使えますか？</span>
+          <div class="faq-toggle">+</div>
+        </summary>
+        <div class="faq-answer">
+          はい、iOS・Android両方に対応しています。AirTagはiPhone専用ですが、RailFinderはどちらのスマホでも同じ機能をご利用いただけます。アプリはApp Store・Google Play両方で無料配信予定です。
+        </div>
+      </details>
+
+      <!-- FAQ 2 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <div class="faq-q-icon">Q</div>
+          <span class="faq-q-text">田舎（地方）でもちゃんと動きますか？</span>
+          <div class="faq-toggle">+</div>
+        </summary>
+        <div class="faq-answer">
+          はい、これがRailFinderの最大の強みです！鉄道の駅がある場所なら、人口に関係なくゲートウェイが設置されているため確実に検出できます。AirTagは近くにiPhoneを持つ人が必要ですが、RailFinderは不要。地方ほど差が出ます。
+        </div>
+      </details>
+
+      <!-- FAQ 3 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <div class="faq-q-icon">Q</div>
+          <span class="faq-q-text">バッテリーはどれくらい持ちますか？</span>
+          <div class="faq-toggle">+</div>
+        </summary>
+        <div class="faq-answer">
+          通常使用で12〜15ヶ月程度です。市販のCR2032ボタン電池1本で動作し、コンビニや薬局でも簡単に入手・交換できます。バッテリー残量はアプリで確認でき、残り20%以下になると通知でお知らせします。
+        </div>
+      </details>
+
+      <!-- FAQ 4 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <div class="faq-q-icon">Q</div>
+          <span class="faq-q-text">タグのサイズはどれくらいですか？</span>
+          <div class="faq-toggle">+</div>
+        </summary>
+        <div class="faq-answer">
+          直径38mm × 厚さ8mmの円形コンパクトデザインです。重量は約11g。財布、カバン、キーホルダー、ペットの首輪など、さまざまな用途に対応。IP67防水防塵規格で、雨や水洗いにも耐えられます。
+        </div>
+      </details>
+
+      <!-- FAQ 5 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <div class="faq-q-icon">Q</div>
+          <span class="faq-q-text">月額プランなしでも使えますか？</span>
+          <div class="faq-toggle">+</div>
+        </summary>
+        <div class="faq-answer">
+          はい、無料プランは月額なし（タグ本体のみ）で使えます。基本的な通知機能と直近5駅の履歴確認が可能です。より多くの機能が必要な場合は、月額¥398のスタンダードプランへのアップグレードをおすすめします。
+        </div>
+      </details>
+
+      <!-- FAQ 6 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <div class="faq-q-icon">Q</div>
+          <span class="faq-q-text">プライバシーは大丈夫ですか？</span>
+          <div class="faq-toggle">+</div>
+        </summary>
+        <div class="faq-answer">
+          個人情報は日本国内のサーバーで管理され、個人情報保護法に完全準拠しています。位置情報データはエンドツーエンド暗号化されており、鉄道会社も個人が特定できる情報にはアクセスできません。ストーカー対策として、自分のタグではないタグが一定時間追跡している場合はアラート通知します。
+        </div>
+      </details>
+
+      <!-- FAQ 7 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <div class="faq-q-icon">Q</div>
+          <span class="faq-q-text">タグを複数購入・管理できますか？</span>
+          <div class="faq-toggle">+</div>
+        </summary>
+        <div class="faq-answer">
+          はい、1つのアカウントで複数のタグを管理できます。無料プランではタグを2個まで、スタンダードプランで5個まで、ファミリープランでは10個まで登録可能です。それぞれのタグに名前（「財布」「通学かばん」など）をつけて管理できます。
+        </div>
+      </details>
+
+      <!-- FAQ 8 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <div class="faq-q-icon">Q</div>
+          <span class="faq-q-text">先行予約から出荷まで、いつ届きますか？</span>
+          <div class="faq-toggle">+</div>
+        </summary>
+        <div class="faq-answer">
+          2026年春（4〜5月）の出荷開始を予定しています。先行予約者には出荷開始の2週間前にメールでご連絡します。配送はヤマト運輸・佐川急便にて全国対応。先行予約者への送料は無料です。
+        </div>
+      </details>
+
+      <!-- FAQ 9 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <div class="faq-q-icon">Q</div>
+          <span class="faq-q-text">子供の見守り目的でも使えますか？</span>
+          <div class="faq-toggle">+</div>
+        </summary>
+        <div class="faq-answer">
+          RailFinderは物の追跡を目的としたサービスです。人の見守りには設計されていませんが、お子様のランドセルや持ち物にタグをつけることで、どの駅を通ったかを把握する目的でご利用いただけます。ただし、リアルタイムGPS追跡ではなく、「駅通過通知」の用途でご活用ください。
+        </div>
+      </details>
+
+      <!-- FAQ 10 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <div class="faq-q-icon">Q</div>
+          <span class="faq-q-text">解約・返金はどのようにしますか？</span>
+          <div class="faq-toggle">+</div>
+        </summary>
+        <div class="faq-answer">
+          月額プランはアプリ内からいつでも解約可能です（翌月末まで有効）。タグ本体は30日間全額返金保証付き。ご購入から30日以内であれば、理由を問わず全額返金します。返送料も当社が負担しますので、安心してお試しください。
+        </div>
+      </details>
+
+    </div>
+
+    <!-- Support CTA -->
+    <div style="text-align:center; margin-top:48px;">
+      <p style="font-size:0.95rem; color:var(--gray-600); margin-bottom:16px;">
+        他にも気になることがあれば、お気軽にチャットでどうぞ 💬
+      </p>
+      <a href="#" class="btn btn-secondary">
+        💬 チャットサポートに問い合わせる
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================================================
+     FINAL CTA SECTION
+================================================ -->
+<section class="final-cta-section">
+  <div class="container" style="position:relative;z-index:1;">
+    <span class="badge" style="background:rgba(0,212,255,0.15);color:var(--accent);border:1px solid rgba(0,212,255,0.3);">🎉 先行予約受付中</span>
+    <h2 class="section-title" style="margin-top:16px;">
+      大切なものを、もう<br />見失わないために
+    </h2>
+    <p class="section-subtitle">
+      日本の鉄道ネットワークが、あなたの荷物を守ります。<br />
+      先行予約で20%OFF。今すぐ始めましょう。
+    </p>
+
+    <div class="final-cta-actions">
+      <a href="#" class="btn btn-primary btn-lg">
+        🛒 先行予約する（20%OFF）
+      </a>
+      <a href="#comparison" class="btn btn-ghost btn-lg">
+        🔍 比較表をもう一度見る
+      </a>
+    </div>
+
+    <div class="final-cta-badges">
+      <div class="final-badge">
+        <span class="final-badge-icon">🛡️</span>
+        <span>30日間返金保証</span>
+      </div>
+      <div class="final-badge">
+        <span class="final-badge-icon">🚚</span>
+        <span>送料無料</span>
+      </div>
+      <div class="final-badge">
+        <span class="final-badge-icon">📱</span>
+        <span>iOS / Android 対応</span>
+      </div>
+      <div class="final-badge">
+        <span class="final-badge-icon">🔒</span>
+        <span>国内サーバー・個人情報保護法準拠</span>
+      </div>
+      <div class="final-badge">
+        <span class="final-badge-icon">🎧</span>
+        <span>日本語サポート24時間</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     FOOTER
+================================================ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+
+      <!-- Brand -->
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" style="color:var(--white);">
+          <div class="nav-logo-icon">🚃</div>
+          Rail<span>Finder</span>
+        </a>
+        <p>
+          日本の鉄道インフラと連携した
+          次世代BLE紛失防止タグ。
+          都市も地方も、確実な追跡を実現します。
+        </p>
+        <div style="display:flex;gap:12px;margin-top:16px;">
+          <a href="#" style="color:rgba(255,255,255,0.5);transition:color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">𝕏</a>
+          <a href="#" style="color:rgba(255,255,255,0.5);transition:color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">Instagram</a>
+          <a href="#" style="color:rgba(255,255,255,0.5);transition:color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">LINE</a>
+        </div>
+      </div>
+
+      <!-- Product -->
+      <div>
+        <div class="footer-col-title">製品</div>
+        <ul class="footer-links">
+          <li><a href="#comparison">他社との比較</a></li>
+          <li><a href="#coverage">カバレッジマップ</a></li>
+          <li><a href="#pricing">料金プラン</a></li>
+          <li><a href="#">仕様・スペック</a></li>
+          <li><a href="#">アプリダウンロード</a></li>
+        </ul>
+      </div>
+
+      <!-- Support -->
+      <div>
+        <div class="footer-col-title">サポート</div>
+        <ul class="footer-links">
+          <li><a href="#faq">よくある質問</a></li>
+          <li><a href="#">使い方ガイド</a></li>
+          <li><a href="#">チャットサポート</a></li>
+          <li><a href="#">返品・返金ポリシー</a></li>
+          <li><a href="#">修理・保証</a></li>
+        </ul>
+      </div>
+
+      <!-- Company -->
+      <div>
+        <div class="footer-col-title">会社情報</div>
+        <ul class="footer-links">
+          <li><a href="#">会社概要</a></li>
+          <li><a href="#">鉄道会社向け</a></li>
+          <li><a href="#">プレスキット</a></li>
+          <li><a href="#">採用情報</a></li>
+          <li><a href="#">お問い合わせ</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Footer bottom -->
+    <div class="footer-bottom">
+      <div class="footer-bottom-left">
+        © 2026 RailFinder Inc. All rights reserved. 〒100-0001 東京都千代田区
+      </div>
+      <div class="footer-bottom-links">
+        <a href="#">プライバシーポリシー</a>
+        <a href="#">利用規約</a>
+        <a href="#">特定商取引法</a>
+        <a href="#">Cookie設定</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ================================================
+     FLOATING CTA
+================================================ -->
+<div class="floating-cta">
+  <a href="#pricing" class="floating-cta-btn">
+    <div class="floating-cta-dot"></div>
+    先行予約（20%OFF）
+  </a>
+</div>
+
+<!-- ================================================
+     JAVASCRIPT
+================================================ -->
+<script>
+  // ============================================
+  // Scroll Animations (Intersection Observer)
+  // ============================================
+  const fadeElements = document.querySelectorAll('.fade-up');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  fadeElements.forEach(el => observer.observe(el));
+
+  // ============================================
+  // Comparison Table Row Hover Enhancement
+  // ============================================
+  const tableRows = document.querySelectorAll('.comparison-table tbody tr');
+
+  tableRows.forEach(row => {
+    row.addEventListener('mouseenter', function() {
+      this.style.transition = 'background 0.2s ease';
+    });
+  });
+
+  // ============================================
+  // Smooth Anchor Scrolling with Offset
+  // ============================================
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const targetId = this.getAttribute('href');
+      if (targetId === '#') return;
+
+      const target = document.querySelector(targetId);
+      if (target) {
+        e.preventDefault();
+        const offset = 80; // Header height
+        const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    });
+  });
+
+  // ============================================
+  // Floating CTA Show/Hide on Scroll
+  // ============================================
+  const floatingCta = document.querySelector('.floating-cta');
+  let lastScrollY = 0;
+  let floatingVisible = false;
+
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    const heroHeight = document.querySelector('.hero').offsetHeight;
+
+    if (currentScrollY > heroHeight && !floatingVisible) {
+      floatingCta.style.opacity = '1';
+      floatingCta.style.pointerEvents = 'auto';
+      floatingVisible = true;
+    } else if (currentScrollY <= heroHeight && floatingVisible) {
+      floatingCta.style.opacity = '0';
+      floatingCta.style.pointerEvents = 'none';
+      floatingVisible = false;
+    }
+
+    lastScrollY = currentScrollY;
+  }, { passive: true });
+
+  // Initially hidden until past hero
+  floatingCta.style.opacity = '0';
+  floatingCta.style.pointerEvents = 'none';
+  floatingCta.style.transition = 'opacity 0.3s ease';
+
+  // ============================================
+  // Hero Stats Counter Animation
+  // ============================================
+  function animateCounter(el, target, suffix = '', duration = 1500) {
+    const start = 0;
+    const startTime = performance.now();
+
+    function update(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      const value = Math.floor(start + (target - start) * eased);
+      el.textContent = value.toLocaleString() + suffix;
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  // Animate stats when hero is in view
+  const heroStats = document.querySelectorAll('.hero-stat-value');
+
+  const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        // We'll just let CSS handle these for now
+        statsObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  heroStats.forEach(stat => statsObserver.observe(stat));
+
+  // ============================================
+  // Active Nav Link on Scroll
+  // ============================================
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        navLinks.forEach(link => {
+          if (link.getAttribute('href') === `#${id}`) {
+            link.style.color = 'var(--main)';
+            link.style.fontWeight = '700';
+          } else {
+            link.style.color = '';
+            link.style.fontWeight = '';
+          }
+        });
+      }
+    });
+  }, {
+    threshold: 0.3,
+    rootMargin: '-80px 0px -40% 0px'
+  });
+
+  sections.forEach(section => sectionObserver.observe(section));
+
+  // ============================================
+  // Table column highlight on hover
+  // ============================================
+  const railfinderCells = document.querySelectorAll('.col-railfinder');
+  const tableHead = document.querySelector('.th-railfinder');
+
+  // Add subtle pulse to winner column
+  function addWinnerPulse() {
+    railfinderCells.forEach(cell => {
+      cell.style.transition = 'background 0.3s ease';
+    });  }
+
+  addWinnerPulse();
+
+  // ============================================
+  // Coverage Stats: Animate numbers on view
+  // ============================================
+  const coverageStats = document.querySelectorAll('.cov-stat-value');
+
+  const coverageObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        // trigger visual update for coverage section
+        entry.target.style.opacity = '1';
+        coverageObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  coverageStats.forEach(stat => coverageObserver.observe(stat));
+
+  // ============================================
+  // Map station dots: staggered pulse
+  // ============================================
+  document.querySelectorAll('.station-dot').forEach((dot, i) => {
+    dot.style.animationDelay = `${(i * 0.15) % 2.5}s`;
+  });
+
+  // ============================================
+  // FAQ: Close others when one opens
+  // ============================================
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('toggle', function() {
+      if (this.open) {
+        document.querySelectorAll('.faq-item').forEach(other => {
+          if (other !== this && other.open) {
+            other.open = false;
+          }
+        });
+      }
+    });
+  });
+
+</script>
+
+</body>
+</html>

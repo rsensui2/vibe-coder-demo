@@ -1,0 +1,3739 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RailFinder - 日本の鉄道網を活用したBLE紛失防止タグ。駅ゲートウェイでリアルタイム追跡。大切なものを、もう失くさない。">
+  <meta property="og:title" content="RailFinder - 失くすことを、諦めない。">
+  <meta property="og:description" content="日本全国の鉄道駅に設置されたゲートウェイネットワークで、大切な持ち物をリアルタイム追跡。">
+  <meta property="og:type" content="website">
+  <title>RailFinder - 失くすことを、諦めない。</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+JP:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       CSS Reset & Base
+    ============================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --color-main: #0F2952;
+      --color-main-dark: #091d3d;
+      --color-main-light: #1a3d7a;
+      --color-accent: #00D4FF;
+      --color-accent-dark: #00a8cc;
+      --color-accent-glow: rgba(0, 212, 255, 0.4);
+      --color-text: #1A1A2E;
+      --color-text-muted: #6b7280;
+      --color-text-light: #9ca3af;
+      --color-light-bg: #F0F7FF;
+      --color-white: #ffffff;
+      --color-border: rgba(0, 212, 255, 0.2);
+      --color-card-bg: rgba(255, 255, 255, 0.95);
+      --gradient-hero: linear-gradient(135deg, #0F2952 0%, #1a3d7a 50%, #0d3461 100%);
+      --gradient-accent: linear-gradient(135deg, #00D4FF 0%, #0099cc 100%);
+      --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.04);
+      --shadow-glow: 0 0 30px rgba(0, 212, 255, 0.3);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+      --transition-fast: 0.15s ease;
+      --transition-normal: 0.3s ease;
+      --transition-slow: 0.5s ease;
+      --font-sans: 'Inter', 'Noto Sans JP', sans-serif;
+      --font-jp: 'Noto Sans JP', 'Inter', sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      color: var(--color-text);
+      background-color: var(--color-white);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      transition: color var(--transition-fast);
+    }
+
+    ul, ol {
+      list-style: none;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+    }
+
+    /* ============================================
+       Typography
+    ============================================ */
+    .text-xs    { font-size: 0.75rem; }
+    .text-sm    { font-size: 0.875rem; }
+    .text-base  { font-size: 1rem; }
+    .text-lg    { font-size: 1.125rem; }
+    .text-xl    { font-size: 1.25rem; }
+    .text-2xl   { font-size: 1.5rem; }
+    .text-3xl   { font-size: 1.875rem; }
+    .text-4xl   { font-size: 2.25rem; }
+    .text-5xl   { font-size: 3rem; }
+    .text-6xl   { font-size: 3.75rem; }
+
+    .font-light   { font-weight: 300; }
+    .font-normal  { font-weight: 400; }
+    .font-medium  { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold    { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .font-black   { font-weight: 900; }
+
+    /* ============================================
+       Layout
+    ============================================ */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .container-wide {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section {
+      position: relative;
+    }
+
+    /* ============================================
+       Header / Navigation
+    ============================================ */
+    #header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(15, 41, 82, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+      transition: all var(--transition-normal);
+    }
+
+    #header.scrolled {
+      background: rgba(9, 29, 61, 0.98);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-jp);
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--color-white);
+      letter-spacing: -0.02em;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--gradient-accent);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-icon::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
+    }
+
+    .logo-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: var(--color-white);
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo span {
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.75rem;
+    }
+
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color var(--transition-fast);
+      font-family: var(--font-jp);
+    }
+
+    .nav-links a:hover {
+      color: var(--color-accent);
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-jp);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all var(--transition-normal);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .btn-outline {
+      border: 1.5px solid rgba(0, 212, 255, 0.5);
+      color: var(--color-accent);
+      background: transparent;
+    }
+
+    .btn-outline:hover {
+      background: rgba(0, 212, 255, 0.1);
+      border-color: var(--color-accent);
+    }
+
+    .btn-primary {
+      background: var(--gradient-accent);
+      color: var(--color-main);
+      border: none;
+      box-shadow: 0 4px 15px rgba(0, 212, 255, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-lg {
+      padding: 16px 36px;
+      font-size: 1.05rem;
+      border-radius: var(--radius-full);
+    }
+
+    .btn-xl {
+      padding: 20px 48px;
+      font-size: 1.15rem;
+      border-radius: var(--radius-full);
+    }
+
+    /* Mobile menu */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--color-white);
+      border-radius: 2px;
+      transition: all var(--transition-normal);
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 68px;
+      left: 0;
+      right: 0;
+      background: rgba(9, 29, 61, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+      z-index: 999;
+    }
+
+    .mobile-menu.open {
+      display: block;
+    }
+
+    .mobile-menu a {
+      display: block;
+      color: rgba(255,255,255,0.85);
+      font-family: var(--font-jp);
+      font-size: 1rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .mobile-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .mobile-menu .btn-primary {
+      display: block;
+      text-align: center;
+      margin-top: 1rem;
+      padding: 14px;
+    }
+
+    /* ============================================
+       Hero Section
+    ============================================ */
+    #hero {
+      min-height: 100vh;
+      background: var(--gradient-hero);
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding-top: 68px;
+    }
+
+    /* Railway network canvas background */
+    #hero-canvas {
+      position: absolute;
+      inset: 0;
+      opacity: 0.35;
+    }
+
+    /* Particle overlay */
+    .hero-particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: var(--color-accent);
+      border-radius: 50%;
+      opacity: 0;
+      animation: particleFloat 8s infinite;
+    }
+
+    @keyframes particleFloat {
+      0% {
+        opacity: 0;
+        transform: translateY(0) scale(0);
+      }
+      10% {
+        opacity: 1;
+        transform: translateY(-20px) scale(1);
+      }
+      90% {
+        opacity: 0.5;
+        transform: translateY(-120px) scale(0.5);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-150px) scale(0);
+      }
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      animation: glowPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      max-width: 760px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 212, 255, 0.15);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      border-radius: var(--radius-full);
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      color: var(--color-accent);
+      font-family: var(--font-jp);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 2rem;
+      animation: fadeInUp 0.6s ease both;
+    }
+
+    .hero-badge-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--color-accent);
+      border-radius: 50%;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .hero-title {
+      font-family: var(--font-jp);
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      font-weight: 900;
+      color: var(--color-white);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.6s 0.1s ease both;
+    }
+
+    .hero-title .accent-text {
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: block;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-jp);
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: rgba(255, 255, 255, 0.75);
+      line-height: 1.8;
+      margin-bottom: 2.5rem;
+      max-width: 560px;
+      animation: fadeInUp 0.6s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.6s 0.3s ease both;
+    }
+
+    .hero-stats {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      margin-top: 4rem;
+      animation: fadeInUp 0.6s 0.4s ease both;
+      flex-wrap: wrap;
+    }
+
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-stat-number {
+      font-family: var(--font-jp);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-accent);
+      line-height: 1;
+    }
+
+    .hero-stat-label {
+      font-family: var(--font-jp);
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 4px;
+    }
+
+    .hero-stat-divider {
+      width: 1px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      animation: fadeIn 1s 1s ease both;
+    }
+
+    .scroll-indicator-arrow {
+      width: 30px;
+      height: 50px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      position: relative;
+    }
+
+    .scroll-indicator-arrow::after {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 2px;
+      animation: scrollDown 2s ease infinite;
+    }
+
+    @keyframes scrollDown {
+      0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    }
+
+    /* ============================================
+       Problem Section
+    ============================================ */
+    #problem {
+      padding: 100px 0;
+      background: var(--color-white);
+      overflow: hidden;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-jp);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--color-accent-dark);
+      margin-bottom: 1rem;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 24px;
+      height: 2px;
+      background: var(--color-accent);
+    }
+
+    .section-title {
+      font-family: var(--font-jp);
+      font-size: clamp(1.8rem, 4vw, 2.75rem);
+      font-weight: 900;
+      color: var(--color-text);
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title .highlight {
+      color: var(--color-main);
+      position: relative;
+    }
+
+    .section-title .highlight::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-accent);
+      border-radius: 2px;
+      opacity: 0.5;
+    }
+
+    .section-desc {
+      font-family: var(--font-jp);
+      font-size: 1.05rem;
+      color: var(--color-text-muted);
+      line-height: 1.85;
+      max-width: 600px;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      margin-top: 4rem;
+    }
+
+    .problem-visual {
+      position: relative;
+    }
+
+    .stat-card-large {
+      background: var(--gradient-hero);
+      border-radius: var(--radius-xl);
+      padding: 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card-large::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .stat-main-number {
+      font-family: var(--font-jp);
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-weight: 900;
+      color: var(--color-accent);
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-main-unit {
+      font-size: 2.5rem;
+    }
+
+    .stat-main-label {
+      font-family: var(--font-jp);
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 0.75rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-main-sublabel {
+      font-family: var(--font-jp);
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 0.25rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-sub-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .stat-sub-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .stat-sub-number {
+      font-family: var(--font-jp);
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--color-accent);
+    }
+
+    .stat-sub-label {
+      font-family: var(--font-jp);
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 4px;
+    }
+
+    .problem-points {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .problem-point {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+    }
+
+    .problem-icon {
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+      border-radius: var(--radius-md);
+      background: rgba(239, 68, 68, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .problem-point-content h3 {
+      font-family: var(--font-jp);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 0.4rem;
+    }
+
+    .problem-point-content p {
+      font-family: var(--font-jp);
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      line-height: 1.7;
+    }
+
+    /* ============================================
+       Solution Section
+    ============================================ */
+    #solution {
+      padding: 100px 0;
+      background: var(--color-light-bg);
+      overflow: hidden;
+    }
+
+    .solution-header {
+      text-align: center;
+      margin-bottom: 5rem;
+    }
+
+    .solution-steps {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+
+    .solution-step {
+      position: relative;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .solution-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 60px;
+      right: -20px;
+      width: 40px;
+      height: 2px;
+      background: var(--gradient-accent);
+      z-index: 10;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      background: var(--gradient-accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--color-main);
+      margin: 0 auto 1.25rem;
+      box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+    }
+
+    .step-icon-wrap {
+      width: 80px;
+      height: 80px;
+      background: var(--color-white);
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      box-shadow: var(--shadow-md);
+      border: 2px solid rgba(0, 212, 255, 0.15);
+      font-size: 2rem;
+      transition: all var(--transition-normal);
+    }
+
+    .solution-step:hover .step-icon-wrap {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
+      border-color: var(--color-accent);
+    }
+
+    .step-title {
+      font-family: var(--font-jp);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 0.6rem;
+    }
+
+    .step-desc {
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      line-height: 1.7;
+    }
+
+    /* Network illustration */
+    .network-visual {
+      margin: 5rem auto 0;
+      max-width: 900px;
+      background: var(--gradient-hero);
+      border-radius: var(--radius-xl);
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .network-visual::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(0, 212, 255, 0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%);
+    }
+
+    #network-canvas {
+      width: 100%;
+      height: 220px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .network-label {
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      text-align: center;
+      margin-top: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============================================
+       Features Section
+    ============================================ */
+    #features {
+      padding: 100px 0;
+      background: var(--color-white);
+    }
+
+    .features-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: var(--color-white);
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      transition: all var(--transition-normal);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition-normal);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(15, 41, 82, 0.12);
+      border-color: rgba(0, 212, 255, 0.25);
+    }
+
+    .feature-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .feature-card-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .icon-blue   { background: rgba(15, 41, 82, 0.08); }
+    .icon-cyan   { background: rgba(0, 212, 255, 0.1); }
+    .icon-green  { background: rgba(34, 197, 94, 0.1); }
+    .icon-purple { background: rgba(139, 92, 246, 0.1); }
+    .icon-orange { background: rgba(249, 115, 22, 0.1); }
+    .icon-pink   { background: rgba(236, 72, 153, 0.1); }
+
+    .feature-card h3 {
+      font-family: var(--font-jp);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+      font-family: var(--font-jp);
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      line-height: 1.75;
+    }
+
+    .feature-card-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(0, 212, 255, 0.1);
+      border-radius: var(--radius-full);
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      color: var(--color-accent-dark);
+      font-weight: 600;
+      font-family: var(--font-jp);
+      margin-top: 1.25rem;
+    }
+
+    /* Product Spec */
+    .product-section {
+      margin-top: 5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .product-mockup {
+      position: relative;
+    }
+
+    .tag-3d-wrapper {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: var(--gradient-hero);
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tag-3d-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, transparent 60%);
+    }
+
+    .tag-visual {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, #1a3d7a 0%, #0F2952 100%);
+      border-radius: 20px;
+      border: 2px solid rgba(0, 212, 255, 0.4);
+      box-shadow: 0 0 40px rgba(0, 212, 255, 0.3),
+                  inset 0 1px 0 rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+      animation: tagFloat 4s ease-in-out infinite;
+    }
+
+    @keyframes tagFloat {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-12px) rotate(-3deg); }
+    }
+
+    .tag-logo {
+      font-family: var(--font-jp);
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--color-accent);
+      letter-spacing: 0.1em;
+    }
+
+    .tag-ble {
+      width: 24px;
+      height: 24px;
+      border: 1.5px solid var(--color-accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      color: var(--color-accent);
+      font-weight: 700;
+    }
+
+    .tag-signal {
+      display: flex;
+      gap: 3px;
+      align-items: flex-end;
+    }
+
+    .tag-signal span {
+      background: var(--color-accent);
+      border-radius: 1px;
+      width: 4px;
+      opacity: 0.3;
+    }
+
+    .tag-signal span:nth-child(1) { height: 6px; animation: signalBlink 1.5s 0s infinite; }
+    .tag-signal span:nth-child(2) { height: 10px; animation: signalBlink 1.5s 0.2s infinite; }
+    .tag-signal span:nth-child(3) { height: 14px; animation: signalBlink 1.5s 0.4s infinite; }
+    .tag-signal span:nth-child(4) { height: 18px; animation: signalBlink 1.5s 0.6s infinite; }
+
+    @keyframes signalBlink {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    .tag-ripple {
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      border: 2px solid rgba(0, 212, 255, 0.3);
+      border-radius: 22px;
+      animation: ripple 2s ease-out infinite;
+    }
+
+    .tag-ripple:nth-child(2) { animation-delay: 0.7s; }
+    .tag-ripple:nth-child(3) { animation-delay: 1.4s; }
+
+    @keyframes ripple {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(2.2); }
+    }
+
+    .spec-list {
+      list-style: none;
+    }
+
+    .spec-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      font-family: var(--font-jp);
+    }
+
+    .spec-item:last-child {
+      border-bottom: none;
+    }
+
+    .spec-key {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spec-key::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--color-accent);
+      border-radius: 50%;
+    }
+
+    .spec-value {
+      font-size: 0.95rem;
+      color: var(--color-text);
+      font-weight: 700;
+    }
+
+    /* ============================================
+       Pricing Section
+    ============================================ */
+    #pricing {
+      padding: 100px 0;
+      background: var(--color-light-bg);
+    }
+
+    .pricing-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .pricing-toggle-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      font-family: var(--font-jp);
+    }
+
+    .pricing-toggle-label {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    .pricing-toggle-label.active {
+      color: var(--color-text);
+      font-weight: 700;
+    }
+
+    .toggle-switch {
+      width: 52px;
+      height: 28px;
+      background: var(--color-main);
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: background var(--transition-normal);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: var(--color-white);
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform var(--transition-normal);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .toggle-switch.annual::after {
+      transform: translateX(24px);
+    }
+
+    .discount-badge {
+      background: rgba(34, 197, 94, 0.15);
+      color: #16a34a;
+      border-radius: var(--radius-full);
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: var(--font-jp);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .pricing-card {
+      background: var(--color-white);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      position: relative;
+      transition: all var(--transition-normal);
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .pricing-card.featured {
+      background: var(--gradient-hero);
+      border-color: rgba(0, 212, 255, 0.3);
+      box-shadow: 0 20px 50px rgba(15, 41, 82, 0.3);
+      transform: scale(1.04);
+    }
+
+    .pricing-card.featured:hover {
+      transform: scale(1.04) translateY(-4px);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gradient-accent);
+      color: var(--color-main);
+      font-family: var(--font-jp);
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 5px 18px;
+      border-radius: var(--radius-full);
+      white-space: nowrap;
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+    }
+
+    .pricing-plan-name {
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--color-accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-card:not(.featured) .pricing-plan-name {
+      color: var(--color-main);
+    }
+
+    .pricing-plan-label {
+      font-family: var(--font-jp);
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--color-text);
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-card.featured .pricing-plan-label {
+      color: var(--color-white);
+    }
+
+    .pricing-plan-desc {
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-bottom: 1.75rem;
+      line-height: 1.7;
+    }
+
+    .pricing-card.featured .pricing-plan-desc {
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .pricing-amount {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-currency {
+      font-family: var(--font-jp);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 6px;
+    }
+
+    .pricing-number {
+      font-family: var(--font-jp);
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--color-text);
+      line-height: 1;
+    }
+
+    .pricing-period {
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-bottom: 6px;
+    }
+
+    .pricing-card.featured .pricing-currency,
+    .pricing-card.featured .pricing-number {
+      color: var(--color-white);
+    }
+
+    .pricing-card.featured .pricing-period {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .pricing-tag-price {
+      font-family: var(--font-jp);
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      margin-bottom: 1.75rem;
+    }
+
+    .pricing-card.featured .pricing-tag-price {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .pricing-divider {
+      height: 1px;
+      background: rgba(0, 0, 0, 0.06);
+      margin-bottom: 1.75rem;
+    }
+
+    .pricing-card.featured .pricing-divider {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .pricing-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      margin-bottom: 2rem;
+    }
+
+    .pricing-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-family: var(--font-jp);
+      font-size: 0.9rem;
+      color: var(--color-text);
+      line-height: 1.5;
+    }
+
+    .pricing-card.featured .pricing-feature {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .check-icon {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border-radius: 50%;
+      background: rgba(34, 197, 94, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .check-icon svg {
+      width: 12px;
+      height: 12px;
+      stroke: #16a34a;
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    .pricing-card.featured .check-icon {
+      background: rgba(0, 212, 255, 0.2);
+    }
+
+    .pricing-card.featured .check-icon svg {
+      stroke: var(--color-accent);
+    }
+
+    .x-icon {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .x-icon svg {
+      width: 10px;
+      height: 10px;
+      stroke: var(--color-text-light);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .pricing-feature.disabled {
+      color: var(--color-text-light);
+    }
+
+    .pricing-card.featured .pricing-feature.disabled {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .pricing-cta {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      text-align: center;
+      border-radius: var(--radius-full);
+      font-family: var(--font-jp);
+      font-size: 0.95rem;
+      font-weight: 700;
+      transition: all var(--transition-normal);
+    }
+
+    .pricing-cta-outline {
+      border: 2px solid rgba(15, 41, 82, 0.2);
+      color: var(--color-main);
+      background: transparent;
+    }
+
+    .pricing-cta-outline:hover {
+      border-color: var(--color-main);
+      background: rgba(15, 41, 82, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .pricing-cta-solid {
+      background: var(--gradient-accent);
+      color: var(--color-main);
+      border: none;
+      box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+    }
+
+    .pricing-cta-solid:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 212, 255, 0.5);
+    }
+
+    .pricing-note {
+      text-align: center;
+      margin-top: 2.5rem;
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+    }
+
+    /* ============================================
+       FAQ Section
+    ============================================ */
+    #faq {
+      padding: 100px 0;
+      background: var(--color-white);
+    }
+
+    .faq-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .faq-grid {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .faq-item {
+      background: var(--color-white);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all var(--transition-normal);
+    }
+
+    .faq-item.open {
+      border-color: rgba(0, 212, 255, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
+    }
+
+    .faq-question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 1.75rem;
+      cursor: pointer;
+      gap: 1rem;
+      user-select: none;
+    }
+
+    .faq-question-text {
+      font-family: var(--font-jp);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-text);
+      line-height: 1.5;
+    }
+
+    .faq-toggle {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      border-radius: 50%;
+      background: var(--color-light-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-normal);
+    }
+
+    .faq-item.open .faq-toggle {
+      background: var(--color-accent);
+      transform: rotate(180deg);
+    }
+
+    .faq-toggle svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--color-text-muted);
+      stroke-width: 2.5;
+      fill: none;
+      transition: stroke var(--transition-normal);
+    }
+
+    .faq-item.open .faq-toggle svg {
+      stroke: var(--color-main);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 400px;
+    }
+
+    .faq-answer-inner {
+      padding: 0 1.75rem 1.5rem;
+      font-family: var(--font-jp);
+      font-size: 0.95rem;
+      color: var(--color-text-muted);
+      line-height: 1.85;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      padding-top: 1rem;
+    }
+
+    /* ============================================
+       CTA Section
+    ============================================ */
+    #cta {
+      padding: 100px 0;
+      background: var(--gradient-hero);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #cta::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 65%);
+      border-radius: 50%;
+    }
+
+    #cta::after {
+      content: '';
+      position: absolute;
+      bottom: -150px;
+      left: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 65%);
+      border-radius: 50%;
+    }
+
+    .cta-inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .cta-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 212, 255, 0.15);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      border-radius: var(--radius-full);
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      color: var(--color-accent);
+      font-family: var(--font-jp);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 2rem;
+    }
+
+    .cta-title {
+      font-family: var(--font-jp);
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      color: var(--color-white);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.25rem;
+    }
+
+    .cta-title .accent-text {
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .cta-desc {
+      font-family: var(--font-jp);
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+      margin-bottom: 3rem;
+    }
+
+    .cta-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .cta-trust {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .cta-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .cta-trust-icon {
+      font-size: 1.1rem;
+    }
+
+    /* ============================================
+       Footer
+    ============================================ */
+    #footer {
+      background: #06112a;
+      color: rgba(255, 255, 255, 0.7);
+      padding: 64px 0 32px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+
+    .footer-brand .logo {
+      margin-bottom: 1.25rem;
+      display: inline-flex;
+    }
+
+    .footer-tagline {
+      font-family: var(--font-jp);
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.75;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .social-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all var(--transition-normal);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .social-btn:hover {
+      background: rgba(0, 212, 255, 0.15);
+      border-color: rgba(0, 212, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .footer-col-title {
+      font-family: var(--font-jp);
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--color-white);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer-links a {
+      font-family: var(--font-jp);
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.55);
+      transition: color var(--transition-fast);
+    }
+
+    .footer-links a:hover {
+      color: var(--color-accent);
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-copyright {
+      font-family: var(--font-jp);
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .footer-legal {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-legal a {
+      font-family: var(--font-jp);
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.35);
+      transition: color var(--transition-fast);
+    }
+
+    .footer-legal a:hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* ============================================
+       Animations
+    ============================================ */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-24px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeInRight {
+      from {
+        opacity: 0;
+        transform: translateX(24px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(48px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Scroll-triggered reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal-left.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal-right.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+
+    /* Counter animation */
+    .count-up {
+      display: inline-block;
+    }
+
+    /* Ticker / marquee */
+    .ticker-wrap {
+      overflow: hidden;
+      background: var(--color-main);
+      padding: 12px 0;
+      border-top: 1px solid rgba(0, 212, 255, 0.15);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+    }
+
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      animation: ticker 30s linear infinite;
+    }
+
+    .ticker-item {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0 3rem;
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.65);
+      white-space: nowrap;
+    }
+
+    .ticker-item::before {
+      content: '•';
+      color: var(--color-accent);
+      font-size: 1.2rem;
+    }
+
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Number counter section */
+    .stats-bar {
+      background: var(--color-main);
+      padding: 60px 0;
+    }
+
+    .stats-bar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+
+    .stats-bar-item {
+      text-align: center;
+      padding: 0 1.5rem;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stats-bar-item:last-child {
+      border-right: none;
+    }
+
+    .stats-bar-number {
+      font-family: var(--font-jp);
+      font-size: 2.75rem;
+      font-weight: 900;
+      color: var(--color-accent);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stats-bar-label {
+      font-family: var(--font-jp);
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Testimonials */
+    .testimonials-section {
+      padding: 80px 0;
+      background: var(--color-light-bg);
+      overflow: hidden;
+    }
+
+    .testimonials-track-wrap {
+      overflow: hidden;
+      margin-top: 3rem;
+      mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    }
+
+    .testimonials-track {
+      display: flex;
+      gap: 1.5rem;
+      width: max-content;
+      animation: testimonialScroll 40s linear infinite;
+    }
+
+    .testimonials-track:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes testimonialScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .testimonial-card {
+      width: 320px;
+      min-width: 320px;
+      background: var(--color-white);
+      border-radius: var(--radius-xl);
+      padding: 1.75rem;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .testimonial-stars {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 1rem;
+      color: #f59e0b;
+      font-size: 0.9rem;
+    }
+
+    .testimonial-text {
+      font-family: var(--font-jp);
+      font-size: 0.9rem;
+      color: var(--color-text);
+      line-height: 1.75;
+      margin-bottom: 1.25rem;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .testimonial-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--gradient-hero);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-family: var(--font-jp);
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+
+    .testimonial-name {
+      font-family: var(--font-jp);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    .testimonial-role {
+      font-family: var(--font-jp);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    /* ============================================
+       Responsive
+    ============================================ */
+    @media (max-width: 1024px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+
+      .solution-steps {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+      }
+
+      .solution-step:not(:last-child)::after {
+        display: none;
+      }
+
+      .stats-bar-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stats-bar-item {
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        padding-bottom: 1.5rem;
+      }
+
+      .stats-bar-item:nth-child(even) {
+        border-right: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-cta { display: none; }
+      .hamburger { display: flex; }
+
+      .problem-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .product-section {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      .pricing-card.featured {
+        transform: none;
+      }
+
+      .pricing-card.featured:hover {
+        transform: translateY(-4px);
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .footer-legal {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .stats-bar-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero-stats {
+        gap: 1.5rem;
+      }
+
+      .solution-steps {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container, .container-wide {
+        padding: 0 16px;
+      }
+
+      .btn-xl {
+        padding: 16px 32px;
+        font-size: 1rem;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .cta-actions {
+        flex-direction: column;
+      }
+
+      .stats-bar-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-bar-item {
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        padding-bottom: 1.5rem;
+      }
+
+      .stats-bar-item:last-child {
+        border-bottom: none;
+      }
+    }
+
+    /* ============================================
+       Utility
+    ============================================ */
+    .text-center { text-align: center; }
+    .mb-0 { margin-bottom: 0 !important; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .mb-3 { margin-bottom: 1.5rem; }
+    .mb-4 { margin-bottom: 2rem; }
+    .mt-auto { margin-top: auto; }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================
+       HEADER
+  ============================================ -->
+  <header id="header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="#" class="logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+            </svg>
+          </div>
+          Rail<span>Finder</span>
+        </a>
+
+        <nav>
+          <ul class="nav-links">
+            <li><a href="#problem">課題</a></li>
+            <li><a href="#solution">仕組み</a></li>
+            <li><a href="#features">特徴</a></li>
+            <li><a href="#pricing">料金</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+          <div class="nav-cta">
+            <a href="#pricing" class="btn btn-outline">料金を見る</a>
+            <a href="#cta" class="btn btn-primary">今すぐ購入</a>
+          </div>
+        </nav>
+
+        <button class="hamburger" id="hamburger" aria-label="メニュー">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#problem" onclick="closeMobileMenu()">課題</a>
+    <a href="#solution" onclick="closeMobileMenu()">仕組み</a>
+    <a href="#features" onclick="closeMobileMenu()">特徴</a>
+    <a href="#pricing" onclick="closeMobileMenu()">料金</a>
+    <a href="#faq" onclick="closeMobileMenu()">FAQ</a>
+    <a href="#cta" class="btn btn-primary" onclick="closeMobileMenu()">今すぐ購入 ¥2,980〜</a>
+  </div>
+
+  <!-- ============================================
+       HERO
+  ============================================ -->
+  <section id="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-glow"></div>
+    <div class="hero-particles" id="heroParticles"></div>
+
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          日本全国 9,500駅以上をカバー
+        </div>
+
+        <h1 class="hero-title">
+          失くすことを、
+          <span class="accent-text">諦めない。</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          RailFinderは、日本の鉄道ネットワークを活用したBLE紛失防止タグです。
+          全国の駅に設置されたゲートウェイが、大切な持ち物の場所をリアルタイムで通知します。
+        </p>
+
+        <div class="hero-actions">
+          <a href="#cta" class="btn btn-primary btn-xl">
+            今すぐ購入 ¥2,980〜
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="#solution" class="btn btn-outline btn-lg">
+            仕組みを知る
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-number">9,500<span style="font-size:1.5rem">+</span></span>
+            <span class="hero-stat-label">対応駅数</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-number">30<span style="font-size:1.5rem">秒</span></span>
+            <span class="hero-stat-label">平均検知時間</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-number">99.2<span style="font-size:1.5rem">%</span></span>
+            <span class="hero-stat-label">捕捉精度</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-number">2<span style="font-size:1.5rem">年</span></span>
+            <span class="hero-stat-label">電池寿命</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-indicator">
+      <div class="scroll-indicator-arrow"></div>
+      <span>スクロール</span>
+    </div>
+  </section>
+
+  <!-- ============================================
+       TICKER
+  ============================================ -->
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="tickerTrack">
+      <div class="ticker-item">JR東日本と連携開始</div>
+      <div class="ticker-item">東京メトロ 全170駅対応</div>
+      <div class="ticker-item">大阪市高速電気軌道と提携</div>
+      <div class="ticker-item">名古屋市営地下鉄対応</div>
+      <div class="ticker-item">発売開始から3ヶ月で10万個突破</div>
+      <div class="ticker-item">App Store 4.8★（6,200件）</div>
+      <div class="ticker-item">Google Play 4.7★（5,100件）</div>
+      <div class="ticker-item">電池寿命 最大2年</div>
+      <div class="ticker-item">防水規格 IP67</div>
+      <div class="ticker-item">BLE 5.2対応</div>
+      <!-- duplicate for seamless loop -->
+      <div class="ticker-item">JR東日本と連携開始</div>
+      <div class="ticker-item">東京メトロ 全170駅対応</div>
+      <div class="ticker-item">大阪市高速電気軌道と提携</div>
+      <div class="ticker-item">名古屋市営地下鉄対応</div>
+      <div class="ticker-item">発売開始から3ヶ月で10万個突破</div>
+      <div class="ticker-item">App Store 4.8★（6,200件）</div>
+      <div class="ticker-item">Google Play 4.7★（5,100件）</div>
+      <div class="ticker-item">電池寿命 最大2年</div>
+      <div class="ticker-item">防水規格 IP67</div>
+      <div class="ticker-item">BLE 5.2対応</div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       STATS BAR
+  ============================================ -->
+  <div class="stats-bar">
+    <div class="container">
+      <div class="stats-bar-grid">
+        <div class="stats-bar-item reveal">
+          <div class="stats-bar-number">
+            <span class="count-up" data-target="9500">0</span>+
+          </div>
+          <div class="stats-bar-label">対応駅数</div>
+        </div>
+        <div class="stats-bar-item reveal reveal-delay-1">
+          <div class="stats-bar-number">
+            <span class="count-up" data-target="1200">0</span>万
+          </div>
+          <div class="stats-bar-label">登録ユーザー数</div>
+        </div>
+        <div class="stats-bar-item reveal reveal-delay-2">
+          <div class="stats-bar-number">
+            <span class="count-up" data-target="98">0</span>%
+          </div>
+          <div class="stats-bar-label">遺失物回収成功率</div>
+        </div>
+        <div class="stats-bar-item reveal reveal-delay-3">
+          <div class="stats-bar-number">
+            <span class="count-up" data-target="30">0</span>秒
+          </div>
+          <div class="stats-bar-label">平均検知時間</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       PROBLEM
+  ============================================ -->
+  <section id="problem">
+    <div class="container">
+      <div class="problem-grid">
+        <div class="problem-visual reveal-left">
+          <div class="stat-card-large">
+            <div class="stat-main-number">
+              3,200<span class="stat-main-unit">万</span>
+            </div>
+            <div class="stat-main-label">年間遺失物件数</div>
+            <div class="stat-main-sublabel">（警視庁 遺失物統計 2024年度）</div>
+
+            <div class="stat-sub-cards">
+              <div class="stat-sub-card">
+                <div class="stat-sub-number">83%</div>
+                <div class="stat-sub-label">鉄道・駅での紛失</div>
+              </div>
+              <div class="stat-sub-card">
+                <div class="stat-sub-number">¥72億</div>
+                <div class="stat-sub-label">年間損失額推計</div>
+              </div>
+              <div class="stat-sub-card">
+                <div class="stat-sub-number">4.2%</div>
+                <div class="stat-sub-label">財布・貴重品の回収率</div>
+              </div>
+              <div class="stat-sub-card">
+                <div class="stat-sub-number">3時間</div>
+                <div class="stat-sub-label">気付くまでの平均時間</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="problem-points reveal-right">
+          <div class="section-label">課題</div>
+          <h2 class="section-title">
+            なぜ<span class="highlight">日本の鉄道</span>で<br>
+            遺失物は増え続けるのか
+          </h2>
+          <p class="section-desc" style="margin-bottom: 2.5rem;">
+            年間3,200万件。日本では毎日約8万7千件の遺失物が発生しています。
+            その83%が鉄道・駅構内でのもの。現行のシステムには根本的な課題があります。
+          </p>
+
+          <div class="problem-point">
+            <div class="problem-icon">⏰</div>
+            <div class="problem-point-content">
+              <h3>気付くのが遅すぎる</h3>
+              <p>平均3時間後に紛失に気付く。その頃には持ち物はすでに遠く離れた場所に。時間が経てば経つほど回収が難しくなります。</p>
+            </div>
+          </div>
+
+          <div class="problem-point">
+            <div class="problem-icon">🗺️</div>
+            <div class="problem-point-content">
+              <h3>場所の特定が困難</h3>
+              <p>「どの車両のどの席に忘れたか」を伝えるだけでは見つけ出せません。鉄道は1分1秒で動き続けるため、特定が極めて困難です。</p>
+            </div>
+          </div>
+
+          <div class="problem-point">
+            <div class="problem-icon">📋</div>
+            <div class="problem-point-content">
+              <h3>既存サービスの限界</h3>
+              <p>既存のBLEタグは半径数十メートルのBluetooth範囲内に他のユーザーが必要。日本の鉄道特有の高密度ネットワークを活かせていません。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SOLUTION
+  ============================================ -->
+  <section id="solution">
+    <div class="container">
+      <div class="solution-header reveal">
+        <div class="section-label" style="justify-content: center;">ソリューション</div>
+        <h2 class="section-title" style="text-align: center;">
+          鉄道ゲートウェイが<br>
+          <span class="highlight">世界初</span>の追跡網を形成する
+        </h2>
+        <p class="section-desc" style="text-align: center; margin: 0 auto;">
+          改札・ホーム・車内にRailFinderゲートウェイを設置。
+          タグが通過するたびに位置情報を記録し、スマートフォンへ即時通知します。
+        </p>
+      </div>
+
+      <div class="solution-steps">
+        <div class="solution-step reveal reveal-delay-1">
+          <div class="step-number">01</div>
+          <div class="step-icon-wrap">🏷️</div>
+          <h3 class="step-title">タグを取り付ける</h3>
+          <p class="step-desc">財布・バッグ・スーツケースなどにRailFinderタグを装着。設定はアプリで30秒。</p>
+        </div>
+
+        <div class="solution-step reveal reveal-delay-2">
+          <div class="step-number">02</div>
+          <div class="step-icon-wrap">🚉</div>
+          <h3 class="step-title">駅ゲートウェイが検知</h3>
+          <p class="step-desc">改札・ホーム・コンコースのゲートウェイがBLE信号を検知。30秒以内に位置を記録。</p>
+        </div>
+
+        <div class="solution-step reveal reveal-delay-3">
+          <div class="step-number">03</div>
+          <div class="step-icon-wrap">📡</div>
+          <h3 class="step-title">クラウドが追跡</h3>
+          <p class="step-desc">全国のゲートウェイデータがリアルタイムでクラウドに集約。移動ルートを完全記録。</p>
+        </div>
+
+        <div class="solution-step reveal reveal-delay-4">
+          <div class="step-number">04</div>
+          <div class="step-icon-wrap">🔔</div>
+          <h3 class="step-title">スマホに通知</h3>
+          <p class="step-desc">「○○駅で検知されました」と即時プッシュ通知。駅員への問い合わせも自動化。</p>
+        </div>
+      </div>
+
+      <div class="network-visual reveal">
+        <canvas id="network-canvas"></canvas>
+        <p class="network-label">▲ RailFinder ゲートウェイネットワーク（全国9,500+駅）</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       FEATURES
+  ============================================ -->
+  <section id="features">
+    <div class="container">
+      <div class="features-header reveal">
+        <div class="section-label" style="justify-content: center;">プロダクト特徴</div>
+        <h2 class="section-title" style="text-align: center;">
+          選ばれる理由は<br>
+          <span class="highlight">6つの圧倒的な強み</span>
+        </h2>
+        <p class="section-desc" style="text-align: center; margin: 0 auto;">
+          技術・ネットワーク・使いやすさ。あらゆる面で他を圧倒するRailFinderの特徴をご紹介します。
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-card-icon icon-blue">🛤️</div>
+          <h3>鉄道専用ゲートウェイ網</h3>
+          <p>JR・私鉄・地下鉄と直接提携した専用インフラ。9,500駅以上に設置されたゲートウェイが確実に検知します。スマホのBluetooth依存型とは桁違いのカバー率。</p>
+          <div class="feature-card-tag">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+            9,500+ 駅カバー
+          </div>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-card-icon icon-cyan">⚡</div>
+          <h3>30秒リアルタイム検知</h3>
+          <p>タグがゲートウェイの範囲内に入ってから30秒以内にプッシュ通知。在来線・新幹線問わず、列車の移動先まで追跡します。</p>
+          <div class="feature-card-tag">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+            平均30秒以内通知
+          </div>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-3">
+          <div class="feature-card-icon icon-green">🔋</div>
+          <h3>業界最長2年バッテリー</h3>
+          <p>独自の省電力BLE 5.2プロトコルで、CR2032コイン電池1枚で最大2年間駆動。充電不要で使い続けられます。残量はアプリで確認可能。</p>
+          <div class="feature-card-tag">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+            最大2年間充電不要
+          </div>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-card-icon icon-purple">💧</div>
+          <h3>防水・超薄型デザイン</h3>
+          <p>IP67防水・防塵対応。厚さわずか5.8mm、重量11gの超薄型。財布のカードスロットにも収まるスリムなデザインで、邪魔になりません。</p>
+          <div class="feature-card-tag">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+            IP67 / 厚さ5.8mm
+          </div>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-card-icon icon-orange">🔐</div>
+          <h3>プライバシー完全保護</h3>
+          <p>BLEアドレスは15分ごとにランダム化。位置データは本人のみがアクセス可能なエンドツーエンド暗号化。第三者への漏洩を完全に防ぎます。</p>
+          <div class="feature-card-tag">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+            E2E暗号化対応
+          </div>
+        </div>
+
+        <div class="feature-card reveal reveal-delay-3">
+          <div class="feature-card-icon icon-pink">📱</div>
+          <h3>かんたんアプリ操作</h3>
+          <p>iOS・Androidアプリで直感的に管理。マップ上でタグの位置を確認、家族との共有機能、紛失モード自動起動など使いやすい機能が満載。</p>
+          <div class="feature-card-tag">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+            iOS & Android対応
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Spec -->
+      <div class="product-section">
+        <div class="product-mockup reveal-left">
+          <div class="tag-3d-wrapper">
+            <div class="tag-ripple"></div>
+            <div class="tag-ripple"></div>
+            <div class="tag-ripple"></div>
+            <div class="tag-visual">
+              <div class="tag-logo">RAILFINDER</div>
+              <div class="tag-ble">BLE</div>
+              <div class="tag-signal">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="reveal-right">
+          <div class="section-label">スペック</div>
+          <h2 class="section-title">RailFinder<br>タグ スペック</h2>
+          <p class="section-desc" style="margin-bottom: 2rem;">
+            プロダクトエンジニアリングにこだわり抜いた、日本の鉄道環境に最適化されたBLEタグ。
+          </p>
+
+          <ul class="spec-list">
+            <li class="spec-item">
+              <span class="spec-key">通信規格</span>
+              <span class="spec-value">Bluetooth Low Energy 5.2</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-key">通信距離</span>
+              <span class="spec-value">最大 70m（オープンエリア）</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-key">電池寿命</span>
+              <span class="spec-value">最大 2年（CR2032×1）</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-key">本体サイズ</span>
+              <span class="spec-value">42 × 42 × 5.8 mm</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-key">重量</span>
+              <span class="spec-value">11g</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-key">防水・防塵</span>
+              <span class="spec-value">IP67（30分・水深1m）</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-key">対応OS</span>
+              <span class="spec-value">iOS 15+ / Android 8+</span>
+            </li>
+            <li class="spec-item">
+              <span class="spec-key">価格</span>
+              <span class="spec-value">¥2,980〜（税込）</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       TESTIMONIALS
+  ============================================ -->
+  <section class="testimonials-section">
+    <div class="container">
+      <div class="reveal text-center">
+        <div class="section-label" style="justify-content: center;">ユーザーの声</div>
+        <h2 class="section-title" style="text-align: center;">
+          10万人以上が<br>
+          <span class="highlight">大切なものを取り戻した</span>
+        </h2>
+      </div>
+    </div>
+
+    <div class="testimonials-track-wrap" style="margin-top: 3rem;">
+      <div class="testimonials-track" id="testimonialTrack">
+        <!-- Testimonials set 1 -->
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">「新幹線で財布を忘れて絶望していたのに、次の駅で検知されたという通知が来て、駅員さんに届け出たらすぐ戻ってきました。本当に助かりました！」</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">田</div>
+            <div>
+              <div class="testimonial-name">田中 美咲さん</div>
+              <div class="testimonial-role">東京都 / 会社員</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">「仕事用のバッグを電車に置き忘れてしまいました。アプリを開いたら5分後に「渋谷駅で検知」と通知が届き、すぐ取りに戻れました。」</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">鈴</div>
+            <div>
+              <div class="testimonial-name">鈴木 健太さん</div>
+              <div class="testimonial-role">神奈川県 / エンジニア</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">「子どもの通学カバンに付けています。毎朝どの駅を通過したか通知が来るので、登下校の安心確認にも使えて一石二鳥です。」</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">山</div>
+            <div>
+              <div class="testimonial-name">山口 智子さん</div>
+              <div class="testimonial-role">埼玉県 / 主婦</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★☆</div>
+          <p class="testimonial-text">「出張が多いので複数のタグを使っています。スーツケース・財布・PCバッグに1個ずつ。これで安心して移動できます。アプリのUIも直感的で良い。」</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">佐</div>
+            <div>
+              <div class="testimonial-name">佐藤 拓也さん</div>
+              <div class="testimonial-role">大阪府 / 営業職</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">「電池2年持つのが本当に助かります。他のタグは半年で交換が必要でしたが、RailFinderは全然気にしなくていい。コスパも最高です。」</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">高</div>
+            <div>
+              <div class="testimonial-name">高橋 涼子さん</div>
+              <div class="testimonial-role">北海道 / フリーランス</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonials set 2 (duplicate for seamless scroll) -->
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">「新幹線で財布を忘れて絶望していたのに、次の駅で検知されたという通知が来て、駅員さんに届け出たらすぐ戻ってきました。本当に助かりました！」</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">田</div>
+            <div>
+              <div class="testimonial-name">田中 美咲さん</div>
+              <div class="testimonial-role">東京都 / 会社員</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">「仕事用のバッグを電車に置き忘れてしまいました。アプリを開いたら5分後に「渋谷駅で検知」と通知が届き、すぐ取りに戻れました。」</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">鈴</div>
+            <div>
+              <div class="testimonial-name">鈴木 健太さん</div>
+              <div class="testimonial-role">神奈川県 / エンジニア</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">「子どもの通学カバンに付けています。毎朝どの駅を通過したか通知が来るので、登下校の安心確認にも使えて一石二鳥です。」</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">山</div>
+            <div>
+              <div class="testimonial-name">山口 智子さん</div>
+              <div class="testimonial-role">埼玉県 / 主婦</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★☆</div>
+          <p class="testimonial-text">「出張が多いので複数のタグを使っています。スーツケース・財布・PCバッグに1個ずつ。これで安心して移動できます。アプリのUIも直感的で良い。」</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">佐</div>
+            <div>
+              <div class="testimonial-name">佐藤 拓也さん</div>
+              <div class="testimonial-role">大阪府 / 営業職</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">「電池2年持つのが本当に助かります。他のタグは半年で交換が必要でしたが、RailFinderは全然気にしなくていい。コスパも最高です。」</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">高</div>
+            <div>
+              <div class="testimonial-name">高橋 涼子さん</div>
+              <div class="testimonial-role">北海道 / フリーランス</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       PRICING
+  ============================================ -->
+  <section id="pricing">
+    <div class="container">
+      <div class="pricing-header reveal">
+        <div class="section-label" style="justify-content: center;">料金プラン</div>
+        <h2 class="section-title" style="text-align: center;">
+          あなたに合った<br>
+          <span class="highlight">プランを選ぼう</span>
+        </h2>
+        <p class="section-desc" style="text-align: center; margin: 0 auto;">
+          タグは買い切り。月額サービスはいつでも解約可能。まず無料プランで始めてみましょう。
+        </p>
+
+        <div class="pricing-toggle-wrap">
+          <span class="pricing-toggle-label active" id="monthlyLabel">月払い</span>
+          <div class="toggle-switch" id="pricingToggle"></div>
+          <span class="pricing-toggle-label" id="annualLabel">年払い</span>
+          <span class="discount-badge">2ヶ月分無料</span>
+        </div>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Free -->
+        <div class="pricing-card reveal reveal-delay-1">
+          <div class="pricing-plan-name">FREE</div>
+          <div class="pricing-plan-label">フリープラン</div>
+          <div class="pricing-plan-desc">まず試したい方に。基本的な追跡機能を無料で体験できます。</div>
+
+          <div class="pricing-amount">
+            <span class="pricing-currency">¥</span>
+            <span class="pricing-number" id="free-price">0</span>
+          </div>
+          <div class="pricing-period">/ 月</div>
+          <div class="pricing-tag-price">タグ本体 ¥2,980〜（別途購入）</div>
+
+          <div class="pricing-divider"></div>
+
+          <ul class="pricing-features">
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              タグ1個まで管理
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              基本追跡（24時間履歴）
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              プッシュ通知
+            </li>
+            <li class="pricing-feature disabled">
+              <span class="x-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+              リアルタイム通知（3分遅延）
+            </li>
+            <li class="pricing-feature disabled">
+              <span class="x-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+              家族共有機能
+            </li>
+            <li class="pricing-feature disabled">
+              <span class="x-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+              駅員連携サービス
+            </li>
+            <li class="pricing-feature disabled">
+              <span class="x-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+              優先サポート
+            </li>
+          </ul>
+
+          <a href="#cta" class="pricing-cta pricing-cta-outline">無料で始める</a>
+        </div>
+
+        <!-- Standard (Featured) -->
+        <div class="pricing-card featured reveal reveal-delay-2">
+          <div class="pricing-badge">🏆 最人気プラン</div>
+          <div class="pricing-plan-name">STANDARD</div>
+          <div class="pricing-plan-label">スタンダード</div>
+          <div class="pricing-plan-desc">個人・家族に最適。RailFinderを最大限に活用できるプランです。</div>
+
+          <div class="pricing-amount">
+            <span class="pricing-currency">¥</span>
+            <span class="pricing-number" id="standard-price">480</span>
+          </div>
+          <div class="pricing-period">/ 月</div>
+          <div class="pricing-tag-price">タグ本体 ¥2,980〜（別途購入）</div>
+
+          <div class="pricing-divider"></div>
+
+          <ul class="pricing-features">
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              タグ10個まで管理
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              リアルタイム追跡（30秒以内）
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              30日間の履歴
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              家族5人まで共有
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              駅員連携サービス
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              メールサポート（48h）
+            </li>
+            <li class="pricing-feature disabled">
+              <span class="x-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+              AIルート予測
+            </li>
+          </ul>
+
+          <a href="#cta" class="pricing-cta pricing-cta-solid">今すぐ購入 ¥2,980〜</a>
+        </div>
+
+        <!-- Premium -->
+        <div class="pricing-card reveal reveal-delay-3">
+          <div class="pricing-plan-name">PREMIUM</div>
+          <div class="pricing-plan-label">プレミアム</div>
+          <div class="pricing-plan-desc">ビジネス・ヘビーユーザー向け。全機能無制限で使えます。</div>
+
+          <div class="pricing-amount">
+            <span class="pricing-currency">¥</span>
+            <span class="pricing-number" id="premium-price">1,280</span>
+          </div>
+          <div class="pricing-period">/ 月</div>
+          <div class="pricing-tag-price">タグ本体 ¥2,980〜（別途購入）</div>
+
+          <div class="pricing-divider"></div>
+
+          <ul class="pricing-features">
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              タグ無制限管理
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              リアルタイム追跡（10秒以内）
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              無制限履歴・エクスポート
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              家族・チーム無制限共有
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              駅員連携 + 警察連携
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              AIルート予測
+            </li>
+            <li class="pricing-feature">
+              <span class="check-icon"><svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></span>
+              優先電話サポート（24h）
+            </li>
+          </ul>
+
+          <a href="#cta" class="pricing-cta pricing-cta-outline">プレミアムを始める</a>
+        </div>
+      </div>
+
+      <p class="pricing-note reveal">
+        全プラン30日間返金保証 • タグ本体は一度購入すれば永久利用可能 • クレジットカード不要（フリープラン）<br>
+        法人・大量購入はお問い合わせください。特別価格でご提供します。
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================
+       FAQ
+  ============================================ -->
+  <section id="faq">
+    <div class="container">
+      <div class="faq-header reveal">
+        <div class="section-label" style="justify-content: center;">FAQ</div>
+        <h2 class="section-title" style="text-align: center;">
+          よくある<span class="highlight">ご質問</span>
+        </h2>
+        <p class="section-desc" style="text-align: center; margin: 0 auto;">
+          ご不明な点がございましたらお気軽にサポートまでご連絡ください。
+        </p>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-item reveal reveal-delay-1">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span class="faq-question-text">RailFinderはどの鉄道会社に対応していますか？</span>
+            <div class="faq-toggle">
+              <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              現在、JR東日本・JR東海・JR西日本・JR北海道・JR四国・JR九州の全JR各社、東京メトロ、都営地下鉄、阪急電鉄、近畿日本鉄道、名古屋市営地下鉄など主要鉄道会社と提携しています。合計9,500駅以上をカバーしており、今後も提携路線を拡大予定です。最新の対応路線一覧はアプリ内でご確認いただけます。
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-2">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span class="faq-question-text">電池はどのくらい持ちますか？電池交換は自分でできますか？</span>
+            <div class="faq-toggle">
+              <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              通常使用で最大2年間電池が持続します（1日10回の検知を想定）。電池残量はアプリでリアルタイムに確認でき、残量20%以下になると通知が届きます。電池はCR2032コイン型電池（コンビニ・家電量販店で購入可能）で、コインで簡単に交換できます。電池交換後も設定は引き継がれます。
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-3">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span class="faq-question-text">プライバシーは大丈夫ですか？第三者に位置情報が漏れませんか？</span>
+            <div class="faq-toggle">
+              <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              プライバシー保護を最優先に設計しています。BLEアドレスは15分ごとに自動ローテーションするため、第三者によるストーキングは不可能です。位置データはすべてエンドツーエンド暗号化（AES-256）され、本人（および許可した家族）のみがアクセスできます。RailFinderのサーバーも位置データの内容を閲覧することはできません。総務省のIoTセキュリティガイドラインに完全準拠しています。
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-1">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span class="faq-question-text">紛失したタグがゲートウェイで検知されなかった場合はどうなりますか？</span>
+            <div class="faq-toggle">
+              <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              RailFinderはゲートウェイ検知に加え、他のRailFinderユーザーのスマートフォンによるクラウドスキャン機能も搭載しています（プライバシーを保った形で匿名処理）。駅構外でも100万人以上のユーザーネットワークがカバーします。また、スタンダード・プレミアムプランでは駅員連携機能があり、最後に検知された駅へ自動的に遺失物届けを送信するサービスも利用可能です。
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-2">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span class="faq-question-text">解約はいつでもできますか？タグは返却が必要ですか？</span>
+            <div class="faq-toggle">
+              <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              月額サービスはアプリ内からいつでも解約できます。解約後は翌月以降の課金が止まり、無料プランへ自動的に移行します。タグ本体は買い切り（返却不要）で、解約後もフリープランとして引き続きご利用いただけます。また購入日から30日以内であれば、タグ本体を含む全額返金保証をご用意しています。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       CTA
+  ============================================ -->
+  <section id="cta">
+    <div class="container">
+      <div class="cta-inner reveal">
+        <div class="cta-eyebrow">
+          🚀 今すぐ始める
+        </div>
+        <h2 class="cta-title">
+          大切なものを<br>
+          <span class="accent-text">二度と失くさない</span>
+        </h2>
+        <p class="cta-desc">
+          RailFinderタグ1個 ¥2,980〜。設定は30秒。<br>
+          日本最大の鉄道ネットワークがあなたの持ち物を守ります。
+        </p>
+
+        <div class="cta-actions">
+          <a href="#pricing" class="btn btn-primary btn-xl">
+            今すぐ購入 ¥2,980〜
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="#features" class="btn btn-outline btn-lg" style="color: rgba(255,255,255,0.8); border-color: rgba(255,255,255,0.3);">
+            詳しく見る
+          </a>
+        </div>
+
+        <div class="cta-trust">
+          <div class="cta-trust-item">
+            <span class="cta-trust-icon">🔒</span>
+            <span>30日間返金保証</span>
+          </div>
+          <div class="cta-trust-item">
+            <span class="cta-trust-icon">⚡</span>
+            <span>翌日配送対応</span>
+          </div>
+          <div class="cta-trust-item">
+            <span class="cta-trust-icon">📱</span>
+            <span>30秒で設定完了</span>
+          </div>
+          <div class="cta-trust-item">
+            <span class="cta-trust-icon">🏆</span>
+            <span>10万人以上が利用中</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       FOOTER
+  ============================================ -->
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="logo">
+            <div class="logo-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+              </svg>
+            </div>
+            Rail<span>Finder</span>
+          </a>
+          <p class="footer-tagline">
+            日本全国の鉄道ネットワークを活用した<br>
+            BLE紛失防止タグサービス。<br>
+            大切なものを、二度と失くさない。
+          </p>
+          <div class="footer-social">
+            <a href="#" class="social-btn" aria-label="Twitter">𝕏</a>
+            <a href="#" class="social-btn" aria-label="Instagram">📷</a>
+            <a href="#" class="social-btn" aria-label="Facebook">f</a>
+            <a href="#" class="social-btn" aria-label="YouTube">▶</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">サービス</h4>
+          <ul class="footer-links">
+            <li><a href="#solution">仕組みを見る</a></li>
+            <li><a href="#features">製品特徴</a></li>
+            <li><a href="#pricing">料金プラン</a></li>
+            <li><a href="#">対応路線一覧</a></li>
+            <li><a href="#">アプリダウンロード</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">サポート</h4>
+          <ul class="footer-links">
+            <li><a href="#faq">よくある質問</a></li>
+            <li><a href="#">設定ガイド</a></li>
+            <li><a href="#">故障・返品</a></li>
+            <li><a href="#">お問い合わせ</a></li>
+            <li><a href="#">法人向け</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">会社情報</h4>
+          <ul class="footer-links">
+            <li><a href="#">会社概要</a></li>
+            <li><a href="#">採用情報</a></li>
+            <li><a href="#">プレスリリース</a></li>
+            <li><a href="#">投資家情報</a></li>
+            <li><a href="#">提携・パートナー</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copyright">
+          © 2026 RailFinder株式会社. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">利用規約</a>
+          <a href="#">プライバシーポリシー</a>
+          <a href="#">特定商取引法</a>
+          <a href="#">Cookie設定</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================
+       JAVASCRIPT
+  ============================================ -->
+  <script>
+    // ============================================
+    // Header scroll effect
+    // ============================================
+    const header = document.getElementById('header');
+    let lastScrollY = 0;
+
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      if (scrollY > 50) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+      lastScrollY = scrollY;
+    }, { passive: true });
+
+    // ============================================
+    // Mobile menu
+    // ============================================
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      mobileMenu.classList.toggle('open');
+    });
+
+    function closeMobileMenu() {
+      hamburger.classList.remove('active');
+      mobileMenu.classList.remove('open');
+    }
+
+    // ============================================
+    // Hero Canvas - Railway Network Animation
+    // ============================================
+    (function() {
+      const canvas = document.getElementById('hero-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      function resize() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // Nodes representing stations
+      const nodeCount = 60;
+      const nodes = [];
+
+      function createNode() {
+        return {
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          r: Math.random() * 3 + 1.5,
+          pulse: Math.random() * Math.PI * 2
+        };
+      }
+
+      for (let i = 0; i < nodeCount; i++) {
+        nodes.push(createNode());
+      }
+
+      // Moving "tag" dots along connections
+      const tags = [];
+      function createTag() {
+        const from = Math.floor(Math.random() * nodeCount);
+        let to;
+        do { to = Math.floor(Math.random() * nodeCount); } while (to === from);
+        return { from, to, t: 0, speed: Math.random() * 0.008 + 0.004 };
+      }
+
+      for (let i = 0; i < 8; i++) {
+        tags.push(createTag());
+      }
+
+      let animFrame;
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const time = Date.now() * 0.001;
+
+        // Update nodes
+        nodes.forEach(n => {
+          n.x += n.vx;
+          n.y += n.vy;
+          n.pulse += 0.03;
+          if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+          if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+        });
+
+        // Draw connections
+        const maxDist = 180;
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const dx = nodes[i].x - nodes[j].x;
+            const dy = nodes[i].y - nodes[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < maxDist) {
+              const alpha = (1 - dist / maxDist) * 0.25;
+              ctx.beginPath();
+              ctx.moveTo(nodes[i].x, nodes[i].y);
+              ctx.lineTo(nodes[j].x, nodes[j].y);
+              ctx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
+              ctx.lineWidth = 0.8;
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Draw nodes
+        nodes.forEach(n => {
+          const glowAlpha = 0.3 + Math.sin(n.pulse) * 0.15;
+          // Glow
+          const grd = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 4);
+          grd.addColorStop(0, `rgba(0, 212, 255, ${glowAlpha})`);
+          grd.addColorStop(1, 'rgba(0, 212, 255, 0)');
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r * 4, 0, Math.PI * 2);
+          ctx.fillStyle = grd;
+          ctx.fill();
+
+          // Core dot
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(0, 212, 255, ${0.7 + Math.sin(n.pulse) * 0.3})`;
+          ctx.fill();
+        });
+
+        // Draw tags
+        tags.forEach(tag => {
+          tag.t += tag.speed;
+          if (tag.t >= 1) {
+            tag.t = 0;
+            tag.from = tag.to;
+            let newTo;
+            do { newTo = Math.floor(Math.random() * nodeCount); } while (newTo === tag.from);
+            tag.to = newTo;
+          }
+
+          const from = nodes[tag.from];
+          const to   = nodes[tag.to];
+          if (!from || !to) return;
+
+          const x = from.x + (to.x - from.x) * tag.t;
+          const y = from.y + (to.y - from.y) * tag.t;
+
+          // Tag dot
+          ctx.beginPath();
+          ctx.arc(x, y, 4, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+          ctx.fill();
+
+          // Trail
+          for (let i = 1; i <= 6; i++) {
+            const trailT = Math.max(0, tag.t - i * 0.015);
+            const tx = from.x + (to.x - from.x) * trailT;
+            const ty = from.y + (to.y - from.y) * trailT;
+            ctx.beginPath();
+            ctx.arc(tx, ty, 4 - i * 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(0, 212, 255, ${(7 - i) * 0.12})`;
+            ctx.fill();
+          }
+        });
+
+        animFrame = requestAnimationFrame(draw);
+      }
+
+      draw();
+    })();
+
+    // ============================================
+    // Hero Particles
+    // ============================================
+    (function() {
+      const container = document.getElementById('heroParticles');
+      if (!container) return;
+
+      function createParticle() {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.bottom = '0';
+        p.style.animationDelay = Math.random() * 8 + 's';
+        p.style.animationDuration = (5 + Math.random() * 6) + 's';
+        p.style.width = p.style.height = (2 + Math.random() * 3) + 'px';
+        container.appendChild(p);
+      }
+
+      for (let i = 0; i < 30; i++) {
+        createParticle();
+      }
+    })();
+
+    // ============================================
+    // Network Canvas (Solution Section)
+    // ============================================
+    (function() {
+      const canvas = document.getElementById('network-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      // Fixed stations layout
+      const stations = [
+        { x: 0.05, y: 0.5,  name: '博多' },
+        { x: 0.15, y: 0.3,  name: '新大阪' },
+        { x: 0.22, y: 0.6,  name: '大阪' },
+        { x: 0.3,  y: 0.2,  name: '名古屋' },
+        { x: 0.38, y: 0.5,  name: '京都' },
+        { x: 0.48, y: 0.35, name: '品川' },
+        { x: 0.55, y: 0.55, name: '東京' },
+        { x: 0.62, y: 0.25, name: '上野' },
+        { x: 0.68, y: 0.6,  name: '新宿' },
+        { x: 0.75, y: 0.4,  name: '渋谷' },
+        { x: 0.82, y: 0.2,  name: '仙台' },
+        { x: 0.9,  y: 0.55, name: '札幌' },
+        { x: 0.95, y: 0.35, name: '函館' },
+      ];
+
+      const connections = [
+        [0,1],[1,2],[2,3],[1,3],[3,4],[4,5],[5,6],[6,7],[6,8],[8,9],[7,10],[10,11],[11,12]
+      ];
+
+      let tagT = 0;
+      let tagRouteIdx = 0;
+      const tagRoute = [0,1,3,4,5,6,8,9];
+
+      function resize() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function toPixel(s) {
+        return { x: s.x * canvas.width, y: s.y * canvas.height };
+      }
+
+      function drawNetwork() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw connections
+        connections.forEach(([a, b]) => {
+          const pa = toPixel(stations[a]);
+          const pb = toPixel(stations[b]);
+          ctx.beginPath();
+          ctx.moveTo(pa.x, pa.y);
+          ctx.lineTo(pb.x, pb.y);
+          ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        });
+
+        // Highlight active route
+        for (let i = 0; i < tagRoute.length - 1; i++) {
+          const a = tagRoute[i], b = tagRoute[i + 1];
+          const pa = toPixel(stations[a]);
+          const pb = toPixel(stations[b]);
+          ctx.beginPath();
+          ctx.moveTo(pa.x, pa.y);
+          ctx.lineTo(pb.x, pb.y);
+          ctx.strokeStyle = 'rgba(0, 212, 255, 0.6)';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+        }
+
+        // Draw station nodes
+        stations.forEach((s, i) => {
+          const p = toPixel(s);
+          // Glow
+          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 18);
+          g.addColorStop(0, 'rgba(0,212,255,0.3)');
+          g.addColorStop(1, 'rgba(0,212,255,0)');
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 18, 0, Math.PI * 2);
+          ctx.fillStyle = g;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+          ctx.fillStyle = tagRoute.includes(i) ? 'rgba(0,212,255,0.9)' : 'rgba(255,255,255,0.5)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(0,212,255,0.5)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // Station label
+          const fs = Math.max(10, Math.min(13, canvas.width / 80));
+          ctx.font = `${fs}px 'Noto Sans JP', sans-serif`;
+          ctx.fillStyle = 'rgba(255,255,255,0.75)';
+          ctx.textAlign = 'center';
+          ctx.fillText(s.name, p.x, p.y + 20);
+        });
+
+        // Moving tag dot
+        tagT += 0.005;
+        if (tagT >= 1) {
+          tagT = 0;
+          tagRouteIdx = (tagRouteIdx + 1) % (tagRoute.length - 1);
+        }
+
+        const fromIdx = tagRoute[tagRouteIdx];
+        const toIdx   = tagRoute[tagRouteIdx + 1] ?? tagRoute[0];
+        const pf = toPixel(stations[fromIdx]);
+        const pt = toPixel(stations[toIdx]);
+        const tx = pf.x + (pt.x - pf.x) * tagT;
+        const ty = pf.y + (pt.y - pf.y) * tagT;
+
+        // Tag glow
+        const tagGlow = ctx.createRadialGradient(tx, ty, 0, tx, ty, 20);
+        tagGlow.addColorStop(0, 'rgba(255,255,255,0.6)');
+        tagGlow.addColorStop(1, 'rgba(0,212,255,0)');
+        ctx.beginPath();
+        ctx.arc(tx, ty, 20, 0, Math.PI * 2);
+        ctx.fillStyle = tagGlow;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(tx, ty, 7, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,212,255,0.8)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        requestAnimationFrame(drawNetwork);
+      }
+
+      drawNetwork();
+    })();
+
+    // ============================================
+    // Scroll Reveal
+    // ============================================
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+      revealObserver.observe(el);
+    });
+
+    // ============================================
+    // Count-Up Animation
+    // ============================================
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.dataset.target, 10);
+          const duration = 2000;
+          const start = performance.now();
+
+          function update(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(eased * target).toLocaleString('ja-JP');
+            if (progress < 1) requestAnimationFrame(update);
+            else el.textContent = target.toLocaleString('ja-JP');
+          }
+
+          requestAnimationFrame(update);
+          counterObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.count-up').forEach(el => {
+      counterObserver.observe(el);
+    });
+
+    // ============================================
+    // FAQ Toggle
+    // ============================================
+    function toggleFaq(questionEl) {
+      const item = questionEl.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+
+      // Close all
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+
+      // Open clicked if it was closed
+      if (!isOpen) {
+        item.classList.add('open');
+      }
+    }
+
+    // ============================================
+    // Pricing Toggle (Monthly / Annual)
+    // ============================================
+    const pricingToggle = document.getElementById('pricingToggle');
+    const monthlyLabel = document.getElementById('monthlyLabel');
+    const annualLabel  = document.getElementById('annualLabel');
+    let isAnnual = false;
+
+    const prices = {
+      monthly: { free: 0, standard: 480, premium: 1280 },
+      annual:  { free: 0, standard: 400, premium: 1067 }
+    };
+
+    function updatePrices() {
+      const p = isAnnual ? prices.annual : prices.monthly;
+      animatePrice('free-price', p.free);
+      animatePrice('standard-price', p.standard);
+      animatePrice('premium-price', p.premium);
+
+      monthlyLabel.classList.toggle('active', !isAnnual);
+      annualLabel.classList.toggle('active', isAnnual);
+    }
+
+    function animatePrice(id, target) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const current = parseInt(el.textContent.replace(',', ''), 10) || 0;
+      const duration = 300;
+      const start = performance.now();
+
+      function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const val = Math.round(current + (target - current) * progress);
+        el.textContent = val.toLocaleString('ja-JP');
+        if (progress < 1) requestAnimationFrame(update);
+      }
+      requestAnimationFrame(update);
+    }
+
+    if (pricingToggle) {
+      pricingToggle.addEventListener('click', () => {
+        isAnnual = !isAnnual;
+        pricingToggle.classList.toggle('annual', isAnnual);
+        updatePrices();
+      });
+    }
+
+    // ============================================
+    // Smooth anchor scrolling with offset
+    // ============================================
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (!target) return;
+        e.preventDefault();
+        const offset = 80;
+        const top = target.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+      });
+    });
+
+    // ============================================
+    // Ticker duplication check
+    // ============================================
+    (function() {
+      // Ticker is already duplicated in HTML for seamless loop.
+    })();
+
+    // ============================================
+    // Lazy load testimonials clone for seamless scroll
+    // ============================================
+    (function() {
+      // Already duplicated in HTML.
+    })();
+
+    // ============================================
+    // Add subtle hover tilt to feature cards
+    // ============================================
+    document.querySelectorAll('.feature-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top)  / rect.height - 0.5;
+        card.style.transform = `translateY(-6px) rotateY(${x * 6}deg) rotateX(${-y * 4}deg)`;
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+
+    // ============================================
+    // Pricing card hover glow
+    // ============================================
+    document.querySelectorAll('.pricing-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', x + 'px');
+        card.style.setProperty('--mouse-y', y + 'px');
+      });
+    });
+
+    // ============================================
+    // Page load fade in
+    // ============================================
+    document.body.style.opacity = '0';
+    document.body.style.transition = 'opacity 0.4s ease';
+    window.addEventListener('load', () => {
+      document.body.style.opacity = '1';
+    });
+
+  </script>
+</body>
+</html>

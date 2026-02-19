@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RailFinder - App Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --main: #0F2952;
+    --accent: #00D4FF;
+    --text: #1A1A2E;
+    --light-bg: #F0F7FF;
+    --success: #00C896;
+    --warning: #FF9B2B;
+    --danger: #FF4D6D;
+    --gray1: #F8FAFC;
+    --gray2: #E8EEF7;
+    --gray3: #B8C4D9;
+    --gray4: #6B7A9A;
+    --white: #FFFFFF;
+    --frame-w: 375px;
+    --frame-h: 812px;
+    --border-r: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    background: linear-gradient(135deg, #0a1628 0%, #1a2d54 40%, #0d3272 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 40px 20px;
+    color: var(--text);
+  }
+
+  /* Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .page-header .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .page-header .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--accent) 0%, #0098cc 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .page-header h1 span { color: var(--accent); }
+  .page-header p {
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+  }
+
+  /* Screen tabs */
+  .screen-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 6px;
+  }
+  .screen-tab {
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .screen-tab.active {
+    background: var(--accent);
+    color: var(--main);
+    box-shadow: 0 4px 12px rgba(0,212,255,0.3);
+  }
+
+  /* iPhone Frame */
+  .iphone-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+  .iphone-frame {
+    width: 393px;
+    height: 852px;
+    background: #1a1a1a;
+    border-radius: 54px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.1),
+      0 40px 80px rgba(0,0,0,0.5),
+      inset 0 0 0 2px #2a2a2a;
+    position: relative;
+  }
+  .iphone-inner {
+    width: 100%;
+    height: 100%;
+    background: var(--gray1);
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Notch / Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 37px;
+    background: #1a1a1a;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 14px;
+  }
+  .di-camera {
+    width: 12px;
+    height: 12px;
+    background: #2a2a2a;
+    border-radius: 50%;
+    border: 1px solid #333;
+  }
+  .di-sensor {
+    width: 8px;
+    height: 8px;
+    background: #111;
+    border-radius: 50%;
+  }
+
+  /* Status bar */
+  .status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 59px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 24px 10px;
+    z-index: 50;
+    background: transparent;
+  }
+  .status-time {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-icons svg { fill: var(--text); }
+
+  /* Screen container */
+  .screens-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  .screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    flex-direction: column;
+    background: var(--gray1);
+  }
+  .screen.active { display: flex; }
+
+  /* ===== HOME SCREEN ===== */
+  .home-header {
+    background: var(--main);
+    padding: 60px 20px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .home-header::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -40px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .home-header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    left: -20px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(0,200,150,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .home-greeting {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+  .home-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+
+  /* Summary cards */
+  .summary-cards {
+    display: flex;
+    gap: 10px;
+  }
+  .summary-card {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 12px;
+    backdrop-filter: blur(10px);
+  }
+  .summary-card .sc-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .summary-card .sc-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .summary-card .sc-value.accent { color: var(--accent); }
+  .summary-card .sc-value.success { color: var(--success); }
+  .summary-card .sc-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+  }
+
+  /* Home content */
+  .home-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px;
+    padding-bottom: 90px;
+  }
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .section-title-right {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    cursor: pointer;
+  }
+
+  /* Tag card */
+  .tag-card {
+    background: var(--white);
+    border-radius: var(--border-r);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 12px rgba(15,41,82,0.06), 0 1px 3px rgba(15,41,82,0.04);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .tag-card:active { transform: scale(0.98); }
+  .tag-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 4px 0 0 4px;
+  }
+  .tag-card.safe::before { background: var(--success); }
+  .tag-card.alert::before { background: var(--danger); }
+  .tag-card.away::before { background: var(--warning); }
+
+  .tag-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .tag-icon.safe { background: rgba(0,200,150,0.1); }
+  .tag-icon.alert { background: rgba(255,77,109,0.1); }
+  .tag-icon.away { background: rgba(255,155,43,0.1); }
+
+  .tag-info { flex: 1; min-width: 0; }
+  .tag-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .tag-location {
+    font-size: 12px;
+    color: var(--gray4);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 5px;
+  }
+  .tag-location svg { flex-shrink: 0; }
+  .tag-time {
+    font-size: 11px;
+    color: var(--gray3);
+    font-weight: 400;
+  }
+
+  .tag-status-badge {
+    flex-shrink: 0;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag-status-badge.safe { background: rgba(0,200,150,0.12); color: #00a87e; }
+  .tag-status-badge.alert { background: rgba(255,77,109,0.12); color: var(--danger); }
+  .tag-status-badge.away { background: rgba(255,155,43,0.12); color: #d97706; }
+
+  /* Signal bars */
+  .signal-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 14px;
+  }
+  .signal-bar {
+    width: 3px;
+    background: var(--gray2);
+    border-radius: 2px;
+  }
+  .signal-bar:nth-child(1) { height: 4px; }
+  .signal-bar:nth-child(2) { height: 7px; }
+  .signal-bar:nth-child(3) { height: 10px; }
+  .signal-bar:nth-child(4) { height: 14px; }
+  .signal-bar.active { background: var(--success); }
+
+  /* Battery widget */
+  .battery-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .battery-bar {
+    height: 6px;
+    flex: 1;
+    background: var(--gray2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .battery-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .battery-fill.high { background: var(--success); }
+  .battery-fill.mid { background: var(--warning); }
+  .battery-fill.low { background: var(--danger); }
+  .battery-pct {
+    font-size: 10px;
+    color: var(--gray4);
+    font-weight: 500;
+    min-width: 28px;
+  }
+
+  /* ===== MAP SCREEN ===== */
+  .map-header {
+    background: var(--main);
+    padding: 60px 20px 16px;
+  }
+  .map-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+  .map-tag-selector {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .map-tag-pill {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .map-tag-pill.active {
+    background: var(--accent);
+    color: var(--main);
+  }
+  .map-tag-pill.inactive {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+
+  .map-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: #e8eff8;
+  }
+
+  /* SVG Map */
+  .tokyo-map {
+    width: 100%;
+    height: 100%;
+  }
+
+  .map-card {
+    position: absolute;
+    bottom: 90px;
+    left: 12px;
+    right: 12px;
+    background: var(--white);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  }
+  .map-card-tag {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .map-card-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(0,212,255,0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .map-card-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .map-card-loc {
+    font-size: 12px;
+    color: var(--gray4);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .map-timeline {
+    border-top: 1px solid var(--gray2);
+    padding-top: 12px;
+  }
+  .map-timeline-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .timeline-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .timeline-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .timeline-dot.current { background: var(--accent); box-shadow: 0 0 6px rgba(0,212,255,0.5); }
+  .timeline-dot.past { background: var(--gray3); }
+  .timeline-text {
+    flex: 1;
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .timeline-time {
+    font-size: 11px;
+    color: var(--gray4);
+  }
+
+  /* ===== NOTIFICATIONS SCREEN ===== */
+  .notif-header {
+    background: var(--main);
+    padding: 60px 20px 20px;
+  }
+  .notif-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .notif-header p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+  }
+
+  .notif-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    padding-bottom: 90px;
+  }
+  .notif-date-group {
+    margin-bottom: 20px;
+  }
+  .notif-date-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+  .notif-item {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: 0 1px 6px rgba(15,41,82,0.06);
+    position: relative;
+    overflow: hidden;
+  }
+  .notif-item.unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 3px 0 0 3px;
+  }
+  .notif-emoji-wrap {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .notif-emoji-wrap.blue { background: rgba(0,212,255,0.1); }
+  .notif-emoji-wrap.green { background: rgba(0,200,150,0.1); }
+  .notif-emoji-wrap.red { background: rgba(255,77,109,0.1); }
+  .notif-emoji-wrap.orange { background: rgba(255,155,43,0.1); }
+  .notif-emoji-wrap.purple { background: rgba(139,92,246,0.1); }
+
+  .notif-body { flex: 1; min-width: 0; }
+  .notif-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+    line-height: 1.4;
+  }
+  .notif-desc {
+    font-size: 12px;
+    color: var(--gray4);
+    line-height: 1.5;
+  }
+  .notif-time {
+    font-size: 11px;
+    color: var(--gray3);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .notif-unread-dot {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  /* ===== PROFILE SCREEN ===== */
+  .profile-header {
+    background: linear-gradient(160deg, var(--main) 0%, #1a3870 100%);
+    padding: 60px 20px 28px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .profile-header::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -60px;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .profile-avatar {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, var(--accent), #0098cc);
+    border-radius: 24px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 8px 24px rgba(0,212,255,0.3);
+  }
+  .profile-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .profile-email {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 16px;
+  }
+
+  /* Plan badge */
+  .plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+  }
+  .plan-badge-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--success);
+    border-radius: 50%;
+  }
+
+  .profile-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    padding-bottom: 90px;
+  }
+
+  /* Upgrade CTA */
+  .upgrade-cta {
+    background: linear-gradient(135deg, #0F2952 0%, #1a3870 100%);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(15,41,82,0.2);
+  }
+  .upgrade-cta::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -20px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(0,212,255,0.2) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .upgrade-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,212,0,0.15);
+    border: 1px solid rgba(255,212,0,0.3);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffd700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .upgrade-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .upgrade-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .upgrade-features {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .upgrade-feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+  }
+  .upgrade-feature-dot {
+    width: 5px;
+    height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .upgrade-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent) 0%, #0098cc 100%);
+    color: var(--main);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(0,212,255,0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .upgrade-btn:active { transform: scale(0.97); }
+
+  /* Settings list */
+  .settings-section {
+    margin-bottom: 20px;
+  }
+  .settings-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+  .settings-list {
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(15,41,82,0.06);
+  }
+  .settings-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--gray2);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .settings-item:last-child { border-bottom: none; }
+  .settings-item:active { background: var(--gray1); }
+  .settings-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .settings-icon.blue { background: rgba(0,212,255,0.1); }
+  .settings-icon.green { background: rgba(0,200,150,0.1); }
+  .settings-icon.purple { background: rgba(139,92,246,0.1); }
+  .settings-icon.orange { background: rgba(255,155,43,0.1); }
+  .settings-icon.red { background: rgba(255,77,109,0.1); }
+  .settings-icon.gray { background: var(--gray2); }
+
+  .settings-text { flex: 1; }
+  .settings-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .settings-sub {
+    font-size: 12px;
+    color: var(--gray4);
+    margin-top: 1px;
+  }
+  .settings-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .settings-value {
+    font-size: 12px;
+    color: var(--gray4);
+  }
+  .chevron {
+    color: var(--gray3);
+    font-size: 14px;
+  }
+
+  /* Toggle switch */
+  .toggle {
+    width: 44px;
+    height: 26px;
+    background: var(--success);
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: right 0.2s;
+  }
+  .toggle.off {
+    background: var(--gray2);
+  }
+  .toggle.off::after {
+    right: auto;
+    left: 3px;
+  }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 88px;
+    background: var(--white);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    padding-top: 12px;
+    z-index: 200;
+    box-shadow: 0 -1px 0 rgba(0,0,0,0.06), 0 -8px 24px rgba(15,41,82,0.06);
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 0 12px;
+    cursor: pointer;
+    transition: transform 0.15s;
+    min-width: 56px;
+  }
+  .nav-item:active { transform: scale(0.9); }
+  .nav-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .nav-icon.active {
+    background: rgba(0,212,255,0.12);
+  }
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gray4);
+    transition: color 0.2s;
+  }
+  .nav-label.active { color: var(--accent); }
+  .nav-badge {
+    position: absolute;
+    top: -2px;
+    right: -4px;
+    background: var(--danger);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--white);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 0; }
+
+  /* Animations */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.95); }
+  }
+  @keyframes ping {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+  .pulse { animation: pulse 2s ease-in-out infinite; }
+
+  /* Map marker */
+  .map-marker-group {
+    cursor: pointer;
+  }
+  .map-marker-outer {
+    animation: ping 2s ease-out infinite;
+  }
+
+  /* Info banner */
+  .info-banner {
+    background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,200,150,0.1));
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .info-banner-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .info-banner-text {
+    font-size: 12px;
+    color: var(--main);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  .info-banner-text strong { color: var(--accent); }
+
+  /* Lost mode banner */
+  .lost-mode-banner {
+    background: linear-gradient(135deg, rgba(255,77,109,0.12), rgba(255,77,109,0.06));
+    border: 1px solid rgba(255,77,109,0.25);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .lost-mode-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .lost-mode-text {
+    flex: 1;
+  }
+  .lost-mode-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--danger);
+    margin-bottom: 2px;
+  }
+  .lost-mode-desc {
+    font-size: 11px;
+    color: var(--gray4);
+  }
+  .lost-mode-off {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--danger);
+    background: rgba(255,77,109,0.1);
+    padding: 4px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="logo">
+    <div class="logo-icon">🚃</div>
+    <h1>Rail<span>Finder</span></h1>
+  </div>
+  <p>日本向けBLE紛失防止タグ・アプリモックアップ</p>
+</div>
+
+<div class="screen-tabs">
+  <button class="screen-tab active" onclick="switchScreen('home', this)">🏠 ホーム</button>
+  <button class="screen-tab" onclick="switchScreen('map', this)">🗺 マップ</button>
+  <button class="screen-tab" onclick="switchScreen('notifications', this)">🔔 通知</button>
+  <button class="screen-tab" onclick="switchScreen('profile', this)">👤 プロフィール</button>
+</div>
+
+<div class="iphone-wrapper">
+  <div class="iphone-frame">
+    <!-- Dynamic Island -->
+    <div class="dynamic-island">
+      <div class="di-sensor"></div>
+      <div class="di-camera"></div>
+    </div>
+
+    <div class="iphone-inner">
+      <!-- Status Bar -->
+      <div class="status-bar" id="statusBar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <!-- Signal -->
+          <svg width="17" height="12" viewBox="0 0 17 12">
+            <rect x="0" y="7" width="3" height="5" rx="1" fill="currentColor" opacity="1"/>
+            <rect x="4.5" y="5" width="3" height="7" rx="1" fill="currentColor" opacity="1"/>
+            <rect x="9" y="2.5" width="3" height="9.5" rx="1" fill="currentColor" opacity="1"/>
+            <rect x="13.5" y="0" width="3" height="12" rx="1" fill="currentColor" opacity="0.3"/>
+          </svg>
+          <!-- Wifi -->
+          <svg width="16" height="12" viewBox="0 0 16 12">
+            <path d="M8 10.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" fill="currentColor"/>
+            <path d="M4.5 7.5C5.5 6.4 6.7 5.8 8 5.8s2.5.6 3.5 1.7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M1.5 4.8C3.1 3 5.4 2 8 2s4.9 1 6.5 2.8" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+          </svg>
+          <!-- Battery -->
+          <svg width="25" height="12" viewBox="0 0 25 12">
+            <rect x="0" y="1" width="21" height="10" rx="3" stroke="currentColor" stroke-width="1.2" fill="none"/>
+            <rect x="21.5" y="4" width="2.5" height="4" rx="1" fill="currentColor" opacity="0.4"/>
+            <rect x="1.5" y="2.5" width="16" height="7" rx="2" fill="currentColor"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Screens Container -->
+      <div class="screens-container">
+
+        <!-- ===== HOME SCREEN ===== -->
+        <div class="screen active" id="screen-home">
+          <!-- Header -->
+          <div class="home-header">
+            <div class="home-greeting">おはようございます 👋</div>
+            <div class="home-name">田中 亮介さん</div>
+            <div class="summary-cards">
+              <div class="summary-card">
+                <div class="sc-label">登録タグ</div>
+                <div class="sc-value accent">3</div>
+                <div class="sc-sub">すべて追跡中</div>
+              </div>
+              <div class="summary-card">
+                <div class="sc-label">今日の検出</div>
+                <div class="sc-value success">12</div>
+                <div class="sc-sub">5駅で検出</div>
+              </div>
+              <div class="summary-card">
+                <div class="sc-label">アラート</div>
+                <div class="sc-value" style="color:#FF4D6D">1</div>
+                <div class="sc-sub">要確認</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-content">
+            <!-- Info Banner -->
+            <div class="info-banner">
+              <div class="info-banner-icon">🚃</div>
+              <div class="info-banner-text">
+                <strong>渋谷駅</strong>で仕事カバンが検出されました（14:32）
+              </div>
+            </div>
+
+            <div class="section-title">
+              マイタグ
+              <span class="section-title-right">+ 追加</span>
+            </div>
+
+            <!-- Tag: 仕事カバン -->
+            <div class="tag-card safe">
+              <div class="tag-icon safe">💼</div>
+              <div class="tag-info">
+                <div class="tag-name">仕事カバン</div>
+                <div class="tag-location">
+                  <svg width="10" height="13" viewBox="0 0 10 13" fill="none">
+                    <path d="M5 0C2.24 0 0 2.24 0 5c0 3.75 5 8 5 8s5-4.25 5-8c0-2.76-2.24-5-5-5zm0 6.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" fill="#6B7A9A"/>
+                  </svg>
+                  渋谷駅 ・ JR山手線
+                </div>
+                <div class="battery-row">
+                  <div class="battery-bar"><div class="battery-fill high" style="width:82%"></div></div>
+                  <span class="battery-pct">82%</span>
+                  <div class="signal-bars">
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+                <div class="tag-status-badge safe">安全</div>
+                <div class="tag-time">14:32</div>
+              </div>
+            </div>
+
+            <!-- Tag: 財布 (Lost Mode) -->
+            <div class="tag-card alert">
+              <div class="tag-icon alert">👛</div>
+              <div class="tag-info">
+                <div class="tag-name">財布</div>
+                <div class="tag-location">
+                  <svg width="10" height="13" viewBox="0 0 10 13" fill="none">
+                    <path d="M5 0C2.24 0 0 2.24 0 5c0 3.75 5 8 5 8s5-4.25 5-8c0-2.76-2.24-5-5-5zm0 6.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" fill="#6B7A9A"/>
+                  </svg>
+                  新宿駅 ・ 最終検出
+                </div>
+                <div class="battery-row">
+                  <div class="battery-bar"><div class="battery-fill mid" style="width:34%"></div></div>
+                  <span class="battery-pct">34%</span>
+                  <div class="signal-bars">
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar"></div>
+                    <div class="signal-bar"></div>
+                    <div class="signal-bar"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+                <div class="tag-status-badge alert">紛失中</div>
+                <div class="tag-time">11:15</div>
+              </div>
+            </div>
+
+            <!-- Lost Mode Banner -->
+            <div class="lost-mode-banner">
+              <div class="lost-mode-icon">🚨</div>
+              <div class="lost-mode-text">
+                <div class="lost-mode-title">紛失モード ON</div>
+                <div class="lost-mode-desc">財布 ・ 次の検出で即時通知</div>
+              </div>
+              <div class="lost-mode-off">解除</div>
+            </div>
+
+            <!-- Tag: スーツケース -->
+            <div class="tag-card away">
+              <div class="tag-icon away">🧳</div>
+              <div class="tag-info">
+                <div class="tag-name">スーツケース</div>
+                <div class="tag-location">
+                  <svg width="10" height="13" viewBox="0 0 10 13" fill="none">
+                    <path d="M5 0C2.24 0 0 2.24 0 5c0 3.75 5 8 5 8s5-4.25 5-8c0-2.76-2.24-5-5-5zm0 6.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" fill="#6B7A9A"/>
+                  </svg>
+                  品川駅 ・ 3時間前
+                </div>
+                <div class="battery-row">
+                  <div class="battery-bar"><div class="battery-fill high" style="width:91%"></div></div>
+                  <span class="battery-pct">91%</span>
+                  <div class="signal-bars">
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar active"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+                <div class="tag-status-badge away">圏外</div>
+                <div class="tag-time">10:48</div>
+              </div>
+            </div>
+
+            <!-- Rail Network Info -->
+            <div class="section-title" style="margin-top:6px">連携路線</div>
+            <div style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 1px 6px rgba(15,41,82,0.06)">
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <div style="display:flex;align-items:center;gap:6px;background:rgba(0,100,200,0.08);border-radius:20px;padding:5px 10px">
+                  <div style="width:8px;height:8px;background:#009933;border-radius:50%"></div>
+                  <span style="font-size:11px;font-weight:600;color:var(--text)">JR山手線</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;background:rgba(0,100,200,0.08);border-radius:20px;padding:5px 10px">
+                  <div style="width:8px;height:8px;background:#F62E36;border-radius:50%"></div>
+                  <span style="font-size:11px;font-weight:600;color:var(--text)">東京メトロ銀座線</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;background:rgba(0,100,200,0.08);border-radius:20px;padding:5px 10px">
+                  <div style="width:8px;height:8px;background:#0089C0;border-radius:50%"></div>
+                  <span style="font-size:11px;font-weight:600;color:var(--text)">東京メトロ丸ノ内線</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;background:rgba(0,100,200,0.08);border-radius:20px;padding:5px 10px">
+                  <div style="width:8px;height:8px;background:#8F76D6;border-radius:50%"></div>
+                  <span style="font-size:11px;font-weight:600;color:var(--text)">半蔵門線</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;background:rgba(0,100,200,0.08);border-radius:20px;padding:5px 10px">
+                  <div style="width:8px;height:8px;background:#009944;border-radius:50%"></div>
+                  <span style="font-size:11px;font-weight:600;color:var(--text)">都営浅草線</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;background:rgba(255,155,43,0.12);border-radius:20px;padding:5px 10px;border:1px dashed rgba(255,155,43,0.4)">
+                  <span style="font-size:11px;font-weight:600;color:#d97706">+ 12路線 準備中</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ===== MAP SCREEN ===== -->
+        <div class="screen" id="screen-map">
+          <div class="map-header">
+            <h2>📍 現在地マップ</h2>
+            <div class="map-tag-selector">
+              <div class="map-tag-pill active">💼 仕事カバン</div>
+              <div class="map-tag-pill inactive">👛 財布</div>
+              <div class="map-tag-pill inactive">🧳 スーツケース</div>
+            </div>
+          </div>
+
+          <div class="map-container">
+            <!-- Tokyo Metro Map SVG -->
+            <svg class="tokyo-map" viewBox="0 0 365 400" xmlns="http://www.w3.org/2000/svg">
+              <!-- Background -->
+              <rect width="365" height="400" fill="#e8eff8"/>
+
+              <!-- Grid lines (city blocks feel) -->
+              <g stroke="#d0dded" stroke-width="0.5" opacity="0.6">
+                <line x1="0" y1="50" x2="365" y2="50"/>
+                <line x1="0" y1="100" x2="365" y2="100"/>
+                <line x1="0" y1="150" x2="365" y2="150"/>
+                <line x1="0" y1="200" x2="365" y2="200"/>
+                <line x1="0" y1="250" x2="365" y2="250"/>
+                <line x1="0" y1="300" x2="365" y2="300"/>
+                <line x1="0" y1="350" x2="365" y2="350"/>
+                <line x1="50" y1="0" x2="50" y2="400"/>
+                <line x1="100" y1="0" x2="100" y2="400"/>
+                <line x1="150" y1="0" x2="150" y2="400"/>
+                <line x1="200" y1="0" x2="200" y2="400"/>
+                <line x1="250" y1="0" x2="250" y2="400"/>
+                <line x1="300" y1="0" x2="300" y2="400"/>
+                <line x1="350" y1="0" x2="350" y2="400"/>
+              </g>
+
+              <!-- Roads -->
+              <g stroke="#c8d8ea" stroke-width="3" fill="none" opacity="0.7">
+                <!-- Major arteries -->
+                <path d="M 0 180 Q 80 175 160 185 Q 240 195 365 190"/>
+                <path d="M 183 0 Q 180 80 185 160 Q 190 240 183 400"/>
+                <path d="M 0 120 L 365 130"/>
+                <path d="M 0 260 L 365 260"/>
+                <path d="M 100 0 Q 110 100 100 200 Q 90 300 100 400"/>
+                <path d="M 260 0 Q 270 100 265 200 Q 260 300 270 400"/>
+              </g>
+
+              <!-- Yamanote Line (Green circle) -->
+              <ellipse cx="183" cy="185" rx="115" ry="130" fill="none" stroke="#009933" stroke-width="5" stroke-dasharray="none" opacity="0.85"/>
+
+              <!-- Chuo Line (Red horizontal) -->
+              <path d="M 30 178 L 340 182" stroke="#FF0000" stroke-width="4" fill="none" opacity="0.75"/>
+
+              <!-- Ginza Line (Orange, diagonal) -->
+              <path d="M 60 90 Q 120 140 183 185 Q 240 230 305 270" stroke="#FF9500" stroke-width="4" fill="none" opacity="0.75"/>
+
+              <!-- Marunouchi Line (Red, curvy) -->
+              <path d="M 280 60 Q 240 110 210 155 Q 185 185 155 210 Q 120 240 80 270" stroke="#CC0066" stroke-width="3.5" fill="none" opacity="0.75"/>
+
+              <!-- Hanzomon Line (Purple) -->
+              <path d="M 100 320 Q 145 270 183 235 Q 220 205 270 160 Q 300 130 310 100" stroke="#8F76D6" stroke-width="3.5" fill="none" opacity="0.7"/>
+
+              <!-- Station dots - Yamanote Line stations -->
+              <!-- Shibuya (active - tag location) -->
+              <g class="map-marker-group" id="shibuya-station">
+                <circle cx="148" cy="290" r="16" fill="rgba(0,212,255,0.15)" class="map-marker-outer"/>
+                <circle cx="148" cy="290" r="9" fill="rgba(0,212,255,0.4)"/>
+                <circle cx="148" cy="290" r="6" fill="#00D4FF"/>
+                <circle cx="148" cy="290" r="3" fill="#fff"/>
+              </g>
+
+              <!-- Other stations -->
+              <circle cx="183" cy="60" r="5" fill="#fff" stroke="#009933" stroke-width="2"/>
+              <circle cx="248" cy="78" r="5" fill="#fff" stroke="#009933" stroke-width="2"/>
+              <circle cx="290" cy="115" r="5" fill="#fff" stroke="#009933" stroke-width="2"/>
+              <circle cx="295" cy="165" r="5" fill="#fff" stroke="#009933" stroke-width="2"/>
+              <circle cx="275" cy="218" r="5" fill="#fff" stroke="#009933" stroke-width="2"/>
+              <circle cx="240" cy="258" r="5" fill="#fff" stroke="#009933" stroke-width="2"/>
+              <circle cx="195" cy="315" r="5" fill="#fff" stroke="#009933" stroke-width="2"/>
+
+              <!-- Shinjuku -->
+              <circle cx="110" cy="178" r="7" fill="#fff" stroke="#009933" stroke-width="2.5"/>
+
+              <!-- Tokyo Station (center area) -->
+              <circle cx="210" cy="168" r="7" fill="#fff" stroke="#FF0000" stroke-width="2.5"/>
+
+              <!-- Shinagawa -->
+              <circle cx="215" cy="320" r="5" fill="#fff" stroke="#009933" stroke-width="2"/>
+
+              <!-- Ueno -->
+              <circle cx="218" cy="80" r="5" fill="#fff" stroke="#009933" stroke-width="2"/>
+
+              <!-- Akihabara -->
+              <circle cx="230" cy="118" r="5" fill="#fff" stroke="#FF0000" stroke-width="2"/>
+
+              <!-- Ginza -->
+              <circle cx="222" cy="200" r="5" fill="#fff" stroke="#FF9500" stroke-width="2"/>
+
+              <!-- Ikebukuro -->
+              <circle cx="118" cy="84" r="7" fill="#fff" stroke="#009933" stroke-width="2.5"/>
+
+              <!-- Station labels -->
+              <g font-family="'Noto Sans JP', sans-serif" font-size="10" fill="#1A1A2E" font-weight="600">
+                <text x="130" y="278" text-anchor="end">渋谷</text>
+                <text x="90" y="175" text-anchor="end">新宿</text>
+                <text x="103" y="92" text-anchor="middle">池袋</text>
+                <text x="183" y="52" text-anchor="middle">田端</text>
+                <text x="232" y="163" text-anchor="start">東京</text>
+                <text x="220" y="336" text-anchor="middle">品川</text>
+                <text x="257" y="76" text-anchor="start">上野</text>
+              </g>
+
+              <!-- Active tag indicator label -->
+              <rect x="90" y="302" width="80" height="22" rx="11" fill="#0F2952" opacity="0.9"/>
+              <text x="130" y="317" text-anchor="middle" fill="#00D4FF" font-size="10" font-weight="700" font-family="sans-serif">💼 仕事カバン</text>
+
+              <!-- Compass -->
+              <g transform="translate(328, 30)">
+                <circle cx="0" cy="0" r="14" fill="rgba(255,255,255,0.8)" stroke="#d0dded" stroke-width="1"/>
+                <text x="0" y="-4" text-anchor="middle" font-size="8" fill="#1A1A2E" font-weight="700" dy=".35em">N</text>
+                <path d="M 0 -8 L 3 2 L 0 0 L -3 2 Z" fill="#FF4D6D"/>
+                <path d="M 0 8 L 3 -2 L 0 0 L -3 -2 Z" fill="#999"/>
+              </g>
+
+              <!-- Scale bar -->
+              <g transform="translate(14, 375)">
+                <rect x="0" y="0" width="40" height="3" rx="1.5" fill="#6B7A9A" opacity="0.5"/>
+                <text x="0" y="12" font-size="8" fill="#6B7A9A">0</text>
+                <text x="36" y="12" font-size="8" fill="#6B7A9A">1km</text>
+              </g>
+            </svg>
+
+            <!-- Bottom card -->
+            <div class="map-card">
+              <div class="map-card-tag">
+                <div class="map-card-icon">💼</div>
+                <div>
+                  <div class="map-card-name">仕事カバン</div>
+                  <div class="map-card-loc">
+                    <svg width="10" height="12" viewBox="0 0 10 13" fill="none">
+                      <path d="M5 0C2.24 0 0 2.24 0 5c0 3.75 5 8 5 8s5-4.25 5-8c0-2.76-2.24-5-5-5zm0 6.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" fill="#00D4FF"/>
+                    </svg>
+                    <span style="color:#00D4FF;font-weight:600">渋谷駅</span>
+                    <span>・ JR山手線 2番ホーム</span>
+                  </div>
+                </div>
+                <div style="margin-left:auto;text-align:right">
+                  <div style="font-size:11px;color:var(--gray4)">最終検出</div>
+                  <div style="font-size:14px;font-weight:700;color:var(--text)">14:32</div>
+                </div>
+              </div>
+              <div class="map-timeline">
+                <div class="map-timeline-title">移動履歴</div>
+                <div class="timeline-item">
+                  <div class="timeline-dot current"></div>
+                  <div class="timeline-text">渋谷駅（JR山手線）</div>
+                  <div class="timeline-time">14:32</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot past"></div>
+                  <div class="timeline-text">恵比寿駅</div>
+                  <div class="timeline-time">14:21</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot past"></div>
+                  <div class="timeline-text">品川駅（始発）</div>
+                  <div class="timeline-time">13:55</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== NOTIFICATIONS SCREEN ===== -->
+        <div class="screen" id="screen-notifications">
+          <div class="notif-header">
+            <h2>🔔 通知</h2>
+            <p>本日12件 ・ 未読3件</p>
+          </div>
+
+          <div class="notif-content">
+
+            <div class="notif-date-group">
+              <div class="notif-date-label">今日</div>
+
+              <div class="notif-item unread">
+                <div class="notif-emoji-wrap red">🚨</div>
+                <div class="notif-body">
+                  <div class="notif-title">財布が長時間未検出です</div>
+                  <div class="notif-desc">新宿駅での最終検出から3時間以上経過しています。紛失モードをご確認ください。</div>
+                </div>
+                <div class="notif-time">14:35</div>
+                <div class="notif-unread-dot"></div>
+              </div>
+
+              <div class="notif-item unread">
+                <div class="notif-emoji-wrap blue">🚃</div>
+                <div class="notif-body">
+                  <div class="notif-title">渋谷駅でタグを検出</div>
+                  <div class="notif-desc">仕事カバン が JR山手線・渋谷駅 を通過しました。</div>
+                </div>
+                <div class="notif-time">14:32</div>
+                <div class="notif-unread-dot"></div>
+              </div>
+
+              <div class="notif-item unread">
+                <div class="notif-emoji-wrap orange">🔍</div>
+                <div class="notif-body">
+                  <div class="notif-title">紛失モードをONにしました</div>
+                  <div class="notif-desc">財布 の紛失モードが有効になりました。次に検出された際、即座にお知らせします。</div>
+                </div>
+                <div class="notif-time">14:10</div>
+                <div class="notif-unread-dot"></div>
+              </div>
+
+              <div class="notif-item">
+                <div class="notif-emoji-wrap blue">🚃</div>
+                <div class="notif-body">
+                  <div class="notif-title">恵比寿駅でタグを検出</div>
+                  <div class="notif-desc">仕事カバン が JR山手線・恵比寿駅 を通過しました。</div>
+                </div>
+                <div class="notif-time">14:21</div>
+              </div>
+
+              <div class="notif-item">
+                <div class="notif-emoji-wrap blue">🚃</div>
+                <div class="notif-body">
+                  <div class="notif-title">品川駅でタグを検出</div>
+                  <div class="notif-desc">仕事カバン が JR山手線・品川駅 を通過しました。</div>
+                </div>
+                <div class="notif-time">13:55</div>
+              </div>
+
+              <div class="notif-item">
+                <div class="notif-emoji-wrap green">✅</div>
+                <div class="notif-body">
+                  <div class="notif-title">スーツケースのバッテリー残量良好</div>
+                  <div class="notif-desc">スーツケース のバッテリーは91%です。</div>
+                </div>
+                <div class="notif-time">10:50</div>
+              </div>
+
+              <div class="notif-item">
+                <div class="notif-emoji-wrap blue">🚃</div>
+                <div class="notif-body">
+                  <div class="notif-title">品川駅でタグを検出</div>
+                  <div class="notif-desc">スーツケース が JR山手線・品川駅 を通過しました。</div>
+                </div>
+                <div class="notif-time">10:48</div>
+              </div>
+
+              <div class="notif-item">
+                <div class="notif-emoji-wrap orange">⚠️</div>
+                <div class="notif-body">
+                  <div class="notif-title">財布のバッテリー低下</div>
+                  <div class="notif-desc">財布 のバッテリーが34%です。早めの充電をお勧めします。</div>
+                </div>
+                <div class="notif-time">09:22</div>
+              </div>
+            </div>
+
+            <div class="notif-date-group">
+              <div class="notif-date-label">昨日</div>
+
+              <div class="notif-item">
+                <div class="notif-emoji-wrap blue">🚃</div>
+                <div class="notif-body">
+                  <div class="notif-title">新宿駅でタグを検出</div>
+                  <div class="notif-desc">財布 が 東京メトロ丸ノ内線・新宿駅 を通過しました。</div>
+                </div>
+                <div class="notif-time">18:45</div>
+              </div>
+
+              <div class="notif-item">
+                <div class="notif-emoji-wrap purple">🎉</div>
+                <div class="notif-body">
+                  <div class="notif-title">新しい連携路線が追加されました</div>
+                  <div class="notif-desc">東急東横線 がRailFinderネットワークに参加しました。より広いエリアで追跡が可能になります。</div>
+                </div>
+                <div class="notif-time">12:00</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ===== PROFILE SCREEN ===== -->
+        <div class="screen" id="screen-profile">
+          <div class="profile-header">
+            <div class="profile-avatar">👤</div>
+            <div class="profile-name">田中 亮介</div>
+            <div class="profile-email">ryosuke.tanaka@example.com</div>
+            <div class="plan-badge">
+              <div class="plan-badge-dot"></div>
+              フリープラン ・ タグ3個
+            </div>
+          </div>
+
+          <div class="profile-content">
+            <!-- Upgrade CTA -->
+            <div class="upgrade-cta">
+              <div class="upgrade-badge">⚡ プレミアム</div>
+              <div class="upgrade-title">さらに高度な追跡で<br>大切なものを守ろう</div>
+              <div class="upgrade-desc">プレミアムプランで全機能をアンロック。より速く、より正確な追跡を体験してください。</div>
+              <div class="upgrade-features">
+                <div class="upgrade-feature">
+                  <div class="upgrade-feature-dot"></div>
+                  タグ無制限登録（現在：3個まで）
+                </div>
+                <div class="upgrade-feature">
+                  <div class="upgrade-feature-dot"></div>
+                  リアルタイム通知（遅延なし）
+                </div>
+                <div class="upgrade-feature">
+                  <div class="upgrade-feature-dot"></div>
+                  90日間の移動履歴保存
+                </div>
+                <div class="upgrade-feature">
+                  <div class="upgrade-feature-dot"></div>
+                  家族共有（最大5アカウント）
+                </div>
+              </div>
+              <button class="upgrade-btn">
+                ⚡ プレミアムにアップグレード
+              </button>
+              <div style="text-align:center;margin-top:8px;font-size:11px;color:rgba(255,255,255,0.4)">
+                月額 ¥480 ・ いつでも解約可能
+              </div>
+            </div>
+
+            <!-- Usage Stats -->
+            <div class="settings-section">
+              <div class="settings-title">今月の利用状況</div>
+              <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(15,41,82,0.06)">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                  <div style="text-align:center;padding:12px;background:var(--light-bg);border-radius:12px">
+                    <div style="font-size:24px;font-weight:800;color:var(--main)">47</div>
+                    <div style="font-size:11px;color:var(--gray4);margin-top:2px">駅での検出数</div>
+                  </div>
+                  <div style="text-align:center;padding:12px;background:var(--light-bg);border-radius:12px">
+                    <div style="font-size:24px;font-weight:800;color:var(--main)">12</div>
+                    <div style="font-size:11px;color:var(--gray4);margin-top:2px">利用路線数</div>
+                  </div>
+                  <div style="text-align:center;padding:12px;background:var(--light-bg);border-radius:12px">
+                    <div style="font-size:24px;font-weight:800;color:var(--success)">0</div>
+                    <div style="font-size:11px;color:var(--gray4);margin-top:2px">紛失解決件数</div>
+                  </div>
+                  <div style="text-align:center;padding:12px;background:rgba(255,77,109,0.06);border-radius:12px">
+                    <div style="font-size:24px;font-weight:800;color:var(--danger)">1</div>
+                    <div style="font-size:11px;color:var(--gray4);margin-top:2px">現在の紛失中</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="settings-section">
+              <div class="settings-title">通知設定</div>
+              <div class="settings-list">
+                <div class="settings-item">
+                  <div class="settings-icon blue">🔔</div>
+                  <div class="settings-text">
+                    <div class="settings-label">駅通過通知</div>
+                    <div class="settings-sub">タグが駅を通過したとき</div>
+                  </div>
+                  <div class="toggle"></div>
+                </div>
+                <div class="settings-item">
+                  <div class="settings-icon red">🚨</div>
+                  <div class="settings-text">
+                    <div class="settings-label">紛失アラート</div>
+                    <div class="settings-sub">長時間未検出のとき</div>
+                  </div>
+                  <div class="toggle"></div>
+                </div>
+                <div class="settings-item">
+                  <div class="settings-icon orange">🔋</div>
+                  <div class="settings-text">
+                    <div class="settings-label">バッテリー低下通知</div>
+                    <div class="settings-sub">残量30%以下のとき</div>
+                  </div>
+                  <div class="toggle"></div>
+                </div>
+                <div class="settings-item">
+                  <div class="settings-icon purple">🌙</div>
+                  <div class="settings-text">
+                    <div class="settings-label">おやすみモード</div>
+                    <div class="settings-sub">22:00 〜 7:00</div>
+                  </div>
+                  <div class="toggle off"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- App Settings -->
+            <div class="settings-section">
+              <div class="settings-title">アプリ設定</div>
+              <div class="settings-list">
+                <div class="settings-item">
+                  <div class="settings-icon blue">🌐</div>
+                  <div class="settings-text">
+                    <div class="settings-label">言語</div>
+                  </div>
+                  <div class="settings-right">
+                    <span class="settings-value">日本語</span>
+                    <span class="chevron">›</span>
+                  </div>
+                </div>
+                <div class="settings-item">
+                  <div class="settings-icon green">🛡</div>
+                  <div class="settings-text">
+                    <div class="settings-label">プライバシー設定</div>
+                  </div>
+                  <div class="settings-right">
+                    <span class="chevron">›</span>
+                  </div>
+                </div>
+                <div class="settings-item">
+                  <div class="settings-icon gray">📄</div>
+                  <div class="settings-text">
+                    <div class="settings-label">利用規約 / プライバシーポリシー</div>
+                  </div>
+                  <div class="settings-right">
+                    <span class="chevron">›</span>
+                  </div>
+                </div>
+                <div class="settings-item">
+                  <div class="settings-icon gray">ℹ️</div>
+                  <div class="settings-text">
+                    <div class="settings-label">バージョン</div>
+                    <div class="settings-sub">RailFinder v1.2.0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Signout -->
+            <div class="settings-list" style="margin-bottom:16px">
+              <div class="settings-item" style="justify-content:center">
+                <div style="font-size:14px;font-weight:600;color:var(--danger)">ログアウト</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /screens-container -->
+
+      <!-- Bottom Nav -->
+      <div class="bottom-nav">
+        <div class="nav-item" onclick="switchScreen('home', null, 0)">
+          <div class="nav-icon active" id="nav-icon-0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="#00D4FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="9,22 9,12 15,12 15,22" stroke="#00D4FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="nav-label active" id="nav-label-0">ホーム</span>
+        </div>
+        <div class="nav-item" onclick="switchScreen('map', null, 1)">
+          <div class="nav-icon" id="nav-icon-1">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <polygon points="1,6 1,22 8,18 16,22 23,18 23,2 16,6 8,2" stroke="#B8C4D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="8" y1="2" x2="8" y2="18" stroke="#B8C4D9" stroke-width="2"/>
+              <line x1="16" y1="6" x2="16" y2="22" stroke="#B8C4D9" stroke-width="2"/>
+            </svg>
+          </div>
+          <span class="nav-label" id="nav-label-1">マップ</span>
+        </div>
+        <div class="nav-item" onclick="switchScreen('notifications', null, 2)">
+          <div class="nav-icon" id="nav-icon-2">
+            <div class="nav-badge">3</div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#B8C4D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0" stroke="#B8C4D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="nav-label" id="nav-label-2">通知</span>
+        </div>
+        <div class="nav-item" onclick="switchScreen('profile', null, 3)">
+          <div class="nav-icon" id="nav-icon-3">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#B8C4D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="7" r="4" stroke="#B8C4D9" stroke-width="2"/>
+            </svg>
+          </div>
+          <span class="nav-label" id="nav-label-3">プロフィール</span>
+        </div>
+      </div>
+
+    </div><!-- /iphone-inner -->
+  </div><!-- /iphone-frame -->
+</div><!-- /iphone-wrapper -->
+
+<!-- Footer -->
+<div style="margin-top:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:12px;padding-bottom:32px">
+  RailFinder — 日本向けBLE紛失防止タグサービス ・ App Mockup v1.0<br>
+  <span style="color:rgba(255,255,255,0.2)">For demonstration purposes only</span>
+</div>
+
+<script>
+  // Screen mapping
+  const screenMap = {
+    'home': 0,
+    'map': 1,
+    'notifications': 2,
+    'profile': 3
+  };
+  const screenIds = ['home', 'map', 'notifications', 'profile'];
+
+  let activeIdx = 0;
+
+  function switchScreen(screenName, tabEl, navIdx) {
+    // Determine new index
+    let newIdx = navIdx !== undefined ? navIdx : screenMap[screenName];
+
+    // Update screens
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + screenName).classList.add('active');
+
+    // Update top tabs
+    document.querySelectorAll('.screen-tab').forEach((t, i) => {
+      t.classList.toggle('active', i === newIdx);
+    });
+
+    // Update bottom nav icons and labels
+    for (let i = 0; i < 4; i++) {
+      const icon = document.getElementById('nav-icon-' + i);
+      const label = document.getElementById('nav-label-' + i);
+      if (icon && label) {
+        icon.classList.toggle('active', i === newIdx);
+        label.classList.toggle('active', i === newIdx);
+      }
+    }
+
+    // Update nav icon SVG colors
+    updateNavColors(newIdx);
+
+    activeIdx = newIdx;
+
+    // Update status bar color for dark/light headers
+    updateStatusBar(screenName);
+  }
+
+  function updateNavColors(activeIdx) {
+    const navIcons = [
+      // Home
+      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="${activeIdx===0?'#00D4FF':'#B8C4D9'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9,22 9,12 15,12 15,22" stroke="${activeIdx===0?'#00D4FF':'#B8C4D9'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      // Map
+      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><polygon points="1,6 1,22 8,18 16,22 23,18 23,2 16,6 8,2" stroke="${activeIdx===1?'#00D4FF':'#B8C4D9'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="2" x2="8" y2="18" stroke="${activeIdx===1?'#00D4FF':'#B8C4D9'}" stroke-width="2"/><line x1="16" y1="6" x2="16" y2="22" stroke="${activeIdx===1?'#00D4FF':'#B8C4D9'}" stroke-width="2"/></svg>`,
+      // Notifications
+      `<div class="nav-badge">3</div><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="${activeIdx===2?'#00D4FF':'#B8C4D9'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.73 21a2 2 0 01-3.46 0" stroke="${activeIdx===2?'#00D4FF':'#B8C4D9'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      // Profile
+      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="${activeIdx===3?'#00D4FF':'#B8C4D9'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="${activeIdx===3?'#00D4FF':'#B8C4D9'}" stroke-width="2"/></svg>`
+    ];
+
+    for (let i = 0; i < 4; i++) {
+      const el = document.getElementById('nav-icon-' + i);
+      if (el) el.innerHTML = navIcons[i];
+    }
+  }
+
+  function updateStatusBar(screenName) {
+    const sb = document.getElementById('statusBar');
+    const darkScreens = ['home', 'map', 'notifications', 'profile'];
+    if (darkScreens.includes(screenName)) {
+      sb.style.color = '#fff';
+      document.querySelectorAll('.status-icons svg').forEach(s => s.style.fill = '#fff');
+    } else {
+      sb.style.color = '#1A1A2E';
+      document.querySelectorAll('.status-icons svg').forEach(s => s.style.fill = '#1A1A2E');
+    }
+  }
+
+  // Map tag selector interaction
+  document.querySelectorAll('.map-tag-pill').forEach(pill => {
+    pill.addEventListener('click', function() {
+      document.querySelectorAll('.map-tag-pill').forEach(p => {
+        p.classList.remove('active');
+        p.classList.add('inactive');
+      });
+      this.classList.add('active');
+      this.classList.remove('inactive');
+    });
+  });
+
+  // Toggle switches
+  document.querySelectorAll('.toggle').forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      this.classList.toggle('off');
+    });
+  });
+
+  // Initialize with dark status bar (home has dark header)
+  updateStatusBar('home');
+
+  // Clock update
+  function updateClock() {
+    const now = new Date();
+    const h = now.getHours().toString().padStart(2, '0');
+    const m = now.getMinutes().toString().padStart(2, '0');
+    document.querySelector('.status-time').textContent = h + ':' + m;
+  }
+  updateClock();
+  setInterval(updateClock, 60000);
+
+  // Animate the SVG map marker
+  setInterval(() => {
+    const outer = document.querySelector('.map-marker-outer');
+    if (outer) {
+      outer.style.animation = 'none';
+      outer.offsetHeight; // reflow
+      outer.style.animation = '';
+    }
+  }, 3000);
+</script>
+
+</body>
+</html>

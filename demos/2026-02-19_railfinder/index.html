@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RailFinder — Demo Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+JP:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       CSS Reset & Base
+    ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --color-main:       #0F2952;
+      --color-accent:     #00D4FF;
+      --color-accent-dim: #00b8de;
+      --color-bg:         #ffffff;
+      --color-surface:    #f7f8fc;
+      --color-surface-2:  #eef1f8;
+      --color-border:     #e2e6f0;
+      --color-text:       #1a2233;
+      --color-muted:      #64748b;
+      --color-muted-2:    #94a3b8;
+      --shadow-sm:  0 1px 4px rgba(15,41,82,.06);
+      --shadow-md:  0 4px 16px rgba(15,41,82,.10);
+      --shadow-lg:  0 8px 32px rgba(15,41,82,.14);
+      --shadow-xl:  0 16px 48px rgba(15,41,82,.18);
+      --radius-sm:  8px;
+      --radius-md:  12px;
+      --radius-lg:  16px;
+      --radius-xl:  24px;
+      --font-body:  'Inter', 'Noto Sans JP', sans-serif;
+      --transition: all .22s cubic-bezier(.4,0,.2,1);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--color-text);
+      background: var(--color-bg);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ============================================================
+       Typography
+    ============================================================ */
+    h1 { font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 800; line-height: 1.15; letter-spacing: -.03em; }
+    h2 { font-size: clamp(1.75rem, 3vw, 2.2rem); font-weight: 700; line-height: 1.25; letter-spacing: -.02em; }
+    h3 { font-size: clamp(1.2rem, 2vw, 1.35rem); font-weight: 600; line-height: 1.35; }
+    h4 { font-size: 1.05rem; font-weight: 600; }
+
+    /* ============================================================
+       Layout
+    ============================================================ */
+    .container {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section {
+      padding: 72px 0;
+    }
+
+    section + section {
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* ============================================================
+       Header / Nav
+    ============================================================ */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      height: 64px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--color-main);
+      letter-spacing: -.02em;
+      flex-shrink: 0;
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, var(--color-main) 0%, #1a4a8a 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-accent);
+      font-size: 1rem;
+      font-weight: 900;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--color-muted);
+      overflow: hidden;
+    }
+
+    .breadcrumb a {
+      color: var(--color-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--color-main);
+    }
+
+    .breadcrumb-sep {
+      color: var(--color-muted-2);
+      font-size: 12px;
+    }
+
+    .breadcrumb-current {
+      font-weight: 600;
+      color: var(--color-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ============================================================
+       Hero Section
+    ============================================================ */
+    .hero {
+      background: linear-gradient(135deg, var(--color-main) 0%, #1b3f7a 60%, #0d2241 100%);
+      color: #fff;
+      padding: 100px 0 90px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 75% 50%, rgba(0,212,255,.15) 0%, transparent 60%),
+        radial-gradient(circle at 20% 80%, rgba(0,212,255,.08) 0%, transparent 40%);
+    }
+
+    /* Decorative rail lines */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: 50%;
+      background-image:
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 58px,
+          rgba(0,212,255,.06) 58px,
+          rgba(0,212,255,.06) 60px
+        );
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,212,255,.15);
+      border: 1px solid rgba(0,212,255,.3);
+      color: var(--color-accent);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .hero-badge-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--color-accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .5; transform: scale(1.4); }
+    }
+
+    .hero h1 {
+      color: #fff;
+      margin-bottom: 20px;
+      max-width: 700px;
+    }
+
+    .hero-sub {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.78);
+      max-width: 560px;
+      margin-bottom: 40px;
+      font-weight: 400;
+      line-height: 1.7;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hero-tag {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      color: rgba(255,255,255,.85);
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 100px;
+    }
+
+    /* ============================================================
+       Section Header
+    ============================================================ */
+    .section-header {
+      margin-bottom: 40px;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--color-accent-dim);
+      margin-bottom: 12px;
+    }
+
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 14px;
+      background: var(--color-accent);
+      border-radius: 2px;
+    }
+
+    .section-header h2 {
+      color: var(--color-main);
+    }
+
+    .section-header p {
+      color: var(--color-muted);
+      margin-top: 10px;
+      max-width: 540px;
+    }
+
+    /* ============================================================
+       Cards — Base
+    ============================================================ */
+    .card {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-3px);
+      border-color: rgba(0,212,255,.35);
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    .card-body h3 {
+      color: var(--color-main);
+      margin-bottom: 8px;
+    }
+
+    .card-body p {
+      font-size: 15px;
+      color: var(--color-muted);
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+
+    /* ============================================================
+       Thumbnail placeholder
+    ============================================================ */
+    .thumb-wrap {
+      position: relative;
+      overflow: hidden;
+      background: var(--color-surface);
+    }
+
+    .thumb-wrap img {
+      width: 100%;
+      transition: transform .4s ease;
+    }
+
+    .card:hover .thumb-wrap img {
+      transform: scale(1.03);
+    }
+
+    .thumb-placeholder {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--color-muted-2);
+      font-size: 14px;
+    }
+
+    .thumb-placeholder svg {
+      opacity: .5;
+    }
+
+    /* ============================================================
+       LP Section — 3 columns
+    ============================================================ */
+    .lp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .lp-card .thumb-wrap {
+      aspect-ratio: 16/10;
+    }
+
+    .lp-card .thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .lp-tag {
+      display: inline-flex;
+      align-items: center;
+      background: var(--color-surface-2);
+      color: var(--color-main);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-bottom: 10px;
+    }
+
+    .lp-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--color-accent-dim);
+      font-size: 14px;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .lp-link:hover {
+      gap: 10px;
+      color: var(--color-main);
+    }
+
+    /* ============================================================
+       Mock App — Wide card
+    ============================================================ */
+    .mock-card {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 0;
+      min-height: 300px;
+    }
+
+    .mock-thumb {
+      position: relative;
+      overflow: hidden;
+      background: var(--color-surface);
+    }
+
+    .mock-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .4s ease;
+    }
+
+    .card:hover .mock-thumb img {
+      transform: scale(1.03);
+    }
+
+    .mock-thumb-placeholder {
+      width: 100%;
+      height: 100%;
+      min-height: 260px;
+      background: linear-gradient(135deg, #0F2952 0%, #1b4080 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: rgba(255,255,255,.6);
+      font-size: 14px;
+    }
+
+    .mock-content {
+      padding: 36px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .mock-content h3 {
+      font-size: 1.5rem;
+      color: var(--color-main);
+      margin-bottom: 12px;
+    }
+
+    .mock-content p {
+      color: var(--color-muted);
+      font-size: 15.5px;
+      line-height: 1.65;
+      margin-bottom: 24px;
+    }
+
+    .mock-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .mock-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14.5px;
+      color: var(--color-text);
+    }
+
+    .mock-features li::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      background: var(--color-accent);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       Btn
+    ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 600;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--color-main);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #1a4a8a;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(15,41,82,.28);
+    }
+
+    .btn-accent {
+      background: var(--color-accent);
+      color: var(--color-main);
+    }
+
+    .btn-accent:hover {
+      background: #00c4ee;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0,212,255,.38);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--color-main);
+      border: 1.5px solid var(--color-main);
+    }
+
+    .btn-outline:hover {
+      background: var(--color-main);
+      color: #fff;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13.5px;
+    }
+
+    /* ============================================================
+       Slides / Presentation
+    ============================================================ */
+    .slides-section {
+      background: var(--color-surface);
+    }
+
+    .slides-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+
+    .slides-preview-card {
+      grid-column: 1;
+    }
+
+    .slides-download-card {
+      grid-column: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .slides-thumb {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+      background: var(--color-main);
+    }
+
+    .slides-thumb img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform .4s ease;
+    }
+
+    .card:hover .slides-thumb img {
+      transform: scale(1.02);
+    }
+
+    .slide-count-badge {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0,0,0,.55);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 100px;
+      backdrop-filter: blur(6px);
+    }
+
+    .download-option {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      background: var(--color-bg);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      transition: var(--transition);
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .download-option:hover {
+      border-color: var(--color-accent);
+      box-shadow: var(--shadow-md);
+      transform: translateX(4px);
+    }
+
+    .dl-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .dl-icon-pptx { background: #fff0e6; }
+    .dl-icon-pdf  { background: #fff0f0; }
+
+    .dl-info { flex: 1; }
+    .dl-info strong { display: block; font-size: 15px; color: var(--color-main); margin-bottom: 2px; }
+    .dl-info span   { font-size: 13px; color: var(--color-muted); }
+
+    .dl-arrow {
+      color: var(--color-muted-2);
+      font-size: 18px;
+      transition: var(--transition);
+    }
+
+    .download-option:hover .dl-arrow {
+      color: var(--color-accent);
+      transform: translateX(3px);
+    }
+
+    /* Slide strip */
+    .slide-strip {
+      margin-top: 28px;
+    }
+
+    .slide-strip-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 14px;
+    }
+
+    .slide-strip-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+
+    .slide-strip-item {
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 2px solid transparent;
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .slide-strip-item:hover {
+      border-color: var(--color-accent);
+      transform: translateY(-2px);
+    }
+
+    .slide-strip-item img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+    }
+
+    .slide-strip-num {
+      position: absolute;
+      bottom: 3px;
+      right: 4px;
+      background: rgba(0,0,0,.5);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    /* ============================================================
+       Video Section
+    ============================================================ */
+    .video-section {
+      background: var(--color-main);
+      color: #fff;
+    }
+
+    .video-section .section-label {
+      color: var(--color-accent);
+    }
+
+    .video-section h2 {
+      color: #fff;
+    }
+
+    .video-section .section-header p {
+      color: rgba(255,255,255,.65);
+    }
+
+    .video-wrap {
+      position: relative;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background: #000;
+      box-shadow: var(--shadow-xl);
+    }
+
+    .video-wrap video {
+      width: 100%;
+      max-height: 560px;
+      display: block;
+    }
+
+    /* ============================================================
+       SNS Section
+    ============================================================ */
+    .sns-section {
+      background: var(--color-surface);
+    }
+
+    .ig-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .ig-item {
+      position: relative;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      aspect-ratio: 1;
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      transition: var(--transition);
+    }
+
+    .ig-item:hover {
+      transform: scale(1.04);
+      box-shadow: var(--shadow-md);
+      z-index: 2;
+    }
+
+    .ig-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .ig-item-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15,41,82,.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .ig-item:hover .ig-item-overlay {
+      opacity: 1;
+    }
+
+    .ig-item-overlay svg {
+      color: #fff;
+    }
+
+    .ig-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--color-muted-2);
+      font-size: 12px;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .x-posts-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--color-bg);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 16px 22px;
+      color: var(--color-text);
+      font-weight: 600;
+      font-size: 15px;
+      transition: var(--transition);
+      margin-top: 24px;
+    }
+
+    .x-posts-link:hover {
+      border-color: var(--color-main);
+      box-shadow: var(--shadow-md);
+      color: var(--color-main);
+      transform: translateY(-1px);
+    }
+
+    .x-icon {
+      width: 32px;
+      height: 32px;
+      background: #000;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 900;
+      font-family: serif;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       Documents Section
+    ============================================================ */
+    .docs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .doc-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 22px 24px;
+      background: var(--color-bg);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      transition: var(--transition);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .doc-item:hover {
+      border-color: var(--color-accent);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .doc-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--color-main) 0%, #1b4a8a 100%);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--color-accent);
+      font-size: 1.15rem;
+    }
+
+    .doc-info { flex: 1; min-width: 0; }
+
+    .doc-info strong {
+      display: block;
+      font-size: 15px;
+      color: var(--color-main);
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .doc-info span {
+      font-size: 13px;
+      color: var(--color-muted);
+    }
+
+    .doc-external {
+      font-size: 13px;
+      color: var(--color-muted-2);
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: var(--transition);
+    }
+
+    .doc-item:hover .doc-external {
+      color: var(--color-accent);
+    }
+
+    /* ============================================================
+       Lightbox Modal
+    ============================================================ */
+    .lightbox-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(5,10,25,.88);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox-backdrop.active {
+      display: flex;
+    }
+
+    .lightbox-inner {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+    }
+
+    .lightbox-inner img {
+      max-width: 80vw;
+      max-height: 82vh;
+      object-fit: contain;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 24px 80px rgba(0,0,0,.7);
+    }
+
+    .lightbox-close {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 10000;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255,255,255,.2);
+      transform: rotate(90deg);
+    }
+
+    .lightbox-nav {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 10000;
+    }
+
+    .lightbox-nav:hover {
+      background: rgba(255,255,255,.2);
+    }
+
+    .lightbox-prev { left: 16px; }
+    .lightbox-next { right: 16px; }
+
+    .lightbox-caption {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.6);
+      color: rgba(255,255,255,.9);
+      font-size: 14px;
+      padding: 8px 20px;
+      border-radius: 100px;
+      backdrop-filter: blur(6px);
+      white-space: nowrap;
+    }
+
+    .lightbox-counter {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.5);
+      color: rgba(255,255,255,.8);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 100px;
+    }
+
+    /* ============================================================
+       Footer
+    ============================================================ */
+    .site-footer {
+      background: var(--color-main);
+      color: rgba(255,255,255,.65);
+      padding: 48px 0;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .footer-logo-icon {
+      width: 30px;
+      height: 30px;
+      background: rgba(0,212,255,.15);
+      border: 1px solid rgba(0,212,255,.3);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-accent);
+      font-size: .85rem;
+      font-weight: 900;
+    }
+
+    .footer-tagline {
+      font-size: 14px;
+      color: rgba(255,255,255,.5);
+      max-width: 380px;
+    }
+
+    .footer-bootcamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,212,255,.12);
+      border: 1px solid rgba(0,212,255,.25);
+      color: var(--color-accent);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 100px;
+      letter-spacing: .04em;
+    }
+
+    .footer-divider {
+      width: 48px;
+      height: 1px;
+      background: rgba(255,255,255,.15);
+    }
+
+    .footer-copy {
+      font-size: 13px;
+    }
+
+    /* ============================================================
+       Slide Lightbox (for slides strip)
+    ============================================================ */
+    #slide-lightbox .lightbox-inner img {
+      max-width: 88vw;
+      max-height: 85vh;
+    }
+
+    /* ============================================================
+       Responsive
+    ============================================================ */
+    @media (max-width: 900px) {
+      .lp-grid { grid-template-columns: 1fr 1fr; }
+      .ig-grid  { grid-template-columns: repeat(3, 1fr); }
+      .slides-grid { grid-template-columns: 1fr; }
+      .slides-preview-card, .slides-download-card { grid-column: 1; }
+      .mock-card { grid-template-columns: 1fr; }
+      .mock-thumb { min-height: 220px; }
+    }
+
+    @media (max-width: 640px) {
+      body { font-size: 16px; }
+      section { padding: 52px 0; }
+      .lp-grid  { grid-template-columns: 1fr; }
+      .ig-grid  { grid-template-columns: repeat(2, 1fr); }
+      .docs-grid { grid-template-columns: 1fr; }
+      .slide-strip-grid { grid-template-columns: repeat(4, 1fr); }
+      h1 { font-size: 2rem; }
+    }
+
+    /* ============================================================
+       Utility
+    ============================================================ */
+    .text-accent { color: var(--color-accent); }
+    .mt-4  { margin-top: 4px; }
+    .mt-8  { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .mt-32 { margin-top: 32px; }
+    .flex  { display: flex; }
+    .items-center { align-items: center; }
+    .gap-8  { gap: 8px; }
+    .gap-12 { gap: 12px; }
+    .gap-16 { gap: 16px; }
+
+    /* SVG icons inline */
+    .icon { display: inline-block; vertical-align: middle; }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       HEADER
+  ============================================================ -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+
+        <div class="logo">
+          <div class="logo-icon">R</div>
+          RailFinder
+        </div>
+
+        <nav class="breadcrumb" aria-label="パンくずナビゲーション">
+          <a href="../index.html">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Demo Portal
+          </a>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current">RailFinder</span>
+        </nav>
+
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          Vibe Coder Demo
+        </div>
+
+        <h1>
+          Rail<span class="text-accent">Finder</span>
+        </h1>
+
+        <p class="hero-sub">
+          日本向けBLE紛失防止タグ × 鉄道ゲートウェイ連携<br />
+          全国8,000駅のインフラを活用した次世代IoT紛失防止プラットフォーム
+        </p>
+
+        <div class="hero-tags">
+          <span class="hero-tag">🏷️ BLEタグ</span>
+          <span class="hero-tag">🚆 鉄道ゲートウェイ</span>
+          <span class="hero-tag">📱 スマートフォンアプリ</span>
+          <span class="hero-tag">🗾 日本向け特化</span>
+          <span class="hero-tag">🔒 プライバシー設計</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       LP SECTION
+  ============================================================ -->
+  <section id="lp">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-label">Landing Pages</div>
+        <h2>ランディングページ</h2>
+        <p>3パターンのデザインバリエーション。ターゲット層に合わせてトーン・アンド・マナーを変えた提案です。</p>
+      </div>
+
+      <div class="lp-grid">
+
+        <!-- Pattern 1: Modern -->
+        <div class="card lp-card">
+          <div class="thumb-wrap">
+            <a href="lp/pattern1_modern.html" target="_blank" rel="noopener">
+              <img
+                src="screenshots/lp_pattern1.png"
+                alt="LP Pattern 1 Modern プレビュー"
+                loading="lazy"
+                onerror="this.parentElement.innerHTML='<div class=\'thumb-placeholder\' style=\'aspect-ratio:16/10\'><svg width=\'40\' height=\'40\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.5\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><circle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/><polyline points=\'21 15 16 10 5 21\'/></svg><span>スクリーンショット準備中</span></div>'"
+              />
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="lp-tag">Pattern 1</div>
+            <h3>Modern</h3>
+            <p>テクノロジー感を前面に押し出したモダンデザイン。ネイビー×シアンのカラーパレットでプロフェッショナルな印象を演出。</p>
+            <a href="lp/pattern1_modern.html" target="_blank" rel="noopener" class="lp-link">
+              LPを見る
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Pattern 2: Premium -->
+        <div class="card lp-card">
+          <div class="thumb-wrap">
+            <a href="lp/pattern2_premium.html" target="_blank" rel="noopener">
+              <img
+                src="screenshots/lp_pattern2.png"
+                alt="LP Pattern 2 Premium プレビュー"
+                loading="lazy"
+                onerror="this.parentElement.innerHTML='<div class=\'thumb-placeholder\' style=\'aspect-ratio:16/10\'><svg width=\'40\' height=\'40\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.5\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><circle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/><polyline points=\'21 15 16 10 5 21\'/></svg><span>スクリーンショット準備中</span></div>'"
+              />
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="lp-tag">Pattern 2</div>
+            <h3>Premium</h3>
+            <p>高級感・信頼性を重視したプレミアムデザイン。ビジネスパーソンや高付加価値ユーザーへの訴求を想定したレイアウト。</p>
+            <a href="lp/pattern2_premium.html" target="_blank" rel="noopener" class="lp-link">
+              LPを見る
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Pattern 3: Casual -->
+        <div class="card lp-card">
+          <div class="thumb-wrap">
+            <a href="lp/pattern3_casual.html" target="_blank" rel="noopener">
+              <img
+                src="screenshots/lp_pattern3.png"
+                alt="LP Pattern 3 Casual プレビュー"
+                loading="lazy"
+                onerror="this.parentElement.innerHTML='<div class=\'thumb-placeholder\' style=\'aspect-ratio:16/10\'><svg width=\'40\' height=\'40\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.5\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><circle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/><polyline points=\'21 15 16 10 5 21\'/></svg><span>スクリーンショット準備中</span></div>'"
+              />
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="lp-tag">Pattern 3</div>
+            <h3>Casual</h3>
+            <p>親しみやすく柔らかいカジュアルデザイン。一般消費者・学生・ファミリー層へのアプローチを意識した温かみのある表現。</p>
+            <a href="lp/pattern3_casual.html" target="_blank" rel="noopener" class="lp-link">
+              LPを見る
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       MOCK APP SECTION
+  ============================================================ -->
+  <section id="mock-app">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-label">Mock Application</div>
+        <h2>モックアプリ</h2>
+        <p>実際のユーザー体験を想定したインタラクティブなプロトタイプ。リアルな操作感でプロダクトビジョンを体感できます。</p>
+      </div>
+
+      <div class="card mock-card">
+        <div class="mock-thumb">
+          <a href="mock/app_mock.html" target="_blank" rel="noopener" style="display:block;height:100%;">
+            <img
+              src="screenshots/mock_app.png"
+              alt="RailFinder モックアプリ プレビュー"
+              loading="lazy"
+              style="width:100%;height:100%;object-fit:cover;"
+              onerror="this.parentElement.innerHTML='<div class=\'mock-thumb-placeholder\'><svg width=\'56\' height=\'56\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'rgba(0,212,255,.5)\' stroke-width=\'1.2\'><rect x=\'5\' y=\'2\' width=\'14\' height=\'20\' rx=\'2\'/><line x1=\'12\' y1=\'18\' x2=\'12\' y2=\'18.01\'/></svg><span>スクリーンショット準備中</span></div>'"
+            />
+          </a>
+        </div>
+        <div class="mock-content">
+          <h3>RailFinder App</h3>
+          <p>
+            BLEタグの位置追跡から遺失物届け出まで、すべてをワンアプリで完結。
+            日本の鉄道ネットワークと連携したリアルタイム追跡が体験できます。
+          </p>
+          <ul class="mock-features">
+            <li>リアルタイムBLE位置トラッキング</li>
+            <li>駅ゲートウェイ検出通知</li>
+            <li>遺失物届け出ワンタップ送信</li>
+            <li>複数タグの一元管理ダッシュボード</li>
+            <li>家族共有・位置共有機能</li>
+          </ul>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <a href="mock/app_mock.html" target="_blank" rel="noopener" class="btn btn-primary">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              デモを起動
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       PRESENTATION SECTION
+  ============================================================ -->
+  <section id="slides" class="slides-section">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-label">Presentation</div>
+        <h2>プレゼンテーション</h2>
+        <p>投資家・パートナー向けピッチデッキ。事業計画から市場分析まで12枚のスライドで整理。</p>
+      </div>
+
+      <div class="slides-grid">
+
+        <!-- Preview card -->
+        <div class="card slides-preview-card">
+          <div class="slides-thumb">
+            <a href="slides/railfinder.pdf" target="_blank" rel="noopener">
+              <img
+                src="slides/session/images/slide_01_title_01.png"
+                alt="RailFinder スライド タイトルページ"
+                loading="lazy"
+              />
+              <span class="slide-count-badge">12 Slides</span>
+            </a>
+          </div>
+          <div class="card-body">
+            <h3>RailFinder Pitch Deck</h3>
+            <p>日本の遺失物市場における課題提起から、BLE×鉄道ゲートウェイという独自ソリューション、ビジネスモデル、市場規模、ロードマップまでを網羅したピッチデッキです。</p>
+          </div>
+        </div>
+
+        <!-- Download options -->
+        <div class="slides-download-card">
+
+          <a href="slides/railfinder.pptx" download class="download-option">
+            <div class="dl-icon dl-icon-pptx">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E96C00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div class="dl-info">
+              <strong>PowerPoint (.pptx)</strong>
+              <span>編集可能なオリジナルファイル</span>
+            </div>
+            <span class="dl-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </span>
+          </a>
+
+          <a href="slides/railfinder.pdf" target="_blank" rel="noopener" class="download-option">
+            <div class="dl-icon dl-icon-pdf">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E53E3E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            </div>
+            <div class="dl-info">
+              <strong>PDF（ブラウザで開く）</strong>
+              <span>プレゼン閲覧・印刷用</span>
+            </div>
+            <span class="dl-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </span>
+          </a>
+
+        </div>
+
+      </div>
+
+      <!-- Slide strip -->
+      <div class="slide-strip">
+        <div class="slide-strip-title">スライド一覧</div>
+        <div class="slide-strip-grid" id="slide-strip-grid">
+
+          <div class="slide-strip-item" onclick="openSlideLightbox(0)" title="Slide 1: Title">
+            <img src="slides/session/images/slide_01_title_01.png" alt="Slide 1" loading="lazy" />
+            <span class="slide-strip-num">1</span>
+          </div>
+
+          <div class="slide-strip-item" onclick="openSlideLightbox(1)" title="Slide 2: Problem">
+            <img src="slides/session/images/slide_02_problem_01.png" alt="Slide 2" loading="lazy" />
+            <span class="slide-strip-num">2</span>
+          </div>
+
+          <div class="slide-strip-item" onclick="openSlideLightbox(2)" title="Slide 3: Solution">
+            <img src="slides/session/images/slide_03_solution_01.png" alt="Slide 3" loading="lazy" />
+            <span class="slide-strip-num">3</span>
+          </div>
+
+          <div class="slide-strip-item" onclick="openSlideLightbox(3)" title="Slide 4: Product">
+            <img src="slides/session/images/slide_04_product_01.png" alt="Slide 4" loading="lazy" />
+            <span class="slide-strip-num">4</span>
+          </div>
+
+          <div class="slide-strip-item" onclick="openSlideLightbox(4)" title="Slide 5: Network">
+            <img src="slides/session/images/slide_05_network_01.png" alt="Slide 5" loading="lazy" />
+            <span class="slide-strip-num">5</span>
+          </div>
+
+          <div class="slide-strip-item" onclick="openSlideLightbox(5)" title="Slide 6: App">
+            <img src="slides/session/images/slide_06_app_01.png" alt="Slide 6" loading="lazy" />
+            <span class="slide-strip-num">6</span>
+          </div>
+
+          <div class="slide-strip-item" onclick="openSlideLightbox(6)" title="Slide 7: Business Model">
+            <img src="slides/session/images/slide_07_business_model_01.png" alt="Slide 7" loading="lazy" />
+            <span class="slide-strip-num">7</span>
+          </div>
+
+          <div class="slide-strip-item" onclick="openSlideLightbox(7)" title="Slide 8: Market">
+            <img src="slides/session/images/slide_08_market_01.png" alt="Slide 8" loading="lazy" />
+            <span class="slide-strip-num">8</span>
+          </div>
+
+          <div class="slide-strip-item" onclick="openSlideLightbox(8)" title="Slide 9: Roadmap">
+            <img src="slides/session/images/slide_09_roadmap_01.png" alt="Slide 9" loading="lazy" />
+            <span class="slide-strip-num">9</span>
+          </div>
+
+          <div class="slide-strip-item" onclick="openSlideLightbox(9)" title="Slide 10: Team">
+            <img src="slides/session/images/slide_10_team_01.png" alt="Slide 10" loading="lazy" />
+            <span class="slide-strip-num">10</span>
+          </div>
+
+          <div class="slide-strip-item" onclick="openSlideLightbox(10)" title="Slide 11: Funding">
+            <img src="slides/session/images/slide_11_funding_01.png" alt="Slide 11" loading="lazy" />
+            <span class="slide-strip-num">11</span>
+          </div>
+
+          <div class="slide-strip-item" onclick="openSlideLightbox(11)" title="Slide 12: CTA">
+            <img src="slides/session/images/slide_12_cta_01.png" alt="Slide 12" loading="lazy" />
+            <span class="slide-strip-num">12</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       VIDEO SECTION
+  ============================================================ -->
+  <section id="video" class="video-section">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-label">Promo Video</div>
+        <h2>プロモーション動画</h2>
+        <p style="color:rgba(255,255,255,.6);">RailFinderのコンセプトとプロダクト体験を凝縮した60秒のプロモーションビデオ。</p>
+      </div>
+
+      <div class="video-wrap">
+        <video
+          controls
+          preload="metadata"
+          poster="slides/session/images/slide_01_title_01.png"
+          aria-label="RailFinder プロモーション動画"
+        >
+          <source src="video/promo.mp4" type="video/mp4" />
+          <p style="padding:40px;color:#fff;text-align:center;">
+            お使いのブラウザは動画の再生に対応していません。<br />
+            <a href="video/promo.mp4" style="color:#00D4FF;">動画をダウンロード</a>してご確認ください。
+          </p>
+        </video>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       SNS SECTION
+  ============================================================ -->
+  <section id="sns" class="sns-section">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-label">SNS Content</div>
+        <h2>SNSコンテンツ</h2>
+        <p>Instagram・Xで展開するソーシャルコンテンツ。各プラットフォームに最適化したビジュアルで認知拡大を図ります。</p>
+      </div>
+
+      <!-- Instagram Grid -->
+      <div style="margin-bottom:32px;">
+        <h3 style="font-size:1.1rem;color:var(--color-main);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          Instagram グリッド（10枚）
+        </h3>
+
+        <div class="ig-grid" id="ig-grid">
+
+          <!-- IG Image 01 -->
+          <div class="ig-item" onclick="openIgLightbox(0)" title="ig_01 — 電車で失くしたもの、返ってきた？">
+            <img
+              src="sns/instagram/ig_01.png"
+              alt="Instagram投稿 01"
+              loading="lazy"
+              onerror="this.parentElement.querySelector('img') && showIgPlaceholder(this, 1, '電車で失くしたもの、返ってきた？')"
+            />
+            <div class="ig-placeholder" id="ig-ph-0" style="display:none;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span>01</span>
+            </div>
+            <div class="ig-item-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </div>
+          </div>
+
+          <!-- IG Image 02 -->
+          <div class="ig-item" onclick="openIgLightbox(1)" title="ig_02 — 鉄道 × BLEで解決">
+            <img
+              src="sns/instagram/ig_02.png"
+              alt="Instagram投稿 02"
+              loading="lazy"
+              onerror="showIgPlaceholder(this, 2, '鉄道 × BLEで解決')"
+            />
+            <div class="ig-placeholder" id="ig-ph-1" style="display:none;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span>02</span>
+            </div>
+            <div class="ig-item-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </div>
+          </div>
+
+          <!-- IG Image 03 -->
+          <div class="ig-item" onclick="openIgLightbox(2)" title="ig_03 — 世界最薄クラスのBLEタグ">
+            <img
+              src="sns/instagram/ig_03.png"
+              alt="Instagram投稿 03"
+              loading="lazy"
+              onerror="showIgPlaceholder(this, 3, '世界最薄クラスのBLEタグ')"
+            />
+            <div class="ig-placeholder" id="ig-ph-2" style="display:none;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span>03</span>
+            </div>
+            <div class="ig-item-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </div>
+          </div>
+
+          <!-- IG Image 04 -->
+          <div class="ig-item" onclick="openIgLightbox(3)" title="ig_04 — 全国8,000駅のネットワーク">
+            <img
+              src="sns/instagram/ig_04.png"
+              alt="Instagram投稿 04"
+              loading="lazy"
+              onerror="showIgPlaceholder(this, 4, '全国8,000駅のネットワーク')"
+            />
+            <div class="ig-placeholder" id="ig-ph-3" style="display:none;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span>04</span>
+            </div>
+            <div class="ig-item-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </div>
+          </div>
+
+          <!-- IG Image 05 -->
+          <div class="ig-item" onclick="openIgLightbox(4)" title="ig_05 — vs AirTag">
+            <img
+              src="sns/instagram/ig_05.png"
+              alt="Instagram投稿 05"
+              loading="lazy"
+              onerror="showIgPlaceholder(this, 5, 'vs AirTag 比較')"
+            />
+            <div class="ig-placeholder" id="ig-ph-4" style="display:none;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span>05</span>
+            </div>
+            <div class="ig-item-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </div>
+          </div>
+
+          <!-- IG Image 06 -->
+          <div class="ig-item" onclick="openIgLightbox(5)" title="ig_06 — アプリUI紹介">
+            <img
+              src="sns/instagram/ig_06.png"
+              alt="Instagram投稿 06"
+              loading="lazy"
+              onerror="showIgPlaceholder(this, 6, 'アプリUI紹介')"
+            />
+            <div class="ig-placeholder" id="ig-ph-5" style="display:none;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span>06</span>
+            </div>
+            <div class="ig-item-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </div>
+          </div>
+
+          <!-- IG Image 07 -->
+          <div class="ig-item" onclick="openIgLightbox(6)" title="ig_07 — 価格プラン">
+            <img
+              src="sns/instagram/ig_07.png"
+              alt="Instagram投稿 07"
+              loading="lazy"
+              onerror="showIgPlaceholder(this, 7, '価格プラン')"
+            />
+            <div class="ig-placeholder" id="ig-ph-6" style="display:none;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span>07</span>
+            </div>
+            <div class="ig-item-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </div>
+          </div>
+
+          <!-- IG Image 08 -->
+          <div class="ig-item" onclick="openIgLightbox(7)" title="ig_08 — ユースケース">
+            <img
+              src="sns/instagram/ig_08.png"
+              alt="Instagram投稿 08"
+              loading="lazy"
+              onerror="showIgPlaceholder(this, 8, 'ユースケース')"
+            />
+            <div class="ig-placeholder" id="ig-ph-7" style="display:none;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span>08</span>
+            </div>
+            <div class="ig-item-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </div>
+          </div>
+
+          <!-- IG Image 09 -->
+          <div class="ig-item" onclick="openIgLightbox(8)" title="ig_09 — 統計データ">
+            <img
+              src="sns/instagram/ig_09.png"
+              alt="Instagram投稿 09"
+              loading="lazy"
+              onerror="showIgPlaceholder(this, 9, '遺失物統計データ')"
+            />
+            <div class="ig-placeholder" id="ig-ph-8" style="display:none;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span>09</span>
+            </div>
+            <div class="ig-item-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </div>
+          </div>
+
+          <!-- IG Image 10 -->
+          <div class="ig-item" onclick="openIgLightbox(9)" title="ig_10 — CTA">
+            <img
+              src="sns/instagram/ig_10.png"
+              alt="Instagram投稿 10"
+              loading="lazy"
+              onerror="showIgPlaceholder(this, 10, 'Call to Action')"
+            />
+            <div class="ig-placeholder" id="ig-ph-9" style="display:none;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span>10</span>
+            </div>
+            <div class="ig-item-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </div>
+          </div>
+
+        </div><!-- /ig-grid -->
+      </div>
+
+      <!-- X posts link -->
+      <div>
+        <h3 style="font-size:1.1rem;color:var(--color-main);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.623z"/></svg>
+          X (Twitter) 投稿
+        </h3>
+        <a
+          href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-19_railfinder/sns/x_posts_30days.md"
+          target="_blank"
+          rel="noopener"
+          class="x-posts-link"
+        >
+          <div class="x-icon">𝕏</div>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--color-main);">30日分の投稿カレンダー</div>
+            <div style="font-size:13px;color:var(--color-muted);font-weight:400;margin-top:2px;">sns/x_posts_30days.md — GitHubで閲覧</div>
+          </div>
+          <svg style="margin-left:auto;color:var(--color-muted-2);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       DOCUMENTS SECTION
+  ============================================================ -->
+  <section id="docs">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-label">Documents</div>
+        <h2>ドキュメント</h2>
+        <p>事業計画・市場分析・リスク評価など、RailFinderの詳細情報を記載したドキュメント群です。</p>
+      </div>
+
+      <div class="docs-grid">
+
+        <a
+          href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-19_railfinder/docs/01_executive_summary.md"
+          target="_blank"
+          rel="noopener"
+          class="doc-item"
+        >
+          <div class="doc-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <div class="doc-info">
+            <strong>01. Executive Summary</strong>
+            <span>エグゼクティブサマリー — 事業概要・価値提案・KPI</span>
+          </div>
+          <span class="doc-external">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </span>
+        </a>
+
+        <a
+          href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-19_railfinder/docs/02_business_model.md"
+          target="_blank"
+          rel="noopener"
+          class="doc-item"
+        >
+          <div class="doc-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="doc-info">
+            <strong>02. Business Model</strong>
+            <span>ビジネスモデル — 収益構造・パートナーシップ戦略</span>
+          </div>
+          <span class="doc-external">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </span>
+        </a>
+
+        <a
+          href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-19_railfinder/docs/03_solution_overview.md"
+          target="_blank"
+          rel="noopener"
+          class="doc-item"
+        >
+          <div class="doc-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="doc-info">
+            <strong>03. Solution Overview</strong>
+            <span>ソリューション概要 — BLE技術・ゲートウェイ設計・システム構成</span>
+          </div>
+          <span class="doc-external">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </span>
+        </a>
+
+        <a
+          href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-19_railfinder/docs/04_risk_analysis.md"
+          target="_blank"
+          rel="noopener"
+          class="doc-item"
+        >
+          <div class="doc-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="doc-info">
+            <strong>04. Risk Analysis</strong>
+            <span>リスク分析 — 技術・規制・競合・市場リスクの評価</span>
+          </div>
+          <span class="doc-external">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </span>
+        </a>
+
+        <a
+          href="https://github.com/rsensui2/vibe-coder-demo/blob/master/demos/2026-02-19_railfinder/docs/05_market_research.md"
+          target="_blank"
+          rel="noopener"
+          class="doc-item"
+          style="grid-column: 1 / -1;"
+        >
+          <div class="doc-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="doc-info">
+            <strong>05. Market Research</strong>
+            <span>市場調査 — TAM/SAM/SOM分析、競合マッピング、ユーザーリサーチ、市場参入戦略</span>
+          </div>
+          <span class="doc-external">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </span>
+        </a>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+
+        <div class="footer-logo">
+          <div class="footer-logo-icon">R</div>
+          RailFinder
+        </div>
+
+        <p class="footer-tagline">
+          日本向けBLE紛失防止タグ × 鉄道ゲートウェイ連携プラットフォーム
+        </p>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bootcamp">
+          🚀 Vibe Coder Bootcamp デモ
+        </div>
+
+        <p class="footer-copy">
+          © 2026 RailFinder — Generated by Vibe Coder Demo Portal
+        </p>
+
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ============================================================
+       IG LIGHTBOX MODAL
+  ============================================================ -->
+  <div class="lightbox-backdrop" id="ig-lightbox" role="dialog" aria-modal="true" aria-label="Instagram画像ビューワー">
+    <button class="lightbox-close" onclick="closeIgLightbox()" aria-label="閉じる">✕</button>
+    <button class="lightbox-nav lightbox-prev" onclick="igLightboxNav(-1)" aria-label="前の画像">‹</button>
+    <div class="lightbox-inner">
+      <img id="ig-lightbox-img" src="" alt="Instagram投稿" />
+    </div>
+    <button class="lightbox-nav lightbox-next" onclick="igLightboxNav(1)" aria-label="次の画像">›</button>
+    <div class="lightbox-counter" id="ig-lightbox-counter"></div>
+    <div class="lightbox-caption" id="ig-lightbox-caption"></div>
+  </div>
+
+
+  <!-- ============================================================
+       SLIDE LIGHTBOX MODAL
+  ============================================================ -->
+  <div class="lightbox-backdrop" id="slide-lightbox" role="dialog" aria-modal="true" aria-label="スライドビューワー">
+    <button class="lightbox-close" onclick="closeSlideLightbox()" aria-label="閉じる">✕</button>
+    <button class="lightbox-nav lightbox-prev" onclick="slideLightboxNav(-1)" aria-label="前のスライド">‹</button>
+    <div class="lightbox-inner">
+      <img id="slide-lightbox-img" src="" alt="スライド" />
+    </div>
+    <button class="lightbox-nav lightbox-next" onclick="slideLightboxNav(1)" aria-label="次のスライド">›</button>
+    <div class="lightbox-counter" id="slide-lightbox-counter"></div>
+    <div class="lightbox-caption" id="slide-lightbox-caption"></div>
+  </div>
+
+
+  <!-- ============================================================
+       INLINE JAVASCRIPT
+  ============================================================ -->
+  <script>
+    // ============================================================
+    // IG Image data
+    // ============================================================
+    const igImages = [
+      { src: 'sns/instagram/ig_01.png', caption: '01 — 電車で失くしたもの、返ってきた？' },
+      { src: 'sns/instagram/ig_02.png', caption: '02 — 鉄道 × BLEで解決' },
+      { src: 'sns/instagram/ig_03.png', caption: '03 — 世界最薄クラスのBLEタグ' },
+      { src: 'sns/instagram/ig_04.png', caption: '04 — 全国8,000駅のネットワーク' },
+      { src: 'sns/instagram/ig_05.png', caption: '05 — vs AirTag 徹底比較' },
+      { src: 'sns/instagram/ig_06.png', caption: '06 — アプリUI紹介' },
+      { src: 'sns/instagram/ig_07.png', caption: '07 — 価格プラン' },
+      { src: 'sns/instagram/ig_08.png', caption: '08 — ユースケース' },
+      { src: 'sns/instagram/ig_09.png', caption: '09 — 遺失物統計データ' },
+      { src: 'sns/instagram/ig_10.png', caption: '10 — Call to Action' },
+    ];
+
+    // Slide images
+    const slideImages = [
+      { src: 'slides/session/images/slide_01_title_01.png',        caption: 'Slide 1 — Title' },
+      { src: 'slides/session/images/slide_02_problem_01.png',      caption: 'Slide 2 — Problem' },
+      { src: 'slides/session/images/slide_03_solution_01.png',     caption: 'Slide 3 — Solution' },
+      { src: 'slides/session/images/slide_04_product_01.png',      caption: 'Slide 4 — Product' },
+      { src: 'slides/session/images/slide_05_network_01.png',      caption: 'Slide 5 — Network' },
+      { src: 'slides/session/images/slide_06_app_01.png',          caption: 'Slide 6 — App' },
+      { src: 'slides/session/images/slide_07_business_model_01.png', caption: 'Slide 7 — Business Model' },
+      { src: 'slides/session/images/slide_08_market_01.png',       caption: 'Slide 8 — Market' },
+      { src: 'slides/session/images/slide_09_roadmap_01.png',      caption: 'Slide 9 — Roadmap' },
+      { src: 'slides/session/images/slide_10_team_01.png',         caption: 'Slide 10 — Team' },
+      { src: 'slides/session/images/slide_11_funding_01.png',      caption: 'Slide 11 — Funding' },
+      { src: 'slides/session/images/slide_12_cta_01.png',          caption: 'Slide 12 — CTA' },
+    ];
+
+    // ============================================================
+    // IG Placeholder helper
+    // ============================================================
+    function showIgPlaceholder(imgEl, num, label) {
+      const item = imgEl.closest('.ig-item');
+      if (!item) return;
+      imgEl.style.display = 'none';
+      const ph = item.querySelector('.ig-placeholder');
+      if (ph) {
+        ph.style.display = 'flex';
+        ph.innerHTML = `
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
+            <rect x="2" y="2" width="20" height="20" rx="5"/>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          </svg>
+          <span style="font-size:11px;color:#94a3b8;text-align:center;padding:0 4px;">${String(num).padStart(2,'0')}<br/>${label}</span>
+        `;
+      }
+      // Mark this ig entry so lightbox shows placeholder
+      igImages[num - 1]._placeholder = true;
+    }
+
+    // ============================================================
+    // IG Lightbox
+    // ============================================================
+    let igCurrentIdx = 0;
+
+    function openIgLightbox(idx) {
+      igCurrentIdx = idx;
+      updateIgLightbox();
+      const lb = document.getElementById('ig-lightbox');
+      lb.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeIgLightbox() {
+      document.getElementById('ig-lightbox').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function igLightboxNav(dir) {
+      igCurrentIdx = (igCurrentIdx + dir + igImages.length) % igImages.length;
+      updateIgLightbox();
+    }
+
+    function updateIgLightbox() {
+      const data  = igImages[igCurrentIdx];
+      const img   = document.getElementById('ig-lightbox-img');
+      const cap   = document.getElementById('ig-lightbox-caption');
+      const count = document.getElementById('ig-lightbox-counter');
+
+      img.src = data.src;
+      img.alt = data.caption;
+      cap.textContent   = data.caption;
+      count.textContent = `${igCurrentIdx + 1} / ${igImages.length}`;
+
+      // If image fails (no file), show nice placeholder
+      img.onerror = function () {
+        this.style.display = 'none';
+        if (!document.getElementById('ig-lb-fallback')) {
+          const fb = document.createElement('div');
+          fb.id = 'ig-lb-fallback';
+          fb.style.cssText = 'width:300px;height:300px;background:#1a2233;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#64748b;';
+          fb.innerHTML = `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg><span style="font-size:14px">${data.caption}</span>`;
+          this.parentElement.appendChild(fb);
+        }
+      };
+    }
+
+    // ============================================================
+    // Slide Lightbox
+    // ============================================================
+    let slideCurrentIdx = 0;
+
+    function openSlideLightbox(idx) {
+      slideCurrentIdx = idx;
+      updateSlideLightbox();
+      const lb = document.getElementById('slide-lightbox');
+      lb.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSlideLightbox() {
+      document.getElementById('slide-lightbox').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function slideLightboxNav(dir) {
+      slideCurrentIdx = (slideCurrentIdx + dir + slideImages.length) % slideImages.length;
+      updateSlideLightbox();
+    }
+
+    function updateSlideLightbox() {
+      const data  = slideImages[slideCurrentIdx];
+      const img   = document.getElementById('slide-lightbox-img');
+      const cap   = document.getElementById('slide-lightbox-caption');
+      const count = document.getElementById('slide-lightbox-counter');
+
+      img.style.display = 'block';
+      img.src = data.src;
+      img.alt = data.caption;
+      cap.textContent   = data.caption;
+      count.textContent = `${slideCurrentIdx + 1} / ${slideImages.length}`;
+
+      // Remove any old fallback
+      const old = document.getElementById('slide-lb-fallback');
+      if (old) old.remove();
+    }
+
+    // ============================================================
+    // Keyboard navigation
+    // ============================================================
+    document.addEventListener('keydown', function (e) {
+      const igOpen    = document.getElementById('ig-lightbox').classList.contains('active');
+      const slideOpen = document.getElementById('slide-lightbox').classList.contains('active');
+
+      if (igOpen) {
+        if (e.key === 'Escape')     closeIgLightbox();
+        else if (e.key === 'ArrowLeft')  igLightboxNav(-1);
+        else if (e.key === 'ArrowRight') igLightboxNav(1);
+      }
+
+      if (slideOpen) {
+        if (e.key === 'Escape')     closeSlideLightbox();
+        else if (e.key === 'ArrowLeft')  slideLightboxNav(-1);
+        else if (e.key === 'ArrowRight') slideLightboxNav(1);
+      }
+    });
+
+    // Click backdrop to close
+    document.getElementById('ig-lightbox').addEventListener('click', function (e) {
+      if (e.target === this) closeIgLightbox();
+    });
+
+    document.getElementById('slide-lightbox').addEventListener('click', function (e) {
+      if (e.target === this) closeSlideLightbox();
+    });
+
+    // ============================================================
+    // Smooth scroll for in-page nav
+    // ============================================================
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // ============================================================
+    // Lazy image error handling for LP cards
+    // (already handled via onerror in HTML)
+    // ============================================================
+
+    // ============================================================
+    // Intersection Observer: fade-in sections
+    // ============================================================
+    (function () {
+      const style = document.createElement('style');
+      style.textContent = `
+        .fade-in-section {
+          opacity: 0;
+          transform: translateY(24px);
+          transition: opacity .55s ease, transform .55s ease;
+        }
+        .fade-in-section.visible {
+          opacity: 1;
+          transform: none;
+        }
+      `;
+      document.head.appendChild(style);
+
+      const sections = document.querySelectorAll('section, .card, .doc-item, .download-option');
+      sections.forEach(function (el) {
+        el.classList.add('fade-in-section');
+      });
+
+      const io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08 });
+
+      sections.forEach(function (el) { io.observe(el); });
+    })();
+
+  </script>
+
+</body>
+</html>
