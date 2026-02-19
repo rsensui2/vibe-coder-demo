@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FINDLY – BLE落とし物防止タグ × 鉄道連携サービス</title>
 <style>
-
-/* === RESET & BASE === */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   background: #0A0F1E;
@@ -17,673 +15,324 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
   overflow: hidden;
 }
-
-/* Background ambient glow */
 body::before {
   content: '';
-  position: fixed;
-  top: -20%; left: -20%;
-  width: 60%; height: 60%;
+  position: fixed; top: -20%; left: -20%; width: 60%; height: 60%;
   background: radial-gradient(circle, rgba(26,111,219,0.18) 0%, transparent 70%);
   pointer-events: none;
 }
 body::after {
   content: '';
-  position: fixed;
-  bottom: -20%; right: -20%;
-  width: 55%; height: 55%;
+  position: fixed; bottom: -20%; right: -20%; width: 55%; height: 55%;
   background: radial-gradient(circle, rgba(0,201,167,0.12) 0%, transparent 70%);
   pointer-events: none;
 }
-
-/* === BRAND HEADER (outside phone) === */
 .brand-header {
-  position: fixed;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  z-index: 100;
+  position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; z-index: 100;
 }
 .brand-logo {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: 2px;
+  font-size: 22px; font-weight: 800; letter-spacing: 2px;
   background: linear-gradient(135deg, #1A6FDB, #00C9A7);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.brand-tagline {
-  font-size: 10px;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
+.brand-tagline { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; }
 
-/* === iPHONE 15 FRAME === */
 .iphone-wrapper { position: relative; z-index: 10; margin-top: 20px; }
 .iphone-frame {
-  width: 390px;
-  height: 844px;
-  background: #0d0d0d;
-  border-radius: 54px;
+  width: 390px; height: 844px;
+  background: #0d0d0d; border-radius: 54px;
   position: relative;
-  box-shadow:
-    0 0 0 2px #2a2a2a,
-    0 0 0 4px #1a1a1a,
-    0 30px 80px rgba(0,0,0,0.85),
-    inset 0 0 0 1px rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 2px #2a2a2a, 0 0 0 4px #1a1a1a, 0 30px 80px rgba(0,0,0,0.85), inset 0 0 0 1px rgba(255,255,255,0.08);
   overflow: hidden;
 }
-/* Left side buttons */
 .iphone-frame::before {
   content: '';
-  position: absolute;
-  left: -4px; top: 120px;
-  width: 4px; height: 32px;
-  background: #2a2a2a;
-  border-radius: 2px 0 0 2px;
+  position: absolute; left: -4px; top: 120px; width: 4px; height: 32px;
+  background: #2a2a2a; border-radius: 2px 0 0 2px;
   box-shadow: 0 48px 0 #2a2a2a, 0 96px 0 #2a2a2a;
 }
-/* Right power button */
 .iphone-frame::after {
   content: '';
-  position: absolute;
-  right: -4px; top: 160px;
-  width: 4px; height: 64px;
-  background: #2a2a2a;
-  border-radius: 0 2px 2px 0;
+  position: absolute; right: -4px; top: 160px; width: 4px; height: 64px;
+  background: #2a2a2a; border-radius: 0 2px 2px 0;
 }
-
-/* === SCREEN === */
 .screen {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: #0A0F1E;
-  border-radius: 54px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: #0A0F1E; border-radius: 54px; overflow: hidden;
+  display: flex; flex-direction: column;
 }
-
-/* === DYNAMIC ISLAND === */
 .dynamic-island {
-  position: absolute;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 126px;
-  height: 37px;
-  background: #000;
-  border-radius: 20px;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 50;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
   box-shadow: 0 0 0 1px rgba(255,255,255,0.06);
 }
 .di-camera {
-  width: 12px; height: 12px;
-  background: #1a1a2e;
-  border-radius: 50%;
-  border: 2px solid #222;
-  position: relative;
+  width: 12px; height: 12px; background: #1a1a2e; border-radius: 50%; border: 2px solid #222; position: relative;
 }
 .di-camera::after {
-  content: '';
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%,-50%);
-  width: 5px; height: 5px;
-  background: #0d1117;
-  border-radius: 50%;
+  content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 5px; height: 5px; background: #0d1117; border-radius: 50%;
 }
-.di-speaker {
-  width: 48px; height: 6px;
-  background: #111;
-  border-radius: 3px;
-  border: 1px solid #1a1a1a;
-}
-
-/* === STATUS BAR === */
+.di-speaker { width: 48px; height: 6px; background: #111; border-radius: 3px; border: 1px solid #1a1a1a; }
 .status-bar {
-  height: 54px;
-  padding: 16px 28px 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-shrink: 0;
+  height: 54px; padding: 16px 28px 0;
+  display: flex; align-items: flex-start; justify-content: space-between; flex-shrink: 0;
 }
 .status-time { font-size: 15px; font-weight: 600; color: #fff; }
 .status-icons { display: flex; gap: 6px; align-items: center; color: #fff; }
-.battery-icon { display: flex; align-items: center; }
-.bat-body {
-  width: 22px; height: 11px;
-  border: 1.5px solid rgba(255,255,255,0.8);
-  border-radius: 3px;
-  padding: 1.5px;
-}
+.bat-body { width: 22px; height: 11px; border: 1.5px solid rgba(255,255,255,0.8); border-radius: 3px; padding: 1.5px; }
 .bat-inner { height: 100%; width: 80%; background: #4CD964; border-radius: 1px; }
-.bat-cap {
-  width: 2px; height: 5px;
-  background: rgba(255,255,255,0.8);
-  border-radius: 0 1px 1px 0;
-  margin-left: 1px;
-  align-self: center;
-}
-
-/* === APP HEADER === */
+.bat-cap { width: 2px; height: 5px; background: rgba(255,255,255,0.8); border-radius: 0 1px 1px 0; margin-left: 1px; align-self: center; }
 .app-header {
   padding: 8px 24px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
 }
 .app-title {
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 28px; font-weight: 800;
   background: linear-gradient(135deg, #1A6FDB, #00C9A7);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   letter-spacing: 1px;
 }
 .header-actions { display: flex; gap: 12px; }
 .icon-btn {
-  width: 36px; height: 36px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-  cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.1);
-  transition: background 0.2s;
+  width: 36px; height: 36px; background: rgba(255,255,255,0.06); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+  cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
 }
-.icon-btn:hover { background: rgba(255,255,255,0.12); }
-
-/* === TAB SYSTEM === */
 .tab-wrapper { flex: 1; overflow: hidden; position: relative; }
-.tab-pane {
-  display: none;
-  height: 100%;
-  overflow-y: auto;
-  padding-bottom: 82px;
-  scrollbar-width: none;
-}
+.tab-pane { display: none; height: 100%; overflow-y: auto; padding-bottom: 82px; scrollbar-width: none; }
 .tab-pane::-webkit-scrollbar { display: none; }
 .tab-pane.active { display: block; }
-
-/* === BOTTOM NAVIGATION === */
 .bottom-nav {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 82px;
-  background: rgba(10,15,30,0.96);
-  backdrop-filter: blur(20px);
+  position: absolute; bottom: 0; left: 0; right: 0; height: 82px;
+  background: rgba(10,15,30,0.96); backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255,255,255,0.08);
-  display: flex;
-  align-items: flex-start;
-  padding-top: 10px;
-  z-index: 40;
-  border-radius: 0 0 54px 54px;
+  display: flex; align-items: flex-start; padding-top: 10px;
+  z-index: 40; border-radius: 0 0 54px 54px;
 }
-.nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  padding: 4px 0;
-  transition: all 0.2s;
-}
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 0; }
 .nav-icon { font-size: 22px; line-height: 1; transition: transform 0.2s; }
-.nav-label { font-size: 9px; color: rgba(255,255,255,0.4); font-weight: 500; letter-spacing: 0.3px; }
+.nav-label { font-size: 9px; color: rgba(255,255,255,0.4); font-weight: 500; }
 .nav-item.active .nav-label { color: #00C9A7; }
 .nav-item.active .nav-icon { transform: scale(1.1); }
 .nav-dot { width: 4px; height: 4px; background: #00C9A7; border-radius: 50%; opacity: 0; }
 .nav-item.active .nav-dot { opacity: 1; }
-.nav-add-btn {
+.nav-plus-btn {
   width: 52px; height: 52px;
-  background: linear-gradient(135deg, #1A6FDB, #00C9A7);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px;
-  margin-top: -16px;
-  box-shadow: 0 4px 20px rgba(0,201,167,0.4);
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: linear-gradient(135deg, #1A6FDB, #00C9A7); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 26px;
+  margin-top: -16px; box-shadow: 0 4px 20px rgba(0,201,167,0.4);
 }
-.nav-add-btn:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(0,201,167,0.5); }
-
-/* === SHARED COMPONENTS === */
 .section-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.35);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  padding: 16px 24px 10px;
+  font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.35);
+  letter-spacing: 1.5px; text-transform: uppercase; padding: 16px 24px 10px;
 }
-.divider { height: 1px; background: rgba(255,255,255,0.06); margin: 4px 20px; }
-
-/* Map container */
 .map-container {
-  margin: 0 20px 20px;
-  height: 180px;
+  margin: 0 20px 20px; height: 180px;
   background: linear-gradient(145deg, #0d1829, #0f2040);
-  border-radius: 20px;
-  position: relative;
-  overflow: hidden;
+  border-radius: 20px; position: relative; overflow: hidden;
   border: 1px solid rgba(26,111,219,0.2);
 }
 .map-grid {
   position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(26,111,219,0.08) 1px, transparent 1px),
+  background-image: linear-gradient(rgba(26,111,219,0.08) 1px, transparent 1px),
     linear-gradient(90deg, rgba(26,111,219,0.08) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 .map-road-h { position: absolute; left: 0; right: 0; height: 3px; background: rgba(255,255,255,0.06); }
 .map-road-v { position: absolute; top: 0; bottom: 0; width: 3px; background: rgba(255,255,255,0.06); }
-.map-station {
-  position: absolute;
-  background: rgba(26,111,219,0.25);
-  border: 1px solid rgba(26,111,219,0.5);
-  border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 9px;
-  color: rgba(255,255,255,0.65);
-  font-weight: 600;
+.map-stn {
+  position: absolute; background: rgba(26,111,219,0.25); border: 1px solid rgba(26,111,219,0.5);
+  border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: rgba(255,255,255,0.65); font-weight: 600;
 }
-.map-pin {
-  position: absolute;
-  display: flex; flex-direction: column; align-items: center;
-  transform: translate(-50%, -50%);
-}
+.map-pin { position: absolute; display: flex; flex-direction: column; align-items: center; transform: translate(-50%,-50%); }
 .pin-head {
-  width: 28px; height: 28px;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
+  width: 28px; height: 28px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 3px 10px rgba(0,201,167,0.4);
-  z-index: 2;
-  position: relative;
+  box-shadow: 0 3px 10px rgba(0,201,167,0.4); z-index: 2; position: relative;
 }
 .pin-head span { transform: rotate(45deg); font-size: 13px; display: block; }
-.pin-pulse {
-  position: absolute;
-  bottom: -2px;
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  opacity: 0.3;
-  animation: ripple 2s ease-in-out infinite;
+.pin-pulse { position: absolute; bottom: -2px; width: 40px; height: 40px; border-radius: 50%; opacity: 0.3; animation: ripple 2s ease-in-out infinite; }
+@keyframes ripple { 0% { transform: scale(0.5); opacity: 0.5; } 100% { transform: scale(1.6); opacity: 0; } }
+.map-label {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(0,0,0,0.65); backdrop-filter: blur(8px);
+  border-radius: 8px; padding: 4px 8px; font-size: 10px;
+  color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.1);
 }
-@keyframes ripple {
-  0%   { transform: scale(0.5); opacity: 0.5; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-.map-overlay-label {
-  position: absolute;
-  top: 12px; right: 12px;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(8px);
-  border-radius: 8px;
-  padding: 4px 8px;
-  font-size: 10px;
-  color: rgba(255,255,255,0.7);
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-/* Tag cards */
-.tag-card {
-  margin: 8px 20px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 18px;
-  padding: 16px;
-  display: flex; align-items: center; gap: 14px;
-  border: 1px solid rgba(255,255,255,0.07);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.tag-card:hover {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(0,201,167,0.3);
-  transform: translateY(-1px);
-}
-.tag-icon {
-  width: 52px; height: 52px;
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px;
-  flex-shrink: 0;
-}
-.ti-blue   { background: rgba(26,111,219,0.2);  border: 1px solid rgba(26,111,219,0.3); }
-.ti-cyan   { background: rgba(0,201,167,0.15);  border: 1px solid rgba(0,201,167,0.3); }
-.ti-purple { background: rgba(120,60,220,0.2);  border: 1px solid rgba(120,60,220,0.3); }
-.tag-body { flex: 1; min-width: 0; }
-.tag-name  { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; }
-.tag-loc   { font-size: 12px; color: rgba(255,255,255,0.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tag-loc span { color: #00C9A7; font-weight: 500; }
-.tag-sub   { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
-.tag-meta  { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-.bat-bar   { width: 36px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
-.bat-level { height: 100%; border-radius: 3px; }
-.bat-hi { background: #00C9A7; }
-.bat-md { background: #FFD60A; }
-.bat-lo { background: #FF453A; }
-.bat-pct   { font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 500; }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; }
-.dot-online  { background: #00C9A7; box-shadow: 0 0 6px rgba(0,201,167,0.6); }
-.dot-offline { background: rgba(255,255,255,0.2); }
-
-/* Alert banner */
 .alert-banner {
   margin: 4px 20px 8px;
   background: linear-gradient(135deg, rgba(26,111,219,0.2), rgba(0,201,167,0.15));
-  border-radius: 14px;
-  padding: 12px 16px;
+  border-radius: 14px; padding: 12px 16px;
   display: flex; align-items: center; gap: 12px;
-  border: 1px solid rgba(0,201,167,0.3);
-  cursor: pointer;
-  transition: all 0.2s;
+  border: 1px solid rgba(0,201,167,0.3); cursor: pointer;
 }
-.alert-banner:hover { border-color: rgba(0,201,167,0.5); }
 .alert-text { flex: 1; }
 .alert-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 2px; }
-.alert-sub   { font-size: 11px; color: rgba(255,255,255,0.5); }
-.alert-arrow { color: rgba(255,255,255,0.3); font-size: 14px; }
-
-/* === NOTIFICATION TAB === */
+.alert-sub { font-size: 11px; color: rgba(255,255,255,0.5); }
+.tag-card {
+  margin: 8px 20px; background: rgba(255,255,255,0.04);
+  border-radius: 18px; padding: 16px;
+  display: flex; align-items: center; gap: 14px;
+  border: 1px solid rgba(255,255,255,0.07); cursor: pointer; transition: all 0.2s;
+}
+.tag-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(0,201,167,0.3); transform: translateY(-1px); }
+.tag-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.ti-blue   { background: rgba(26,111,219,0.2); border: 1px solid rgba(26,111,219,0.3); }
+.ti-cyan   { background: rgba(0,201,167,0.15); border: 1px solid rgba(0,201,167,0.3); }
+.ti-purple { background: rgba(120,60,220,0.2); border: 1px solid rgba(120,60,220,0.3); }
+.tag-body { flex: 1; min-width: 0; }
+.tag-name { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.tag-loc  { font-size: 12px; color: rgba(255,255,255,0.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tag-loc span { color: #00C9A7; font-weight: 500; }
+.tag-sub  { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+.tag-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.bat-bar  { width: 36px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+.bat-level { height: 100%; border-radius: 3px; }
+.bat-hi { background: #00C9A7; } .bat-md { background: #FFD60A; } .bat-lo { background: #FF453A; }
+.bat-pct { font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 500; }
+.s-dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot-on  { background: #00C9A7; box-shadow: 0 0 6px rgba(0,201,167,0.6); }
+.dot-off { background: rgba(255,255,255,0.2); }
 .notif-hero {
   margin: 0 20px 16px;
   background: linear-gradient(145deg, rgba(26,111,219,0.15), rgba(0,201,167,0.1));
-  border-radius: 24px;
-  padding: 24px;
-  border: 1px solid rgba(0,201,167,0.25);
-  position: relative;
-  overflow: hidden;
+  border-radius: 24px; padding: 24px;
+  border: 1px solid rgba(0,201,167,0.25); position: relative; overflow: hidden;
 }
 .notif-hero::before {
-  content: '';
-  position: absolute;
-  top: -30px; right: -30px;
-  width: 100px; height: 100px;
-  background: radial-gradient(circle, rgba(0,201,167,0.15), transparent);
-  border-radius: 50%;
+  content: ''; position: absolute; top: -30px; right: -30px; width: 100px; height: 100px;
+  background: radial-gradient(circle, rgba(0,201,167,0.15), transparent); border-radius: 50%;
 }
 .notif-badge {
   display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(0,201,167,0.2);
-  border: 1px solid rgba(0,201,167,0.4);
-  border-radius: 20px;
-  padding: 4px 10px;
-  font-size: 10px;
-  color: #00C9A7;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
+  background: rgba(0,201,167,0.2); border: 1px solid rgba(0,201,167,0.4);
+  border-radius: 20px; padding: 4px 10px; font-size: 10px; color: #00C9A7; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 12px;
 }
 .notif-badge::before {
-  content: '';
-  width: 6px; height: 6px;
-  background: #00C9A7;
-  border-radius: 50%;
-  box-shadow: 0 0 6px rgba(0,201,167,0.8);
-  animation: blink 1.5s ease-in-out infinite;
+  content: ''; width: 6px; height: 6px; background: #00C9A7; border-radius: 50%;
+  box-shadow: 0 0 6px rgba(0,201,167,0.8); animation: blink 1.5s ease-in-out infinite;
 }
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.3; }
-}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 .notif-title { font-size: 18px; font-weight: 700; color: #fff; line-height: 1.4; margin-bottom: 8px; }
 .notif-time  { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
 .notif-row   { display: flex; gap: 8px; margin-bottom: 7px; align-items: flex-start; }
-.notif-row-icon { font-size: 14px; width: 20px; flex-shrink: 0; }
-.notif-row-text { font-size: 13px; color: rgba(255,255,255,0.6); }
-.notif-row-text strong { color: rgba(255,255,255,0.9); }
-
+.notif-row-ic  { font-size: 14px; width: 20px; flex-shrink: 0; }
+.notif-row-txt { font-size: 13px; color: rgba(255,255,255,0.6); }
+.notif-row-txt strong { color: rgba(255,255,255,0.9); }
 .reserve-btn {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   margin: 0 20px 16px;
   background: linear-gradient(135deg, #00C9A7, #00a88d);
-  border-radius: 16px;
-  padding: 16px;
-  font-size: 16px; font-weight: 700; color: #fff;
-  cursor: pointer;
-  box-shadow: 0 6px 24px rgba(0,201,167,0.35);
-  border: none;
-  width: calc(100% - 40px);
-  transition: all 0.2s;
+  border-radius: 16px; padding: 16px; font-size: 16px; font-weight: 700; color: #fff;
+  cursor: pointer; box-shadow: 0 6px 24px rgba(0,201,167,0.35);
+  border: none; width: calc(100% - 40px);
 }
-.reserve-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,201,167,0.45); }
-
 .map-guide {
-  margin: 0 20px 16px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 18px;
-  padding: 16px;
-  border: 1px solid rgba(255,255,255,0.07);
+  margin: 0 20px 16px; background: rgba(255,255,255,0.03);
+  border-radius: 18px; padding: 16px; border: 1px solid rgba(255,255,255,0.07);
 }
-.map-guide-title {
-  font-size: 13px; font-weight: 600;
-  color: rgba(255,255,255,0.7);
-  margin-bottom: 12px;
-}
-.map-guide-inner {
-  height: 120px;
-  background: linear-gradient(145deg, #0d1829, #0f2040);
-  border-radius: 12px;
-  position: relative; overflow: hidden;
-}
+.map-guide-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 12px; }
+.map-guide-inner { height: 120px; background: linear-gradient(145deg, #0d1829, #0f2040); border-radius: 12px; position: relative; overflow: hidden; }
 .route-line {
-  position: absolute;
-  top: 50%; left: 18%; right: 18%;
-  height: 3px;
-  background: linear-gradient(90deg, #1A6FDB, #00C9A7);
-  transform: translateY(-50%);
-  border-radius: 2px;
+  position: absolute; top: 50%; left: 18%; right: 18%; height: 3px;
+  background: linear-gradient(90deg, #1A6FDB, #00C9A7); transform: translateY(-50%); border-radius: 2px;
 }
 .route-line::before, .route-line::after {
-  content: '';
-  position: absolute; top: 50%; transform: translateY(-50%);
-  width: 10px; height: 10px;
-  background: #1A6FDB; border-radius: 50%; border: 2px solid #fff;
+  content: ''; position: absolute; top: 50%; transform: translateY(-50%);
+  width: 10px; height: 10px; background: #1A6FDB; border-radius: 50%; border: 2px solid #fff;
 }
 .route-line::before { left: -5px; }
 .route-line::after  { right: -5px; background: #00C9A7; box-shadow: 0 0 10px rgba(0,201,167,0.6); }
 .route-you  { position: absolute; left: 10%; top: calc(50% - 20px); font-size: 9px; font-weight: 600; color: rgba(255,255,255,0.6); background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px; }
 .route-dest { position: absolute; right: 6%; top: calc(50% - 20px); font-size: 9px; font-weight: 600; color: #00C9A7; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,201,167,0.4); }
 .route-step { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.65); border-radius: 6px; padding: 3px 10px; font-size: 10px; color: rgba(255,255,255,0.6); white-space: nowrap; }
-
-.notif-list-item {
-  margin: 8px 20px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 14px;
-  padding: 14px;
-  display: flex; gap: 12px;
-  border: 1px solid rgba(255,255,255,0.06);
-  cursor: pointer;
-  transition: background 0.2s;
+.nli {
+  margin: 8px 20px; background: rgba(255,255,255,0.04); border-radius: 14px; padding: 14px;
+  display: flex; gap: 12px; border: 1px solid rgba(255,255,255,0.06); cursor: pointer;
 }
-.notif-list-item.unread { border-color: rgba(26,111,219,0.3); background: rgba(26,111,219,0.06); }
-.notif-list-item:hover  { background: rgba(255,255,255,0.07); }
+.nli.unread { border-color: rgba(26,111,219,0.3); background: rgba(26,111,219,0.06); }
 .nli-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-.nli-blue { background: rgba(26,111,219,0.2); }
-.nli-cyan { background: rgba(0,201,167,0.15); }
+.nico-b { background: rgba(26,111,219,0.2); } .nico-c { background: rgba(0,201,167,0.15); }
 .nli-body { flex: 1; }
 .nli-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 3px; }
 .nli-sub   { font-size: 11px; color: rgba(255,255,255,0.45); }
 .unread-dot { width: 8px; height: 8px; background: #1A6FDB; border-radius: 50%; flex-shrink: 0; margin-top: 4px; box-shadow: 0 0 6px rgba(26,111,219,0.6); }
-
-/* === HISTORY TAB === */
 .timeline-wrap { padding: 0 20px; position: relative; }
 .timeline-wrap::before {
-  content: '';
-  position: absolute;
-  left: 36px; top: 0; bottom: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, #1A6FDB, rgba(26,111,219,0.08));
+  content: ''; position: absolute; left: 36px; top: 0; bottom: 0;
+  width: 2px; background: linear-gradient(to bottom, #1A6FDB, rgba(26,111,219,0.08));
 }
 .tl-item { display: flex; gap: 16px; margin-bottom: 20px; padding-left: 4px; }
 .tl-dot  { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; position: relative; z-index: 1; }
-.td-cyan  { background: #00C9A7; box-shadow: 0 0 8px rgba(0,201,167,0.5); }
-.td-blue  { background: #1A6FDB; box-shadow: 0 0 8px rgba(26,111,219,0.5); }
-.td-gray  { background: rgba(255,255,255,0.2); }
-.tl-card  { flex: 1; background: rgba(255,255,255,0.04); border-radius: 14px; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: background 0.2s; }
-.tl-card:hover { background: rgba(255,255,255,0.07); }
+.td-cyan { background: #00C9A7; box-shadow: 0 0 8px rgba(0,201,167,0.5); }
+.td-blue { background: #1A6FDB; box-shadow: 0 0 8px rgba(26,111,219,0.5); }
+.td-gray { background: rgba(255,255,255,0.2); }
+.tl-card { flex: 1; background: rgba(255,255,255,0.04); border-radius: 14px; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.06); cursor: pointer; }
 .tl-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.tl-tag    { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #fff; }
-.tl-time   { font-size: 10px; color: rgba(255,255,255,0.35); }
-.tl-loc    { font-size: 12px; color: rgba(255,255,255,0.55); margin-bottom: 5px; }
+.tl-tag  { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #fff; }
+.tl-time { font-size: 10px; color: rgba(255,255,255,0.35); }
+.tl-loc  { font-size: 12px; color: rgba(255,255,255,0.55); margin-bottom: 5px; }
 .tl-loc span { color: #00C9A7; }
-.tl-badge  { display: inline-block; font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
-.tb-detect { background: rgba(0,201,167,0.15);  color: #00C9A7; border: 1px solid rgba(0,201,167,0.3); }
-.tb-reg    { background: rgba(26,111,219,0.15); color: #1A6FDB; border: 1px solid rgba(26,111,219,0.3); }
-.tb-warn   { background: rgba(255,69,58,0.15);  color: #FF453A; border: 1px solid rgba(255,69,58,0.3); }
-
-/* === ADD TAG TAB === */
+.tl-badge { display: inline-block; font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+.tb-det  { background: rgba(0,201,167,0.15);  color: #00C9A7; border: 1px solid rgba(0,201,167,0.3); }
+.tb-reg  { background: rgba(26,111,219,0.15); color: #1A6FDB; border: 1px solid rgba(26,111,219,0.3); }
+.tb-warn { background: rgba(255,69,58,0.15);  color: #FF453A; border: 1px solid rgba(255,69,58,0.3); }
 .camera-area {
-  margin: 0 20px 20px;
-  height: 190px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 20px;
+  margin: 0 20px 20px; height: 190px;
+  background: rgba(255,255,255,0.03); border-radius: 20px;
   border: 2px dashed rgba(255,255,255,0.15);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
-  cursor: pointer;
-  position: relative; overflow: hidden;
-  transition: all 0.2s;
+  cursor: pointer; position: relative; overflow: hidden;
 }
-.camera-area:hover { border-color: rgba(0,201,167,0.5); background: rgba(0,201,167,0.04); }
-.camera-area::before {
-  content: '';
-  position: absolute; top: 20%; left: 20%; right: 20%; bottom: 20%;
-  border: 2px solid rgba(0,201,167,0.3);
-  border-radius: 10px;
-}
-.scan-corner { position: absolute; width: 20px; height: 20px; }
+.camera-area::before { content: ''; position: absolute; top: 20%; left: 20%; right: 20%; bottom: 20%; border: 2px solid rgba(0,201,167,0.3); border-radius: 10px; }
+.sc { position: absolute; width: 20px; height: 20px; }
 .sc-tl { top: 12%; left: 12%; border-top: 3px solid #00C9A7; border-left: 3px solid #00C9A7; border-radius: 4px 0 0 0; }
 .sc-tr { top: 12%; right: 12%; border-top: 3px solid #00C9A7; border-right: 3px solid #00C9A7; border-radius: 0 4px 0 0; }
 .sc-bl { bottom: 12%; left: 12%; border-bottom: 3px solid #00C9A7; border-left: 3px solid #00C9A7; border-radius: 0 0 0 4px; }
 .sc-br { bottom: 12%; right: 12%; border-bottom: 3px solid #00C9A7; border-right: 3px solid #00C9A7; border-radius: 0 0 4px 0; }
-.cam-main-icon { font-size: 36px; }
-.cam-label { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500; }
-.cam-sub   { font-size: 11px; color: rgba(255,255,255,0.3); }
-
 .form-group { margin: 0 20px 16px; }
-.form-label {
-  font-size: 11px; font-weight: 600;
-  color: rgba(255,255,255,0.45);
-  letter-spacing: 1px; text-transform: uppercase;
-  margin-bottom: 8px; display: block;
-}
+.form-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.45); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block; }
 .form-input {
-  width: 100%;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 13px 16px;
-  font-size: 14px; color: #fff;
-  outline: none;
-  font-family: inherit;
-  transition: border-color 0.2s;
+  width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 13px 16px; font-size: 14px; color: #fff;
+  outline: none; font-family: inherit;
 }
 .form-input:focus { border-color: #1A6FDB; }
 .form-input::placeholder { color: rgba(255,255,255,0.25); }
-
 .icon-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
 .icon-choice {
-  aspect-ratio: 1;
-  background: rgba(255,255,255,0.05);
-  border-radius: 14px;
+  aspect-ratio: 1; background: rgba(255,255,255,0.05); border-radius: 14px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.2s;
-  padding: 6px 2px;
+  cursor: pointer; border: 2px solid transparent; transition: all 0.2s; padding: 6px 2px;
 }
-.icon-choice:hover    { border-color: rgba(0,201,167,0.4); background: rgba(0,201,167,0.08); }
 .icon-choice.selected { border-color: #00C9A7; background: rgba(0,201,167,0.15); }
-.ic-emoji { font-size: 22px; }
-.ic-label { font-size: 9px; color: rgba(255,255,255,0.45); font-weight: 500; }
-
-.toggle-row {
-  display: flex; align-items: center;
-  padding: 13px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
+.ic-e { font-size: 22px; } .ic-l { font-size: 9px; color: rgba(255,255,255,0.45); font-weight: 500; }
+.toggle-row { display: flex; align-items: center; padding: 13px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 .toggle-row:last-child { border-bottom: none; }
-.toggle-row-label { font-size: 13px; color: rgba(255,255,255,0.7); flex: 1; }
-.toggle {
-  width: 44px; height: 26px;
-  border-radius: 13px;
-  position: relative; cursor: pointer; flex-shrink: 0;
-  transition: background 0.2s;
-}
+.toggle-label { font-size: 13px; color: rgba(255,255,255,0.7); flex: 1; }
+.toggle { width: 44px; height: 26px; border-radius: 13px; position: relative; cursor: pointer; flex-shrink: 0; }
 .toggle.on  { background: #00C9A7; }
 .toggle.off { background: rgba(255,255,255,0.15); }
-.toggle::after {
-  content: '';
-  position: absolute; top: 3px;
-  width: 20px; height: 20px;
-  background: #fff; border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  transition: left 0.2s;
-}
+.toggle::after { content: ''; position: absolute; top: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3); transition: left 0.2s; }
 .toggle.on::after  { left: 21px; }
 .toggle.off::after { left: 3px; }
-
 .primary-btn {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   margin: 0 20px 20px;
   background: linear-gradient(135deg, #1A6FDB, #00C9A7);
-  border-radius: 16px; padding: 16px;
-  font-size: 15px; font-weight: 700; color: #fff;
-  cursor: pointer;
-  box-shadow: 0 6px 24px rgba(26,111,219,0.35);
-  border: none;
-  width: calc(100% - 40px);
-  transition: all 0.2s;
+  border-radius: 16px; padding: 16px; font-size: 15px; font-weight: 700; color: #fff;
+  cursor: pointer; box-shadow: 0 6px 24px rgba(26,111,219,0.35); border: none; width: calc(100% - 40px);
 }
-.primary-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(26,111,219,0.45); }
-
-/* === SETTINGS TAB === */
-.profile-card {
-  margin: 0 20px 20px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 20px; padding: 20px;
-  display: flex; align-items: center; gap: 16px;
-  border: 1px solid rgba(255,255,255,0.07);
-}
-.avatar-circle {
-  width: 60px; height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #1A6FDB, #00C9A7);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px; flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(26,111,219,0.3);
-}
+.profile-card { margin: 0 20px 20px; background: rgba(255,255,255,0.04); border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 16px; border: 1px solid rgba(255,255,255,0.07); }
+.avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #1A6FDB, #00C9A7); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; box-shadow: 0 4px 16px rgba(26,111,219,0.3); }
 .profile-name  { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; }
 .profile-email { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
-.plan-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: linear-gradient(135deg, rgba(26,111,219,0.3), rgba(0,201,167,0.2));
-  border: 1px solid rgba(0,201,167,0.4);
-  border-radius: 20px; padding: 3px 10px;
-  font-size: 10px; font-weight: 600; color: #00C9A7;
-}
-
-.plan-card {
-  margin: 0 20px 20px;
-  background: linear-gradient(135deg, rgba(26,111,219,0.15), rgba(0,201,167,0.1));
-  border-radius: 20px; padding: 20px;
-  border: 1px solid rgba(0,201,167,0.25);
-  position: relative; overflow: hidden;
-}
+.plan-badge { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, rgba(26,111,219,0.3), rgba(0,201,167,0.2)); border: 1px solid rgba(0,201,167,0.4); border-radius: 20px; padding: 3px 10px; font-size: 10px; font-weight: 600; color: #00C9A7; }
+.plan-card { margin: 0 20px 20px; background: linear-gradient(135deg, rgba(26,111,219,0.15), rgba(0,201,167,0.1)); border-radius: 20px; padding: 20px; border: 1px solid rgba(0,201,167,0.25); position: relative; overflow: hidden; }
 .plan-card::before { content: '⭐'; position: absolute; top: -10px; right: -10px; font-size: 60px; opacity: 0.05; }
 .plan-tier  { font-size: 12px; font-weight: 700; color: #00C9A7; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
 .plan-name  { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px; }
@@ -692,53 +341,23 @@ body::after {
 .plan-feats { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
 .plan-feat  { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.7); }
 .plan-feat::before { content: '✓'; color: #00C9A7; font-weight: 700; font-size: 13px; }
-.plan-change-btn {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  background: linear-gradient(135deg, #00C9A7, #00a88d);
-  border-radius: 12px; padding: 12px;
-  font-size: 14px; font-weight: 700; color: #fff; cursor: pointer;
-  transition: all 0.2s;
-}
-.plan-change-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,201,167,0.4); }
-
-.settings-group {
-  margin: 0 20px 16px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 18px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.07);
-}
-.settings-row {
-  display: flex; align-items: center;
-  padding: 14px 16px; gap: 12px;
-  cursor: pointer;
-  transition: background 0.2s;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
+.plan-change { display: flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(135deg, #00C9A7, #00a88d); border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; }
+.settings-group { margin: 0 20px 16px; background: rgba(255,255,255,0.04); border-radius: 18px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); }
+.settings-row { display: flex; align-items: center; padding: 14px 16px; gap: 12px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
 .settings-row:last-child { border-bottom: none; }
-.settings-row:hover { background: rgba(255,255,255,0.04); }
-.sr-icon {
-  width: 34px; height: 34px;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 17px; flex-shrink: 0;
-}
-.sri-blue   { background: rgba(26,111,219,0.2); }
-.sri-cyan   { background: rgba(0,201,167,0.15); }
-.sri-orange { background: rgba(255,159,10,0.2); }
-.sri-purple { background: rgba(120,60,220,0.2); }
-.sri-red    { background: rgba(255,69,58,0.15); }
+.sr-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.sri-b { background: rgba(26,111,219,0.2); } .sri-c { background: rgba(0,201,167,0.15); }
+.sri-o { background: rgba(255,159,10,0.2); } .sri-p { background: rgba(120,60,220,0.2); }
+.sri-r { background: rgba(255,69,58,0.15); }
 .sr-text { flex: 1; }
 .sr-title { font-size: 14px; font-weight: 500; color: #fff; }
 .sr-sub   { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
 .sr-arrow { color: rgba(255,255,255,0.2); font-size: 13px; }
-
-.version-info { text-align: center; font-size: 10px; color: rgba(255,255,255,0.15); padding: 8px 0 4px; }
+.version-label { text-align: center; font-size: 10px; color: rgba(255,255,255,0.15); padding: 8px 0 4px; }
 </style>
 </head>
 <body>
 
-<!-- Brand header outside phone -->
 <div class="brand-header">
   <div class="brand-logo">FINDLY</div>
   <div class="brand-tagline">BLE × 鉄道連携</div>
@@ -748,25 +367,22 @@ body::after {
   <div class="iphone-frame">
     <div class="screen">
 
-      <!-- Dynamic Island -->
       <div class="dynamic-island">
         <div class="di-camera"></div>
         <div class="di-speaker"></div>
       </div>
 
-      <!-- Status Bar -->
       <div class="status-bar">
         <div class="status-time">9:41</div>
         <div class="status-icons">
           <span style="font-size:12px">📶</span>
-          <div class="battery-icon">
+          <div style="display:flex;align-items:center">
             <div class="bat-body"><div class="bat-inner"></div></div>
             <div class="bat-cap"></div>
           </div>
         </div>
       </div>
 
-      <!-- App Header -->
       <div class="app-header">
         <div class="app-title" id="app-title">FINDLY</div>
         <div class="header-actions">
@@ -775,43 +391,117 @@ body::after {
         </div>
       </div>
 
-      <!-- Tab Content Wrapper -->
       <div class="tab-wrapper">
-        <div class="tab-pane" id="tab-notif">
 
+        <!-- TAB: ホーム -->
+        <div class="tab-pane active" id="tab-home">
+          <div class="alert-banner" onclick="switchTab('notif')">
+            <span style="font-size:20px">🔔</span>
+            <div class="alert-text">
+              <div class="alert-title">財布が新宿駅で検知されました</div>
+              <div class="alert-sub">数分前 · タップで詳細を確認</div>
+            </div>
+            <span style="color:rgba(255,255,255,.3);font-size:14px">›</span>
+          </div>
+
+          <div class="section-label">最終検知マップ</div>
+          <div class="map-container">
+            <div class="map-grid"></div>
+            <div class="map-road-h" style="top:40%"></div>
+            <div class="map-road-h" style="top:65%"></div>
+            <div class="map-road-v" style="left:30%"></div>
+            <div class="map-road-v" style="left:62%"></div>
+            <div class="map-stn" style="left:22%;top:30%;width:62px;height:28px">新宿駅</div>
+            <div class="map-stn" style="left:53%;top:55%;width:50px;height:24px">渋谷駅</div>
+            <div class="map-pin" style="left:29%;top:27%">
+              <div class="pin-pulse" style="background:#00C9A7"></div>
+              <div class="pin-head" style="background:#00C9A7"><span>👛</span></div>
+            </div>
+            <div class="map-pin" style="left:64%;top:22%">
+              <div class="pin-head" style="background:#1A6FDB"><span>🔑</span></div>
+            </div>
+            <div class="map-label">📍 現在地周辺</div>
+          </div>
+
+          <div class="section-label">マイタグ（3）</div>
+
+          <div class="tag-card">
+            <div class="tag-icon ti-cyan">👛</div>
+            <div class="tag-body">
+              <div class="tag-name">財布</div>
+              <div class="tag-loc">📍 <span>新宿駅 遺失物センター</span></div>
+              <div class="tag-sub">09:28 に検知</div>
+            </div>
+            <div class="tag-meta">
+              <div class="s-dot dot-on"></div>
+              <div class="bat-bar"><div class="bat-level bat-hi" style="width:72%"></div></div>
+              <div class="bat-pct">72%</div>
+            </div>
+          </div>
+
+          <div class="tag-card">
+            <div class="tag-icon ti-blue">🔑</div>
+            <div class="tag-body">
+              <div class="tag-name">カギ</div>
+              <div class="tag-loc">📍 <span>渋谷駅 改札付近</span></div>
+              <div class="tag-sub">昨日 22:10 に検知</div>
+            </div>
+            <div class="tag-meta">
+              <div class="s-dot dot-on"></div>
+              <div class="bat-bar"><div class="bat-level bat-md" style="width:41%"></div></div>
+              <div class="bat-pct">41%</div>
+            </div>
+          </div>
+
+          <div class="tag-card">
+            <div class="tag-icon ti-purple">🎒</div>
+            <div class="tag-body">
+              <div class="tag-name">リュック</div>
+              <div class="tag-loc">📍 自宅近く（最終位置）</div>
+              <div class="tag-sub">2日前 19:45 に検知</div>
+            </div>
+            <div class="tag-meta">
+              <div class="s-dot dot-off"></div>
+              <div class="bat-bar"><div class="bat-level bat-lo" style="width:12%"></div></div>
+              <div class="bat-pct" style="color:#FF453A">12%</div>
+            </div>
+          </div>
+          <div style="height:12px"></div>
+        </div>
+
+        <!-- TAB: 通知 -->
+        <div class="tab-pane" id="tab-notif">
           <div class="notif-hero">
             <div class="notif-badge">新着通知</div>
             <div class="notif-title">新宿駅 遺失物センターで<br>財布が検知されました</div>
             <div class="notif-time">2026年2月19日 09:28 · 約12分前</div>
             <div class="notif-row">
-              <div class="notif-row-icon">📍</div>
-              <div class="notif-row-text"><strong>JR新宿駅 遺失物センター</strong>（南口 地下1F）</div>
+              <div class="notif-row-ic">📍</div>
+              <div class="notif-row-txt"><strong>JR新宿駅 遺失物センター</strong>（南口 地下1F）</div>
             </div>
             <div class="notif-row">
-              <div class="notif-row-icon">🏷️</div>
-              <div class="notif-row-text">タグID: FDY-<strong>4829</strong>　👛 財布</div>
+              <div class="notif-row-ic">🏷️</div>
+              <div class="notif-row-txt">タグID: FDY-<strong>4829</strong>　👛 財布</div>
             </div>
             <div class="notif-row">
-              <div class="notif-row-icon">🔋</div>
-              <div class="notif-row-text">バッテリー残量: <strong>72%</strong></div>
+              <div class="notif-row-ic">🔋</div>
+              <div class="notif-row-txt">バッテリー残量: <strong>72%</strong></div>
             </div>
             <div class="notif-row">
-              <div class="notif-row-icon">📡</div>
-              <div class="notif-row-text">BLE検知強度: <strong>強（-52 dBm）</strong></div>
+              <div class="notif-row-ic">📡</div>
+              <div class="notif-row-txt">BLE強度: <strong>強（-52 dBm）</strong></div>
             </div>
             <div class="notif-row">
-              <div class="notif-row-icon">🚃</div>
-              <div class="notif-row-text">検知路線: <strong>JR中央線 新宿駅</strong></div>
+              <div class="notif-row-ic">🚃</div>
+              <div class="notif-row-txt">検知路線: <strong>JR中央線 新宿駅</strong></div>
             </div>
           </div>
 
-          <!-- Reserve button -->
           <button class="reserve-btn"
-            onclick="alert('✅ 受取予約が完了しました！\n\n予約番号: RSV-20260219-0089\n場所: 新宿駅 遺失物センター（南口 地下1F）\n受取可能時間: 10:00〜18:00')">
+            onclick="alert('✅ 受取予約完了！\n\n予約番号: RSV-20260219-0089\n場所: 新宿駅 遺失物センター（南口 地下1F）\n受取時間: 10:00〜18:00')">
             📅 受取予約をする
           </button>
 
-          <!-- Guide map -->
           <div class="map-guide">
             <div class="map-guide-title">🗺️ センターへの案内</div>
             <div class="map-guide-inner">
@@ -823,25 +513,24 @@ body::after {
             </div>
           </div>
 
-          <!-- Other notifications -->
           <div class="section-label">その他の通知</div>
-          <div class="notif-list-item unread">
-            <div class="nli-icon nli-blue">🔑</div>
+          <div class="nli unread">
+            <div class="nli-icon nico-b">🔑</div>
             <div class="nli-body">
               <div class="nli-title">カギが渋谷駅で検知されました</div>
               <div class="nli-sub">昨日 22:10 · 渋谷駅 改札内</div>
             </div>
             <div class="unread-dot"></div>
           </div>
-          <div class="notif-list-item">
-            <div class="nli-icon nli-cyan">🔋</div>
+          <div class="nli">
+            <div class="nli-icon nico-c">🔋</div>
             <div class="nli-body">
               <div class="nli-title">リュックのバッテリーが低下しています</div>
               <div class="nli-sub">2日前 · 残量 12%　要交換</div>
             </div>
           </div>
-          <div class="notif-list-item">
-            <div class="nli-icon nli-blue">📡</div>
+          <div class="nli">
+            <div class="nli-icon nico-b">📡</div>
             <div class="nli-body">
               <div class="nli-title">鉄道ネットワーク連携が完了しました</div>
               <div class="nli-sub">3日前 · JR東日本 全線対応</div>
@@ -849,26 +538,94 @@ body::after {
           </div>
           <div style="height:8px"></div>
         </div>
+
+        <!-- TAB: 履歴 -->
+        <div class="tab-pane" id="tab-history">
+          <div style="padding:0 20px 12px;display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:13px;color:rgba(255,255,255,.5)">直近30日間 · 8件</div>
+            <div style="font-size:12px;color:#1A6FDB;font-weight:600;cursor:pointer">絞り込み ▾</div>
+          </div>
+          <div class="timeline-wrap">
+            <div class="tl-item">
+              <div class="tl-dot td-cyan"></div>
+              <div class="tl-card">
+                <div class="tl-header"><div class="tl-tag">👛 財布</div><div class="tl-time">2026/02/19 09:28</div></div>
+                <div class="tl-loc">📍 <span>新宿駅 遺失物センター</span></div>
+                <span class="tl-badge tb-det">検知</span>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot td-blue"></div>
+              <div class="tl-card">
+                <div class="tl-header"><div class="tl-tag">🔑 カギ</div><div class="tl-time">2026/02/18 22:10</div></div>
+                <div class="tl-loc">📍 <span>渋谷駅 改札付近</span></div>
+                <span class="tl-badge tb-det">検知</span>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot td-cyan"></div>
+              <div class="tl-card">
+                <div class="tl-header"><div class="tl-tag">👛 財布</div><div class="tl-time">2026/02/15 14:55</div></div>
+                <div class="tl-loc">📍 <span>品川駅 南改札外</span></div>
+                <span class="tl-badge tb-det">検知</span>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot td-gray"></div>
+              <div class="tl-card">
+                <div class="tl-header"><div class="tl-tag">🎒 リュック</div><div class="tl-time">2026/02/12 08:30</div></div>
+                <div class="tl-loc">📍 <span>東京駅 中央改札</span></div>
+                <span class="tl-badge tb-warn">警告</span>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot td-blue"></div>
+              <div class="tl-card">
+                <div class="tl-header"><div class="tl-tag">🔑 カギ</div><div class="tl-time">2026/02/10 19:22</div></div>
+                <div class="tl-loc">📍 <span>新宿三丁目駅 B5出口</span></div>
+                <span class="tl-badge tb-det">検知</span>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot td-cyan"></div>
+              <div class="tl-card">
+                <div class="tl-header"><div class="tl-tag">👛 財布</div><div class="tl-time">2026/02/07 11:15</div></div>
+                <div class="tl-loc">📍 <span>池袋駅 東口</span></div>
+                <span class="tl-badge tb-det">検知</span>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot td-gray"></div>
+              <div class="tl-card">
+                <div class="tl-header"><div class="tl-tag">👛 財布</div><div class="tl-time">2026/01/30 16:44</div></div>
+                <div class="tl-loc">📍 <span>FINDLYタグ登録</span></div>
+                <span class="tl-badge tb-reg">登録</span>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot td-gray"></div>
+              <div class="tl-card">
+                <div class="tl-header"><div class="tl-tag">🔑 カギ</div><div class="tl-time">2026/01/28 09:00</div></div>
+                <div class="tl-loc">📍 <span>FINDLYタグ登録</span></div>
+                <span class="tl-badge tb-reg">登録</span>
+              </div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
+
+        <!-- TAB: タグ登録 -->
         <div class="tab-pane" id="tab-add">
           <div class="section-label">タグをスキャン</div>
-
-          <!-- Camera scan area -->
-          <div class="camera-area"
-            onclick="alert('📷 カメラ起動中...\n\nFINDLYタグのQRコードをフレーム内に合わせてください。')">
-            <div class="scan-corner sc-tl"></div>
-            <div class="scan-corner sc-tr"></div>
-            <div class="scan-corner sc-bl"></div>
-            <div class="scan-corner sc-br"></div>
-            <div class="cam-main-icon">📷</div>
-            <div class="cam-label">タップしてカメラ起動</div>
-            <div class="cam-sub">QRコードをスキャンしてください</div>
+          <div class="camera-area" onclick="alert('📷 カメラ起動中...\nFINDLYタグのQRコードをフレーム内に合わせてください。')">
+            <div class="sc sc-tl"></div><div class="sc sc-tr"></div>
+            <div class="sc sc-bl"></div><div class="sc sc-br"></div>
+            <span style="font-size:36px">📷</span>
+            <div style="font-size:13px;color:rgba(255,255,255,.5);font-weight:500">タップしてカメラ起動</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.3)">QRコードをスキャンしてください</div>
           </div>
+          <div style="text-align:center;font-size:11px;color:rgba(255,255,255,.25);margin:-8px 0 16px">── または ──</div>
 
-          <div style="text-align:center;font-size:11px;color:rgba(255,255,255,.25);margin:-8px 0 16px">
-            ── または ──
-          </div>
-
-          <!-- Manual entry -->
           <div class="form-group">
             <label class="form-label">タグID（手動入力）</label>
             <input class="form-input" type="text" placeholder="例: FDY-0000">
@@ -877,54 +634,39 @@ body::after {
             <label class="form-label">タグ名</label>
             <input class="form-input" type="text" placeholder="例: 財布、カギ、鞄...">
           </div>
-
-          <!-- Icon selection -->
           <div class="form-group">
             <label class="form-label">アイコン選択</label>
             <div class="icon-grid">
-              <div class="icon-choice selected" onclick="selectIcon(this)">
-                <div class="ic-emoji">👛</div><div class="ic-label">財布</div>
-              </div>
-              <div class="icon-choice" onclick="selectIcon(this)">
-                <div class="ic-emoji">🔑</div><div class="ic-label">カギ</div>
-              </div>
-              <div class="icon-choice" onclick="selectIcon(this)">
-                <div class="ic-emoji">🎒</div><div class="ic-label">鞄</div>
-              </div>
-              <div class="icon-choice" onclick="selectIcon(this)">
-                <div class="ic-emoji">🧳</div><div class="ic-label">スーツ</div>
-              </div>
-              <div class="icon-choice" onclick="selectIcon(this)">
-                <div class="ic-emoji">📦</div><div class="ic-label">その他</div>
-              </div>
+              <div class="icon-choice selected" onclick="selectIcon(this)"><div class="ic-e">👛</div><div class="ic-l">財布</div></div>
+              <div class="icon-choice" onclick="selectIcon(this)"><div class="ic-e">🔑</div><div class="ic-l">カギ</div></div>
+              <div class="icon-choice" onclick="selectIcon(this)"><div class="ic-e">🎒</div><div class="ic-l">鞄</div></div>
+              <div class="icon-choice" onclick="selectIcon(this)"><div class="ic-e">🧳</div><div class="ic-l">スーツ</div></div>
+              <div class="icon-choice" onclick="selectIcon(this)"><div class="ic-e">📦</div><div class="ic-l">その他</div></div>
             </div>
           </div>
-
-          <!-- Notification toggles -->
           <div class="form-group">
             <label class="form-label">通知設定</label>
             <div style="background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.08)">
               <div class="toggle-row">
-                <span class="toggle-row-label">検知時に通知する</span>
+                <span class="toggle-label">検知時に通知する</span>
                 <div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
               </div>
               <div class="toggle-row">
-                <span class="toggle-row-label">バッテリー警告を受け取る</span>
+                <span class="toggle-label">バッテリー警告を受け取る</span>
                 <div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
               </div>
             </div>
           </div>
-
           <button class="primary-btn"
-            onclick="alert('✅ タグ「財布」を登録しました！\n\nFINDLYネットワークへの接続が開始されます。\nタグIDが有効化されるまで数分かかる場合があります。')">
+            onclick="alert('✅ タグ「財布」を登録しました！\nFINDLYネットワークへの接続が開始されます。\nタグIDが有効化されるまで数分かかる場合があります。')">
             ＋ タグを登録する
           </button>
         </div>
-        <div class="tab-pane" id="tab-settings">
 
-          <!-- Profile -->
+        <!-- TAB: 設定 -->
+        <div class="tab-pane" id="tab-settings">
           <div class="profile-card">
-            <div class="avatar-circle">🧑</div>
+            <div class="avatar">🧑</div>
             <div style="flex:1">
               <div class="profile-name">山田 亮介</div>
               <div class="profile-email">ryosuke@example.com</div>
@@ -933,7 +675,6 @@ body::after {
             <div style="font-size:18px;color:rgba(255,255,255,.3);cursor:pointer">✏️</div>
           </div>
 
-          <!-- Plan -->
           <div class="plan-card">
             <div class="plan-tier">現在のプラン</div>
             <div class="plan-name">Premium</div>
@@ -944,82 +685,78 @@ body::after {
               <div class="plan-feat">リアルタイム通知 + 優先対応</div>
               <div class="plan-feat">受取予約サービス</div>
             </div>
-            <div class="plan-change-btn" onclick="alert('プランの詳細はWebサイトをご確認ください。')">
+            <div class="plan-change" onclick="alert('プランの詳細はWebサイトをご確認ください。')">
               🔄 プランを変更する
             </div>
           </div>
 
-          <!-- Notification settings -->
           <div class="section-label">通知設定</div>
           <div class="settings-group">
             <div class="settings-row">
-              <div class="sr-icon sri-blue">🔔</div>
+              <div class="sr-icon sri-b">🔔</div>
               <div class="sr-text"><div class="sr-title">プッシュ通知</div><div class="sr-sub">タグ検知時に即時通知</div></div>
               <div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
             </div>
             <div class="settings-row">
-              <div class="sr-icon sri-cyan">📡</div>
+              <div class="sr-icon sri-c">📡</div>
               <div class="sr-text"><div class="sr-title">鉄道連携通知</div><div class="sr-sub">遺失物センター検知時</div></div>
               <div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
             </div>
             <div class="settings-row">
-              <div class="sr-icon sri-orange">🔋</div>
+              <div class="sr-icon sri-o">🔋</div>
               <div class="sr-text"><div class="sr-title">バッテリー警告</div><div class="sr-sub">残量20%以下で通知</div></div>
               <div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
             </div>
             <div class="settings-row">
-              <div class="sr-icon sri-blue">📧</div>
+              <div class="sr-icon sri-b">📧</div>
               <div class="sr-text"><div class="sr-title">メール通知</div><div class="sr-sub">週次レポートを受け取る</div></div>
               <div class="toggle off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
             </div>
           </div>
 
-          <!-- General settings -->
           <div class="section-label">一般設定</div>
           <div class="settings-group">
             <div class="settings-row">
-              <div class="sr-icon sri-purple">🌐</div>
+              <div class="sr-icon sri-p">🌐</div>
               <div class="sr-text"><div class="sr-title">言語 / Language</div><div class="sr-sub">日本語</div></div>
               <div class="sr-arrow">›</div>
             </div>
             <div class="settings-row">
-              <div class="sr-icon sri-blue">🗺️</div>
+              <div class="sr-icon sri-b">🗺️</div>
               <div class="sr-text"><div class="sr-title">地図プロバイダー</div><div class="sr-sub">Google マップ</div></div>
               <div class="sr-arrow">›</div>
             </div>
             <div class="settings-row">
-              <div class="sr-icon sri-cyan">🔒</div>
+              <div class="sr-icon sri-c">🔒</div>
               <div class="sr-text"><div class="sr-title">プライバシー設定</div><div class="sr-sub">位置情報・データ共有</div></div>
               <div class="sr-arrow">›</div>
             </div>
           </div>
 
-          <!-- Support & logout -->
           <div class="settings-group">
             <div class="settings-row">
-              <div class="sr-icon sri-blue">💬</div>
+              <div class="sr-icon sri-b">💬</div>
               <div class="sr-text"><div class="sr-title">サポートに問い合わせ</div><div class="sr-sub">help@findly.jp</div></div>
               <div class="sr-arrow">›</div>
             </div>
             <div class="settings-row">
-              <div class="sr-icon sri-blue">📄</div>
-              <div class="sr-text"><div class="sr-title">利用規約・プライバシーポリシー</div></div>
+              <div class="sr-icon sri-b">📄</div>
+              <div class="sr-text"><div class="sr-title">利用規約 · プライバシーポリシー</div></div>
               <div class="sr-arrow">›</div>
             </div>
             <div class="settings-row">
-              <div class="sr-icon sri-red">🚪</div>
+              <div class="sr-icon sri-r">🚪</div>
               <div class="sr-text"><div class="sr-title" style="color:#FF453A">ログアウト</div></div>
               <div class="sr-arrow">›</div>
             </div>
           </div>
-
-          <div class="version-info">FINDLY v2.4.1 · Build 20260219</div>
+          <div class="version-label">FINDLY v2.4.1 · Build 20260219</div>
           <div style="height:8px"></div>
         </div>
 
       </div><!-- tab-wrapper -->
 
-      <!-- Bottom Navigation Bar -->
+      <!-- Bottom Navigation -->
       <div class="bottom-nav">
         <div class="nav-item active" id="nav-home" onclick="switchTab('home')">
           <div class="nav-icon">🏠</div>
@@ -1032,7 +769,7 @@ body::after {
           <div class="nav-label">通知</div>
         </div>
         <div class="nav-item" id="nav-add" onclick="switchTab('add')" style="flex:1.2">
-          <div class="nav-add-btn">＋</div>
+          <div class="nav-plus-btn">＋</div>
           <div class="nav-label" style="margin-top:2px">追加</div>
         </div>
         <div class="nav-item" id="nav-history" onclick="switchTab('history')">
@@ -1052,40 +789,29 @@ body::after {
 </div><!-- iphone-wrapper -->
 
 <script>
-// === Tab switching ===
-const TAB_IDS = ['home', 'notif', 'history', 'add', 'settings'];
-const TAB_TITLES = {
-  home:     'FINDLY',
-  notif:    '通知',
-  history:  '履歴',
-  add:      'タグ登録',
-  settings: '設定'
-};
+var TAB_IDS    = ['home', 'notif', 'history', 'add', 'settings'];
+var TAB_TITLES = { home: 'FINDLY', notif: '通知', history: '履歴', add: 'タグ登録', settings: '設定' };
 
-function switchTab(targetId) {
-  TAB_IDS.forEach(function(id) {
-    var pane = document.getElementById('tab-' + id);
-    var nav  = document.getElementById('nav-' + id);
+function switchTab(id) {
+  TAB_IDS.forEach(function(t) {
+    var pane = document.getElementById('tab-' + t);
+    var nav  = document.getElementById('nav-' + t);
     if (pane) pane.classList.remove('active');
     if (nav)  nav.classList.remove('active');
   });
-  var targetPane = document.getElementById('tab-' + targetId);
-  var targetNav  = document.getElementById('nav-' + targetId);
-  if (targetPane) { targetPane.classList.add('active'); targetPane.scrollTop = 0; }
-  if (targetNav)  targetNav.classList.add('active');
-  var titleEl = document.getElementById('app-title');
-  if (titleEl) titleEl.textContent = TAB_TITLES[targetId] || 'FINDLY';
+  var pane = document.getElementById('tab-' + id);
+  var nav  = document.getElementById('nav-' + id);
+  if (pane) { pane.classList.add('active'); pane.scrollTop = 0; }
+  if (nav)  nav.classList.add('active');
+  var el = document.getElementById('app-title');
+  if (el) el.textContent = TAB_TITLES[id] || 'FINDLY';
 }
 
-// === Icon selection for Add tab ===
 function selectIcon(el) {
-  document.querySelectorAll('.icon-choice').forEach(function(c) {
-    c.classList.remove('selected');
-  });
+  document.querySelectorAll('.icon-choice').forEach(function(c) { c.classList.remove('selected'); });
   el.classList.add('selected');
 }
 
-// Init: show home
 switchTab('home');
 </script>
 </body>
