@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreakMate - やめられない習慣ゲーム</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #2D1B69;
+      --bg-secondary: #231559;
+      --bg-card: #3D2780;
+      --bg-card-alt: #341F72;
+      --accent: #E040FB;
+      --accent-light: #EA6FFC;
+      --accent-dark: #C020D8;
+      --accent-glow: rgba(224,64,251,0.25);
+      --secondary: #7C4DFF;
+      --secondary-light: #9E75FF;
+      --text-primary: #F3E8FF;
+      --text-secondary: #BFA8E0;
+      --text-muted: #8A6FB8;
+      --border: rgba(224,64,251,0.2);
+      --border-faint: rgba(255,255,255,0.06);
+      --glow-pink: 0 0 30px rgba(224,64,251,0.3);
+      --glow-purple: 0 0 30px rgba(124,77,255,0.3);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ========== GLOW EFFECTS ========== */
+    .glow-pink {
+      box-shadow: var(--glow-pink);
+    }
+
+    .glow-purple {
+      box-shadow: var(--glow-purple);
+    }
+
+    /* ========== NAVIGATION ========== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(45, 27, 105, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .logo-gem {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: var(--glow-pink);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+    }
+
+    .nav-cta-btn {
+      background: linear-gradient(135deg, var(--accent), var(--secondary)) !important;
+      color: white !important;
+      padding: 8px 22px;
+      border-radius: 100px;
+      font-weight: 700 !important;
+      box-shadow: var(--glow-pink);
+      transition: opacity 0.2s !important;
+    }
+
+    .nav-cta-btn:hover {
+      opacity: 0.85;
+      color: white !important;
+    }
+
+    /* ========== HERO ========== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 40px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg-orb-1 {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(224,64,251,0.15) 0%, transparent 70%);
+      top: -100px;
+      left: -100px;
+      pointer-events: none;
+    }
+
+    .hero-bg-orb-2 {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(124,77,255,0.15) 0%, transparent 70%);
+      bottom: -100px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-level {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(224,64,251,0.12);
+      border: 1px solid var(--border);
+      color: var(--accent-light);
+      padding: 6px 18px;
+      border-radius: 100px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 28px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6.5vw, 5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 22px;
+      letter-spacing: -0.03em;
+    }
+
+    .hero h1 .pink {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero h1 .purple {
+      background: linear-gradient(135deg, var(--secondary-light), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 540px;
+      margin: 0 auto 40px;
+      line-height: 1.8;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 56px;
+    }
+
+    .btn-neon {
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      color: white;
+      padding: 15px 36px;
+      border-radius: 100px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      text-decoration: none;
+      display: inline-block;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(224,64,251,0.4), 0 0 40px rgba(224,64,251,0.15);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-neon:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(224,64,251,0.55), 0 0 60px rgba(224,64,251,0.2);
+    }
+
+    .btn-ghost-neon {
+      background: transparent;
+      color: var(--accent-light);
+      padding: 15px 36px;
+      border-radius: 100px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-block;
+      border: 2px solid rgba(224,64,251,0.4);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .btn-ghost-neon:hover {
+      border-color: var(--accent);
+      background: rgba(224,64,251,0.08);
+    }
+
+    .hero-xp {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+
+    .xp-item {
+      text-align: center;
+    }
+
+    .xp-val {
+      display: block;
+      font-size: 2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .xp-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ========== GAME CARD ========== */
+    .game-showcase {
+      padding: 0 40px 80px;
+    }
+
+    .game-showcase-inner {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .player-card {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-card-alt));
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 32px;
+      box-shadow: var(--glow-pink), 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .player-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .player-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: var(--glow-pink);
+    }
+
+    .player-info {
+      flex: 1;
+    }
+
+    .player-name {
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .player-level {
+      font-size: 0.82rem;
+      color: var(--accent-light);
+    }
+
+    .player-rank {
+      text-align: right;
+    }
+
+    .rank-num {
+      font-size: 1.8rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .rank-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .xp-bar-wrap {
+      margin-bottom: 24px;
+    }
+
+    .xp-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .xp-bar {
+      width: 100%;
+      height: 10px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .xp-bar-fill {
+      height: 100%;
+      width: 73%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+      border-radius: 100px;
+      box-shadow: 0 0 12px rgba(224,64,251,0.5);
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .badge-item {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border-faint);
+      border-radius: 10px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+    }
+
+    .badge-item.unlocked {
+      background: rgba(224,64,251,0.1);
+      border-color: rgba(224,64,251,0.3);
+      color: var(--accent-light);
+    }
+
+    .badge-item.locked {
+      opacity: 0.4;
+    }
+
+    .streak-fire-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .fire-day {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .fire-day.on {
+      background: rgba(224,64,251,0.15);
+      border: 1px solid rgba(224,64,251,0.3);
+    }
+
+    /* ========== SECTION BASE ========== */
+    .section {
+      padding: 100px 40px;
+    }
+
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .chip {
+      display: inline-block;
+      background: rgba(224,64,251,0.12);
+      border: 1px solid var(--border);
+      color: var(--accent-light);
+      padding: 5px 16px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-title .pink {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-desc {
+      font-size: 1.02rem;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin-bottom: 56px;
+      line-height: 1.8;
+    }
+
+    /* ========== PROBLEM ========== */
+    .problem-bg {
+      background: var(--bg-secondary);
+    }
+
+    .problem-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .prob-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-faint);
+      border-radius: 20px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .prob-card:hover {
+      border-color: var(--border);
+    }
+
+    .prob-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--secondary));
+    }
+
+    .prob-emoji {
+      font-size: 2.2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .prob-card h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .prob-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ========== SOLUTION ========== */
+    .sol-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .sol-layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+
+    .sol-points {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .sol-point {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .sol-dot {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: white;
+      box-shadow: 0 0 16px rgba(224,64,251,0.3);
+    }
+
+    .sol-text h4 {
+      font-size: 0.97rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text-primary);
+    }
+
+    .sol-text p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .ranking-card {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-card-alt));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--glow-purple);
+    }
+
+    .ranking-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ranking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .rank-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--border-faint);
+    }
+
+    .rank-item.me {
+      background: rgba(224,64,251,0.1);
+      border-color: rgba(224,64,251,0.3);
+    }
+
+    .rank-pos {
+      width: 26px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .rank-pos.top1 { color: #FFD700; }
+    .rank-pos.top2 { color: #C0C0C0; }
+    .rank-pos.top3 { color: #CD7F32; }
+
+    .rank-avatar-mini {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .rank-name {
+      flex: 1;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .rank-streak {
+      font-size: 0.82rem;
+      color: var(--accent-light);
+      font-weight: 700;
+    }
+
+    /* ========== FEATURES ========== */
+    .features-bg {
+      background: var(--bg-secondary);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .feat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-faint);
+      border-radius: 20px;
+      padding: 28px;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+    }
+
+    .feat-card:hover {
+      border-color: var(--border);
+      box-shadow: var(--glow-pink);
+      transform: translateY(-4px);
+    }
+
+    .feat-icon-box {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      background: rgba(224,64,251,0.12);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 18px;
+    }
+
+    .feat-card h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .feat-card p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ========== PRICING ========== */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+      }
+    }
+
+    .price-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-faint);
+      border-radius: 24px;
+      padding: 32px 28px;
+      position: relative;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .price-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .price-card.hot {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), var(--glow-pink);
+    }
+
+    .hot-badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      color: white;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 4px 16px;
+      border-radius: 100px;
+      white-space: nowrap;
+      box-shadow: var(--glow-pink);
+    }
+
+    .price-tier {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-light);
+      margin-bottom: 10px;
+    }
+
+    .price-amount {
+      margin-bottom: 8px;
+    }
+
+    .price-amount .unit {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      vertical-align: top;
+      margin-top: 8px;
+    }
+
+    .price-amount .number {
+      font-size: 3.4rem;
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .price-amount .mo {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .price-tagline {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 22px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--border-faint);
+    }
+
+    .price-perks {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .perk {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+
+    .perk-check {
+      color: var(--accent);
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .perk.dim {
+      opacity: 0.4;
+    }
+
+    .perk.dim .perk-check {
+      color: var(--text-muted);
+    }
+
+    .price-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 100px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .price-btn-neon {
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      color: white;
+      box-shadow: 0 4px 20px rgba(224,64,251,0.4);
+    }
+
+    .price-btn-neon:hover {
+      box-shadow: 0 6px 30px rgba(224,64,251,0.6);
+      transform: translateY(-1px);
+    }
+
+    .price-btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-faint);
+    }
+
+    .price-btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+
+    /* ========== TESTIMONIALS ========== */
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .testi-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .testi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-faint);
+      border-radius: 20px;
+      padding: 26px;
+      transition: border-color 0.3s;
+    }
+
+    .testi-card:hover {
+      border-color: var(--border);
+    }
+
+    .testi-stars {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 12px;
+    }
+
+    .star-icon {
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+
+    .testi-quote {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      margin-bottom: 18px;
+    }
+
+    .testi-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .testi-ava {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ava-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.82rem;
+      color: white;
+    }
+
+    .ava-name {
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .ava-role {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .streak-tag {
+      background: rgba(224,64,251,0.12);
+      border: 1px solid rgba(224,64,251,0.25);
+      color: var(--accent-light);
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* ========== FAQ ========== */
+    .faq-wrap {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .faq-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-faint);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .faq-box:hover {
+      border-color: var(--border);
+    }
+
+    .faq-q {
+      padding: 20px 22px;
+      font-size: 0.97rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-primary);
+    }
+
+    .faq-q:hover {
+      color: var(--accent-light);
+    }
+
+    .faq-toggle {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(224,64,251,0.12);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-light);
+      font-size: 1rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .faq-a {
+      padding: 0 22px 20px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+    }
+
+    /* ========== CTA ========== */
+    .cta-wrap {
+      padding: 100px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-orb-left {
+      position: absolute;
+      left: -100px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(224,64,251,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-orb-right {
+      position: absolute;
+      right: -100px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(124,77,255,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-content {
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-content h2 {
+      font-size: clamp(2rem, 5.5vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      letter-spacing: -0.03em;
+    }
+
+    .cta-content p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      line-height: 1.8;
+    }
+
+    .cta-note {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 14px;
+    }
+
+    /* ========== FOOTER ========== */
+    footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-faint);
+      padding: 64px 40px 32px;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    @media (max-width: 768px) {
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+      }
+    }
+
+    .f-brand .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 14px;
+    }
+
+    .f-brand .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .f-brand p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .f-col h4 {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .f-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .f-col ul a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s;
+    }
+
+    .f-col ul a:hover {
+      color: var(--accent-light);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border-faint);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-bottom p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .f-social {
+      display: flex;
+      gap: 16px;
+    }
+
+    .f-social a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      transition: color 0.2s;
+    }
+
+    .f-social a:hover {
+      color: var(--accent-light);
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 640px) {
+      nav {
+        padding: 0 20px;
+      }
+      .nav-links {
+        display: none;
+      }
+      .section {
+        padding: 60px 20px;
+      }
+      .hero {
+        padding: 100px 20px 60px;
+      }
+      .game-showcase {
+        padding: 0 20px 60px;
+      }
+      footer {
+        padding: 48px 20px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">
+      <div class="logo-gem">💎</div>
+      StreakMate
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">機能</a></li>
+      <li><a href="#pricing">料金</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#pricing" class="nav-cta-btn">無料で始める</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-orb-1"></div>
+    <div class="hero-bg-orb-2"></div>
+    <div class="hero-content">
+      <div class="hero-level">💎 LEVEL UP YOUR LIFE</div>
+      <h1>
+        習慣を<span class="pink">ゲーム化</span>して<br>
+        <span class="purple">やめられなく</span>なる
+      </h1>
+      <p class="hero-sub">StreakMateは毎日のログインと学習をゲーム感覚で記録。レベルアップ・バッジ・ランキングで、気づいたら100日続いてた体験を作る習慣管理アプリ。</p>
+      <div class="hero-btns">
+        <a href="#" class="btn-neon">無料で始める 💎</a>
+        <a href="#pricing" class="btn-ghost-neon">7日間無料体験</a>
+      </div>
+      <div class="hero-xp">
+        <div class="xp-item">
+          <span class="xp-val">10,000+</span>
+          <span class="xp-label">プレイヤー数</span>
+        </div>
+        <div class="xp-item">
+          <span class="xp-val">89%</span>
+          <span class="xp-label">30日継続率</span>
+        </div>
+        <div class="xp-item">
+          <span class="xp-val">247日</span>
+          <span class="xp-label">最高連続記録</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME SHOWCASE -->
+  <section class="game-showcase">
+    <div class="game-showcase-inner">
+      <div class="player-card">
+        <div class="player-header">
+          <div class="player-avatar">🦊</div>
+          <div class="player-info">
+            <div class="player-name">田中 健一</div>
+            <div class="player-level">⚡ Level 12 ・ Streak Master</div>
+          </div>
+          <div class="player-rank">
+            <div class="rank-num">#3</div>
+            <div class="rank-label">フレンドランキング</div>
+          </div>
+        </div>
+        <div class="xp-bar-wrap">
+          <div class="xp-bar-label">
+            <span>XP: 7,300 / 10,000</span>
+            <span style="color: var(--accent-light);">次のレベルまで 2,700 XP</span>
+          </div>
+          <div class="xp-bar"><div class="xp-bar-fill"></div></div>
+        </div>
+        <p style="font-size:0.82rem; color: var(--text-secondary); margin-bottom:10px;">解放バッジ</p>
+        <div class="badge-row">
+          <div class="badge-item unlocked">🔥 7日連続</div>
+          <div class="badge-item unlocked">💜 30日達成</div>
+          <div class="badge-item unlocked">⚡ 英語マスター</div>
+          <div class="badge-item locked">💎 100日の壁</div>
+          <div class="badge-item locked">👑 完璧週間</div>
+        </div>
+        <p style="font-size:0.82rem; color: var(--text-secondary); margin-bottom:10px;">今週のStreak</p>
+        <div class="streak-fire-row">
+          <div class="fire-day on">🔥</div>
+          <div class="fire-day on">🔥</div>
+          <div class="fire-day on">🔥</div>
+          <div class="fire-day on">🔥</div>
+          <div class="fire-day on">🔥</div>
+          <div class="fire-day on">🔥</div>
+          <div class="fire-day on" style="border-color: var(--accent); box-shadow: var(--glow-pink);">🔥</div>
+        </div>
+        <p style="text-align:center; margin-top:12px; font-weight:800; font-size:1rem; background: linear-gradient(135deg, var(--accent), var(--accent-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">🎉 26日連続達成中！</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="section problem-bg">
+    <div class="section-inner">
+      <div class="chip">Problem</div>
+      <h2 class="section-title">三日坊主、<span class="pink">なぜ起きる？</span></h2>
+      <p class="section-desc">意志の問題じゃない。「続けたくなる仕組み」がなかっただけ。</p>
+      <div class="problem-cards">
+        <div class="prob-card">
+          <span class="prob-emoji">😞</span>
+          <h3>記録がないから達成感がない</h3>
+          <p>努力は「見える化」しないと感じられない。記録がなければ、頑張った事実も忘れてしまう。</p>
+        </div>
+        <div class="prob-card">
+          <span class="prob-emoji">🎮</span>
+          <h3>ゲームより勉強がつまらない</h3>
+          <p>ゲームには「レベルアップ」「バッジ」「ランキング」がある。勉強にそれがないだけで本質は同じ。</p>
+        </div>
+        <div class="prob-card">
+          <span class="prob-emoji">🌑</span>
+          <h3>ひとりだと暗くなる</h3>
+          <p>誰にも見られない努力は孤独。仲間と競い・応援し合える環境があれば、全然違う。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="sol-layout">
+        <div>
+          <div class="chip">Solution</div>
+          <h2 class="section-title">勉強を<span class="pink">ゲームに</span>変える</h2>
+          <p class="section-desc">StreakMateはゲームの「続けたくなる仕組み」を習慣管理に移植。気づいたら続いていた体験を作ります。</p>
+          <ul class="sol-points">
+            <li class="sol-point">
+              <div class="sol-dot">1</div>
+              <div class="sol-text">
+                <h4>Streak（連続記録）がたまっていく</h4>
+                <p>途切れるのが悔しい。この感情がエンジンになる。毎日ログインするだけで炎が燃え続ける。</p>
+              </div>
+            </li>
+            <li class="sol-point">
+              <div class="sol-dot">2</div>
+              <div class="sol-text">
+                <h4>バッジ・レベルアップで達成感を演出</h4>
+                <p>7日・30日・100日のマイルストーンに特別バッジを解放。コレクション欲が継続を引っ張る。</p>
+              </div>
+            </li>
+            <li class="sol-point">
+              <div class="sol-dot">3</div>
+              <div class="sol-text">
+                <h4>フレンドとのランキング戦が熱い</h4>
+                <p>「あいつに負けてられない！」この競争心が最強のモチベーション。</p>
+              </div>
+            </li>
+            <li class="sol-point">
+              <div class="sol-dot">4</div>
+              <div class="sol-text">
+                <h4>AIコーチが毎朝爆上げメッセージ</h4>
+                <p>ひとりじゃない。AIが毎日あなたの頑張りをカスタムで応援。テンションが上がる言葉をくれる。</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="ranking-card">
+          <div class="ranking-title">🏆 フレンドランキング（今週）</div>
+          <div class="ranking-list">
+            <div class="rank-item">
+              <div class="rank-pos top1">1</div>
+              <div class="rank-avatar-mini" style="background: linear-gradient(135deg,#FFD700,#FFA500);">鈴</div>
+              <div class="rank-name">鈴木 大輔</div>
+              <div class="rank-streak">🔥 120日</div>
+            </div>
+            <div class="rank-item">
+              <div class="rank-pos top2">2</div>
+              <div class="rank-avatar-mini" style="background: linear-gradient(135deg,#9E75FF,#7C4DFF);">山</div>
+              <div class="rank-name">山田 さくら</div>
+              <div class="rank-streak">🔥 94日</div>
+            </div>
+            <div class="rank-item me">
+              <div class="rank-pos top3">3</div>
+              <div class="rank-avatar-mini" style="background: linear-gradient(135deg,#E040FB,#C020D8);">田</div>
+              <div class="rank-name">田中 健一（あなた）</div>
+              <div class="rank-streak">🔥 26日</div>
+            </div>
+            <div class="rank-item">
+              <div class="rank-pos">4</div>
+              <div class="rank-avatar-mini" style="background: linear-gradient(135deg,#5A3E99,#3D2780);">佐</div>
+              <div class="rank-name">佐藤 明子</div>
+              <div class="rank-streak">🔥 18日</div>
+            </div>
+            <div class="rank-item">
+              <div class="rank-pos">5</div>
+              <div class="rank-avatar-mini" style="background: linear-gradient(135deg,#4A3080,#2D1B69);">木</div>
+              <div class="rank-name">木村 哲也</div>
+              <div class="rank-streak">🔥 12日</div>
+            </div>
+          </div>
+          <div style="margin-top:14px; text-align:center; font-size:0.82rem; color: var(--accent-light); font-weight:700;">
+            💪 あと68日で鈴木に追いつける！
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section features-bg" id="features">
+    <div class="section-inner">
+      <div style="text-align:center; margin-bottom:56px;">
+        <div class="chip">Features</div>
+        <h2 class="section-title">やめられなくなる<span class="pink">4つの機能</span></h2>
+        <p class="section-desc" style="margin: 0 auto;">ゲームの「面白さの仕組み」を習慣管理に全部詰め込んだ。</p>
+      </div>
+      <div class="features-grid">
+        <div class="feat-card">
+          <div class="feat-icon-box">🔥</div>
+          <h3>Streakカレンダー</h3>
+          <p>毎日のログインで炎が増える。連続日数が途切れそうな日はプッシュ通知で教えてくれる。「今日だけは」が積み重なって100日に。</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon-box">🤖</div>
+          <h3>AIモチベーションコーチ</h3>
+          <p>あなたの記録を読んで、毎朝パーソナライズされた爆上がりメッセージを送る。テンションが違う。「今日もやるか」となる。</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon-box">💎</div>
+          <h3>バッジ＆レベルアップ</h3>
+          <p>7日・30日・100日のマイルストーンに激レアバッジを解放。XPが溜まるとレベルアップ。コレクション欲が継続の燃料になる。</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon-box">🏆</div>
+          <h3>フレンドStreakランキング</h3>
+          <p>友達のStreak数がリアルタイムで見える。「抜かされた！」「追いついた！」この感情が一番強いモチベーション。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section" id="pricing">
+    <div class="section-inner">
+      <div style="text-align:center; margin-bottom:56px;">
+        <div class="chip">Pricing</div>
+        <h2 class="section-title">まず<span class="pink">無料</span>で始めよう</h2>
+        <p class="section-desc" style="margin: 0 auto;">クレカ不要。まず触って、ハマったらアップグレード。</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="price-tier">Free</div>
+          <div class="price-amount">
+            <span class="unit">¥</span><span class="number">0</span><span class="mo">/月</span>
+          </div>
+          <p class="price-tagline">とりあえず試したい人</p>
+          <ul class="price-perks">
+            <li class="perk"><span class="perk-check">✓</span> Streakカレンダー（基本）</li>
+            <li class="perk"><span class="perk-check">✓</span> 習慣トラッカー 3個</li>
+            <li class="perk"><span class="perk-check">✓</span> 基本バッジ</li>
+            <li class="perk dim"><span class="perk-check">✗</span> AIコーチ</li>
+            <li class="perk dim"><span class="perk-check">✗</span> フレンドランキング</li>
+          </ul>
+          <button class="price-btn price-btn-ghost">無料で始める</button>
+        </div>
+        <div class="price-card hot">
+          <div class="hot-badge">🔥 みんなこれ使ってる</div>
+          <div class="price-tier">Standard</div>
+          <div class="price-amount">
+            <span class="unit">¥</span><span class="number">980</span><span class="mo">/月</span>
+          </div>
+          <p class="price-tagline">ガチで続けたい人</p>
+          <ul class="price-perks">
+            <li class="perk"><span class="perk-check">✓</span> Streakカレンダー（フル）</li>
+            <li class="perk"><span class="perk-check">✓</span> 習慣トラッカー 無制限</li>
+            <li class="perk"><span class="perk-check">✓</span> 全バッジ＋レベルアップ</li>
+            <li class="perk"><span class="perk-check">✓</span> AIコーチ（毎日）</li>
+            <li class="perk dim"><span class="perk-check">✗</span> フレンドランキング</li>
+          </ul>
+          <button class="price-btn price-btn-neon">7日間無料体験</button>
+        </div>
+        <div class="price-card">
+          <div class="price-tier">Premium</div>
+          <div class="price-amount">
+            <span class="unit">¥</span><span class="number">1,980</span><span class="mo">/月</span>
+          </div>
+          <p class="price-tagline">仲間とランク戦したい人</p>
+          <ul class="price-perks">
+            <li class="perk"><span class="perk-check">✓</span> Standardの全機能</li>
+            <li class="perk"><span class="perk-check">✓</span> フレンドランキング</li>
+            <li class="perk"><span class="perk-check">✓</span> グループチャレンジ</li>
+            <li class="perk"><span class="perk-check">✓</span> 詳細分析</li>
+            <li class="perk"><span class="perk-check">✓</span> 優先サポート</li>
+          </ul>
+          <button class="price-btn price-btn-ghost">7日間無料体験</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section" style="background: var(--bg-secondary);">
+    <div class="section-inner">
+      <div style="text-align:center; margin-bottom:56px;">
+        <div class="chip">Testimonials</div>
+        <h2 class="section-title">続けた人の声</h2>
+      </div>
+      <div class="testi-grid">
+        <div class="testi-card">
+          <div class="testi-stars">
+            <span class="star-icon">★</span><span class="star-icon">★</span><span class="star-icon">★</span><span class="star-icon">★</span><span class="star-icon">★</span>
+          </div>
+          <p class="testi-quote">「ゲームより面白いと思ったのが正直な感想。バッジを集めるのが楽しくて、気づいたら勉強が毎日の習慣になってた。」</p>
+          <div class="testi-footer">
+            <div class="testi-ava">
+              <div class="ava-circle" style="background: linear-gradient(135deg,#E040FB,#C020D8);">田</div>
+              <div>
+                <div class="ava-name">田中 健一</div>
+                <div class="ava-role">大学生・受験勉強</div>
+              </div>
+            </div>
+            <span class="streak-tag">🔥 98日</span>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">
+            <span class="star-icon">★</span><span class="star-icon">★</span><span class="star-icon">★</span><span class="star-icon">★</span><span class="star-icon">★</span>
+          </div>
+          <p class="testi-quote">「フレンドランキングでずっと首位だった友達に抜かされた日から、火がついた。競争ってこんなにモチベになるんだ。」</p>
+          <div class="testi-footer">
+            <div class="testi-ava">
+              <div class="ava-circle" style="background: linear-gradient(135deg,#9E75FF,#7C4DFF);">山</div>
+              <div>
+                <div class="ava-name">山田 さくら</div>
+                <div class="ava-role">会社員・資格勉強</div>
+              </div>
+            </div>
+            <span class="streak-tag">🔥 145日</span>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">
+            <span class="star-icon">★</span><span class="star-icon">★</span><span class="star-icon">★</span><span class="star-icon">★</span><span class="star-icon">★</span>
+          </div>
+          <p class="testi-quote">「AIコーチのメッセージが毎朝くる。疲れてる日は「今日は10分だけでOK」って言ってくれて、それだけで続けられてる。」</p>
+          <div class="testi-footer">
+            <div class="testi-ava">
+              <div class="ava-circle" style="background: linear-gradient(135deg,#FF6B9D,#E040FB);">鈴</div>
+              <div>
+                <div class="ava-name">鈴木 大輔</div>
+                <div class="ava-role">フリーランサー</div>
+              </div>
+            </div>
+            <span class="streak-tag">🔥 200日</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="section-inner">
+      <div style="text-align:center; margin-bottom:56px;">
+        <div class="chip">FAQ</div>
+        <h2 class="section-title">よくある質問</h2>
+      </div>
+      <div class="faq-wrap">
+        <div class="faq-box">
+          <div class="faq-q">
+            無料プランでどこまで遊べますか？
+            <div class="faq-toggle">＋</div>
+          </div>
+          <div class="faq-a">Streakカレンダーの基本機能と習慣トラッカー3個が無料でご利用いただけます。まずはどんな感じか体験してみてください。</div>
+        </div>
+        <div class="faq-box">
+          <div class="faq-q">
+            7日間無料体験で自動課金されますか？
+            <div class="faq-toggle">＋</div>
+          </div>
+          <div class="faq-a">無料体験期間が終わる48時間前に必ずメールでお知らせします。いつでもキャンセル可能です。安心してお試しください。</div>
+        </div>
+        <div class="faq-box">
+          <div class="faq-q">
+            Streakが途切れたらどうなる？
+            <div class="faq-toggle">＋</div>
+          </div>
+          <div class="faq-a">Standard以上では「Streakシールド」を月1回使えます。急な予定や体調不良でも大事な連続記録を守れます。ゲームのコンティニューみたいなもの。</div>
+        </div>
+        <div class="faq-box">
+          <div class="faq-q">
+            どのデバイスで使えますか？
+            <div class="faq-toggle">＋</div>
+          </div>
+          <div class="faq-a">iOS・Android・Webブラウザすべてに対応。複数デバイスでのデータ自動同期付きです。</div>
+        </div>
+        <div class="faq-box">
+          <div class="faq-q">
+            習慣はどんなことでも登録できる？
+            <div class="faq-toggle">＋</div>
+          </div>
+          <div class="faq-a">はい。勉強・運動・読書・筋トレ・瞑想・ダイエット何でもOK。自由にカスタマイズして、あなただけの習慣ゲームを作れます。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-wrap">
+    <div class="cta-orb-left"></div>
+    <div class="cta-orb-right"></div>
+    <div class="cta-content">
+      <h2>
+        今日から<br><span style="background: linear-gradient(135deg, var(--accent), var(--accent-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">ゲームを始めよう</span>
+      </h2>
+      <p>三日坊主の自分、もう終わり。<br>StreakMateで、やめられない習慣を手に入れろ。</p>
+      <a href="#" class="btn-neon" style="font-size:1.1rem; padding: 18px 48px;">無料で始める 💎</a>
+      <p class="cta-note">クレジットカード不要 ・ 30秒で登録完了 ・ いつでも解約OK</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="f-brand">
+          <div class="logo">
+            <div class="logo-icon">💎</div>
+            StreakMate
+          </div>
+          <p>毎日の習慣をゲームに変えて、<br>やめられない継続力を育てるアプリ。</p>
+        </div>
+        <div class="f-col">
+          <h4>製品</h4>
+          <ul>
+            <li><a href="#">機能一覧</a></li>
+            <li><a href="#">料金プラン</a></li>
+            <li><a href="#">アプリDL</a></li>
+            <li><a href="#">更新情報</a></li>
+          </ul>
+        </div>
+        <div class="f-col">
+          <h4>サポート</h4>
+          <ul>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">お問い合わせ</a></li>
+            <li><a href="#">ヘルプ</a></li>
+          </ul>
+        </div>
+        <div class="f-col">
+          <h4>会社</h4>
+          <ul>
+            <li><a href="#">会社概要</a></li>
+            <li><a href="#">プライバシー</a></li>
+            <li><a href="#">利用規約</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 StreakMate. All rights reserved.</p>
+        <div class="f-social">
+          <a href="#">Twitter</a>
+          <a href="#">Instagram</a>
+          <a href="#">YouTube</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
