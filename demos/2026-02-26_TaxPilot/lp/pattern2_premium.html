@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxPilot - AIで確定申告を完全自動化</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #FFFFFF;
+    --bg2: #F8F7FF;
+    --bg3: #F0EEF9;
+    --accent: #4F46E5;
+    --accent2: #6D63FF;
+    --accent-light: rgba(79,70,229,0.08);
+    --accent-mid: rgba(79,70,229,0.15);
+    --text: #111827;
+    --text2: #6B7280;
+    --text3: #9CA3AF;
+    --border: #E5E7EB;
+    --border-accent: rgba(79,70,229,0.2);
+    --shadow: 0 4px 24px rgba(79,70,229,0.08);
+    --shadow-hover: 0 16px 48px rgba(79,70,229,0.16);
+    --shadow-card: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Nav */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 0 60px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 20px rgba(0,0,0,0.04);
+  }
+  .logo {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--text); }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 36px;
+    align-items: center;
+  }
+  nav ul a {
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  nav ul a:hover { color: var(--accent); }
+  .nav-cta {
+    background: var(--accent) !important;
+    color: white !important;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.2s !important;
+    box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+  }
+  .nav-cta:hover {
+    background: var(--accent2) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(79,70,229,0.4) !important;
+  }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh;
+    padding: 140px 60px 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .hero-content { }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-light);
+    border: 1px solid var(--border-accent);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 32px;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 4.5vw, 64px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -2px;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+  .hero h1 .accent {
+    color: var(--accent);
+    position: relative;
+  }
+  .hero h1 .accent::after {
+    content: '';
+    position: absolute;
+    bottom: 2px; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    opacity: 0.4;
+  }
+  .hero-sub {
+    font-size: 18px;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 40px;
+    max-width: 480px;
+  }
+  .hero-cta-group {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent);
+    color: white;
+    padding: 16px 36px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
+    transition: all 0.3s;
+    box-shadow: 0 8px 24px rgba(79,70,229,0.35);
+  }
+  .btn-primary:hover {
+    background: var(--accent2);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(79,70,229,0.45);
+  }
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s;
+    padding: 16px 0;
+  }
+  .btn-ghost:hover { gap: 14px; }
+  .trust-note {
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .trust-icon { color: var(--accent); }
+
+  /* Hero Visual (Dashboard mockup) */
+  .hero-visual {
+    position: relative;
+  }
+  .dashboard-mock {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-hover);
+    overflow: hidden;
+    animation: floatUp 6s ease-in-out infinite;
+  }
+  @keyframes floatUp {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+  .mock-topbar {
+    background: var(--accent);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mock-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+  }
+  .mock-title {
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    margin-left: 8px;
+  }
+  .mock-body { padding: 24px; }
+  .mock-stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .mock-stat {
+    background: var(--bg2);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .mock-stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .mock-stat-label {
+    font-size: 10px;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+  .mock-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 8px;
+  }
+  .mock-progress-bar {
+    height: 8px;
+    background: var(--bg3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .mock-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    animation: progressFill 2s ease-out;
+  }
+  @keyframes progressFill {
+    from { width: 0%; }
+  }
+  .mock-item-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .mock-item-row:last-child { border-bottom: none; }
+  .mock-item-icon {
+    width: 32px; height: 32px;
+    background: var(--accent-light);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .mock-item-name { flex: 1; color: var(--text); font-weight: 500; }
+  .mock-item-amount { color: var(--accent); font-weight: 700; }
+  .mock-item-tag {
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  /* Stats Banner */
+  .stats-banner {
+    background: var(--accent);
+    padding: 48px 60px;
+    display: flex;
+    justify-content: center;
+    gap: 80px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    text-align: center;
+    color: white;
+  }
+  .stat-num {
+    font-size: 44px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    display: block;
+  }
+  .stat-label { font-size: 14px; opacity: 0.8; margin-top: 4px; }
+
+  /* Section */
+  section { padding: 100px 60px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .section-tag {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: clamp(28px, 3.5vw, 48px);
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .section-desc {
+    font-size: 17px;
+    color: var(--text2);
+    max-width: 560px;
+    margin-bottom: 60px;
+    line-height: 1.7;
+  }
+
+  /* Problem */
+  .problem { background: var(--bg2); }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  .problem-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px 28px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    position: relative;
+  }
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20%; bottom: 20%;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 3px 3px 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .problem-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+  }
+  .problem-card:hover::before { opacity: 1; }
+  .problem-num {
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--accent);
+    opacity: 0.15;
+    position: absolute;
+    top: 16px; right: 20px;
+    line-height: 1;
+  }
+  .problem-icon {
+    font-size: 32px;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .problem-card h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .problem-card p {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+
+  /* Solution */
+  .solution { background: white; }
+  .steps-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    position: relative;
+    margin-top: 60px;
+  }
+  .steps-container::before {
+    content: '';
+    position: absolute;
+    top: 60px; left: calc(16.67% + 20px); right: calc(16.67% + 20px);
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent));
+    z-index: 0;
+  }
+  .step-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 28px;
+    text-align: center;
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s;
+    position: relative;
+    z-index: 1;
+  }
+  .step-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--border-accent);
+  }
+  .step-num-circle {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 8px 24px rgba(79,70,229,0.35);
+    position: relative;
+  }
+  .step-num-circle::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid var(--border-accent);
+  }
+  .step-icon { font-size: 32px; }
+  .step-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .step-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .step-card p {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+
+  /* Features */
+  .features { background: var(--bg2); }
+  .features-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+  .features-main { display: flex; flex-direction: column; gap: 20px; }
+  .feature-row {
+    display: flex;
+    gap: 20px;
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s;
+    align-items: flex-start;
+  }
+  .feature-row:hover {
+    transform: translateX(8px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--border-accent);
+  }
+  .feature-row-icon {
+    width: 52px; height: 52px;
+    background: var(--accent-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  .feature-row-content h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .feature-row-content p {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .feature-badge {
+    margin-top: 10px;
+    display: inline-block;
+    padding: 3px 10px;
+    background: var(--accent-light);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .features-side {
+    position: sticky;
+    top: 100px;
+  }
+  .big-number-card {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 24px;
+    padding: 48px 40px;
+    color: white;
+    margin-bottom: 20px;
+    box-shadow: 0 20px 60px rgba(79,70,229,0.35);
+  }
+  .big-number {
+    font-size: 80px;
+    font-weight: 900;
+    letter-spacing: -3px;
+    line-height: 1;
+    display: block;
+  }
+  .big-number-label { font-size: 20px; opacity: 0.9; margin-top: 8px; }
+  .big-number-sub { font-size: 14px; opacity: 0.7; margin-top: 12px; line-height: 1.6; }
+  .mini-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .mini-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-card);
+  }
+  .mini-card-num {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: -1px;
+    display: block;
+  }
+  .mini-card-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  /* Pricing */
+  .pricing { background: white; }
+  .pricing-header { max-width: 600px; }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+    align-items: start;
+  }
+  .pricing-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 28px;
+    transition: all 0.3s;
+    box-shadow: var(--shadow-card);
+  }
+  .pricing-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+  }
+  .pricing-card.featured {
+    border: 2px solid var(--accent);
+    box-shadow: 0 20px 60px rgba(79,70,229,0.2);
+    position: relative;
+  }
+  .featured-badge {
+    position: absolute;
+    top: -14px; left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: white;
+    padding: 5px 20px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(79,70,229,0.4);
+  }
+  .plan-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .plan-price {
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .plan-price sup {
+    font-size: 22px;
+    font-weight: 700;
+    vertical-align: top;
+    margin-top: 12px;
+    display: inline-block;
+  }
+  .plan-price span { font-size: 16px; font-weight: 400; color: var(--text2); }
+  .plan-desc {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .plan-features { list-style: none; margin-bottom: 32px; }
+  .plan-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text2);
+    padding: 8px 0;
+  }
+  .check { color: var(--accent); font-size: 16px; flex-shrink: 0; }
+  .plan-cta {
+    display: block;
+    text-align: center;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  .plan-cta-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    box-shadow: 0 8px 20px rgba(79,70,229,0.35);
+  }
+  .plan-cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px rgba(79,70,229,0.45);
+  }
+  .plan-cta-outline {
+    border: 1.5px solid var(--border-accent);
+    color: var(--accent);
+  }
+  .plan-cta-outline:hover {
+    background: var(--accent-light);
+  }
+
+  /* Testimonials */
+  .testimonials { background: var(--bg2); }
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .testi-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 28px;
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s;
+  }
+  .testi-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--border-accent);
+  }
+  .testi-stars { color: #FBBF24; font-size: 16px; margin-bottom: 16px; }
+  .testi-text {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+  .testi-divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 20px;
+  }
+  .testi-author { display: flex; align-items: center; gap: 12px; }
+  .testi-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: white;
+    flex-shrink: 0;
+  }
+  .testi-name { font-weight: 700; font-size: 14px; color: var(--text); }
+  .testi-role { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .testi-highlight {
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: var(--accent-light);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* FAQ */
+  .faq { background: white; }
+  .faq-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .faq-intro h3 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+  .faq-intro p { font-size: 15px; color: var(--text2); line-height: 1.7; margin-bottom: 32px; }
+  .contact-card {
+    background: var(--accent-light);
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid var(--border-accent);
+  }
+  .contact-card h4 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .contact-card p { font-size: 14px; color: var(--text2); margin-bottom: 16px; }
+  .contact-btn {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .contact-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+  .faq-list { }
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+  }
+  .faq-q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text);
+    gap: 16px;
+    transition: color 0.2s;
+  }
+  .faq-q:hover { color: var(--accent); }
+  .faq-q-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .faq-item.open .faq-q-icon {
+    background: var(--accent);
+    color: white;
+    transform: rotate(45deg);
+  }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .faq-item.open .faq-a { max-height: 300px; }
+  .faq-a p {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.8;
+    padding-bottom: 20px;
+  }
+
+  /* Footer CTA */
+  .footer-cta {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    text-align: center;
+    padding: 100px 60px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .footer-cta::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 400px; height: 400px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .footer-cta::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -80px;
+    width: 300px; height: 300px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+  .footer-cta-inner { position: relative; z-index: 1; }
+  .footer-cta h2 {
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: 900;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+  .footer-cta p { font-size: 18px; opacity: 0.9; margin-bottom: 44px; }
+  .btn-white {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    color: var(--accent);
+    padding: 18px 48px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 18px;
+    text-decoration: none;
+    transition: all 0.3s;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .btn-white:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 48px rgba(0,0,0,0.25);
+  }
+  .footer-note {
+    margin-top: 24px;
+    font-size: 13px;
+    opacity: 0.7;
+  }
+  footer {
+    background: var(--text);
+    padding: 40px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer-logo {
+    font-size: 20px;
+    font-weight: 800;
+    color: white;
+  }
+  .footer-logo span { color: var(--accent2); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { color: #9CA3AF; text-decoration: none; font-size: 13px; transition: color 0.2s; }
+  .footer-links a:hover { color: white; }
+  .footer-copy { color: #4B5563; font-size: 13px; }
+
+  /* Animations */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal-left.visible { opacity: 1; transform: translateX(0); }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 24px; }
+    nav ul { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 120px 24px 60px; gap: 40px; }
+    .steps-container { grid-template-columns: 1fr; }
+    .steps-container::before { display: none; }
+    .features-layout { grid-template-columns: 1fr; }
+    .features-side { position: static; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .testi-grid { grid-template-columns: 1fr; }
+    .faq-layout { grid-template-columns: 1fr; }
+    .stats-banner { gap: 32px; }
+    section { padding: 60px 24px; }
+    footer { flex-direction: column; align-items: center; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="logo">Tax<span>Pilot</span></div>
+  <ul>
+    <li><a href="#problem">課題</a></li>
+    <li><a href="#solution">解決策</a></li>
+    <li><a href="#features">機能</a></li>
+    <li><a href="#pricing">料金</a></li>
+    <li><a href="#cta" class="nav-cta">無料で始める</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">🏆 確定申告自動化No.1アプリ</div>
+    <h1>
+      AIが確定申告を<br>
+      <span class="accent">完全自動化</span>する
+    </h1>
+    <p class="hero-sub">
+      レシート撮影・銀行連携・申告書作成・e-Tax提出まで、
+      TaxPilotがフルオートで完結。税の知識は一切不要。
+    </p>
+    <div class="hero-cta-group">
+      <a href="#cta" class="btn-primary">
+        無料で始める →
+      </a>
+      <a href="#solution" class="btn-ghost">
+        どう動くか見る →
+      </a>
+    </div>
+    <p class="trust-note">
+      <span class="trust-icon">🔒</span>
+      銀行グレードの暗号化 · 個人情報保護法準拠 · 30秒で登録完了
+    </p>
+  </div>
+  <div class="hero-visual">
+    <div class="dashboard-mock">
+      <div class="mock-topbar">
+        <div class="mock-dot"></div>
+        <div class="mock-dot"></div>
+        <div class="mock-dot"></div>
+        <div class="mock-title">TaxPilot - 2025年度 確定申告</div>
+      </div>
+      <div class="mock-body">
+        <div class="mock-stat-row">
+          <div class="mock-stat">
+            <div class="mock-stat-num">¥847K</div>
+            <div class="mock-stat-label">経費合計</div>
+          </div>
+          <div class="mock-stat">
+            <div class="mock-stat-num">247</div>
+            <div class="mock-stat-label">レシート数</div>
+          </div>
+          <div class="mock-stat">
+            <div class="mock-stat-num">✓ 完了</div>
+            <div class="mock-stat-label">申告状況</div>
+          </div>
+        </div>
+        <div class="mock-progress-label">
+          <span>申告書作成進捗</span>
+          <span style="color:var(--accent);font-weight:700;">94%</span>
+        </div>
+        <div class="mock-progress-bar">
+          <div class="mock-progress-fill" style="width:94%"></div>
+        </div>
+        <div class="mock-progress-label">
+          <span>経費の自動分類</span>
+          <span style="color:#10B981;font-weight:700;">100% ✓</span>
+        </div>
+        <div class="mock-progress-bar">
+          <div class="mock-progress-fill" style="width:100%;background:linear-gradient(90deg,#10B981,#34D399)"></div>
+        </div>
+        <div style="margin-top:16px;">
+          <div class="mock-item-row">
+            <div class="mock-item-icon">🍽️</div>
+            <span class="mock-item-name">取引先ランチ</span>
+            <span class="mock-item-tag">交際費</span>
+            <span class="mock-item-amount">¥4,800</span>
+          </div>
+          <div class="mock-item-row">
+            <div class="mock-item-icon">🚄</div>
+            <span class="mock-item-name">新幹線代</span>
+            <span class="mock-item-tag">交通費</span>
+            <span class="mock-item-amount">¥12,340</span>
+          </div>
+          <div class="mock-item-row">
+            <div class="mock-item-icon">💻</div>
+            <span class="mock-item-name">Adobe CC</span>
+            <span class="mock-item-tag">ソフトウェア</span>
+            <span class="mock-item-amount">¥6,248</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Banner -->
+<div class="stats-banner">
+  <div class="stat">
+    <span class="stat-num">98%</span>
+    <div class="stat-label">作業時間削減</div>
+  </div>
+  <div class="stat">
+    <span class="stat-num">3分</span>
+    <div class="stat-label">平均完了時間</div>
+  </div>
+  <div class="stat">
+    <span class="stat-num">12,000+</span>
+    <div class="stat-label">利用ユーザー</div>
+  </div>
+  <div class="stat">
+    <span class="stat-num">¥0</span>
+    <div class="stat-label">無料で始められる</div>
+  </div>
+</div>
+
+<!-- Problem -->
+<section class="problem" id="problem">
+  <div class="container">
+    <p class="section-tag">PROBLEM</p>
+    <h2 class="section-title">確定申告の本当の問題</h2>
+    <p class="section-desc">フリーランス・副業サラリーマンが毎年直面する確定申告の壁。その本質的な原因を解消します。</p>
+    <div class="problem-grid">
+      <div class="problem-card reveal">
+        <div class="problem-num">01</div>
+        <span class="problem-icon">📁</span>
+        <h3>書類管理の煩雑さ</h3>
+        <p>1年間のレシートを保管・整理するだけで丸一日。アナログな管理方法が生産性を奪います。</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="problem-num">02</div>
+        <span class="problem-icon">🧮</span>
+        <h3>税務知識の壁</h3>
+        <p>経費の判断基準、勘定科目の選択、控除の申請方法。毎年変わる税制を把握し続けるのは不可能です。</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="problem-num">03</div>
+        <span class="problem-icon">💸</span>
+        <h3>税理士費用の負担</h3>
+        <p>専門家に頼めば安心だが、年間5〜30万円のコストが重くのしかかる。特に独立初期には致命的。</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="problem-num">04</div>
+        <span class="problem-icon">⚡</span>
+        <h3>直前の焦りと後悔</h3>
+        <p>準備不足のまま期限を迎え、適用できたはずの控除を取り損ねる。毎年同じ後悔を繰り返す。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Solution -->
+<section class="solution" id="solution">
+  <div class="container">
+    <p class="section-tag">SOLUTION</p>
+    <h2 class="section-title">3ステップで申告完了</h2>
+    <p class="section-desc">TaxPilotは確定申告に必要なすべてのプロセスを自動化します。</p>
+    <div class="steps-container">
+      <div class="step-card reveal">
+        <div class="step-num-circle"><span class="step-icon">📸</span></div>
+        <div class="step-label">STEP 01</div>
+        <h3>レシートを撮影する</h3>
+        <p>スマホのカメラでレシートを撮影するだけ。AI-OCRが金額・店舗・日付・品目を自動で読み取り、経費データに変換します。</p>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num-circle"><span class="step-icon">🔗</span></div>
+        <div class="step-label">STEP 02</div>
+        <h3>銀行・カードを連携</h3>
+        <p>一度設定すれば、以降は自動で取引データを取得。AIが勘定科目を自動分類するので手動入力は不要です。</p>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num-circle"><span class="step-icon">✅</span></div>
+        <div class="step-label">STEP 03</div>
+        <h3>AIが申告書を提出</h3>
+        <p>AIが最適な申告書を自動作成。内容を確認してボタン一つでe-Taxに送信。税務署に行く必要は一切ありません。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="features-layout">
+      <div>
+        <p class="section-tag">FEATURES</p>
+        <h2 class="section-title">すべての機能が<br>一つのアプリに</h2>
+        <p class="section-desc">確定申告に必要なすべての機能を、洗練されたUIで提供します。</p>
+        <div class="features-main">
+          <div class="feature-row reveal-left">
+            <div class="feature-row-icon">📷</div>
+            <div class="feature-row-content">
+              <h3>AI-OCRレシート認識</h3>
+              <p>最新モデルによる高精度OCR。手書き・FAX・海外レシートにも対応。</p>
+              <span class="feature-badge">認識精度 99.2%</span>
+            </div>
+          </div>
+          <div class="feature-row reveal-left">
+            <div class="feature-row-icon">🏦</div>
+            <div class="feature-row-content">
+              <h3>230行の銀行・クレカ連携</h3>
+              <p>国内主要金融機関すべてに対応。取引データを自動分類・集計します。</p>
+              <span class="feature-badge">230行対応</span>
+            </div>
+          </div>
+          <div class="feature-row reveal-left">
+            <div class="feature-row-icon">🤖</div>
+            <div class="feature-row-content">
+              <h3>AI申告書自動作成</h3>
+              <p>青色・白色申告に対応。最新税制を反映した申告書を自動生成。</p>
+              <span class="feature-badge">青色65万控除対応</span>
+            </div>
+          </div>
+          <div class="feature-row reveal-left">
+            <div class="feature-row-icon">📡</div>
+            <div class="feature-row-content">
+              <h3>e-Tax完全連携</h3>
+              <p>マイナンバーカードでe-Taxに直接送信。全プロセスがオンラインで完結。</p>
+              <span class="feature-badge">マイナンバー対応</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="features-side">
+        <div class="big-number-card reveal">
+          <span class="big-number">98%</span>
+          <div class="big-number-label">の作業時間を削減</div>
+          <div class="big-number-sub">平均2日かかっていた確定申告作業が、TaxPilotなら平均3分で完了します。</div>
+        </div>
+        <div class="mini-cards">
+          <div class="mini-card reveal">
+            <span class="mini-card-num">12K+</span>
+            <div class="mini-card-label">利用ユーザー</div>
+          </div>
+          <div class="mini-card reveal">
+            <span class="mini-card-num">4.9★</span>
+            <div class="mini-card-label">平均評価</div>
+          </div>
+          <div class="mini-card reveal">
+            <span class="mini-card-num">230行</span>
+            <div class="mini-card-label">銀行対応</div>
+          </div>
+          <div class="mini-card reveal">
+            <span class="mini-card-num">99.2%</span>
+            <div class="mini-card-label">OCR精度</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="pricing-header">
+      <p class="section-tag">PRICING</p>
+      <h2 class="section-title">透明なシンプル料金</h2>
+      <p class="section-desc">まず無料で体験。満足したらアップグレード。いつでもキャンセル可能。</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card reveal">
+        <div class="plan-name">FREE</div>
+        <div class="plan-price">¥0<span>/月</span></div>
+        <div class="plan-desc">月5件まで無料でお試し</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> レシート撮影（月5件）</li>
+          <li><span class="check">✓</span> 基本経費分類</li>
+          <li><span class="check">✓</span> 白色申告書作成</li>
+          <li><span class="check" style="color:var(--text3)">—</span> 銀行・クレカ連携</li>
+          <li><span class="check" style="color:var(--text3)">—</span> 青色申告対応</li>
+          <li><span class="check" style="color:var(--text3)">—</span> e-Tax直接送信</li>
+        </ul>
+        <a href="#cta" class="plan-cta plan-cta-outline">無料で始める</a>
+      </div>
+      <div class="pricing-card featured reveal">
+        <div class="featured-badge">✨ 最も人気</div>
+        <div class="plan-name">PRO</div>
+        <div class="plan-price"><sup>¥</sup>980<span>/月</span></div>
+        <div class="plan-desc">フリーランス・副業に最適な全機能</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> レシート撮影（無制限）</li>
+          <li><span class="check">✓</span> AI経費自動分類</li>
+          <li><span class="check">✓</span> 青色・白色申告</li>
+          <li><span class="check">✓</span> 銀行・クレカ連携</li>
+          <li><span class="check">✓</span> e-Tax直接送信</li>
+          <li><span class="check">✓</span> 優先サポート</li>
+        </ul>
+        <a href="#cta" class="plan-cta plan-cta-primary">無料で始める</a>
+      </div>
+      <div class="pricing-card reveal">
+        <div class="plan-name">BUSINESS</div>
+        <div class="plan-price"><sup>¥</sup>2,480<span>/月</span></div>
+        <div class="plan-desc">法人・チームに最適なエンタープライズ</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> PROの全機能</li>
+          <li><span class="check">✓</span> 法人税申告対応</li>
+          <li><span class="check">✓</span> チーム管理</li>
+          <li><span class="check">✓</span> 税理士連携</li>
+          <li><span class="check">✓</span> API連携</li>
+          <li><span class="check">✓</span> 専任担当</li>
+        </ul>
+        <a href="#cta" class="plan-cta plan-cta-outline">無料で始める</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials" id="testimonials">
+  <div class="container">
+    <p class="section-tag">TESTIMONIALS</p>
+    <h2 class="section-title">12,000人が選んだ理由</h2>
+    <p class="section-desc">実際のユーザーからの声をそのままお伝えします。</p>
+    <div class="testi-grid">
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">「毎年丸2日かかっていた申告作業が3時間で終わった。レシートを撮るだけで経費が自動分類されるのは本当に感動的な体験でした。」</p>
+        <div class="testi-divider"></div>
+        <div class="testi-author">
+          <div class="testi-avatar">田</div>
+          <div>
+            <div class="testi-name">田中 健一</div>
+            <div class="testi-role">フリーランスエンジニア・5年目</div>
+          </div>
+        </div>
+        <div class="testi-highlight">⏱️ 申告作業 2日 → 3時間に短縮</div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">「副業の申告を税理士に頼んでいましたが、TaxPilotに変えて年間10万円以上のコスト削減。UIも直感的で税の知識がなくても全然問題ありません。」</p>
+        <div class="testi-divider"></div>
+        <div class="testi-author">
+          <div class="testi-avatar">佐</div>
+          <div>
+            <div class="testi-name">佐藤 美香</div>
+            <div class="testi-role">会社員 × YouTuber</div>
+          </div>
+        </div>
+        <div class="testi-highlight">💰 税理士費用 年間10万円以上削減</div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★☆</div>
+        <p class="testi-text">「個人事業主として5年、ずっと確定申告が怖かった。TaxPilotのおかげで期限を怖れなくなり、青色申告65万控除も初めて取れました。」</p>
+        <div class="testi-divider"></div>
+        <div class="testi-author">
+          <div class="testi-avatar">山</div>
+          <div>
+            <div class="testi-name">山本 大輔</div>
+            <div class="testi-role">個人事業主・デザイナー</div>
+          </div>
+        </div>
+        <div class="testi-highlight">📋 初めて青色申告65万控除を取得</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="faq-layout">
+      <div class="faq-intro reveal">
+        <p class="section-tag">FAQ</p>
+        <h3>よくあるご質問</h3>
+        <p>ご不明な点があれば、こちらをご確認ください。それでも解決しない場合はサポートまでお気軽にご連絡ください。</p>
+        <div class="contact-card">
+          <h4>📧 サポートに問い合わせる</h4>
+          <p>平日9〜18時、通常1時間以内に返答します。</p>
+          <a href="#" class="contact-btn">問い合わせる →</a>
+        </div>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+            <span>銀行情報のセキュリティは大丈夫ですか？</span>
+            <div class="faq-q-icon">+</div>
+          </div>
+          <div class="faq-a">
+            <p>256bit SSL暗号化を採用し、実際の口座番号・パスワードはサーバーに保存しません。Open Banking標準の読み取り専用APIで接続するため、送金などの操作は物理的に不可能な設計です。</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+            <span>青色申告の65万円控除にも対応していますか？</span>
+            <div class="faq-q-icon">+</div>
+          </div>
+          <div class="faq-a">
+            <p>はい。PRO・BUSINESSプランで青色申告（65万円控除）に完全対応。複式簿記の帳簿付けから確定申告書Bまで自動作成します。</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+            <span>途中でプラン変更はできますか？</span>
+            <div class="faq-q-icon">+</div>
+          </div>
+          <div class="faq-a">
+            <p>いつでも可能です。アップグレードは即時反映。ダウングレードは次の請求サイクルから適用されます。</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+            <span>スマホだけで申告まで完結できますか？</span>
+            <div class="faq-q-icon">+</div>
+          </div>
+          <div class="faq-a">
+            <p>はい。マイナンバーカードとスマホのNFC機能があれば、PC不要でe-Taxまで完結できます。iOS・Android両対応。</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+            <span>法人にも使えますか？</span>
+            <div class="faq-q-icon">+</div>
+          </div>
+          <div class="faq-a">
+            <p>BUSINESSプランで法人税申告・複数ユーザー管理・税理士連携機能が利用可能です。法人の決算・申告もTaxPilot一本でカバーできます。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer CTA -->
+<section class="footer-cta" id="cta">
+  <div class="footer-cta-inner container" style="text-align:center;">
+    <h2>今年こそ、確定申告を<br>シンプルに終わらせよう</h2>
+    <p>12,000人のフリーランス・副業サラリーマンが選んだAI申告ツール</p>
+    <a href="#" class="btn-white">
+      無料で始める — 30秒で登録
+    </a>
+    <p class="footer-note">クレジットカード不要 · いつでもキャンセル可 · 全プラットフォーム対応</p>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Tax<span>Pilot</span></div>
+  <div class="footer-links">
+    <a href="#">プライバシーポリシー</a>
+    <a href="#">利用規約</a>
+    <a href="#">セキュリティ</a>
+    <a href="#">会社概要</a>
+    <a href="#">お問い合わせ</a>
+  </div>
+  <div class="footer-copy">© 2026 TaxPilot Inc. All rights reserved.</div>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal, .reveal-left');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
