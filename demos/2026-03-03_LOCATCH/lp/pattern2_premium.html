@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOCATCH - 獲れたてが、ダイレクトに届く。</title>
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --bg-alt: #F4FAF6;
+      --bg-card: #FFFFFF;
+      --bg-dark: #0D3B1F;
+      --accent: #1A7A4A;
+      --accent-light: #28A060;
+      --accent-pale: #E8F5EE;
+      --accent-mid: #B8DFC8;
+      --text: #1A2E1E;
+      --text-sub: #4A6657;
+      --text-muted: #8AAA96;
+      --border: rgba(26,122,74,0.2);
+      --border-light: rgba(26,122,74,0.1);
+      --shadow: 0 4px 24px rgba(26,122,74,0.1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-light);
+      padding: 0 48px; height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-size: 22px; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; text-decoration: none; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a { color: var(--text-sub); text-decoration: none; font-size: 14px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta { background: var(--accent); color: #fff; padding: 10px 24px; border-radius: 4px; font-size: 14px; font-weight: 700; text-decoration: none; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; transition: background 0.2s; }
+    .nav-cta:hover { background: var(--accent-light); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 100px 80px 80px; position: relative; overflow: hidden;
+    }
+    .hero-left { flex: 1; max-width: 580px; position: relative; z-index: 2; }
+    .hero-right { flex: 1; display: flex; justify-content: flex-end; align-items: center; position: relative; z-index: 2; }
+    .hero-bg-shape {
+      position: absolute; top: 0; right: -80px; width: 55%; height: 100%;
+      background: linear-gradient(135deg, var(--bg-alt) 0%, var(--accent-pale) 100%);
+      clip-path: polygon(15% 0%, 100% 0%, 100% 100%, 0% 100%);
+      z-index: 0;
+    }
+    .hero-leaf {
+      position: absolute; right: 8%; top: 15%; width: 420px; height: 420px;
+      background: radial-gradient(ellipse at 40% 40%, rgba(26,122,74,0.08) 0%, transparent 70%);
+      border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+      z-index: 1;
+      animation: leafFloat 6s ease-in-out infinite;
+    }
+    @keyframes leafFloat { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-16px) rotate(3deg); } }
+    .hero-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent-pale); border: 1px solid var(--accent-mid);
+      color: var(--accent); padding: 6px 16px; border-radius: 4px;
+      font-size: 13px; font-weight: 600; letter-spacing: 0.08em;
+      margin-bottom: 28px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+    .hero-title {
+      font-size: clamp(36px, 4.5vw, 62px); font-weight: 700; line-height: 1.25;
+      letter-spacing: 0.02em; margin-bottom: 24px; color: var(--text);
+    }
+    .hero-title .accent { color: var(--accent); }
+    .hero-subtitle { font-size: 18px; color: var(--text-sub); margin-bottom: 12px; font-weight: 400; }
+    .hero-sub2 { font-size: 15px; color: var(--text-muted); margin-bottom: 48px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .hero-cta-group { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent); color: #fff; padding: 16px 40px; border-radius: 4px;
+      font-size: 16px; font-weight: 700; text-decoration: none;
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(26,122,74,0.25);
+    }
+    .btn-primary:hover { background: var(--accent-light); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(26,122,74,0.35); }
+    .btn-secondary {
+      background: #fff; color: var(--accent); padding: 16px 40px; border-radius: 4px;
+      font-size: 16px; font-weight: 700; text-decoration: none; border: 2px solid var(--accent);
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: var(--accent-pale); }
+    /* ファームビジュアル */
+    .hero-visual {
+      width: 440px; height: 440px; position: relative; z-index: 2;
+    }
+    .hero-visual-main {
+      width: 100%; height: 100%; border-radius: 50%; overflow: hidden; position: relative;
+      background: linear-gradient(135deg, #C8E6C9 0%, #A5D6A7 30%, #66BB6A 60%, #2E7D32 100%);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 24px 64px rgba(26,122,74,0.25);
+    }
+    .hero-visual-icon { font-size: 120px; line-height: 1; }
+    .hero-visual-badge {
+      position: absolute; bottom: -20px; left: -20px;
+      background: #fff; border: 2px solid var(--border);
+      border-radius: 12px; padding: 16px 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+    .hero-visual-badge-num { font-size: 28px; font-weight: 900; color: var(--accent); line-height: 1; }
+    .hero-visual-badge-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .hero-visual-badge2 {
+      position: absolute; top: 20px; right: -30px;
+      background: var(--accent); border-radius: 12px; padding: 14px 18px;
+      box-shadow: 0 8px 24px rgba(26,122,74,0.3);
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+    .hero-visual-badge2-icon { font-size: 24px; text-align: center; }
+    .hero-visual-badge2-text { font-size: 11px; color: rgba(255,255,255,0.9); margin-top: 4px; text-align: center; }
+
+    /* SECTION BASE */
+    section { padding: 96px 80px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-kicker { font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 12px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .section-title { font-size: clamp(26px, 3.5vw, 42px); font-weight: 700; line-height: 1.35; margin-bottom: 20px; }
+    .section-desc { font-size: 16px; color: var(--text-sub); max-width: 600px; margin-bottom: 56px; line-height: 1.9; }
+    .green-line { width: 48px; height: 3px; background: var(--accent); margin: 16px 0 24px; }
+
+    /* PROBLEM */
+    .problem { background: var(--bg-alt); }
+    .problem-inner { display: grid; grid-template-columns: 1fr 1.2fr; gap: 64px; align-items: start; }
+    .problem-visual-area { position: sticky; top: 100px; }
+    .prob-stat-card {
+      background: #fff; border-radius: 16px; padding: 40px; text-align: center;
+      box-shadow: var(--shadow); border: 1px solid var(--border-light); margin-bottom: 24px;
+    }
+    .prob-stat-num { font-size: 72px; font-weight: 700; color: var(--accent); line-height: 1; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .prob-stat-unit { font-size: 24px; color: var(--text-sub); }
+    .prob-stat-label { font-size: 14px; color: var(--text-muted); margin-top: 12px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .prob-bar-card { background: #fff; border-radius: 16px; padding: 28px; box-shadow: var(--shadow); border: 1px solid var(--border-light); }
+    .prob-bar-item { margin-bottom: 20px; }
+    .prob-bar-item:last-child { margin-bottom: 0; }
+    .prob-bar-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .prob-bar-label { color: var(--text-sub); }
+    .prob-bar-value { color: var(--accent); font-weight: 700; }
+    .prob-bar-track { height: 8px; background: var(--accent-pale); border-radius: 100px; overflow: hidden; }
+    .prob-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-light)); border-radius: 100px; }
+    .problem-list { display: flex; flex-direction: column; gap: 28px; }
+    .problem-item { background: #fff; border-radius: 12px; padding: 28px; border: 1px solid var(--border-light); box-shadow: var(--shadow); display: flex; gap: 20px; align-items: flex-start; transition: transform 0.2s; }
+    .problem-item:hover { transform: translateX(4px); }
+    .problem-item-icon { font-size: 32px; flex-shrink: 0; }
+    .problem-item h4 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .problem-item p { font-size: 14px; color: var(--text-sub); line-height: 1.8; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+
+    /* SOLUTION */
+    .solution { background: #fff; }
+    .solution-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .sol-step {
+      background: var(--bg-alt); border-radius: 16px; padding: 36px 28px;
+      text-align: center; border: 1px solid var(--border-light);
+      position: relative; transition: all 0.3s;
+    }
+    .sol-step:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
+    .sol-step::after {
+      content: '→'; position: absolute; right: -20px; top: 50%; transform: translateY(-50%);
+      font-size: 24px; color: var(--accent-mid); font-weight: 700;
+    }
+    .sol-step:last-child::after { display: none; }
+    .sol-step-num {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--accent); color: #fff; font-size: 22px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+    }
+    .sol-step-icon { font-size: 40px; margin-bottom: 16px; }
+    .sol-step-tag { display: inline-block; background: var(--accent-pale); color: var(--accent); padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.08em; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .sol-step h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .sol-step p { font-size: 14px; color: var(--text-sub); line-height: 1.75; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+
+    /* FEATURES */
+    .features { background: var(--bg-dark); }
+    .features .section-kicker { color: var(--accent-mid); }
+    .features .section-title { color: #fff; }
+    .features .section-desc { color: rgba(255,255,255,0.6); }
+    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .feat-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 32px; transition: all 0.3s; }
+    .feat-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-4px); }
+    .feat-card.wide { grid-column: span 2; }
+    .feat-icon { font-size: 36px; margin-bottom: 16px; }
+    .feat-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+    .feat-desc { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.75; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .feat-badge { display: inline-block; margin-top: 16px; background: rgba(26,122,74,0.3); color: var(--accent-mid); padding: 4px 12px; border-radius: 4px; font-size: 11px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+
+    /* BENEFITS */
+    .benefits { background: var(--bg-alt); }
+    .benefits-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+    .ben-card { background: #fff; border-radius: 16px; padding: 40px 28px; border: 1px solid var(--border-light); box-shadow: var(--shadow); transition: all 0.3s; }
+    .ben-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(26,122,74,0.15); }
+    .ben-num { font-size: 56px; font-weight: 900; color: var(--accent); line-height: 1; margin-bottom: 4px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; opacity: 0.15; }
+    .ben-icon { font-size: 40px; margin-bottom: 16px; margin-top: -36px; }
+    .ben-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .ben-desc { font-size: 14px; color: var(--text-sub); line-height: 1.8; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+
+    /* PHASES */
+    .phases { background: #fff; }
+    .phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+    .phase-card { border-radius: 16px; overflow: hidden; border: 1px solid var(--border-light); transition: transform 0.3s; }
+    .phase-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .phase-head { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%); padding: 28px; color: #fff; }
+    .phase-head-label { font-size: 11px; letter-spacing: 0.2em; font-weight: 700; opacity: 0.8; margin-bottom: 8px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .phase-head-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .phase-head-period { font-size: 13px; opacity: 0.8; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .phase-body { background: var(--bg-alt); padding: 28px; }
+    .phase-body p { font-size: 14px; color: var(--text-sub); margin-bottom: 16px; line-height: 1.75; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .phase-tags { display: flex; flex-direction: column; gap: 8px; }
+    .phase-tag { background: #fff; border: 1px solid var(--border-light); padding: 8px 14px; border-radius: 6px; font-size: 13px; color: var(--text-sub); font-family: 'Hiragino Kaku Gothic ProN', sans-serif; display: flex; align-items: center; gap: 8px; }
+    .phase-tag::before { content: '✓'; color: var(--accent); font-weight: 700; }
+
+    /* PRICING */
+    .pricing { background: var(--bg-alt); }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: start; }
+    .pricing-card { background: #fff; border: 1px solid var(--border-light); border-radius: 16px; padding: 40px 32px; position: relative; transition: transform 0.3s; }
+    .pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .pricing-card.featured { border-color: var(--accent); border-width: 2px; }
+    .pricing-badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 5px 20px; border-radius: 100px; font-size: 12px; font-weight: 700; white-space: nowrap; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .pricing-plan { font-size: 13px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted); font-weight: 700; margin-bottom: 16px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .pricing-price { font-size: 42px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 8px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .pricing-price .unit { font-size: 16px; color: var(--text-sub); font-weight: 400; }
+    .pricing-price .period { font-size: 14px; color: var(--text-muted); font-weight: 400; }
+    .pricing-desc { font-size: 14px; color: var(--text-sub); margin: 20px 0 28px; line-height: 1.7; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .pricing-features li { display: flex; gap: 10px; font-size: 14px; color: var(--text-sub); font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .pricing-features li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+    .btn-plan { display: block; text-align: center; padding: 14px; border-radius: 6px; font-size: 15px; font-weight: 700; text-decoration: none; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; transition: all 0.2s; }
+    .btn-plan-primary { background: var(--accent); color: #fff; }
+    .btn-plan-primary:hover { background: var(--accent-light); }
+    .btn-plan-outline { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+    .btn-plan-outline:hover { background: var(--accent-pale); }
+
+    /* FAQ */
+    .faq { background: #fff; }
+    .faq-inner { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border-light); border-radius: 16px; overflow: hidden; }
+    .faq-item { border-bottom: 1px solid var(--border-light); }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q { padding: 24px 28px; font-size: 16px; font-weight: 700; display: flex; gap: 16px; align-items: flex-start; }
+    .faq-q-icon { width: 28px; height: 28px; background: var(--accent-pale); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; flex-shrink: 0; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .faq-a { padding: 0 28px 24px 72px; font-size: 14px; color: var(--text-sub); line-height: 1.85; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+
+    /* FOOTER CTA */
+    .footer-cta {
+      background: linear-gradient(135deg, var(--bg-dark) 0%, #1A4A2E 100%);
+      text-align: center; padding: 100px 40px; position: relative; overflow: hidden;
+    }
+    .footer-cta::before {
+      content: ''; position: absolute;
+      top: -100px; right: -100px; width: 500px; height: 500px;
+      border-radius: 50%; background: radial-gradient(circle, rgba(26,122,74,0.3) 0%, transparent 70%);
+    }
+    .footer-cta::after {
+      content: ''; position: absolute;
+      bottom: -100px; left: -100px; width: 400px; height: 400px;
+      border-radius: 50%; background: radial-gradient(circle, rgba(26,122,74,0.2) 0%, transparent 70%);
+    }
+    .footer-cta-inner { position: relative; z-index: 1; }
+    .footer-cta-title { font-size: clamp(28px, 4vw, 48px); font-weight: 700; color: #fff; margin-bottom: 20px; }
+    .footer-cta-title .accent { color: #6DC990; }
+    .footer-cta-desc { font-size: 16px; color: rgba(255,255,255,0.7); margin-bottom: 48px; max-width: 520px; margin-left: auto; margin-right: auto; line-height: 1.85; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .footer-cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-white { background: #fff; color: var(--accent); padding: 16px 40px; border-radius: 4px; font-size: 16px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; transition: all 0.2s; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.25); }
+    .btn-outline-white { background: transparent; color: #fff; padding: 16px 40px; border-radius: 4px; font-size: 16px; font-weight: 700; text-decoration: none; border: 2px solid rgba(255,255,255,0.6); display: inline-flex; align-items: center; gap: 8px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; transition: all 0.2s; }
+    .btn-outline-white:hover { background: rgba(255,255,255,0.1); }
+
+    footer { background: var(--bg-dark); padding: 48px; text-align: center; }
+    .footer-logo { font-size: 22px; font-weight: 700; color: #6DC990; margin-bottom: 12px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .footer-tagline { font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 24px; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .footer-links { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .footer-links a { font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: none; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+    .footer-links a:hover { color: #6DC990; }
+    .footer-copy { font-size: 12px; color: rgba(255,255,255,0.25); font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#" class="nav-logo">LOCATCH</a>
+    <ul class="nav-links">
+      <li><a href="#problem">課題</a></li>
+      <li><a href="#solution">ソリューション</a></li>
+      <li><a href="#features">機能</a></li>
+      <li><a href="#pricing">料金</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">無料相談を申込む</a>
+  </nav>
+
+  <section class="hero" id="top">
+    <div class="hero-bg-shape"></div>
+    <div class="hero-leaf"></div>
+    <div class="hero-left">
+      <div class="hero-label">🌿 自治体公式 一次産業直売マーケット</div>
+      <h1 class="hero-title">獲れたてが、<br><span class="accent">ダイレクトに届く。</span></h1>
+      <p class="hero-subtitle">未利用魚に、値段をつける。<br>地域の恵みを、次の経済へ。</p>
+      <p class="hero-sub2">漁師・農家と消費者・飲食店を直結する、自治体公認のデジタルマーケットプレイス</p>
+      <div class="hero-cta-group">
+        <a href="#contact" class="btn-primary">🏛️ 自治体向け無料相談</a>
+        <a href="#solution" class="btn-secondary">詳しく見る →</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-visual">
+        <div class="hero-visual-main">
+          <div class="hero-visual-icon">🌱</div>
+        </div>
+        <div class="hero-visual-badge">
+          <div class="hero-visual-badge-num">60万t</div>
+          <div class="hero-visual-badge-label">年間廃棄される未利用魚</div>
+        </div>
+        <div class="hero-visual-badge2">
+          <div class="hero-visual-badge2-icon">🐟</div>
+          <div class="hero-visual-badge2-text">産地直送</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="problem" id="problem">
+    <div class="container">
+      <div class="section-kicker">PROBLEM</div>
+      <h2 class="section-title">消えていく食と、<br>疲弊する地域の現実</h2>
+      <div class="green-line"></div>
+      <div class="problem-inner">
+        <div class="problem-visual-area">
+          <div class="prob-stat-card">
+            <div class="prob-stat-num">60<span class="prob-stat-unit">万t</span></div>
+            <div class="prob-stat-label">年間廃棄される未利用魚・規格外農産物</div>
+          </div>
+          <div class="prob-bar-card">
+            <div class="prob-bar-item">
+              <div class="prob-bar-header"><span class="prob-bar-label">未利用魚廃棄率</span><span class="prob-bar-value">60%</span></div>
+              <div class="prob-bar-track"><div class="prob-bar-fill" style="width:60%"></div></div>
+            </div>
+            <div class="prob-bar-item">
+              <div class="prob-bar-header"><span class="prob-bar-label">規格外農産物廃棄率</span><span class="prob-bar-value">30%</span></div>
+              <div class="prob-bar-track"><div class="prob-bar-fill" style="width:30%"></div></div>
+            </div>
+            <div class="prob-bar-item">
+              <div class="prob-bar-header"><span class="prob-bar-label">生産者の手取り比率</span><span class="prob-bar-value">25%</span></div>
+              <div class="prob-bar-track"><div class="prob-bar-fill" style="width:25%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="problem-list">
+          <p style="font-size:16px; color:var(--text-sub); line-height:1.9; margin-bottom:8px;">日本の水産業・農業は、流通構造の歪みによって食材の価値が失われ、生産者の収入が低下し続けています。</p>
+          <div class="problem-item">
+            <div class="problem-item-icon">🐟</div>
+            <div><h4>未利用魚の大量廃棄</h4><p>規格外・小型・傷などの理由で市場に乗れない魚が年間60万トン廃棄。漁師の努力が報われない構造が続いています。</p></div>
+          </div>
+          <div class="problem-item">
+            <div class="problem-item-icon">🥦</div>
+            <div><h4>規格外農産物の流通問題</h4><p>見た目・サイズが基準外というだけで廃棄される農産物が全体の約30%。品質に問題はなく、本来食卓に届けられる恵みです。</p></div>
+          </div>
+          <div class="problem-item">
+            <div class="problem-item-icon">👨‍🌾</div>
+            <div><h4>生産者の収入減少と担い手不足</h4><p>中間流通コストが高く、生産者の手取りは小売価格の20〜30%程度。若い担い手が育たず、地域の一次産業は衰退しています。</p></div>
+          </div>
+          <div class="problem-item">
+            <div class="problem-item-icon">🌏</div>
+            <div><h4>地域経済の空洞化</h4><p>一次産業の衰退は連鎖的に地域全体の経済・文化・コミュニティの崩壊につながります。</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="solution" id="solution">
+    <div class="container">
+      <div class="section-kicker">SOLUTION</div>
+      <h2 class="section-title">3ステップで実現する<br>産地と食卓の直結</h2>
+      <div class="green-line"></div>
+      <p class="section-desc">自治体の公的信頼性を基盤に、複雑な流通経路をなくし生産者と消費者を直接つなぎます。</p>
+      <div class="solution-steps">
+        <div class="sol-step">
+          <div class="sol-step-num">01</div>
+          <div class="sol-step-icon">🎣</div>
+          <span class="sol-step-tag">PRODUCER</span>
+          <h3>漁師・農家が出品</h3>
+          <p>スマートフォンから簡単出品。未利用魚・規格外農産物に自分で値段をつけて出品できます。写真と説明を入力するだけ。</p>
+        </div>
+        <div class="sol-step">
+          <div class="sol-step-num">02</div>
+          <div class="sol-step-icon">🏛️</div>
+          <span class="sol-step-tag">MUNICIPALITY</span>
+          <h3>自治体が品質保証</h3>
+          <p>自治体公式認定の出品者のみ掲載可能。安全基準・衛生管理を確認した安心の公的バックアップがあります。</p>
+        </div>
+        <div class="sol-step">
+          <div class="sol-step-num">03</div>
+          <div class="sol-step-icon">🍽️</div>
+          <span class="sol-step-tag">CONSUMER</span>
+          <h3>消費者・飲食店が購入</h3>
+          <p>地域の新鮮な食材を産地直送で購入。飲食店は仕入れルートを多様化、消費者は地産地消を手軽に実現。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-kicker">FEATURES</div>
+      <h2 class="section-title">三者すべてに届く<br>機能設計</h2>
+      <div class="green-line"></div>
+      <p class="section-desc">生産者・自治体・消費者のそれぞれに最適化された5つの主要機能。</p>
+      <div class="feat-grid">
+        <div class="feat-card wide">
+          <div class="feat-icon">🗺️</div>
+          <div class="feat-title">自治体ブランド統合マップ</div>
+          <p class="feat-desc">地域ごとにカスタマイズされた産地マップを提供。消費者は地図から生産者を探し、地域の物語とともに食材を選べます。自治体のブランドイメージ向上と一体化した設計で、地域への愛着を育みます。</p>
+          <span class="feat-badge">地域連携・ブランディング</span>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">📱</div>
+          <div class="feat-title">出品者モバイルアプリ</div>
+          <p class="feat-desc">スマートフォン1台で出品・在庫管理・売上確認が完結。漁港での水揚げ直後から出品できるシンプルなUI。</p>
+          <span class="feat-badge">生産者向け</span>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">🔔</div>
+          <div class="feat-title">鮮度アラート通知</div>
+          <p class="feat-desc">今朝水揚げされた魚が出品されると即座に通知。鮮度が命の水産物・農産物の価値を最大化します。</p>
+          <span class="feat-badge">消費者向け</span>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">📊</div>
+          <div class="feat-title">自治体ダッシュボード</div>
+          <p class="feat-desc">取引データ・廃棄削減量・経済効果を一元管理。政策立案・報告書を効率化する行政向けレポート。</p>
+          <span class="feat-badge">行政向け</span>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">🚚</div>
+          <div class="feat-title">産地直送ロジスティクス</div>
+          <p class="feat-desc">地域物流事業者と連携。クール便・翌日配送に対応し、鮮度を保ったまま消費者の元へ届けます。</p>
+          <span class="feat-badge">物流連携</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="benefits" id="benefits">
+    <div class="container">
+      <div class="section-kicker">MUNICIPALITY MERIT</div>
+      <h2 class="section-title">自治体が手にする<br>3つの価値</h2>
+      <div class="green-line"></div>
+      <div class="benefits-grid">
+        <div class="ben-card">
+          <div class="ben-num">01</div>
+          <div class="ben-icon">📈</div>
+          <h3 class="ben-title">地域経済の活性化</h3>
+          <p class="ben-desc">廃棄されていた一次産品に経済価値を生み出し、生産者の収入増加と地域内経済循環を実現。域外への購買流出を抑制し、地域GDPの向上に貢献します。</p>
+        </div>
+        <div class="ben-card">
+          <div class="ben-num">02</div>
+          <div class="ben-icon">🌱</div>
+          <h3 class="ben-title">SDGs・食品廃棄削減</h3>
+          <p class="ben-desc">未利用魚・規格外農産物の有効活用でフードロスを削減。自治体のSDGs達成目標・環境政策の実績指標として活用でき、国の補助金申請にも対応します。</p>
+        </div>
+        <div class="ben-card">
+          <div class="ben-num">03</div>
+          <div class="ben-icon">🏆</div>
+          <h3 class="ben-title">自治体ブランド向上</h3>
+          <p class="ben-desc">「食の安全と地産地消を推進する自治体」としてのブランドイメージを確立。移住促進・観光誘致との連動で関係人口の増加を図ります。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="phases" id="phases">
+    <div class="container">
+      <div class="section-kicker">IMPLEMENTATION</div>
+      <h2 class="section-title">安心の3フェーズ<br>導入ロードマップ</h2>
+      <div class="green-line"></div>
+      <p class="section-desc">小さく始めて確実に成果を積み上げる、段階的な導入アプローチです。</p>
+      <div class="phase-grid">
+        <div class="phase-card">
+          <div class="phase-head">
+            <div class="phase-head-label">PHASE 01</div>
+            <div class="phase-head-title">🚀 パイロット</div>
+            <div class="phase-head-period">導入〜3ヶ月</div>
+          </div>
+          <div class="phase-body">
+            <p>小規模なパイロットプロジェクトから始め、地域の反応を検証しながら丁寧に立ち上げます。</p>
+            <div class="phase-tags">
+              <span class="phase-tag">出品者10〜30名のオンボーディング</span>
+              <span class="phase-tag">自治体担当者向け操作研修</span>
+              <span class="phase-tag">地域ロジスティクス連携設定</span>
+              <span class="phase-tag">広報・プレスリリース支援</span>
+            </div>
+          </div>
+        </div>
+        <div class="phase-card">
+          <div class="phase-head">
+            <div class="phase-head-label">PHASE 02</div>
+            <div class="phase-head-title">📈 スケールアップ</div>
+            <div class="phase-head-period">3〜9ヶ月</div>
+          </div>
+          <div class="phase-body">
+            <p>パイロットの成果をもとに出品者数・品目・配送エリアを拡大し、本格運用に移行します。</p>
+            <div class="phase-tags">
+              <span class="phase-tag">出品者100名以上への拡大</span>
+              <span class="phase-tag">飲食店法人アカウント開設</span>
+              <span class="phase-tag">定期便・サブスクプラン開始</span>
+              <span class="phase-tag">データ分析レポート本格化</span>
+            </div>
+          </div>
+        </div>
+        <div class="phase-card">
+          <div class="phase-head">
+            <div class="phase-head-label">PHASE 03</div>
+            <div class="phase-head-title">🌐 ブランド確立</div>
+            <div class="phase-head-period">9ヶ月〜</div>
+          </div>
+          <div class="phase-body">
+            <p>LOCATCHを地域の食のプラットフォームとして定着させ、観光・移住施策と連動します。</p>
+            <div class="phase-tags">
+              <span class="phase-tag">観光客向けギフト・産地訪問機能</span>
+              <span class="phase-tag">近隣自治体との広域連携</span>
+              <span class="phase-tag">国補助金・SDGs報告書連携</span>
+              <span class="phase-tag">移住促進・地域ブランディング</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <div class="section-kicker">PRICING</div>
+      <h2 class="section-title">自治体規模に合わせた<br>3つのプラン</h2>
+      <div class="green-line"></div>
+      <p class="section-desc">無料プランから始めて、成果に合わせて段階的にアップグレードできます。</p>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-plan">Starter</div>
+          <div class="pricing-price">¥0<span class="period"> / 月</span></div>
+          <p class="pricing-desc">小規模自治体・パイロット導入向け。まずは無料でLOCATCHの効果を確かめてください。</p>
+          <ul class="pricing-features">
+            <li>出品者登録 最大30名</li>
+            <li>基本マーケットプレイス機能</li>
+            <li>スマートフォンアプリ</li>
+            <li>メールサポート</li>
+            <li>月次レポート（基本）</li>
+          </ul>
+          <a href="#contact" class="btn-plan btn-plan-outline">無料で始める</a>
+        </div>
+        <div class="pricing-card featured">
+          <div class="pricing-badge">最も人気</div>
+          <div class="pricing-plan">Standard</div>
+          <div class="pricing-price">¥9,800<span class="unit">〜</span><span class="period"> / 月</span></div>
+          <p class="pricing-desc">中規模自治体向け。本格運用と詳細なデータ分析で地域価値を最大化します。</p>
+          <ul class="pricing-features">
+            <li>出品者登録 無制限</li>
+            <li>自治体ブランドカスタマイズ</li>
+            <li>行政ダッシュボード</li>
+            <li>飲食店法人アカウント</li>
+            <li>月次詳細レポート</li>
+            <li>電話・チャットサポート</li>
+            <li>ロジスティクス連携支援</li>
+          </ul>
+          <a href="#contact" class="btn-plan btn-plan-primary">導入を相談する</a>
+        </div>
+        <div class="pricing-card">
+          <div class="pricing-plan">Enterprise</div>
+          <div class="pricing-price" style="font-size:26px; padding-top:8px;">要相談</div>
+          <p class="pricing-desc">大規模自治体・広域連携向け。カスタム開発と専任サポートで最大の成果を。</p>
+          <ul class="pricing-features">
+            <li>Standardプランの全機能</li>
+            <li>既存システムAPI連携</li>
+            <li>専任サクセスマネージャー</li>
+            <li>カスタム機能開発</li>
+            <li>近隣自治体広域連携</li>
+            <li>国補助金申請支援</li>
+            <li>SLA保証</li>
+          </ul>
+          <a href="#contact" class="btn-plan btn-plan-outline">問い合わせる</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq" id="faq">
+    <div class="container">
+      <div class="section-kicker">FAQ</div>
+      <h2 class="section-title" style="text-align:center; margin-bottom:48px;">よくあるご質問</h2>
+      <div class="faq-inner">
+        <div class="faq-item">
+          <div class="faq-q"><div class="faq-q-icon">Q</div>自治体の既存システムと連携できますか？</div>
+          <div class="faq-a">はい、エンタープライズプランではAPI連携により既存の住民サービスポータル・農林水産業支援システムとの統合が可能です。スタンダードプランでも基本的なデータエクスポートに対応しています。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q"><div class="faq-q-icon">Q</div>生産者（漁師・農家）がITに不慣れでも使えますか？</div>
+          <div class="faq-a">はい。出品者向けアプリは高齢の生産者でも使いやすいシンプルなUIで設計されています。導入時には現地でのハンズオン研修も実施します。LINEログインにも対応予定です。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q"><div class="faq-q-icon">Q</div>食品衛生法・食品表示法への対応はどうなっていますか？</div>
+          <div class="faq-a">LOCATCHは食品衛生法・食品表示法に準拠した出品フォーマットを提供。自治体担当者が出品内容を確認・承認するワークフローも組み込まれており、法令遵守を支援します。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q"><div class="faq-q-icon">Q</div>配送は自治体が手配する必要がありますか？</div>
+          <div class="faq-a">基本的に生産者と消費者間での個別配送となりますが、LOCATCHが連携する地域物流事業者をご紹介・調整します。自治体が独自の配送ネットワークをお持ちの場合はその活用も可能です。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q"><div class="faq-q-icon">Q</div>SDGs・フードロス削減の実績はデータとして取得できますか？</div>
+          <div class="faq-a">はい。廃棄削減量・取引量・生産者収入増加分などを自動集計し、自治体の政策報告書・国への補助金申請書類に活用できるレポートを出力します。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="footer-cta" id="contact">
+    <div class="footer-cta-inner">
+      <div class="section-kicker" style="color:#6DC990; margin-bottom:16px;">GET STARTED</div>
+      <h2 class="footer-cta-title">地域の恵みを、<br><span class="accent">次の経済へ。</span></h2>
+      <p class="footer-cta-desc">LOCATCHの導入に関するご相談は無料です。<br>自治体ご担当者さまのご状況に合わせた最適なプランをご提案します。</p>
+      <div class="footer-cta-btns">
+        <a href="#" class="btn-white">🏛️ 無料相談を申し込む（30分）</a>
+        <a href="#" class="btn-outline-white">📄 資料ダウンロード</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">LOCATCH</div>
+    <p class="footer-tagline">自治体公式 一次産業直売マーケット</p>
+    <div class="footer-links">
+      <a href="#">サービス概要</a><a href="#">導入事例</a><a href="#">料金プラン</a><a href="#">よくある質問</a><a href="#">プライバシーポリシー</a><a href="#">利用規約</a>
+    </div>
+    <p class="footer-copy">© 2026 LOCATCH. All rights reserved.</p>
+  </footer>
+</body>
+</html>
