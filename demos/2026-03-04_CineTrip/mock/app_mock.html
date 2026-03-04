@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineTrip - 映画リトリートコミュニティ</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0A0A0F;--gold:#D4A017;--gold-light:#E8BB3A;
+  --gold-dim:rgba(212,160,23,0.15);--gold-border:rgba(212,160,23,0.35);
+  --surface:#13131A;--surface2:#1C1C26;--surface3:#242432;
+  --text:#F0EDE6;--text-dim:#9A9590;--text-muted:#5C5A56;
+  --red:#E05252;--radius:16px;--radius-sm:10px;--radius-xs:6px;
+}
+body{background:#1A1A24;display:flex;justify-content:center;align-items:center;
+  min-height:100vh;font-family:system-ui,-apple-system,'Helvetica Neue',sans-serif;padding:40px 20px;}
+.scene{display:flex;flex-direction:column;align-items:center;gap:20px;}
+.app-title{font-family:'Georgia','Times New Roman',serif;color:var(--gold);font-size:15px;
+  letter-spacing:0.3em;text-transform:uppercase;opacity:0.8;}
+.iphone{width:393px;height:852px;background:var(--bg);border-radius:54px;position:relative;
+  box-shadow:0 0 0 2px #2A2A35,0 0 0 3px #3A3A48,0 0 0 5px #1A1A22,0 40px 80px rgba(0,0,0,0.8),0 0 60px rgba(212,160,23,0.06);
+  overflow:hidden;flex-shrink:0;}
+.iphone::before{content:'';position:absolute;left:-3px;top:160px;width:3px;height:36px;
+  background:#2A2A35;border-radius:2px 0 0 2px;box-shadow:0 54px 0 #2A2A35,0 100px 0 #2A2A35;}
+.iphone::after{content:'';position:absolute;right:-3px;top:200px;width:3px;height:76px;
+  background:#2A2A35;border-radius:0 2px 2px 0;}
+.dynamic-island{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:126px;height:37px;
+  background:#000;border-radius:20px;z-index:100;display:flex;align-items:center;
+  justify-content:flex-end;padding-right:12px;gap:6px;}
+.di-camera{width:12px;height:12px;background:#1A1A1A;border-radius:50%;border:2px solid #0D0D0D;position:relative;}
+.di-camera::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:5px;height:5px;background:#222;border-radius:50%;}
+.di-dot{width:8px;height:8px;background:#0D0D0D;border-radius:50%;}
+.status-bar{position:absolute;top:0;left:0;right:0;height:60px;display:flex;align-items:flex-end;
+  padding:0 28px 8px;justify-content:space-between;z-index:50;}
+.status-time{font-size:15px;font-weight:600;color:var(--text);letter-spacing:0.01em;}
+.status-icons{display:flex;align-items:center;gap:6px;color:var(--text);}
+.signal-icon{display:flex;align-items:flex-end;gap:1.5px;height:11px;}
+.signal-bar{width:3px;background:var(--text);border-radius:1px;}
+.battery-body{width:22px;height:11px;border:1.5px solid var(--text);border-radius:3px;
+  position:relative;display:flex;align-items:center;padding:1.5px;}
+.battery-body::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);
+  width:2px;height:5px;background:var(--text);border-radius:0 1px 1px 0;}
+.battery-fill{background:var(--text);height:100%;width:75%;border-radius:1px;}
+.app-screen{position:absolute;top:60px;left:0;right:0;bottom:0;overflow:hidden;background:var(--bg);}
+.screen{display:none;height:100%;flex-direction:column;background:var(--bg);overflow:hidden;}
+.screen.active{display:flex;}
+.screen-header{padding:16px 20px 12px;flex-shrink:0;background:var(--bg);}
+.screen-header-row{display:flex;align-items:center;justify-content:space-between;}
+.screen-title{font-family:'Georgia',serif;font-size:22px;color:var(--text);letter-spacing:0.02em;}
+.screen-subtitle{font-size:12px;color:var(--text-dim);margin-top:2px;letter-spacing:0.03em;}
+.header-icon-btn{width:36px;height:36px;border-radius:50%;background:var(--surface2);
+  border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--gold);font-size:16px;}
+.screen-scroll{flex:1;overflow-y:auto;padding:0 16px 16px;scrollbar-width:none;}
+.screen-scroll::-webkit-scrollbar{display:none;}
+.section-label{font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--gold);margin:18px 0 10px;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--gold-border);}
+
+/* HOME */
+.hero-banner{margin:8px 16px 0;height:180px;border-radius:var(--radius);
+  background:linear-gradient(135deg,#1A1A0A 0%,#0A0A0F 50%,#0F0A1A 100%);
+  position:relative;overflow:hidden;border:1px solid var(--gold-border);flex-shrink:0;}
+.hero-banner::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 70% 30%,rgba(212,160,23,0.12) 0%,transparent 60%),
+             radial-gradient(ellipse at 20% 80%,rgba(62,201,201,0.06) 0%,transparent 50%);}
+.hero-film-strip{position:absolute;top:0;right:0;width:80px;height:100%;display:flex;
+  flex-direction:column;opacity:0.15;gap:2px;padding:4px;}
+.film-hole{width:10px;height:14px;border:1.5px solid var(--gold);border-radius:2px;flex-shrink:0;}
+.hero-content{position:relative;z-index:2;padding:20px;height:100%;display:flex;
+  flex-direction:column;justify-content:flex-end;}
+.hero-badge{display:inline-flex;align-items:center;gap:5px;background:var(--gold);
+  color:var(--bg);font-size:10px;font-weight:700;letter-spacing:0.1em;padding:4px 10px;
+  border-radius:20px;margin-bottom:8px;width:fit-content;}
+.hero-title{font-family:'Georgia',serif;font-size:20px;color:var(--text);line-height:1.3;margin-bottom:4px;}
+.hero-meta{font-size:11px;color:var(--text-dim);display:flex;gap:12px;}
+.hero-meta span{display:flex;align-items:center;gap:3px;}
+.location-row{display:flex;align-items:center;gap:8px;padding:10px 16px;flex-shrink:0;}
+.location-chip{display:flex;align-items:center;gap:6px;background:var(--surface);
+  border:1px solid var(--gold-border);border-radius:20px;padding:7px 14px;font-size:12px;
+  color:var(--text-dim);flex:1;}
+.location-dot{width:8px;height:8px;background:var(--gold);border-radius:50%;flex-shrink:0;}
+.genre-scroll{display:flex;gap:8px;overflow-x:auto;padding:0 16px 4px;scrollbar-width:none;flex-shrink:0;}
+.genre-scroll::-webkit-scrollbar{display:none;}
+.genre-tag{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;
+  cursor:pointer;transition:all 0.2s;border:1px solid transparent;white-space:nowrap;}
+.genre-tag.active{background:var(--gold);color:var(--bg);font-weight:700;}
+.genre-tag:not(.active){background:var(--surface2);color:var(--text-dim);border-color:var(--surface3);}
+.event-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--gold-border);
+  margin-bottom:12px;overflow:hidden;cursor:pointer;transition:transform 0.2s;}
+.event-card:active{transform:scale(0.98);}
+.event-card-img{height:120px;background:linear-gradient(135deg,#1a1208 0%,#0d0d18 100%);
+  position:relative;overflow:hidden;}
+.event-card-img-overlay{position:absolute;inset:0;
+  background:radial-gradient(ellipse at 30% 50%,rgba(212,160,23,0.1) 0%,transparent 60%);}
+.event-card-tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.7);
+  border:1px solid var(--gold-border);color:var(--gold);font-size:10px;font-weight:600;
+  letter-spacing:0.08em;padding:3px 8px;border-radius:4px;}
+.event-card-price{position:absolute;top:10px;right:10px;background:var(--gold);color:var(--bg);
+  font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;}
+.event-card-film-icon{position:absolute;bottom:10px;right:10px;font-size:32px;opacity:0.4;}
+.event-card-body{padding:12px 14px;}
+.event-card-title{font-family:'Georgia',serif;font-size:15px;color:var(--text);margin-bottom:4px;line-height:1.3;}
+.event-card-place{font-size:11px;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:4px;}
+.event-card-meta{display:flex;gap:12px;font-size:11px;color:var(--text-dim);}
+.event-card-meta span{display:flex;align-items:center;gap:3px;}
+.event-card-avatars{display:flex;margin-top:10px;align-items:center;}
+.mini-avatar{width:22px;height:22px;border-radius:50%;border:2px solid var(--surface);
+  margin-right:-6px;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.avatar-count{margin-left:14px;font-size:11px;color:var(--text-dim);}
+.retreat-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.retreat-scroll::-webkit-scrollbar{display:none;}
+.retreat-card{flex-shrink:0;width:150px;background:var(--surface);border-radius:var(--radius-sm);
+  border:1px solid var(--gold-border);overflow:hidden;cursor:pointer;}
+.retreat-card-img{height:90px;background:linear-gradient(135deg,#0d1a10 0%,#0d0d18 100%);
+  display:flex;align-items:center;justify-content:center;font-size:28px;}
+.retreat-card-body{padding:8px 10px;}
+.retreat-card-title{font-size:12px;color:var(--text);font-weight:600;margin-bottom:2px;line-height:1.3;}
+.retreat-card-sub{font-size:10px;color:var(--text-dim);}
+.retreat-card-rating{font-size:10px;color:var(--gold);margin-top:4px;}
+
+/* EVENT DETAIL */
+.detail-hero{height:200px;background:linear-gradient(160deg,#1a1208 0%,#0A0A0F 60%,#0d1018 100%);
+  position:relative;overflow:hidden;flex-shrink:0;}
+.detail-hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 60% 40%,rgba(212,160,23,0.15) 0%,transparent 60%);}
+.detail-hero-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:64px;opacity:0.25;}
+.detail-hero-content{position:absolute;bottom:0;left:0;right:0;padding:20px;
+  background:linear-gradient(transparent,rgba(10,10,15,0.95));}
+.detail-back-btn{position:absolute;top:14px;left:14px;width:34px;height:34px;
+  background:rgba(0,0,0,0.6);border:1px solid var(--gold-border);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:16px;
+  cursor:pointer;z-index:10;}
+.detail-tag{display:inline-block;background:var(--gold);color:var(--bg);font-size:10px;
+  font-weight:700;letter-spacing:0.1em;padding:3px 8px;border-radius:4px;margin-bottom:6px;}
+.detail-title{font-family:'Georgia',serif;font-size:19px;color:var(--text);line-height:1.3;margin-bottom:4px;}
+.detail-subtitle{font-size:12px;color:var(--gold);display:flex;align-items:center;gap:4px;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.info-box{background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--radius-sm);padding:12px;}
+.info-box-label{font-size:10px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;
+  margin-bottom:4px;display:flex;align-items:center;gap:4px;}
+.info-box-value{font-size:14px;font-weight:600;color:var(--text);}
+.info-box-sub{font-size:11px;color:var(--text-dim);margin-top:2px;}
+.movie-feature{background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--radius-sm);
+  padding:12px;display:flex;gap:12px;align-items:center;margin-bottom:16px;}
+.movie-poster{width:60px;height:80px;background:var(--surface3);border-radius:var(--radius-xs);
+  border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;
+  font-size:24px;flex-shrink:0;}
+.movie-info{flex:1;}
+.movie-title{font-family:'Georgia',serif;font-size:14px;color:var(--text);margin-bottom:4px;}
+.movie-meta{font-size:11px;color:var(--text-dim);line-height:1.6;}
+.movie-stars{color:var(--gold);font-size:12px;margin-top:4px;}
+.attendee-list{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.attendee-chip{display:flex;align-items:center;gap:6px;background:var(--surface2);
+  border-radius:20px;padding:5px 10px 5px 5px;border:1px solid var(--surface3);}
+.attendee-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:12px;flex-shrink:0;}
+.attendee-name{font-size:11px;color:var(--text-dim);}
+.desc-text{font-size:13px;color:var(--text-dim);line-height:1.7;margin-bottom:16px;}
+.join-btn{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--bg);
+  border:none;border-radius:var(--radius-sm);padding:14px;font-size:15px;font-weight:700;
+  letter-spacing:0.05em;width:100%;cursor:pointer;margin-bottom:8px;font-family:system-ui;
+  display:flex;align-items:center;justify-content:center;gap:8px;}
+.save-btn{background:var(--surface2);color:var(--text-dim);border:1px solid var(--gold-border);
+  border-radius:var(--radius-sm);padding:12px;font-size:13px;font-weight:600;width:100%;
+  cursor:pointer;font-family:system-ui;display:flex;align-items:center;justify-content:center;gap:6px;}
+.tag-label{display:inline-flex;align-items:center;gap:3px;background:var(--surface3);
+  border:1px solid var(--surface3);color:var(--text-dim);font-size:10px;padding:2px 7px;border-radius:10px;}
+
+/* MATCHING */
+.match-filter-row{display:flex;gap:8px;padding:0 16px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;margin-bottom:4px;}
+.match-filter-row::-webkit-scrollbar{display:none;}
+.filter-pill{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.filter-pill.active{background:var(--gold);color:var(--bg);}
+.filter-pill:not(.active){background:var(--surface2);color:var(--text-dim);border:1px solid var(--surface3);}
+.profile-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--gold-border);
+  padding:14px;margin-bottom:12px;display:flex;gap:14px;cursor:pointer;}
+.profile-avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:22px;flex-shrink:0;border:2px solid var(--gold-border);}
+.profile-body{flex:1;min-width:0;}
+.profile-name{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;margin-bottom:2px;}
+.profile-match-badge{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);
+  font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;}
+.profile-bio{font-size:12px;color:var(--text-dim);margin-bottom:8px;line-height:1.4;}
+.profile-genres{display:flex;flex-wrap:wrap;gap:4px;}
+.genre-mini{background:var(--surface3);color:var(--text-dim);font-size:10px;padding:2px 8px;border-radius:10px;}
+.profile-actions{display:flex;flex-direction:column;gap:6px;justify-content:center;}
+.action-btn{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;border:1px solid;transition:transform 0.15s;flex-shrink:0;}
+.action-btn:active{transform:scale(0.9);}
+.btn-like{background:var(--gold-dim);border-color:var(--gold-border);color:var(--gold);}
+.btn-skip{background:var(--surface2);border-color:var(--surface3);color:var(--text-muted);}
+.match-stats{background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--radius-sm);
+  padding:12px 16px;display:flex;justify-content:space-around;margin:0 16px 12px;flex-shrink:0;}
+.stat-item{text-align:center;}
+.stat-num{font-size:20px;font-weight:700;color:var(--gold);}
+.stat-label{font-size:10px;color:var(--text-dim);margin-top:2px;letter-spacing:0.05em;}
+
+/* MY PAGE */
+.my-profile-header{display:flex;gap:14px;align-items:center;padding:8px 16px 14px;flex-shrink:0;}
+.my-avatar{width:64px;height:64px;border-radius:50%;background:var(--surface2);
+  border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+.my-info{flex:1;}
+.my-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.my-handle{font-size:12px;color:var(--gold);margin-bottom:8px;}
+.my-stats{display:flex;gap:16px;}
+.my-stat{text-align:center;}
+.my-stat-num{font-size:16px;font-weight:700;color:var(--text);}
+.my-stat-label{font-size:10px;color:var(--text-dim);}
+.history-card{background:var(--surface);border:1px solid var(--gold-border);
+  border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;display:flex;gap:12px;align-items:center;}
+.history-icon{width:40px;height:40px;border-radius:var(--radius-xs);background:var(--surface3);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid var(--gold-border);}
+.history-info{flex:1;}
+.history-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.history-date{font-size:11px;color:var(--text-dim);}
+.history-badge{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);
+  font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;}
+.movie-log-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.movie-log-row::-webkit-scrollbar{display:none;}
+.movie-log-item{flex-shrink:0;width:72px;text-align:center;}
+.movie-log-poster{width:72px;height:96px;background:var(--surface2);border-radius:var(--radius-xs);
+  border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;
+  font-size:24px;margin-bottom:4px;position:relative;overflow:hidden;}
+.movie-log-rating{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);
+  font-size:9px;color:var(--gold);padding:2px;text-align:center;}
+.movie-log-title{font-size:10px;color:var(--text-dim);line-height:1.3;}
+.genre-pref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.genre-pref-item{background:var(--surface);border:1px solid var(--gold-border);
+  border-radius:var(--radius-sm);padding:10px 8px;text-align:center;cursor:pointer;}
+.genre-pref-item.selected{background:var(--gold-dim);border-color:var(--gold);}
+.genre-pref-emoji{font-size:20px;margin-bottom:4px;}
+.genre-pref-label{font-size:11px;color:var(--text-dim);}
+.genre-pref-item.selected .genre-pref-label{color:var(--gold);}
+
+/* CREATE */
+.form-group{margin-bottom:14px;}
+.form-label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.form-input{width:100%;background:var(--surface);border:1px solid var(--gold-border);
+  border-radius:var(--radius-sm);padding:12px 14px;font-size:14px;color:var(--text);
+  font-family:system-ui;outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--gold);background:var(--surface2);}
+.form-input::placeholder{color:var(--text-muted);}
+.form-input-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-textarea{min-height:80px;resize:none;line-height:1.5;}
+.venue-options{display:flex;gap:8px;flex-wrap:wrap;}
+.venue-chip{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--radius-xs);
+  font-size:12px;cursor:pointer;border:1px solid;transition:all 0.15s;}
+.venue-chip.selected{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+.venue-chip:not(.selected){background:var(--surface2);border-color:var(--surface3);color:var(--text-dim);}
+.capacity-selector{display:flex;align-items:center;background:var(--surface);
+  border:1px solid var(--gold-border);border-radius:var(--radius-sm);overflow:hidden;}
+.cap-btn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:20px;
+  cursor:pointer;color:var(--gold);background:var(--surface2);border:none;font-family:system-ui;flex-shrink:0;}
+.cap-btn:active{background:var(--surface3);}
+.cap-value{flex:1;text-align:center;font-size:16px;font-weight:700;color:var(--text);}
+.create-btn{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--bg);
+  border:none;border-radius:var(--radius-sm);padding:15px;font-size:16px;font-weight:700;
+  width:100%;cursor:pointer;font-family:system-ui;letter-spacing:0.05em;margin-top:8px;
+  display:flex;align-items:center;justify-content:center;gap:8px;}
+
+/* TAB BAR */
+.tab-bar{position:absolute;bottom:0;left:0;right:0;height:82px;background:rgba(10,10,15,0.95);
+  backdrop-filter:blur(20px);border-top:1px solid var(--gold-border);display:flex;padding-bottom:16px;z-index:200;}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding-top:10px;cursor:pointer;gap:3px;transition:opacity 0.2s;position:relative;}
+.tab-icon{font-size:22px;transition:transform 0.2s;line-height:1;}
+.tab-item.active .tab-icon{transform:scale(1.15);}
+.tab-label{font-size:9px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;}
+.tab-item.active .tab-label{color:var(--gold);}
+.tab-item:not(.active) .tab-label{color:var(--text-muted);}
+.tab-item.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:24px;height:2px;background:var(--gold);border-radius:0 0 2px 2px;}
+.tab-dot{width:5px;height:5px;background:var(--red);border-radius:50%;position:absolute;top:6px;right:calc(50% - 16px);}
+
+/* AVATAR COLORS */
+.av-purple{background:#4A2D8A;}
+.av-teal{background:#1A5A5A;}
+.av-coral{background:#6A2020;}
+.av-olive{background:#3A4A1A;}
+.av-navy{background:#1A2A5A;}
+.av-brown{background:#4A3010;}
+.av-plum{background:#5A1A4A;}
+
+/* UTILS */
+.divider{height:1px;background:var(--gold-border);margin:14px 0;opacity:0.4;}
+.row-between{display:flex;align-items:center;justify-content:space-between;}
+.see-all-link{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:0.03em;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="scene">
+  <div class="app-title">🎬 CineTrip — Cinema Retreat Community</div>
+
+  <div class="iphone">
+    <div class="dynamic-island">
+      <div class="di-dot"></div>
+      <div class="di-camera"></div>
+    </div>
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons">
+        <div class="signal-icon">
+          <div class="signal-bar" style="height:4px"></div>
+          <div class="signal-bar" style="height:7px"></div>
+          <div class="signal-bar" style="height:9px"></div>
+          <div class="signal-bar" style="height:11px"></div>
+        </div>
+        <span style="font-size:13px">▲</span>
+        <div class="battery-body"><div class="battery-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="app-screen">
+
+      <!-- SCREEN 1: HOME -->
+      <div class="screen active" id="screen-home">
+        <div class="screen-header">
+          <div class="screen-header-row">
+            <div>
+              <div class="screen-title">🎬 CineTrip</div>
+              <div class="screen-subtitle">映画リトリートを探す</div>
+            </div>
+            <div class="header-icon-btn">🔔</div>
+          </div>
+        </div>
+        <div class="hero-banner">
+          <div class="hero-film-strip">
+            <div class="film-hole"></div><div class="film-hole"></div>
+            <div class="film-hole"></div><div class="film-hole"></div>
+            <div class="film-hole"></div><div class="film-hole"></div>
+            <div class="film-hole"></div><div class="film-hole"></div>
+          </div>
+          <div class="hero-content">
+            <div class="hero-badge">⭐ 今週のピックアップ</div>
+            <div class="hero-title">箱根・石の湯<br>アート映画ナイト</div>
+            <div class="hero-meta">
+              <span>📅 3/15 (土)</span>
+              <span>👥 12/16名</span>
+              <span>🎟 ¥9,800</span>
+            </div>
+          </div>
+        </div>
+        <div class="location-row">
+          <div class="location-chip">
+            <div class="location-dot"></div>
+            東京都周辺 • 100km以内
+          </div>
+          <div class="header-icon-btn">🗺</div>
+        </div>
+        <div class="genre-scroll">
+          <div class="genre-tag active">すべて</div>
+          <div class="genre-tag">🎭 アート</div>
+          <div class="genre-tag">👻 ホラー</div>
+          <div class="genre-tag">💕 ロマンス</div>
+          <div class="genre-tag">🚀 SF</div>
+          <div class="genre-tag">🎌 邦画</div>
+          <div class="genre-tag">📽 クラシック</div>
+        </div>
+        <div class="screen-scroll">
+          <div class="section-label">
+            <span>🔥 近くのイベント</span>
+            <span class="see-all-link" style="margin-left:auto">すべて見る</span>
+          </div>
+          <!-- Event 1 -->
+          <div class="event-card">
+            <div class="event-card-img">
+              <div class="event-card-img-overlay"></div>
+              <div class="event-card-tag">♨️ 温泉地</div>
+              <div class="event-card-price">¥9,800</div>
+              <div class="event-card-film-icon">🎞</div>
+            </div>
+            <div class="event-card-body">
+              <div class="event-card-title">箱根・石の湯 アート映画ナイト</div>
+              <div class="event-card-place">📍 神奈川県箱根町</div>
+              <div class="event-card-meta">
+                <span>📅 3/15(土)</span><span>🕖 18:00〜</span><span>👥 12/16</span>
+              </div>
+              <div class="event-card-avatars">
+                <div class="mini-avatar av-purple">👩</div>
+                <div class="mini-avatar av-teal">🧑</div>
+                <div class="mini-avatar av-coral">👨</div>
+                <div class="mini-avatar av-navy">👩</div>
+                <span class="avatar-count">+8人参加中</span>
+              </div>
+            </div>
+          </div>
+          <!-- Event 2 -->
+          <div class="event-card">
+            <div class="event-card-img">
+              <div class="event-card-img-overlay"></div>
+              <div class="event-card-tag">🏯 古民家</div>
+              <div class="event-card-price">¥7,500</div>
+              <div class="event-card-film-icon">🏮</div>
+            </div>
+            <div class="event-card-body">
+              <div class="event-card-title">京都・古民家シアター 怪談映画の夕べ</div>
+              <div class="event-card-place">📍 京都府左京区</div>
+              <div class="event-card-meta">
+                <span>📅 3/22(土)</span><span>🕖 19:30〜</span><span>👥 5/10</span>
+              </div>
+              <div class="event-card-avatars">
+                <div class="mini-avatar av-olive">🧑</div>
+                <div class="mini-avatar av-brown">👨</div>
+                <span class="avatar-count">+3人参加中</span>
+              </div>
+            </div>
+          </div>
+          <!-- Event 3 -->
+          <div class="event-card">
+            <div class="event-card-img">
+              <div class="event-card-img-overlay"></div>
+              <div class="event-card-tag">🌊 海辺</div>
+              <div class="event-card-price">¥12,000</div>
+              <div class="event-card-film-icon">🌙</div>
+            </div>
+            <div class="event-card-body">
+              <div class="event-card-title">湘南・海辺の野外シネマ＆BBQ</div>
+              <div class="event-card-place">📍 神奈川県葉山町</div>
+              <div class="event-card-meta">
+                <span>📅 4/5(土)</span><span>🕖 17:00〜</span><span>👥 20/30</span>
+              </div>
+              <div class="event-card-avatars">
+                <div class="mini-avatar av-plum">👩</div>
+                <div class="mini-avatar av-teal">🧑</div>
+                <div class="mini-avatar av-coral">👨</div>
+                <span class="avatar-count">+17人参加中</span>
+              </div>
+            </div>
+          </div>
+          <div class="section-label">🏨 おすすめリトリート</div>
+          <div class="retreat-scroll">
+            <div class="retreat-card">
+              <div class="retreat-card-img">♨️</div>
+              <div class="retreat-card-body">
+                <div class="retreat-card-title">箱根・星の湯シアター</div>
+                <div class="retreat-card-sub">神奈川 • 宿泊込み</div>
+                <div class="retreat-card-rating">★★★★★ 4.9</div>
+              </div>
+            </div>
+            <div class="retreat-card">
+              <div class="retreat-card-img">🏯</div>
+              <div class="retreat-card-body">
+                <div class="retreat-card-title">京都・嵐山古民家</div>
+                <div class="retreat-card-sub">京都 • 日帰り可</div>
+                <div class="retreat-card-rating">★★★★☆ 4.7</div>
+              </div>
+            </div>
+            <div class="retreat-card">
+              <div class="retreat-card-img">🌿</div>
+              <div class="retreat-card-body">
+                <div class="retreat-card-title">那須・森のロッジ</div>
+                <div class="retreat-card-sub">栃木 • 2泊3日</div>
+                <div class="retreat-card-rating">★★★★★ 4.8</div>
+              </div>
+            </div>
+            <div class="retreat-card">
+              <div class="retreat-card-img">🌊</div>
+              <div class="retreat-card-body">
+                <div class="retreat-card-title">伊豆・海の家シネマ</div>
+                <div class="retreat-card-sub">静岡 • 宿泊込み</div>
+                <div class="retreat-card-rating">★★★★☆ 4.6</div>
+              </div>
+            </div>
+          </div>
+          <div style="height:20px"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 2: EVENT DETAIL -->
+      <div class="screen" id="screen-detail">
+        <div class="detail-hero">
+          <div class="detail-back-btn">←</div>
+          <div class="detail-hero-icon">♨️</div>
+          <div class="detail-hero-content">
+            <div class="detail-tag">温泉地リトリート</div>
+            <div class="detail-title">箱根・石の湯<br>アート映画ナイト</div>
+            <div class="detail-subtitle">📍 神奈川県箱根町 石の湯ロッジ</div>
+          </div>
+        </div>
+        <div class="screen-scroll" style="padding-top:14px;">
+          <div class="info-grid">
+            <div class="info-box">
+              <div class="info-box-label">📅 日時</div>
+              <div class="info-box-value">3/15 (土)</div>
+              <div class="info-box-sub">18:00 〜 22:00</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-label">💰 参加費</div>
+              <div class="info-box-value" style="color:var(--gold)">¥9,800</div>
+              <div class="info-box-sub">温泉・夕食込み</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-label">👥 定員</div>
+              <div class="info-box-value">16名</div>
+              <div class="info-box-sub">残り4席</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-label">🚗 アクセス</div>
+              <div class="info-box-value" style="font-size:12px">箱根湯本駅</div>
+              <div class="info-box-sub">送迎あり</div>
+            </div>
+          </div>
+          <div class="section-label">🎬 上映作品</div>
+          <div class="movie-feature">
+            <div class="movie-poster">🎭</div>
+            <div class="movie-info">
+              <div class="movie-title">グランド・イリュージョン</div>
+              <div class="movie-meta">2013年 • フランス<br>監督：ルイ・ルテリエ<br>108分 • PG12</div>
+              <div class="movie-stars">★★★★☆ 4.2</div>
+            </div>
+          </div>
+          <div class="section-label">📖 イベント詳細</div>
+          <div class="desc-text">箱根の名湯「石の湯」で過ごす特別な映画の夜。温泉入浴後、露天風呂の見える座敷でフランス映画を鑑賞。地元食材を使った懐石料理もお楽しみください。映画後はナイトラウンジで参加者同士の交流タイムも。</div>
+          <div class="section-label">👥 参加者 (12/16)</div>
+          <div class="attendee-list">
+            <div class="attendee-chip"><div class="attendee-avatar av-purple">👩</div><div class="attendee-name">まゆ</div></div>
+            <div class="attendee-chip"><div class="attendee-avatar av-teal">🧑</div><div class="attendee-name">ケンジ</div></div>
+            <div class="attendee-chip"><div class="attendee-avatar av-coral">👨</div><div class="attendee-name">タロウ</div></div>
+            <div class="attendee-chip"><div class="attendee-avatar av-navy">👩</div><div class="attendee-name">サキ</div></div>
+            <div class="attendee-chip"><div class="attendee-avatar av-olive">🧑</div><div class="attendee-name">+8人</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="section-label">🎪 主催者</div>
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;">
+            <div class="attendee-avatar av-purple" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">👩</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--text)">中村まゆ</div>
+              <div style="font-size:11px;color:var(--text-dim)">企画歴3年 • 主催イベント12回</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;">
+            <div class="tag-label">🎭 アート映画</div>
+            <div class="tag-label">♨️ 温泉</div>
+            <div class="tag-label">🍱 食事込み</div>
+            <div class="tag-label">🚗 送迎あり</div>
+            <div class="tag-label">🌃 夜のイベント</div>
+          </div>
+          <button class="join-btn">🎟 参加を申し込む（残り4席）</button>
+          <button class="save-btn" style="margin-top:8px">🔖 ウィッシュリストに保存</button>
+          <div style="height:20px"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 3: MATCHING -->
+      <div class="screen" id="screen-match">
+        <div class="screen-header">
+          <div class="screen-header-row">
+            <div>
+              <div class="screen-title">🤝 仲間を探す</div>
+              <div class="screen-subtitle">趣味の合う映画ファンと繋がろう</div>
+            </div>
+            <div class="header-icon-btn">⚙️</div>
+          </div>
+        </div>
+        <div class="match-stats">
+          <div class="stat-item"><div class="stat-num">247</div><div class="stat-label">近くのメンバー</div></div>
+          <div class="stat-item"><div class="stat-num">18</div><div class="stat-label">マッチング中</div></div>
+          <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">メッセージ</div></div>
+        </div>
+        <div class="match-filter-row">
+          <div class="filter-pill active">🎯 マッチ度高</div>
+          <div class="filter-pill">🎭 アート系</div>
+          <div class="filter-pill">📍 近く</div>
+          <div class="filter-pill">🆕 新着</div>
+          <div class="filter-pill">⭐ 評価高</div>
+        </div>
+        <div class="screen-scroll" style="padding-top:10px;">
+          <div class="profile-card">
+            <div class="profile-avatar av-teal">🧑</div>
+            <div class="profile-body">
+              <div class="profile-name">田中ケンジ<span class="profile-match-badge">98% マッチ</span></div>
+              <div class="profile-bio">フランス映画と日本映画が好き。温泉での映画観賞が夢でした！</div>
+              <div class="profile-genres">
+                <span class="genre-mini">🎭 アート</span>
+                <span class="genre-mini">🎌 邦画</span>
+                <span class="genre-mini">📽 ヌーヴェルバーグ</span>
+              </div>
+            </div>
+            <div class="profile-actions">
+              <div class="action-btn btn-like">❤️</div>
+              <div class="action-btn btn-skip">✕</div>
+            </div>
+          </div>
+          <div class="profile-card">
+            <div class="profile-avatar av-plum">👩</div>
+            <div class="profile-body">
+              <div class="profile-name">林ゆりこ<span class="profile-match-badge">94% マッチ</span></div>
+              <div class="profile-bio">映画評論家志望。SF映画コレクターで古民家が好き。</div>
+              <div class="profile-genres">
+                <span class="genre-mini">🚀 SF</span>
+                <span class="genre-mini">🔬 ディストピア</span>
+                <span class="genre-mini">🏯 古民家</span>
+              </div>
+            </div>
+            <div class="profile-actions">
+              <div class="action-btn btn-like">❤️</div>
+              <div class="action-btn btn-skip">✕</div>
+            </div>
+          </div>
+          <div class="profile-card">
+            <div class="profile-avatar av-navy">🧑</div>
+            <div class="profile-body">
+              <div class="profile-name">佐藤ひろき<span class="profile-match-badge">91% マッチ</span></div>
+              <div class="profile-bio">ホラー映画専門。怖い映画を仲間と見るのが最高の趣味。</div>
+              <div class="profile-genres">
+                <span class="genre-mini">👻 ホラー</span>
+                <span class="genre-mini">🎭 スリラー</span>
+                <span class="genre-mini">🌙 深夜映画</span>
+              </div>
+            </div>
+            <div class="profile-actions">
+              <div class="action-btn btn-like">❤️</div>
+              <div class="action-btn btn-skip">✕</div>
+            </div>
+          </div>
+          <div class="profile-card">
+            <div class="profile-avatar av-coral">👩</div>
+            <div class="profile-body">
+              <div class="profile-name">山田まき<span class="profile-match-badge">88% マッチ</span></div>
+              <div class="profile-bio">邦画・アニメ映画が大好き。旅行と組み合わせた映画体験を探してます。</div>
+              <div class="profile-genres">
+                <span class="genre-mini">🎌 邦画</span>
+                <span class="genre-mini">🌸 アニメ</span>
+                <span class="genre-mini">🗾 聖地巡礼</span>
+              </div>
+            </div>
+            <div class="profile-actions">
+              <div class="action-btn btn-like">❤️</div>
+              <div class="action-btn btn-skip">✕</div>
+            </div>
+          </div>
+          <div class="profile-card">
+            <div class="profile-avatar av-olive">🧑</div>
+            <div class="profile-body">
+              <div class="profile-name">木村そうた<span class="profile-match-badge">85% マッチ</span></div>
+              <div class="profile-bio">クラシック映画マニア。チャップリンからキューブリックまで。</div>
+              <div class="profile-genres">
+                <span class="genre-mini">📽 クラシック</span>
+                <span class="genre-mini">🎬 モノクロ</span>
+                <span class="genre-mini">♨️ 温泉好き</span>
+              </div>
+            </div>
+            <div class="profile-actions">
+              <div class="action-btn btn-like">❤️</div>
+              <div class="action-btn btn-skip">✕</div>
+            </div>
+          </div>
+          <div style="height:20px"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 4: MY PAGE -->
+      <div class="screen" id="screen-mypage">
+        <div class="screen-header">
+          <div class="screen-header-row">
+            <div class="screen-title">👤 マイページ</div>
+            <div class="header-icon-btn">✏️</div>
+          </div>
+        </div>
+        <div class="my-profile-header">
+          <div class="my-avatar">🧑</div>
+          <div class="my-info">
+            <div class="my-name">田中ケンジ</div>
+            <div class="my-handle">@kenji_cine • 東京・世田谷区</div>
+            <div class="my-stats">
+              <div class="my-stat"><div class="my-stat-num">23</div><div class="my-stat-label">参加</div></div>
+              <div class="my-stat"><div class="my-stat-num">87</div><div class="my-stat-label">映画ログ</div></div>
+              <div class="my-stat"><div class="my-stat-num">41</div><div class="my-stat-label">フォロー</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-scroll">
+          <div class="section-label">📅 参加済みイベント</div>
+          <div class="history-card">
+            <div class="history-icon">♨️</div>
+            <div class="history-info">
+              <div class="history-title">伊豆・修善寺 ロマンス映画の夕べ</div>
+              <div class="history-date">2026/02/14 • 静岡県伊豆市</div>
+            </div>
+            <div class="history-badge">★4.8</div>
+          </div>
+          <div class="history-card">
+            <div class="history-icon">🏯</div>
+            <div class="history-info">
+              <div class="history-title">京都・古民家ホラー映画鑑賞会</div>
+              <div class="history-date">2026/01/25 • 京都府左京区</div>
+            </div>
+            <div class="history-badge">★5.0</div>
+          </div>
+          <div class="history-card">
+            <div class="history-icon">🌊</div>
+            <div class="history-info">
+              <div class="history-title">鎌倉・海岸サンセットシネマ</div>
+              <div class="history-date">2025/12/07 • 神奈川県鎌倉市</div>
+            </div>
+            <div class="history-badge">★4.5</div>
+          </div>
+          <div class="section-label row-between">
+            <span>🎬 観た映画ログ</span>
+            <span class="see-all-link">すべて (87本)</span>
+          </div>
+          <div class="movie-log-row">
+            <div class="movie-log-item">
+              <div class="movie-log-poster">🎭<div class="movie-log-rating">★4.5</div></div>
+              <div class="movie-log-title">グランド・イリュージョン</div>
+            </div>
+            <div class="movie-log-item">
+              <div class="movie-log-poster">🌸<div class="movie-log-rating">★5.0</div></div>
+              <div class="movie-log-title">千と千尋の神隠し</div>
+            </div>
+            <div class="movie-log-item">
+              <div class="movie-log-poster">🔬<div class="movie-log-rating">★4.0</div></div>
+              <div class="movie-log-title">マトリックス</div>
+            </div>
+            <div class="movie-log-item">
+              <div class="movie-log-poster">👻<div class="movie-log-rating">★4.8</div></div>
+              <div class="movie-log-title">リング</div>
+            </div>
+            <div class="movie-log-item">
+              <div class="movie-log-poster">📽<div class="movie-log-rating">★4.2</div></div>
+              <div class="movie-log-title">市民ケーン</div>
+            </div>
+          </div>
+          <div class="section-label">🎯 マイジャンル設定</div>
+          <div class="genre-pref-grid">
+            <div class="genre-pref-item selected"><div class="genre-pref-emoji">🎭</div><div class="genre-pref-label">アート</div></div>
+            <div class="genre-pref-item selected"><div class="genre-pref-emoji">🎌</div><div class="genre-pref-label">邦画</div></div>
+            <div class="genre-pref-item selected"><div class="genre-pref-emoji">📽</div><div class="genre-pref-label">クラシック</div></div>
+            <div class="genre-pref-item"><div class="genre-pref-emoji">🚀</div><div class="genre-pref-label">SF</div></div>
+            <div class="genre-pref-item"><div class="genre-pref-emoji">👻</div><div class="genre-pref-label">ホラー</div></div>
+            <div class="genre-pref-item"><div class="genre-pref-emoji">💕</div><div class="genre-pref-label">ロマンス</div></div>
+          </div>
+          <div style="height:20px"></div>
+        </div>
+      </div>
+
+      <!-- SCREEN 5: CREATE -->
+      <div class="screen" id="screen-create">
+        <div class="screen-header">
+          <div class="screen-header-row">
+            <div>
+              <div class="screen-title">✨ イベント企画</div>
+              <div class="screen-subtitle">リトリートを企画しよう</div>
+            </div>
+            <div class="header-icon-btn">💡</div>
+          </div>
+        </div>
+        <div class="screen-scroll" style="padding-top:6px;">
+          <div class="form-group">
+            <div class="form-label">🎬 イベントタイトル</div>
+            <input class="form-input" type="text" placeholder="例：箱根温泉でフランス映画の夕べ" readonly>
+          </div>
+          <div class="form-group">
+            <div class="form-label">🏠 会場タイプ</div>
+            <div class="venue-options">
+              <div class="venue-chip selected">♨️ 温泉地</div>
+              <div class="venue-chip">🏯 古民家</div>
+              <div class="venue-chip">🌊 海辺</div>
+              <div class="venue-chip">🌿 山荘</div>
+              <div class="venue-chip">🏙 都市施設</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">📍 場所</div>
+            <input class="form-input" type="text" placeholder="例：神奈川県箱根町 石の湯ロッジ" readonly>
+          </div>
+          <div class="form-group">
+            <div class="form-label">🎭 上映作品</div>
+            <input class="form-input" type="text" placeholder="映画タイトルを検索..." readonly>
+          </div>
+          <div class="form-group">
+            <div class="form-label">📅 日程</div>
+            <div class="form-input-row">
+              <input class="form-input" type="text" placeholder="開始日時" readonly style="font-size:13px">
+              <input class="form-input" type="text" placeholder="終了日時" readonly style="font-size:13px">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">💰 参加費 (円)</div>
+            <input class="form-input" type="text" placeholder="例：9800（食事・入浴込み）" readonly>
+          </div>
+          <div class="form-group">
+            <div class="form-label">👥 定員</div>
+            <div class="capacity-selector">
+              <button class="cap-btn" id="cap-minus">−</button>
+              <div class="cap-value" id="cap-val">8名</div>
+              <button class="cap-btn" id="cap-plus">+</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">📖 イベント詳細</div>
+            <textarea class="form-input form-textarea" placeholder="どんなイベントか説明してください。雰囲気・食事・スケジュールなど..." readonly></textarea>
+          </div>
+          <div class="form-group">
+            <div class="form-label">🎯 参加条件 (任意)</div>
+            <input class="form-input" type="text" placeholder="例：映画好き・初参加歓迎" readonly>
+          </div>
+          <div class="divider"></div>
+          <div style="background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px;">
+            <div style="font-size:11px;color:var(--gold);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">📋 プレビュー</div>
+            <div style="font-family:'Georgia',serif;font-size:14px;color:var(--text);margin-bottom:6px;">箱根温泉でフランス映画の夕べ</div>
+            <div style="font-size:11px;color:var(--text-dim);line-height:1.7;">
+              📍 神奈川県箱根町<br>
+              📅 2026/03/15 18:00〜22:00<br>
+              💰 ¥9,800 （温泉・夕食込み）<br>
+              👥 定員 8名
+            </div>
+          </div>
+          <button class="create-btn">🎬 イベントを公開する</button>
+          <button class="save-btn" style="margin-top:8px">💾 下書きとして保存</button>
+          <div style="height:20px"></div>
+        </div>
+      </div>
+
+      <!-- TAB BAR -->
+      <div class="tab-bar">
+        <div class="tab-item active" id="tab-home" onclick="switchTab('home')">
+          <span class="tab-icon">🏠</span>
+          <span class="tab-label">ホーム</span>
+        </div>
+        <div class="tab-item" id="tab-detail" onclick="switchTab('detail')">
+          <span class="tab-icon">🎞</span>
+          <span class="tab-label">イベント</span>
+        </div>
+        <div class="tab-item" id="tab-match" onclick="switchTab('match')">
+          <span class="tab-icon">🤝</span>
+          <span class="tab-label">マッチング</span>
+          <span class="tab-dot"></span>
+        </div>
+        <div class="tab-item" id="tab-mypage" onclick="switchTab('mypage')">
+          <span class="tab-icon">👤</span>
+          <span class="tab-label">マイページ</span>
+        </div>
+        <div class="tab-item" id="tab-create" onclick="switchTab('create')">
+          <span class="tab-icon">✨</span>
+          <span class="tab-label">企画する</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="color:#5C5A56;font-size:12px;letter-spacing:0.08em;text-align:center;margin-top:4px;">
+    CineTrip Mock App • Vibe Coder Bootcamp Demo 2026-03-04
+  </div>
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+document.querySelectorAll('.genre-tag').forEach(tag => {
+  tag.addEventListener('click', function() {
+    document.querySelectorAll('.genre-tag').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+document.querySelectorAll('.filter-pill').forEach(pill => {
+  pill.addEventListener('click', function() {
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+document.querySelectorAll('.genre-pref-item').forEach(item => {
+  item.addEventListener('click', function() { this.classList.toggle('selected'); });
+});
+
+document.querySelectorAll('.venue-chip').forEach(chip => {
+  chip.addEventListener('click', function() {
+    document.querySelectorAll('.venue-chip').forEach(c => c.classList.remove('selected'));
+    this.classList.add('selected');
+  });
+});
+
+var cap = 8;
+var capVal = document.getElementById('cap-val');
+document.getElementById('cap-minus').addEventListener('click', function() {
+  if (cap > 2) { cap--; capVal.textContent = cap + '名'; }
+});
+document.getElementById('cap-plus').addEventListener('click', function() {
+  if (cap < 30) { cap++; capVal.textContent = cap + '名'; }
+});
+
+document.querySelectorAll('.event-card').forEach(card => {
+  card.addEventListener('click', function() { switchTab('detail'); });
+});
+
+document.querySelector('.detail-back-btn').addEventListener('click', function() {
+  switchTab('home');
+});
+</script>
+</body>
+</html>

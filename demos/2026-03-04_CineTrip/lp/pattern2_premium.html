@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineTrip - 映画と旅の、新しいカタチ</title>
+  <style>
+    :root {
+      --bg: #F5F0E8;
+      --bg2: #EDE7D9;
+      --bg3: #E6DDD0;
+      --bg4: #FDFAF5;
+      --accent: #C8956C;
+      --accent2: #E0A87A;
+      --accent3: #A07050;
+      --text: #2C2018;
+      --text2: #5A4A3A;
+      --text3: #8A7060;
+      --border: rgba(200,149,108,0.3);
+      --card-bg: rgba(253,250,245,0.9);
+      --white: #FDFAF5;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      overflow-x: hidden;
+    }
+    h1 { font-size: clamp(2.2rem, 5.5vw, 4rem); font-weight: 700; line-height: 1.3; }
+    h2 { font-size: clamp(1.6rem, 3.5vw, 2.5rem); font-weight: 700; }
+    h3 { font-size: clamp(1.05rem, 2.2vw, 1.3rem); font-weight: 600; }
+    p { font-size: clamp(0.9rem, 1.8vw, 1.05rem); color: var(--text2); }
+    a { text-decoration: none; color: inherit; }
+
+    /* Fade-in */
+    .fade-in { opacity: 0; transform: translateY(36px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    .fade-in-delay-1 { transition-delay: 0.12s; }
+    .fade-in-delay-2 { transition-delay: 0.24s; }
+    .fade-in-delay-3 { transition-delay: 0.36s; }
+    .fade-in-delay-4 { transition-delay: 0.48s; }
+
+    /* ===================== NAVBAR ===================== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 5vw;
+      background: rgba(245,240,232,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent3);
+      letter-spacing: 0.05em;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links {
+      display: flex; gap: 2.5rem; list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.87rem;
+      color: var(--text3);
+      letter-spacing: 0.03em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.6rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    .nav-cta:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(200,149,108,0.35); }
+    .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .nav-hamburger span { width: 22px; height: 2px; background: var(--accent); border-radius: 2px; }
+
+    /* ===================== HERO ===================== */
+    #hero {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 6rem 5vw 4rem;
+      position: relative;
+      overflow: hidden;
+      max-width: 1400px;
+      margin: 0 auto;
+      gap: 4rem;
+    }
+    .hero-left { position: relative; z-index: 1; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(200,149,108,0.12);
+      border: 1px solid rgba(200,149,108,0.3);
+      border-radius: 20px;
+      padding: 0.35rem 1rem;
+      font-size: 0.78rem;
+      color: var(--accent3);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      margin-bottom: 1.8rem;
+    }
+    .hero-title { margin-bottom: 1.5rem; color: var(--text); }
+    .hero-title .highlight {
+      color: var(--accent);
+      position: relative;
+      display: inline-block;
+    }
+    .hero-title .highlight::after {
+      content: '';
+      position: absolute; left: 0; bottom: 4px; right: 0;
+      height: 8px;
+      background: rgba(200,149,108,0.2);
+      border-radius: 4px;
+      z-index: -1;
+    }
+    .hero-subtitle {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: var(--text2);
+      line-height: 1.9;
+      margin-bottom: 2.8rem;
+      max-width: 480px;
+    }
+    .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 3.5rem; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      padding: 0.9rem 2.4rem;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      border: none; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(200,149,108,0.35); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: transparent;
+      color: var(--text2);
+      padding: 0.9rem 2rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      border: 2px solid var(--bg3);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .hero-trust {
+      display: flex; align-items: center; gap: 1.5rem;
+    }
+    .trust-avatars {
+      display: flex;
+    }
+    .trust-avatars span {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      margin-left: -8px;
+      background: var(--bg3);
+    }
+    .trust-avatars span:first-child { margin-left: 0; }
+    .trust-text { font-size: 0.82rem; color: var(--text3); line-height: 1.5; }
+    .trust-text strong { color: var(--text2); }
+
+    /* Hero right - visual */
+    .hero-right { position: relative; }
+    .hero-visual-main {
+      background: linear-gradient(145deg, #8B4513 0%, #C8956C 40%, #E8C49A 100%);
+      border-radius: 24px;
+      aspect-ratio: 4/5;
+      display: flex; align-items: flex-end;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(160,112,80,0.3);
+    }
+    .hero-visual-main::before {
+      content: '♨️🎬';
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 5rem;
+      opacity: 0.35;
+      letter-spacing: 1rem;
+    }
+    .hero-visual-overlay {
+      background: rgba(44,32,24,0.6);
+      backdrop-filter: blur(4px);
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+      width: 100%;
+    }
+    .hero-visual-overlay h4 { color: white; font-size: 0.9rem; margin-bottom: 0.3rem; }
+    .hero-visual-overlay p { color: rgba(255,255,255,0.7); font-size: 0.78rem; }
+    .hero-card-float {
+      position: absolute;
+      background: white;
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .hero-card-float-1 { top: -20px; right: -20px; min-width: 160px; }
+    .hero-card-float-2 { bottom: 100px; left: -30px; }
+    .float-emoji { font-size: 1.5rem; margin-bottom: 0.3rem; }
+    .float-label { font-size: 0.75rem; color: var(--text3); }
+    .float-value { font-size: 1rem; font-weight: 700; color: var(--text); }
+
+    /* ===================== SECTION COMMON ===================== */
+    section { padding: 7rem 5vw; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-tag {
+      display: inline-block;
+      background: rgba(200,149,108,0.12);
+      color: var(--accent3);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      padding: 0.3rem 0.9rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+    .section-title { margin-bottom: 1.2rem; }
+    .section-desc {
+      font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+      color: var(--text2);
+      line-height: 1.85;
+      max-width: 620px;
+    }
+    .text-center { text-align: center; }
+    .text-center .section-desc { margin: 0 auto; }
+    .section-header-flex {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      gap: 2rem; flex-wrap: wrap; margin-bottom: 3rem;
+    }
+    .separator {
+      width: 60px; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 2px;
+      margin: 1.2rem 0 1.8rem;
+    }
+    .text-center .separator { margin: 1.2rem auto 1.8rem; }
+
+    /* ===================== PROBLEM ===================== */
+    #problem { background: var(--white); }
+    .problem-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; margin-top: 3rem; }
+    .problem-text-side .problem-intro {
+      font-size: clamp(1.05rem, 2vw, 1.2rem);
+      color: var(--text2);
+      line-height: 1.9;
+      margin-bottom: 2.5rem;
+    }
+    .stat-highlight {
+      background: var(--bg);
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-row { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .stat-number { font-size: clamp(3rem, 6vw, 4.5rem); font-weight: 800; color: var(--accent); line-height: 1; }
+    .stat-percent { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .stat-desc { font-size: 0.92rem; color: var(--text2); line-height: 1.6; }
+    .problem-pain-list { display: flex; flex-direction: column; gap: 1.5rem; }
+    .pain-item {
+      display: flex; gap: 1.2rem; align-items: flex-start;
+      background: var(--white);
+      border-radius: 14px;
+      padding: 1.4rem;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .pain-item:hover { transform: translateX(4px); box-shadow: 4px 0 16px rgba(200,149,108,0.12); }
+    .pain-emoji { font-size: 1.6rem; flex-shrink: 0; }
+    .pain-content h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.3rem; color: var(--text); }
+    .pain-content p { font-size: 0.85rem; line-height: 1.65; }
+
+    /* ===================== SOLUTION ===================== */
+    .solution-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+    .solution-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .solution-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .solution-card:hover { border-color: var(--border); transform: translateY(-4px); box-shadow: 0 16px 40px rgba(200,149,108,0.12); }
+    .solution-card:hover::before { opacity: 1; }
+    .solution-icon { font-size: 2.5rem; margin-bottom: 1.2rem; }
+    .solution-card h3 { font-size: 1.1rem; margin-bottom: 0.8rem; color: var(--text); }
+    .solution-card p { font-size: 0.88rem; line-height: 1.75; }
+
+    /* ===================== FEATURES ===================== */
+    #features { background: var(--bg2); }
+    .features-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.5rem; margin-top: 3rem; }
+    .feature-item {
+      display: flex; gap: 1.5rem;
+      background: var(--white);
+      border-radius: 18px;
+      padding: 2rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-item:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(160,112,80,0.12); }
+    .feature-icon-wrap {
+      width: 56px; height: 56px; flex-shrink: 0;
+      background: rgba(200,149,108,0.12);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+    .feature-content h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .feature-content p { font-size: 0.86rem; line-height: 1.7; }
+    .feature-pill {
+      display: inline-block; margin-top: 0.8rem;
+      background: rgba(200,149,108,0.1);
+      color: var(--accent3);
+      font-size: 0.72rem; font-weight: 600;
+      padding: 0.2rem 0.7rem; border-radius: 10px;
+    }
+
+    /* ===================== EVENTS ===================== */
+    #events { background: var(--white); }
+    .events-scroll { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; margin-top: 3rem; }
+    .event-card {
+      background: var(--bg4);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 1px solid rgba(200,149,108,0.15);
+    }
+    .event-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(160,112,80,0.16); }
+    .event-thumb {
+      height: 200px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem;
+      position: relative;
+    }
+    .event-badge {
+      position: absolute; top: 1rem; left: 1rem;
+      background: var(--accent);
+      color: white;
+      font-size: 0.7rem; font-weight: 700;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+    }
+    .event-badge-open {
+      position: absolute; top: 1rem; right: 1rem;
+      background: rgba(255,255,255,0.9);
+      color: var(--accent3);
+      font-size: 0.68rem; font-weight: 700;
+      padding: 0.25rem 0.7rem;
+      border-radius: 20px;
+    }
+    .event-info { padding: 1.6rem; }
+    .event-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text); line-height: 1.4; }
+    .event-date { font-size: 0.8rem; color: var(--accent3); font-weight: 600; margin-bottom: 0.6rem; }
+    .event-info p { font-size: 0.82rem; line-height: 1.6; margin-bottom: 1rem; }
+    .event-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .event-chip {
+      font-size: 0.72rem;
+      background: rgba(200,149,108,0.1);
+      color: var(--accent3);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    /* ===================== PRICING ===================== */
+    #pricing { background: var(--bg); }
+    .pricing-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+    .plan-card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+      text-align: center;
+    }
+    .plan-card:hover { transform: translateY(-4px); box-shadow: 0 16px 50px rgba(160,112,80,0.12); }
+    .plan-card.popular {
+      border-color: var(--accent);
+      position: relative;
+    }
+    .popular-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--accent);
+      color: white;
+      font-size: 0.72rem; font-weight: 700;
+      padding: 0.3rem 1.2rem;
+      border-radius: 20px;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .plan-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .plan-name { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 1.2rem; text-transform: uppercase; }
+    .plan-price { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800; color: var(--text); line-height: 1; }
+    .plan-price sub { font-size: 0.9rem; font-weight: 400; color: var(--text3); vertical-align: baseline; }
+    .plan-cycle { font-size: 0.82rem; color: var(--text3); margin: 0.5rem 0 1.5rem; }
+    .popular .plan-price { color: var(--accent); }
+    .plan-divider { width: 40px; height: 2px; background: var(--bg3); border-radius: 1px; margin: 0 auto 1.5rem; }
+    .plan-features { list-style: none; text-align: left; margin-bottom: 2rem; }
+    .plan-features li {
+      font-size: 0.87rem;
+      color: var(--text2);
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--bg3);
+      display: flex; gap: 0.7rem; align-items: center;
+    }
+    .plan-features li .check { color: var(--accent); font-size: 0.9rem; flex-shrink: 0; }
+    .plan-features li.na { color: var(--text3); }
+    .plan-features li.na .check { color: var(--bg3); }
+    .btn-plan {
+      width: 100%; padding: 0.9rem;
+      border-radius: 50px;
+      font-size: 0.9rem; font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      letter-spacing: 0.03em;
+    }
+    .btn-outline { background: transparent; border: 2px solid var(--bg3); color: var(--text2); }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-filled { background: var(--accent); border: 2px solid var(--accent); color: white; }
+    .btn-filled:hover { background: var(--accent2); border-color: var(--accent2); }
+
+    /* ===================== FAQ ===================== */
+    #faq { background: var(--white); }
+    .faq-grid { max-width: 800px; margin: 3rem auto 0; display: flex; flex-direction: column; gap: 1rem; }
+    .faq-card {
+      background: var(--bg4);
+      border-radius: 16px;
+      border: 1px solid rgba(200,149,108,0.15);
+      overflow: hidden;
+    }
+    .faq-btn {
+      width: 100%; background: transparent; border: none;
+      padding: 1.4rem 1.8rem;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      cursor: pointer; text-align: left;
+    }
+    .faq-btn span:first-child { font-size: 0.98rem; font-weight: 600; color: var(--text); line-height: 1.5; font-family: inherit; }
+    .faq-arrow {
+      width: 28px; height: 28px; flex-shrink: 0;
+      background: rgba(200,149,108,0.12);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent);
+      font-size: 1rem;
+      transition: transform 0.3s, background 0.3s;
+    }
+    .faq-card.open .faq-arrow { transform: rotate(45deg); background: var(--accent); color: white; }
+    .faq-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+    .faq-body-inner { padding: 0 1.8rem 1.4rem; font-size: 0.9rem; color: var(--text2); line-height: 1.85; }
+
+    /* ===================== FOOTER ===================== */
+    footer { background: var(--text); padding: 5rem 5vw 3rem; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4rem; margin-bottom: 4rem; }
+    .footer-logo { font-size: 1.5rem; font-weight: 700; color: var(--accent2); margin-bottom: 1rem; }
+    .footer-desc { font-size: 0.87rem; color: rgba(255,255,255,0.5); line-height: 1.75; margin-bottom: 1.5rem; }
+    .footer-social { display: flex; gap: 1rem; }
+    .footer-social a {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      transition: background 0.2s;
+    }
+    .footer-social a:hover { background: var(--accent); }
+    .footer-col h5 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 1.2rem; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 0.65rem; }
+    .footer-col a { font-size: 0.87rem; color: rgba(255,255,255,0.65); transition: color 0.2s; }
+    .footer-col a:hover { color: var(--accent2); }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-copy { font-size: 0.82rem; color: rgba(255,255,255,0.35); }
+    .footer-legal { display: flex; gap: 1.5rem; }
+    .footer-legal a { font-size: 0.8rem; color: rgba(255,255,255,0.35); transition: color 0.2s; }
+    .footer-legal a:hover { color: var(--accent2); }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 1000px) {
+      #hero { grid-template-columns: 1fr; text-align: center; }
+      .hero-right { display: none; }
+      .hero-trust { justify-content: center; }
+      .hero-ctas { justify-content: center; }
+      .hero-subtitle { margin: 0 auto 2.8rem; }
+      .problem-layout { grid-template-columns: 1fr; }
+      .solution-cards { grid-template-columns: 1fr; }
+      .features-list { grid-template-columns: 1fr; }
+      .pricing-wrapper { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      section { padding: 5rem 5vw; }
+      .events-scroll { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; gap: 2.5rem; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+      h1 { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-logo">Cine<span>Trip</span></div>
+    <ul class="nav-links">
+      <li><a href="#problem">課題</a></li>
+      <li><a href="#features">機能</a></li>
+      <li><a href="#events">イベント</a></li>
+      <li><a href="#pricing">料金</a></li>
+    </ul>
+    <button class="nav-cta">無料で始める</button>
+    <div class="nav-hamburger"><span></span><span></span><span></span></div>
+  </nav>
+
+  <!-- HERO -->
+  <div style="background: var(--bg); padding-top: 70px;">
+    <div id="hero">
+      <div class="hero-left">
+        <div class="hero-tag fade-in">🎬 映画 × 旅 × 仲間</div>
+        <h1 class="hero-title fade-in fade-in-delay-1">
+          次の上映は、<br><span class="highlight">温泉地で。</span>
+        </h1>
+        <p class="hero-subtitle fade-in fade-in-delay-2">
+          映画を愛する仲間と、古民家・温泉地・星空の下で鑑賞・語らい・旅をする。
+          CineTripが、あなたの映画体験をもっと豊かにする。
+        </p>
+        <div class="hero-ctas fade-in fade-in-delay-3">
+          <a href="#pricing" class="btn-primary">無料で始める</a>
+          <a href="#events" class="btn-secondary">▶ イベントを見る</a>
+        </div>
+        <div class="hero-trust fade-in fade-in-delay-4">
+          <div class="trust-avatars">
+            <span>🧑</span><span>👩</span><span>👨</span><span>🧑</span><span>👩</span>
+          </div>
+          <div class="trust-text"><strong>3,200名以上</strong>が参加中<br>全国12拠点・48イベント開催</div>
+        </div>
+      </div>
+      <div class="hero-right fade-in fade-in-delay-2">
+        <div class="hero-visual-main">
+          <div class="hero-visual-overlay">
+            <h4>黒澤明特集 in 草津温泉</h4>
+            <p>3月22日（土）〜23日（日）・残3席</p>
+          </div>
+          <div class="hero-card-float hero-card-float-1">
+            <div class="float-emoji">⭐</div>
+            <div class="float-label">平均満足度</div>
+            <div class="float-value">4.9 / 5.0</div>
+          </div>
+          <div class="hero-card-float hero-card-float-2">
+            <div class="float-emoji">👥</div>
+            <div class="float-label">今月の参加者</div>
+            <div class="float-value">+124名</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROBLEM -->
+  <section id="problem" style="background: var(--white);">
+    <div class="section-inner">
+      <div class="problem-layout">
+        <div class="problem-text-side">
+          <div class="section-tag fade-in">The Problem</div>
+          <h2 class="section-title fade-in fade-in-delay-1">映画好きの孤独な鑑賞問題</h2>
+          <div class="separator fade-in fade-in-delay-1"></div>
+          <p class="problem-intro fade-in fade-in-delay-2">
+            映画が好きなのに、一緒に観る仲間が近くにいない。
+            感動を分かち合いたいのに、語り合える相手がいない。
+            そんな経験、ありませんか？
+          </p>
+          <div class="stat-highlight fade-in fade-in-delay-3">
+            <div class="stat-row">
+              <span class="stat-number">68</span>
+              <span class="stat-percent">%</span>
+            </div>
+            <p class="stat-desc">の映画ファンが「一人で映画を観ることが多い」と回答。観た後に感動を語れる相手がいないと感じています。</p>
+          </div>
+        </div>
+        <div class="problem-pain-list">
+          <div class="pain-item fade-in">
+            <div class="pain-emoji">😔</div>
+            <div class="pain-content">
+              <h4>感動を分かち合える仲間がいない</h4>
+              <p>映画を観た後の高揚感も、一人では消えていくばかり。</p>
+            </div>
+          </div>
+          <div class="pain-item fade-in fade-in-delay-1">
+            <div class="pain-emoji">🗺️</div>
+            <div class="pain-content">
+              <h4>映画×旅を実現する機会がない</h4>
+              <p>ロケ地巡りや映画祭への旅、計画が大変で一人では難しい。</p>
+            </div>
+          </div>
+          <div class="pain-item fade-in fade-in-delay-2">
+            <div class="pain-emoji">📱</div>
+            <div class="pain-content">
+              <h4>オンラインでは深い繋がりが生まれない</h4>
+              <p>SNSのコミュニティはバラバラで、リアルな出会いに発展しない。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section id="solution" style="background: var(--bg2);">
+    <div class="section-inner text-center">
+      <div class="section-tag fade-in">Solution</div>
+      <h2 class="section-title fade-in fade-in-delay-1">CineTripでできること</h2>
+      <div class="separator fade-in fade-in-delay-1"></div>
+      <p class="section-desc fade-in fade-in-delay-2">孤独な鑑賞体験から、仲間と旅する映画体験へ。三つの柱が、あなたの映画ライフを変える。</p>
+      <div class="solution-cards">
+        <div class="solution-card fade-in">
+          <div class="solution-icon">🏯</div>
+          <h3>非日常のシアター体験</h3>
+          <p>温泉旅館・古民家・野外など、特別な場所での上映会。日常を忘れる没入感で映画を楽しむ。</p>
+        </div>
+        <div class="solution-card fade-in fade-in-delay-1">
+          <div class="solution-icon">🎭</div>
+          <h3>映画仲間とのマッチング</h3>
+          <p>好きな映画・ジャンル・旅スタイルで相性の良い仲間を発見。鑑賞仲間から旅友まで。</p>
+        </div>
+        <div class="solution-card fade-in fade-in-delay-2">
+          <div class="solution-icon">📸</div>
+          <h3>記憶を残すアーカイブ</h3>
+          <p>観た映画・訪れた場所・出会った人を美しく記録。あなただけの映画旅日記が生まれる。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" style="background: var(--bg2);">
+    <div class="section-inner">
+      <div class="section-header-flex">
+        <div>
+          <div class="section-tag fade-in">Features</div>
+          <h2 class="section-title fade-in fade-in-delay-1">主要機能</h2>
+          <div class="separator fade-in fade-in-delay-1"></div>
+        </div>
+        <p class="section-desc fade-in" style="max-width: 360px;">映画仲間との体験をより豊かにする四つの機能。</p>
+      </div>
+      <div class="features-list">
+        <div class="feature-item fade-in">
+          <div class="feature-icon-wrap">🎯</div>
+          <div class="feature-content">
+            <h3>シネマッチング</h3>
+            <p>映画の好み・観たいジャンル・旅スタイルを設定するだけで、相性ピッタリな仲間をAIが提案。</p>
+            <span class="feature-pill">AIマッチング</span>
+          </div>
+        </div>
+        <div class="feature-item fade-in fade-in-delay-1">
+          <div class="feature-icon-wrap">🏕️</div>
+          <div class="feature-content">
+            <h3>リトリートイベント</h3>
+            <p>毎月開催される宿泊型・日帰りイベント。厳選されたロケーションで映画と旅を融合した体験を。</p>
+            <span class="feature-pill">月次開催</span>
+          </div>
+        </div>
+        <div class="feature-item fade-in fade-in-delay-2">
+          <div class="feature-icon-wrap">💬</div>
+          <div class="feature-content">
+            <h3>グループチャット</h3>
+            <p>作品別・イベント別のグループで深い鑑賞後ディスカッション。ネタバレ設定で安心して語り合える。</p>
+            <span class="feature-pill">リアルタイム</span>
+          </div>
+        </div>
+        <div class="feature-item fade-in fade-in-delay-3">
+          <div class="feature-icon-wrap">🗺️</div>
+          <div class="feature-content">
+            <h3>旅ログ</h3>
+            <p>訪れたシアター・聖地・一緒に旅した仲間を美しいビジュアルで記録。シネマトラベルマップが完成。</p>
+            <span class="feature-pill">パーソナルアーカイブ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section id="events" style="background: var(--white);">
+    <div class="section-inner">
+      <div class="section-header-flex">
+        <div>
+          <div class="section-tag fade-in">Events</div>
+          <h2 class="section-title fade-in fade-in-delay-1">開催予定イベント</h2>
+          <div class="separator fade-in fade-in-delay-1"></div>
+        </div>
+        <a href="#" style="font-size:0.88rem; color:var(--accent); font-weight:600; text-decoration:underline;">すべて見る →</a>
+      </div>
+      <div class="events-scroll">
+        <div class="event-card fade-in">
+          <div class="event-thumb" style="background: linear-gradient(135deg, #E8C49A 0%, #C8956C 100%);">
+            ♨️
+            <span class="event-badge">残3席</span>
+            <span class="event-badge-open">宿泊付き</span>
+          </div>
+          <div class="event-info">
+            <div class="event-date">3月22日（土）〜23日（日）</div>
+            <h4>黒澤明特集上映 in 草津温泉</h4>
+            <p>温泉旅館の大広間で黒澤明の名作を。湯上がり後の映画鑑賞は格別。</p>
+            <div class="event-chips">
+              <span class="event-chip">温泉</span>
+              <span class="event-chip">邦画</span>
+              <span class="event-chip">定員12名</span>
+            </div>
+          </div>
+        </div>
+        <div class="event-card fade-in fade-in-delay-1">
+          <div class="event-thumb" style="background: linear-gradient(135deg, #D4C4A8 0%, #A08060 100%);">
+            🏘️
+          </div>
+          <div class="event-info">
+            <div class="event-date">4月5日（土）</div>
+            <h4>古民家シアター Night in 京都</h4>
+            <p>築100年の古民家を一棟貸し切り。炉端を囲んで語り合う映画の夜。</p>
+            <div class="event-chips">
+              <span class="event-chip">古民家</span>
+              <span class="event-chip">洋画</span>
+              <span class="event-chip">日帰り</span>
+            </div>
+          </div>
+        </div>
+        <div class="event-card fade-in fade-in-delay-2">
+          <div class="event-thumb" style="background: linear-gradient(135deg, #B8D4C8 0%, #7A9E90 100%);">
+            🌌
+          </div>
+          <div class="event-info">
+            <div class="event-date">4月19日（土）〜20日（日）</div>
+            <h4>満天の星空と映画祭 in 長野</h4>
+            <p>高原の澄んだ空気の下、星空をスクリーンに見立てた野外上映。</p>
+            <div class="event-chips">
+              <span class="event-chip">野外テント</span>
+              <span class="event-chip">SF</span>
+              <span class="event-chip">宿泊付き</span>
+            </div>
+          </div>
+        </div>
+        <div class="event-card fade-in fade-in-delay-3">
+          <div class="event-thumb" style="background: linear-gradient(135deg, #F0D8B8 0%, #C8A060 100%);">
+            🎪
+          </div>
+          <div class="event-info">
+            <div class="event-date">5月3日（土）〜4日（日）</div>
+            <h4>インディーズ映画祭 in 湯布院</h4>
+            <p>別荘貸し切りでインディーズ作品の自主上映と監督トーク付きイベント。</p>
+            <div class="event-chips">
+              <span class="event-chip">温泉</span>
+              <span class="event-chip">インディーズ</span>
+              <span class="event-chip">宿泊付き</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" style="background: var(--bg);">
+    <div class="section-inner text-center">
+      <div class="section-tag fade-in">Pricing</div>
+      <h2 class="section-title fade-in fade-in-delay-1">料金プラン</h2>
+      <div class="separator fade-in fade-in-delay-1"></div>
+      <p class="section-desc fade-in fade-in-delay-2">まずは無料で体験。いつでもプランを変更できます。</p>
+      <div class="pricing-wrapper">
+        <div class="plan-card fade-in">
+          <div class="plan-icon">🌱</div>
+          <div class="plan-name">Free</div>
+          <div class="plan-price">¥0<sub>/月</sub></div>
+          <div class="plan-cycle">ずっと無料</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> コミュニティ閲覧</li>
+            <li><span class="check">✓</span> プロフィール作成</li>
+            <li><span class="check">✓</span> 月1回イベント参加</li>
+            <li class="na"><span class="check">—</span> グループチャット無制限</li>
+            <li class="na"><span class="check">—</span> 旅ログ無制限保存</li>
+            <li class="na"><span class="check">—</span> 優先席予約</li>
+          </ul>
+          <button class="btn-plan btn-outline">無料で始める</button>
+        </div>
+        <div class="plan-card popular fade-in fade-in-delay-1">
+          <div class="popular-badge">🌟 人気 No.1</div>
+          <div class="plan-icon">🌿</div>
+          <div class="plan-name">Standard</div>
+          <div class="plan-price">¥980<sub>/月</sub></div>
+          <div class="plan-cycle">初月 ¥490（50%OFF）</div>
+          <div class="plan-divider" style="background: var(--accent);"></div>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> コミュニティ閲覧</li>
+            <li><span class="check">✓</span> プロフィール作成</li>
+            <li><span class="check">✓</span> 月3回イベント参加</li>
+            <li><span class="check">✓</span> グループチャット無制限</li>
+            <li><span class="check">✓</span> 旅ログ無制限保存</li>
+            <li class="na"><span class="check">—</span> 優先席予約</li>
+          </ul>
+          <button class="btn-plan btn-filled">今すぐ始める</button>
+        </div>
+        <div class="plan-card fade-in fade-in-delay-2">
+          <div class="plan-icon">🌳</div>
+          <div class="plan-name">Premium</div>
+          <div class="plan-price">¥2,480<sub>/月</sub></div>
+          <div class="plan-cycle">すべての機能が使い放題</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> コミュニティ閲覧</li>
+            <li><span class="check">✓</span> プロフィール作成</li>
+            <li><span class="check">✓</span> イベント参加無制限</li>
+            <li><span class="check">✓</span> グループチャット無制限</li>
+            <li><span class="check">✓</span> 旅ログ無制限保存</li>
+            <li><span class="check">✓</span> 優先席予約</li>
+          </ul>
+          <button class="btn-plan btn-outline">Premiumにする</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" style="background: var(--white);">
+    <div class="section-inner text-center">
+      <div class="section-tag fade-in">FAQ</div>
+      <h2 class="section-title fade-in fade-in-delay-1">よくある質問</h2>
+      <div class="separator fade-in fade-in-delay-1"></div>
+      <div class="faq-grid">
+        <div class="faq-card fade-in">
+          <button class="faq-btn" onclick="toggleFAQ2(this)">
+            <span>CineTripは誰でも参加できますか？</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-body">
+            <div class="faq-body-inner">はい、映画が好きな方であれば年齢・性別問わずご参加いただけます。初めての方向けの入門イベントも定期的に開催しています。</div>
+          </div>
+        </div>
+        <div class="faq-card fade-in fade-in-delay-1">
+          <button class="faq-btn" onclick="toggleFAQ2(this)">
+            <span>イベントの参加費はプランに含まれますか？</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-body">
+            <div class="faq-body-inner">月間参加回数はプランによって異なります。宿泊イベントは別途宿泊費（実費）が必要ですが、会場設営・上映・一部食事はプランに含まれます。</div>
+          </div>
+        </div>
+        <div class="faq-card fade-in fade-in-delay-2">
+          <button class="faq-btn" onclick="toggleFAQ2(this)">
+            <span>一人参加でも楽しめますか？</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-body">
+            <div class="faq-body-inner">もちろんです！参加者の約70%が一人参加です。事前マッチングで仲間を見つけたり、当日のグループ紹介で自然と打ち解けられます。</div>
+          </div>
+        </div>
+        <div class="faq-card fade-in fade-in-delay-3">
+          <button class="faq-btn" onclick="toggleFAQ2(this)">
+            <span>どんなジャンルの映画が上映されますか？</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-body">
+            <div class="faq-body-inner">邦画・洋画・インディーズ・ドキュメンタリーなど幅広いジャンルを取り扱っています。参加者リクエストも反映し、毎月テーマを変えて開催しています。</div>
+          </div>
+        </div>
+        <div class="faq-card fade-in fade-in-delay-4">
+          <button class="faq-btn" onclick="toggleFAQ2(this)">
+            <span>プランはいつでも変更・解約できますか？</span>
+            <span class="faq-arrow">+</span>
+          </button>
+          <div class="faq-body">
+            <div class="faq-body-inner">アップグレードはいつでも可能です。ダウングレード・解約は月末締めで翌月から反映されます。解約後も無料プランとしてアカウントを保持できます。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div>
+          <div class="footer-logo">CineTrip</div>
+          <p class="footer-desc">映画好きのためのリトリートコミュニティ。温泉地・古民家・野外など非日常の場所で映画仲間と鑑賞・語らい・旅をするプラットフォーム。</p>
+          <div class="footer-social">
+            <a href="#">𝕏</a>
+            <a href="#">📷</a>
+            <a href="#">📝</a>
+            <a href="#">▶</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h5>サービス</h5>
+          <ul>
+            <li><a href="#">機能紹介</a></li>
+            <li><a href="#">イベント一覧</a></li>
+            <li><a href="#">料金プラン</a></li>
+            <li><a href="#">コミュニティ</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>会社情報</h5>
+          <ul>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">採用情報</a></li>
+            <li><a href="#">プレスキット</a></li>
+            <li><a href="#">お問い合わせ</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>サポート</h5>
+          <ul>
+            <li><a href="#">ヘルプセンター</a></li>
+            <li><a href="#">利用規約</a></li>
+            <li><a href="#">プライバシー</a></li>
+            <li><a href="#">特商法</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2026 CineTrip. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">利用規約</a>
+          <a href="#">プライバシーポリシー</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Intersection Observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // FAQ toggle
+    function toggleFAQ2(btn) {
+      const card = btn.closest('.faq-card');
+      const body = card.querySelector('.faq-body');
+      const isOpen = card.classList.contains('open');
+      document.querySelectorAll('.faq-card').forEach(c => {
+        c.classList.remove('open');
+        c.querySelector('.faq-body').style.maxHeight = '0';
+      });
+      if (!isOpen) {
+        card.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+      }
+    }
+  </script>
+</body>
+</html>

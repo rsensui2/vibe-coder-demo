@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineTrip — 映画祭は、どこでも始まる</title>
+  <style>
+    :root {
+      --bg: #0D1B2A;
+      --bg2: #112030;
+      --bg3: #162840;
+      --bg4: #1A3050;
+      --accent: #4FC3F7;
+      --accent2: #81D4FA;
+      --accent3: #0288D1;
+      --accent-glow: rgba(79,195,247,0.3);
+      --text: #E8F4FF;
+      --text2: #A8C8E8;
+      --text3: #5888A8;
+      --border: rgba(79,195,247,0.2);
+      --card-bg: rgba(22,40,64,0.9);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      overflow-x: hidden;
+    }
+    h1 { font-size: clamp(2.2rem, 5.5vw, 4.2rem); font-weight: 800; line-height: 1.25; letter-spacing: -0.02em; }
+    h2 { font-size: clamp(1.7rem, 3.5vw, 2.6rem); font-weight: 700; letter-spacing: -0.01em; }
+    h3 { font-size: clamp(1rem, 2.2vw, 1.3rem); font-weight: 600; }
+    p  { font-size: clamp(0.92rem, 1.8vw, 1.05rem); color: var(--text2); }
+    a  { text-decoration: none; color: inherit; }
+
+    /* Fade-in */
+    .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.65s ease, transform 0.65s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    .fade-in-delay-1 { transition-delay: 0.1s; }
+    .fade-in-delay-2 { transition-delay: 0.2s; }
+    .fade-in-delay-3 { transition-delay: 0.3s; }
+    .fade-in-delay-4 { transition-delay: 0.4s; }
+
+    /* Glow text */
+    .glow { color: var(--accent); text-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(79,195,247,0.15); }
+
+    /* ===================== NAVBAR ===================== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 5vw;
+      background: rgba(13,27,42,0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .nav-logo .ct { color: var(--accent); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.85rem;
+      color: var(--text3);
+      transition: color 0.2s;
+      letter-spacing: 0.02em;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-actions { display: flex; gap: 0.8rem; align-items: center; }
+    .nav-login {
+      font-size: 0.85rem;
+      color: var(--text2);
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .nav-login:hover { border-color: var(--accent); color: var(--accent); }
+    .nav-cta {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--bg);
+      background: var(--accent);
+      padding: 0.5rem 1.2rem;
+      border-radius: 8px;
+      border: none; cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .nav-cta:hover { background: var(--accent2); box-shadow: 0 0 20px var(--accent-glow); }
+    .nav-hamburger { display: none; flex-direction: column; gap: 4px; cursor: pointer; }
+    .nav-hamburger span { width: 22px; height: 2px; background: var(--accent); border-radius: 1px; }
+
+    /* ===================== HERO ===================== */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 6rem 5vw 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Star field */
+    .stars {
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 10%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 65%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 25%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 50%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 15% 75%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 35% 85%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 65% 90%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 78% 5%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 5% 55%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(2px 2px at 92% 35%, rgba(79,195,247,0.5) 0%, transparent 100%),
+        radial-gradient(2px 2px at 48% 55%, rgba(79,195,247,0.4) 0%, transparent 100%);
+    }
+    .hero-glow-bg {
+      position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(79,195,247,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 860px; }
+    .hero-kicker {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: rgba(79,195,247,0.1);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.35rem 1.1rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      margin-bottom: 2rem;
+    }
+    .hero-kicker .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .hero-title { margin-bottom: 1.5rem; }
+    .hero-title .line2 {
+      display: block;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      color: var(--text2);
+      line-height: 1.9;
+      max-width: 620px;
+      margin: 0 auto 2.8rem;
+    }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 4rem; }
+    .btn-glow {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 0.9rem 2.5rem;
+      border-radius: 10px;
+      border: none; cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    .btn-glow:hover { background: var(--accent2); box-shadow: 0 0 30px var(--accent-glow); transform: translateY(-2px); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: transparent;
+      color: var(--text2);
+      font-size: 0.9rem;
+      padding: 0.9rem 2rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .hero-stats-bar {
+      display: flex; gap: 0; border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      background: rgba(22,40,64,0.6);
+      backdrop-filter: blur(8px);
+      max-width: 560px; margin: 0 auto;
+    }
+    .hero-stat {
+      flex: 1; padding: 1.2rem 1rem;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .hero-stat:last-child { border-right: none; }
+    .hero-stat-num { font-size: 1.6rem; font-weight: 800; color: var(--accent); display: block; line-height: 1; margin-bottom: 0.3rem; }
+    .hero-stat-label { font-size: 0.72rem; color: var(--text3); }
+
+    /* ===================== SECTION COMMON ===================== */
+    section { padding: 7rem 5vw; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-chip {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(79,195,247,0.1);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.28rem 0.9rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+    .section-title { margin-bottom: 1rem; }
+    .section-desc { color: var(--text2); line-height: 1.85; max-width: 620px; }
+    .text-center { text-align: center; }
+    .text-center .section-desc { margin: 0 auto; }
+
+    /* ===================== PROBLEM ===================== */
+    #problem { background: var(--bg2); }
+    .problem-wrapper {
+      display: grid; grid-template-columns: 1.2fr 0.8fr;
+      gap: 5rem; align-items: center; margin-top: 3.5rem;
+    }
+    .problem-cards { display: flex; flex-direction: column; gap: 1.2rem; }
+    .problem-card {
+      display: flex; gap: 1.2rem; align-items: flex-start;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .problem-card::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--accent), var(--accent3));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .problem-card:hover { border-color: var(--accent); transform: translateX(4px); }
+    .problem-card:hover::before { opacity: 1; }
+    .problem-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .problem-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.3rem; color: var(--text); }
+    .problem-card p { font-size: 0.85rem; line-height: 1.65; }
+    .problem-stat-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .problem-stat-box::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 100px; height: 100px;
+      background: radial-gradient(circle, rgba(79,195,247,0.12) 0%, transparent 70%);
+    }
+    .stat-big { font-size: clamp(4rem, 8vw, 6rem); font-weight: 900; line-height: 1; }
+    .stat-unit { font-size: 2.5rem; font-weight: 900; }
+    .stat-caption { font-size: 0.9rem; color: var(--text2); line-height: 1.6; margin-top: 1rem; }
+
+    /* ===================== SOLUTION ===================== */
+    #solution { background: var(--bg); }
+    .solution-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem; margin-top: 3.5rem;
+    }
+    .sol-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 2.5rem 2rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .sol-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent3), var(--accent), var(--accent2));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .sol-card:hover { border-color: rgba(79,195,247,0.4); transform: translateY(-5px); box-shadow: 0 16px 40px rgba(79,195,247,0.1); }
+    .sol-card:hover::after { opacity: 1; }
+    .sol-num { font-size: 0.7rem; font-weight: 700; color: var(--accent); letter-spacing: 0.2em; margin-bottom: 1rem; opacity: 0.7; }
+    .sol-icon { font-size: 2.2rem; margin-bottom: 1.2rem; }
+    .sol-card h3 { font-size: 1.05rem; margin-bottom: 0.7rem; color: var(--text); }
+    .sol-card p { font-size: 0.87rem; line-height: 1.75; }
+
+    /* ===================== FEATURES ===================== */
+    #features { background: var(--bg2); }
+    .feat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-top: 3.5rem; }
+    .feat-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 2rem;
+      transition: all 0.3s;
+      display: flex; gap: 1.5rem;
+    }
+    .feat-card:hover { border-color: rgba(79,195,247,0.4); box-shadow: 0 8px 30px rgba(79,195,247,0.08); }
+    .feat-icon {
+      width: 52px; height: 52px; flex-shrink: 0;
+      background: rgba(79,195,247,0.08);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      transition: all 0.3s;
+    }
+    .feat-card:hover .feat-icon { background: rgba(79,195,247,0.15); border-color: var(--accent); }
+    .feat-body h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .feat-body p { font-size: 0.85rem; line-height: 1.7; }
+    .feat-tag {
+      display: inline-block; margin-top: 0.8rem;
+      font-size: 0.7rem; font-weight: 700;
+      color: var(--accent); background: rgba(79,195,247,0.08);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.7rem; border-radius: 6px;
+    }
+
+    /* ===================== EVENTS ===================== */
+    #events { background: var(--bg); }
+    .events-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 3.5rem; }
+    .ev-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    .ev-card:hover { transform: translateY(-6px); border-color: rgba(79,195,247,0.4); box-shadow: 0 20px 50px rgba(79,195,247,0.12); }
+    .ev-visual {
+      height: 190px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .ev-visual::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(transparent, var(--bg3));
+    }
+    .ev-badge {
+      position: absolute; top: 0.8rem; left: 0.8rem;
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 0.68rem; font-weight: 700;
+      padding: 0.2rem 0.65rem;
+      border-radius: 6px;
+    }
+    .ev-status {
+      position: absolute; top: 0.8rem; right: 0.8rem;
+      background: rgba(13,27,42,0.8);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 0.68rem; font-weight: 600;
+      padding: 0.2rem 0.65rem;
+      border-radius: 6px;
+    }
+    .ev-body { padding: 1.4rem; }
+    .ev-date { font-size: 0.78rem; color: var(--accent); font-weight: 600; margin-bottom: 0.4rem; letter-spacing: 0.03em; }
+    .ev-title { font-size: 0.97rem; font-weight: 700; color: var(--text); line-height: 1.45; margin-bottom: 0.6rem; }
+    .ev-desc { font-size: 0.82rem; line-height: 1.6; margin-bottom: 1rem; }
+    .ev-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .ev-tag {
+      font-size: 0.7rem;
+      background: rgba(79,195,247,0.08);
+      color: var(--text3);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    /* ===================== PRICING ===================== */
+    #pricing { background: var(--bg2); }
+    .price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3.5rem; }
+    .price-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .price-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(79,195,247,0.08); }
+    .price-card.popular {
+      border-color: var(--accent);
+      background: var(--bg4);
+      box-shadow: 0 0 0 1px var(--accent), 0 0 30px rgba(79,195,247,0.1);
+    }
+    .popular-label {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 0.7rem; font-weight: 700;
+      padding: 0.3rem 1.2rem; border-radius: 20px;
+      white-space: nowrap; letter-spacing: 0.06em;
+    }
+    .price-plan { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em; color: var(--text3); margin-bottom: 1.2rem; text-transform: uppercase; }
+    .price-amount { font-size: clamp(2.2rem, 4vw, 2.8rem); font-weight: 900; color: var(--text); line-height: 1; }
+    .price-amount .yen { font-size: 1.2rem; font-weight: 700; }
+    .price-amount .per { font-size: 0.85rem; font-weight: 400; color: var(--text3); }
+    .popular .price-amount { color: var(--accent); }
+    .price-desc { font-size: 0.8rem; color: var(--text3); margin: 0.5rem 0 2rem; }
+    .price-features { list-style: none; text-align: left; margin-bottom: 2rem; }
+    .price-features li {
+      font-size: 0.86rem; color: var(--text2);
+      padding: 0.55rem 0;
+      border-bottom: 1px solid rgba(79,195,247,0.08);
+      display: flex; gap: 0.7rem;
+    }
+    .price-features li .ic { color: var(--accent); flex-shrink: 0; }
+    .price-features li.off { color: var(--text3); }
+    .price-features li.off .ic { color: var(--bg4); }
+    .btn-price {
+      width: 100%; padding: 0.85rem;
+      border-radius: 10px;
+      font-size: 0.88rem; font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-family: inherit;
+    }
+    .btn-price-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text2);
+    }
+    .btn-price-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-price-fill {
+      background: var(--accent);
+      border: none;
+      color: var(--bg);
+    }
+    .btn-price-fill:hover { background: var(--accent2); box-shadow: 0 0 20px var(--accent-glow); }
+
+    /* ===================== FAQ ===================== */
+    #faq { background: var(--bg); }
+    .faq-container { max-width: 760px; margin: 3.5rem auto 0; display: flex; flex-direction: column; gap: 0.8rem; }
+    .faq-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .faq-box.open { border-color: rgba(79,195,247,0.4); }
+    .faq-trigger {
+      width: 100%; background: transparent; border: none;
+      padding: 1.4rem 1.6rem;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      cursor: pointer; text-align: left;
+    }
+    .faq-trigger span:first-child { font-size: 0.97rem; font-weight: 600; color: var(--text); line-height: 1.45; font-family: inherit; }
+    .faq-plus {
+      width: 28px; height: 28px; flex-shrink: 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent);
+      font-size: 1.1rem;
+      transition: all 0.3s;
+      background: rgba(79,195,247,0.05);
+    }
+    .faq-box.open .faq-plus { transform: rotate(45deg); background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .faq-panel { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+    .faq-panel-inner { padding: 0 1.6rem 1.4rem; font-size: 0.9rem; color: var(--text2); line-height: 1.85; }
+
+    /* ===================== FOOTER ===================== */
+    footer { background: rgba(10,18,28,1); border-top: 1px solid var(--border); padding: 5rem 5vw 3rem; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-top { display: flex; gap: 5rem; flex-wrap: wrap; margin-bottom: 4rem; justify-content: space-between; }
+    .footer-brand { max-width: 280px; }
+    .footer-logo-text { font-size: 1.5rem; font-weight: 800; color: var(--accent); margin-bottom: 1rem; }
+    .footer-tagline { font-size: 0.87rem; color: var(--text3); line-height: 1.75; }
+    .footer-cols { display: flex; gap: 4rem; flex-wrap: wrap; }
+    .footer-col h5 { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.15em; color: var(--text3); text-transform: uppercase; margin-bottom: 1.2rem; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 0.65rem; }
+    .footer-col a { font-size: 0.86rem; color: var(--text3); transition: color 0.2s; }
+    .footer-col a:hover { color: var(--accent); }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-copy { font-size: 0.8rem; color: var(--text3); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-size: 0.78rem; color: var(--text3); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 900px) {
+      .problem-wrapper { grid-template-columns: 1fr; }
+      .solution-grid { grid-template-columns: 1fr; }
+      .feat-grid { grid-template-columns: 1fr; }
+      .price-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .nav-links, .nav-login { display: none; }
+      .nav-hamburger { display: flex; }
+      section { padding: 5rem 5vw; }
+      .events-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 2.2rem; }
+      .hero-stats-bar { flex-direction: column; border-radius: 12px; }
+      .hero-stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .hero-stat:last-child { border-bottom: none; }
+      .footer-top { flex-direction: column; gap: 3rem; }
+      .footer-cols { flex-direction: column; gap: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-logo"><span class="ct">Cine</span>Trip</div>
+    <ul class="nav-links">
+      <li><a href="#problem">問題</a></li>
+      <li><a href="#features">機能</a></li>
+      <li><a href="#events">イベント</a></li>
+      <li><a href="#pricing">料金</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="nav-login">ログイン</button>
+      <button class="nav-cta">無料で始める</button>
+    </div>
+    <div class="nav-hamburger"><span></span><span></span><span></span></div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="stars"></div>
+    <div class="hero-glow-bg"></div>
+    <div class="hero-content">
+      <div class="hero-kicker fade-in"><span class="dot"></span>映画 × 旅 × コミュニティ</div>
+      <h1 class="hero-title fade-in fade-in-delay-1">
+        次の上映は、<br>
+        <span class="line2">温泉地で。</span>
+      </h1>
+      <p class="hero-sub fade-in fade-in-delay-2">
+        映画好きのためのリトリートコミュニティ。温泉地・古民家・星空の下で、
+        仲間と一緒に鑑賞・語らい・旅をする。あなたの映画体験を次のステージへ。
+      </p>
+      <div class="hero-btns fade-in fade-in-delay-3">
+        <a href="#pricing" class="btn-glow">無料で始める</a>
+        <a href="#events" class="btn-ghost">▶ イベントを見る</a>
+      </div>
+      <div class="hero-stats-bar fade-in fade-in-delay-4">
+        <div class="hero-stat">
+          <span class="hero-stat-num glow">3,200+</span>
+          <span class="hero-stat-label">会員数</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num glow">48</span>
+          <span class="hero-stat-label">イベント開催</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num glow">4.9</span>
+          <span class="hero-stat-label">平均満足度</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num glow">12</span>
+          <span class="hero-stat-label">全国拠点</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section id="problem" style="background: var(--bg2);">
+    <div class="section-inner">
+      <div class="problem-wrapper">
+        <div>
+          <div class="section-chip fade-in">Problem</div>
+          <h2 class="section-title fade-in fade-in-delay-1">映画好きの、孤独な鑑賞体験</h2>
+          <p class="section-desc fade-in fade-in-delay-2" style="margin-bottom: 2.5rem;">
+            映画が好きなのに、一緒に観る仲間がいない。
+            感動を分かち合いたいのに、語り合える相手がいない——
+            そんな経験、ありませんか？
+          </p>
+          <div class="problem-cards">
+            <div class="problem-card fade-in fade-in-delay-2">
+              <div class="problem-icon">😶</div>
+              <div>
+                <h4>感動を語れる仲間がいない</h4>
+                <p>鑑賞後の高揚感が、一人では行き場を失う。</p>
+              </div>
+            </div>
+            <div class="problem-card fade-in fade-in-delay-3">
+              <div class="problem-icon">🧳</div>
+              <div>
+                <h4>映画×旅を実現する機会がない</h4>
+                <p>ロケ地巡りや映画祭への旅、一人では踏み出しにくい。</p>
+              </div>
+            </div>
+            <div class="problem-card fade-in fade-in-delay-4">
+              <div class="problem-icon">📲</div>
+              <div>
+                <h4>SNSでは深い繋がりが生まれない</h4>
+                <p>映画コミュニティはオンラインに散在し、リアルに発展しない。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="problem-stat-box fade-in fade-in-delay-1">
+          <div class="stat-big glow">68<span class="stat-unit">%</span></div>
+          <p class="stat-caption">の映画ファンが<br>「一人で映画を観ることが多い」と回答。<br>語り合える仲間を求めている。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section id="solution" style="background: var(--bg);">
+    <div class="section-inner text-center">
+      <div class="section-chip fade-in">Solution</div>
+      <h2 class="section-title fade-in fade-in-delay-1">CineTripで<br>できること</h2>
+      <p class="section-desc fade-in fade-in-delay-2" style="margin: 0 auto 1rem;">孤独な鑑賞体験から、仲間と旅する映画体験へ。</p>
+      <div class="solution-grid">
+        <div class="sol-card fade-in">
+          <div class="sol-num">01</div>
+          <div class="sol-icon">🏯</div>
+          <h3>非日常のシアター体験</h3>
+          <p>温泉旅館・古民家・野外など、特別な空間での上映会。日常を忘れる没入感。</p>
+        </div>
+        <div class="sol-card fade-in fade-in-delay-1">
+          <div class="sol-num">02</div>
+          <div class="sol-icon">🎭</div>
+          <h3>映画仲間とのマッチング</h3>
+          <p>好きなジャンル・監督・旅スタイルで繋がる。鑑賞仲間から旅友まで見つかる。</p>
+        </div>
+        <div class="sol-card fade-in fade-in-delay-2">
+          <div class="sol-num">03</div>
+          <div class="sol-icon">📸</div>
+          <h3>旅と記憶のアーカイブ</h3>
+          <p>訪れた場所・観た映画・出会った仲間を美しく記録。シネマ旅日記が完成。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" style="background: var(--bg2);">
+    <div class="section-inner">
+      <div class="section-chip fade-in">Features</div>
+      <h2 class="section-title fade-in fade-in-delay-1">主要機能</h2>
+      <p class="section-desc fade-in fade-in-delay-2">映画仲間との体験をより豊かにする、四つの核心機能。</p>
+      <div class="feat-grid">
+        <div class="feat-card fade-in">
+          <div class="feat-icon">🎯</div>
+          <div class="feat-body">
+            <h3>シネマッチング</h3>
+            <p>好みの映画ジャンル・監督・旅スタイルを設定するだけで、相性の良い仲間をAIがマッチング。</p>
+            <span class="feat-tag">AIマッチング</span>
+          </div>
+        </div>
+        <div class="feat-card fade-in fade-in-delay-1">
+          <div class="feat-icon">🏕️</div>
+          <div class="feat-body">
+            <h3>リトリートイベント</h3>
+            <p>月次開催の宿泊型・日帰りイベント。温泉地・古民家・野外など厳選ロケーションで映画と旅を融合。</p>
+            <span class="feat-tag">月次開催</span>
+          </div>
+        </div>
+        <div class="feat-card fade-in fade-in-delay-2">
+          <div class="feat-icon">💬</div>
+          <div class="feat-body">
+            <h3>グループチャット</h3>
+            <p>作品別・イベント別グループで鑑賞後ディスカッション。ネタバレ設定で安心して語り合える空間。</p>
+            <span class="feat-tag">リアルタイム</span>
+          </div>
+        </div>
+        <div class="feat-card fade-in fade-in-delay-3">
+          <div class="feat-icon">🗺️</div>
+          <div class="feat-body">
+            <h3>旅ログ</h3>
+            <p>訪れたシアター・聖地・仲間の記録をビジュアルで保存。あなただけのシネマトラベルマップが完成する。</p>
+            <span class="feat-tag">パーソナルアーカイブ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section id="events" style="background: var(--bg);">
+    <div class="section-inner">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:3.5rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <div class="section-chip fade-in">Events</div>
+          <h2 class="section-title fade-in fade-in-delay-1">開催予定イベント</h2>
+        </div>
+        <a href="#" style="font-size:0.85rem; color:var(--accent); border-bottom: 1px solid var(--border); padding-bottom:2px;">すべて見る →</a>
+      </div>
+      <div class="events-grid">
+        <div class="ev-card fade-in">
+          <div class="ev-visual" style="background: linear-gradient(135deg, #1a1000 0%, #3d2c10 50%, #5a4020 100%);">
+            ♨️
+            <span class="ev-badge">残3席</span>
+            <span class="ev-status">宿泊付き</span>
+          </div>
+          <div class="ev-body">
+            <div class="ev-date">3月22日（土）〜23日（日）</div>
+            <div class="ev-title">黒澤明特集上映 in 草津温泉</div>
+            <p class="ev-desc">温泉旅館の大広間で黒澤明の名作を。湯上がり後の映画鑑賞は格別の体験。</p>
+            <div class="ev-tags">
+              <span class="ev-tag">温泉</span>
+              <span class="ev-tag">邦画</span>
+              <span class="ev-tag">定員12名</span>
+            </div>
+          </div>
+        </div>
+        <div class="ev-card fade-in fade-in-delay-1">
+          <div class="ev-visual" style="background: linear-gradient(135deg, #0a1a10 0%, #1a3820 100%);">
+            🏘️
+          </div>
+          <div class="ev-body">
+            <div class="ev-date">4月5日（土）</div>
+            <div class="ev-title">古民家シアター Night in 京都</div>
+            <p class="ev-desc">築100年の古民家を一棟貸し切り。炉端を囲んで語り合う映画の夜。</p>
+            <div class="ev-tags">
+              <span class="ev-tag">古民家</span>
+              <span class="ev-tag">洋画</span>
+              <span class="ev-tag">日帰り</span>
+            </div>
+          </div>
+        </div>
+        <div class="ev-card fade-in fade-in-delay-2">
+          <div class="ev-visual" style="background: linear-gradient(135deg, #0d1b2a 0%, #1a3050 100%);">
+            🌌
+          </div>
+          <div class="ev-body">
+            <div class="ev-date">4月19日（土）〜20日（日）</div>
+            <div class="ev-title">満天の星空と映画祭 in 長野</div>
+            <p class="ev-desc">高原の星空をバックに野外上映。自然の中での映画体験は忘れられない。</p>
+            <div class="ev-tags">
+              <span class="ev-tag">野外テント</span>
+              <span class="ev-tag">SF</span>
+              <span class="ev-tag">宿泊付き</span>
+            </div>
+          </div>
+        </div>
+        <div class="ev-card fade-in fade-in-delay-3">
+          <div class="ev-visual" style="background: linear-gradient(135deg, #1a0d2a 0%, #302050 100%);">
+            🎪
+          </div>
+          <div class="ev-body">
+            <div class="ev-date">5月3日（土）〜4日（日）</div>
+            <div class="ev-title">インディーズ映画祭 in 湯布院</div>
+            <p class="ev-desc">別荘を貸し切ってインディーズ自主上映＆監督トーク。映画祭の熱気を体験。</p>
+            <div class="ev-tags">
+              <span class="ev-tag">温泉</span>
+              <span class="ev-tag">インディーズ</span>
+              <span class="ev-tag">宿泊付き</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" style="background: var(--bg2);">
+    <div class="section-inner text-center">
+      <div class="section-chip fade-in">Pricing</div>
+      <h2 class="section-title fade-in fade-in-delay-1">料金プラン</h2>
+      <p class="section-desc fade-in fade-in-delay-2" style="margin: 0 auto 0.5rem;">まずは無料で始めて、いつでもアップグレード。</p>
+      <div class="price-grid">
+        <div class="price-card fade-in">
+          <div class="price-plan">Free</div>
+          <div class="price-amount"><span class="yen">¥</span>0<span class="per">/月</span></div>
+          <div class="price-desc">ずっと無料</div>
+          <ul class="price-features">
+            <li><span class="ic">✓</span> コミュニティ閲覧</li>
+            <li><span class="ic">✓</span> プロフィール作成</li>
+            <li><span class="ic">✓</span> 月1回イベント参加</li>
+            <li class="off"><span class="ic">—</span> グループチャット無制限</li>
+            <li class="off"><span class="ic">—</span> 旅ログ無制限保存</li>
+            <li class="off"><span class="ic">—</span> 優先席予約</li>
+          </ul>
+          <button class="btn-price btn-price-ghost">無料で始める</button>
+        </div>
+        <div class="price-card popular fade-in fade-in-delay-1">
+          <div class="popular-label">⭐ 人気 No.1</div>
+          <div class="price-plan">Standard</div>
+          <div class="price-amount"><span class="yen">¥</span>980<span class="per">/月</span></div>
+          <div class="price-desc">初月 ¥490（50%OFF）</div>
+          <ul class="price-features">
+            <li><span class="ic">✓</span> コミュニティ閲覧</li>
+            <li><span class="ic">✓</span> プロフィール作成</li>
+            <li><span class="ic">✓</span> 月3回イベント参加</li>
+            <li><span class="ic">✓</span> グループチャット無制限</li>
+            <li><span class="ic">✓</span> 旅ログ無制限保存</li>
+            <li class="off"><span class="ic">—</span> 優先席予約</li>
+          </ul>
+          <button class="btn-price btn-price-fill">今すぐ始める</button>
+        </div>
+        <div class="price-card fade-in fade-in-delay-2">
+          <div class="price-plan">Premium</div>
+          <div class="price-amount"><span class="yen">¥</span>2,480<span class="per">/月</span></div>
+          <div class="price-desc">すべての機能が使い放題</div>
+          <ul class="price-features">
+            <li><span class="ic">✓</span> コミュニティ閲覧</li>
+            <li><span class="ic">✓</span> プロフィール作成</li>
+            <li><span class="ic">✓</span> イベント参加無制限</li>
+            <li><span class="ic">✓</span> グループチャット無制限</li>
+            <li><span class="ic">✓</span> 旅ログ無制限保存</li>
+            <li><span class="ic">✓</span> 優先席予約</li>
+          </ul>
+          <button class="btn-price btn-price-ghost">Premiumにする</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" style="background: var(--bg);">
+    <div class="section-inner text-center">
+      <div class="section-chip fade-in">FAQ</div>
+      <h2 class="section-title fade-in fade-in-delay-1">よくある質問</h2>
+      <div class="faq-container">
+        <div class="faq-box fade-in">
+          <button class="faq-trigger" onclick="toggleFAQ3(this)">
+            <span>CineTripは誰でも参加できますか？</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-panel">
+            <div class="faq-panel-inner">はい、映画が好きな方であれば年齢・性別問わずご参加いただけます。初めての方向けの入門イベントも定期的に開催しています。</div>
+          </div>
+        </div>
+        <div class="faq-box fade-in fade-in-delay-1">
+          <button class="faq-trigger" onclick="toggleFAQ3(this)">
+            <span>イベントの参加費はプランに含まれますか？</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-panel">
+            <div class="faq-panel-inner">月間参加回数はプランによって異なります。宿泊を伴うイベントは別途宿泊費（実費）が必要ですが、会場設営・上映・一部食事はプランに含まれます。</div>
+          </div>
+        </div>
+        <div class="faq-box fade-in fade-in-delay-2">
+          <button class="faq-trigger" onclick="toggleFAQ3(this)">
+            <span>一人参加でも楽しめますか？</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-panel">
+            <div class="faq-panel-inner">もちろんです！参加者の約70%が一人参加です。事前マッチング機能で仲間を見つけたり、当日のグループ紹介で自然と打ち解けることができます。</div>
+          </div>
+        </div>
+        <div class="faq-box fade-in fade-in-delay-3">
+          <button class="faq-trigger" onclick="toggleFAQ3(this)">
+            <span>どんなジャンルの映画が上映されますか？</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-panel">
+            <div class="faq-panel-inner">邦画・洋画・インディーズ・ドキュメンタリーなど幅広いジャンルを取り扱っています。参加者リクエストも反映し、毎月テーマを変えて開催しています。</div>
+          </div>
+        </div>
+        <div class="faq-box fade-in fade-in-delay-4">
+          <button class="faq-trigger" onclick="toggleFAQ3(this)">
+            <span>プランはいつでも変更・解約できますか？</span>
+            <span class="faq-plus">+</span>
+          </button>
+          <div class="faq-panel">
+            <div class="faq-panel-inner">アップグレードはいつでも即時反映されます。ダウングレード・解約は月末締めで翌月から反映。解約後も無料プランとしてアカウントを保持できます。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo-text">CineTrip</div>
+          <p class="footer-tagline">映画好きのためのリトリートコミュニティ。<br>温泉地・古民家・野外など非日常の場所で<br>映画仲間と鑑賞・語らい・旅をするプラットフォーム。</p>
+        </div>
+        <div class="footer-cols">
+          <div class="footer-col">
+            <h5>サービス</h5>
+            <ul>
+              <li><a href="#">機能紹介</a></li>
+              <li><a href="#">イベント一覧</a></li>
+              <li><a href="#">料金プラン</a></li>
+              <li><a href="#">コミュニティ</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h5>会社情報</h5>
+            <ul>
+              <li><a href="#">About Us</a></li>
+              <li><a href="#">採用情報</a></li>
+              <li><a href="#">プレスキット</a></li>
+              <li><a href="#">お問い合わせ</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h5>フォロー</h5>
+            <ul>
+              <li><a href="#">Twitter / X</a></li>
+              <li><a href="#">Instagram</a></li>
+              <li><a href="#">note</a></li>
+              <li><a href="#">YouTube</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2026 CineTrip. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="#">利用規約</a>
+          <a href="#">プライバシーポリシー</a>
+          <a href="#">特定商取引法</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Intersection Observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // FAQ toggle
+    function toggleFAQ3(btn) {
+      const box = btn.closest('.faq-box');
+      const panel = box.querySelector('.faq-panel');
+      const isOpen = box.classList.contains('open');
+      document.querySelectorAll('.faq-box').forEach(b => {
+        b.classList.remove('open');
+        b.querySelector('.faq-panel').style.maxHeight = '0';
+      });
+      if (!isOpen) {
+        box.classList.add('open');
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+      }
+    }
+  </script>
+</body>
+</html>
