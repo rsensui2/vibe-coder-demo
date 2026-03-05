@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZeroKoku - Demo Portfolio</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#fff; color:#111; font-family:-apple-system,'Noto Sans JP',sans-serif; }
+  .hero { background:linear-gradient(135deg,#0A0E1A,#0D1530); color:#fff; padding:80px 40px; text-align:center; }
+  .hero-badge { display:inline-block; background:rgba(0,212,255,0.15); border:1px solid rgba(0,212,255,0.4); color:#00D4FF; padding:4px 16px; border-radius:20px; font-size:13px; margin-bottom:16px; }
+  .hero h1 { font-size:3rem; font-weight:900; margin-bottom:12px; }
+  .hero h1 span { color:#00D4FF; }
+  .hero p { font-size:1.1rem; color:rgba(255,255,255,0.7); max-width:600px; margin:0 auto 32px; }
+  .hero-stats { display:flex; gap:48px; justify-content:center; flex-wrap:wrap; }
+  .stat { text-align:center; }
+  .stat-n { font-size:2rem; font-weight:900; color:#00D4FF; }
+  .stat-l { font-size:0.8rem; color:rgba(255,255,255,0.5); }
+
+  .container { max-width:1200px; margin:0 auto; padding:60px 40px; }
+  h2 { font-size:1.8rem; font-weight:900; margin-bottom:32px; padding-bottom:12px; border-bottom:3px solid #0A0E1A; }
+
+  /* LP Section */
+  .lp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-bottom:60px; }
+  .lp-card { border-radius:16px; overflow:hidden; border:1px solid #eee; transition:all 0.3s; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+  .lp-card:hover { transform:translateY(-4px); box-shadow:0 8px 32px rgba(0,0,0,0.1); }
+  .lp-card img { width:100%; height:200px; object-fit:cover; cursor:pointer; }
+  .lp-card-body { padding:16px; }
+  .lp-tag { font-size:11px; font-weight:700; letter-spacing:2px; color:#888; margin-bottom:6px; }
+  .lp-title { font-size:1rem; font-weight:700; margin-bottom:12px; }
+  .lp-link { display:inline-block; background:#0A0E1A; color:#fff; padding:8px 20px; border-radius:8px; font-size:0.85rem; text-decoration:none; }
+
+  /* Mock */
+  .mock-section { margin-bottom:60px; }
+  .mock-preview { display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:center; }
+  .mock-img { border-radius:16px; overflow:hidden; border:1px solid #eee; cursor:pointer; box-shadow:0 8px 32px rgba(0,0,0,0.1); }
+  .mock-img img { width:100%; display:block; }
+  .mock-desc h3 { font-size:1.3rem; font-weight:700; margin-bottom:12px; }
+  .mock-desc p { color:#555; line-height:1.7; margin-bottom:20px; }
+  .mock-link { display:inline-block; background:#0A0E1A; color:#fff; padding:12px 28px; border-radius:10px; text-decoration:none; font-weight:600; }
+
+  /* Slides */
+  .slides-section { margin-bottom:60px; }
+  .slide-cover-wrap { display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:center; }
+  .slide-img { border-radius:12px; overflow:hidden; cursor:pointer; box-shadow:0 8px 32px rgba(0,0,0,0.1); }
+  .slide-img img { width:100%; display:block; }
+  .slide-downloads { display:flex; gap:12px; margin-top:16px; }
+  .dl-btn { padding:10px 20px; border-radius:8px; text-decoration:none; font-size:0.9rem; font-weight:600; }
+  .dl-pptx { background:#0A0E1A; color:#fff; }
+  .dl-pdf { background:#00D4FF; color:#fff; }
+
+  /* Media */
+  .media-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:60px; }
+  .media-card { border:1px solid #eee; border-radius:16px; overflow:hidden; }
+  .media-card-header { background:#0A0E1A; color:#fff; padding:16px 20px; display:flex; align-items:center; gap:10px; }
+  .media-card-body { padding:20px; }
+  video, audio { width:100%; border-radius:8px; }
+
+  /* IG */
+  .ig-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:60px; }
+  .ig-item { aspect-ratio:1; overflow:hidden; border-radius:8px; background:#f0f0f0; cursor:pointer; }
+  .ig-item img { width:100%; height:100%; object-fit:cover; transition:transform 0.3s; }
+  .ig-item:hover img { transform:scale(1.05); }
+
+  /* Docs */
+  .docs-list { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:60px; }
+  .doc-card { border:1px solid #eee; border-radius:12px; padding:20px; }
+  .doc-icon { font-size:2rem; margin-bottom:10px; }
+  .doc-title { font-size:0.95rem; font-weight:700; color:#111; }
+
+  /* Modal */
+  #modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:9999; align-items:center; justify-content:center; }
+  #modal.open { display:flex; }
+  #modal img { max-width:92vw; max-height:88vh; border-radius:8px; object-fit:contain; }
+  #modal-close { position:absolute; top:20px; right:24px; background:none; border:none; color:#fff; font-size:2.5rem; cursor:pointer; }
+
+  @media(max-width:768px) {
+    .lp-grid,.mock-preview,.slide-cover-wrap,.media-grid,.ig-grid,.docs-list { grid-template-columns:1fr; }
+    .ig-grid { grid-template-columns:repeat(3,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">🤖 Vibe Coder Bootcamp デモ</div>
+  <h1><span>Zero</span>Koku</h1>
+  <p>AIが確定申告を全自動化。レシート撮影からe-Tax提出まで、たったの12分。</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-n">12分</div><div class="stat-l">平均完了時間</div></div>
+    <div class="stat"><div class="stat-n">94%</div><div class="stat-l">時間削減</div></div>
+    <div class="stat"><div class="stat-n">+¥28,000</div><div class="stat-l">平均節税額</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <h2>🖥️ LP 3パターン</h2>
+  <div class="lp-grid">
+    <div class="lp-card">
+      <img src="screenshots/lp_pattern1.png" alt="LP Pattern 1" onclick="openModal('screenshots/lp_pattern1.png')">
+      <div class="lp-card-body">
+        <div class="lp-tag">PATTERN 1</div>
+        <div class="lp-title">ダーク×シアン（テック系）</div>
+        <a href="lp/pattern1_modern.html" target="_blank" class="lp-link">開く →</a>
+      </div>
+    </div>
+    <div class="lp-card">
+      <img src="screenshots/lp_pattern2.png" alt="LP Pattern 2" onclick="openModal('screenshots/lp_pattern2.png')">
+      <div class="lp-card-body">
+        <div class="lp-tag">PATTERN 2</div>
+        <div class="lp-title">ライト×ゴールド（高級感）</div>
+        <a href="lp/pattern2_premium.html" target="_blank" class="lp-link">開く →</a>
+      </div>
+    </div>
+    <div class="lp-card">
+      <img src="screenshots/lp_pattern3.png" alt="LP Pattern 3" onclick="openModal('screenshots/lp_pattern3.png')">
+      <div class="lp-card-body">
+        <div class="lp-tag">PATTERN 3</div>
+        <div class="lp-title">グリーン×カジュアル</div>
+        <a href="lp/pattern3_casual.html" target="_blank" class="lp-link">開く →</a>
+      </div>
+    </div>
+  </div>
+
+  <h2>📱 モックアプリ</h2>
+  <div class="mock-section">
+    <div class="mock-preview">
+      <div class="mock-img">
+        <img src="screenshots/mock_app.png" alt="App Mock" onclick="openModal('screenshots/mock_app.png')">
+      </div>
+      <div class="mock-desc">
+        <h3>ZeroKoku スマホアプリ</h3>
+        <p>iPhoneフレーム付きのインタラクティブモック。ホーム・スキャン・収支サマリー・AI税務相談・申告の5画面をタブで切り替えできます。</p>
+        <a href="mock/app_mock.html" target="_blank" class="mock-link">モックを開く →</a>
+      </div>
+    </div>
+  </div>
+
+  <h2>📊 プレゼンスライド</h2>
+  <div class="slides-section">
+    <div class="slide-cover-wrap">
+      <div class="slide-img">
+        <img src="slides/slides_output/20260305_201720/images/slide_01.png" alt="Slide Cover" onclick="openModal('slides/slides_output/20260305_201720/images/slide_01.png')">
+      </div>
+      <div>
+        <h3 style="font-size:1.3rem;font-weight:700;margin-bottom:12px">ZeroKoku プレゼン資料（7枚）</h3>
+        <p style="color:#555;line-height:1.7;margin-bottom:20px">表紙・課題・解決策・時間短縮・機能・料金・CTAの7枚構成。Gemini 3.1 Flash Image APIで2K解像度生成。</p>
+        <div class="slide-downloads">
+          <a href="slides/ZeroKoku.pptx" download class="dl-btn dl-pptx">⬇ PPTX</a>
+          <a href="slides/ZeroKoku.pdf" download class="dl-btn dl-pdf">⬇ PDF</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>🎬 動画CM / 🎙️ 音声ラジオ</h2>
+  <div class="media-grid">
+    <div class="media-card">
+      <div class="media-card-header">🎬 プロモ動画（30秒）</div>
+      <div class="media-card-body">
+        <video controls src="video/promo.mp4"></video>
+      </div>
+    </div>
+    <div class="media-card">
+      <div class="media-card-header">🎙️ 音声ラジオ（CM）</div>
+      <div class="media-card-body" style="padding-top:40px">
+        <audio controls src="audio/intro.mp3"></audio>
+        <p style="color:#888;font-size:0.85rem;margin-top:12px">Edge TTS (ja-JP-NanamiNeural) で生成</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>📸 Instagram 図解 10枚</h2>
+  <div class="ig-grid">
+  </div>
+
+  <h2>📄 企画書 5本</h2>
+  <div class="docs-list">
+    <div class="doc-card"><div class="doc-icon">📋</div><div class="doc-title">01. エグゼクティブサマリー</div></div>
+    <div class="doc-card"><div class="doc-icon">⚙️</div><div class="doc-title">02. プロダクト仕様書</div></div>
+    <div class="doc-card"><div class="doc-icon">💰</div><div class="doc-title">03. ビジネスプラン</div></div>
+    <div class="doc-card"><div class="doc-icon">📊</div><div class="doc-title">04. 市場分析</div></div>
+    <div class="doc-card"><div class="doc-icon">🔍</div><div class="doc-title">05. マーケットリサーチ</div></div>
+  </div>
+
+</div>
+
+<div id="modal" onclick="closeModal()">
+  <button id="modal-close" onclick="closeModal()">✕</button>
+  <img id="modal-img" src="">
+</div>
+<script>
+function openModal(src){ document.getElementById('modal-img').src=src; document.getElementById('modal').classList.add('open'); }
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+</script>
+
+<footer style="background:#0A0E1A;color:rgba(255,255,255,0.4);text-align:center;padding:24px;font-size:0.85rem">
+  © 2026 ZeroKoku Demo — Generated by Vibe Coder Bootcamp AI Demo System
+</footer>
+</body>
+</html>
