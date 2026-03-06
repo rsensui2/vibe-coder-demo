@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAMORIO PLUS App Mock</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1A1A2E;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, 'Noto Sans JP', sans-serif;
+  }
+  
+  /* iPhone Frame */
+  .iphone {
+    width: 390px;
+    background: #0A0E1A;
+    border-radius: 54px;
+    border: 3px solid #2A2A3E;
+    box-shadow: 0 0 80px rgba(0,212,255,0.15), inset 0 0 20px rgba(0,0,0,0.5);
+    overflow: hidden;
+    position: relative;
+  }
+  
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 12px; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 34px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+  }
+  
+  /* Status Bar */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 56px 24px 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+  }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  
+  /* App Header */
+  .app-header {
+    padding: 8px 20px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .app-title { font-size: 28px; font-weight: 800; color: #00D4FF; }
+  .header-icon {
+    width: 36px; height: 36px;
+    background: rgba(0,212,255,0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  
+  /* Screen Content */
+  .screen { display: none; padding: 0 16px; min-height: 580px; }
+  .screen.active { display: block; }
+  
+  /* ====== HOME SCREEN ====== */
+  /* AI Alert */
+  .ai-alert {
+    background: linear-gradient(135deg, rgba(255,107,53,0.25), rgba(255,107,53,0.1));
+    border: 1px solid rgba(255,107,53,0.4);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ai-alert-icon { font-size: 24px; }
+  .ai-alert-text { flex: 1; }
+  .ai-alert-title { font-size: 13px; font-weight: 700; color: #FF6B35; margin-bottom: 2px; }
+  .ai-alert-desc { font-size: 12px; color: rgba(255,255,255,0.7); }
+  
+  /* Item Cards */
+  .section-title { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+  .items-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .item-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .item-icon {
+    width: 44px; height: 44px;
+    background: rgba(0,212,255,0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .item-info { flex: 1; }
+  .item-name { font-size: 15px; font-weight: 600; color: #E8F4FE; margin-bottom: 3px; }
+  .item-status { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .item-status.near { color: #43D685; }
+  .item-status.far { color: #FFA500; }
+  .item-signal {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .item-signal.connected { background: rgba(67,214,133,0.2); color: #43D685; }
+  .item-signal.away { background: rgba(255,165,0,0.2); color: #FFA500; }
+  
+  /* Mini Map */
+  .mini-map {
+    background: rgba(255,255,255,0.04);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 20px;
+  }
+  .map-area {
+    background: linear-gradient(135deg, #0F1C35, #162040);
+    border-radius: 10px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .map-dot {
+    width: 12px; height: 12px;
+    background: #00D4FF;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #00D4FF;
+    position: absolute;
+    left: 35%; top: 40%;
+  }
+  .map-dot::after {
+    content: '';
+    position: absolute;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,212,255,0.3);
+    top: -10px; left: -10px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { to { transform: scale(2); opacity: 0; } }
+  .home-dot {
+    width: 10px; height: 10px;
+    background: #43D685;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #43D685;
+    position: absolute;
+    left: 55%; top: 55%;
+  }
+  .map-label { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 8px; text-align: center; }
+  
+  /* ====== FIND SCREEN ====== */
+  .compass-container { text-align: center; padding: 20px 0; }
+  .selected-item {
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .selected-icon { font-size: 28px; }
+  .selected-name { font-size: 16px; font-weight: 700; color: #E8F4FE; }
+  .selected-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+  
+  /* UWB Compass */
+  .compass {
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,212,255,0.3);
+    margin: 0 auto 16px;
+    position: relative;
+    background: radial-gradient(circle, rgba(0,212,255,0.05) 0%, transparent 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .compass-ring {
+    position: absolute;
+    inset: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,212,255,0.15);
+  }
+  .compass-ring2 {
+    position: absolute;
+    inset: 30px;
+    border-radius: 50%;
+    border: 1px dashed rgba(0,212,255,0.1);
+  }
+  .compass-arrow {
+    width: 4px; height: 80px;
+    background: linear-gradient(to top, transparent, #00D4FF);
+    border-radius: 4px;
+    transform-origin: bottom center;
+    transform: rotate(-35deg);
+    position: absolute;
+    bottom: 50%;
+    left: calc(50% - 2px);
+    box-shadow: 0 0 10px #00D4FF;
+  }
+  .compass-center {
+    width: 16px; height: 16px;
+    background: #00D4FF;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #00D4FF;
+    z-index: 2;
+  }
+  .distance-display {
+    font-size: 52px; font-weight: 900;
+    color: #00D4FF;
+    text-shadow: 0 0 20px rgba(0,212,255,0.5);
+  }
+  .distance-display span { font-size: 24px; }
+  .distance-label { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 20px; }
+  .uwb-badge {
+    display: inline-block;
+    background: rgba(0,212,255,0.15);
+    color: #00D4FF;
+    font-size: 12px; font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,212,255,0.3);
+  }
+  
+  /* ====== HISTORY SCREEN ====== */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px; top: 0; bottom: 0;
+    width: 2px;
+    background: rgba(0,212,255,0.2);
+  }
+  .timeline-item { position: relative; margin-bottom: 20px; }
+  .timeline-dot {
+    position: absolute;
+    left: -20px; top: 4px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: #00D4FF;
+    box-shadow: 0 0 6px #00D4FF;
+  }
+  .timeline-time { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+  .timeline-place { font-size: 15px; font-weight: 600; color: #E8F4FE; }
+  .timeline-item-list { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+  
+  /* ====== SETTINGS SCREEN ====== */
+  .setting-group { margin-bottom: 20px; }
+  .setting-group-title { font-size: 12px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; padding: 0 4px; }
+  .setting-item {
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .setting-left { display: flex; align-items: center; gap: 12px; }
+  .setting-icon {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .setting-name { font-size: 14px; font-weight: 600; color: #E8F4FE; }
+  .setting-sub { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .toggle {
+    width: 44px; height: 26px;
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+  }
+  .toggle.on { background: #43D685; }
+  .toggle.off { background: rgba(255,255,255,0.15); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 22px; height: 22px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    transition: left 0.2s;
+  }
+  .toggle.on::after { left: 20px; }
+  .toggle.off::after { left: 2px; }
+  .status-connected { font-size: 12px; color: #43D685; font-weight: 600; }
+  .status-off { font-size: 12px; color: rgba(255,255,255,0.3); font-weight: 600; }
+  
+  /* ====== PREMIUM SCREEN ====== */
+  .premium-hero {
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(67,170,139,0.1));
+    border-radius: 20px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0,212,255,0.2);
+  }
+  .premium-icon { font-size: 48px; margin-bottom: 8px; }
+  .premium-title { font-size: 20px; font-weight: 800; color: #00D4FF; margin-bottom: 4px; }
+  .premium-price-big { font-size: 36px; font-weight: 900; color: #E8F4FE; }
+  .premium-price-big span { font-size: 18px; color: rgba(255,255,255,0.6); }
+  .feature-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .feature-row:last-child { border-bottom: none; }
+  .feature-row-icon { font-size: 22px; }
+  .feature-row-text { flex: 1; }
+  .feature-row-name { font-size: 14px; font-weight: 600; color: #E8F4FE; }
+  .feature-row-desc { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .feature-check { font-size: 18px; color: #43D685; }
+  .upgrade-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #00D4FF, #43AA8B);
+    color: #0A0E1A;
+    border: none;
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 16px;
+    box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+  }
+  
+  /* Bottom Nav */
+  .bottom-nav {
+    display: flex;
+    background: rgba(10,14,26,0.98);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 10px 0 20px;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 6px 0;
+    border: none;
+    background: none;
+  }
+  .nav-icon { font-size: 22px; }
+  .nav-label { font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 600; }
+  .nav-item.active .nav-label { color: #00D4FF; }
+  .nav-item.active .nav-icon { filter: drop-shadow(0 0 4px #00D4FF); }
+</style>
+</head>
+<body>
+
+<div class="iphone">
+  <!-- Dynamic Island -->
+  <div class="dynamic-island"></div>
+  
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-icons">
+      <span>●●●</span>
+      <span>WiFi</span>
+      <span>🔋</span>
+    </div>
+  </div>
+  
+  <!-- App Header -->
+  <div class="app-header">
+    <div class="app-title">MAMORIO+</div>
+    <div class="header-icon">🔔</div>
+  </div>
+  
+  <!-- Screen: Home -->
+  <div class="screen active" id="screen-home">
+    <div class="ai-alert">
+      <div class="ai-alert-icon">⚠️</div>
+      <div class="ai-alert-text">
+        <div class="ai-alert-title">AI予測アラート</div>
+        <div class="ai-alert-desc">明日の月曜朝、財布を忘れる可能性が高いです</div>
+      </div>
+    </div>
+    
+    <div class="section-title">登録アイテム</div>
+    <div class="items-list">
+      <div class="item-card">
+        <div class="item-icon">👜</div>
+        <div class="item-info">
+          <div class="item-name">通勤バッグ</div>
+          <div class="item-status near">📍 近く（2m以内）</div>
+        </div>
+        <div class="item-signal connected">接続中</div>
+      </div>
+      <div class="item-card">
+        <div class="item-icon">💳</div>
+        <div class="item-info">
+          <div class="item-name">財布</div>
+          <div class="item-status near">📍 近く（2m以内）</div>
+        </div>
+        <div class="item-signal connected">接続中</div>
+      </div>
+      <div class="item-card">
+        <div class="item-icon">🔑</div>
+        <div class="item-info">
+          <div class="item-name">自宅の鍵</div>
+          <div class="item-status">🏠 自宅付近</div>
+        </div>
+        <div class="item-signal connected">接続中</div>
+      </div>
+      <div class="item-card">
+        <div class="item-icon">🧳</div>
+        <div class="item-info">
+          <div class="item-name">スーツケース</div>
+          <div class="item-status far">📍 200m先</div>
+        </div>
+        <div class="item-signal away">圏外</div>
+      </div>
+    </div>
+    
+    <div class="section-title">最終確認位置</div>
+    <div class="mini-map">
+      <div class="map-area">
+        <div class="map-dot"></div>
+        <div class="home-dot"></div>
+        <svg style="position:absolute;width:100%;height:100%;opacity:0.2" viewBox="0 0 300 100">
+          <line x1="0" y1="50" x2="300" y2="50" stroke="#00D4FF" stroke-width="0.5"/>
+          <line x1="150" y1="0" x2="150" y2="100" stroke="#00D4FF" stroke-width="0.5"/>
+        </svg>
+      </div>
+      <div class="map-label">● 財布の最終確認位置（08:34）</div>
+    </div>
+  </div>
+  
+  <!-- Screen: Find -->
+  <div class="screen" id="screen-find">
+    <div class="selected-item">
+      <div class="selected-icon">💳</div>
+      <div>
+        <div class="selected-name">財布</div>
+        <div class="selected-sub">UWBで精密測位中...</div>
+      </div>
+    </div>
+    
+    <div class="compass-container">
+      <div class="compass">
+        <div class="compass-ring"></div>
+        <div class="compass-ring2"></div>
+        <div class="compass-arrow"></div>
+        <div class="compass-center"></div>
+      </div>
+      <div class="distance-display">1.2<span>m</span></div>
+      <div class="distance-label">右前方 / 精度 ±10cm</div>
+      <div class="uwb-badge">🎯 UWB精密測位</div>
+    </div>
+    
+    <div style="margin-top: 20px; background: rgba(255,255,255,0.04); border-radius: 14px; padding: 14px 16px;">
+      <div style="font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 8px;">候補エリア</div>
+      <div style="font-size: 14px; color: #E8F4FE;">📍 リビングのソファ付近</div>
+    </div>
+  </div>
+  
+  <!-- Screen: History -->
+  <div class="screen" id="screen-history">
+    <div class="section-title" style="margin-bottom:16px;">本日の移動履歴</div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:#43D685;box-shadow:0 0 6px #43D685;"></div>
+        <div class="timeline-time">08:45</div>
+        <div class="timeline-place">🏠 自宅を出発</div>
+        <div class="timeline-item-list">財布 ✓ 鍵 ✓ カバン ✓</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-time">09:12</div>
+        <div class="timeline-place">🚉 渋谷駅</div>
+        <div class="timeline-item-list">MAMORIO Spot で自動記録</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-time">09:35</div>
+        <div class="timeline-place">🏢 オフィス着</div>
+        <div class="timeline-item-list">財布 ✓ 鍵 ✓ カバン ✓</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-time">12:20</div>
+        <div class="timeline-place">☕ カフェ（丸の内）</div>
+        <div class="timeline-item-list">財布 ✓ スマートフォン ✓</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:#00D4FF;box-shadow:0 0 6px #00D4FF;"></div>
+        <div class="timeline-time">18:02 現在</div>
+        <div class="timeline-place">🏠 帰宅中</div>
+        <div class="timeline-item-list">全アイテム確認済み</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Screen: Settings -->
+  <div class="screen" id="screen-settings">
+    <div class="setting-group">
+      <div class="setting-group-title">スマートホーム連携</div>
+      <div class="setting-item">
+        <div class="setting-left">
+          <div class="setting-icon" style="background:rgba(0,212,255,0.15);">🌡️</div>
+          <div>
+            <div class="setting-name">Nature Remo</div>
+            <div class="setting-sub">玄関ドア連携</div>
+          </div>
+        </div>
+        <div class="status-connected">接続中</div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-left">
+          <div class="setting-icon" style="background:rgba(67,214,133,0.15);">🤖</div>
+          <div>
+            <div class="setting-name">SwitchBot</div>
+            <div class="setting-sub">スマートロック連携</div>
+          </div>
+        </div>
+        <div class="status-off">未接続</div>
+      </div>
+    </div>
+    
+    <div class="setting-group">
+      <div class="setting-group-title">AI機能</div>
+      <div class="setting-item">
+        <div class="setting-left">
+          <div class="setting-icon" style="background:rgba(255,107,53,0.15);">🤖</div>
+          <div>
+            <div class="setting-name">AI忘れ物予測</div>
+            <div class="setting-sub">行動パターンを学習</div>
+          </div>
+        </div>
+        <div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"></div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-left">
+          <div class="setting-icon" style="background:rgba(0,212,255,0.15);">📍</div>
+          <div>
+            <div class="setting-name">場所ベースアラート</div>
+            <div class="setting-sub">自宅・会社・駅を自動認識</div>
+          </div>
+        </div>
+        <div class="toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off');"></div>
+      </div>
+    </div>
+    
+    <div class="setting-group">
+      <div class="setting-group-title">アカウント</div>
+      <div class="setting-item">
+        <div class="setting-left">
+          <div class="setting-icon" style="background:rgba(0,212,255,0.15);">👨‍👩‍👧</div>
+          <div>
+            <div class="setting-name">ファミリー共有</div>
+            <div class="setting-sub">2名と共有中</div>
+          </div>
+        </div>
+        <span style="color:rgba(255,255,255,0.3);font-size:18px;">›</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Screen: Premium -->
+  <div class="screen" id="screen-premium">
+    <div class="premium-hero">
+      <div class="premium-icon">⭐</div>
+      <div class="premium-title">プレミアムプラン</div>
+      <div class="premium-price-big">¥380<span>/月</span></div>
+    </div>
+    
+    <div class="feature-row">
+      <div class="feature-row-icon">🎯</div>
+      <div class="feature-row-text">
+        <div class="feature-row-name">UWB精密測位</div>
+        <div class="feature-row-desc">10cm単位のコンパスナビゲーション</div>
+      </div>
+      <div class="feature-check">✓</div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-row-icon">🤖</div>
+      <div class="feature-row-text">
+        <div class="feature-row-name">AI忘れ物予測</div>
+        <div class="feature-row-desc">行動パターン学習で事前警告</div>
+      </div>
+      <div class="feature-check">✓</div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-row-icon">📊</div>
+      <div class="feature-row-text">
+        <div class="feature-row-name">無制限の履歴</div>
+        <div class="feature-row-desc">1年間の移動履歴を保存</div>
+      </div>
+      <div class="feature-check">✓</div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-row-icon">🏠</div>
+      <div class="feature-row-text">
+        <div class="feature-row-name">スマートホーム連携</div>
+        <div class="feature-row-desc">Nature Remo / SwitchBot対応</div>
+      </div>
+      <div class="feature-check">✓</div>
+    </div>
+    
+    <button class="upgrade-btn" onclick="alert('プレミアムプランに登録しますか？\n月額¥380（税込）')">
+      🌟 今すぐアップグレード
+    </button>
+  </div>
+  
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <button class="nav-item active" id="btn-home" onclick="switchScreen('home')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">ホーム</span>
+    </button>
+    <button class="nav-item" id="btn-find" onclick="switchScreen('find')">
+      <span class="nav-icon">🎯</span>
+      <span class="nav-label">探す</span>
+    </button>
+    <button class="nav-item" id="btn-history" onclick="switchScreen('history')">
+      <span class="nav-icon">📍</span>
+      <span class="nav-label">履歴</span>
+    </button>
+    <button class="nav-item" id="btn-settings" onclick="switchScreen('settings')">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">設定</span>
+    </button>
+    <button class="nav-item" id="btn-premium" onclick="switchScreen('premium')">
+      <span class="nav-icon">⭐</span>
+      <span class="nav-label">Premium</span>
+    </button>
+  </div>
+</div>
+
+<script>
+function switchScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('btn-' + name).classList.add('active');
+}
+</script>
+</body>
+</html>

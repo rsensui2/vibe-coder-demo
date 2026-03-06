@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAMORIO PLUS - なくすを、なくす。もっと確かに。</title>
+<style>
+  :root {
+    --bg: #0A0E1A;
+    --bg2: #0F1629;
+    --bg3: #141D35;
+    --cyan: #00D4FF;
+    --cyan-dim: rgba(0,212,255,0.15);
+    --orange: #FF6B35;
+    --white: #FFFFFF;
+    --gray: #8892A4;
+    --light: #C8D6E5;
+    --card-bg: rgba(255,255,255,0.04);
+    --border: rgba(0,212,255,0.2);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--white); font-family: 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif; line-height: 1.7; overflow-x: hidden; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,14,26,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .nav-logo { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: var(--cyan); }
+  .nav-logo span { color: var(--orange); }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a { color: var(--gray); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--cyan); }
+  .nav-cta { background: var(--cyan); color: var(--bg); padding: 8px 22px; border-radius: 24px; font-weight: 700; font-size: 14px; text-decoration: none; transition: opacity 0.2s; }
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* HERO */
+  .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 120px 40px 80px; text-align: center; }
+  .hero-waves { position: absolute; inset: 0; overflow: hidden; opacity: 0.18; }
+  .wave { position: absolute; border-radius: 50%; border: 1px solid var(--cyan); animation: pulse 6s ease-in-out infinite; }
+  .wave:nth-child(1) { width: 300px; height: 300px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 0s; }
+  .wave:nth-child(2) { width: 500px; height: 500px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 1s; }
+  .wave:nth-child(3) { width: 700px; height: 700px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 2s; }
+  .wave:nth-child(4) { width: 900px; height: 900px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 3s; }
+  .wave:nth-child(5) { width: 1100px; height: 1100px; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: 4s; }
+  @keyframes pulse { 0%,100% { opacity: 0.3; transform: translate(-50%,-50%) scale(1); } 50% { opacity: 0.05; transform: translate(-50%,-50%) scale(1.05); } }
+  .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px); background-size: 60px 60px; }
+  .hero-content { position: relative; z-index: 2; max-width: 900px; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--cyan-dim); border: 1px solid var(--border); border-radius: 24px; padding: 6px 18px; font-size: 13px; color: var(--cyan); margin-bottom: 32px; }
+  .hero-badge::before { content: ''; width: 8px; height: 8px; background: var(--cyan); border-radius: 50%; animation: blink 1.5s infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+  h1 { font-size: clamp(40px, 7vw, 80px); font-weight: 900; line-height: 1.15; margin-bottom: 12px; }
+  h1 .highlight { color: var(--cyan); }
+  h1 .accent { color: var(--orange); }
+  .hero-sub { font-size: clamp(16px, 2.5vw, 22px); color: var(--gray); margin: 24px 0 40px; max-width: 600px; margin-left: auto; margin-right: auto; }
+  .hero-cta-group { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary { background: linear-gradient(135deg, var(--cyan), #0099BB); color: var(--bg); padding: 16px 40px; border-radius: 50px; font-size: 18px; font-weight: 800; text-decoration: none; display: inline-block; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 0 30px rgba(0,212,255,0.4); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(0,212,255,0.6); }
+  .btn-secondary { border: 2px solid var(--cyan); color: var(--cyan); padding: 14px 36px; border-radius: 50px; font-size: 16px; font-weight: 700; text-decoration: none; display: inline-block; transition: background 0.2s; }
+  .btn-secondary:hover { background: var(--cyan-dim); }
+  .hero-stats { display: flex; gap: 48px; justify-content: center; margin-top: 64px; flex-wrap: wrap; }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 36px; font-weight: 900; color: var(--cyan); display: block; }
+  .stat-label { font-size: 13px; color: var(--gray); margin-top: 4px; }
+
+  /* SECTION BASE */
+  section { padding: 100px 40px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .section-tag { display: inline-block; background: var(--cyan-dim); border: 1px solid var(--border); color: var(--cyan); font-size: 12px; font-weight: 700; letter-spacing: 2px; padding: 4px 14px; border-radius: 4px; margin-bottom: 16px; text-transform: uppercase; }
+  .section-title { font-size: clamp(28px, 4vw, 48px); font-weight: 900; margin-bottom: 16px; }
+  .section-desc { color: var(--gray); font-size: 17px; max-width: 600px; }
+
+  /* PROBLEM */
+  .problem { background: var(--bg2); }
+  .problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 60px; }
+  .problem-card { background: var(--card-bg); border: 1px solid rgba(255,107,53,0.2); border-radius: 16px; padding: 36px 28px; position: relative; overflow: hidden; }
+  .problem-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--orange), transparent); }
+  .problem-icon { font-size: 40px; margin-bottom: 16px; display: block; }
+  .problem-num { font-size: 42px; font-weight: 900; color: var(--orange); display: block; }
+  .problem-text { color: var(--light); font-size: 15px; margin-top: 8px; }
+
+  /* SOLUTION */
+  .solution-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; margin-top: 60px; }
+  @media (max-width: 768px) { .solution-intro { grid-template-columns: 1fr; gap: 40px; } }
+  .solution-visual { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 48px; text-align: center; position: relative; }
+  .solution-visual-inner { width: 120px; height: 120px; background: linear-gradient(135deg, var(--cyan), #0066AA); border-radius: 28px; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; font-size: 52px; box-shadow: 0 0 60px rgba(0,212,255,0.3); }
+  .solution-visual-label { font-size: 22px; font-weight: 800; color: var(--cyan); }
+  .solution-visual-sub { color: var(--gray); font-size: 14px; margin-top: 8px; }
+  .solution-points { display: flex; flex-direction: column; gap: 24px; }
+  .point { display: flex; gap: 20px; align-items: flex-start; }
+  .point-icon { width: 48px; height: 48px; background: var(--cyan-dim); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .point-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .point-text { color: var(--gray); font-size: 14px; }
+
+  /* FEATURES */
+  .features { background: var(--bg3); }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-top: 60px; }
+  .feature-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 36px 28px; transition: border-color 0.3s, transform 0.3s; }
+  .feature-card:hover { border-color: var(--cyan); transform: translateY(-4px); }
+  .feature-icon { font-size: 36px; margin-bottom: 16px; display: block; }
+  .feature-title { font-size: 18px; font-weight: 800; margin-bottom: 12px; color: var(--cyan); }
+  .feature-text { color: var(--gray); font-size: 14px; line-height: 1.8; }
+  .feature-tag { display: inline-block; background: rgba(255,107,53,0.15); color: var(--orange); font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 10px; margin-top: 14px; }
+
+  /* PRICING */
+  .pricing { background: var(--bg2); }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-top: 60px; }
+  .plan-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 40px 32px; position: relative; transition: transform 0.3s; }
+  .plan-card:hover { transform: translateY(-4px); }
+  .plan-card.featured { border-color: var(--cyan); background: rgba(0,212,255,0.06); }
+  .plan-badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--cyan); color: var(--bg); font-size: 12px; font-weight: 800; padding: 4px 20px; border-radius: 20px; white-space: nowrap; }
+  .plan-name { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--gray); text-transform: uppercase; }
+  .plan-price { font-size: 48px; font-weight: 900; margin: 12px 0 4px; color: var(--white); }
+  .plan-price span { font-size: 18px; font-weight: 400; color: var(--gray); }
+  .plan-desc { color: var(--gray); font-size: 14px; margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .plan-features li { font-size: 14px; color: var(--light); display: flex; gap: 10px; align-items: flex-start; }
+  .plan-features li::before { content: '✓'; color: var(--cyan); font-weight: 900; flex-shrink: 0; margin-top: 1px; }
+  .plan-cta { display: block; text-align: center; margin-top: 32px; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; text-decoration: none; transition: opacity 0.2s; }
+  .plan-card.featured .plan-cta { background: var(--cyan); color: var(--bg); }
+  .plan-card:not(.featured) .plan-cta { border: 1px solid var(--border); color: var(--light); }
+  .plan-card:not(.featured) .plan-cta:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  /* FAQ */
+  .faq { background: var(--bg); }
+  .faq-list { margin-top: 60px; display: flex; flex-direction: column; gap: 16px; max-width: 800px; }
+  .faq-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .faq-q { padding: 24px 28px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .faq-q::after { content: '+'; font-size: 24px; color: var(--cyan); font-weight: 300; flex-shrink: 0; }
+  .faq-a { padding: 0 28px 24px; color: var(--gray); font-size: 14px; line-height: 1.9; }
+
+  /* FOOTER */
+  footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 60px 40px 40px; }
+  .footer-inner { max-width: 1100px; margin: 0 auto; }
+  .footer-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 40px; margin-bottom: 48px; }
+  .footer-brand { font-size: 22px; font-weight: 800; color: var(--cyan); letter-spacing: 2px; }
+  .footer-brand span { color: var(--orange); }
+  .footer-brand p { font-size: 13px; color: var(--gray); margin-top: 8px; font-weight: 400; }
+  .footer-links { display: flex; gap: 48px; flex-wrap: wrap; }
+  .footer-col h4 { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 16px; letter-spacing: 1px; }
+  .footer-col a { display: block; color: var(--gray); text-decoration: none; font-size: 13px; margin-bottom: 10px; transition: color 0.2s; }
+  .footer-col a:hover { color: var(--cyan); }
+  .footer-bottom { border-top: 1px solid var(--border); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-copy { font-size: 12px; color: var(--gray); }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    section { padding: 70px 20px; }
+    .hero { padding: 100px 20px 60px; }
+    footer { padding: 40px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">MAMORIO<span>+</span></div>
+  <div class="nav-links">
+    <a href="#problem">課題</a>
+    <a href="#solution">特長</a>
+    <a href="#features">機能</a>
+    <a href="#pricing">料金</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a href="#pricing" class="nav-cta">今すぐ始める</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-grid"></div>
+  <div class="hero-waves">
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">UWB精密測位 × AI予測 × スマートホーム連携</div>
+    <h1>
+      なくすを、<span class="highlight">なくす</span>。<br>
+      もっと<span class="accent">確か</span>に。
+    </h1>
+    <p class="hero-sub">MAMORIO PLUSは次世代の紛失防止プラットフォーム。<br>UWB精密測位とAIが、大切なものを徹底的に守ります。</p>
+    <div class="hero-cta-group">
+      <a href="#pricing" class="btn-primary">無料で始める →</a>
+      <a href="#features" class="btn-secondary">詳しく見る</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><span class="stat-num">2,500万</span><span class="stat-label">年間忘れ物件数（日本）</span></div>
+      <div class="stat-item"><span class="stat-num">10cm</span><span class="stat-label">UWB精密測位精度</span></div>
+      <div class="stat-item"><span class="stat-num">99.8%</span><span class="stat-label">発見率（PLUSユーザー）</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="container">
+    <span class="section-tag">Problem</span>
+    <h2 class="section-title">日本人が直面する<br>忘れ物問題の実態</h2>
+    <p class="section-desc">年間2,500万件以上の忘れ物が報告される日本。あなたの大切なものは、今どこにありますか？</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <span class="problem-icon">📦</span>
+        <span class="problem-num">2,500万件</span>
+        <p class="problem-text">年間に報告される忘れ物・紛失物の件数。実際はこの数倍が泣き寝入りになっています。</p>
+      </div>
+      <div class="problem-card">
+        <span class="problem-icon">🔁</span>
+        <span class="problem-num">73%</span>
+        <p class="problem-text">月1回以上「何かをなくした」経験がある人の割合。多くは同じことを繰り返しています。</p>
+      </div>
+      <div class="problem-card">
+        <span class="problem-icon">💸</span>
+        <span class="problem-num">¥34,000</span>
+        <p class="problem-text">紛失による年間平均損失額（再購入・手続き・時間コスト含む）。意外と大きな出費です。</p>
+      </div>
+      <div class="problem-card">
+        <span class="problem-icon">⏱️</span>
+        <span class="problem-num">150時間</span>
+        <p class="problem-text">探し物に費やす年間平均時間。この時間、あなたはもっと大切なことに使えるはずです。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section id="solution" style="background: var(--bg);">
+  <div class="container">
+    <span class="section-tag">Solution</span>
+    <h2 class="section-title">MAMORIO PLUSが解決する</h2>
+    <p class="section-desc">テクノロジーとコミュニティの力で、紛失ゼロの世界を実現します。</p>
+    <div class="solution-intro">
+      <div class="solution-visual">
+        <div class="solution-visual-inner">📡</div>
+        <div class="solution-visual-label">MAMORIO PLUS</div>
+        <div class="solution-visual-sub">次世代紛失防止プラットフォーム</div>
+        <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--cyan);">📍 UWB精度: ±10cm</div>
+          <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--cyan);">🤖 AI予測: 忘れる前に通知</div>
+          <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--cyan);">🏠 スマートホーム連携: 自動化</div>
+          <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--cyan);">👥 コミュニティ: 全国ネットワーク</div>
+        </div>
+      </div>
+      <div class="solution-points">
+        <div class="point">
+          <div class="point-icon">📡</div>
+          <div>
+            <div class="point-title">UWB精密測位</div>
+            <div class="point-text">Ultra-Wideband技術で±10cm以内の精度で位置を特定。鍵が「ソファの左奥」まで分かります。従来のBLE比で10倍以上の精度を実現。</div>
+          </div>
+        </div>
+        <div class="point">
+          <div class="point-icon">🤖</div>
+          <div>
+            <div class="point-title">AI行動予測エンジン</div>
+            <div class="point-text">あなたの行動パターンをAIが学習。「いつもの外出時間に鍵を持っていない」と予測し、玄関前で事前通知。なくす前に防ぎます。</div>
+          </div>
+        </div>
+        <div class="point">
+          <div class="point-icon">🏠</div>
+          <div>
+            <div class="point-title">スマートホーム完全連携</div>
+            <div class="point-text">Matter/Thread対応。「帰宅時に財布を置いた場所を記録」「出発5分前にアラート」など、スマートホームと深く統合されたシームレスな体験。</div>
+          </div>
+        </div>
+        <div class="point">
+          <div class="point-icon">👥</div>
+          <div>
+            <div class="point-title">全国コミュニティネットワーク</div>
+            <div class="point-text">MAMORIOユーザー全員が探索に参加。電車・街中でタグを検出した他のユーザーが自動的に位置情報を共有。全国規模で探し物を追跡。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="container">
+    <span class="section-tag">Features</span>
+    <h2 class="section-title">主要機能</h2>
+    <p class="section-desc">MAMORIO PLUSが持つ4つの核心機能。すべてがシームレスに連携します。</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🎯</span>
+        <div class="feature-title">UWB精密測位</div>
+        <p class="feature-text">Ultra-Widebandテクノロジーによる±10cm精度の屋内測位。従来のBLEやGPSでは不可能だった精度で、家具の裏・バッグの中まで正確に場所を特定します。</p>
+        <span class="feature-tag">NEW TECH</span>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🧠</span>
+        <div class="feature-title">AI予測通知</div>
+        <p class="feature-text">機械学習があなたの行動パターンを分析。「毎朝8時に外出するのに鍵の位置が把握できていない」を検知し、出発前に自動アラート。忘れる前に防ぎます。</p>
+        <span class="feature-tag">AI POWERED</span>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🏡</span>
+        <div class="feature-title">スマートホーム連携</div>
+        <p class="feature-text">Amazon Alexa、Google Home、Apple HomeKit、Matterプロトコルに対応。「おはよう」と声をかければ今日の持ち物チェック完了。生活に溶け込む使いやすさ。</p>
+        <span class="feature-tag">MATTER対応</span>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🌐</span>
+        <div class="feature-title">全国探索ネットワーク</div>
+        <p class="feature-text">国内最大級のMAMORIOユーザーネットワーク。街を歩く他のユーザーのスマートフォンがタグを検出し、リアルタイムで位置情報をオーナーに通知。プライバシーは完全匿名。</p>
+        <span class="feature-tag">COMMUNITY</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <span class="section-tag">Pricing</span>
+    <h2 class="section-title">シンプルな料金プラン</h2>
+    <p class="section-desc">ライフスタイルに合わせて選べる4つのプラン。まずは無料で試してみてください。</p>
+    <div class="pricing-grid">
+      <div class="plan-card">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">¥3,980<span>/月</span></div>
+        <p class="plan-desc">個人利用に最適な基本プラン。大切なものを1つから守ります。</p>
+        <ul class="plan-features">
+          <li>タグ1個付属</li>
+          <li>UWB精密測位</li>
+          <li>全国コミュニティ探索</li>
+          <li>スマートフォンアプリ</li>
+          <li>メール通知</li>
+        </ul>
+        <a href="#" class="plan-cta">始める</a>
+      </div>
+      <div class="plan-card featured">
+        <div class="plan-badge">🔥 一番人気</div>
+        <div class="plan-name">Family</div>
+        <div class="plan-price">¥14,800<span>/月</span></div>
+        <p class="plan-desc">家族全員の大切なものを守る。ファミリー向け最強プラン。</p>
+        <ul class="plan-features">
+          <li>タグ6個付属</li>
+          <li>家族5人まで共有</li>
+          <li>UWB精密測位</li>
+          <li>AI予測通知</li>
+          <li>スマートホーム連携</li>
+          <li>リアルタイムマップ</li>
+          <li>優先サポート</li>
+        </ul>
+        <a href="#" class="plan-cta">今すぐ始める</a>
+      </div>
+      <div class="plan-card">
+        <div class="plan-name">Business</div>
+        <div class="plan-price">¥2,500<span>/個/月</span></div>
+        <p class="plan-desc">法人・チーム向け。社員証・社用品・機材管理に。</p>
+        <ul class="plan-features">
+          <li>タグ個数無制限</li>
+          <li>管理ダッシュボード</li>
+          <li>アカウント一元管理</li>
+          <li>API連携</li>
+          <li>専任サポート担当</li>
+          <li>請求書払い対応</li>
+        </ul>
+        <a href="#" class="plan-cta">お問い合わせ</a>
+      </div>
+      <div class="plan-card">
+        <div class="plan-name">Premium Add-on</div>
+        <div class="plan-price">+¥380<span>/月</span></div>
+        <p class="plan-desc">どのプランにも追加できるプレミアムオプション機能。</p>
+        <ul class="plan-features">
+          <li>AI予測エンジン強化</li>
+          <li>高精度マッピング</li>
+          <li>履歴90日保存</li>
+          <li>カスタムアラート設定</li>
+          <li>クラウドバックアップ</li>
+        </ul>
+        <a href="#" class="plan-cta">追加する</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <span class="section-tag">FAQ</span>
+    <h2 class="section-title">よくある質問</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">UWBとBluetooth（BLE）の違いは何ですか？</div>
+        <div class="faq-a">BLEは電波強度による大まかな距離測定（誤差1〜3m）を行いますが、UWB（Ultra-Wideband）は超広帯域の電波パルスを使った精密な時間差計測により±10cmレベルの精度を実現します。「机の上のどこか」ではなく「右端の引き出しの中」まで分かるのがUWBの特徴です。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">プライバシーは守られますか？コミュニティ機能は不安です。</div>
+        <div class="faq-a">コミュニティネットワークは完全匿名で動作します。他のMAMORIOユーザーのスマートフォンがタグを検出した場合、「検出した」という事実と位置情報のみが暗号化されてサーバーを経由し、タグのオーナーに通知されます。検出したユーザーも、タグのオーナーも、互いの個人情報は一切知ることができません。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">スマートホームデバイスを持っていなくても使えますか？</div>
+        <div class="faq-a">はい、もちろんです。スマートホーム連携はオプション機能です。スマートフォンのアプリだけでも、UWB精密測位・AI予測通知・コミュニティネットワークの全機能を利用できます。スマートホーム連携は後から追加することも可能です。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">タグの電池はどのくらい持ちますか？</div>
+        <div class="faq-a">MAMORIO PLUSタグは省電力設計により、通常使用で約1年間電池が持続します。電池残量はアプリからリアルタイムで確認でき、残量が20%を下回ると自動通知します。電池は一般的なCR2032コイン電池で、コンビニでも入手可能です。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Familyプランで家族で使う場合、子供のスマートフォンも必要ですか？</div>
+        <div class="faq-a">子供のスマートフォンがなくても利用できます。タグはスマートフォンに紐付けするのではなく、MAMORIOアカウントに紐付けします。ファミリーアカウント内の全員のデバイスから、すべてのタグの位置を確認できます。お子様のランドセルにタグを付けて、親のスマートフォンから位置確認する使い方が人気です。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        MAMORIO<span>+</span>
+        <p>なくすを、なくす。もっと確かに。</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>プロダクト</h4>
+          <a href="#">機能一覧</a>
+          <a href="#">料金プラン</a>
+          <a href="#">ダウンロード</a>
+          <a href="#">ロードマップ</a>
+        </div>
+        <div class="footer-col">
+          <h4>サポート</h4>
+          <a href="#">ヘルプセンター</a>
+          <a href="#">お問い合わせ</a>
+          <a href="#">よくある質問</a>
+          <a href="#">APIドキュメント</a>
+        </div>
+        <div class="footer-col">
+          <h4>会社情報</h4>
+          <a href="#">会社概要</a>
+          <a href="#">採用情報</a>
+          <a href="#">プレスリリース</a>
+          <a href="#">プライバシーポリシー</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 MAMORIO PLUS. All rights reserved.</span>
+      <span class="footer-copy">Made with ❤️ in Japan</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
