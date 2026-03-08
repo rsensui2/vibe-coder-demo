@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScheduleSync - スマートな日程調整</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --bg: #FAFAFA; --surface: #FFFFFF; --primary: #2563EB; --accent: #F59E0B; --text: #111827; --subtext: #6B7280; --border: #E5E7EB; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', 'Noto Sans JP', sans-serif; overflow-x: hidden; }
+  nav { position: sticky; top: 0; z-index: 100; padding: 16px 64px; display: flex; align-items: center; justify-content: space-between; background: rgba(250,250,250,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+  .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+  .logo-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { color: var(--subtext); text-decoration: none; font-size: 14px; font-weight: 500; }
+  .nav-cta { background: var(--primary); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .hero { padding: 96px 64px 80px; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 100px; padding: 5px 14px; font-size: 12px; color: var(--primary); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 24px; }
+  h1 { font-size: 56px; font-weight: 900; line-height: 1.1; margin-bottom: 20px; letter-spacing: -0.02em; }
+  h1 .hl { color: var(--primary); }
+  .hero-sub { font-size: 18px; color: var(--subtext); line-height: 1.7; margin-bottom: 40px; }
+  .cta-group { display: flex; gap: 12px; }
+  .btn-p { background: var(--primary); color: #fff; border: none; padding: 14px 32px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+  .btn-s { background: #fff; color: var(--text); border: 1px solid var(--border); padding: 14px 32px; border-radius: 10px; font-size: 15px; cursor: pointer; }
+  .hero-trust { display: flex; align-items: center; gap: 16px; margin-top: 32px; font-size: 13px; color: var(--subtext); }
+  .trust-avatars { display: flex; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); border: 2px solid #fff; margin-left: -8px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; }
+  .avatar:first-child { margin-left: 0; }
+  .hero-visual { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.08); }
+  .chat-interface { display: flex; flex-direction: column; gap: 12px; }
+  .chat-msg { display: flex; align-items: flex-start; gap: 12px; }
+  .chat-msg.user { flex-direction: row-reverse; }
+  .chat-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #60A5FA); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .ai-avatar { background: linear-gradient(135deg, #10B981, #34D399); }
+  .chat-bubble { padding: 10px 16px; border-radius: 16px; font-size: 13px; max-width: 240px; }
+  .chat-msg:not(.user) .chat-bubble { background: #F3F4F6; color: var(--text); border-bottom-left-radius: 4px; }
+  .chat-msg.user .chat-bubble { background: var(--primary); color: #fff; border-bottom-right-radius: 4px; }
+  .ai-response { background: linear-gradient(135deg, #EFF6FF, #DBEAFE); border: 1px solid #BFDBFE; border-radius: 12px; padding: 16px; margin-top: 8px; }
+  .ai-title { font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+  .time-slot { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #fff; border-radius: 8px; margin-bottom: 6px; font-size: 13px; border: 1px solid #DBEAFE; }
+  .slot-time { font-weight: 600; color: var(--text); }
+  .slot-badge { background: var(--primary); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
+  .slot-badge.best { background: var(--accent); color: #fff; }
+  .stats-bar { display: flex; justify-content: space-between; padding: 20px 0; border-top: 1px solid var(--border); margin-top: 20px; }
+  .stat { text-align: center; }
+  .stat-n { font-size: 24px; font-weight: 800; color: var(--primary); }
+  .stat-l { font-size: 11px; color: var(--subtext); margin-top: 4px; }
+  .sec { padding: 80px 64px; max-width: 1200px; margin: 0 auto; }
+  .sec-label { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; }
+  .sec-title { font-size: 40px; font-weight: 800; margin-bottom: 16px; }
+  .sec-sub { font-size: 17px; color: var(--subtext); line-height: 1.7; max-width: 480px; margin-bottom: 56px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; transition: all 0.3s; }
+  .card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); border-color: #BFDBFE; }
+  .card-icon { font-size: 32px; margin-bottom: 16px; }
+  .card-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+  .card-desc { font-size: 14px; color: var(--subtext); line-height: 1.6; }
+  .prob-num { font-size: 48px; font-weight: 900; color: var(--primary); opacity: 0.15; margin-bottom: 12px; }
+  .steps-h { display: flex; gap: 0; align-items: flex-start; margin-top: 40px; }
+  .step { flex: 1; text-align: center; padding: 0 20px; }
+  .step-n { width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; margin: 0 auto 20px; }
+  .step-t { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .step-d { font-size: 13px; color: var(--subtext); line-height: 1.6; }
+  .pricing-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; }
+  .pricing-header { background: linear-gradient(135deg, var(--primary), #3B82F6); padding: 32px 40px; color: #fff; }
+  .pricing-header h3 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+  .pricing-header p { font-size: 14px; opacity: 0.85; }
+  .pricing-body { padding: 32px 40px; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+  .p-col { padding: 24px; border-right: 1px solid var(--border); }
+  .p-col:last-child { border-right: none; }
+  .p-col.best { background: linear-gradient(135deg, #EFF6FF, #DBEAFE); }
+  .p-plan { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--subtext); margin-bottom: 12px; }
+  .p-price { font-size: 36px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
+  .p-price sub { font-size: 14px; color: var(--subtext); }
+  .p-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+  .p-list li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--subtext); }
+  .p-list li::before { content: '✓'; color: #10B981; font-weight: 700; }
+  .p-btn-l { width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; background: var(--primary); color: #fff; border: none; margin-top: 16px; }
+  .p-btn-o { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .p-best-badge { display: inline-flex; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 100px; margin-bottom: 12px; }
+  .faq-list { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-q { padding: 20px 24px; font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+  .faq-q::after { content: '+'; color: var(--primary); font-size: 20px; }
+  .faq-a { padding: 0 24px 20px; font-size: 14px; color: var(--subtext); line-height: 1.7; }
+  .cta-section { background: linear-gradient(135deg, var(--primary), #1D4ED8); padding: 80px 64px; text-align: center; }
+  .cta-section h2 { font-size: 40px; font-weight: 800; color: #fff; margin-bottom: 16px; }
+  .cta-section p { font-size: 17px; color: rgba(255,255,255,0.8); margin-bottom: 40px; }
+  .cta-btn { background: var(--accent); color: var(--text); border: none; padding: 16px 48px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  footer { background: var(--text); color: rgba(255,255,255,0.6); padding: 40px 64px; text-align: center; }
+  .footer-logo { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 12px; }
+  .footer-copy { font-size: 13px; }
+  @media (max-width: 768px) { .hero { grid-template-columns: 1fr; padding: 64px 24px; } h1 { font-size: 38px; } .grid-3 { grid-template-columns: 1fr; } .steps-h { flex-direction: column; align-items: center; gap: 24px; } .pricing-grid { grid-template-columns: 1fr; } nav { padding: 14px 20px; } .nav-links { display: none; } .sec { padding: 56px 24px; } .cta-section { padding: 56px 24px; } }
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo"><div class="logo-dot"></div>ScheduleSync</div>
+  <ul class="nav-links"><li><a href="#features">機能</a></li><li><a href="#pricing">料金</a></li><li><a href="#faq">FAQ</a></li></ul>
+  <button class="nav-cta">無料で始める</button>
+</nav>
+
+<div class="hero">
+  <div>
+    <div class="hero-badge">AI SCHEDULING</div>
+    <h1>日程調整を<br><span class="hl">3秒で</span><br>終わらせる</h1>
+    <p class="hero-sub">「来週の午後に打ち合わせしたい」と入力するだけ。AIが全員のカレンダーを読んで、最適な時間を即座に提案します。</p>
+    <div class="cta-group">
+      <button class="btn-p">無料で始める →</button>
+      <button class="btn-s">デモを見る</button>
+    </div>
+    <div class="hero-trust">
+      <div class="trust-avatars">
+        <div class="avatar">田</div><div class="avatar">鈴</div><div class="avatar">山</div><div class="avatar">佐</div>
+      </div>
+      <span>1.2万チームが導入済み · 調整時間94%削減</span>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="chat-interface">
+      <div class="chat-msg user"><div class="chat-avatar">田</div><div class="chat-bubble">来週の午後、田中さんと30分話したい</div></div>
+      <div class="chat-msg"><div class="chat-avatar ai-avatar">AI</div><div class="chat-bubble">空き時間を解析中です…</div></div>
+      <div class="ai-response">
+        <div class="ai-title">🎯 最適な候補を3件見つけました</div>
+        <div class="time-slot"><span class="slot-time">月曜 14:00〜14:30</span><span class="slot-badge best">最適</span></div>
+        <div class="time-slot"><span class="slot-time">火曜 15:00〜15:30</span><span class="slot-badge">候補</span></div>
+        <div class="time-slot"><span class="slot-time">水曜 13:30〜14:00</span><span class="slot-badge">候補</span></div>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-n">3秒</div><div class="stat-l">調整時間</div></div>
+      <div class="stat"><div class="stat-n">100%</div><div class="stat-l">自動化率</div></div>
+      <div class="stat"><div class="stat-n">全対応</div><div class="stat-l">カレンダー</div></div>
+    </div>
+  </div>
+</div>
+
+<div style="background: #F3F4F6; padding: 80px 64px;">
+<div class="sec" style="padding: 0;">
+  <div class="sec-label">PROBLEM</div>
+  <div class="sec-title">なぜ日程調整は<br>こんなに大変なのか</div>
+  <div class="sec-sub">メール、Slack、電話... 全員の都合が合うまで何往復も。この非生産的な作業を終わらせる時が来た。</div>
+  <div class="grid-3">
+    <div class="card"><div class="prob-num">8h</div><div class="card-title">年間8時間のロス</div><div class="card-desc">ビジネスパーソン1人あたり年間8時間。チーム全体では膨大な損失になる。</div></div>
+    <div class="card"><div class="prob-num">14</div><div class="card-title">14往復のやり取り</div><div class="card-desc">10人の会議調整に必要な平均コミュニケーション回数。全員の都合が合うまで続く。</div></div>
+    <div class="card"><div class="prob-num">3x</div><div class="card-title">リモート化で3倍増</div><div class="card-desc">在宅勤務が普及し、時差・タイムゾーン問題も加わり日程調整の難易度が急増。</div></div>
+  </div>
+</div>
+</div>
+
+<div class="sec">
+  <div class="sec-label">HOW IT WORKS</div>
+  <div class="sec-title">3ステップで日程が確定</div>
+  <div class="steps-h">
+    <div class="step"><div class="step-n">1</div><div class="step-t">自然言語で入力</div><div class="step-d">「来週午後に3人で1時間」と入力するだけ。フォームや選択不要。</div></div>
+    <div class="step"><div class="step-n">2</div><div class="step-t">AI解析・提案</div><div class="step-d">全カレンダーをリアルタイム解析し、最適候補を3件提示。</div></div>
+    <div class="step"><div class="step-n">3</div><div class="step-t">ワンクリックで確定</div><div class="step-d">承認するだけで全員のカレンダーに自動登録。完了。</div></div>
+  </div>
+</div>
+
+<div style="background: #F3F4F6; padding: 80px 64px;" id="features">
+<div class="sec" style="padding: 0;">
+  <div class="sec-label">FEATURES</div>
+  <div class="sec-title">これだけあれば十分</div>
+  <div class="grid-3">
+    <div class="card"><div class="card-icon">🤖</div><div class="card-title">AI自動最適化</div><div class="card-desc">参加者の行動パターンを学習。最も会議が成立しやすい時間帯を自動提案。</div></div>
+    <div class="card"><div class="card-icon">💬</div><div class="card-title">自然言語入力</div><div class="card-desc">日本語で話しかけるだけ。「3人で来週」のような曖昧な指定でも対応。</div></div>
+    <div class="card"><div class="card-icon">📅</div><div class="card-title">全カレンダー統合</div><div class="card-desc">Google・Outlook・Apple全てのカレンダーをリアルタイムで一括管理。</div></div>
+    <div class="card"><div class="card-icon">🏢</div><div class="card-title">会議室自動予約</div><div class="card-desc">空き会議室を検索・予約まで自動化。場所の手配も完全ノーストレス。</div></div>
+    <div class="card"><div class="card-icon">📋</div><div class="card-title">アジェンダ自動生成</div><div class="card-desc">会議の目的を入力するとAIが議題案を作成。準備の手間も大幅削減。</div></div>
+    <div class="card"><div class="card-icon">🌏</div><div class="card-title">タイムゾーン対応</div><div class="card-desc">海外メンバーとの調整も自動変換。時差計算は一切不要。</div></div>
+  </div>
+</div>
+</div>
+
+<div class="sec" id="pricing">
+  <div class="sec-label">PRICING</div>
+  <div class="sec-title">透明でシンプルな料金</div>
+  <div class="pricing-wrap">
+    <div class="pricing-header">
+      <h3>全プランに14日間無料トライアル付き</h3>
+      <p>クレジットカード不要。いつでもキャンセル可能。</p>
+    </div>
+    <div class="pricing-body">
+      <div class="pricing-grid">
+        <div class="p-col">
+          <div class="p-plan">FREE</div>
+          <div class="p-price">¥0<sub>/月</sub></div>
+          <ul class="p-list"><li>月5回の調整</li><li>1対1のみ</li><li>Googleカレンダー連携</li></ul>
+          <button class="p-btn-l p-btn-o" style="width:100%;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">無料で始める</button>
+        </div>
+        <div class="p-col best">
+          <div class="p-best-badge">人気No.1</div>
+          <div class="p-plan">PRO</div>
+          <div class="p-price">¥980<sub>/月</sub></div>
+          <ul class="p-list"><li>無制限の調整</li><li>最大10名対応</li><li>全カレンダー統合</li><li>AI優先最適化</li><li>アジェンダ生成</li></ul>
+          <button class="p-btn-l" style="width:100%;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">14日間無料で試す</button>
+        </div>
+        <div class="p-col">
+          <div class="p-plan">TEAM</div>
+          <div class="p-price">¥4,980<sub>/月〜</sub></div>
+          <ul class="p-list"><li>全機能無制限</li><li>会議室自動予約</li><li>Slack/Teams連携</li><li>SLA 99.9%</li><li>専任サポート</li></ul>
+          <button class="p-btn-l p-btn-o" style="width:100%;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">お問い合わせ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="background: #F3F4F6; padding: 80px 64px;" id="faq">
+<div class="sec" style="padding: 0;">
+  <div class="sec-label" style="text-align:center;">FAQ</div>
+  <div class="sec-title" style="text-align:center; margin-bottom:40px;">よくある質問</div>
+  <div class="faq-list">
+    <div class="faq-item"><div class="faq-q">社外の方との調整もできますか？</div><div class="faq-a">はい。相手がScheduleSyncユーザーでなくてもOK。専用URLを共有するだけで調整できます。</div></div>
+    <div class="faq-item"><div class="faq-q">既存のカレンダーアプリの乗り換えが必要ですか？</div><div class="faq-a">不要です。Google/Outlook/Appleカレンダーと連携して動作するため、今のツールはそのまま使えます。</div></div>
+    <div class="faq-item"><div class="faq-q">データのプライバシーは守られますか？</div><div class="faq-a">カレンダーへのアクセスは読み取り権限のみ。データはAES-256で暗号化し、国内サーバーで管理します。</div></div>
+    <div class="faq-item"><div class="faq-q">無料プランからの変更はいつでもできますか？</div><div class="faq-a">はい、いつでも変更可能です。差額は日割り計算されます。</div></div>
+    <div class="faq-item"><div class="faq-q">大企業向けのエンタープライズプランはありますか？</div><div class="faq-a">100名以上の場合、専用プランと専任サポートをご用意しています。お問い合わせください。</div></div>
+  </div>
+</div>
+</div>
+
+<div class="cta-section">
+  <h2>今日から日程調整を<br>やめよう。</h2>
+  <p>14日間無料。クレジットカード不要。いつでもキャンセル可能。</p>
+  <button class="cta-btn">今すぐ無料で始める →</button>
+</div>
+
+<footer>
+  <div class="footer-logo">ScheduleSync</div>
+  <p class="footer-copy">© 2026 ScheduleSync. All rights reserved. · Vibe Coder Bootcampデモ作品</p>
+</footer>
+</body>
+</html>

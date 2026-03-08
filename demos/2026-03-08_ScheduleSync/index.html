@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScheduleSync - Vibe Coder Bootcampデモ</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #fff; color: #111; font-family: 'Inter', 'Noto Sans JP', sans-serif; font-size: 17px; line-height: 1.7; }
+  nav { padding: 20px 48px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 100; }
+  .nav-logo { font-size: 18px; font-weight: 800; }
+  .nav-logo span { background: linear-gradient(135deg, #6C63FF, #00D9FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav-right { font-size: 13px; color: #6B7280; }
+  
+  .hero { padding: 64px 48px 48px; max-width: 900px; margin: 0 auto; }
+  .hero-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .tag { background: #F3F4F6; border-radius: 100px; padding: 4px 14px; font-size: 12px; font-weight: 600; color: #6B7280; }
+  .tag.vibe { background: #EFF6FF; color: #2563EB; }
+  h1 { font-size: 48px; font-weight: 900; line-height: 1.15; margin-bottom: 16px; letter-spacing: -0.02em; }
+  h1 .grad { background: linear-gradient(135deg, #6C63FF, #00D9FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero-desc { font-size: 18px; color: #6B7280; margin-bottom: 32px; max-width: 640px; }
+  
+  .status-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
+  .status-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #6B7280; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; }
+  .status-dot.orange { background: #F59E0B; }
+  
+  .cover-image { width: 100%; border-radius: 16px; overflow: hidden; border: 1px solid #E5E7EB; margin-bottom: 48px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+  .cover-image img { width: 100%; display: block; }
+  
+  section { max-width: 900px; margin: 0 auto; padding: 48px; border-top: 1px solid #E5E7EB; }
+  h2 { font-size: 24px; font-weight: 800; margin-bottom: 24px; }
+  
+  .lp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .lp-card { border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit; }
+  .lp-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+  .lp-card img { width: 100%; display: block; }
+  .lp-card-info { padding: 12px 14px; }
+  .lp-card-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .lp-card-desc { font-size: 12px; color: #9CA3AF; }
+  
+  .mock-wrap { display: flex; justify-content: center; }
+  .mock-frame { border: 1px solid #E5E7EB; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.08); max-width: 420px; width: 100%; }
+  .mock-frame img { width: 100%; display: block; }
+  .mock-link { display: block; text-align: center; margin-top: 16px; font-size: 13px; color: #2563EB; text-decoration: none; font-weight: 600; }
+  
+  .slides-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .slide-thumb { border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.2s; }
+  .slide-thumb:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+  .slide-thumb img { width: 100%; display: block; }
+  
+  .ig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .ig-item { border-radius: 10px; overflow: hidden; aspect-ratio: 1; cursor: pointer; }
+  .ig-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  
+  .media-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .media-card { border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; }
+  .media-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .media-card p { font-size: 13px; color: #9CA3AF; margin-bottom: 12px; }
+  .media-card a { display: inline-flex; align-items: center; gap: 6px; background: #111; color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; }
+  
+  .docs-list { display: flex; flex-direction: column; gap: 8px; }
+  .doc-item { border: 1px solid #E5E7EB; border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; }
+  .doc-title { font-size: 14px; font-weight: 600; }
+  .doc-tag { font-size: 12px; color: #9CA3AF; }
+  
+  footer { padding: 40px 48px; border-top: 1px solid #E5E7EB; text-align: center; font-size: 13px; color: #9CA3AF; }
+  footer a { color: #2563EB; text-decoration: none; }
+  
+  /* Modal */
+  #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; }
+  #modal.open { display: flex; }
+  #modal img { max-width: 90vw; max-height: 88vh; border-radius: 8px; object-fit: contain; }
+  #modal-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
+  
+  @media (max-width: 768px) { nav, .hero, section { padding-left: 20px; padding-right: 20px; } h1 { font-size: 32px; } .lp-grid, .slides-grid { grid-template-columns: 1fr 1fr; } .ig-grid { grid-template-columns: repeat(2, 1fr); } .media-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div id="modal" onclick="closeModal()">
+  <button id="modal-close">✕</button>
+  <img id="modal-img" src="">
+</div>
+
+<nav>
+  <div class="nav-logo"><span>ScheduleSync</span></div>
+  <div class="nav-right">Vibe Coder Bootcamp デモ</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tags">
+    <div class="tag">SaaS</div>
+    <div class="tag">AIスケジューリング</div>
+    <div class="tag vibe">Vibe Coding</div>
+    <div class="tag">2026-03-08</div>
+  </div>
+  <h1>もう、<span class="grad">調整しない。</span></h1>
+  <p class="hero-desc">AIが全員のカレンダーを読み込み、最適な「今すぐ会える時間」を瞬時に提案。日程調整という非生産的な往復をゼロにする、次世代スケジューリングサービス。</p>
+  <div class="status-bar">
+    <div class="status-item"><div class="status-dot"></div> LP × 3パターン</div>
+    <div class="status-item"><div class="status-dot"></div> モックアプリ</div>
+    <div class="status-item"><div class="status-dot"></div> スライド 9枚</div>
+    <div class="status-item"><div class="status-dot orange"></div> 動画CM（予定）</div>
+    <div class="status-item"><div class="status-dot"></div> 音声ラジオ</div>
+    <div class="status-item"><div class="status-dot"></div> IG画像 × 10枚</div>
+  </div>
+  <div class="cover-image">
+    <img src="slides/slides_output/20260308_214320/images/slide_01.png" alt="ScheduleSync スライド表紙" onerror="this.style.display='none'">
+  </div>
+</div>
+
+<section>
+  <h2>🖥️ LP 3パターン</h2>
+  <div class="lp-grid">
+    <a href="lp/pattern1_modern.html" class="lp-card" target="_blank">
+      <img src="screenshots/lp_pattern1.png" alt="Pattern 1" onclick="event.preventDefault(); openModal('screenshots/lp_pattern1.png')">
+      <div class="lp-card-info"><div class="lp-card-title">Pattern 1: Cyber Dark</div><div class="lp-card-desc">ダーク × パープル × シアン</div></div>
+    </a>
+    <a href="lp/pattern2_premium.html" class="lp-card" target="_blank">
+      <img src="screenshots/lp_pattern2.png" alt="Pattern 2" onclick="event.preventDefault(); openModal('screenshots/lp_pattern2.png')">
+      <div class="lp-card-info"><div class="lp-card-title">Pattern 2: Clean Pro</div><div class="lp-card-desc">ライト × ブルー × アンバー</div></div>
+    </a>
+    <a href="lp/pattern3_casual.html" class="lp-card" target="_blank">
+      <img src="screenshots/lp_pattern3.png" alt="Pattern 3" onclick="event.preventDefault(); openModal('screenshots/lp_pattern3.png')">
+      <div class="lp-card-info"><div class="lp-card-title">Pattern 3: Neon Pop</div><div class="lp-card-desc">ダーク × エメラルド × ピンク</div></div>
+    </a>
+  </div>
+</section>
+
+<section>
+  <h2>📱 モックアプリ</h2>
+  <div class="mock-wrap">
+    <div>
+      <div class="mock-frame">
+        <img src="screenshots/mock_app.png" alt="モックアプリ" onclick="openModal('screenshots/mock_app.png')">
+      </div>
+      <a class="mock-link" href="mock/app_mock.html" target="_blank">→ フルスクリーンで見る（5画面タブ切り替え）</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>📊 スライド（9枚）</h2>
+  <div class="slides-grid">
+    <div class="slide-thumb" onclick="openModal('slides/slides_output/20260308_214320/images/slide_01.png')"><img src="slides/slides_output/20260308_214320/images/slide_01.png" alt="スライド" onerror="this.parentElement.style.background='#F3F4F6'"></div>
+    <div class="slide-thumb" onclick="openModal('slides/slides_output/20260308_214320/images/slide_02.png')"><img src="slides/slides_output/20260308_214320/images/slide_02.png" alt="スライド" onerror="this.parentElement.style.background='#F3F4F6'"></div>
+    <div class="slide-thumb" onclick="openModal('slides/slides_output/20260308_214320/images/slide_03.png')"><img src="slides/slides_output/20260308_214320/images/slide_03.png" alt="スライド" onerror="this.parentElement.style.background='#F3F4F6'"></div>
+    <div class="slide-thumb" onclick="openModal('slides/slides_output/20260308_214320/images/slide_04.png')"><img src="slides/slides_output/20260308_214320/images/slide_04.png" alt="スライド" onerror="this.parentElement.style.background='#F3F4F6'"></div>
+    <div class="slide-thumb" onclick="openModal('slides/slides_output/20260308_214320/images/slide_05.png')"><img src="slides/slides_output/20260308_214320/images/slide_05.png" alt="スライド" onerror="this.parentElement.style.background='#F3F4F6'"></div>
+    <div class="slide-thumb" onclick="openModal('slides/slides_output/20260308_214320/images/slide_06.png')"><img src="slides/slides_output/20260308_214320/images/slide_06.png" alt="スライド" onerror="this.parentElement.style.background='#F3F4F6'"></div>
+    <div class="slide-thumb" onclick="openModal('slides/slides_output/20260308_214320/images/slide_07.png')"><img src="slides/slides_output/20260308_214320/images/slide_07.png" alt="スライド" onerror="this.parentElement.style.background='#F3F4F6'"></div>
+    <div class="slide-thumb" onclick="openModal('slides/slides_output/20260308_214320/images/slide_08.png')"><img src="slides/slides_output/20260308_214320/images/slide_08.png" alt="スライド" onerror="this.parentElement.style.background='#F3F4F6'"></div>
+    <div class="slide-thumb" onclick="openModal('slides/slides_output/20260308_214320/images/slide_09.png')"><img src="slides/slides_output/20260308_214320/images/slide_09.png" alt="スライド" onerror="this.parentElement.style.background='#F3F4F6'"></div>
+  </div>
+  <p style="margin-top: 16px; font-size: 13px; color: #9CA3AF;">
+    <a href="slides/ScheduleSync.pdf" style="color: #2563EB; font-weight: 600; text-decoration: none;">📄 PDFをダウンロード</a>
+    &nbsp;&nbsp;
+    <a href="slides/ScheduleSync.pptx" style="color: #2563EB; font-weight: 600; text-decoration: none;">📊 PPTXをダウンロード</a>
+  </p>
+</section>
+
+<section>
+  <h2>🎙️ 音声ラジオ</h2>
+  <div class="media-card" style="border-color: #E5E7EB;">
+    <h3>ScheduleSync イントロ</h3>
+    <p>約45秒のサービス紹介音声。Fish Audio APIで生成。</p>
+    <audio controls style="width:100%; margin-bottom:12px;">
+      <source src="audio/intro.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+</section>
+
+<section>
+  <h2>📸 Instagram図解 × 10枚</h2>
+  <div class="ig-grid">
+    <div class="ig-item" onclick="openModal('sns/instagram/ig_01_problem.png')"><img src="sns/instagram/ig_01_problem.png" alt="IG 1 - 課題" onerror="this.parentElement.style.background='#111'"></div>
+    <div class="ig-item" onclick="openModal('sns/instagram/ig_02_solution.png')"><img src="sns/instagram/ig_02_solution.png" alt="IG 2 - ソリューション" onerror="this.parentElement.style.background='#111'"></div>
+    <div class="ig-item" onclick="openModal('sns/instagram/ig_03_feature1.png')"><img src="sns/instagram/ig_03_feature1.png" alt="IG 3 - AI機能" onerror="this.parentElement.style.background='#111'"></div>
+    <div class="ig-item" onclick="openModal('sns/instagram/ig_04_feature2.png')"><img src="sns/instagram/ig_04_feature2.png" alt="IG 4 - 自然言語" onerror="this.parentElement.style.background='#111'"></div>
+    <div class="ig-item" onclick="openModal('sns/instagram/ig_05_feature3.png')"><img src="sns/instagram/ig_05_feature3.png" alt="IG 5 - カレンダー統合" onerror="this.parentElement.style.background='#111'"></div>
+    <div class="ig-item" onclick="openModal('sns/instagram/ig_06_comparison.png')"><img src="sns/instagram/ig_06_comparison.png" alt="IG 6 - 比較" onerror="this.parentElement.style.background='#111'"></div>
+    <div class="ig-item" onclick="openModal('sns/instagram/ig_07_pricing.png')"><img src="sns/instagram/ig_07_pricing.png" alt="IG 7 - 料金" onerror="this.parentElement.style.background='#111'"></div>
+    <div class="ig-item" onclick="openModal('sns/instagram/ig_08_usecase.png')"><img src="sns/instagram/ig_08_usecase.png" alt="IG 8 - ユーザー" onerror="this.parentElement.style.background='#111'"></div>
+    <div class="ig-item" onclick="openModal('sns/instagram/ig_09_vibecoding.png')"><img src="sns/instagram/ig_09_vibecoding.png" alt="IG 9 - Vibe Coding" onerror="this.parentElement.style.background='#111'"></div>
+    <div class="ig-item" onclick="openModal('sns/instagram/ig_10_cta.png')"><img src="sns/instagram/ig_10_cta.png" alt="IG 10 - CTA" onerror="this.parentElement.style.background='#111'"></div>
+  </div>
+</section>
+
+<section>
+  <h2>📄 企画ドキュメント（5本）</h2>
+  <div class="docs-list">
+    <div class="doc-item"><div class="doc-title">01 エグゼクティブサマリー</div><div class="doc-tag">概要 · ビジネスモデル</div></div>
+    <div class="doc-item"><div class="doc-title">02 プロダクトコンセプト</div><div class="doc-tag">差別化 · ターゲット</div></div>
+    <div class="doc-item"><div class="doc-title">03 ビジネスモデル</div><div class="doc-tag">収益 · ユニットエコノミクス</div></div>
+    <div class="doc-item"><div class="doc-title">04 Go-to-Market戦略</div><div class="doc-tag">マーケティング · 成長戦略</div></div>
+    <div class="doc-item"><div class="doc-title">05 市場調査</div><div class="doc-tag">TAM/SAM/SOM · 競合分析</div></div>
+  </div>
+</section>
+
+<footer>
+  <p>ScheduleSync デモ | <a href="https://vibe-coder-bootcamp.com">Vibe Coder Bootcamp</a> | 2026-03-08</p>
+  <p style="margin-top: 8px;">杉本さんのアイデアをVibe Codingで実現したデモ作品</p>
+</footer>
+
+<script>
+function openModal(src){ document.getElementById('modal-img').src=src; document.getElementById('modal').classList.add('open'); }
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>
