@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FocusFlow - 今日こそ、ちゃんとやれる。</title>
+<style>
+  :root {
+    --bg: #FFF9F0;
+    --mint: #E8F5E9;
+    --accent: #FF6B35;
+    --green: #4CAF50;
+    --purple: #7B61FF;
+    --text: #2D2D2D;
+    --text-muted: #6B6B6B;
+    --card: #FFFFFF;
+    --border: rgba(0,0,0,0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', 'Noto Sans JP', sans-serif; line-height: 1.7; }
+
+  nav { position: fixed; top: 0; width: 100%; z-index: 999; padding: 16px 40px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,249,240,0.95); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+  .logo { font-size: 22px; font-weight: 900; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .nav-links { display: flex; gap: 24px; list-style: none; }
+  .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; }
+  .nav-cta { padding: 10px 24px; background: var(--accent); border-radius: 100px; font-size: 14px; font-weight: 700; color: white; text-decoration: none; }
+
+  .hero { min-height: 100vh; display: flex; align-items: center; padding: 100px 60px 60px; max-width: 1200px; margin: 0 auto; gap: 80px; }
+  .hero-left { flex: 1; }
+  .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: #FFF0E8; border: 1px solid #FFD0B8; border-radius: 100px; padding: 8px 18px; font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 28px; }
+  .hero h1 { font-size: clamp(36px, 5vw, 60px); font-weight: 900; line-height: 1.15; margin-bottom: 20px; letter-spacing: -0.02em; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { font-size: 17px; color: var(--text-muted); margin-bottom: 40px; max-width: 440px; }
+  .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-main { padding: 16px 36px; background: var(--accent); border-radius: 100px; font-size: 15px; font-weight: 700; color: white; text-decoration: none; box-shadow: 0 8px 24px rgba(255,107,53,0.3); transition: all 0.3s; }
+  .btn-main:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255,107,53,0.4); }
+  .btn-ghost { padding: 16px 36px; border: 2px solid var(--border); border-radius: 100px; font-size: 15px; font-weight: 600; color: var(--text-muted); text-decoration: none; transition: all 0.3s; }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .hero-right { flex: 1; display: flex; justify-content: center; }
+  .app-card { background: white; border-radius: 28px; padding: 28px; box-shadow: 0 20px 80px rgba(0,0,0,0.12); width: 320px; border: 1px solid var(--border); }
+  .app-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .app-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--purple)); border-radius: 12px; }
+  .app-greeting { font-size: 13px; color: var(--text-muted); }
+  .app-name { font-size: 15px; font-weight: 700; }
+  .focus-card { background: linear-gradient(135deg, var(--accent), var(--purple)); border-radius: 20px; padding: 24px; color: white; margin-bottom: 16px; }
+  .focus-label { font-size: 11px; font-weight: 700; opacity: 0.8; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .focus-task-text { font-size: 18px; font-weight: 800; margin-bottom: 16px; }
+  .focus-time { font-size: 36px; font-weight: 900; }
+  .focus-sublabel { font-size: 11px; opacity: 0.7; }
+  .task-list { display: flex; flex-direction: column; gap: 8px; }
+  .task-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg); border-radius: 10px; font-size: 13px; }
+  .task-check { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; }
+  .task-check.done { background: var(--green); border-color: var(--green); display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; }
+  .task-text-done { color: var(--text-muted); text-decoration: line-through; }
+  .completion-badge { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding: 10px 14px; background: #E8F5E9; border-radius: 10px; font-size: 12px; font-weight: 600; color: var(--green); }
+  .hero-social-proof { margin-top: 40px; display: flex; align-items: center; gap: 16px; }
+  .avatar-stack { display: flex; }
+  .mini-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--purple)); border: 2px solid white; margin-left: -8px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .mini-avatar:first-child { margin-left: 0; }
+  .social-text { font-size: 13px; color: var(--text-muted); }
+  .social-text strong { color: var(--accent); }
+
+  .why-section { padding: 80px 60px; background: white; }
+  .why-inner { max-width: 1000px; margin: 0 auto; }
+  .section-eyebrow { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+  .section-title-casual { font-size: clamp(26px, 4vw, 40px); font-weight: 900; line-height: 1.2; margin-bottom: 16px; }
+  .section-desc-casual { font-size: 16px; color: var(--text-muted); max-width: 500px; margin-bottom: 48px; }
+  .why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .why-card { padding: 28px; border-radius: 20px; border: 1px solid var(--border); }
+  .why-card:nth-child(1) { background: #FFF5F0; }
+  .why-card:nth-child(2) { background: #F0F5FF; }
+  .why-card:nth-child(3) { background: #F0FFF4; }
+  .why-card:nth-child(4) { background: #FFF8F0; }
+  .why-emoji { font-size: 32px; margin-bottom: 12px; }
+  .why-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .why-text { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+  .features-section { padding: 80px 60px; }
+  .features-wrap { max-width: 1100px; margin: 0 auto; }
+  .features-flow { display: flex; flex-direction: column; gap: 60px; margin-top: 48px; }
+  .feature-row { display: flex; gap: 60px; align-items: center; }
+  .feature-row.reverse { flex-direction: row-reverse; }
+  .feature-visual { flex: 1; background: white; border-radius: 24px; padding: 40px; box-shadow: 0 8px 40px rgba(0,0,0,0.08); min-height: 220px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); }
+  .feature-info { flex: 1; }
+  .feature-number { font-size: 48px; font-weight: 900; color: rgba(0,0,0,0.06); margin-bottom: 8px; }
+  .feature-title-casual { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+  .feature-desc-casual { font-size: 16px; color: var(--text-muted); line-height: 1.8; }
+  .timer-demo { text-align: center; }
+  .timer-big { font-size: 56px; font-weight: 900; color: var(--accent); }
+  .timer-sub { font-size: 14px; color: var(--text-muted); }
+  .confetti-demo { text-align: center; font-size: 48px; }
+  .confetti-text { font-size: 20px; font-weight: 800; color: var(--green); margin-top: 8px; }
+  .block-demo { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+  .notif-blocked { padding: 10px 16px; background: #FFF0F0; border-radius: 10px; font-size: 13px; display: flex; align-items: center; gap: 8px; opacity: 0.4; text-decoration: line-through; }
+  .notif-passed { padding: 10px 16px; background: #F0FFF4; border-radius: 10px; font-size: 13px; display: flex; align-items: center; gap: 8px; border: 1px solid #C8E6C9; }
+
+  .pricing-section { padding: 80px 60px; background: linear-gradient(135deg, #FFF9F0, #FFF0F0); }
+  .pricing-wrap { max-width: 1000px; margin: 0 auto; }
+  .pricing-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
+  .pc { background: white; border-radius: 24px; padding: 32px; border: 2px solid transparent; transition: all 0.3s; }
+  .pc:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.1); }
+  .pc.hot { border-color: var(--accent); box-shadow: 0 8px 40px rgba(255,107,53,0.2); }
+  .pc-badge { background: var(--accent); color: white; font-size: 11px; font-weight: 700; padding: 3px 12px; border-radius: 100px; display: inline-block; margin-bottom: 12px; }
+  .pc-name { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .pc-price { font-size: 40px; font-weight: 900; margin-bottom: 4px; }
+  .pc-price small { font-size: 14px; color: var(--text-muted); font-weight: 400; }
+  .pc-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+  .pc-list { list-style: none; margin-bottom: 24px; }
+  .pc-list li { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .pc-list li span { color: var(--green); font-weight: 900; }
+  .pc-btn { display: block; padding: 12px; text-align: center; border-radius: 100px; font-size: 14px; font-weight: 700; text-decoration: none; }
+  .pc-btn-main { background: var(--accent); color: white; }
+  .pc-btn-sub { border: 2px solid var(--border); color: var(--text-muted); }
+
+  footer { padding: 48px; text-align: center; background: var(--text); color: white; }
+  footer .ft-logo { font-size: 24px; font-weight: 900; color: var(--accent); margin-bottom: 8px; }
+  footer p { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+  @media (max-width: 768px) {
+    nav, .hero, .why-section, .features-section, .pricing-section { padding-left: 24px; padding-right: 24px; }
+    .hero { flex-direction: column; padding-top: 90px; }
+    .feature-row, .feature-row.reverse { flex-direction: column; }
+    .pricing-cards { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><div class="logo-icon">🎯</div> FocusFlow</div>
+  <ul class="nav-links">
+    <li><a href="#why">なぜ？</a></li>
+    <li><a href="#features">機能</a></li>
+    <li><a href="#pricing">料金</a></li>
+  </ul>
+  <a href="#pricing" class="nav-cta">無料体験</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">🧠 ADHDの脳のために</div>
+    <h1>今日こそ、<span>ちゃんと</span><br>やれる。</h1>
+    <p>「また忘れた」は意志の弱さじゃない。脳の特性です。FocusFlowはあなたの脳に合わせて、タスク管理を根本から変えます。</p>
+    <div class="hero-btns">
+      <a href="#pricing" class="btn-main">🎯 無料で始める</a>
+      <a href="#features" class="btn-ghost">詳しく見る</a>
+    </div>
+    <div class="hero-social-proof">
+      <div class="avatar-stack">
+        <div class="mini-avatar">😊</div>
+        <div class="mini-avatar">🙂</div>
+        <div class="mini-avatar">😄</div>
+        <div class="mini-avatar">😀</div>
+      </div>
+      <div class="social-text"><strong>8,400人以上</strong>のADHDユーザーが毎日使用中</div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="app-card">
+      <div class="app-header">
+        <div class="app-avatar"></div>
+        <div><div class="app-greeting">おはよう ☀️</div><div class="app-name">今日のFocusタイム</div></div>
+      </div>
+      <div class="focus-card">
+        <div class="focus-label">🔥 今やること</div>
+        <div class="focus-task-text">プレゼン資料を<br>完成させる</div>
+        <div class="focus-time">02:14:33</div>
+        <div class="focus-sublabel">締め切りまで</div>
+      </div>
+      <div class="task-list">
+        <div class="task-item">
+          <div class="task-check done">✓</div>
+          <span class="task-text-done">朝のメールチェック</span>
+        </div>
+        <div class="task-item">
+          <div class="task-check done">✓</div>
+          <span class="task-text-done">チームMTG参加</span>
+        </div>
+        <div class="task-item">
+          <div class="task-check"></div>
+          <span>プレゼン資料完成</span>
+        </div>
+      </div>
+      <div class="completion-badge">✨ 今日2タスク完了！ ストリーク: 8日 🔥</div>
+    </div>
+  </div>
+</section>
+
+<section id="why" class="why-section">
+  <div class="why-inner">
+    <div class="section-eyebrow">Why FocusFlow?</div>
+    <h2 class="section-title-casual">普通のアプリが<br>効かない理由</h2>
+    <p class="section-desc-casual">To-Doリストは「定型発達」向けに設計されています。ADHD脳には別の方法が必要です。</p>
+    <div class="why-grid">
+      <div class="why-card"><div class="why-emoji">😵</div><div class="why-title">見えなくなると忘れる</div><div class="why-text">ワーキングメモリの弱さで、画面に出ていないタスクは存在しないも同然。</div></div>
+      <div class="why-card"><div class="why-emoji">⏰</div><div class="why-title">時間の感覚がない</div><div class="why-text">「今」と「今じゃない」しかない。締め切りが突然やってくる「時間盲」の問題。</div></div>
+      <div class="why-card"><div class="why-emoji">🚫</div><div class="why-title">始められない</div><div class="why-text">「やるべきこと」はわかってる。でも脳が動き出せない。意志の問題じゃない。</div></div>
+      <div class="why-card"><div class="why-emoji">🎯</div><div class="why-title">すぐ達成感が必要</div><div class="why-text">遠い未来の報酬では動けない脳。「今」の達成感が継続の鍵。</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="features-section">
+  <div class="features-wrap">
+    <div class="section-eyebrow">Features</div>
+    <h2 class="section-title-casual">ADHD脳のためだけに<br>設計した機能</h2>
+    <div class="features-flow">
+      <div class="feature-row">
+        <div class="feature-visual">
+          <div class="timer-demo">
+            <div class="timer-big">01:23</div>
+            <div class="timer-sub">今やること: 報告書を書く</div>
+          </div>
+        </div>
+        <div class="feature-info">
+          <div class="feature-number">01</div>
+          <div class="feature-title-casual">1タスク集中モード</div>
+          <div class="feature-desc-casual">今やることを1つだけ全画面表示。他のタスクは全部隠れる。選択肢ゼロで、脳のスイッチが入ります。</div>
+        </div>
+      </div>
+      <div class="feature-row reverse">
+        <div class="feature-visual">
+          <div class="confetti-demo">
+            🎉🎊🎉<br>
+            <div class="confetti-text">7タスク完了！</div>
+          </div>
+        </div>
+        <div class="feature-info">
+          <div class="feature-number">02</div>
+          <div class="feature-title-casual">報酬ドーパミンシステム</div>
+          <div class="feature-desc-casual">完了のたびに強烈な達成感を演出。コンフェッティ、サウンド、バッジでADHD脳が求める即時報酬を届けます。</div>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-visual">
+          <div class="block-demo">
+            <div class="notif-blocked">🔴 Instagram 通知 → ブロック</div>
+            <div class="notif-blocked">🔴 ニュース速報 → ブロック</div>
+            <div class="notif-passed">🟢 上司からのSlack → 保留</div>
+          </div>
+        </div>
+        <div class="feature-info">
+          <div class="feature-number">03</div>
+          <div class="feature-title-casual">AI割り込みブロッカー</div>
+          <div class="feature-desc-casual">集中中の通知をAIが自動判断。本当に重要なものだけを通し、余計な割り込みを全部ブロックします。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="pricing-section">
+  <div class="pricing-wrap">
+    <div class="section-eyebrow">Pricing</div>
+    <h2 class="section-title-casual">まずは無料で<br>試してください 👋</h2>
+    <p class="section-desc-casual">クレジットカード不要。いつでもやめてOK。</p>
+    <div class="pricing-cards">
+      <div class="pc">
+        <div class="pc-name">Free</div>
+        <div class="pc-price">¥0<small>/月</small></div>
+        <div class="pc-desc">とりあえず試したい</div>
+        <ul class="pc-list">
+          <li><span>✓</span> タスク20件まで</li>
+          <li><span>✓</span> 1タスク集中モード</li>
+          <li><span>✓</span> 基本タイマー</li>
+        </ul>
+        <a href="#" class="pc-btn pc-btn-sub">無料で始める</a>
+      </div>
+      <div class="pc hot">
+        <div class="pc-badge">🔥 人気No.1</div>
+        <div class="pc-name">Focus Pro</div>
+        <div class="pc-price">¥980<small>/月</small></div>
+        <div class="pc-desc">ちゃんと習慣化したい</div>
+        <ul class="pc-list">
+          <li><span>✓</span> 無制限タスク</li>
+          <li><span>✓</span> AI割り込みブロッカー</li>
+          <li><span>✓</span> 詳細分析</li>
+          <li><span>✓</span> Slack連携</li>
+          <li><span>✓</span> 優先サポート</li>
+        </ul>
+        <a href="#" class="pc-btn pc-btn-main">今すぐ始める</a>
+      </div>
+      <div class="pc">
+        <div class="pc-name">Team</div>
+        <div class="pc-price">¥2,980<small>/月</small></div>
+        <div class="pc-desc">チームで取り組む</div>
+        <ul class="pc-list">
+          <li><span>✓</span> Pro全機能</li>
+          <li><span>✓</span> 10名まで</li>
+          <li><span>✓</span> チーム管理</li>
+          <li><span>✓</span> 専任サポート</li>
+        </ul>
+        <a href="#" class="pc-btn pc-btn-sub">チームで始める</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="ft-logo">FocusFlow 🎯</div>
+  <p>© 2026 FocusFlow. Vibe Coder Bootcampで作られました 🚀</p>
+</footer>
+
+</body>
+</html>
