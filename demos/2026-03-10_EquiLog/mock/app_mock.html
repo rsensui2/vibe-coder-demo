@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EquiLog — モックアプリ</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d0d1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+    padding: 40px 20px;
+  }
+  .page-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  .app-title {
+    color: #c9a84c;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+  .app-subtitle {
+    color: #8a7a60;
+    font-size: 13px;
+    letter-spacing: 2px;
+  }
+
+  /* iPhone Frame */
+  .iphone-frame {
+    width: 375px;
+    height: 812px;
+    background: #1a1a2e;
+    border-radius: 55px;
+    border: 2px solid #3a3a5c;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 6px #0a0a18,
+      0 0 0 8px #2a2a40,
+      0 30px 80px rgba(0,0,0,0.8),
+      inset 0 0 60px rgba(201,168,76,0.03);
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 37px;
+    background: #0a0a18;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .di-camera {
+    width: 10px;
+    height: 10px;
+    background: #1a1a2e;
+    border-radius: 50%;
+    border: 2px solid #2a2a40;
+  }
+  .di-sensor {
+    width: 6px;
+    height: 6px;
+    background: #1f3a5f;
+    border-radius: 50%;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 8px;
+    z-index: 50;
+  }
+  .status-time {
+    color: #e8e0d0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .status-icons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: #e8e0d0;
+    font-size: 11px;
+  }
+
+  /* Screen Container */
+  .screens {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 80px;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .screens::-webkit-scrollbar { display: none; }
+
+  .screen {
+    display: none;
+    padding: 16px;
+    animation: fadeIn 0.25s ease;
+  }
+  .screen.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Bottom Tab Nav */
+  .tab-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: rgba(20, 20, 38, 0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid #2a2a4a;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding-bottom: 16px;
+    z-index: 50;
+  }
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 12px;
+    transition: all 0.2s;
+    color: #5a5a7a;
+    flex: 1;
+  }
+  .tab-item.active { color: #c9a84c; }
+  .tab-item:hover { background: rgba(201,168,76,0.08); }
+  .tab-icon { font-size: 20px; }
+  .tab-label { font-size: 10px; font-weight: 500; letter-spacing: 0.5px; }
+
+  /* Common Components */
+  .screen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #2a2a4a;
+  }
+  .screen-title {
+    color: #e8e0d0;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .header-badge {
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.3);
+    color: #c9a84c;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+  }
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid #2a2a4a;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .card-gold {
+    background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.04));
+    border-color: rgba(201,168,76,0.25);
+  }
+  .gold { color: #c9a84c; }
+  .muted { color: #6a6a8a; }
+  .text-sm { font-size: 12px; }
+  .text-xs { font-size: 11px; }
+  .section-label {
+    color: #8a7a60;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .badge-gold { background: rgba(201,168,76,0.2); color: #c9a84c; }
+  .badge-green { background: rgba(80,200,120,0.2); color: #50c878; }
+  .badge-red { background: rgba(255,80,80,0.2); color: #ff5050; }
+  .badge-blue { background: rgba(80,160,255,0.2); color: #50a0ff; }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .divider {
+    height: 1px;
+    background: #2a2a4a;
+    margin: 12px 0;
+  }
+
+  /* ========== SCREEN 1: HOME ========== */
+  .greeting {
+    color: #e8e0d0;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .horse-hero {
+    background: linear-gradient(135deg, #1e1e3a 0%, #2a2a4a 100%);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .horse-hero::before {
+    content: '🐴';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 56px;
+    opacity: 0.4;
+  }
+  .horse-name { color: #c9a84c; font-size: 20px; font-weight: 700; }
+  .horse-breed { color: #8a7a60; font-size: 12px; margin-top: 2px; }
+  .horse-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 14px;
+  }
+  .stat-item { text-align: center; }
+  .stat-num { color: #c9a84c; font-size: 20px; font-weight: 700; }
+  .stat-label { color: #6a6a8a; font-size: 10px; }
+
+  .result-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .rank-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .rank-1 { background: linear-gradient(135deg, #c9a84c, #e8c870); color: #1a1a2e; }
+  .rank-2 { background: linear-gradient(135deg, #8a9ab5, #b0c0d5); color: #1a1a2e; }
+  .rank-3 { background: linear-gradient(135deg, #cd7f32, #e09050); color: #1a1a2e; }
+  .rank-other { background: #2a2a4a; color: #8a7a60; }
+
+  .mini-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 36px;
+    margin-top: 12px;
+  }
+  .bar {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+    background: rgba(201,168,76,0.3);
+    transition: all 0.3s;
+  }
+  .bar.highlight { background: #c9a84c; }
+
+  /* ========== SCREEN 2: HORSE PROFILE ========== */
+  .profile-hero {
+    background: linear-gradient(160deg, #1e2a3a, #2a1a3a);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 20px;
+    padding: 24px 20px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .horse-avatar {
+    font-size: 64px;
+    margin-bottom: 8px;
+  }
+  .profile-name { color: #c9a84c; font-size: 24px; font-weight: 800; }
+  .profile-meta { color: #8a7a60; font-size: 12px; margin-top: 4px; }
+  .profile-stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .pstat {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+  }
+  .pstat-val { color: #e8e0d0; font-size: 16px; font-weight: 700; }
+  .pstat-key { color: #6a6a8a; font-size: 10px; }
+
+  .chart-area {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid #2a2a4a;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .chart-title { color: #8a7a60; font-size: 11px; letter-spacing: 1px; margin-bottom: 10px; }
+  .line-chart {
+    position: relative;
+    height: 60px;
+  }
+  .line-chart svg { width: 100%; height: 60px; }
+
+  .media-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .media-thumb {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    background: #2a2a4a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .video-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    background: rgba(201,168,76,0.8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+
+  /* ========== SCREEN 3: COMPETITION ========== */
+  .comp-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid #2a2a4a;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .comp-card:hover { border-color: rgba(201,168,76,0.3); }
+  .comp-card.selected {
+    border-color: rgba(201,168,76,0.5);
+    background: rgba(201,168,76,0.06);
+  }
+  .comp-name { color: #e8e0d0; font-size: 14px; font-weight: 600; }
+  .comp-date { color: #6a6a8a; font-size: 11px; margin-top: 2px; }
+  .comp-meta {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .detail-panel {
+    background: rgba(201,168,76,0.05);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 12px;
+  }
+  .detail-title { color: #c9a84c; font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+  .result-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-rank {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .result-horse { color: #e8e0d0; font-size: 13px; flex: 1; }
+  .result-score { color: #c9a84c; font-size: 13px; font-weight: 600; }
+  .me-indicator {
+    background: rgba(201,168,76,0.2);
+    color: #c9a84c;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* ========== SCREEN 4: RIVALS ========== */
+  .rival-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .rival-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #2a3a5a, #3a2a5a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .rival-name { color: #e8e0d0; font-size: 14px; font-weight: 600; }
+  .rival-horse { color: #8a7a60; font-size: 11px; margin-top: 2px; }
+  .rival-record { color: #c9a84c; font-size: 12px; font-weight: 600; }
+  .head2head {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid #2a2a4a;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 8px;
+  }
+  .h2h-title { color: #6a6a8a; font-size: 10px; letter-spacing: 1px; margin-bottom: 8px; }
+  .h2h-bar {
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 8px;
+    margin-bottom: 6px;
+  }
+  .h2h-me { background: #c9a84c; }
+  .h2h-rival { background: #3a3a5a; }
+  .h2h-labels { display: flex; justify-content: space-between; }
+  .h2h-label { font-size: 10px; color: #6a6a8a; }
+
+  /* ========== SCREEN 5: PDF IMPORT ========== */
+  .pdf-drop {
+    border: 2px dashed rgba(201,168,76,0.3);
+    border-radius: 20px;
+    padding: 32px 20px;
+    text-align: center;
+    margin-bottom: 16px;
+    background: rgba(201,168,76,0.03);
+  }
+  .pdf-icon { font-size: 40px; margin-bottom: 12px; }
+  .pdf-title { color: #e8e0d0; font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .pdf-sub { color: #6a6a8a; font-size: 12px; }
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 20px;
+  }
+  .step {
+    flex: 1;
+    text-align: center;
+    font-size: 10px;
+    color: #6a6a8a;
+    position: relative;
+  }
+  .step.active { color: #c9a84c; }
+  .step.done { color: #50c878; }
+  .step-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #3a3a5a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    margin: 0 auto 4px;
+    background: #1a1a2e;
+  }
+  .step.active .step-circle { border-color: #c9a84c; color: #c9a84c; background: rgba(201,168,76,0.1); }
+  .step.done .step-circle { border-color: #50c878; background: rgba(80,200,120,0.1); color: #50c878; }
+  .step-line {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: #2a2a4a;
+    z-index: -1;
+  }
+  .parse-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .parse-icon { font-size: 18px; flex-shrink: 0; }
+  .parse-key { color: #8a7a60; font-size: 11px; }
+  .parse-val { color: #e8e0d0; font-size: 13px; font-weight: 500; }
+  .parse-status { margin-left: auto; }
+  .confirm-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #c9a84c, #e8c870);
+    color: #1a1a2e;
+    border: none;
+    border-radius: 14px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="app-title">EquiLog</div>
+  <div class="app-subtitle">馬術競技記録管理プラットフォーム</div>
+
+  <div class="iphone-frame">
+    <!-- Dynamic Island -->
+    <div class="dynamic-island">
+      <div class="di-sensor"></div>
+      <div class="di-camera"></div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons">
+        <span>●●●</span>
+        <span>WiFi</span>
+        <span>🔋</span>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 1: HOME ===== -->
+    <div class="screens">
+      <div class="screen active" id="screen-home">
+        <div class="screen-header">
+          <div>
+            <div class="greeting">おはようございます</div>
+            <div class="muted text-sm">田中 美咲 選手</div>
+          </div>
+          <span class="header-badge">SEASON 2025</span>
+        </div>
+
+        <div class="horse-hero">
+          <div class="horse-name">アルタイル</div>
+          <div class="horse-breed">サラブレッド系 / 14歳 / 鹿毛</div>
+          <div class="horse-stats">
+            <div class="stat-item">
+              <div class="stat-num">23</div>
+              <div class="stat-label">出走</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-num">7</div>
+              <div class="stat-label">優勝</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-num">68.4</div>
+              <div class="stat-label">平均得点</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">直近の成績</div>
+
+        <div class="card">
+          <div class="result-card">
+            <div class="rank-badge rank-1">1</div>
+            <div style="flex:1">
+              <div style="color:#e8e0d0; font-size:13px; font-weight:600">全日本馬術選手権 2025</div>
+              <div class="muted text-xs">2025.11.08 — 馬場馬術</div>
+            </div>
+            <div style="text-align:right">
+              <div class="gold" style="font-size:16px; font-weight:700">71.2%</div>
+              <div class="muted text-xs">減点 0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="result-card">
+            <div class="rank-badge rank-2">2</div>
+            <div style="flex:1">
+              <div style="color:#e8e0d0; font-size:13px; font-weight:600">関東オープン選手権</div>
+              <div class="muted text-xs">2025.10.12 — 障害飛越</div>
+            </div>
+            <div style="text-align:right">
+              <div style="color:#b0c0d5; font-size:16px; font-weight:700">68.8%</div>
+              <div class="muted text-xs">減点 4</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="result-card">
+            <div class="rank-badge rank-3">3</div>
+            <div style="flex:1">
+              <div style="color:#e8e0d0; font-size:13px; font-weight:600">春季クラブ大会</div>
+              <div class="muted text-xs">2025.09.20 — 馬場馬術</div>
+            </div>
+            <div style="text-align:right">
+              <div style="color:#cd7f32; font-size:16px; font-weight:700">65.5%</div>
+              <div class="muted text-xs">減点 0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">今シーズンの推移</div>
+        <div class="card">
+          <div class="chart-title">得点推移（直近6試合）</div>
+          <div class="mini-chart">
+            <div class="bar" style="height:50%"></div>
+            <div class="bar" style="height:62%"></div>
+            <div class="bar" style="height:58%"></div>
+            <div class="bar" style="height:75%"></div>
+            <div class="bar" style="height:70%"></div>
+            <div class="bar highlight" style="height:88%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SCREEN 2: HORSE PROFILE ===== -->
+      <div class="screen" id="screen-horse">
+        <div class="profile-hero">
+          <div class="horse-avatar">🐴</div>
+          <div class="profile-name">アルタイル</div>
+          <div class="profile-meta">サラブレッド系 / 2011年生 / 牡 / 鹿毛</div>
+          <div class="profile-stats-row">
+            <div class="pstat">
+              <div class="pstat-val">23</div>
+              <div class="pstat-key">出走数</div>
+            </div>
+            <div class="pstat">
+              <div class="pstat-val">7</div>
+              <div class="pstat-key">優勝</div>
+            </div>
+            <div class="pstat">
+              <div class="pstat-val">68.4</div>
+              <div class="pstat-key">平均得点</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-area">
+          <div class="chart-title">得点推移 2024–2025</div>
+          <svg viewBox="0 0 280 60" preserveAspectRatio="none">
+            <polyline
+              fill="none"
+              stroke="rgba(201,168,76,0.3)"
+              stroke-width="1.5"
+              points="0,45 40,38 80,42 120,28 160,32 200,20 240,24 280,12"
+            />
+            <polyline
+              fill="none"
+              stroke="#c9a84c"
+              stroke-width="2"
+              points="0,45 40,38 80,42 120,28 160,32 200,20 240,24 280,12"
+            />
+            <circle cx="280" cy="12" r="4" fill="#c9a84c"/>
+          </svg>
+        </div>
+
+        <div class="section-label">基本情報</div>
+        <div class="card">
+          <div class="row"><span class="muted text-sm">血統</span><span style="color:#e8e0d0; font-size:13px">ディープインパクト系</span></div>
+          <div class="divider"></div>
+          <div class="row"><span class="muted text-sm">オーナー</span><span style="color:#e8e0d0; font-size:13px">田中 美咲</span></div>
+          <div class="divider"></div>
+          <div class="row"><span class="muted text-sm">厩舎</span><span style="color:#e8e0d0; font-size:13px">東京乗馬倶楽部</span></div>
+          <div class="divider"></div>
+          <div class="row"><span class="muted text-sm">主な種目</span><span class="badge badge-gold">馬場馬術</span></div>
+        </div>
+
+        <div class="section-label">メディア</div>
+        <div class="media-grid">
+          <div class="media-thumb" style="background:linear-gradient(135deg,#2a3a4a,#3a4a5a)">📸</div>
+          <div class="media-thumb" style="background:linear-gradient(135deg,#1a2a3a,#2a3a4a)">
+            🎬
+            <div class="video-overlay">▶</div>
+          </div>
+          <div class="media-thumb" style="background:linear-gradient(135deg,#3a2a4a,#4a3a5a)">📸</div>
+          <div class="media-thumb" style="background:linear-gradient(135deg,#2a4a3a,#3a5a4a)">
+            🎬
+            <div class="video-overlay">▶</div>
+          </div>
+          <div class="media-thumb" style="background:linear-gradient(135deg,#4a3a2a,#5a4a3a)">📸</div>
+          <div class="media-thumb" style="background:rgba(255,255,255,0.03); border:1px dashed #3a3a5a; color:#4a4a6a">＋</div>
+        </div>
+      </div>
+
+      <!-- ===== SCREEN 3: COMPETITION ===== -->
+      <div class="screen" id="screen-comp">
+        <div class="screen-header">
+          <div class="screen-title">試合記録</div>
+          <span class="header-badge">23試合</span>
+        </div>
+
+        <div class="comp-card selected" onclick="this.classList.toggle('selected')">
+          <div class="row">
+            <div class="comp-name">全日本馬術選手権 2025</div>
+            <div class="rank-badge rank-1" style="width:32px;height:32px;border-radius:8px;font-size:14px">1</div>
+          </div>
+          <div class="comp-date">2025年11月8日 — 東京馬事公苑</div>
+          <div class="comp-meta">
+            <span class="badge badge-gold">馬場馬術</span>
+            <span class="badge badge-green">71.2%</span>
+            <span class="badge badge-blue">減点 0</span>
+          </div>
+        </div>
+
+        <div class="detail-panel">
+          <div class="detail-title">全出場馬 — 最終順位</div>
+          <div class="result-row">
+            <div class="result-rank rank-1" style="width:28px;height:28px;border-radius:7px;font-size:11px">1</div>
+            <div class="result-horse">アルタイル <span class="me-indicator">YOU</span></div>
+            <div class="result-score">71.2%</div>
+          </div>
+          <div class="result-row">
+            <div class="result-rank rank-2" style="width:28px;height:28px;border-radius:7px;font-size:11px">2</div>
+            <div class="result-horse">ライジングスター</div>
+            <div class="result-score">69.8%</div>
+          </div>
+          <div class="result-row">
+            <div class="result-rank rank-3" style="width:28px;height:28px;border-radius:7px;font-size:11px">3</div>
+            <div class="result-horse">シルバームーン</div>
+            <div class="result-score">68.4%</div>
+          </div>
+          <div class="result-row">
+            <div class="result-rank rank-other" style="width:28px;height:28px;border-radius:7px;font-size:11px">4</div>
+            <div class="result-horse">フォルテ</div>
+            <div class="result-score">67.1%</div>
+          </div>
+          <div class="result-row">
+            <div class="result-rank rank-other" style="width:28px;height:28px;border-radius:7px;font-size:11px">5</div>
+            <div class="result-horse">クロノス</div>
+            <div class="result-score">65.9%</div>
+          </div>
+        </div>
+
+        <div class="comp-card">
+          <div class="row">
+            <div class="comp-name">関東オープン選手権</div>
+            <div class="rank-badge rank-2" style="width:32px;height:32px;border-radius:8px;font-size:14px">2</div>
+          </div>
+          <div class="comp-date">2025年10月12日 — さいたまグリーンパーク</div>
+          <div class="comp-meta">
+            <span class="badge badge-blue">障害飛越</span>
+            <span style="background:rgba(176,192,213,0.2); color:#b0c0d5" class="badge">68.8%</span>
+            <span class="badge badge-red">減点 4</span>
+          </div>
+        </div>
+
+        <div class="comp-card">
+          <div class="row">
+            <div class="comp-name">春季クラブ大会</div>
+            <div class="rank-badge rank-3" style="width:32px;height:32px;border-radius:8px;font-size:14px">3</div>
+          </div>
+          <div class="comp-date">2025年9月20日 — 東京乗馬倶楽部</div>
+          <div class="comp-meta">
+            <span class="badge badge-gold">馬場馬術</span>
+            <span style="background:rgba(205,127,50,0.2); color:#cd7f32" class="badge">65.5%</span>
+            <span class="badge badge-green">減点 0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SCREEN 4: RIVALS ===== -->
+      <div class="screen" id="screen-rivals">
+        <div class="screen-header">
+          <div class="screen-title">競合追跡</div>
+          <span class="header-badge">8選手</span>
+        </div>
+
+        <div class="card">
+          <div class="rival-card">
+            <div class="rival-avatar">🏇</div>
+            <div style="flex:1">
+              <div class="rival-name">佐藤 健一 選手</div>
+              <div class="rival-horse">ライジングスター</div>
+              <div class="rival-record">今季 2位 / 平均 69.8%</div>
+            </div>
+            <div style="text-align:right">
+              <div class="badge badge-red">ライバル</div>
+              <div class="muted text-xs" style="margin-top:4px">対戦 8回</div>
+            </div>
+          </div>
+          <div class="head2head">
+            <div class="h2h-title">対戦成績 (直近8試合)</div>
+            <div class="h2h-bar">
+              <div class="h2h-me" style="width:62%"></div>
+              <div class="h2h-rival" style="width:38%"></div>
+            </div>
+            <div class="h2h-labels">
+              <div class="h2h-label">あなた 5勝</div>
+              <div class="h2h-label">3勝 佐藤選手</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="rival-card">
+            <div class="rival-avatar">🐎</div>
+            <div style="flex:1">
+              <div class="rival-name">山田 花子 選手</div>
+              <div class="rival-horse">シルバームーン</div>
+              <div class="rival-record">今季 3位 / 平均 68.4%</div>
+            </div>
+            <div style="text-align:right">
+              <div class="badge badge-blue">注目</div>
+              <div class="muted text-xs" style="margin-top:4px">対戦 5回</div>
+            </div>
+          </div>
+          <div class="head2head">
+            <div class="h2h-title">対戦成績 (直近5試合)</div>
+            <div class="h2h-bar">
+              <div class="h2h-me" style="width:80%"></div>
+              <div class="h2h-rival" style="width:20%"></div>
+            </div>
+            <div class="h2h-labels">
+              <div class="h2h-label">あなた 4勝</div>
+              <div class="h2h-label">1勝 山田選手</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="rival-card">
+            <div class="rival-avatar">🏆</div>
+            <div style="flex:1">
+              <div class="rival-name">鈴木 拓也 選手</div>
+              <div class="rival-horse">フォルテ</div>
+              <div class="rival-record">今季 急成長中 / 平均 67.1%</div>
+            </div>
+            <div style="text-align:right">
+              <div class="badge" style="background:rgba(255,200,0,0.2);color:#ffc800">急上昇</div>
+              <div class="muted text-xs" style="margin-top:4px">対戦 3回</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SCREEN 5: PDF IMPORT ===== -->
+      <div class="screen" id="screen-pdf">
+        <div class="screen-header">
+          <div class="screen-title">PDF取込み</div>
+          <span class="header-badge">AI解析</span>
+        </div>
+
+        <div class="step-indicator">
+          <div class="step done">
+            <div class="step-circle">✓</div>
+            <div>選択</div>
+          </div>
+          <div class="step active">
+            <div class="step-circle">2</div>
+            <div>解析中</div>
+          </div>
+          <div class="step">
+            <div class="step-circle">3</div>
+            <div>確認</div>
+          </div>
+          <div class="step">
+            <div class="step-circle">4</div>
+            <div>保存</div>
+          </div>
+        </div>
+
+        <div class="card card-gold">
+          <div class="row" style="margin-bottom:8px">
+            <div style="color:#e8e0d0; font-size:14px; font-weight:600">📄 result_2025_11_08.pdf</div>
+            <span class="badge badge-green">解析完了</span>
+          </div>
+          <div class="muted text-xs">全日本馬術選手権 2025 — 公式成績表</div>
+        </div>
+
+        <div class="section-label">AI解析結果</div>
+        <div class="card">
+          <div class="parse-row">
+            <div class="parse-icon">🏆</div>
+            <div style="flex:1">
+              <div class="parse-key">大会名</div>
+              <div class="parse-val">全日本馬術選手権 2025</div>
+            </div>
+            <div class="parse-status"><span class="badge badge-green">✓</span></div>
+          </div>
+          <div class="parse-row">
+            <div class="parse-icon">📅</div>
+            <div style="flex:1">
+              <div class="parse-key">開催日</div>
+              <div class="parse-val">2025年11月8日</div>
+            </div>
+            <div class="parse-status"><span class="badge badge-green">✓</span></div>
+          </div>
+          <div class="parse-row">
+            <div class="parse-icon">🐴</div>
+            <div style="flex:1">
+              <div class="parse-key">馬名</div>
+              <div class="parse-val">アルタイル</div>
+            </div>
+            <div class="parse-status"><span class="badge badge-green">✓</span></div>
+          </div>
+          <div class="parse-row">
+            <div class="parse-icon">🏅</div>
+            <div style="flex:1">
+              <div class="parse-key">順位 / 得点</div>
+              <div class="parse-val">1位 / 71.200%</div>
+            </div>
+            <div class="parse-status"><span class="badge badge-green">✓</span></div>
+          </div>
+          <div class="parse-row">
+            <div class="parse-icon">⚠️</div>
+            <div style="flex:1">
+              <div class="parse-key">減点</div>
+              <div class="parse-val">0点</div>
+            </div>
+            <div class="parse-status"><span class="badge badge-green">✓</span></div>
+          </div>
+          <div class="parse-row">
+            <div class="parse-icon">👥</div>
+            <div style="flex:1">
+              <div class="parse-key">出場頭数</div>
+              <div class="parse-val">18頭（全成績取込済み）</div>
+            </div>
+            <div class="parse-status"><span class="badge badge-green">✓</span></div>
+          </div>
+        </div>
+
+        <button class="confirm-btn">この内容で保存する</button>
+      </div>
+    </div><!-- /screens -->
+
+    <!-- Bottom Nav -->
+    <nav class="tab-nav">
+      <div class="tab-item active" id="tab-home" onclick="switchTab('home')">
+        <div class="tab-icon">🏠</div>
+        <div class="tab-label">ホーム</div>
+      </div>
+      <div class="tab-item" id="tab-horse" onclick="switchTab('horse')">
+        <div class="tab-icon">🐴</div>
+        <div class="tab-label">馬</div>
+      </div>
+      <div class="tab-item" id="tab-comp" onclick="switchTab('comp')">
+        <div class="tab-icon">🏆</div>
+        <div class="tab-label">試合</div>
+      </div>
+      <div class="tab-item" id="tab-rivals" onclick="switchTab('rivals')">
+        <div class="tab-icon">🏇</div>
+        <div class="tab-label">競合</div>
+      </div>
+      <div class="tab-item" id="tab-pdf" onclick="switchTab('pdf')">
+        <div class="tab-icon">📄</div>
+        <div class="tab-label">PDF</div>
+      </div>
+    </nav>
+  </div><!-- /iphone-frame -->
+</div><!-- /page-wrapper -->
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelector('.screens').scrollTop = 0;
+}
+</script>
+</body>
+</html>

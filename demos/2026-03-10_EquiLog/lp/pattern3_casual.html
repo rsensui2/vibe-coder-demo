@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EquiLog — 馬術競技記録管理プラットフォーム</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d2137;--bg2:#0a1929;--bg3:#112840;--accent:#4fc3a1;--accent2:#3dab8a;--text:#e0f2f1;--muted:#6b9aaa;--border:rgba(79,195,161,0.18);--card:rgba(255,255,255,0.04);--glow:rgba(79,195,161,0.15)}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,'Hiragino Sans','Yu Gothic',sans-serif;line-height:1.7}
+a{color:var(--accent);text-decoration:none}
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,33,55,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 5%}
+.nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-size:18px;font-weight:800;color:var(--accent);letter-spacing:3px;font-variant-numeric:tabular-nums}
+.nav-tag{background:rgba(79,195,161,0.12);border:1px solid var(--border);color:var(--accent);font-size:10px;padding:2px 8px;border-radius:4px;margin-left:10px;letter-spacing:1px}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:var(--muted);font-size:13px;transition:color .2s}
+.nav-links a:hover{color:var(--accent)}
+.nav-cta{background:var(--accent);color:#0d2137;padding:8px 22px;border-radius:6px;font-weight:700;font-size:13px;transition:background .2s}
+.nav-cta:hover{background:var(--accent2)}
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:100px 5% 80px;position:relative;overflow:hidden}
+.hero-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(79,195,161,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,195,161,0.04) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+.hero-glow{position:absolute;top:20%;right:5%;width:500px;height:500px;background:radial-gradient(circle,var(--glow) 0%,transparent 65%);pointer-events:none}
+.hero-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;width:100%;position:relative;z-index:1}
+@media(max-width:768px){.hero-inner{grid-template-columns:1fr}}
+.hero-label{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.hero-label-dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.hero-label-text{font-size:11px;letter-spacing:3px;color:var(--accent);text-transform:uppercase}
+.hero h1{font-size:clamp(32px,5vw,56px);font-weight:900;line-height:1.15;letter-spacing:-1px;margin-bottom:20px}
+.hero h1 .highlight{color:var(--accent)}
+.hero-sub{font-size:16px;color:var(--muted);max-width:480px;margin-bottom:36px;line-height:1.8}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px}
+.btn-solid{background:var(--accent);color:#0d2137;padding:13px 32px;border-radius:8px;font-weight:800;font-size:14px;border:none;cursor:pointer;transition:all .2s}
+.btn-solid:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--accent);padding:13px 32px;border-radius:8px;font-weight:600;font-size:14px;border:1px solid var(--border);cursor:pointer;transition:all .2s}
+.btn-ghost:hover{border-color:var(--accent);background:rgba(79,195,161,0.06)}
+.hero-metrics{display:flex;gap:28px;flex-wrap:wrap}
+.metric{border-left:2px solid var(--border);padding-left:16px}
+.metric-num{font-size:28px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.metric-label{font-size:11px;color:var(--muted);letter-spacing:1px}
+/* DASHBOARD PREVIEW */
+.dashboard-preview{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative}
+.dp-header{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.dp-dots{display:flex;gap:6px}
+.dp-dot{width:10px;height:10px;border-radius:50%}
+.dp-title{color:var(--muted);font-size:12px;margin-left:auto;letter-spacing:1px}
+.dp-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.dp-stat{background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;text-align:center}
+.dp-stat-val{font-size:22px;font-weight:800;color:var(--accent)}
+.dp-stat-key{font-size:10px;color:var(--muted)}
+.dp-chart{background:rgba(255,255,255,0.03);border-radius:8px;padding:14px;margin-bottom:10px}
+.dp-chart-label{font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:1px}
+.dp-bars{display:flex;align-items:flex-end;gap:6px;height:50px}
+.dp-bar{flex:1;border-radius:3px 3px 0 0}
+.dp-horse-row{background:rgba(79,195,161,0.06);border:1px solid rgba(79,195,161,0.15);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.dp-horse-icon{font-size:22px}
+.dp-horse-name{color:var(--text);font-size:13px;font-weight:600}
+.dp-horse-sub{color:var(--muted);font-size:10px}
+.dp-horse-badge{margin-left:auto;background:var(--accent);color:#0d2137;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px}
+/* SECTIONS */
+section{padding:96px 5%}
+.container{max-width:1280px;margin:0 auto}
+.s-tag{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px}
+.s-tag-line{width:24px;height:1px;background:var(--accent)}
+.s-tag-text{font-size:11px;letter-spacing:3px;color:var(--accent);text-transform:uppercase}
+.s-title{font-size:clamp(26px,4vw,40px);font-weight:800;line-height:1.2;margin-bottom:12px}
+.s-sub{color:var(--muted);font-size:16px;max-width:560px}
+/* PROBLEM */
+.problem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:48px}
+.p-card{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:24px;transition:all .3s;position:relative}
+.p-card:hover{border-color:rgba(255,80,80,0.2);background:rgba(255,80,80,0.03)}
+.p-card-num{position:absolute;top:16px;right:16px;font-size:32px;font-weight:900;color:rgba(255,255,255,0.04);font-variant-numeric:tabular-nums}
+.p-icon{font-size:28px;margin-bottom:14px}
+.p-title{font-size:16px;font-weight:700;margin-bottom:8px}
+.p-desc{color:var(--muted);font-size:13px;line-height:1.7}
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:48px}
+.f-card{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:28px;transition:all .3s}
+.f-card:hover{border-color:var(--border);background:rgba(79,195,161,0.04);transform:translateY(-3px)}
+.f-icon-wrap{width:48px;height:48px;border-radius:12px;background:rgba(79,195,161,0.1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:18px}
+.f-title{font-size:17px;font-weight:700;margin-bottom:8px}
+.f-desc{color:var(--muted);font-size:13px;line-height:1.7}
+.f-tag{display:inline-block;background:rgba(79,195,161,0.1);color:var(--accent);padding:3px 10px;border-radius:4px;font-size:11px;margin-top:12px;letter-spacing:1px}
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;margin-top:48px}
+.pr-card{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:32px;transition:all .3s;position:relative}
+.pr-card.featured{border-color:var(--border);background:rgba(79,195,161,0.05)}
+.pr-popular{position:absolute;top:-10px;right:20px;background:var(--accent);color:#0d2137;font-size:10px;font-weight:800;padding:3px 12px;border-radius:10px;letter-spacing:1px}
+.pr-plan{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:2px;margin-bottom:10px}
+.pr-price{font-size:42px;font-weight:900;color:var(--text);margin-bottom:2px;font-variant-numeric:tabular-nums}
+.pr-price span{font-size:16px;color:var(--muted)}
+.pr-period{font-size:12px;color:var(--muted);margin-bottom:20px}
+.pr-div{height:1px;background:rgba(255,255,255,0.06);margin-bottom:20px}
+.pr-features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.pr-features li{font-size:13px;color:var(--muted);display:flex;align-items:flex-start;gap:8px}
+.pr-features li::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0;font-size:12px}
+.pr-btn{width:100%;padding:12px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;border:none;transition:all .2s;letter-spacing:.5px}
+.pr-btn-primary{background:var(--accent);color:#0d2137}
+.pr-btn-primary:hover{background:var(--accent2)}
+.pr-btn-outline{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.1)}
+.pr-btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+/* FAQ */
+.faq-list{max-width:800px;margin:48px auto 0;display:flex;flex-direction:column;gap:8px}
+.faq-item{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:20px 24px}
+.faq-q{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--text);display:flex;align-items:flex-start;gap:10px}
+.faq-q-mark{color:var(--accent);font-weight:800;flex-shrink:0;font-size:14px}
+.faq-a{color:var(--muted);font-size:13px;line-height:1.7;padding-left:22px}
+/* CTA */
+.cta-section{background:linear-gradient(135deg,rgba(79,195,161,0.08),rgba(79,195,161,0.02));border-top:1px solid var(--border);border-bottom:1px solid var(--border);text-align:center;padding:80px 5%}
+.cta-title{font-size:clamp(24px,4vw,40px);font-weight:800;margin-bottom:16px}
+.cta-sub{color:var(--muted);font-size:16px;margin-bottom:36px}
+/* FOOTER */
+footer{background:var(--bg2);padding:48px 5% 32px;text-align:center}
+.footer-logo{font-size:20px;font-weight:800;color:var(--accent);letter-spacing:3px;margin-bottom:10px}
+.footer-tagline{color:var(--muted);font-size:13px;margin-bottom:28px}
+.footer-links{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.footer-links a{color:rgba(107,154,170,0.6);font-size:12px;transition:color .2s}
+.footer-links a:hover{color:var(--accent)}
+.footer-copy{color:rgba(255,255,255,0.15);font-size:11px;letter-spacing:.5px}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div style="display:flex;align-items:center">
+      <div class="nav-logo">EQUILOG</div>
+      <span class="nav-tag">BETA</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#features">機能</a></li>
+      <li><a href="#pricing">料金</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a href="#pricing" class="nav-cta">無料で始める</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-label"><div class="hero-label-dot"></div><div class="hero-label-text">Equestrian Data Platform</div></div>
+      <h1>競技の記録が、<br><span class="highlight">あなたと馬の</span><br>歴史になる。</h1>
+      <p class="hero-sub">馬術競技者のための成績・メディア管理プラットフォーム。試合成績・馬プロフィール・走行動画を一元管理し、データで強くなる。</p>
+      <div class="hero-btns">
+        <button class="btn-solid">無料で始める</button>
+        <button class="btn-ghost">デモを見る</button>
+      </div>
+      <div class="hero-metrics">
+        <div class="metric"><div class="metric-num">500+</div><div class="metric-label">登録選手</div></div>
+        <div class="metric"><div class="metric-num">12K+</div><div class="metric-label">試合記録</div></div>
+        <div class="metric"><div class="metric-num">98%</div><div class="metric-label">継続率</div></div>
+      </div>
+    </div>
+    <div class="dashboard-preview">
+      <div class="dp-header">
+        <div class="dp-dots">
+          <div class="dp-dot" style="background:#ff5f57"></div>
+          <div class="dp-dot" style="background:#febc2e"></div>
+          <div class="dp-dot" style="background:#28c840"></div>
+        </div>
+        <div class="dp-title">EQUILOG DASHBOARD</div>
+      </div>
+      <div class="dp-stat-row">
+        <div class="dp-stat"><div class="dp-stat-val">23</div><div class="dp-stat-key">試合数</div></div>
+        <div class="dp-stat"><div class="dp-stat-val">71.2</div><div class="dp-stat-key">最高得点</div></div>
+        <div class="dp-stat"><div class="dp-stat-val">7</div><div class="dp-stat-key">優勝数</div></div>
+      </div>
+      <div class="dp-chart">
+        <div class="dp-chart-label">得点推移 (%)</div>
+        <div class="dp-bars">
+          <div class="dp-bar" style="height:50%;background:rgba(79,195,161,0.25)"></div>
+          <div class="dp-bar" style="height:62%;background:rgba(79,195,161,0.3)"></div>
+          <div class="dp-bar" style="height:55%;background:rgba(79,195,161,0.3)"></div>
+          <div class="dp-bar" style="height:75%;background:rgba(79,195,161,0.4)"></div>
+          <div class="dp-bar" style="height:70%;background:rgba(79,195,161,0.4)"></div>
+          <div class="dp-bar" style="height:88%;background:var(--accent)"></div>
+        </div>
+      </div>
+      <div class="dp-horse-row">
+        <div class="dp-horse-icon">🐴</div>
+        <div><div class="dp-horse-name">アルタイル</div><div class="dp-horse-sub">今シーズン最高得点: 71.2%</div></div>
+        <div class="dp-horse-badge">1位</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--bg2)">
+  <div class="container">
+    <div class="s-tag"><div class="s-tag-line"></div><div class="s-tag-text">Problem</div></div>
+    <h2 class="s-title">こんな課題、ありませんか？</h2>
+    <p class="s-sub">馬術競技者が抱える「記録管理」の非効率を解決します。</p>
+    <div class="problem-grid">
+      <div class="p-card"><div class="p-card-num">01</div><div class="p-icon">📂</div><div class="p-title">PDFが散乱</div><div class="p-desc">試合のたびに届く成績表PDF。フォルダに溜まるだけで、過去を参照するのが困難。</div></div>
+      <div class="p-card"><div class="p-card-num">02</div><div class="p-icon">🎞️</div><div class="p-title">動画が埋もれる</div><div class="p-desc">スマホの中に大量の試合動画。どれがどの大会か、後から整理する余裕がない。</div></div>
+      <div class="p-card"><div class="p-card-num">03</div><div class="p-icon">📉</div><div class="p-title">成長が数値で見えない</div><div class="p-desc">得点の推移を可視化したいのにデータが散在。客観的な分析ができない。</div></div>
+      <div class="p-card"><div class="p-card-num">04</div><div class="p-icon">🔭</div><div class="p-title">競合を追跡できない</div><div class="p-desc">同じ試合に出たライバルの成績を継続的に把握する手段がない。</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="container">
+    <div class="s-tag"><div class="s-tag-line"></div><div class="s-tag-text">Features</div></div>
+    <h2 class="s-title">主要機能</h2>
+    <p class="s-sub">データで馬術競技を強化する4つのコア機能。</p>
+    <div class="features-grid">
+      <div class="f-card">
+        <div class="f-icon-wrap">📄</div>
+        <div class="f-title">PDF取込み</div>
+        <div class="f-desc">公式成績表PDFをアップするだけ。AIが試合名・日付・順位・得点・出場馬リストを自動抽出し、即座にデータベースへ登録します。</div>
+        <span class="f-tag">AI解析</span>
+      </div>
+      <div class="f-card">
+        <div class="f-icon-wrap">🐴</div>
+        <div class="f-title">馬プロフィール</div>
+        <div class="f-desc">一頭ずつの生涯戦績・写真ギャラリー・走行動画・健康記録を一元管理。血統・年齢・馬主情報も登録できます。</div>
+        <span class="f-tag">生涯記録</span>
+      </div>
+      <div class="f-card">
+        <div class="f-icon-wrap">🏇</div>
+        <div class="f-title">競合追跡</div>
+        <div class="f-desc">同大会に出場した他選手・他馬の成績を自動取込み。対戦履歴と得点比較でライバル分析がリアルタイムに可能です。</div>
+        <span class="f-tag">ライバル分析</span>
+      </div>
+      <div class="f-card">
+        <div class="f-icon-wrap">📅</div>
+        <div class="f-title">タイムライン</div>
+        <div class="f-desc">全試合を時系列で俯瞰。得点推移グラフ・写真・動画が並ぶタイムラインで馬との歩みを振り返れます。</div>
+        <span class="f-tag">時系列分析</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" style="background:var(--bg2)">
+  <div class="container">
+    <div class="s-tag"><div class="s-tag-line"></div><div class="s-tag-text">Pricing</div></div>
+    <h2 class="s-title">シンプルな料金プラン</h2>
+    <p class="s-sub">まずは無料から。成長に合わせてアップグレード。</p>
+    <div class="pricing-grid">
+      <div class="pr-card">
+        <div class="pr-plan">STARTER</div>
+        <div class="pr-price">¥0<span>/月</span></div>
+        <div class="pr-period">永久無料</div>
+        <div class="pr-div"></div>
+        <ul class="pr-features">
+          <li>馬 1頭まで</li>
+          <li>試合記録 20件まで</li>
+          <li>写真 100枚まで</li>
+          <li>PDF取込み 月5件</li>
+        </ul>
+        <button class="pr-btn pr-btn-outline">無料で始める</button>
+      </div>
+      <div class="pr-card featured">
+        <div class="pr-popular">MOST POPULAR</div>
+        <div class="pr-plan">PRO</div>
+        <div class="pr-price">¥980<span>/月</span></div>
+        <div class="pr-period">年払いで月¥800</div>
+        <div class="pr-div"></div>
+        <ul class="pr-features">
+          <li>馬 5頭まで</li>
+          <li>試合記録 無制限</li>
+          <li>動画アップロード対応</li>
+          <li>PDF取込み 無制限</li>
+          <li>競合追跡機能</li>
+          <li>得点推移グラフ</li>
+        </ul>
+        <button class="pr-btn pr-btn-primary">Proを始める</button>
+      </div>
+      <div class="pr-card">
+        <div class="pr-plan">ELITE</div>
+        <div class="pr-price">¥2,980<span>/月</span></div>
+        <div class="pr-period">年払いで月¥2,480</div>
+        <div class="pr-div"></div>
+        <ul class="pr-features">
+          <li>馬 無制限</li>
+          <li>チーム共有（5名）</li>
+          <li>高度分析レポート</li>
+          <li>APIアクセス</li>
+          <li>優先サポート</li>
+          <li>データエクスポート</li>
+        </ul>
+        <button class="pr-btn pr-btn-outline">Eliteを始める</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="container">
+    <div class="s-tag"><div class="s-tag-line"></div><div class="s-tag-text">FAQ</div></div>
+    <h2 class="s-title">よくあるご質問</h2>
+    <div class="faq-list">
+      <div class="faq-item"><div class="faq-q"><span class="faq-q-mark">Q</span>どんな成績表PDFに対応していますか？</div><div class="faq-a">馬場馬術・障害飛越・総合馬術の公式成績表PDFに対応。全日本選手権・地区大会・クラブ大会など主要な大会フォーマットを網羅しています。</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-q-mark">Q</span>動画はどこから取り込めますか？</div><div class="faq-a">スマートフォンのカメラロール、YouTubeリンク、GoProなどのアクションカメラからの取込みに対応（Pro・Eliteプラン）。</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-q-mark">Q</span>競合追跡はどのような仕組みですか？</div><div class="faq-a">PDF取込み時に同大会の出場馬・選手情報も一括取込みします。対戦した選手と馬は自動的にライバルリストに追加されます。</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-q-mark">Q</span>データは安全ですか？</div><div class="faq-a">すべてのデータはクラウドに暗号化して保存。スマートフォンを紛失しても大切な記録は安全です。</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-q-mark">Q</span>無料からのアップグレードはいつでも可能ですか？</div><div class="faq-a">はい、いつでも可能です。無料プランで登録したデータはすべて引き継がれます。</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container">
+    <h2 class="cta-title">まずは無料で<span style="color:var(--accent)">始めてみる</span></h2>
+    <p class="cta-sub">クレジットカード不要。馬1頭まで永久無料。</p>
+    <button class="btn-solid" style="font-size:16px;padding:16px 48px">今すぐ無料で始める</button>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">EQUILOG</div>
+  <div class="footer-tagline">競技の記録が、あなたと馬の歴史になる。</div>
+  <div class="footer-links">
+    <a href="#">利用規約</a>
+    <a href="#">プライバシーポリシー</a>
+    <a href="#">お問い合わせ</a>
+    <a href="#">運営会社</a>
+  </div>
+  <div class="footer-copy">© 2025 EquiLog. All rights reserved.</div>
+</footer>
+</body>
+</html>
