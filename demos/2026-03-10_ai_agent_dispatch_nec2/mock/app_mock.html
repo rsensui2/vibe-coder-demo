@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIエージェント管理ダッシュボード</title>
+  <style>
+    /* ===== リセット・基本 ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0a1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+      padding: 40px 20px;
+    }
+
+    /* ===== ステージ外テキスト ===== */
+    .scene-label {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ===== iPhoneフレーム ===== */
+    .iphone-frame {
+      position: relative;
+      width: 393px;
+      height: 852px;
+      background: #1a1a2e;
+      border-radius: 55px;
+      box-shadow:
+        0 0 0 2px #2a2a3e,
+        0 0 0 4px #1a1a2e,
+        0 0 0 7px #3a3a5e,
+        0 40px 80px rgba(0,0,0,0.7),
+        inset 0 0 0 1px rgba(255,255,255,0.05);
+      overflow: hidden;
+    }
+
+    /* サイドボタン */
+    .iphone-frame::before {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: 140px;
+      width: 4px;
+      height: 35px;
+      background: #2a2a3e;
+      border-radius: 2px 0 0 2px;
+      box-shadow: 0 50px 0 #2a2a3e, 0 100px 0 #2a2a3e;
+    }
+    .iphone-frame::after {
+      content: '';
+      position: absolute;
+      right: -4px;
+      top: 180px;
+      width: 4px;
+      height: 65px;
+      background: #2a2a3e;
+      border-radius: 0 2px 2px 0;
+    }
+
+    /* ===== スクリーン領域 ===== */
+    .screen {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 55px;
+      overflow: hidden;
+      background: #0f0f1f;
+    }
+
+    /* ===== ステータスバー ===== */
+    .status-bar {
+      position: relative;
+      height: 54px;
+      background: #0f0f1f;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 28px 6px;
+      z-index: 10;
+    }
+    .status-time {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 0;
+    }
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-icons svg {
+      width: 16px;
+      height: 12px;
+      fill: #fff;
+    }
+    .battery-icon {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .battery-body {
+      width: 25px;
+      height: 12px;
+      border: 1.5px solid #fff;
+      border-radius: 3px;
+      position: relative;
+      overflow: hidden;
+    }
+    .battery-fill {
+      position: absolute;
+      left: 1px; top: 1px; bottom: 1px;
+      width: 80%;
+      background: #fff;
+      border-radius: 1.5px;
+    }
+    .battery-tip {
+      width: 2px;
+      height: 6px;
+      background: #fff;
+      border-radius: 0 1px 1px 0;
+    }
+
+    /* ===== Dynamic Island ===== */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .di-camera {
+      width: 10px;
+      height: 10px;
+      background: #1a1a2e;
+      border-radius: 50%;
+      border: 1.5px solid #2a2a4e;
+    }
+    .di-sensor {
+      width: 8px;
+      height: 8px;
+      background: #1a1a2e;
+      border-radius: 50%;
+      border: 1.5px solid #2a2a4e;
+    }
+
+    /* ===== アプリヘッダー ===== */
+    .app-header {
+      background: linear-gradient(135deg, #0F1ED2 0%, #0a14a0 100%);
+      padding: 16px 24px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .app-header-title {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .app-header-sub {
+      color: rgba(255,255,255,0.7);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+    .header-avatar {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .header-bell {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    /* ===== スクロール可能コンテンツ ===== */
+    .scroll-content {
+      overflow-y: auto;
+      height: calc(852px - 54px - 72px - 68px);
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .scroll-content::-webkit-scrollbar { display: none; }
+
+    /* ===== タブナビゲーション ===== */
+    .tab-nav {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 82px;
+      background: rgba(15,15,31,0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: flex-start;
+      padding-top: 10px;
+      z-index: 100;
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 4px 0;
+      transition: opacity 0.2s;
+    }
+    .tab-item:active { opacity: 0.7; }
+    .tab-icon {
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: transform 0.2s;
+    }
+    .tab-item.active .tab-icon { transform: scale(1.1); }
+    .tab-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.4);
+      transition: color 0.2s;
+    }
+    .tab-item.active .tab-label { color: #2C69FF; }
+    .tab-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #2C69FF;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .tab-item.active .tab-dot { opacity: 1; }
+
+    /* ===== 画面パネル ===== */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ===== ダッシュボード画面 ===== */
+    .dashboard-content { padding: 16px; }
+
+    .greeting-block {
+      margin-bottom: 16px;
+    }
+    .greeting-text {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+    }
+    .greeting-name {
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    .greeting-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(44,105,255,0.15);
+      border: 1px solid rgba(44,105,255,0.3);
+      border-radius: 20px;
+      padding: 3px 10px;
+      color: #2C69FF;
+      font-size: 11px;
+      margin-top: 6px;
+    }
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background: #4CAF50;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* KPIカード3枚 */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .kpi-card {
+      background: linear-gradient(145deg, #1a1a2e, #16162a);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 14px 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #0F1ED2, #2C69FF);
+    }
+    .kpi-icon {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    .kpi-value {
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .kpi-label {
+      color: rgba(255,255,255,0.45);
+      font-size: 9px;
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+    .kpi-trend {
+      color: #4CAF50;
+      font-size: 9px;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    /* アクティビティ */
+    .section-title {
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      margin-top: 4px;
+    }
+    .activity-list { display: flex; flex-direction: column; gap: 8px; }
+    .activity-item {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .activity-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .ai-blue { background: rgba(15,30,210,0.2); border: 1px solid rgba(15,30,210,0.3); }
+    .ai-green { background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.3); }
+    .ai-orange { background: rgba(255,152,0,0.15); border: 1px solid rgba(255,152,0,0.3); }
+    .ai-red { background: rgba(244,67,54,0.15); border: 1px solid rgba(244,67,54,0.3); }
+    .ai-purple { background: rgba(156,39,176,0.15); border: 1px solid rgba(156,39,176,0.3); }
+    .activity-info { flex: 1; min-width: 0; }
+    .activity-name {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .activity-desc {
+      color: rgba(255,255,255,0.45);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+    .activity-time {
+      color: rgba(255,255,255,0.3);
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+
+    /* ===== エージェント一覧画面 ===== */
+    .agents-content { padding: 16px; }
+    .add-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #0F1ED2, #2C69FF);
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: 0.3px;
+    }
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .filter-chip {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 6px 14px;
+      color: rgba(255,255,255,0.6);
+      font-size: 11px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .filter-chip.active {
+      background: rgba(44,105,255,0.2);
+      border-color: #2C69FF;
+      color: #2C69FF;
+    }
+    .agent-list { display: flex; flex-direction: column; gap: 10px; }
+    .agent-card {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+    .agent-card-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .agent-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0F1ED2, #2C69FF);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .agent-meta { flex: 1; }
+    .agent-name {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .agent-type {
+      color: rgba(255,255,255,0.45);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+    .agent-status-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .status-active {
+      background: rgba(76,175,80,0.15);
+      color: #4CAF50;
+      border: 1px solid rgba(76,175,80,0.3);
+    }
+    .status-standby {
+      background: rgba(255,193,7,0.1);
+      color: #FFC107;
+      border: 1px solid rgba(255,193,7,0.25);
+    }
+    .status-error {
+      background: rgba(244,67,54,0.1);
+      color: #F44336;
+      border: 1px solid rgba(244,67,54,0.25);
+    }
+    .status-indicator {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .ind-active { background: #4CAF50; animation: pulse 2s infinite; }
+    .ind-standby { background: #FFC107; }
+    .ind-error { background: #F44336; }
+    .agent-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .agent-stat {
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+    }
+    .agent-stat-value {
+      color: #2C69FF;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .agent-stat-label {
+      color: rgba(255,255,255,0.35);
+      font-size: 9px;
+      margin-top: 2px;
+    }
+
+    /* ===== タスク管理画面 ===== */
+    .tasks-content { padding: 16px; }
+    .task-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 3px;
+      margin-bottom: 16px;
+    }
+    .task-tab {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .task-tab.active {
+      background: #0F1ED2;
+      color: #fff;
+    }
+    .task-list { display: flex; flex-direction: column; gap: 10px; }
+    .task-card {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .task-name {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.3;
+    }
+    .task-priority {
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+    .priority-high { background: rgba(244,67,54,0.15); color: #F44336; }
+    .priority-mid { background: rgba(255,152,0,0.15); color: #FF9800; }
+    .priority-low { background: rgba(76,175,80,0.15); color: #4CAF50; }
+    .task-agent {
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+    .progress-bar-bg {
+      background: rgba(255,255,255,0.07);
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #0F1ED2, #2C69FF);
+      transition: width 0.3s;
+    }
+    .progress-bar-fill.complete {
+      background: linear-gradient(90deg, #2e7d32, #4CAF50);
+    }
+    .progress-bar-fill.error {
+      background: linear-gradient(90deg, #b71c1c, #F44336);
+    }
+    .task-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .task-progress-text {
+      color: rgba(255,255,255,0.4);
+      font-size: 10px;
+    }
+    .task-time {
+      color: rgba(255,255,255,0.3);
+      font-size: 10px;
+    }
+
+    /* ===== レポート画面 ===== */
+    .report-content { padding: 16px; }
+    .report-period {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .period-label { color: #fff; font-size: 15px; font-weight: 700; }
+    .period-nav {
+      display: flex;
+      gap: 6px;
+    }
+    .period-btn {
+      width: 28px; height: 28px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* チャート */
+    .chart-container {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .chart-title {
+      color: rgba(255,255,255,0.6);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .chart-area {
+      height: 110px;
+      display: flex;
+      align-items: flex-end;
+      gap: 5px;
+      padding-bottom: 2px;
+    }
+    .chart-bar-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+    }
+    .chart-bar {
+      width: 100%;
+      border-radius: 5px 5px 2px 2px;
+      background: linear-gradient(180deg, #2C69FF, #0F1ED2);
+      transition: height 0.4s;
+      min-height: 4px;
+      flex-shrink: 0;
+    }
+    .chart-bar-label {
+      color: rgba(255,255,255,0.3);
+      font-size: 9px;
+      white-space: nowrap;
+    }
+    .chart-x-axis {
+      display: flex;
+      gap: 5px;
+      padding: 0;
+    }
+    /* スコアカード */
+    .score-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .score-card {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+    .score-ring-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .score-ring {
+      position: relative;
+      width: 64px;
+      height: 64px;
+    }
+    .score-ring svg {
+      width: 64px; height: 64px;
+      transform: rotate(-90deg);
+    }
+    .score-ring-track { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 6; }
+    .score-ring-fill { fill: none; stroke-width: 6; stroke-linecap: round; }
+    .score-ring-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .score-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    /* サマリー */
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-key { color: rgba(255,255,255,0.5); font-size: 12px; }
+    .summary-val { color: #fff; font-size: 13px; font-weight: 700; }
+    .summary-val.positive { color: #4CAF50; }
+
+    /* ===== 設定画面 ===== */
+    .settings-content { padding: 0 0 16px; }
+    .settings-profile {
+      background: linear-gradient(135deg, #0F1ED2 0%, #0a14a0 100%);
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .profile-avatar {
+      width: 56px;
+      height: 56px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    .profile-info {}
+    .profile-name { color: #fff; font-size: 17px; font-weight: 700; }
+    .profile-email { color: rgba(255,255,255,0.65); font-size: 12px; margin-top: 3px; }
+    .profile-plan {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,215,0,0.15);
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 12px;
+      padding: 3px 10px;
+      color: #FFD700;
+      font-size: 10px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .settings-section {
+      background: #1a1a2e;
+      border-radius: 16px;
+      margin: 8px 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .settings-section-label {
+      color: rgba(255,255,255,0.35);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 12px 16px 6px;
+      margin: 0 16px;
+    }
+    .setting-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer;
+    }
+    .setting-item:last-child { border-bottom: none; }
+    .setting-item:active { background: rgba(255,255,255,0.03); }
+    .setting-item-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .icon-blue { background: rgba(44,105,255,0.15); }
+    .icon-green { background: rgba(76,175,80,0.15); }
+    .icon-orange { background: rgba(255,152,0,0.15); }
+    .icon-red { background: rgba(244,67,54,0.15); }
+    .icon-purple { background: rgba(156,39,176,0.15); }
+    .icon-gold { background: rgba(255,215,0,0.12); }
+    .setting-item-text { flex: 1; }
+    .setting-item-name { color: #fff; font-size: 14px; }
+    .setting-item-desc { color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 2px; }
+    .setting-item-arrow {
+      color: rgba(255,255,255,0.2);
+      font-size: 16px;
+    }
+    .setting-toggle {
+      width: 44px;
+      height: 26px;
+      background: #0F1ED2;
+      border-radius: 13px;
+      position: relative;
+      cursor: pointer;
+    }
+    .setting-toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px; right: 2px;
+      width: 22px; height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    /* ===== ユーティリティ ===== */
+    .px-4 { padding-left: 16px; padding-right: 16px; }
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,0.05);
+      margin: 12px 16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="scene-label">AIエージェント管理ダッシュボード — NEC</div>
+
+<div class="iphone-frame">
+  <div class="screen">
+
+    <!-- Dynamic Island -->
+    <div class="dynamic-island">
+      <div class="di-sensor"></div>
+      <div class="di-camera"></div>
+    </div>
+
+    <!-- ステータスバー -->
+    <div class="status-bar">
+      <span class="status-time">15:17</span>
+      <div class="status-icons">
+        <!-- Signal -->
+        <svg viewBox="0 0 17 12" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="8" width="3" height="4" rx="1"/>
+          <rect x="4.5" y="5.5" width="3" height="6.5" rx="1"/>
+          <rect x="9" y="3" width="3" height="9" rx="1"/>
+          <rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.4"/>
+        </svg>
+        <!-- WiFi -->
+        <svg viewBox="0 0 16 12" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 9.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/>
+          <path d="M4.2 6.8a5.3 5.3 0 017.6 0l1.3-1.4a7.4 7.4 0 00-10.2 0l1.3 1.4z"/>
+          <path d="M1 3.6a10.5 10.5 0 0114 0L16.4 2A12.6 12.6 0 000 2L1 3.6z" opacity="0.5"/>
+        </svg>
+        <!-- Battery -->
+        <div class="battery-icon">
+          <div class="battery-body"><div class="battery-fill"></div></div>
+          <div class="battery-tip"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- アプリヘッダー -->
+    <div class="app-header">
+      <div>
+        <div class="app-header-title">エージェント Hub</div>
+        <div class="app-header-sub">NEC AIソリューション</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <div class="header-bell">🔔</div>
+        <div class="header-avatar">NE</div>
+      </div>
+    </div>
+
+    <!-- ===== パネル: ホーム ===== -->
+    <div class="panel active scroll-content" id="panel-home">
+      <div class="dashboard-content">
+
+        <div class="greeting-block">
+          <div class="greeting-text">おはようございます</div>
+          <div class="greeting-name">田中 部長</div>
+          <div class="greeting-badge">
+            <div class="badge-dot"></div>
+            12エージェント 稼働中
+          </div>
+        </div>
+
+        <!-- KPIカード3枚 -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon">🤖</div>
+            <div class="kpi-value">12</div>
+            <div class="kpi-label">稼働中<br>エージェント</div>
+            <div class="kpi-trend">▲ 2 増加</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">✅</div>
+            <div class="kpi-value">284</div>
+            <div class="kpi-label">本日タスク<br>完了数</div>
+            <div class="kpi-trend">▲ 32件増</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-value">¥2.1M</div>
+            <div class="kpi-label">今月コスト<br>削減額</div>
+            <div class="kpi-trend">▲ 18%増</div>
+          </div>
+        </div>
+
+        <!-- 最近のアクティビティ -->
+        <div class="section-title">最近のアクティビティ</div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="activity-icon ai-blue">📊</div>
+            <div class="activity-info">
+              <div class="activity-name">売上分析エージェント</div>
+              <div class="activity-desc">月次レポート生成 完了</div>
+            </div>
+            <div class="activity-time">3分前</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon ai-green">📧</div>
+            <div class="activity-info">
+              <div class="activity-name">メール処理エージェント</div>
+              <div class="activity-desc">問い合わせ47件に自動返信</div>
+            </div>
+            <div class="activity-time">12分前</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon ai-orange">🏭</div>
+            <div class="activity-info">
+              <div class="activity-name">製造ラインAI</div>
+              <div class="activity-desc">異常検知 → 自動調整済み</div>
+            </div>
+            <div class="activity-time">28分前</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon ai-purple">📋</div>
+            <div class="activity-info">
+              <div class="activity-name">契約管理エージェント</div>
+              <div class="activity-desc">更新期限3件をアラート送信</div>
+            </div>
+            <div class="activity-time">45分前</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon ai-red">⚠️</div>
+            <div class="activity-info">
+              <div class="activity-name">在庫管理エージェント</div>
+              <div class="activity-desc">部品A-3 在庫不足を検知</div>
+            </div>
+            <div class="activity-time">1時間前</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== パネル: エージェント一覧 ===== -->
+    <div class="panel scroll-content" id="panel-agents">
+      <div class="agents-content">
+
+        <button class="add-btn">＋ 新規エージェントを追加</button>
+
+        <div class="filter-row">
+          <div class="filter-chip active">すべて (12)</div>
+          <div class="filter-chip">稼働中 (9)</div>
+          <div class="filter-chip">待機中 (2)</div>
+          <div class="filter-chip">エラー (1)</div>
+        </div>
+
+        <div class="agent-list">
+
+          <div class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-avatar">📊</div>
+              <div class="agent-meta">
+                <div class="agent-name">売上分析エージェント</div>
+                <div class="agent-type">データ分析 / Analytics AI</div>
+              </div>
+              <div class="agent-status-badge status-active">
+                <div class="status-indicator ind-active"></div>稼働中
+              </div>
+            </div>
+            <div class="agent-stats">
+              <div class="agent-stat">
+                <div class="agent-stat-value">127h</div>
+                <div class="agent-stat-label">稼働時間</div>
+              </div>
+              <div class="agent-stat">
+                <div class="agent-stat-value">1,842</div>
+                <div class="agent-stat-label">完了タスク</div>
+              </div>
+              <div class="agent-stat">
+                <div class="agent-stat-value">99.2%</div>
+                <div class="agent-stat-label">精度</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-avatar">📧</div>
+              <div class="agent-meta">
+                <div class="agent-name">メール処理エージェント</div>
+                <div class="agent-type">コミュニケーション / NLP AI</div>
+              </div>
+              <div class="agent-status-badge status-active">
+                <div class="status-indicator ind-active"></div>稼働中
+              </div>
+            </div>
+            <div class="agent-stats">
+              <div class="agent-stat">
+                <div class="agent-stat-value">320h</div>
+                <div class="agent-stat-label">稼働時間</div>
+              </div>
+              <div class="agent-stat">
+                <div class="agent-stat-value">5,210</div>
+                <div class="agent-stat-label">処理件数</div>
+              </div>
+              <div class="agent-stat">
+                <div class="agent-stat-value">96.8%</div>
+                <div class="agent-stat-label">満足度</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-avatar">🏭</div>
+              <div class="agent-meta">
+                <div class="agent-name">製造ラインAI</div>
+                <div class="agent-type">製造管理 / IoT AI</div>
+              </div>
+              <div class="agent-status-badge status-active">
+                <div class="status-indicator ind-active"></div>稼働中
+              </div>
+            </div>
+            <div class="agent-stats">
+              <div class="agent-stat">
+                <div class="agent-stat-value">720h</div>
+                <div class="agent-stat-label">稼働時間</div>
+              </div>
+              <div class="agent-stat">
+                <div class="agent-stat-value">23</div>
+                <div class="agent-stat-label">異常検知</div>
+              </div>
+              <div class="agent-stat">
+                <div class="agent-stat-value">99.9%</div>
+                <div class="agent-stat-label">稼働率</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-avatar" style="background: linear-gradient(135deg, #7b2fff, #5500cc);">📋</div>
+              <div class="agent-meta">
+                <div class="agent-name">契約管理エージェント</div>
+                <div class="agent-type">法務サポート / Document AI</div>
+              </div>
+              <div class="agent-status-badge status-standby">
+                <div class="status-indicator ind-standby"></div>待機中
+              </div>
+            </div>
+            <div class="agent-stats">
+              <div class="agent-stat">
+                <div class="agent-stat-value">89h</div>
+                <div class="agent-stat-label">稼働時間</div>
+              </div>
+              <div class="agent-stat">
+                <div class="agent-stat-value">342</div>
+                <div class="agent-stat-label">処理件数</div>
+              </div>
+              <div class="agent-stat">
+                <div class="agent-stat-value">97.5%</div>
+                <div class="agent-stat-label">精度</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-card">
+            <div class="agent-card-top">
+              <div class="agent-avatar" style="background: linear-gradient(135deg, #d32f2f, #b71c1c);">⚠️</div>
+              <div class="agent-meta">
+                <div class="agent-name">在庫管理エージェント</div>
+                <div class="agent-type">SCM / Inventory AI</div>
+              </div>
+              <div class="agent-status-badge status-error">
+                <div class="status-indicator ind-error"></div>エラー
+              </div>
+            </div>
+            <div class="agent-stats">
+              <div class="agent-stat">
+                <div class="agent-stat-value">156h</div>
+                <div class="agent-stat-label">稼働時間</div>
+              </div>
+              <div class="agent-stat">
+                <div class="agent-stat-value">891</div>
+                <div class="agent-stat-label">処理件数</div>
+              </div>
+              <div class="agent-stat">
+                <div class="agent-stat-value">98.1%</div>
+                <div class="agent-stat-label">精度</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== パネル: タスク管理 ===== -->
+    <div class="panel scroll-content" id="panel-tasks">
+      <div class="tasks-content">
+
+        <div class="task-tabs">
+          <div class="task-tab active">進行中 (8)</div>
+          <div class="task-tab">完了済み (276)</div>
+          <div class="task-tab">エラー (3)</div>
+        </div>
+
+        <div class="task-list">
+
+          <div class="task-card">
+            <div class="task-header">
+              <div class="task-name">Q1 売上データ統合レポート生成</div>
+              <div class="task-priority priority-high">高</div>
+            </div>
+            <div class="task-agent">🤖 売上分析エージェント</div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: 78%"></div>
+            </div>
+            <div class="task-footer">
+              <div class="task-progress-text">78% 完了</div>
+              <div class="task-time">残り 約8分</div>
+            </div>
+          </div>
+
+          <div class="task-card">
+            <div class="task-header">
+              <div class="task-name">顧客問い合わせ 自動仕分け・返信</div>
+              <div class="task-priority priority-high">高</div>
+            </div>
+            <div class="task-agent">📧 メール処理エージェント</div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: 62%"></div>
+            </div>
+            <div class="task-footer">
+              <div class="task-progress-text">62% 完了 (29/47件)</div>
+              <div class="task-time">残り 約15分</div>
+            </div>
+          </div>
+
+          <div class="task-card">
+            <div class="task-header">
+              <div class="task-name">製造ライン品質検査 AI巡回</div>
+              <div class="task-priority priority-mid">中</div>
+            </div>
+            <div class="task-agent">🏭 製造ラインAI</div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: 91%"></div>
+            </div>
+            <div class="task-footer">
+              <div class="task-progress-text">91% 完了</div>
+              <div class="task-time">残り 約3分</div>
+            </div>
+          </div>
+
+          <div class="task-card" style="border-color: rgba(244,67,54,0.2);">
+            <div class="task-header">
+              <div class="task-name">在庫不足アラート 発注システム連携</div>
+              <div class="task-priority priority-high">高</div>
+            </div>
+            <div class="task-agent" style="color: #F44336;">⚠️ 在庫管理エージェント — エラー発生</div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill error" style="width: 35%"></div>
+            </div>
+            <div class="task-footer">
+              <div class="task-progress-text" style="color: #F44336;">APIタイムアウト</div>
+              <div class="task-time" style="color: #F44336;">要対応</div>
+            </div>
+          </div>
+
+          <div class="task-card">
+            <div class="task-header">
+              <div class="task-name">月次コスト削減レポート作成</div>
+              <div class="task-priority priority-low">低</div>
+            </div>
+            <div class="task-agent">📊 売上分析エージェント</div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: 45%"></div>
+            </div>
+            <div class="task-footer">
+              <div class="task-progress-text">45% 完了</div>
+              <div class="task-time">残り 約25分</div>
+            </div>
+          </div>
+
+          <div class="task-card" style="border-color: rgba(76,175,80,0.2);">
+            <div class="task-header">
+              <div class="task-name">新入社員 研修資料 自動更新</div>
+              <div class="task-priority priority-low">低</div>
+            </div>
+            <div class="task-agent">📋 契約管理エージェント</div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill complete" style="width: 100%"></div>
+            </div>
+            <div class="task-footer">
+              <div class="task-progress-text" style="color:#4CAF50;">✓ 完了</div>
+              <div class="task-time">今日 14:30</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== パネル: レポート ===== -->
+    <div class="panel scroll-content" id="panel-report">
+      <div class="report-content">
+
+        <div class="report-period">
+          <div class="period-label">2026年 3月</div>
+          <div class="period-nav">
+            <div class="period-btn">‹</div>
+            <div class="period-btn">›</div>
+          </div>
+        </div>
+
+        <!-- コスト削減グラフ -->
+        <div class="chart-container">
+          <div class="chart-title">月次コスト削減額（万円）</div>
+          <div class="chart-area" id="chart-bars"></div>
+        </div>
+
+        <!-- 効率化スコア -->
+        <div class="score-grid">
+          <div class="score-card">
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg viewBox="0 0 64 64">
+                  <circle class="score-ring-track" cx="32" cy="32" r="27"/>
+                  <circle class="score-ring-fill" cx="32" cy="32" r="27"
+                    stroke="#2C69FF"
+                    stroke-dasharray="169.6 169.6"
+                    stroke-dashoffset="25.4"/>
+                </svg>
+                <div class="score-ring-text">85</div>
+              </div>
+            </div>
+            <div class="score-label">業務効率化<br>スコア</div>
+          </div>
+          <div class="score-card">
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg viewBox="0 0 64 64">
+                  <circle class="score-ring-track" cx="32" cy="32" r="27"/>
+                  <circle class="score-ring-fill" cx="32" cy="32" r="27"
+                    stroke="#4CAF50"
+                    stroke-dasharray="169.6 169.6"
+                    stroke-dashoffset="16.96"/>
+                </svg>
+                <div class="score-ring-text">90</div>
+              </div>
+            </div>
+            <div class="score-label">タスク自動化<br>達成率</div>
+          </div>
+          <div class="score-card">
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg viewBox="0 0 64 64">
+                  <circle class="score-ring-track" cx="32" cy="32" r="27"/>
+                  <circle class="score-ring-fill" cx="32" cy="32" r="27"
+                    stroke="#FF9800"
+                    stroke-dasharray="169.6 169.6"
+                    stroke-dashoffset="42.4"/>
+                </svg>
+                <div class="score-ring-text">75</div>
+              </div>
+            </div>
+            <div class="score-label">エラー<br>解決率</div>
+          </div>
+          <div class="score-card">
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg viewBox="0 0 64 64">
+                  <circle class="score-ring-track" cx="32" cy="32" r="27"/>
+                  <circle class="score-ring-fill" cx="32" cy="32" r="27"
+                    stroke="#9C27B0"
+                    stroke-dasharray="169.6 169.6"
+                    stroke-dashoffset="10.18"/>
+                </svg>
+                <div class="score-ring-text">94</div>
+              </div>
+            </div>
+            <div class="score-label">ユーザー<br>満足度</div>
+          </div>
+        </div>
+
+        <!-- サマリー -->
+        <div class="chart-container" style="padding: 12px 16px;">
+          <div class="chart-title" style="margin-bottom: 0;">今月サマリー</div>
+          <div class="summary-row">
+            <span class="summary-key">累計コスト削減額</span>
+            <span class="summary-val positive">¥2,140,000</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">自動処理タスク数</span>
+            <span class="summary-val">8,472件</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">削減工数（人月換算）</span>
+            <span class="summary-val positive">12.4人月</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">エージェント稼働率</span>
+            <span class="summary-val positive">99.1%</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">ROI（投資対効果）</span>
+            <span class="summary-val positive">340%</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== パネル: 設定 ===== -->
+    <div class="panel scroll-content" id="panel-settings">
+      <div class="settings-content">
+
+        <div class="settings-profile">
+          <div class="profile-avatar">田</div>
+          <div class="profile-info">
+            <div class="profile-name">田中 一郎</div>
+            <div class="profile-email">tanaka@nec-company.co.jp</div>
+            <div class="profile-plan">⭐ Enterprise Plan</div>
+          </div>
+        </div>
+
+        <div class="settings-section-label">アカウント設定</div>
+        <div class="settings-section">
+          <div class="setting-item">
+            <div class="setting-item-icon icon-blue">👤</div>
+            <div class="setting-item-text">
+              <div class="setting-item-name">プロフィール編集</div>
+              <div class="setting-item-desc">氏名・メール・部署</div>
+            </div>
+            <div class="setting-item-arrow">›</div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-item-icon icon-purple">🔐</div>
+            <div class="setting-item-text">
+              <div class="setting-item-name">セキュリティ・認証</div>
+              <div class="setting-item-desc">2段階認証 有効中</div>
+            </div>
+            <div class="setting-item-arrow">›</div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-item-icon icon-blue">🔔</div>
+            <div class="setting-item-text">
+              <div class="setting-item-name">通知設定</div>
+              <div class="setting-item-desc">アラート・レポート配信</div>
+            </div>
+            <div class="setting-toggle"></div>
+          </div>
+        </div>
+
+        <div class="settings-section-label">プラン管理</div>
+        <div class="settings-section">
+          <div class="setting-item">
+            <div class="setting-item-icon icon-gold">⭐</div>
+            <div class="setting-item-text">
+              <div class="setting-item-name">現在のプラン</div>
+              <div class="setting-item-desc">Enterprise — ¥480,000/月</div>
+            </div>
+            <div class="setting-item-arrow">›</div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-item-icon icon-green">📊</div>
+            <div class="setting-item-text">
+              <div class="setting-item-name">利用状況</div>
+              <div class="setting-item-desc">エージェント 12/50台</div>
+            </div>
+            <div class="setting-item-arrow">›</div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-item-icon icon-blue">💳</div>
+            <div class="setting-item-text">
+              <div class="setting-item-name">請求・支払い</div>
+              <div class="setting-item-desc">次回請求日: 2026/04/01</div>
+            </div>
+            <div class="setting-item-arrow">›</div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-item-icon icon-orange">🔄</div>
+            <div class="setting-item-text">
+              <div class="setting-item-name">プランをアップグレード</div>
+              <div class="setting-item-desc">Unlimited Plan — 無制限</div>
+            </div>
+            <div class="setting-item-arrow">›</div>
+          </div>
+        </div>
+
+        <div class="settings-section-label">サポート・ヘルプ</div>
+        <div class="settings-section">
+          <div class="setting-item">
+            <div class="setting-item-icon icon-blue">💬</div>
+            <div class="setting-item-text">
+              <div class="setting-item-name">サポートチャット</div>
+              <div class="setting-item-desc">24時間対応 / 平均応答 2分</div>
+            </div>
+            <div class="setting-item-arrow">›</div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-item-icon icon-green">📞</div>
+            <div class="setting-item-text">
+              <div class="setting-item-name">電話サポート</div>
+              <div class="setting-item-desc">0120-XXX-XXX（平日 9-18時）</div>
+            </div>
+            <div class="setting-item-arrow">›</div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-item-icon icon-purple">📖</div>
+            <div class="setting-item-text">
+              <div class="setting-item-name">ドキュメント・FAQ</div>
+              <div class="setting-item-desc">利用ガイド・API仕様書</div>
+            </div>
+            <div class="setting-item-arrow">›</div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-item-icon icon-red">🚪</div>
+            <div class="setting-item-text">
+              <div class="setting-item-name">ログアウト</div>
+              <div class="setting-item-desc">このデバイスからサインアウト</div>
+            </div>
+            <div class="setting-item-arrow">›</div>
+          </div>
+        </div>
+
+        <div style="text-align:center; padding: 16px 0 8px; color: rgba(255,255,255,0.2); font-size: 10px;">
+          NEC AIエージェント Hub v2.4.1<br>© 2026 NEC Corporation
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== タブナビゲーション ===== -->
+    <nav class="tab-nav">
+      <div class="tab-item active" onclick="switchTab('home')">
+        <div class="tab-icon">🏠</div>
+        <div class="tab-label">ホーム</div>
+        <div class="tab-dot"></div>
+      </div>
+      <div class="tab-item" onclick="switchTab('agents')">
+        <div class="tab-icon">🤖</div>
+        <div class="tab-label">エージェント</div>
+        <div class="tab-dot"></div>
+      </div>
+      <div class="tab-item" onclick="switchTab('tasks')">
+        <div class="tab-icon">✅</div>
+        <div class="tab-label">タスク</div>
+        <div class="tab-dot"></div>
+      </div>
+      <div class="tab-item" onclick="switchTab('report')">
+        <div class="tab-icon">📈</div>
+        <div class="tab-label">レポート</div>
+        <div class="tab-dot"></div>
+      </div>
+      <div class="tab-item" onclick="switchTab('settings')">
+        <div class="tab-icon">⚙️</div>
+        <div class="tab-label">設定</div>
+        <div class="tab-dot"></div>
+      </div>
+    </nav>
+
+  </div><!-- /screen -->
+</div><!-- /iphone-frame -->
+
+<script>
+  // ===== タブ切り替え =====
+  function switchTab(name) {
+    // パネル切替
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    // タブ切替
+    const tabs = document.querySelectorAll('.tab-item');
+    const tabMap = { home: 0, agents: 1, tasks: 2, report: 3, settings: 4 };
+    tabs.forEach((t, i) => t.classList.toggle('active', i === tabMap[name]));
+    // スクロールリセット
+    const panel = document.getElementById('panel-' + name);
+    if (panel) panel.scrollTop = 0;
+  }
+
+  // ===== チャートバー生成 =====
+  (function buildChart() {
+    const data = [
+      { label: '10月', val: 68 },
+      { label: '11月', val: 95 },
+      { label: '12月', val: 112 },
+      { label: '1月',  val: 148 },
+      { label: '2月',  val: 172 },
+      { label: '3月',  val: 214 },
+    ];
+    const maxVal = Math.max(...data.map(d => d.val));
+    const container = document.getElementById('chart-bars');
+    if (!container) return;
+    container.style.cssText += 'align-items:flex-end;';
+    data.forEach(d => {
+      const heightPct = (d.val / maxVal) * 100;
+      const wrap = document.createElement('div');
+      wrap.className = 'chart-bar-wrap';
+      wrap.style.justifyContent = 'flex-end';
+      const bar = document.createElement('div');
+      bar.className = 'chart-bar';
+      bar.style.height = heightPct + '%';
+      bar.title = d.val + '万円';
+      const lbl = document.createElement('div');
+      lbl.className = 'chart-bar-label';
+      lbl.textContent = d.label;
+      wrap.appendChild(bar);
+      wrap.appendChild(lbl);
+      container.appendChild(wrap);
+    });
+  })();
+
+  // ===== タスクタブ切替（見た目のみ） =====
+  document.querySelectorAll('.task-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.task-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // ===== フィルターチップ切替（見た目のみ） =====
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // ===== 時計更新 =====
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const el = document.querySelector('.status-time');
+    if (el) el.textContent = h + ':' + m;
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+</script>
+
+</body>
+</html>
