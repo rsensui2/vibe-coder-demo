@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RYOKO AI | AIエージェント派遣</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#F0F4FF;--surface:#FFFFFF;--blue:#0F1ED2;--orange:#FF6B35;--text:#1A1A2E;--sub:#6B7280;--border:#D1D5DB}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+nav{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:14px 0}
+.nav-inner{display:flex;justify-content:space-between;align-items:center}
+.logo3{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:900;color:var(--text)}
+.logo3-dot{width:10px;height:10px;background:var(--orange);border-radius:50%;animation:bounce3 1s ease-in-out infinite}
+@keyframes bounce3{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.nav-btn3{background:var(--orange);color:#fff;padding:10px 24px;border-radius:100px;text-decoration:none;font-weight:700;font-size:14px}
+.hero3{padding:80px 0 60px;text-align:center}
+.hero3-emoji{font-size:64px;margin-bottom:16px;display:block}
+.hero3-tag{background:var(--orange);color:#fff;padding:6px 20px;border-radius:100px;font-size:13px;font-weight:700;display:inline-block;margin-bottom:24px}
+h1-3{display:block;font-size:clamp(32px,5vw,56px);font-weight:900;line-height:1.2;margin-bottom:20px;color:var(--text)}
+h1-3 em{font-style:normal;color:var(--orange)}
+.hero3-sub{font-size:18px;color:var(--sub);max-width:600px;margin:0 auto 36px;line-height:1.7}
+.hero3-cta-wrap{display:flex;gap:16px;justify-content:center;margin-bottom:60px;flex-wrap:wrap}
+.btn3-main{background:var(--orange);color:#fff;padding:18px 44px;border-radius:100px;text-decoration:none;font-weight:800;font-size:17px;box-shadow:0 8px 24px rgba(255,107,53,0.35)}
+.btn3-sub{background:#fff;color:var(--text);padding:18px 36px;border-radius:100px;text-decoration:none;font-weight:700;font-size:17px;border:2px solid var(--border)}
+.hero3-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:800px;margin:0 auto}
+.hero3-card{background:#fff;border-radius:20px;padding:24px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.06)}
+.hero3-card-num{font-size:42px;font-weight:900;color:var(--orange);margin-bottom:8px}
+.hero3-card-label{color:var(--sub);font-size:14px}
+.section3{padding:80px 0}
+.sec3-tag{font-size:12px;font-weight:800;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;text-align:center}
+.sec3-title{font-size:clamp(26px,3vw,38px);font-weight:900;text-align:center;margin-bottom:48px}
+.prob3-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.prob3-card{background:#fff;border-radius:20px;padding:28px;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06)}
+.prob3-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--orange)}
+.prob3-icon{font-size:36px;margin-bottom:16px}
+.prob3-title{font-size:18px;font-weight:800;margin-bottom:10px}
+.prob3-desc{color:var(--sub);font-size:14px;margin-bottom:14px;line-height:1.6}
+.prob3-stat{font-size:22px;font-weight:900;color:var(--orange)}
+.sol3-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.sol3-list{display:flex;flex-direction:column;gap:20px}
+.sol3-item{display:flex;gap:16px;background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 16px rgba(0,0,0,0.04)}
+.sol3-num{width:40px;height:40px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex-shrink:0}
+.sol3-item-title{font-size:15px;font-weight:700;margin-bottom:4px}
+.sol3-item-desc{color:var(--sub);font-size:13px;line-height:1.5}
+.comp3{background:#fff;border-radius:20px;padding:28px;box-shadow:0 4px 20px rgba(0,0,0,0.06)}
+.comp3-head{display:grid;grid-template-columns:2fr 1fr 1fr;margin-bottom:16px}
+.comp3-head-cell{font-size:13px;font-weight:800;color:var(--sub);padding:8px;text-align:center}
+.comp3-head-cell:first-child{text-align:left}
+.comp3-head-cell.hl3{color:var(--orange)}
+.comp3-row{display:grid;grid-template-columns:2fr 1fr 1fr;padding:10px 0;border-top:1px solid var(--border)}
+.comp3-cell{font-size:14px;color:var(--sub);text-align:center;padding:0 8px}
+.comp3-cell:first-child{color:var(--text);font-weight:600;text-align:left;padding-left:0}
+.comp3-cell.good3{color:var(--orange);font-weight:700}
+.feat3-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feat3{background:#fff;border-radius:20px;padding:24px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.04);transition:transform 0.2s}
+.feat3:hover{transform:translateY(-4px)}
+.feat3-emoji{font-size:40px;margin-bottom:14px;display:block}
+.feat3-title{font-size:16px;font-weight:800;margin-bottom:8px}
+.feat3-desc{color:var(--sub);font-size:13px;line-height:1.5}
+.case3-list{display:flex;flex-direction:column;gap:16px}
+.case3{background:#fff;border-radius:20px;padding:24px;display:grid;grid-template-columns:1fr 2fr 100px;gap:20px;align-items:center;box-shadow:0 4px 16px rgba(0,0,0,0.04)}
+.case3-badge{background:var(--bg);border-radius:100px;padding:4px 12px;font-size:12px;color:var(--sub);display:inline-block;margin-bottom:6px}
+.case3-title{font-size:15px;font-weight:800}
+.case3-result{color:var(--sub);font-size:14px}
+.case3-result b{color:#059669;display:block;margin-top:4px}
+.case3-metric{font-size:40px;font-weight:900;color:var(--orange);text-align:right}
+.pricing3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.price3{background:#fff;border-radius:20px;padding:28px;box-shadow:0 4px 16px rgba(0,0,0,0.04);position:relative}
+.price3.feat{box-shadow:0 8px 32px rgba(255,107,53,0.2);border:2px solid var(--orange)}
+.p3badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--orange);color:#fff;padding:4px 16px;border-radius:100px;font-size:12px;font-weight:800;white-space:nowrap}
+.p3name{font-size:13px;font-weight:800;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.p3price{font-size:38px;font-weight:900;color:var(--text);margin-bottom:4px}
+.p3price span{font-size:14px;color:var(--sub);font-weight:400}
+.p3desc{color:var(--sub);font-size:13px;margin-bottom:18px}
+.p3list{list-style:none;margin-bottom:24px}
+.p3list li{font-size:13px;color:var(--sub);padding:6px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.p3list li::before{content:'🟠';font-size:10px}
+.p3btn{display:block;text-align:center;padding:14px;border-radius:100px;font-weight:800;text-decoration:none;font-size:15px}
+.p3btn.p{background:var(--orange);color:#fff}
+.p3btn.s{border:2px solid var(--border);color:var(--text);background:#fff}
+.faq3-list{max-width:800px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.faq3{background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04)}
+.faq3-q{font-weight:800;font-size:16px;margin-bottom:10px;color:var(--text)}
+.faq3-a{color:var(--sub);font-size:14px;line-height:1.6}
+.cta3{background:linear-gradient(135deg,var(--orange),#FF9858);padding:80px 0;text-align:center;margin-top:80px}
+.cta3 h2{color:#fff;font-size:clamp(28px,4vw,44px);font-weight:900;margin-bottom:16px}
+.cta3 p{color:rgba(255,255,255,0.85);font-size:17px;margin-bottom:40px}
+.cta3-btn{background:#fff;color:var(--orange);padding:18px 48px;border-radius:100px;text-decoration:none;font-weight:900;font-size:17px;display:inline-block;box-shadow:0 8px 24px rgba(0,0,0,0.15)}
+footer3{background:#1A1A2E;color:rgba(255,255,255,0.5);text-align:center;padding:28px;font-size:14px}
+footer3 a{color:var(--orange);text-decoration:none}
+@media(max-width:768px){.hero3-cards,.prob3-grid,.feat3-grid,.pricing3,.sol3-wrap{grid-template-columns:1fr}.case3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav><div class="container"><div class="nav-inner"><div class="logo3"><div class="logo3-dot"></div>RYOKO AI</div><a href="#cta3" class="nav-btn3">無料で試す 🎉</a></div></div></nav>
+<section class="hero3">
+  <div class="container">
+    <span class="hero3-emoji">🤖</span>
+    <div class="hero3-tag">✨ AIエージェント派遣サービス</div>
+    <h1-3>「うちにAI人材いないから…」<br>その悩み、解決します。<em>即日で。</em></h1-3>
+    <p class="hero3-sub">RYOKOがあなたの会社に派遣されて、毎日働きます。採用コスト・教育期間・マネジメント、全部不要です。</p>
+    <div class="hero3-cta-wrap">
+      <a href="#cta3" class="btn3-main">🚀 2週間 無料体験</a>
+      <a href="#features3" class="btn3-sub">もっと見る ↓</a>
+    </div>
+    <div class="hero3-cards">
+      <div class="hero3-card"><div class="hero3-card-num">72%</div><div class="hero3-card-label">コスト削減</div></div>
+      <div class="hero3-card"><div class="hero3-card-num">3日</div><div class="hero3-card-label">最短導入</div></div>
+      <div class="hero3-card"><div class="hero3-card-num">24h</div><div class="hero3-card-label">365日稼働</div></div>
+    </div>
+  </div>
+</section>
+<section class="section3" style="background:#fff">
+  <div class="container">
+    <div class="sec3-tag">PROBLEM</div>
+    <div class="sec3-title">こんな悩み、ありませんか？</div>
+    <div class="prob3-grid">
+      <div class="prob3-card"><div class="prob3-icon">😩</div><div class="prob3-title">人材が採れない</div><div class="prob3-desc">AIエンジニアの採用には平均18ヶ月かかる。その間、競合はどんどん進んでいく。</div><div class="prob3-stat">求人倍率 8.2倍</div></div>
+      <div class="prob3-card"><div class="prob3-icon">💸</div><div class="prob3-title">お金がかかりすぎる</div><div class="prob3-desc">AI導入のPoCだけで数百万〜数千万円。しかも成功するかわからない。</div><div class="prob3-stat">失敗率 67%</div></div>
+      <div class="prob3-card"><div class="prob3-icon">😰</div><div class="prob3-title">維持するのが大変</div><div class="prob3-desc">導入後も更新・監視・改修が永遠に続く。本業に集中できない。</div><div class="prob3-stat">年間追加費800万円〜</div></div>
+    </div>
+  </div>
+</section>
+<section class="section3">
+  <div class="container">
+    <div class="sec3-tag">SOLUTION</div>
+    <div class="sec3-title">だから「派遣」という選択肢を</div>
+    <div class="sol3-wrap">
+      <div class="sol3-list">
+        <div class="sol3-item"><div class="sol3-num">1</div><div><div class="sol3-item-title">ヒアリング（Day 1）</div><div class="sol3-item-desc">どんな業務を自動化したいか聞かせてください。</div></div></div>
+        <div class="sol3-item"><div class="sol3-num">2</div><div><div class="sol3-item-title">環境構築（Day 2）</div><div class="sol3-item-desc">御社専用のRYOKOを設定・カスタマイズします。</div></div></div>
+        <div class="sol3-item"><div class="sol3-num">3</div><div><div class="sol3-item-title">試運用開始（Day 3）</div><div class="sol3-item-desc">いよいよRYOKOがあなたの会社で働き始めます！</div></div></div>
+      </div>
+      <div class="comp3">
+        <div class="comp3-head"><div class="comp3-head-cell">比較</div><div class="comp3-head-cell">従来SaaS</div><div class="comp3-head-cell hl3">RYOKO</div></div>
+        <div class="comp3-row"><div class="comp3-cell">導入期間</div><div class="comp3-cell">3〜6ヶ月</div><div class="comp3-cell good3">最短3日</div></div>
+        <div class="comp3-row"><div class="comp3-cell">初期費用</div><div class="comp3-cell">500万〜</div><div class="comp3-cell good3">¥0</div></div>
+        <div class="comp3-row"><div class="comp3-cell">カスタマイズ</div><div class="comp3-cell">追加費用</div><div class="comp3-cell good3">要件定義不要</div></div>
+        <div class="comp3-row"><div class="comp3-cell">運用管理</div><div class="comp3-cell">自社担当</div><div class="comp3-cell good3">完全お任せ</div></div>
+        <div class="comp3-row"><div class="comp3-cell">契約</div><div class="comp3-cell">年間縛り</div><div class="comp3-cell good3">月次・成果型</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section3" style="background:#fff" id="features3">
+  <div class="container">
+    <div class="sec3-tag">FEATURES</div>
+    <div class="sec3-title">RYOKOにできること</div>
+    <div class="feat3-grid">
+      <div class="feat3"><span class="feat3-emoji">📧</span><div class="feat3-title">メール・Slack自動対応</div><div class="feat3-desc">24時間いつでも即レス。対応漏れゼロ。</div></div>
+      <div class="feat3"><span class="feat3-emoji">📊</span><div class="feat3-title">レポート自動生成</div><div class="feat3-desc">KPI・週次・月次レポートを自動作成・配信。</div></div>
+      <div class="feat3"><span class="feat3-emoji">🗓️</span><div class="feat3-title">スケジュール調整</div><div class="feat3-desc">会議設定・リマインドを全自動化。</div></div>
+      <div class="feat3"><span class="feat3-emoji">🔍</span><div class="feat3-title">情報収集・リサーチ</div><div class="feat3-desc">競合・市場・業界動向を毎日自動収集。</div></div>
+      <div class="feat3"><span class="feat3-emoji">🔒</span><div class="feat3-title">セキュリティ万全</div><div class="feat3-desc">専用サーバー・暗号化で情報漏洩ゼロ。</div></div>
+      <div class="feat3"><span class="feat3-emoji">🌱</span><div class="feat3-title">使うほど成長</div><div class="feat3-desc">御社の文化・ルールを学習し続ける。</div></div>
+    </div>
+  </div>
+</section>
+<section class="section3">
+  <div class="container">
+    <div class="sec3-tag">CASES</div>
+    <div class="sec3-title">こんな成果が出ています</div>
+    <div class="case3-list">
+      <div class="case3"><div><span class="case3-badge">製造業 A社</span><div class="case3-title">営業レポート自動化</div></div><div class="case3-result">週40時間かかっていた作業が<b>週3時間に（-92%）</b></div><div class="case3-metric">92%</div></div>
+      <div class="case3"><div><span class="case3-badge">金融機関 B社</span><div class="case3-title">問合せ対応の自動化</div></div><div class="case3-result">専任3名体制から<b>AI対応率87%達成</b></div><div class="case3-metric">87%</div></div>
+      <div class="case3"><div><span class="case3-badge">IT商社 C社</span><div class="case3-title">多言語対応を自動化</div></div><div class="case3-result">言語バリアをなくし<b>契約締結速度3倍</b></div><div class="case3-metric">3x</div></div>
+    </div>
+  </div>
+</section>
+<section class="section3" style="background:#fff">
+  <div class="container">
+    <div class="sec3-tag">PRICING</div>
+    <div class="sec3-title">シンプルな料金プラン</div>
+    <div class="pricing3">
+      <div class="price3"><div class="p3name">Starter</div><div class="p3price">¥150,000<span>/月</span></div><div class="p3desc">まず試したい方に</div><ul class="p3list"><li>エージェント1体</li><li>タスク最大5種</li><li>Slack連携</li><li>月次レポート</li></ul><a href="#cta3" class="p3btn s">試してみる</a></div>
+      <div class="price3 feat"><div class="p3badge">🔥 人気No.1</div><div class="p3name">Business</div><div class="p3price">¥380,000<span>/月</span></div><div class="p3desc">本格活用はこれ</div><ul class="p3list"><li>エージェント3体</li><li>タスク無制限</li><li>全チャンネル連携</li><li>週次KPI</li><li>専任サポート</li></ul><a href="#cta3" class="p3btn p">🚀 無料で試す</a></div>
+      <div class="price3"><div class="p3name">Enterprise</div><div class="p3price" style="font-size:26px">相談次第</div><div class="p3desc">大企業・グループ向け</div><ul class="p3list"><li>エージェント無制限</li><li>専用VPS環境</li><li>完全カスタム</li><li>NEC共同提案</li></ul><a href="#cta3" class="p3btn s">問合せる</a></div>
+    </div>
+  </div>
+</section>
+<section class="section3">
+  <div class="container">
+    <div class="sec3-tag">FAQ</div>
+    <div class="sec3-title">よくある質問</div>
+    <div class="faq3-list">
+      <div class="faq3"><div class="faq3-q">😮 本当に3日で使えるの？</div><div class="faq3-a">はい！初回ヒアリング→環境構築→試運用の3ステップで始められます。難しい設定は私たちが全部やります。</div></div>
+      <div class="faq3"><div class="faq3-q">🔒 情報が漏れたりしない？</div><div class="faq3-a">御社専用の隔離された環境で動きます。E2E暗号化＋ISO27001準拠で、セキュリティはバッチリです。</div></div>
+      <div class="faq3"><div class="faq3-q">🔗 うちのシステムと繋がる？</div><div class="faq3-a">Slack・Teams・Gmail・kintoneなど主要ツールは対応済み。Enterpriseではフル統合も可能です。</div></div>
+      <div class="faq3"><div class="faq3-q">💳 いつでも解約できる？</div><div class="faq3-a">月次契約なのでいつでも解約OK。違約金もカード縛りもありません。</div></div>
+      <div class="faq3"><div class="faq3-q">🎁 トライアルって本当に無料？</div><div class="faq3-a">2週間完全無料です！クレジットカード不要・即日スタートできます。気に入らなければそのままさよならでOK。</div></div>
+    </div>
+  </div>
+</section>
+<div class="cta3" id="cta3">
+  <h2>まずは2週間、無料でお試し！🎉</h2>
+  <p>リスクゼロ・クレジットカード不要・即日スタートOK<br>RYOKOがどれだけ使えるか、体験してみてください。</p>
+  <a href="https://ryoko.tekion.jp" class="cta3-btn">無料トライアルを始める →</a>
+</div>
+<footer3><div class="container">© 2026 TEKION Group. All rights reserved. | <a href="https://ryoko.tekion.jp">ryoko.tekion.jp</a> | contact@tekion.jp</div></footer3>
+</body>
+</html>
