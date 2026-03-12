@@ -1,0 +1,2024 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GravRec AI - Mock App</title>
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #060e18;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Hiragino Sans', sans-serif;
+    background-image: radial-gradient(ellipse at 20% 50%, rgba(0,229,255,0.05) 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 20%, rgba(124,58,237,0.07) 0%, transparent 60%);
+  }
+
+  /* ===== iPhone Frame ===== */
+  .iphone-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .iphone-frame {
+    width: 375px;
+    height: 812px;
+    background: #1a1a2e;
+    border-radius: 54px;
+    position: relative;
+    box-shadow:
+      0 0 0 2px #2a2a3e,
+      0 0 0 4px #1a1a2e,
+      0 0 0 7px #3a3a5e,
+      0 0 60px rgba(0,229,255,0.15),
+      0 40px 80px rgba(0,0,0,0.6);
+    overflow: hidden;
+  }
+
+  /* Side buttons */
+  .iphone-frame::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 120px;
+    width: 3px;
+    height: 32px;
+    background: #3a3a5e;
+    border-radius: 2px 0 0 2px;
+    box-shadow: 0 42px 0 #3a3a5e, 0 82px 0 #3a3a5e;
+  }
+  .iphone-frame::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 160px;
+    width: 3px;
+    height: 64px;
+    background: #3a3a5e;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* Screen */
+  .iphone-screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #0D1B2A;
+    border-radius: 54px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 36px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .dynamic-island.recording {
+    width: 200px;
+    background: #0a0a0a;
+  }
+  .dynamic-island .di-camera {
+    width: 10px;
+    height: 10px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    position: relative;
+  }
+  .dynamic-island .di-camera::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 4px;
+    height: 4px;
+    background: #2a2a4a;
+    border-radius: 50%;
+  }
+  .dynamic-island .di-rec {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .dynamic-island.recording .di-camera { display: none; }
+  .dynamic-island.recording .di-rec { display: flex; }
+  .di-dot {
+    width: 8px;
+    height: 8px;
+    background: #ff3b30;
+    border-radius: 50%;
+    animation: diPulse 1s infinite;
+  }
+  @keyframes diPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* Status Bar */
+  .status-bar {
+    height: 54px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 24px 8px;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .status-time {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-icons svg {
+    fill: #fff;
+  }
+
+  /* App Content */
+  .app-content {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Screens */
+  .screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow-y: auto;
+    display: none;
+    flex-direction: column;
+    padding-bottom: 80px;
+  }
+  .screen.active { display: flex; }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* ===== App Header ===== */
+  .app-header {
+    padding: 16px 20px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .app-header h1 {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #00E5FF, #7C3AED);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .app-header .header-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+  }
+  .avatar-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00E5FF, #7C3AED);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0D1B2A;
+    cursor: pointer;
+  }
+
+  /* ===== Home Screen ===== */
+  .new-meeting-btn {
+    margin: 8px 20px 20px;
+    background: linear-gradient(135deg, #00E5FF, #0099cc);
+    border: none;
+    border-radius: 16px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 24px rgba(0,229,255,0.3);
+  }
+  .new-meeting-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 30px rgba(0,229,255,0.4); }
+  .new-meeting-btn:active { transform: translateY(0); }
+  .new-meeting-btn .btn-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .new-meeting-btn .btn-text { text-align: left; }
+  .new-meeting-btn .btn-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0D1B2A;
+  }
+  .new-meeting-btn .btn-sub {
+    font-size: 11px;
+    color: rgba(13,27,42,0.7);
+    margin-top: 2px;
+  }
+  .new-meeting-btn .btn-arrow {
+    margin-left: auto;
+    font-size: 18px;
+    color: rgba(13,27,42,0.6);
+  }
+
+  /* Section label */
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 0 20px 10px;
+  }
+
+  /* Meeting Card */
+  .meeting-card {
+    margin: 0 20px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .meeting-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(135deg, #00E5FF, #7C3AED);
+    border-radius: 3px 0 0 3px;
+  }
+  .meeting-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(0,229,255,0.2); }
+  .meeting-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .meeting-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .meeting-date {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 3px;
+  }
+  .meeting-badge {
+    background: rgba(0,229,255,0.15);
+    color: #00E5FF;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(0,229,255,0.2);
+    flex-shrink: 0;
+  }
+  .meeting-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .meeting-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+  }
+  .meeting-thumb {
+    width: 48px;
+    height: 32px;
+    background: rgba(124,58,237,0.2);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(124,58,237,0.3);
+    overflow: hidden;
+  }
+  .meeting-thumb svg { opacity: 0.7; }
+
+  /* Stats bar */
+  .stats-bar {
+    margin: 0 20px 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 0;
+  }
+  .stat-item {
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+  .stat-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 20%;
+    height: 60%;
+    width: 1px;
+    background: rgba(255,255,255,0.08);
+  }
+  .stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: #00E5FF;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  /* ===== Recording Screen ===== */
+  .recording-header {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .recording-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+  }
+  .rec-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,59,48,0.15);
+    border: 1px solid rgba(255,59,48,0.3);
+    color: #ff3b30;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+  .rec-dot {
+    width: 6px;
+    height: 6px;
+    background: #ff3b30;
+    border-radius: 50%;
+    animation: diPulse 1s infinite;
+  }
+  .timer-display {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Speakers */
+  .speakers-row {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px 14px;
+    flex-shrink: 0;
+  }
+  .speaker-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 5px 10px 5px 5px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+  }
+  .speaker-chip.active {
+    border-color: rgba(0,229,255,0.4);
+    background: rgba(0,229,255,0.08);
+    color: #00E5FF;
+  }
+  .speaker-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+  }
+  .speaker-chip.active .speaker-avatar {
+    background: #00E5FF;
+    color: #0D1B2A;
+    animation: avatarPulse 2s infinite;
+  }
+  .speaker-chip:not(.active) .speaker-avatar {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.5);
+  }
+  @keyframes avatarPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,255,0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(0,229,255,0); }
+  }
+
+  /* Waveform */
+  .waveform-container {
+    margin: 0 20px 14px;
+    height: 64px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .waveform-canvas {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 8px;
+    gap: 2px;
+  }
+  .wave-bar {
+    width: 3px;
+    background: linear-gradient(to top, #7C3AED, #00E5FF);
+    border-radius: 2px;
+    animation: waveAnim 0.6s ease-in-out infinite alternate;
+    flex-shrink: 0;
+  }
+  @keyframes waveAnim {
+    0% { height: var(--min-h, 4px); opacity: 0.4; }
+    100% { height: var(--max-h, 40px); opacity: 1; }
+  }
+  .waveform-label {
+    position: absolute;
+    top: 8px; left: 12px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Gravrec area */
+  .gravrec-area {
+    flex: 1;
+    margin: 0 20px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(124,58,237,0.2);
+    border-radius: 16px;
+    padding: 14px;
+    position: relative;
+    overflow: hidden;
+    min-height: 260px;
+  }
+  .gravrec-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(124,58,237,0.7);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .gravrec-label::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: #7C3AED;
+    border-radius: 50%;
+    animation: diPulse 1.5s infinite;
+  }
+  .gravrec-svg {
+    width: 100%;
+    height: 220px;
+  }
+
+  /* SVG drawing animation */
+  .svg-path-animated {
+    fill: none;
+    stroke: #00E5FF;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawPath 3s ease-in-out forwards;
+  }
+  .svg-path-animated.delay1 { animation-delay: 0.5s; stroke: #7C3AED; }
+  .svg-path-animated.delay2 { animation-delay: 1.5s; stroke: #00E5FF; }
+  .svg-path-animated.delay3 { animation-delay: 2.5s; stroke: rgba(255,255,255,0.5); }
+  .svg-path-animated.delay4 { animation-delay: 3.5s; stroke: #00E5FF; stroke-width: 1.5; }
+  .svg-path-animated.delay5 { animation-delay: 4.2s; stroke: #7C3AED; stroke-width: 1.5; }
+  @keyframes drawPath {
+    to { stroke-dashoffset: 0; }
+  }
+
+  .svg-text-animated {
+    fill: rgba(255,255,255,0.7);
+    font-size: 10px;
+    font-family: -apple-system, sans-serif;
+    opacity: 0;
+    animation: fadeInText 0.5s ease forwards;
+  }
+  .svg-text-animated.t1 { animation-delay: 1.2s; }
+  .svg-text-animated.t2 { animation-delay: 2.2s; }
+  .svg-text-animated.t3 { animation-delay: 3.2s; }
+  .svg-text-animated.t4 { animation-delay: 4s; }
+  @keyframes fadeInText {
+    to { opacity: 1; }
+  }
+
+  .svg-circle-animated {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: drawPath 1.5s ease-in-out forwards;
+  }
+  .svg-circle-animated.c1 { stroke: #00E5FF; animation-delay: 0.2s; }
+  .svg-circle-animated.c2 { stroke: #7C3AED; animation-delay: 1.8s; }
+  .svg-circle-animated.c3 { stroke: rgba(0,229,255,0.5); animation-delay: 3s; }
+
+  /* AI generating indicator */
+  .ai-generating {
+    position: absolute;
+    bottom: 12px; right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 10px;
+    color: #a78bfa;
+    font-weight: 600;
+  }
+  .ai-dots {
+    display: flex;
+    gap: 3px;
+  }
+  .ai-dot {
+    width: 4px; height: 4px;
+    background: #7C3AED;
+    border-radius: 50%;
+    animation: aiDotBounce 1.2s ease-in-out infinite;
+  }
+  .ai-dot:nth-child(2) { animation-delay: 0.2s; }
+  .ai-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes aiDotBounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+    40% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  /* Stop button */
+  .stop-btn {
+    margin: 14px 20px 0;
+    background: rgba(255,59,48,0.1);
+    border: 1px solid rgba(255,59,48,0.3);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    color: #ff3b30;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .stop-btn:hover { background: rgba(255,59,48,0.15); }
+
+  /* ===== Confirm Screen ===== */
+  .confirm-header {
+    padding: 16px 20px 10px;
+    flex-shrink: 0;
+  }
+  .confirm-header h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .confirm-header p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+  }
+  .confirm-preview {
+    margin: 0 20px 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 16px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .confirm-preview::before {
+    content: 'GRAPHIC RECORDING';
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 8px;
+    font-weight: 700;
+    color: rgba(124,58,237,0.5);
+    letter-spacing: 1px;
+  }
+  .confirm-preview svg {
+    width: 100%;
+    height: 200px;
+  }
+
+  /* AI suggestion chips */
+  .suggestion-row {
+    padding: 0 20px 14px;
+    flex-shrink: 0;
+  }
+  .suggestion-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 8px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  .chip {
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.2);
+    color: #00E5FF;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chip:hover { background: rgba(0,229,255,0.15); }
+  .chip.selected {
+    background: rgba(0,229,255,0.2);
+    border-color: #00E5FF;
+  }
+
+  .confirm-actions {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px;
+    flex-shrink: 0;
+  }
+  .btn-secondary {
+    flex: 1;
+    padding: 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .btn-primary {
+    flex: 2;
+    padding: 14px;
+    background: linear-gradient(135deg, #7C3AED, #5b21b6);
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(124,58,237,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); }
+
+  /* ===== History Screen ===== */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px 14px;
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.5);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .filter-chip.active {
+    background: rgba(0,229,255,0.1);
+    border-color: rgba(0,229,255,0.3);
+    color: #00E5FF;
+  }
+
+  .history-card {
+    margin: 0 20px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .history-card:hover { border-color: rgba(0,229,255,0.2); }
+  .history-card-top {
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+    align-items: flex-start;
+  }
+  .history-thumb {
+    width: 72px;
+    height: 52px;
+    background: rgba(124,58,237,0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(124,58,237,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .history-info { flex: 1; }
+  .history-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .history-date {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 6px;
+  }
+  .history-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .history-tag {
+    background: rgba(124,58,237,0.15);
+    color: #a78bfa;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .history-card-footer {
+    border-top: 1px solid rgba(255,255,255,0.04);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .history-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .history-action-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .history-action-btn:hover {
+    background: rgba(0,229,255,0.08);
+    border-color: rgba(0,229,255,0.2);
+    color: #00E5FF;
+  }
+  .history-duration {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* ===== Settings Screen ===== */
+  .settings-profile {
+    margin: 8px 20px 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00E5FF, #7C3AED);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: #0D1B2A;
+    flex-shrink: 0;
+  }
+  .profile-info .profile-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .profile-info .profile-email {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+  }
+  .profile-plan {
+    margin-left: auto;
+    background: linear-gradient(135deg, #00E5FF22, #7C3AED22);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 10px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #a78bfa;
+  }
+
+  .settings-group {
+    margin: 0 20px 16px;
+    flex-shrink: 0;
+  }
+  .settings-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 0 4px 8px;
+  }
+  .settings-group-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .settings-row:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 16px; right: 16px;
+    height: 1px;
+    background: rgba(255,255,255,0.04);
+  }
+  .settings-row:hover { background: rgba(255,255,255,0.03); }
+  .settings-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .settings-icon.blue { background: rgba(0,229,255,0.1); }
+  .settings-icon.purple { background: rgba(124,58,237,0.15); }
+  .settings-icon.green { background: rgba(52,199,89,0.1); }
+  .settings-icon.orange { background: rgba(255,159,10,0.1); }
+  .settings-text { flex: 1; }
+  .settings-title-text {
+    font-size: 14px;
+    color: #fff;
+    font-weight: 500;
+  }
+  .settings-subtitle {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 1px;
+  }
+  .settings-value {
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+  }
+  .settings-chevron {
+    color: rgba(255,255,255,0.2);
+    font-size: 14px;
+  }
+  .toggle {
+    width: 42px;
+    height: 24px;
+    background: #00E5FF;
+    border-radius: 12px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 20px; height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    transition: left 0.2s;
+  }
+  .toggle.off { background: rgba(255,255,255,0.15); }
+  .toggle.off::after { left: 20px; }
+
+  /* Plan card */
+  .plan-card {
+    margin: 0 20px 20px;
+    background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(0,229,255,0.08));
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 16px;
+    padding: 16px;
+    flex-shrink: 0;
+  }
+  .plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .plan-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .plan-price {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+  }
+  .plan-price span {
+    font-size: 20px;
+    font-weight: 800;
+    color: #00E5FF;
+  }
+  .plan-features {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .plan-feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+  }
+  .plan-feature::before {
+    content: '✓';
+    color: #00E5FF;
+    font-weight: 700;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .upgrade-btn {
+    margin-top: 12px;
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #7C3AED, #5b21b6);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  /* ===== Tab Bar ===== */
+  .tab-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(13, 27, 42, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    padding: 8px 0 20px;
+    z-index: 50;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .tab-icon {
+    font-size: 22px;
+    line-height: 1;
+    transition: all 0.2s;
+  }
+  .tab-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    font-weight: 500;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .tab-item.active .tab-label {
+    color: #00E5FF;
+  }
+  .tab-item.active .tab-icon {
+    filter: drop-shadow(0 0 6px rgba(0,229,255,0.5));
+  }
+  .tab-indicator {
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 2px;
+    background: #00E5FF;
+    border-radius: 0 0 2px 2px;
+    opacity: 0;
+    transition: all 0.2s;
+  }
+  .tab-item.active .tab-indicator { opacity: 1; }
+
+  /* Micro SVG for history thumbs */
+  .mini-gravrec {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Gradient overlay for hero */
+  .hero-gradient {
+    background: linear-gradient(135deg, rgba(0,229,255,0.08) 0%, rgba(124,58,237,0.05) 100%);
+    border: 1px solid rgba(0,229,255,0.1);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin: 0 20px 16px;
+    flex-shrink: 0;
+  }
+  .hero-tag {
+    font-size: 10px;
+    font-weight: 700;
+    color: #00E5FF;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+  }
+  .hero-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.4;
+  }
+  .hero-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* Search bar */
+  .search-bar {
+    margin: 0 20px 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .search-bar span {
+    font-size: 16px;
+  }
+  .search-bar input {
+    background: none;
+    border: none;
+    outline: none;
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    width: 100%;
+  }
+  .search-bar input::placeholder { color: rgba(255,255,255,0.25); }
+
+  /* Notification dot */
+  .notif-dot {
+    position: absolute;
+    top: 2px; right: 20px;
+    width: 6px; height: 6px;
+    background: #00E5FF;
+    border-radius: 50%;
+    border: 1px solid #0D1B2A;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="iphone-wrapper">
+  <div class="iphone-frame">
+    <div class="iphone-screen">
+
+      <!-- Dynamic Island -->
+      <div class="dynamic-island" id="dynamicIsland">
+        <div class="di-camera"></div>
+        <div class="di-rec">
+          <div class="di-dot"></div>
+          <span>REC 02:34</span>
+          <span>🎙️</span>
+        </div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12">
+            <rect x="0" y="4" width="3" height="8" rx="1" opacity="0.4"/>
+            <rect x="4.5" y="2" width="3" height="10" rx="1" opacity="0.6"/>
+            <rect x="9" y="0" width="3" height="12" rx="1"/>
+          </svg>
+          <svg width="15" height="12" viewBox="0 0 15 12">
+            <path d="M7.5 2.5C5.2 2.5 3.2 3.5 1.8 5.1L0 3.3C1.9 1.2 4.5 0 7.5 0s5.6 1.2 7.5 3.3L13.2 5.1C11.8 3.5 9.8 2.5 7.5 2.5z" opacity="0.5"/>
+            <path d="M7.5 5.5C6 5.5 4.7 6.1 3.7 7.1L2 5.4C3.4 3.9 5.3 3 7.5 3s4.1.9 5.5 2.4L11.3 7.1C10.3 6.1 9 5.5 7.5 5.5z"/>
+            <circle cx="7.5" cy="10" r="2"/>
+          </svg>
+          <svg width="25" height="12" viewBox="0 0 25 12">
+            <rect x="0" y="1" width="22" height="10" rx="3" stroke="white" stroke-opacity="0.35" stroke-width="1" fill="none"/>
+            <rect x="22.5" y="3.5" width="2.5" height="5" rx="1.5" fill="white" fill-opacity="0.4"/>
+            <rect x="1.5" y="2.5" width="16" height="7" rx="2" fill="white"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- App Content -->
+      <div class="app-content">
+
+        <!-- ===== HOME SCREEN ===== -->
+        <div class="screen active" id="screen-home">
+
+          <div class="app-header">
+            <div>
+              <h1>GravRec AI</h1>
+              <div class="header-sub">おはようございます、田中さん 👋</div>
+            </div>
+            <div class="avatar-btn">T</div>
+          </div>
+
+          <!-- Hero -->
+          <div class="hero-gradient">
+            <div class="hero-tag">✦ AI Powered</div>
+            <div class="hero-title">話した内容が<br>リアルタイムに可視化される</div>
+            <div class="hero-sub">音声を聞いて、構造を読んで、<br>グラレコを自動生成</div>
+          </div>
+
+          <!-- Stats -->
+          <div class="stats-bar">
+            <div class="stat-item">
+              <div class="stat-value">24</div>
+              <div class="stat-label">ミーティング</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">47h</div>
+              <div class="stat-label">録音時間</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">96</div>
+              <div class="stat-label">グラレコ</div>
+            </div>
+          </div>
+
+          <!-- New Meeting Button -->
+          <button class="new-meeting-btn" onclick="switchTab('recording')">
+            <div class="btn-icon">🎙️</div>
+            <div class="btn-text">
+              <div class="btn-label">新規ミーティング開始</div>
+              <div class="btn-sub">タップでグラレコ自動生成スタート</div>
+            </div>
+            <div class="btn-arrow">›</div>
+          </button>
+
+          <div class="section-label">最近のミーティング</div>
+
+          <div class="meeting-card" onclick="switchTab('history')">
+            <div class="meeting-card-header">
+              <div>
+                <div class="meeting-title">Q1プロダクト戦略会議</div>
+                <div class="meeting-date">2026年3月12日 14:00 · 42分</div>
+              </div>
+              <div class="meeting-badge">完了</div>
+            </div>
+            <div class="meeting-meta">
+              <div class="meeting-meta-item">
+                <span>👥</span><span>5名参加</span>
+              </div>
+              <div class="meeting-meta-item">
+                <span>🖼️</span><span>グラレコ3枚</span>
+              </div>
+              <div class="meeting-thumb">
+                <svg class="mini-gravrec" viewBox="0 0 72 52">
+                  <circle cx="18" cy="16" r="8" fill="none" stroke="#7C3AED" stroke-width="1.5" opacity="0.7"/>
+                  <text x="15" y="20" fill="rgba(255,255,255,0.6)" font-size="5">戦略</text>
+                  <circle cx="50" cy="12" r="7" fill="none" stroke="#00E5FF" stroke-width="1.5" opacity="0.7"/>
+                  <text x="47" y="16" fill="rgba(255,255,255,0.6)" font-size="5">MVP</text>
+                  <line x1="26" y1="16" x2="43" y2="12" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="3"/>
+                  <rect x="5" y="30" width="20" height="14" rx="3" fill="none" stroke="#7C3AED" stroke-width="1.2" opacity="0.5"/>
+                  <rect x="30" y="32" width="18" height="12" rx="3" fill="none" stroke="#00E5FF" stroke-width="1.2" opacity="0.5"/>
+                  <rect x="53" y="28" width="14" height="16" rx="3" fill="none" stroke="#7C3AED" stroke-width="1.2" opacity="0.5"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="meeting-card" onclick="switchTab('history')">
+            <div class="meeting-card-header">
+              <div>
+                <div class="meeting-title">デザインレビュー</div>
+                <div class="meeting-date">2026年3月11日 11:00 · 28分</div>
+              </div>
+              <div class="meeting-badge">完了</div>
+            </div>
+            <div class="meeting-meta">
+              <div class="meeting-meta-item">
+                <span>👥</span><span>3名参加</span>
+              </div>
+              <div class="meeting-meta-item">
+                <span>🖼️</span><span>グラレコ2枚</span>
+              </div>
+              <div class="meeting-thumb">
+                <svg class="mini-gravrec" viewBox="0 0 72 52">
+                  <path d="M10 36 L20 20 L35 28 L50 14 L60 22" fill="none" stroke="#00E5FF" stroke-width="1.5" opacity="0.7" stroke-linecap="round"/>
+                  <circle cx="20" cy="20" r="3" fill="#00E5FF" opacity="0.5"/>
+                  <circle cx="35" cy="28" r="3" fill="#7C3AED" opacity="0.5"/>
+                  <circle cx="50" cy="14" r="3" fill="#00E5FF" opacity="0.5"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="meeting-card" onclick="switchTab('history')">
+            <div class="meeting-card-header">
+              <div>
+                <div class="meeting-title">週次チームミーティング</div>
+                <div class="meeting-date">2026年3月10日 09:00 · 55分</div>
+              </div>
+              <div class="meeting-badge">完了</div>
+            </div>
+            <div class="meeting-meta">
+              <div class="meeting-meta-item">
+                <span>👥</span><span>8名参加</span>
+              </div>
+              <div class="meeting-meta-item">
+                <span>🖼️</span><span>グラレコ5枚</span>
+              </div>
+              <div class="meeting-thumb">
+                <svg class="mini-gravrec" viewBox="0 0 72 52">
+                  <circle cx="36" cy="18" r="10" fill="none" stroke="#7C3AED" stroke-width="1.5" opacity="0.6"/>
+                  <text x="31" y="22" fill="rgba(255,255,255,0.5)" font-size="6">目標</text>
+                  <line x1="26" y1="23" x2="15" y2="38" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                  <line x1="36" y1="28" x2="36" y2="40" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                  <line x1="46" y1="23" x2="57" y2="38" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                  <circle cx="15" cy="41" r="5" fill="none" stroke="#00E5FF" stroke-width="1.2" opacity="0.5"/>
+                  <circle cx="36" cy="43" r="5" fill="none" stroke="#00E5FF" stroke-width="1.2" opacity="0.5"/>
+                  <circle cx="57" cy="41" r="5" fill="none" stroke="#00E5FF" stroke-width="1.2" opacity="0.5"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /home -->
+
+        <!-- ===== RECORDING SCREEN ===== -->
+        <div class="screen" id="screen-recording">
+
+          <div class="recording-header">
+            <div>
+              <div class="recording-title">Q1プロダクト戦略会議</div>
+            </div>
+            <div class="rec-badge">
+              <div class="rec-dot"></div>
+              <span>REC</span>
+            </div>
+          </div>
+
+          <!-- Speakers -->
+          <div class="speakers-row">
+            <div class="speaker-chip active">
+              <div class="speaker-avatar">T</div>
+              田中（あなた）
+            </div>
+            <div class="speaker-chip">
+              <div class="speaker-avatar">S</div>
+              鈴木さん
+            </div>
+            <div class="speaker-chip">
+              <div class="speaker-avatar">Y</div>
+              山田さん
+            </div>
+          </div>
+
+          <!-- Timer -->
+          <div style="padding: 0 20px 10px; flex-shrink:0;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <div class="timer-display" id="timerDisplay">00:00</div>
+              <div style="font-size:11px; color:rgba(255,255,255,0.3);">自動グラレコ生成中</div>
+            </div>
+          </div>
+
+          <!-- Waveform -->
+          <div class="waveform-container">
+            <span class="waveform-label">LIVE AUDIO</span>
+            <div class="waveform-canvas" id="waveformCanvas">
+              <!-- bars generated by JS -->
+            </div>
+          </div>
+
+          <!-- GravRec Area -->
+          <div class="gravrec-area">
+            <div class="gravrec-label">AI グラレコ生成中</div>
+
+            <svg class="gravrec-svg" viewBox="0 0 320 220" id="gravrecSvg">
+              <!-- Main topic bubble -->
+              <ellipse cx="160" cy="50" rx="55" ry="22" fill="none" class="svg-circle-animated c1"/>
+              <text x="160" y="46" text-anchor="middle" class="svg-text-animated t1">Q1 プロダクト戦略</text>
+              <text x="160" y="58" text-anchor="middle" class="svg-text-animated t1" style="font-size:8px; fill:rgba(0,229,255,0.6);">2026 Q1</text>
+
+              <!-- Branch lines -->
+              <path d="M115 60 Q80 80 60 100" class="svg-path-animated delay1"/>
+              <path d="M140 70 Q140 100 130 120" class="svg-path-animated delay2"/>
+              <path d="M180 70 Q200 100 210 120" class="svg-path-animated delay1"/>
+              <path d="M205 60 Q240 80 260 100" class="svg-path-animated delay2"/>
+
+              <!-- Left node: Market -->
+              <circle cx="50" cy="110" r="24" fill="none" class="svg-circle-animated c2"/>
+              <text x="50" y="107" text-anchor="middle" class="svg-text-animated t2">市場</text>
+              <text x="50" y="119" text-anchor="middle" class="svg-text-animated t2" style="font-size:7px; fill:rgba(124,58,237,0.7);">分析</text>
+
+              <!-- Center-left node: Feature -->
+              <rect x="102" y="112" width="52" height="28" rx="6" fill="none" stroke="#00E5FF" class="svg-path-animated delay3"/>
+              <text x="128" y="126" text-anchor="middle" class="svg-text-animated t2">機能要件</text>
+              <text x="128" y="136" text-anchor="middle" class="svg-text-animated t3" style="font-size:7px; fill:rgba(0,229,255,0.6);">v2.0</text>
+
+              <!-- Center-right node: Timeline -->
+              <rect x="185" y="112" width="52" height="28" rx="6" fill="none" stroke="#7C3AED" class="svg-path-animated delay3"/>
+              <text x="211" y="126" text-anchor="middle" class="svg-text-animated t3">タイムライン</text>
+              <text x="211" y="136" text-anchor="middle" class="svg-text-animated t3" style="font-size:7px; fill:rgba(124,58,237,0.7);">3月末</text>
+
+              <!-- Right node: Team -->
+              <circle cx="270" cy="110" r="24" fill="none" class="svg-circle-animated c3"/>
+              <text x="270" y="107" text-anchor="middle" class="svg-text-animated t3">チーム</text>
+              <text x="270" y="119" text-anchor="middle" class="svg-text-animated t3" style="font-size:7px; fill:rgba(0,229,255,0.5);">構成</text>
+
+              <!-- Sub branches from Feature -->
+              <path d="M128 140 Q110 165 90 178" class="svg-path-animated delay4"/>
+              <path d="M128 140 Q128 162 128 178" class="svg-path-animated delay4"/>
+              <path d="M128 140 Q148 162 166 178" class="svg-path-animated delay5"/>
+
+              <!-- Sub nodes -->
+              <rect x="62" y="174" width="38" height="18" rx="4" fill="none" stroke="rgba(255,255,255,0.3)" class="svg-path-animated delay5"/>
+              <text x="81" y="185" text-anchor="middle" class="svg-text-animated t4" style="font-size:8px;">UI/UX</text>
+
+              <rect x="108" y="174" width="40" height="18" rx="4" fill="none" stroke="rgba(255,255,255,0.3)" class="svg-path-animated delay5"/>
+              <text x="128" y="185" text-anchor="middle" class="svg-text-animated t4" style="font-size:8px;">API</text>
+
+              <rect x="154" y="174" width="40" height="18" rx="4" fill="none" stroke="rgba(255,255,255,0.3)" class="svg-path-animated delay5"/>
+              <text x="174" y="185" text-anchor="middle" class="svg-text-animated t4" style="font-size:8px;">テスト</text>
+
+              <!-- Arrow decorations -->
+              <path d="M211 140 L211 155" stroke="rgba(124,58,237,0.4)" stroke-width="1.5" marker-end="url(#arrow)" class="svg-path-animated delay4"/>
+              <text x="211" y="168" text-anchor="middle" class="svg-text-animated t4" style="font-size:8px; fill:rgba(255,255,255,0.5);">スプリント計画</text>
+
+              <!-- Key insight box -->
+              <rect x="230" y="152" width="76" height="38" rx="6" fill="rgba(0,229,255,0.06)" stroke="rgba(0,229,255,0.3)" stroke-width="1" class="svg-path-animated delay5"/>
+              <text x="268" y="167" text-anchor="middle" class="svg-text-animated t4" style="font-size:7px; fill:#00E5FF; font-weight:700;">🎯 KPI</text>
+              <text x="268" y="178" text-anchor="middle" class="svg-text-animated t4" style="font-size:7px;">DAU +40%</text>
+              <text x="268" y="187" text-anchor="middle" class="svg-text-animated t4" style="font-size:7px;">Churn -15%</text>
+
+              <defs>
+                <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L6,3 z" fill="rgba(124,58,237,0.5)"/>
+                </marker>
+              </defs>
+            </svg>
+
+            <div class="ai-generating">
+              <div class="ai-dots">
+                <div class="ai-dot"></div>
+                <div class="ai-dot"></div>
+                <div class="ai-dot"></div>
+              </div>
+              <span>AI生成中</span>
+            </div>
+          </div>
+
+          <!-- Stop Button -->
+          <button class="stop-btn" onclick="switchTab('confirm')">
+            <span>⏹</span>
+            <span>録音を停止してグラレコを確認</span>
+          </button>
+
+        </div><!-- /recording -->
+
+        <!-- ===== CONFIRM SCREEN ===== -->
+        <div class="screen" id="screen-confirm">
+
+          <div class="confirm-header">
+            <h2>こんな感じですか？ 🎨</h2>
+            <p>AIが生成したグラフィックレコーディング</p>
+          </div>
+
+          <!-- Preview -->
+          <div class="confirm-preview">
+            <svg width="100%" height="200" viewBox="0 0 320 200">
+              <!-- Complete gravrec static version -->
+              <ellipse cx="160" cy="40" rx="55" ry="20" fill="none" stroke="#00E5FF" stroke-width="2"/>
+              <text x="160" y="37" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-weight="600">Q1 プロダクト戦略</text>
+              <text x="160" y="49" text-anchor="middle" fill="rgba(0,229,255,0.6)" font-size="7">2026 Q1</text>
+
+              <line x1="115" y1="55" x2="55" y2="90" stroke="rgba(124,58,237,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="145" y1="58" x2="128" y2="100" stroke="rgba(0,229,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="175" y1="58" x2="208" y2="100" stroke="rgba(0,229,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="205" y1="55" x2="265" y2="90" stroke="rgba(124,58,237,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+
+              <circle cx="45" cy="100" r="22" fill="none" stroke="#7C3AED" stroke-width="1.5"/>
+              <text x="45" y="97" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="9">市場</text>
+              <text x="45" y="108" text-anchor="middle" fill="rgba(124,58,237,0.7)" font-size="7">分析</text>
+
+              <rect x="101" y="94" width="55" height="26" rx="5" fill="none" stroke="#00E5FF" stroke-width="1.5"/>
+              <text x="128" y="107" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="9">機能要件</text>
+              <text x="128" y="117" text-anchor="middle" fill="rgba(0,229,255,0.6)" font-size="7">v2.0</text>
+
+              <rect x="183" y="94" width="55" height="26" rx="5" fill="none" stroke="#7C3AED" stroke-width="1.5"/>
+              <text x="210" y="107" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="9">タイムライン</text>
+              <text x="210" y="117" text-anchor="middle" fill="rgba(124,58,237,0.6)" font-size="7">3月末</text>
+
+              <circle cx="270" cy="100" r="22" fill="none" stroke="#00E5FF" stroke-width="1.5"/>
+              <text x="270" y="97" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="9">チーム</text>
+              <text x="270" y="108" text-anchor="middle" fill="rgba(0,229,255,0.5)" font-size="7">構成</text>
+
+              <line x1="128" y1="120" x2="90" y2="155" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+              <line x1="128" y1="120" x2="128" y2="155" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+              <line x1="128" y1="120" x2="168" y2="155" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+
+              <rect x="64" y="152" width="38" height="16" rx="3" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+              <text x="83" y="162" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="8">UI/UX</text>
+              <rect x="108" y="152" width="40" height="16" rx="3" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+              <text x="128" y="162" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="8">API</text>
+              <rect x="154" y="152" width="40" height="16" rx="3" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+              <text x="174" y="162" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="8">テスト</text>
+
+              <rect x="225" y="133" width="76" height="40" rx="5" fill="rgba(0,229,255,0.06)" stroke="rgba(0,229,255,0.3)" stroke-width="1"/>
+              <text x="263" y="148" text-anchor="middle" fill="#00E5FF" font-size="8" font-weight="700">🎯 KPI</text>
+              <text x="263" y="160" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7">DAU +40%</text>
+              <text x="263" y="170" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7">Churn -15%</text>
+            </svg>
+          </div>
+
+          <!-- Suggestions -->
+          <div class="suggestion-row">
+            <div class="suggestion-label">AIが検出したキーワード</div>
+            <div class="chips">
+              <div class="chip selected">Q1戦略</div>
+              <div class="chip selected">市場分析</div>
+              <div class="chip selected">機能要件</div>
+              <div class="chip">タイムライン</div>
+              <div class="chip">KPI設定</div>
+              <div class="chip">チーム体制</div>
+              <div class="chip selected">UI/UX</div>
+            </div>
+          </div>
+
+          <!-- AI edit suggestion -->
+          <div style="margin: 0 20px 16px; padding: 12px; background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2); border-radius: 12px; flex-shrink:0;">
+            <div style="font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 6px;">✦ AIサジェスト</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.65); line-height: 1.5;">「DAU +40%目標」と「Churn削減15%」が重要な決定事項として検出されました。ハイライトしますか？</div>
+          </div>
+
+          <div class="confirm-actions">
+            <button class="btn-secondary" onclick="switchTab('recording')">やり直す</button>
+            <button class="btn-primary" onclick="switchTab('history')">保存する ✓</button>
+          </div>
+
+        </div><!-- /confirm -->
+
+        <!-- ===== HISTORY SCREEN ===== -->
+        <div class="screen" id="screen-history">
+
+          <div class="app-header">
+            <div>
+              <h1 style="font-size:20px;">履歴</h1>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <div style="width:32px;height:32px;background:rgba(255,255,255,0.06);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;">⚡</div>
+            </div>
+          </div>
+
+          <div class="search-bar">
+            <span>🔍</span>
+            <input type="text" placeholder="ミーティングを検索...">
+          </div>
+
+          <div class="filter-row">
+            <div class="filter-chip active">すべて</div>
+            <div class="filter-chip">今週</div>
+            <div class="filter-chip">今月</div>
+            <div class="filter-chip">プロジェクト別</div>
+            <div class="filter-chip">お気に入り</div>
+          </div>
+
+          <div class="section-label" style="padding-bottom:8px;">2026年3月</div>
+
+          <div class="history-card">
+            <div class="history-card-top">
+              <div class="history-thumb">
+                <svg class="mini-gravrec" viewBox="0 0 72 52">
+                  <ellipse cx="36" cy="16" rx="20" ry="9" fill="none" stroke="#00E5FF" stroke-width="1.5" opacity="0.8"/>
+                  <text x="36" y="20" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="5">Q1戦略</text>
+                  <line x1="20" y1="23" x2="10" y2="36" stroke="rgba(124,58,237,0.5)" stroke-width="1"/>
+                  <line x1="36" y1="25" x2="36" y2="38" stroke="rgba(0,229,255,0.4)" stroke-width="1"/>
+                  <line x1="52" y1="23" x2="62" y2="36" stroke="rgba(124,58,237,0.5)" stroke-width="1"/>
+                  <circle cx="10" cy="40" r="6" fill="none" stroke="#7C3AED" stroke-width="1.2" opacity="0.7"/>
+                  <circle cx="36" cy="42" r="6" fill="none" stroke="#00E5FF" stroke-width="1.2" opacity="0.7"/>
+                  <circle cx="62" cy="40" r="6" fill="none" stroke="#7C3AED" stroke-width="1.2" opacity="0.7"/>
+                </svg>
+              </div>
+              <div class="history-info">
+                <div class="history-title">Q1プロダクト戦略会議</div>
+                <div class="history-date">2026年3月12日 14:00 · 42分</div>
+                <div class="history-tags">
+                  <div class="history-tag">戦略</div>
+                  <div class="history-tag">プロダクト</div>
+                  <div class="history-tag">KPI</div>
+                </div>
+              </div>
+            </div>
+            <div class="history-card-footer">
+              <div class="history-actions">
+                <div class="history-action-btn">👁️ 表示</div>
+                <div class="history-action-btn">📤 共有</div>
+                <div class="history-action-btn">✏️ 編集</div>
+              </div>
+              <div class="history-duration">5名 · グラレコ3枚</div>
+            </div>
+          </div>
+
+          <div class="history-card">
+            <div class="history-card-top">
+              <div class="history-thumb">
+                <svg class="mini-gravrec" viewBox="0 0 72 52">
+                  <path d="M10 40 L20 25 L32 30 L45 18 L58 28" fill="none" stroke="#00E5FF" stroke-width="1.5" opacity="0.8" stroke-linecap="round"/>
+                  <circle cx="20" cy="25" r="3" fill="#00E5FF" opacity="0.5"/>
+                  <circle cx="32" cy="30" r="3" fill="#7C3AED" opacity="0.5"/>
+                  <circle cx="45" cy="18" r="3" fill="#00E5FF" opacity="0.5"/>
+                  <rect x="8" y="5" width="22" height="12" rx="3" fill="none" stroke="#7C3AED" stroke-width="1" opacity="0.5"/>
+                  <text x="19" y="13" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="4">デザイン</text>
+                </svg>
+              </div>
+              <div class="history-info">
+                <div class="history-title">デザインレビュー</div>
+                <div class="history-date">2026年3月11日 11:00 · 28分</div>
+                <div class="history-tags">
+                  <div class="history-tag">UI/UX</div>
+                  <div class="history-tag">デザイン</div>
+                </div>
+              </div>
+            </div>
+            <div class="history-card-footer">
+              <div class="history-actions">
+                <div class="history-action-btn">👁️ 表示</div>
+                <div class="history-action-btn">📤 共有</div>
+                <div class="history-action-btn">✏️ 編集</div>
+              </div>
+              <div class="history-duration">3名 · グラレコ2枚</div>
+            </div>
+          </div>
+
+          <div class="history-card">
+            <div class="history-card-top">
+              <div class="history-thumb">
+                <svg class="mini-gravrec" viewBox="0 0 72 52">
+                  <circle cx="36" cy="18" r="10" fill="none" stroke="#7C3AED" stroke-width="1.5" opacity="0.8"/>
+                  <text x="36" y="21" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="5">目標</text>
+                  <line x1="26" y1="25" x2="12" y2="40" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                  <line x1="36" y1="28" x2="36" y2="42" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                  <line x1="46" y1="25" x2="60" y2="40" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                  <rect x="4" y="38" width="18" height="11" rx="3" fill="none" stroke="#00E5FF" stroke-width="1" opacity="0.6"/>
+                  <rect x="27" y="40" width="18" height="11" rx="3" fill="none" stroke="#00E5FF" stroke-width="1" opacity="0.6"/>
+                  <rect x="51" y="38" width="18" height="11" rx="3" fill="none" stroke="#00E5FF" stroke-width="1" opacity="0.6"/>
+                </svg>
+              </div>
+              <div class="history-info">
+                <div class="history-title">週次チームミーティング</div>
+                <div class="history-date">2026年3月10日 09:00 · 55分</div>
+                <div class="history-tags">
+                  <div class="history-tag">週次</div>
+                  <div class="history-tag">チーム</div>
+                  <div class="history-tag">進捗</div>
+                </div>
+              </div>
+            </div>
+            <div class="history-card-footer">
+              <div class="history-actions">
+                <div class="history-action-btn">👁️ 表示</div>
+                <div class="history-action-btn">📤 共有</div>
+                <div class="history-action-btn">✏️ 編集</div>
+              </div>
+              <div class="history-duration">8名 · グラレコ5枚</div>
+            </div>
+          </div>
+
+          <div class="section-label" style="padding-top:4px; padding-bottom:8px;">2026年2月</div>
+
+          <div class="history-card">
+            <div class="history-card-top">
+              <div class="history-thumb">
+                <svg class="mini-gravrec" viewBox="0 0 72 52">
+                  <rect x="10" y="8" width="52" height="32" rx="5" fill="none" stroke="#7C3AED" stroke-width="1.5" opacity="0.5"/>
+                  <line x1="10" y1="20" x2="62" y2="20" stroke="rgba(124,58,237,0.3)" stroke-width="1"/>
+                  <text x="36" y="16" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="5">ロードマップ</text>
+                  <rect x="14" y="23" width="12" height="12" rx="2" fill="rgba(0,229,255,0.2)" stroke="#00E5FF" stroke-width="0.8"/>
+                  <rect x="30" y="23" width="12" height="12" rx="2" fill="rgba(124,58,237,0.2)" stroke="#7C3AED" stroke-width="0.8"/>
+                  <rect x="46" y="23" width="12" height="12" rx="2" fill="rgba(0,229,255,0.15)" stroke="#00E5FF" stroke-width="0.8"/>
+                  <text x="10" y="48" fill="rgba(255,255,255,0.3)" font-size="5">2月 定例報告</text>
+                </svg>
+              </div>
+              <div class="history-info">
+                <div class="history-title">月次ロードマップ確認</div>
+                <div class="history-date">2026年2月28日 15:00 · 35分</div>
+                <div class="history-tags">
+                  <div class="history-tag">ロードマップ</div>
+                  <div class="history-tag">月次</div>
+                </div>
+              </div>
+            </div>
+            <div class="history-card-footer">
+              <div class="history-actions">
+                <div class="history-action-btn">👁️ 表示</div>
+                <div class="history-action-btn">📤 共有</div>
+                <div class="history-action-btn">✏️ 編集</div>
+              </div>
+              <div class="history-duration">6名 · グラレコ4枚</div>
+            </div>
+          </div>
+
+        </div><!-- /history -->
+
+        <!-- ===== SETTINGS SCREEN ===== -->
+        <div class="screen" id="screen-settings">
+
+          <div class="app-header">
+            <div>
+              <h1 style="font-size:20px;">設定</h1>
+            </div>
+          </div>
+
+          <!-- Profile -->
+          <div class="settings-profile">
+            <div class="profile-avatar">T</div>
+            <div class="profile-info">
+              <div class="profile-name">田中 優子</div>
+              <div class="profile-email">yuko.tanaka@example.com</div>
+            </div>
+            <div class="profile-plan">Pro</div>
+          </div>
+
+          <!-- Plan -->
+          <div class="plan-card">
+            <div class="plan-header">
+              <div>
+                <div class="plan-name">✦ Pro プラン</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">次の請求: 2026年4月1日</div>
+              </div>
+              <div class="plan-price"><span>¥2,980</span>/月</div>
+            </div>
+            <div class="plan-features">
+              <div class="plan-feature">無制限ミーティング録音</div>
+              <div class="plan-feature">AIグラレコ自動生成（月100枚）</div>
+              <div class="plan-feature">クラウドストレージ 50GB</div>
+              <div class="plan-feature">PDF / PNG エクスポート</div>
+            </div>
+            <button class="upgrade-btn">✦ Enterprise にアップグレード</button>
+          </div>
+
+          <!-- General Settings -->
+          <div class="settings-group">
+            <div class="settings-group-label">一般設定</div>
+            <div class="settings-group-card">
+              <div class="settings-row">
+                <div class="settings-icon blue">🌐</div>
+                <div class="settings-text">
+                  <div class="settings-title-text">言語</div>
+                  <div class="settings-subtitle">AIの認識言語を設定</div>
+                </div>
+                <div class="settings-value">日本語</div>
+                <div class="settings-chevron">›</div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-icon purple">🤖</div>
+                <div class="settings-text">
+                  <div class="settings-title-text">グラレコスタイル</div>
+                  <div class="settings-subtitle">図解のデザインテンプレート</div>
+                </div>
+                <div class="settings-value">マインドマップ</div>
+                <div class="settings-chevron">›</div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-icon green">🎨</div>
+                <div class="settings-text">
+                  <div class="settings-title-text">カラーテーマ</div>
+                  <div class="settings-subtitle">グラレコの配色</div>
+                </div>
+                <div class="settings-value">ダーク</div>
+                <div class="settings-chevron">›</div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-icon orange">⚡</div>
+                <div class="settings-text">
+                  <div class="settings-title-text">リアルタイム生成</div>
+                  <div class="settings-subtitle">録音中に即座に図解化</div>
+                </div>
+                <div class="toggle"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Settings -->
+          <div class="settings-group">
+            <div class="settings-group-label">AI設定</div>
+            <div class="settings-group-card">
+              <div class="settings-row">
+                <div class="settings-icon purple">🧠</div>
+                <div class="settings-text">
+                  <div class="settings-title-text">AIモデル</div>
+                  <div class="settings-subtitle">グラレコ生成精度</div>
+                </div>
+                <div class="settings-value">高精度</div>
+                <div class="settings-chevron">›</div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-icon blue">🔊</div>
+                <div class="settings-text">
+                  <div class="settings-title-text">話者識別</div>
+                  <div class="settings-subtitle">複数人の声を自動判別</div>
+                </div>
+                <div class="toggle"></div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-icon green">📝</div>
+                <div class="settings-text">
+                  <div class="settings-title-text">議事録自動生成</div>
+                  <div class="settings-subtitle">グラレコと同時に文字起こし</div>
+                </div>
+                <div class="toggle off"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Support -->
+          <div class="settings-group">
+            <div class="settings-group-label">サポート</div>
+            <div class="settings-group-card">
+              <div class="settings-row">
+                <div class="settings-icon blue">❓</div>
+                <div class="settings-text">
+                  <div class="settings-title-text">ヘルプ & よくある質問</div>
+                </div>
+                <div class="settings-chevron">›</div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-icon orange">💬</div>
+                <div class="settings-text">
+                  <div class="settings-title-text">フィードバックを送る</div>
+                </div>
+                <div class="settings-chevron">›</div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-icon" style="background:rgba(255,59,48,0.1);">🚪</div>
+                <div class="settings-text">
+                  <div class="settings-title-text" style="color:#ff3b30;">ログアウト</div>
+                </div>
+                <div class="settings-chevron">›</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:center; padding: 8px 0 16px; flex-shrink:0;">
+            <div style="font-size:11px; color:rgba(255,255,255,0.2);">GravRec AI v2.4.1</div>
+            <div style="font-size:10px; color:rgba(255,255,255,0.12); margin-top:2px;">Powered by AI</div>
+          </div>
+
+        </div><!-- /settings -->
+
+      </div><!-- /app-content -->
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <div class="tab-item active" id="tab-home" onclick="switchTab('home')">
+          <div class="tab-indicator"></div>
+          <div class="tab-icon">🏠</div>
+          <div class="tab-label">ホーム</div>
+        </div>
+        <div class="tab-item" id="tab-recording" onclick="switchTab('recording')">
+          <div class="tab-indicator"></div>
+          <div class="tab-icon">🎙️</div>
+          <div class="tab-label">録音</div>
+        </div>
+        <div class="tab-item" id="tab-confirm" onclick="switchTab('confirm')">
+          <div class="tab-indicator"></div>
+          <div class="tab-icon">✅</div>
+          <div class="tab-label">確認</div>
+        </div>
+        <div class="tab-item" id="tab-history" onclick="switchTab('history')">
+          <div class="tab-indicator"></div>
+          <div class="tab-icon">📁</div>
+          <div class="tab-label">履歴</div>
+        </div>
+        <div class="tab-item" id="tab-settings" onclick="switchTab('settings')">
+          <div class="tab-indicator"></div>
+          <div class="tab-icon">⚙️</div>
+          <div class="tab-label">設定</div>
+        </div>
+      </div>
+
+    </div><!-- /iphone-screen -->
+  </div><!-- /iphone-frame -->
+
+  <div style="margin-top: 20px; text-align: center; color: rgba(255,255,255,0.2); font-size: 12px; font-family: -apple-system, sans-serif;">
+    GravRec AI — Mock App · Vibe Coder Bootcamp Demo
+  </div>
+</div>
+
+<script>
+  // ===== Tab Navigation =====
+  function switchTab(tabName) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+
+    // Show target screen
+    const screen = document.getElementById('screen-' + tabName);
+    const tab = document.getElementById('tab-' + tabName);
+    if (screen) screen.classList.add('active');
+    if (tab) tab.classList.add('active');
+
+    // Dynamic Island state
+    const di = document.getElementById('dynamicIsland');
+    if (tabName === 'recording') {
+      di.classList.add('recording');
+      startTimer();
+    } else {
+      di.classList.remove('recording');
+      stopTimer();
+    }
+
+    // Restart SVG animation when switching to recording
+    if (tabName === 'recording') {
+      restartSvgAnimation();
+    }
+  }
+
+  // ===== Timer =====
+  let timerInterval = null;
+  let seconds = 0;
+  function startTimer() {
+    seconds = 0;
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      seconds++;
+      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      const el = document.getElementById('timerDisplay');
+      if (el) el.textContent = m + ':' + s;
+    }, 1000);
+  }
+  function stopTimer() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
+  // ===== Waveform =====
+  function buildWaveform() {
+    const canvas = document.getElementById('waveformCanvas');
+    if (!canvas) return;
+    canvas.innerHTML = '';
+    const count = 55;
+    for (let i = 0; i < count; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'wave-bar';
+      const minH = 4 + Math.random() * 8;
+      const maxH = 16 + Math.random() * 36;
+      bar.style.setProperty('--min-h', minH + 'px');
+      bar.style.setProperty('--max-h', maxH + 'px');
+      bar.style.height = minH + 'px';
+      bar.style.animationDuration = (0.4 + Math.random() * 0.6) + 's';
+      bar.style.animationDelay = (Math.random() * 0.5) + 's';
+      canvas.appendChild(bar);
+    }
+  }
+  buildWaveform();
+
+  // Randomize waveform occasionally
+  setInterval(() => {
+    const bars = document.querySelectorAll('.wave-bar');
+    bars.forEach(bar => {
+      const minH = 4 + Math.random() * 8;
+      const maxH = 16 + Math.random() * 36;
+      bar.style.setProperty('--min-h', minH + 'px');
+      bar.style.setProperty('--max-h', maxH + 'px');
+      bar.style.animationDuration = (0.3 + Math.random() * 0.7) + 's';
+    });
+  }, 2000);
+
+  // ===== SVG Animation Restart =====
+  function restartSvgAnimation() {
+    const svg = document.getElementById('gravrecSvg');
+    if (!svg) return;
+    const clone = svg.cloneNode(true);
+    svg.parentNode.replaceChild(clone, svg);
+    // Re-set id
+    clone.id = 'gravrecSvg';
+  }
+
+  // ===== Chip toggle interaction =====
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('chip')) {
+      e.target.classList.toggle('selected');
+    }
+    if (e.target.classList.contains('filter-chip')) {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      e.target.classList.add('active');
+    }
+    if (e.target.classList.contains('toggle')) {
+      e.target.classList.toggle('off');
+    }
+  });
+
+  // ===== Auto-animate SVG on load for recording screen =====
+  // (SVG animations play automatically via CSS animation)
+</script>
+
+</body>
+</html>

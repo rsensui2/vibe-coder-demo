@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GravRec AI — 話すだけで、思考が絵になる</title>
+<style>
+  :root {
+    --bg: #FAFAFA;
+    --bg2: #F0F4FF;
+    --bg3: #FFFFFF;
+    --accent: #1A56DB;
+    --accent-light: #EEF3FF;
+    --accent-hover: #1444B5;
+    --sub: #D97706;
+    --sub-light: #FEF3C7;
+    --text: #111827;
+    --text-mid: #374151;
+    --text-muted: #6B7280;
+    --border: #E5E7EB;
+    --border-accent: rgba(26,86,219,0.2);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 20px 48px rgba(0,0,0,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(250,250,250,0.95);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .logo em { color: var(--sub); font-style: normal; }
+
+  nav { display: flex; align-items: center; gap: 28px; }
+
+  nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  nav a:hover { color: var(--accent); }
+
+  .btn-nav-outline {
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    padding: 7px 18px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-nav-outline:hover {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-nav-fill {
+    background: var(--accent);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(26,86,219,0.3);
+  }
+
+  .btn-nav-fill:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 4px 16px rgba(26,86,219,0.4);
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 80px 40px 60px;
+    background: linear-gradient(135deg, #FAFAFA 0%, #EEF3FF 50%, #FEF9EE 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #hero::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(26,86,219,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  #hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    left: -80px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(217,119,6,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-left {}
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--sub-light);
+    border: 1px solid rgba(217,119,6,0.3);
+    color: var(--sub);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 28px;
+    letter-spacing: 0.5px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 900;
+    line-height: 1.18;
+    letter-spacing: -1.5px;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  .hero-title .highlight {
+    color: var(--accent);
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero-title .highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--sub), var(--accent));
+    border-radius: 2px;
+  }
+
+  .hero-desc {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    line-height: 1.8;
+    margin-bottom: 40px;
+    max-width: 480px;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(26,86,219,0.3);
+    letter-spacing: 0.2px;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 8px 24px rgba(26,86,219,0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-text {
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: gap 0.2s;
+  }
+
+  .btn-text:hover { gap: 8px; }
+
+  .hero-trust {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 32px;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+  }
+
+  .trust-avatars {
+    display: flex;
+    margin-right: 4px;
+  }
+
+  .trust-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: linear-gradient(135deg, var(--accent-light), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: var(--accent);
+    font-weight: 700;
+    margin-left: -8px;
+  }
+
+  .trust-avatar:first-child { margin-left: 0; }
+
+  .stars { color: var(--sub); }
+
+  /* HERO RIGHT - Dashboard Mock */
+  .hero-right {}
+
+  .dashboard-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .dash-header {
+    background: var(--accent);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .dash-title {
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .dash-live {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.15);
+    padding: 3px 10px;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .live-dot {
+    width: 7px; height: 7px;
+    background: #34D399;
+    border-radius: 50%;
+    animation: pulse-green 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .dash-body { padding: 20px; }
+
+  .dash-section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dash-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .gravrec-canvas {
+    background: #F8FAFF;
+    border: 1px solid var(--border-accent);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+    min-height: 200px;
+    position: relative;
+  }
+
+  .node {
+    display: inline-block;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    position: absolute;
+  }
+
+  .node-main {
+    background: var(--accent);
+    color: white;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 12px rgba(26,86,219,0.3);
+  }
+
+  .node-sub1 {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
+    top: 80px;
+    left: 12px;
+  }
+
+  .node-sub2 {
+    background: var(--sub-light);
+    color: var(--sub);
+    border: 1px solid rgba(217,119,6,0.2);
+    top: 80px;
+    right: 12px;
+  }
+
+  .node-sub3 {
+    background: white;
+    color: var(--text-mid);
+    border: 1px solid var(--border);
+    top: 148px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .conn-line {
+    position: absolute;
+    height: 1.5px;
+    background: var(--border-accent);
+    transform-origin: left center;
+  }
+
+  .ai-processing {
+    background: var(--accent-light);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.78rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .proc-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(26,86,219,0.15);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .proc-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 68%;
+    animation: fill-anim 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes fill-anim {
+    from { width: 45%; }
+    to { width: 90%; }
+  }
+
+  .keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .keyword {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 4px 12px;
+    font-size: 0.72rem;
+    color: var(--text-mid);
+    font-weight: 500;
+  }
+
+  .keyword.hot {
+    background: var(--sub-light);
+    border-color: rgba(217,119,6,0.3);
+    color: var(--sub);
+  }
+
+  /* ── SECTION ── */
+  section { padding: 100px 40px; }
+
+  .container { max-width: 1120px; margin: 0 auto; }
+
+  .section-label {
+    display: inline-block;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
+    padding: 4px 14px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.25;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .section-desc {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    line-height: 1.8;
+    max-width: 520px;
+  }
+
+  /* ── PROBLEM ── */
+  #problem { background: white; }
+
+  .problem-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .pain-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .pain-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    border-left: 4px solid var(--sub);
+    transition: box-shadow 0.2s;
+  }
+
+  .pain-card:hover { box-shadow: var(--shadow-md); }
+
+  .pain-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .pain-card h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .pain-card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .stats-right { padding-top: 40px; }
+
+  .stats-right h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-mid);
+    margin-bottom: 24px;
+  }
+
+  .stat-row {
+    margin-bottom: 20px;
+  }
+
+  .stat-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+
+  .stat-label span:first-child { color: var(--text-mid); font-weight: 500; }
+  .stat-label span:last-child { color: var(--accent); font-weight: 700; }
+
+  .stat-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .stat-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--sub));
+    border-radius: 4px;
+  }
+
+  .big-stat-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .big-stat {
+    background: var(--bg2);
+    border: 1px solid var(--border-accent);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .big-stat .num {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .big-stat .lab {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* ── SOLUTION ── */
+  #solution { background: var(--bg2); text-align: center; }
+
+  #solution .section-desc { margin: 0 auto 60px; }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    position: relative;
+  }
+
+  .step-connector {
+    display: none;
+  }
+
+  .step-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 28px;
+    text-align: left;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+  }
+
+  .step-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .step-num {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    font-weight: 800;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(26,86,219,0.25);
+  }
+
+  .step-icon { font-size: 2rem; margin-bottom: 14px; }
+
+  .step-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .step-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .step-arrow {
+    position: absolute;
+    right: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: var(--border);
+    z-index: 1;
+  }
+
+  /* ── FEATURES ── */
+  #features { background: white; }
+
+  .features-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    margin-bottom: 60px;
+  }
+
+  .feature-showcase {
+    background: var(--bg2);
+    border: 1px solid var(--border-accent);
+    border-radius: 16px;
+    padding: 32px;
+    position: relative;
+  }
+
+  .showcase-tag {
+    display: inline-block;
+    background: var(--sub-light);
+    color: var(--sub);
+    border: 1px solid rgba(217,119,6,0.25);
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .showcase-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+
+  .showcase-desc {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .showcase-img {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .showcase-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .showcase-bar .fill {
+    height: 100%;
+    border-radius: 4px;
+    animation: fill-anim 2.5s ease-in-out infinite alternate;
+  }
+
+  .fill-a { background: var(--accent); width: 78%; }
+  .fill-b { background: var(--sub); width: 55%; }
+  .fill-c { background: #6366F1; width: 90%; }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .feature-item {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    background: var(--bg);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .feature-item:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .fi-icon {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .fi-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .fi-desc {
+    font-size: 0.825rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  .badge-new {
+    display: inline-block;
+    background: var(--sub);
+    color: white;
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  /* ── PRICING ── */
+  #pricing { background: var(--bg2); text-align: center; }
+
+  #pricing .section-desc { margin: 0 auto 60px; }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+
+  .pricing-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 28px;
+    text-align: left;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+  }
+
+  .pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+  .pricing-card.featured {
+    border: 2px solid var(--accent);
+    box-shadow: 0 8px 32px rgba(26,86,219,0.15);
+    transform: scale(1.02);
+  }
+
+  .pricing-card.featured:hover {
+    transform: scale(1.02) translateY(-4px);
+  }
+
+  .pop-badge {
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: white;
+    padding: 3px 16px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .plan-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .plan-price {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: -1px;
+  }
+
+  .plan-price sub {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 0;
+  }
+
+  .featured .plan-price { color: var(--accent); }
+
+  .plan-period {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .plan-features {
+    list-style: none;
+    margin-bottom: 28px;
+  }
+
+  .plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 0.875rem;
+    color: var(--text-mid);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .plan-features li:last-child { border-bottom: none; }
+
+  .check-icon { color: var(--accent); font-weight: 700; flex-shrink: 0; }
+
+  .btn-plan {
+    display: block;
+    width: 100%;
+    padding: 13px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    color: var(--text-mid);
+    background: white;
+    transition: all 0.2s;
+  }
+
+  .btn-plan:hover { border-color: var(--accent); color: var(--accent); }
+
+  .featured .btn-plan {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(26,86,219,0.3);
+  }
+
+  .featured .btn-plan:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 8px 24px rgba(26,86,219,0.4);
+  }
+
+  /* ── FAQ ── */
+  #faq { background: white; }
+
+  .faq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+
+  .faq-left { padding-top: 8px; }
+
+  .faq-wrap {}
+
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .faq-q {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: left;
+    padding: 20px 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    font-family: inherit;
+  }
+
+  .faq-q:hover { color: var(--accent); }
+
+  .faq-icon {
+    width: 24px; height: 24px;
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    transition: transform 0.3s, background 0.2s;
+    line-height: 1;
+  }
+
+  .faq-item.open .faq-icon {
+    transform: rotate(45deg);
+    background: var(--accent-light);
+    border-color: var(--accent);
+  }
+
+  .faq-a {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.8;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+  }
+
+  .faq-item.open .faq-a {
+    max-height: 300px;
+    padding-bottom: 20px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--text);
+    color: rgba(255,255,255,0.7);
+    padding: 64px 40px 40px;
+  }
+
+  .footer-inner { max-width: 1120px; margin: 0 auto; }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .footer-logo {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .footer-logo em { color: #FCD34D; font-style: normal; }
+
+  .footer-tagline {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .footer-col h5 {
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 16px;
+  }
+
+  .footer-col ul { list-style: none; }
+
+  .footer-col li { margin-bottom: 10px; }
+
+  .footer-col a {
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+  }
+
+  .footer-col a:hover { color: white; }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+  }
+
+  .footer-bottom a { color: rgba(255,255,255,0.5); text-decoration: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+    .hero-right { order: -1; }
+    #problem .problem-inner { grid-template-columns: 1fr; gap: 48px; }
+    .steps { grid-template-columns: 1fr; }
+    .step-arrow { display: none; }
+    .features-header { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .pricing-card.featured { transform: none; }
+    .faq-grid { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+    section { padding: 72px 20px; }
+    header { padding: 0 20px; }
+  }
+
+  @media (max-width: 600px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .big-stat-wrap { grid-template-columns: 1fr 1fr; }
+    nav a { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">GravRec <em>AI</em></div>
+  <nav>
+    <a href="#problem">課題</a>
+    <a href="#solution">仕組み</a>
+    <a href="#features">機能</a>
+    <a href="#pricing">料金</a>
+    <a class="btn-nav-outline" href="#">ログイン</a>
+    <a class="btn-nav-fill" href="#pricing">無料で始める</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-inner container">
+    <div class="hero-left">
+      <div class="hero-tag">🏆 2026年 AIツール受賞</div>
+      <h1 class="hero-title">会議の会話が、<br><span class="highlight">図解</span>に変わる。<br>リアルタイムで。</h1>
+      <p class="hero-desc">GravRec AIは、ウェブミーティングの音声をAIが分析し、誰でも読める「グラフィックレコーディング」を自動生成。話すだけで、思考が絵になります。</p>
+      <div class="hero-cta">
+        <a class="btn-primary" href="#pricing">無料プランで試す</a>
+        <a class="btn-text" href="#solution">仕組みを見る →</a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-avatars">
+          <div class="trust-avatar">TK</div>
+          <div class="trust-avatar">MS</div>
+          <div class="trust-avatar">YA</div>
+          <div class="trust-avatar">RN</div>
+        </div>
+        <div>
+          <div class="stars">★★★★★</div>
+          <div>2,400社以上が導入中</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="dashboard-card">
+        <div class="dash-header">
+          <div class="dash-title">📊 GravRec AI ダッシュボード</div>
+          <div class="dash-live"><span class="live-dot"></span>LIVE</div>
+        </div>
+        <div class="dash-body">
+          <div class="dash-section-title">グラレコ生成中</div>
+          <div class="gravrec-canvas">
+            <div class="node node-main">🎯 戦略会議 Q2</div>
+            <div class="node node-sub1">📈 売上目標<br>+25%</div>
+            <div class="node node-sub2">💡 新施策<br>3本立て</div>
+            <div class="node node-sub3">🤝 チーム連携 強化</div>
+          </div>
+          <div class="ai-processing">
+            <span>🤖 AI解析中...</span>
+            <div class="proc-bar"><div class="proc-fill"></div></div>
+            <span>68%</span>
+          </div>
+          <div class="dash-section-title">抽出キーワード</div>
+          <div class="keywords">
+            <span class="keyword hot">戦略</span>
+            <span class="keyword hot">Q2</span>
+            <span class="keyword">売上</span>
+            <span class="keyword">マーケティング</span>
+            <span class="keyword hot">優先度</span>
+            <span class="keyword">予算</span>
+            <span class="keyword">チーム</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="container problem-inner">
+    <div>
+      <div class="section-label">課題</div>
+      <h2 class="section-title">情報は交わされている。<br>でも残っていない。</h2>
+      <p class="section-desc">リモートワークが当たり前になった今、会議の情報管理が最大の課題に。</p>
+      <div class="pain-cards">
+        <div class="pain-card">
+          <div class="pain-icon">📝</div>
+          <div>
+            <h4>議事録を書きながら議論に集中できない</h4>
+            <p>タイピングに追われて大事な発言を聞き逃す。人間は二つのことを同時にできない。</p>
+          </div>
+        </div>
+        <div class="pain-card">
+          <div class="pain-icon">🔍</div>
+          <div>
+            <h4>テキスト議事録では論点が見えない</h4>
+            <p>長いテキストを読み返しても、議論の構造・因果関係・優先度が掴めない。</p>
+          </div>
+        </div>
+        <div class="pain-card">
+          <div class="pain-icon">💸</div>
+          <div>
+            <h4>プロのグラレコ依頼は高価で時間がかかる</h4>
+            <p>専任グラフィックレコーダーの手配は数万円〜。それを毎回やるのは現実的ではない。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-right">
+      <h3>📊 会議効率化の現実</h3>
+      <div class="stat-row">
+        <div class="stat-label">
+          <span>会議内容の48h後記憶定着率</span>
+          <span>27%</span>
+        </div>
+        <div class="stat-bar"><div class="stat-fill" style="width:27%"></div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">
+          <span>議事録を活用している割合</span>
+          <span>38%</span>
+        </div>
+        <div class="stat-bar"><div class="stat-fill" style="width:38%"></div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">
+          <span>図解は文章より理解速度が高い</span>
+          <span>6倍</span>
+        </div>
+        <div class="stat-bar"><div class="stat-fill" style="width:85%"></div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">
+          <span>ミーティング後の重複確認コスト</span>
+          <span>削減 82%</span>
+        </div>
+        <div class="stat-bar"><div class="stat-fill" style="width:82%"></div></div>
+      </div>
+      <div class="big-stat-wrap">
+        <div class="big-stat">
+          <div class="num">2.3h</div>
+          <div class="lab">1日平均の<br>会議時間</div>
+        </div>
+        <div class="big-stat">
+          <div class="num">0分</div>
+          <div class="lab">GravRec AIの<br>準備時間</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section id="solution">
+  <div class="container">
+    <div class="section-label">ソリューション</div>
+    <h2 class="section-title">3ステップで、会議が変わる。</h2>
+    <p class="section-desc">難しい設定は一切なし。ミーティングリンクを共有するだけで、AIが自動でグラレコを作り上げます。</p>
+
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon">🔗</div>
+        <h3 class="step-title">ミーティングにAIを招待</h3>
+        <p class="step-desc">Zoom・Google Meet・Teamsのリンクを共有するだけ。ブラウザ拡張機能でも使用可能。設定は30秒で完了。</p>
+        <div class="step-arrow">›</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon">🧠</div>
+        <h3 class="step-title">会話をAIが構造解析</h3>
+        <p class="step-desc">音声認識AIが発言を文字化。さらに構造理解AIが因果関係・重要度・対立点を分析します。</p>
+        <div class="step-arrow">›</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon">🎨</div>
+        <h3 class="step-title">グラレコが自動生成される</h3>
+        <p class="step-desc">話が進むと同時に図解が更新。ミーティング終了後はPDFで書き出し、そのまま共有可能。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="features-header">
+      <div>
+        <div class="section-label">主要機能</div>
+        <h2 class="section-title">プロが実践する<br>グラレコを、誰でも。</h2>
+        <p class="section-desc">5年かけて蓄積されたグラフィックレコーダーのノウハウをAIに学習。人間にしかできなかった「構造的な可視化」を自動化します。</p>
+      </div>
+      <div class="feature-showcase">
+        <div class="showcase-tag">AI Performance</div>
+        <div class="showcase-title">業界最高水準の精度</div>
+        <p class="showcase-desc">日本語認識・構造解析・図解生成、すべてにおいてトップクラスのパフォーマンスを実現。</p>
+        <div class="showcase-img">
+          <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:8px;">認識精度スコア</div>
+          <div class="stat-label" style="font-size:0.75rem;"><span style="color:var(--text-mid);">日本語音声認識</span><span style="color:var(--accent);">98.2%</span></div>
+          <div class="showcase-bar"><div class="fill fill-c"></div></div>
+          <div class="stat-label" style="font-size:0.75rem; margin-top:8px;"><span style="color:var(--text-mid);">構造理解精度</span><span style="color:var(--accent);">94.7%</span></div>
+          <div class="showcase-bar"><div class="fill fill-a"></div></div>
+          <div class="stat-label" style="font-size:0.75rem; margin-top:8px;"><span style="color:var(--text-mid);">ユーザー満足度</span><span style="color:var(--sub);">96.1%</span></div>
+          <div class="showcase-bar"><div class="fill fill-b"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-item">
+        <span class="fi-icon">⚡</span>
+        <h3 class="fi-title">リアルタイム図解生成</h3>
+        <p class="fi-desc">会話と同時にグラレコが更新。ミーティング中から画面共有して「これで合ってますか？」が可能に。</p>
+      </div>
+      <div class="feature-item">
+        <span class="fi-icon">🧠</span>
+        <h3 class="fi-title">構造理解AI<span class="badge-new">NEW</span></h3>
+        <p class="fi-desc">単なる文字起こしではなく、論点の因果関係・対立・優先度を理解した図解を自動生成。</p>
+      </div>
+      <div class="feature-item">
+        <span class="fi-icon">📎</span>
+        <h3 class="fi-title">PDF書き出し・即共有</h3>
+        <p class="fi-desc">ミーティング終了と同時にプロ品質のPDFを生成。Slack・メール・Notionへワンクリックで共有。</p>
+      </div>
+      <div class="feature-item">
+        <span class="fi-icon">🌐</span>
+        <h3 class="fi-title">40言語対応</h3>
+        <p class="fi-desc">日英中を含む40言語のミーティングに対応。グローバルチームでも完璧に機能します。</p>
+      </div>
+      <div class="feature-item">
+        <span class="fi-icon">🔒</span>
+        <h3 class="fi-title">エンタープライズ級セキュリティ</h3>
+        <p class="fi-desc">AES-256暗号化・SOC2 Type II準拠・データ30日自動削除。機密会議でも安心。</p>
+      </div>
+      <div class="feature-item">
+        <span class="fi-icon">🔗</span>
+        <h3 class="fi-title">主要ツール連携</h3>
+        <p class="fi-desc">Notion・Slack・Confluence・Jiraと連携。既存ワークフローにシームレスに統合できます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-label">料金プラン</div>
+    <h2 class="section-title">まずは無料で体験する</h2>
+    <p class="section-desc">クレジットカード不要。いつでもキャンセル可能。チームプランは14日間無料でお試しいただけます。</p>
+
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">¥0<sub>/月</sub></div>
+        <p class="plan-period">まずはお試しに</p>
+        <ul class="plan-features">
+          <li><span class="check-icon">✓</span>月5分のグラレコ生成</li>
+          <li><span class="check-icon">✓</span>基本テンプレート（5種）</li>
+          <li><span class="check-icon">✓</span>PNG書き出し</li>
+          <li><span class="check-icon">✓</span>1ワークスペース</li>
+        </ul>
+        <a class="btn-plan" href="#">無料で始める</a>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="pop-badge">⭐ 最人気</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">¥1,980<sub>/月</sub></div>
+        <p class="plan-period">個人・フリーランスに最適</p>
+        <ul class="plan-features">
+          <li><span class="check-icon">✓</span>無制限のグラレコ生成</li>
+          <li><span class="check-icon">✓</span>構造理解AI（高精度モード）</li>
+          <li><span class="check-icon">✓</span>PDF書き出し・即共有</li>
+          <li><span class="check-icon">✓</span>40言語対応</li>
+          <li><span class="check-icon">✓</span>Slack・Notion連携</li>
+          <li><span class="check-icon">✓</span>優先メールサポート</li>
+        </ul>
+        <a class="btn-plan" href="#">Pro を始める →</a>
+      </div>
+
+      <div class="pricing-card">
+        <div class="plan-name">Team</div>
+        <div class="plan-price">¥4,980<sub>/月</sub></div>
+        <p class="plan-period">チーム・組織での利用に</p>
+        <ul class="plan-features">
+          <li><span class="check-icon">✓</span>Proの全機能</li>
+          <li><span class="check-icon">✓</span>最大5名まで</li>
+          <li><span class="check-icon">✓</span>チームワークスペース共有</li>
+          <li><span class="check-icon">✓</span>管理者ダッシュボード</li>
+          <li><span class="check-icon">✓</span>SSO・SAML対応</li>
+          <li><span class="check-icon">✓</span>専任カスタマーサクセス</li>
+        </ul>
+        <a class="btn-plan" href="#">Team を始める</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="faq-grid">
+      <div class="faq-left">
+        <div class="section-label">FAQ</div>
+        <h2 class="section-title">よくある<br>ご質問</h2>
+        <p class="section-desc">その他のご質問はサポートチームまでお気軽にどうぞ。通常24時間以内にご返答します。</p>
+        <br><br>
+        <a class="btn-primary" href="#" style="display:inline-block;">サポートに問い合わせる</a>
+      </div>
+      <div class="faq-wrap">
+        <div class="faq-item open">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            どのビデオ会議ツールに対応していますか？
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            Zoom、Google Meet、Microsoft Teams、Webex に対応しています。ブラウザ拡張機能またはAPIインテグレーションでご利用いただけます。
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            会話データはどのように保護されますか？
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            すべてのデータはAES-256で暗号化。SOC2 Type II認証取得済み。データは30日後に自動削除され、第三者への提供は一切行いません。
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            いつでもキャンセル・プラン変更できますか？
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            はい、いつでもワンクリックでプラン変更・キャンセルが可能です。解約後も契約期間終了まではサービスをご利用いただけます。
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            日本語の精度はどのくらいですか？
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            日本語は特に力を入れており、ビジネス日本語・技術用語・カタカナ語に特化したモデルを採用。音声認識精度98.2%（社内測定）を実現しています。
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Teamプランは何名まで利用できますか？
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            Teamプランは最大5名まで利用可能です。5名を超える場合はEnterpriseプランをご相談ください。人数・機能をカスタマイズしてご提供します。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <span class="footer-logo">GravRec <em>AI</em></span>
+        <p class="footer-tagline">話すだけで、思考が絵になる。<br>ウェブミーティングのグラフィックレコーディングを、<br>すべてのチームへ。</p>
+      </div>
+      <div class="footer-col">
+        <h5>プロダクト</h5>
+        <ul>
+          <li><a href="#">機能一覧</a></li>
+          <li><a href="#">料金プラン</a></li>
+          <li><a href="#">ガイド</a></li>
+          <li><a href="#">API</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>会社情報</h5>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">ブログ</a></li>
+          <li><a href="#">採用</a></li>
+          <li><a href="#">プレス</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>サポート</h5>
+        <ul>
+          <li><a href="#">ヘルプ</a></li>
+          <li><a href="#">お問い合わせ</a></li>
+          <li><a href="#">プライバシー</a></li>
+          <li><a href="#">利用規約</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 GravRec AI, Inc. All rights reserved.</div>
+      <div><a href="#">Privacy</a> · <a href="#">Terms</a> · 🇯🇵 日本語</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+</script>
+</body>
+</html>

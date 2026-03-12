@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GravRec AI — 話すだけで、思考が絵になる</title>
+<style>
+  :root {
+    --bg: #0D1B2A;
+    --bg2: #1A0E2E;
+    --accent: #00E5FF;
+    --sub: #7C3AED;
+    --text: #E8F4FD;
+    --text-muted: #8BA5BC;
+    --card-bg: rgba(255,255,255,0.04);
+    --card-border: rgba(0,229,255,0.15);
+    --glow: 0 0 20px rgba(0,229,255,0.3);
+    --glow-sub: 0 0 20px rgba(124,58,237,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 40px;
+    background: rgba(13,27,42,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,229,255,0.1);
+  }
+
+  .logo {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--accent);
+    text-shadow: var(--glow);
+  }
+
+  .logo span { color: var(--sub); }
+
+  nav { display: flex; gap: 32px; align-items: center; }
+
+  nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+
+  nav a:hover { color: var(--accent); }
+
+  .btn-nav {
+    background: var(--accent);
+    color: var(--bg);
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .btn-nav:hover {
+    box-shadow: var(--glow);
+    transform: translateY(-1px);
+    color: var(--bg);
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 40px 80px;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,229,255,0.07) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 50% at 80% 80%, rgba(124,58,237,0.08) 0%, transparent 60%),
+                linear-gradient(180deg, var(--bg) 0%, #121828 100%);
+    position: relative;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: rgba(0,229,255,0.1);
+    border: 1px solid rgba(0,229,255,0.3);
+    color: var(--accent);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: -2px;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #E8F4FD 30%, var(--accent) 70%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto 48px;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #00B8D4);
+    color: var(--bg);
+    padding: 16px 36px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: box-shadow 0.2s, transform 0.2s;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 40px rgba(0,229,255,0.5);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    padding: 16px 36px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.15);
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.05);
+  }
+
+  .hero-visual {
+    margin-top: 72px;
+    width: 100%;
+    max-width: 880px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 0 60px rgba(0,229,255,0.08), 0 20px 60px rgba(0,0,0,0.4);
+    position: relative;
+  }
+
+  .mock-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0,229,255,0.1);
+  }
+
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-r { background: #FF5F57; }
+  .dot-y { background: #FFBD2E; }
+  .dot-g { background: #28CA41; }
+
+  .mock-title {
+    flex: 1;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .mock-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    min-height: 280px;
+  }
+
+  .mock-transcript {
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .mock-transcript h4 {
+    color: var(--accent);
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .transcript-line {
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .transcript-line .speaker {
+    color: var(--sub);
+    font-weight: 600;
+  }
+
+  .pulse-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-left: 6px;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .mock-gravrec {
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+  }
+
+  .mock-gravrec h4 {
+    color: var(--accent);
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .sketch-area {
+    width: 100%;
+    height: 220px;
+    position: relative;
+  }
+
+  .sketch-node {
+    position: absolute;
+    background: rgba(0,229,255,0.12);
+    border: 1.5px solid var(--accent);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.72rem;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .sketch-node.sub-node {
+    background: rgba(124,58,237,0.12);
+    border-color: var(--sub);
+    color: var(--sub);
+    font-size: 0.65rem;
+  }
+
+  .sketch-arrow {
+    position: absolute;
+    background: rgba(0,229,255,0.4);
+    height: 1.5px;
+    transform-origin: left center;
+  }
+
+  .typing-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 14px;
+    background: var(--accent);
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  /* ── SECTION BASE ── */
+  section { padding: 100px 40px; }
+
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -1px;
+    margin-bottom: 24px;
+  }
+
+  .section-desc {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    max-width: 540px;
+    line-height: 1.8;
+  }
+
+  .container { max-width: 1120px; margin: 0 auto; }
+
+  /* ── PROBLEM ── */
+  #problem {
+    background: linear-gradient(180deg, #121828 0%, var(--bg2) 100%);
+  }
+
+  #problem .inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .pain-list {
+    list-style: none;
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .pain-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: var(--card-bg);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 20px;
+    font-size: 0.95rem;
+  }
+
+  .pain-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .pain-list li h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .pain-list li p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 28px 24px;
+    text-align: center;
+  }
+
+  .stat-card .number {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    text-shadow: var(--glow);
+    margin-bottom: 8px;
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  /* ── SOLUTION ── */
+  #solution {
+    background: var(--bg2);
+    text-align: center;
+  }
+
+  #solution .section-title { margin: 0 auto 16px; }
+  #solution .section-desc { margin: 0 auto 60px; }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    position: relative;
+  }
+
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 48px;
+    left: calc(16.66% + 40px);
+    right: calc(16.66% + 40px);
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--sub));
+    opacity: 0.3;
+  }
+
+  .step-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 40px 28px;
+    position: relative;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .step-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3), var(--glow);
+  }
+
+  .step-number {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--sub));
+    color: white;
+    font-weight: 800;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: var(--glow);
+  }
+
+  .step-icon { font-size: 2.2rem; margin-bottom: 16px; }
+
+  .step-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .step-desc {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  /* ── FEATURES ── */
+  #features { background: var(--bg); }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+  }
+
+  .feature-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 32px 28px;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+
+  .feature-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+  }
+
+  .feature-icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    background: rgba(0,229,255,0.1);
+    border: 1px solid rgba(0,229,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .feature-card:nth-child(even) .feature-icon {
+    background: rgba(124,58,237,0.1);
+    border-color: rgba(124,58,237,0.2);
+  }
+
+  .feature-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .feature-desc {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  .badge-new {
+    background: var(--sub);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── PRICING ── */
+  #pricing {
+    background: linear-gradient(180deg, var(--bg) 0%, #0A1520 100%);
+    text-align: center;
+  }
+
+  #pricing .section-title { margin: 0 auto 16px; }
+  #pricing .section-desc { margin: 0 auto 60px; }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+
+  .pricing-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 40px 32px;
+    position: relative;
+    transition: transform 0.3s;
+  }
+
+  .pricing-card:hover { transform: translateY(-4px); }
+
+  .pricing-card.featured {
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.05);
+    box-shadow: 0 0 40px rgba(0,229,255,0.1);
+    transform: scale(1.03);
+  }
+
+  .pricing-card.featured:hover { transform: scale(1.03) translateY(-4px); }
+
+  .popular-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--accent), var(--sub));
+    color: white;
+    padding: 4px 20px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .plan-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .plan-price {
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+
+  .plan-price span {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .featured .plan-price { color: var(--accent); text-shadow: var(--glow); }
+
+  .plan-tagline {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .plan-features {
+    list-style: none;
+    margin-bottom: 32px;
+    text-align: left;
+  }
+
+  .plan-features li {
+    padding: 8px 0;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .plan-features li::before {
+    content: '✓';
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .btn-plan {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid rgba(0,229,255,0.3);
+    color: var(--accent);
+    transition: all 0.2s;
+    cursor: pointer;
+    background: transparent;
+  }
+
+  .btn-plan:hover {
+    background: rgba(0,229,255,0.1);
+    border-color: var(--accent);
+  }
+
+  .featured .btn-plan {
+    background: linear-gradient(135deg, var(--accent), #00B8D4);
+    color: var(--bg);
+    border-color: transparent;
+  }
+
+  .featured .btn-plan:hover {
+    box-shadow: var(--glow);
+  }
+
+  /* ── FAQ ── */
+  #faq { background: var(--bg); }
+
+  .faq-wrap { max-width: 720px; margin: 60px auto 0; }
+
+  .faq-item {
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .faq-q {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: left;
+    padding: 24px 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    font-family: inherit;
+  }
+
+  .faq-q:hover { color: var(--accent); }
+
+  .faq-icon {
+    font-size: 1.4rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    transition: transform 0.3s;
+    line-height: 1;
+  }
+
+  .faq-a {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.8;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.4s;
+  }
+
+  .faq-item.open .faq-a {
+    max-height: 300px;
+    padding-bottom: 24px;
+  }
+
+  .faq-item.open .faq-icon {
+    transform: rotate(45deg);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #080E16;
+    border-top: 1px solid rgba(0,229,255,0.08);
+    padding: 60px 40px 40px;
+  }
+
+  .footer-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .footer-brand .logo { font-size: 1.3rem; margin-bottom: 16px; display: block; }
+
+  .footer-brand p {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  .footer-col h5 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .footer-col ul { list-style: none; }
+
+  .footer-col li { margin-bottom: 10px; }
+
+  .footer-col a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+  }
+
+  .footer-col a:hover { color: var(--accent); }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    header { padding: 14px 20px; }
+    nav { gap: 16px; }
+    nav a { display: none; }
+    section { padding: 72px 20px; }
+    #problem .inner { grid-template-columns: 1fr; gap: 48px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    .steps::before { display: none; }
+    .features-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .pricing-card.featured { transform: none; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+    .mock-body { grid-template-columns: 1fr; }
+    .hero-title { letter-spacing: -1px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">GravRec <span>AI</span></div>
+  <nav>
+    <a href="#problem">課題</a>
+    <a href="#solution">ソリューション</a>
+    <a href="#features">機能</a>
+    <a href="#pricing">料金</a>
+    <a class="btn-nav" href="#pricing">無料で始める</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-badge">🚀 AI グラフィックレコーディング</div>
+  <h1 class="hero-title">話すだけで、<br>思考が絵になる</h1>
+  <p class="hero-sub">ウェブミーティングの会話をリアルタイムにグラフィックレコーディング（図解）として可視化。議論の流れが一目でわかる、新時代のAI議事録。</p>
+  <div class="hero-cta">
+    <a class="btn-primary" href="#pricing">無料で試してみる →</a>
+    <a class="btn-secondary" href="#solution">仕組みを見る</a>
+  </div>
+
+  <div class="hero-visual container">
+    <div class="mock-toolbar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <div class="mock-title">GravRec AI — チームミーティング 2026/03/12</div>
+    </div>
+    <div class="mock-body">
+      <div class="mock-transcript">
+        <h4>🎙 リアルタイム文字起こし <span class="pulse-dot"></span></h4>
+        <div class="transcript-line"><span class="speaker">田中：</span>今期の戦略として、まずユーザー獲得を最優先にしたいと思います</div>
+        <div class="transcript-line"><span class="speaker">鈴木：</span>SNSマーケティングとSEOを並行して進めるのはどうでしょう</div>
+        <div class="transcript-line"><span class="speaker">田中：</span>予算の配分が課題ですね。広告に60%<span class="typing-cursor"></span></div>
+      </div>
+      <div class="mock-gravrec">
+        <h4>📊 グラレコ（自動生成中） <span class="pulse-dot"></span></h4>
+        <div class="sketch-area">
+          <div class="sketch-node" style="top:10px; left:50%; transform:translateX(-50%)">🎯 今期戦略</div>
+          <div class="sketch-node sub-node" style="top:80px; left:10px">📱 SNS<br>マーケ</div>
+          <div class="sketch-node sub-node" style="top:80px; right:10px">🔍 SEO<br>強化</div>
+          <div class="sketch-node" style="top:160px; left:30%; transform:translateX(-50%)">👥 ユーザー<br>獲得 最優先</div>
+          <div class="sketch-node sub-node" style="top:160px; right:10px">💰 予算<br>広告 60%</div>
+          <div class="sketch-arrow" style="top:44px; left:calc(50% - 30px); width:80px; transform:rotate(45deg)"></div>
+          <div class="sketch-arrow" style="top:44px; left:calc(50%); width:80px; transform:rotate(135deg)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="container inner">
+    <div>
+      <div class="section-label">課題</div>
+      <h2 class="section-title">議事録は書けない。<br>でも記録は残したい。</h2>
+      <p class="section-desc">リモートワーク時代のミーティング。話は盛り上がるのに、振り返ったとき何も残っていない問題。</p>
+      <ul class="pain-list">
+        <li>
+          <div class="pain-icon">📝</div>
+          <div>
+            <h4>議事録を書きながら議論に集中できない</h4>
+            <p>タイピングに必死で、大事な発言を聞き逃してしまう</p>
+          </div>
+        </li>
+        <li>
+          <div class="pain-icon">🔄</div>
+          <div>
+            <h4>後から読み返しても内容が掴めない</h4>
+            <p>テキストの羅列では、議論の構造や因果関係が見えない</p>
+          </div>
+        </li>
+        <li>
+          <div class="pain-icon">⏰</div>
+          <div>
+            <h4>グラレコは専門スキルが必要で時間がかかる</h4>
+            <p>専任担当者がいなければ、図解での記録は現実的じゃない</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="number">73%</div>
+        <div class="label">のビジネスパーソンが<br>会議の内容を48時間後に忘れる</div>
+      </div>
+      <div class="stat-card">
+        <div class="number">2.3h</div>
+        <div class="label">1日平均の<br>ミーティング時間</div>
+      </div>
+      <div class="stat-card">
+        <div class="number">6倍</div>
+        <div class="label">図解の方が<br>テキストより記憶定着率が高い</div>
+      </div>
+      <div class="stat-card">
+        <div class="number">0分</div>
+        <div class="label">GravRec AIが必要とする<br>準備・操作時間</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section id="solution">
+  <div class="container">
+    <div class="section-label">ソリューション</div>
+    <h2 class="section-title">3ステップで、すべて自動。</h2>
+    <p class="section-desc">難しい設定も、専門知識も不要。ミーティングに参加するだけで、AIが自動的に議論を図解にしていきます。</p>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-icon">🔗</div>
+        <h3 class="step-title">ミーティングに参加</h3>
+        <p class="step-desc">Zoom・Google Meet・Teamsのリンクに、GravRec AIを招待するだけ。ブラウザ拡張機能でもOK。セットアップは30秒。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-icon">🎙️</div>
+        <h3 class="step-title">会話をリアルタイム解析</h3>
+        <p class="step-desc">AIが会話の流れを理解し、発言の関係性・優先度・感情を分析。重要なキーワードと構造を抽出します。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-icon">🎨</div>
+        <h3 class="step-title">グラレコを自動生成</h3>
+        <p class="step-desc">議論の流れがリアルタイムで図解に。ミーティング終了と同時にPDFとして書き出せます。「こんな感じですか？」が一瞬で。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="section-label">主要機能</div>
+    <h2 class="section-title">GravRec AIができること</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">リアルタイム図解生成</h3>
+        <p class="feature-desc">会話が進むと同時にグラレコが更新される。ミーティング中から共有できる、圧倒的なリアルタイム性。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3 class="feature-title">構造理解AI<span class="badge-new">NEW</span></h3>
+        <p class="feature-desc">単純な文字起こしではなく、因果関係・優先度・対立点を理解した図解を生成。議論の本質を捉える。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3 class="feature-title">多言語対応</h3>
+        <p class="feature-desc">日本語・英語・中国語を含む40言語に対応。グローバルチームのミーティングでも完璧に機能します。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📎</div>
+        <h3 class="feature-title">PDF書き出し・共有</h3>
+        <p class="feature-desc">ミーティング終了後すぐにプロ品質のグラレコPDFを生成。Slackやメールへワンクリックで共有。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3 class="feature-title">エンタープライズ級セキュリティ</h3>
+        <p class="feature-desc">SOC2 Type II準拠。会議内容はエンドツーエンド暗号化。データは30日後に自動削除。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <h3 class="feature-title">主要ツール連携</h3>
+        <p class="feature-desc">Notion、Slack、Confluence、Jiraと連携。グラレコを既存のワークフローにシームレスに統合。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-label">料金プラン</div>
+    <h2 class="section-title">まずは無料で試してみよう</h2>
+    <p class="section-desc">クレジットカード不要。いつでもアップグレード・キャンセル可能。</p>
+
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">¥0<span>/月</span></div>
+        <p class="plan-tagline">まずは体験してみたい方に</p>
+        <ul class="plan-features">
+          <li>月5分のグラレコ生成</li>
+          <li>基本的な図解テンプレート</li>
+          <li>PNG書き出し</li>
+          <li>1ワークスペース</li>
+        </ul>
+        <a class="btn-plan" href="#">無料で始める</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="popular-badge">⚡ 最人気プラン</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">¥1,980<span>/月</span></div>
+        <p class="plan-tagline">個人・フリーランスに最適</p>
+        <ul class="plan-features">
+          <li>無制限のグラレコ生成</li>
+          <li>高精度 構造理解AI</li>
+          <li>PDF書き出し・共有</li>
+          <li>40言語対応</li>
+          <li>Slack・Notion連携</li>
+          <li>優先サポート</li>
+        </ul>
+        <a class="btn-plan" href="#">Pro を始める</a>
+      </div>
+      <div class="pricing-card">
+        <div class="plan-name">Team</div>
+        <div class="plan-price">¥4,980<span>/月</span></div>
+        <p class="plan-tagline">チーム・組織での利用に</p>
+        <ul class="plan-features">
+          <li>Proの全機能</li>
+          <li>最大5名まで利用可能</li>
+          <li>チームワークスペース共有</li>
+          <li>管理者ダッシュボード</li>
+          <li>SSO・SAML対応</li>
+          <li>専任カスタマーサクセス</li>
+        </ul>
+        <a class="btn-plan" href="#">Team を始める</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="section-label">よくある質問</div>
+    <h2 class="section-title">FAQ</h2>
+
+    <div class="faq-wrap">
+      <div class="faq-item open">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          どのビデオ会議ツールに対応していますか？
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">
+          Zoom、Google Meet、Microsoft Teams、Webex、Discord（ビデオ通話）に対応しています。ブラウザ拡張機能またはAPIインテグレーションでご利用いただけます。その他のツールへの対応も順次追加予定です。
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          会話データはどのように保護されますか？
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">
+          すべての音声・テキストデータはAES-256でエンドツーエンド暗号化されています。データは処理後30日で自動削除され、第三者への提供は一切行いません。SOC2 Type II認証を取得済みです。
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          無料プランでいつでもアップグレードできますか？
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">
+          はい、いつでもアップグレード・ダウングレードが可能です。アップグレードは即日反映。ダウングレードは次の更新日から適用されます。解約はいつでもワンクリックで行えます。
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          生成されるグラレコの品質はどの程度ですか？
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">
+          当社のAIは、単なる文字起こしを超えた「構造理解」を行います。発言の因果関係・優先度・対立点を分析し、人間のグラフィックレコーダーが描くような論理的な図解を自動生成します。業界テストでは専門家の85%が「十分実用的」と評価しています。
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          日本語のミーティングでも精度は高いですか？
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">
+          はい、日本語は特に力を入れている言語のひとつです。ビジネス日本語・技術用語・カタカナ語に特化したモデルを採用しており、認識精度98.2%（社内測定）を実現しています。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="logo">GravRec <span>AI</span></span>
+        <p>話すだけで、思考が絵になる。<br>ウェブミーティングのグラフィックレコーディングを、すべての人に。</p>
+      </div>
+      <div class="footer-col">
+        <h5>プロダクト</h5>
+        <ul>
+          <li><a href="#">機能一覧</a></li>
+          <li><a href="#">料金プラン</a></li>
+          <li><a href="#">使い方ガイド</a></li>
+          <li><a href="#">API</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>会社情報</h5>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">ブログ</a></li>
+          <li><a href="#">採用情報</a></li>
+          <li><a href="#">プレス</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>サポート</h5>
+        <ul>
+          <li><a href="#">ヘルプセンター</a></li>
+          <li><a href="#">お問い合わせ</a></li>
+          <li><a href="#">プライバシー</a></li>
+          <li><a href="#">利用規約</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 GravRec AI, Inc. All rights reserved.</div>
+      <div>🇯🇵 日本語 | Privacy | Terms</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+</script>
+</body>
+</html>
