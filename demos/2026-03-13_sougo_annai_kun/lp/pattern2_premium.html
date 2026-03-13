@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>総合案内くん | 市民に優しい自治体AI案内サービス</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #FFFFFF;
+      --bg2: #F7FBF8;
+      --bg3: #EFF8F1;
+      --accent: #27AE60;
+      --accent-light: #2ECC71;
+      --accent-dark: #1E8449;
+      --accent-pale: #D5F0DC;
+      --highlight: #FF6B35;
+      --highlight-light: #FF8C5A;
+      --text: #1A2E24;
+      --text-muted: #6B7F72;
+      --border: #D4EAD9;
+      --card-bg: #FFFFFF;
+      --shadow: 0 4px 20px rgba(39, 174, 96, 0.1);
+      --shadow-hover: 0 8px 40px rgba(39, 174, 96, 0.2);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ======== HEADER ======== */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 16px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid var(--border);
+      box-shadow: 0 2px 12px rgba(39,174,96,0.08);
+    }
+    .logo {
+      font-size: 1.4rem; font-weight: 900;
+      color: var(--text);
+    }
+    .logo span { color: var(--accent); }
+    nav { display: flex; gap: 32px; }
+    nav a {
+      color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
+      font-weight: 500; transition: color 0.2s;
+    }
+    nav a:hover { color: var(--accent); }
+    .header-cta {
+      background: var(--accent);
+      color: #fff; border: none; padding: 10px 24px;
+      border-radius: 100px; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; text-decoration: none;
+      transition: all 0.2s;
+    }
+    .header-cta:hover {
+      background: var(--accent-dark);
+      box-shadow: 0 4px 16px rgba(39,174,96,0.35);
+      transform: translateY(-1px);
+    }
+
+    /* ======== HERO ======== */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 120px 40px 80px;
+      background: linear-gradient(160deg, #FFFFFF 0%, #EFF8F1 50%, #D5F0DC 100%);
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -100px; right: -100px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(39,174,96,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; bottom: -80px; left: -80px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(39,174,96,0.07) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-inner {
+      max-width: 1200px; margin: 0 auto; width: 100%;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+      position: relative; z-index: 1;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent-pale);
+      border: 1.5px solid var(--accent);
+      border-radius: 100px; padding: 6px 16px;
+      font-size: 0.82rem; color: var(--accent-dark);
+      margin-bottom: 24px; font-weight: 700;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900; line-height: 1.3;
+      margin-bottom: 24px; letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .hero h1 .accent-line {
+      color: var(--accent);
+      border-bottom: 4px solid var(--accent-light);
+      padding-bottom: 2px;
+    }
+    .hero p {
+      font-size: 1.1rem; color: var(--text-muted); line-height: 1.8;
+      margin-bottom: 40px; max-width: 480px;
+    }
+    .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--highlight);
+      color: #fff; text-decoration: none;
+      padding: 16px 32px; border-radius: 100px;
+      font-size: 1rem; font-weight: 700;
+      transition: all 0.2s;
+      border: none; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(255,107,53,0.3);
+    }
+    .btn-primary:hover {
+      background: var(--highlight-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255,107,53,0.4);
+    }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #fff;
+      color: var(--accent); text-decoration: none;
+      padding: 16px 32px; border-radius: 100px;
+      font-size: 1rem; font-weight: 700;
+      border: 2px solid var(--accent);
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    /* Hero Visual */
+    .hero-visual {
+      display: flex; justify-content: center; align-items: center;
+    }
+    .robot-scene {
+      position: relative;
+      width: 360px; height: 420px;
+    }
+    /* Ground */
+    .robot-ground {
+      position: absolute;
+      bottom: 40px; left: 50%; transform: translateX(-50%);
+      width: 200px; height: 16px;
+      background: var(--accent-pale);
+      border-radius: 50%;
+      filter: blur(4px);
+    }
+    .robot-wrapper {
+      position: absolute;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center;
+      animation: floatLight 4s ease-in-out infinite;
+    }
+    @keyframes floatLight {
+      0%, 100% { transform: translate(-50%, -50%); }
+      50% { transform: translate(-50%, calc(-50% - 10px)); }
+    }
+    /* Robot head - friendly style */
+    .robot-head {
+      width: 130px; height: 130px;
+      background: linear-gradient(145deg, #EFF8F1, #D5F0DC);
+      border-radius: 32px;
+      border: 3px solid var(--accent);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      box-shadow: 0 8px 30px rgba(39,174,96,0.25), inset 0 2px 0 rgba(255,255,255,0.8);
+      position: relative;
+    }
+    .robot-cheek {
+      position: absolute; bottom: 24px;
+      width: 18px; height: 12px;
+      background: rgba(255,107,53,0.3);
+      border-radius: 50%;
+    }
+    .robot-cheek.left { left: 16px; }
+    .robot-cheek.right { right: 16px; }
+    .robot-eyes {
+      display: flex; gap: 16px; margin-bottom: 10px;
+    }
+    .robot-eye {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(39,174,96,0.4);
+      animation: blinkLight 5s infinite;
+    }
+    @keyframes blinkLight {
+      0%, 88%, 100% { transform: scaleY(1); }
+      92% { transform: scaleY(0.1); }
+    }
+    .robot-mouth {
+      width: 44px; height: 20px;
+      border-bottom: 4px solid var(--accent);
+      border-left: 4px solid var(--accent);
+      border-right: 4px solid var(--accent);
+      border-radius: 0 0 22px 22px;
+      border-top: none;
+    }
+    .robot-antenna {
+      position: absolute; top: -28px; left: 50%;
+      transform: translateX(-50%);
+      width: 4px; height: 24px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    .robot-antenna::after {
+      content: '❤';
+      position: absolute; top: -18px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px; color: var(--highlight);
+      animation: heartBeat 1.5s ease infinite;
+    }
+    @keyframes heartBeat {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.3); }
+    }
+    .robot-torso {
+      width: 150px; height: 110px;
+      background: linear-gradient(145deg, #EFF8F1, #D5F0DC);
+      border-radius: 16px;
+      border: 3px solid var(--accent);
+      margin-top: 8px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 24px rgba(39,174,96,0.15);
+    }
+    .robot-screen {
+      width: 90px; height: 55px;
+      background: #fff;
+      border-radius: 8px;
+      border: 2px solid var(--accent-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; color: var(--accent-dark);
+      text-align: center; font-weight: 900;
+      box-shadow: inset 0 1px 3px rgba(39,174,96,0.1);
+    }
+    .speech-bubble {
+      position: absolute;
+      top: 30px; right: -30px;
+      background: #fff;
+      color: var(--text); padding: 12px 18px;
+      border-radius: 16px 16px 16px 0;
+      font-size: 0.78rem; font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(39,174,96,0.2);
+      border: 1.5px solid var(--border);
+    }
+    .speech-bubble::before {
+      content: '🏛';
+      margin-right: 4px;
+    }
+    .hero-trust {
+      display: flex; align-items: center; gap: 24px; margin-top: 40px;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.85rem; color: var(--text-muted);
+    }
+    .trust-icon { font-size: 1.2rem; }
+
+    /* ======== SECTIONS ======== */
+    section { padding: 80px 40px; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.78rem; font-weight: 700;
+      color: var(--accent-dark); letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: 12px;
+      background: var(--accent-pale);
+      border-radius: 100px; padding: 4px 14px;
+    }
+    h2 {
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 900; line-height: 1.35;
+      margin-bottom: 16px; letter-spacing: -0.02em;
+    }
+    h2 .green { color: var(--accent); }
+    .section-sub {
+      font-size: 1.05rem; color: var(--text-muted); margin-bottom: 56px; max-width: 600px;
+    }
+
+    /* ======== PROBLEM ======== */
+    .problem { background: var(--bg2); }
+    .problem-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+    }
+    .problem-card {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 20px; padding: 36px 28px;
+      position: relative; overflow: hidden;
+      transition: all 0.3s;
+      box-shadow: var(--shadow);
+    }
+    .problem-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-4px);
+    }
+    .problem-card-top {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+    }
+    .problem-icon-wrap {
+      width: 56px; height: 56px;
+      background: #FFF0EB;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; flex-shrink: 0;
+    }
+    .problem-card h3 { font-size: 1rem; font-weight: 800; line-height: 1.4; }
+    .problem-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 16px; }
+    .problem-data {
+      display: flex; align-items: center; gap: 8px;
+      background: #FFF0EB; border-radius: 10px; padding: 10px 14px;
+    }
+    .problem-data-num { font-size: 1.3rem; font-weight: 900; color: var(--highlight); }
+    .problem-data-label { font-size: 0.78rem; color: var(--text-muted); }
+
+    /* ======== SOLUTION ======== */
+    .solution { background: #fff; }
+    .flow-wrapper {
+      background: linear-gradient(135deg, var(--bg3), var(--accent-pale));
+      border-radius: 24px; padding: 40px; margin-bottom: 48px;
+      border: 2px solid var(--border);
+    }
+    .flow {
+      display: flex; align-items: flex-start; gap: 0;
+    }
+    .flow-step {
+      flex: 1; padding: 16px; text-align: center;
+      position: relative;
+    }
+    .flow-arrow {
+      display: flex; align-items: center; padding-top: 24px;
+      color: var(--accent); font-size: 1.5rem; font-weight: 900;
+    }
+    .flow-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      background: var(--accent);
+      color: #fff; border-radius: 50%;
+      font-size: 0.88rem; font-weight: 700;
+      margin: 0 auto 12px; display: flex;
+    }
+    .flow-icon { font-size: 2.4rem; margin-bottom: 10px; display: block; }
+    .flow-step h4 { font-size: 0.9rem; font-weight: 800; margin-bottom: 6px; color: var(--text); }
+    .flow-step p { font-size: 0.8rem; color: var(--text-muted); }
+    .solution-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    .sol-item {
+      display: flex; gap: 16px;
+      background: var(--bg2);
+      border: 2px solid var(--border);
+      border-radius: 16px; padding: 24px;
+      transition: all 0.2s;
+    }
+    .sol-item:hover {
+      border-color: var(--accent);
+      background: var(--accent-pale);
+    }
+    .sol-item-icon {
+      width: 48px; height: 48px;
+      background: #fff;
+      border-radius: 12px; border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; flex-shrink: 0;
+    }
+    .sol-item h4 { font-size: 0.95rem; font-weight: 800; margin-bottom: 6px; }
+    .sol-item p { font-size: 0.84rem; color: var(--text-muted); }
+
+    /* ======== FEATURES ======== */
+    .features { background: var(--bg3); }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+    }
+    .feature-card {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 24px; padding: 40px 32px;
+      text-align: center;
+      transition: all 0.3s;
+      box-shadow: var(--shadow);
+    }
+    .feature-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-6px);
+    }
+    .feature-icon-wrap {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, var(--accent-pale), #D5F0DC);
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem; margin: 0 auto 20px;
+      border: 2px solid var(--border);
+    }
+    .feature-card h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 12px; }
+    .feature-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.75; }
+    .feature-tag {
+      display: inline-block;
+      background: var(--accent-pale);
+      color: var(--accent-dark);
+      border-radius: 100px; padding: 4px 12px;
+      font-size: 0.75rem; font-weight: 700;
+      margin-top: 14px;
+      border: 1.5px solid var(--accent);
+    }
+
+    /* ======== RESULTS ======== */
+    .results { background: var(--accent-dark); color: #fff; }
+    .results .section-label { background: rgba(255,255,255,0.2); color: #fff; }
+    .results h2 { color: #fff; }
+    .results .section-sub { color: rgba(255,255,255,0.75); }
+    .results-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+      margin-bottom: 40px;
+    }
+    .result-card {
+      text-align: center;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px; padding: 40px 20px;
+      backdrop-filter: blur(10px);
+    }
+    .result-num {
+      font-size: 4rem; font-weight: 900; line-height: 1;
+      color: #fff; display: block; margin-bottom: 8px;
+    }
+    .result-num .unit { font-size: 1.8rem; color: rgba(255,255,255,0.7); }
+    .result-label { font-size: 1rem; font-weight: 800; margin-bottom: 8px; color: #fff; }
+    .result-desc { font-size: 0.85rem; color: rgba(255,255,255,0.7); }
+    .testimonial {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px; padding: 32px 40px;
+      text-align: center;
+    }
+    .testimonial p { font-size: 1.05rem; line-height: 1.8; font-style: italic; margin-bottom: 12px; }
+    .testimonial-author { font-size: 0.85rem; color: rgba(255,255,255,0.65); }
+
+    /* ======== PRICING ======== */
+    .pricing { background: #fff; }
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .pricing-card {
+      background: var(--bg2);
+      border: 2px solid var(--border);
+      border-radius: 24px; padding: 40px 32px;
+      position: relative; transition: all 0.3s;
+    }
+    .pricing-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-4px);
+    }
+    .pricing-card.popular {
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 8px 40px rgba(39,174,96,0.2);
+    }
+    .popular-badge {
+      position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff; padding: 5px 18px;
+      border-radius: 100px; font-size: 0.78rem; font-weight: 800;
+      white-space: nowrap;
+    }
+    .plan-name {
+      font-size: 0.78rem; font-weight: 800;
+      color: var(--accent-dark); letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .plan-price {
+      font-size: 2.8rem; font-weight: 900;
+      color: var(--text); line-height: 1; margin-bottom: 4px;
+    }
+    .plan-price .unit { font-size: 1rem; color: var(--text-muted); font-weight: 400; }
+    .plan-sub { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 24px; }
+    .plan-features { list-style: none; margin-bottom: 32px; }
+    .plan-features li {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem; display: flex; align-items: center; gap: 10px;
+    }
+    .plan-features li::before {
+      content: '✓';
+      color: var(--accent); font-weight: 800;
+      flex-shrink: 0;
+    }
+    .plan-cta {
+      display: block; text-align: center;
+      background: var(--accent);
+      color: #fff; text-decoration: none;
+      padding: 14px; border-radius: 100px;
+      font-weight: 800; transition: all 0.2s;
+    }
+    .plan-cta:hover {
+      background: var(--accent-dark);
+      box-shadow: 0 4px 20px rgba(39,174,96,0.3);
+    }
+    .pricing-card.popular .plan-cta {
+      background: var(--highlight);
+    }
+    .pricing-card.popular .plan-cta:hover {
+      background: var(--highlight-light);
+    }
+    .enterprise-plan .plan-cta {
+      background: transparent; color: var(--accent);
+      border: 2px solid var(--accent);
+    }
+    .enterprise-plan .plan-cta:hover {
+      background: var(--accent); color: #fff;
+    }
+
+    /* ======== FAQ ======== */
+    .faq { background: var(--bg3); }
+    .faq-list { max-width: 780px; margin: 0 auto; }
+    .faq-item {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 16px; margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(39,174,96,0.06);
+    }
+    .faq-q {
+      padding: 24px 28px;
+      font-weight: 800; font-size: 0.98rem;
+      display: flex; align-items: center; gap: 16px;
+      cursor: pointer;
+    }
+    .faq-q-icon {
+      width: 32px; height: 32px; flex-shrink: 0;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 0.78rem; font-weight: 900;
+    }
+    .faq-plus {
+      width: 28px; height: 28px; flex-shrink: 0; margin-left: auto;
+      background: var(--accent-pale);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-size: 1.2rem; font-weight: 300;
+    }
+    .faq-a {
+      padding: 20px 28px 24px;
+      font-size: 0.9rem; color: var(--text-muted); line-height: 1.8;
+      border-top: 1.5px solid var(--border);
+    }
+
+    /* ======== FOOTER CTA ======== */
+    .footer-cta {
+      background: linear-gradient(135deg, var(--bg3), var(--accent-pale));
+      text-align: center; padding: 80px 40px;
+      border-top: 2px solid var(--border);
+    }
+    .footer-cta-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent);
+      color: #fff; padding: 6px 16px;
+      border-radius: 100px; font-size: 0.8rem; font-weight: 700;
+      margin-bottom: 24px;
+    }
+    .footer-cta h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); margin-bottom: 16px; }
+    .footer-cta p { color: var(--text-muted); font-size: 1rem; margin-bottom: 40px; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .footer-cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .footer-guarantee {
+      margin-top: 32px; font-size: 0.85rem; color: var(--text-muted);
+    }
+    .footer-guarantee span { color: var(--accent); font-weight: 700; }
+
+    footer {
+      background: var(--text);
+      color: rgba(255,255,255,0.8);
+      padding: 32px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-logo { font-size: 1.2rem; font-weight: 900; color: #fff; }
+    .footer-logo span { color: var(--accent-light); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.85rem; }
+    .footer-links a:hover { color: #fff; }
+    .footer-copy { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
+
+    /* ======== RESPONSIVE ======== */
+    @media (max-width: 768px) {
+      header { padding: 16px 20px; }
+      nav { display: none; }
+      .hero { padding: 100px 20px 60px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+      .hero-visual { order: -1; }
+      section { padding: 60px 20px; }
+      .problem-grid, .features-grid, .results-grid, .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+      .flow { flex-direction: column; }
+      .flow-arrow { display: none; }
+      .solution-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">総合案内<span>くん</span></div>
+  <nav>
+    <a href="#problem">課題</a>
+    <a href="#solution">仕組み</a>
+    <a href="#features">機能</a>
+    <a href="#pricing">料金</a>
+  </nav>
+  <a href="#footer-cta" class="header-cta">無料デモ申込</a>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge">✅ 全国150以上の自治体で導入実績</div>
+      <h1>市民の<br>「<span class="accent-line">どこに行けばいい？</span>」を<br>瞬時に解決</h1>
+      <p>自治体窓口のAI総合案内エージェント。タッチひとつで最適な窓口へ。職員も市民も、もっと笑顔になれる窓口体験を。</p>
+      <div class="hero-buttons">
+        <a href="#footer-cta" class="btn-primary">🌿 無料デモを申し込む</a>
+        <a href="#solution" class="btn-secondary">仕組みを見る</a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-item">
+          <span class="trust-icon">🔒</span>
+          <span>個人情報を保存しない設計</span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon">🏆</span>
+          <span>グッドデザイン賞受賞</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="robot-scene">
+        <div class="robot-ground"></div>
+        <div class="robot-wrapper">
+          <div class="robot-head">
+            <div class="robot-antenna"></div>
+            <div class="robot-cheek left"></div>
+            <div class="robot-cheek right"></div>
+            <div class="robot-eyes">
+              <div class="robot-eye"></div>
+              <div class="robot-eye"></div>
+            </div>
+            <div class="robot-mouth"></div>
+          </div>
+          <div class="robot-torso">
+            <div class="robot-screen">案内<br>中 📍</div>
+          </div>
+          <div class="speech-bubble">住民票は2階→</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="section-inner">
+    <div class="section-label">😟 現状の課題</div>
+    <h2>自治体窓口の<span class="green">3つの困りごと</span></h2>
+    <p class="section-sub">多くの自治体が抱えているリアルな課題です。あなたの市区町村でも当てはまりませんか？</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-card-top">
+          <div class="problem-icon-wrap">👥</div>
+          <h3>混雑・待ち時間が長すぎる</h3>
+        </div>
+        <p>「この列に並んで合ってますか？」窓口に並んでも案内が間違えていて、また別の列に並び直し。市民も職員も疲弊する悪循環。</p>
+        <div class="problem-data">
+          <span class="problem-data-num">38分</span>
+          <span class="problem-data-label">平均待機時間（市民調査）</span>
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card-top">
+          <div class="problem-icon-wrap">💼</div>
+          <h3>案内業務が職員を圧迫</h3>
+        </div>
+        <p>「どこに行けばいいですか？」という問合せが1日に何十件も。本来の専門業務に集中したくても、案内に追われる日々。</p>
+        <div class="problem-data">
+          <span class="problem-data-num">43%</span>
+          <span class="problem-data-label">案内対応が占める業務割合</span>
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card-top">
+          <div class="problem-icon-wrap">🌍</div>
+          <h3>外国語対応が追いつかない</h3>
+        </div>
+        <p>在住外国人・観光客が増え多言語対応のニーズが急増。でも対応できる職員は限られている。言葉の壁が行政の壁になっている。</p>
+        <div class="problem-data">
+          <span class="problem-data-num">2言語</span>
+          <span class="problem-data-label">平均的な対応可能言語数</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="solution" id="solution">
+  <div class="section-inner">
+    <div class="section-label">💡 解決策</div>
+    <h2>総合案内くんの<span class="green">やさしい仕組み</span></h2>
+    <p class="section-sub">難しい操作は不要。タッチして話しかけるだけで、AIが最適な窓口へ案内します。</p>
+    <div class="flow-wrapper">
+      <div class="flow">
+        <div class="flow-step">
+          <span class="flow-icon">👆</span>
+          <div class="flow-num">1</div>
+          <h4>画面をタッチ</h4>
+          <p>「住民票が欲しい」「車の税金を払いたい」など、困っていることを話しかけるだけ。</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <span class="flow-icon">🤖</span>
+          <div class="flow-num">2</div>
+          <h4>AIが理解・判定</h4>
+          <p>自然言語AIが用件を解釈。1,000以上のパターンから最適な窓口を瞬時に特定。</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <span class="flow-icon">🗺️</span>
+          <div class="flow-num">3</div>
+          <h4>地図で案内</h4>
+          <p>音声と画面マップで「○番窓口へどうぞ」とわかりやすく案内。迷わず移動。</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <span class="flow-icon">😊</span>
+          <div class="flow-num">4</div>
+          <h4>スムーズに完了</h4>
+          <p>担当窓口で確実に手続き完了。必要書類もその場で確認できて安心。</p>
+        </div>
+      </div>
+    </div>
+    <div class="solution-grid">
+      <div class="sol-item">
+        <div class="sol-item-icon">🧠</div>
+        <div>
+          <h4>自然言語理解エンジン</h4>
+          <p>「引越ししたいんだけど何が必要？」など日常会話でもOK。AIが正確に解釈します。</p>
+        </div>
+      </div>
+      <div class="sol-item">
+        <div class="sol-item-icon">🔄</div>
+        <div>
+          <h4>リアルタイム混雑情報</h4>
+          <p>各窓口の待ち状況をリアルタイムで把握。空いている窓口に誘導します。</p>
+        </div>
+      </div>
+      <div class="sol-item">
+        <div class="sol-item-icon">📊</div>
+        <div>
+          <h4>問合せ分析レポート</h4>
+          <p>どんな問合せが多いかをデータ化。窓口配置の改善に活かせます。</p>
+        </div>
+      </div>
+      <div class="sol-item">
+        <div class="sol-item-icon">🔌</div>
+        <div>
+          <h4>既存システム連携</h4>
+          <p>現在お使いの電子申請・番号案内システムとシームレスに連携できます。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="section-label">⚡ 主要機能</div>
+    <h2>市民も職員も<span class="green">うれしい機能</span></h2>
+    <p class="section-sub">使いやすさと実用性を両立した3つのコア機能をご紹介します。</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon-wrap">🤖</div>
+        <h3>AI窓口案内</h3>
+        <p>自然な会話でOK。「年金の手続きをしたい」「マイナンバーカードを作りたい」など、AIが的確に案内します。</p>
+        <span class="feature-tag">1,000以上の用件に対応</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">🗺️</div>
+        <h3>フロアマップ連携</h3>
+        <p>庁舎のマップと連携し、現在地からの最短ルートを表示。はじめて来た方でも迷わず移動できます。</p>
+        <span class="feature-tag">リアルタイム混雑表示</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">🌐</div>
+        <h3>多言語対応</h3>
+        <p>日本語・英語・中国語（簡/繁）・韓国語など14言語に対応。言葉の壁を取り除きます。</p>
+        <span class="feature-tag">14言語対応</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results" id="results">
+  <div class="section-inner">
+    <div class="section-label">📈 導入効果</div>
+    <h2>導入した自治体の<br>リアルな変化</h2>
+    <p class="section-sub">全国の導入自治体の実績データです。</p>
+    <div class="results-grid">
+      <div class="result-card">
+        <span class="result-num">67<span class="unit">%</span></span>
+        <div class="result-label">案内業務が削減</div>
+        <p class="result-desc">職員が案内業務に費やす時間が平均67%削減。本来の業務に集中できるように。</p>
+      </div>
+      <div class="result-card">
+        <span class="result-num">92<span class="unit">%</span></span>
+        <div class="result-label">一発解決率</div>
+        <p class="result-desc">最初にたどり着いた窓口で手続きが完結する割合。「たらい回し」がほぼゼロに。</p>
+      </div>
+      <div class="result-card">
+        <span class="result-num">4.8<span class="unit">/5</span></span>
+        <div class="result-label">市民満足度</div>
+        <p class="result-desc">導入自治体での市民アンケート平均スコア。「わかりやすい」「助かった」の声続出。</p>
+      </div>
+    </div>
+    <div class="testimonial">
+      <p>「最初は機械に任せることへの抵抗感がありましたが、導入してみると職員も市民も笑顔が増えました。特にご高齢の方から『親切でわかりやすい』とご好評をいただいています。」</p>
+      <div class="testimonial-author">— ○○市 市民部 窓口サービス課長</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-inner">
+    <div class="section-label">💰 料金プラン</div>
+    <h2>シンプルで<span class="green">わかりやすい</span>料金</h2>
+    <p class="section-sub">初期費用は別途ですが、月額固定でご利用いただけます。まずはご相談ください。</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="plan-name">STANDARD</div>
+        <div class="plan-price">9.8<span class="unit">万円/月</span></div>
+        <div class="plan-sub">初期費用 別途30万円〜</div>
+        <ul class="plan-features">
+          <li>AI窓口案内（基本機能）</li>
+          <li>日本語・英語対応</li>
+          <li>フロアマップ表示</li>
+          <li>月次レポート</li>
+          <li>メールサポート</li>
+        </ul>
+        <a href="#footer-cta" class="plan-cta">まずは相談する</a>
+      </div>
+      <div class="pricing-card popular">
+        <div class="popular-badge">🌟 一番人気のプラン</div>
+        <div class="plan-name">PREMIUM</div>
+        <div class="plan-price">19.8<span class="unit">万円/月</span></div>
+        <div class="plan-sub">初期費用 別途50万円〜</div>
+        <ul class="plan-features">
+          <li>AI窓口案内（全機能）</li>
+          <li>14言語対応</li>
+          <li>フロアマップ＋混雑情報</li>
+          <li>既存システム連携</li>
+          <li>週次レポート＋分析</li>
+          <li>電話・チャットサポート</li>
+          <li>職員向けトレーニング</li>
+        </ul>
+        <a href="#footer-cta" class="plan-cta">無料デモを試す</a>
+      </div>
+      <div class="pricing-card enterprise-plan">
+        <div class="plan-name">ENTERPRISE</div>
+        <div class="plan-price" style="font-size:2rem;">要相談</div>
+        <div class="plan-sub">複数拠点・大規模向け</div>
+        <ul class="plan-features">
+          <li>Premiumの全機能</li>
+          <li>複数庁舎・出張所展開</li>
+          <li>カスタム開発</li>
+          <li>専任サポート担当</li>
+          <li>SLA保証付き</li>
+          <li>オンサイト研修</li>
+        </ul>
+        <a href="#footer-cta" class="plan-cta">ご相談はこちら</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="section-inner">
+    <div class="section-label">❓ よくある質問</div>
+    <h2>お気軽にご確認ください</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <span>導入にはどのくらいの期間がかかりますか？</span>
+          <div class="faq-plus">+</div>
+        </div>
+        <div class="faq-a">
+          標準的な導入期間は契約から2〜3ヶ月です。フロアマップの作成、窓口情報の登録、職員向けトレーニングをすべて含みます。既存システムとの連携が必要な場合は、別途ご相談ください。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <span>既存の番号案内システムと連携できますか？</span>
+          <div class="faq-plus">+</div>
+        </div>
+        <div class="faq-a">
+          はい、主要な番号案内・電子申請システムとの連携実績があります。API連携が可能なシステムであればほとんど対応可能です。まずはご相談ください。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <span>個人情報の取り扱いはどうなっていますか？</span>
+          <div class="faq-plus">+</div>
+        </div>
+        <div class="faq-a">
+          総合案内くんは、市民の個人情報を一切保存しません。会話データは暗号化され、セッション終了後に削除されます。自治体のセキュリティポリシーに合わせた運用設定も可能です。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="faq-q-icon">Q</div>
+          <span>ご高齢の方や機械が苦手な方でも使えますか？</span>
+          <div class="faq-plus">+</div>
+        </div>
+        <div class="faq-a">
+          はい、UI設計においてアクセシビリティを最重視しています。大きなテキスト、シンプルな操作、音声案内により、デジタルに不慣れな方でも直感的にお使いいただけます。実際に70代・80代の方からも高い評価をいただいています。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER CTA -->
+<section class="footer-cta" id="footer-cta">
+  <div class="footer-cta-label">🌿 まずは体験してみてください</div>
+  <h2>無料デモで<br>体験してみませんか？</h2>
+  <p>実際の自治体庁舎を想定したデモ環境で、総合案内くんをご体験いただけます。導入後の効果シミュレーションレポートもご提供します。</p>
+  <div class="footer-cta-buttons">
+    <a href="#" class="btn-primary">🌿 無料デモを申し込む</a>
+    <a href="#" class="btn-secondary">📄 資料をダウンロード</a>
+  </div>
+  <div class="footer-guarantee">
+    <span>✅ 無料体験</span>　<span>✅ 個人情報不要</span>　<span>✅ 即日回答</span>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">総合案内<span>くん</span></div>
+  <div class="footer-links">
+    <a href="#">利用規約</a>
+    <a href="#">プライバシーポリシー</a>
+    <a href="#">セキュリティ</a>
+    <a href="#">お問い合わせ</a>
+  </div>
+  <div class="footer-copy">© 2026 総合案内くん. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
