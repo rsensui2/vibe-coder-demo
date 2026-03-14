@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ひかるクローゼット | AIスタイリスト</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0D0D1A;
+      --bg2: #111126;
+      --bg3: #0A0A14;
+      --accent: #0F1ED2;
+      --accent-bright: #2035FF;
+      --accent-glow: rgba(15,30,210,0.5);
+      --neon: #00D4FF;
+      --neon-glow: rgba(0,212,255,0.4);
+      --text: #E8ECFF;
+      --text-muted: #7A85AA;
+      --border: rgba(15,30,210,0.3);
+      --gold: #C9A86C;
+      --danger: #FF3366;
+      --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; }
+
+    /* ===== UTILITY ===== */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .section { padding: 100px 0; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(15,30,210,0.2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 6px 14px;
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--neon);
+    }
+    .badge::before { content: '◆'; font-size: 8px; }
+    .glow-text {
+      text-shadow: 0 0 20px var(--accent-glow), 0 0 60px rgba(15,30,210,0.3);
+    }
+    .neon-text {
+      color: var(--neon);
+      text-shadow: 0 0 10px var(--neon-glow), 0 0 30px var(--neon-glow);
+    }
+    .highlight { color: var(--neon); }
+
+    /* ===== SCANLINE OVERLAY ===== */
+    body::after {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0.03) 0px,
+        rgba(0,0,0,0.03) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      border-bottom: 1px solid var(--border);
+      background: rgba(13,13,26,0.85);
+      backdrop-filter: blur(12px);
+    }
+    nav .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; max-width: 1100px; margin: 0 auto;
+    }
+    .nav-logo {
+      font-size: 18px; font-weight: 800; letter-spacing: 1px;
+      color: var(--neon);
+      text-shadow: 0 0 10px var(--neon-glow);
+    }
+    .nav-logo span { color: var(--text-muted); font-weight: 400; }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a {
+      font-size: 13px; font-weight: 500; color: var(--text-muted);
+      letter-spacing: 1px; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--neon); }
+    .nav-cta {
+      background: var(--accent);
+      color: #fff; padding: 10px 24px;
+      font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border: none; cursor: pointer;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .nav-cta:hover {
+      background: var(--accent-bright);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    /* ===== HERO ===== */
+    #hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding-top: 80px;
+    }
+    .hero-grid-bg {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(15,30,210,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,30,210,0.08) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-radial {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 70% 50%, rgba(15,30,210,0.2) 0%, transparent 70%);
+    }
+    .hero-inner {
+      position: relative; z-index: 2;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+      max-width: 1100px; margin: 0 auto; padding: 0 24px;
+    }
+    .hero-eyebrow { margin-bottom: 20px; }
+    .hero-title {
+      font-size: clamp(38px, 5vw, 64px);
+      font-weight: 900; line-height: 1.1;
+      letter-spacing: -1px; margin-bottom: 12px;
+    }
+    .hero-title .line2 {
+      display: block;
+      color: var(--neon);
+      text-shadow: 0 0 30px var(--neon-glow);
+    }
+    .hero-sub {
+      font-size: 20px; color: var(--accent-bright);
+      font-weight: 600; margin-bottom: 24px;
+      letter-spacing: 0.5px;
+    }
+    .hero-desc {
+      font-size: 15px; color: var(--text-muted); line-height: 1.8;
+      margin-bottom: 40px; max-width: 480px;
+    }
+    .hero-actions { display: flex; gap: 16px; align-items: center; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+      color: #fff; padding: 14px 36px;
+      font-size: 14px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; border: none; cursor: pointer;
+      clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+      box-shadow: 0 0 30px var(--accent-glow);
+      transition: all 0.3s;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 60px rgba(15,30,210,0.7);
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 14px 28px;
+      font-size: 13px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      border-color: var(--neon);
+      color: var(--neon);
+    }
+    /* Hero visual side */
+    .hero-visual {
+      position: relative;
+    }
+    .hero-phone-mock {
+      width: 260px; height: 520px; margin: 0 auto;
+      border: 2px solid rgba(15,30,210,0.6);
+      border-radius: 36px;
+      background: linear-gradient(135deg, #0D0D2A 0%, #0A0A1A 100%);
+      box-shadow: 0 0 60px rgba(15,30,210,0.3), inset 0 0 40px rgba(0,0,0,0.5);
+      position: relative; overflow: hidden;
+    }
+    .phone-notch {
+      width: 100px; height: 28px;
+      background: var(--bg3);
+      border-radius: 0 0 18px 18px;
+      margin: 0 auto 16px;
+    }
+    .phone-screen-content {
+      padding: 0 16px;
+    }
+    .phone-status {
+      font-size: 9px; color: var(--neon); letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 12px;
+      text-shadow: 0 0 8px var(--neon-glow);
+    }
+    .phone-ai-label {
+      font-size: 10px; color: var(--text-muted); margin-bottom: 8px;
+    }
+    .phone-outfit-cards { display: flex; flex-direction: column; gap: 8px; }
+    .phone-outfit-card {
+      background: rgba(15,30,210,0.1);
+      border: 1px solid rgba(15,30,210,0.3);
+      border-radius: 8px; padding: 10px 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .outfit-icon {
+      width: 36px; height: 36px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .outfit-icon.a { background: rgba(0,212,255,0.15); }
+    .outfit-icon.b { background: rgba(15,30,210,0.25); }
+    .outfit-icon.c { background: rgba(201,168,108,0.15); }
+    .outfit-info { flex: 1; }
+    .outfit-name { font-size: 10px; font-weight: 700; color: var(--text); }
+    .outfit-tag { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
+    .outfit-score {
+      font-size: 11px; font-weight: 700; color: var(--neon);
+      text-shadow: 0 0 6px var(--neon-glow);
+    }
+    .hero-stats {
+      position: absolute; right: -40px; top: 50%;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .stat-chip {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 10px 14px; border-radius: 4px;
+      white-space: nowrap;
+    }
+    .stat-chip .val {
+      font-size: 20px; font-weight: 800; color: var(--neon);
+      text-shadow: 0 0 10px var(--neon-glow);
+      display: block;
+    }
+    .stat-chip .lbl { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
+
+    /* ===== PROBLEM SECTION ===== */
+    #problem {
+      background: var(--bg3);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .section-header { text-align: center; margin-bottom: 60px; }
+    .section-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800; line-height: 1.2;
+      margin-top: 12px;
+    }
+    .section-sub {
+      font-size: 15px; color: var(--text-muted); margin-top: 12px;
+    }
+    .problem-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+    }
+    .problem-card {
+      background: var(--bg2);
+      padding: 40px 32px;
+      position: relative; overflow: hidden;
+      border: 1px solid transparent;
+      transition: border-color 0.3s;
+    }
+    .problem-card:hover { border-color: var(--border); }
+    .problem-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .problem-num {
+      font-size: 48px; font-weight: 900; color: rgba(15,30,210,0.2);
+      line-height: 1; margin-bottom: 16px;
+      font-variant-numeric: tabular-nums;
+    }
+    .problem-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .problem-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+    /* ===== SOLUTION SECTION ===== */
+    #solution { position: relative; overflow: hidden; }
+    #solution .bg-accent {
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(15,30,210,0.12) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .solution-layout {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+    }
+    .solution-visual {
+      position: relative;
+    }
+    .solution-terminal {
+      background: #080814;
+      border: 1px solid rgba(15,30,210,0.4);
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      padding: 24px;
+      box-shadow: 0 0 40px rgba(15,30,210,0.15);
+    }
+    .terminal-header {
+      display: flex; gap: 6px; margin-bottom: 20px;
+      align-items: center;
+    }
+    .t-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .t-dot.r { background: #FF3366; }
+    .t-dot.y { background: #FFB800; }
+    .t-dot.g { background: #00D084; }
+    .terminal-title {
+      margin-left: 8px; font-size: 11px; color: var(--text-muted); letter-spacing: 1px;
+    }
+    .terminal-line { margin-bottom: 6px; font-size: 13px; line-height: 1.6; }
+    .t-prompt { color: var(--accent-bright); }
+    .t-cmd { color: var(--text); }
+    .t-result { color: var(--neon); }
+    .t-muted { color: var(--text-muted); }
+    .t-warn { color: var(--gold); }
+    .solution-content {}
+    .solution-steps { margin-top: 32px; display: flex; flex-direction: column; gap: 24px; }
+    .step {
+      display: flex; gap: 20px; align-items: flex-start;
+    }
+    .step-num {
+      width: 40px; height: 40px; flex-shrink: 0;
+      background: rgba(15,30,210,0.15);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; color: var(--neon);
+      clip-path: polygon(6px 0%, 100% 0%, calc(100%-6px) 100%, 0% 100%);
+    }
+    .step-body {}
+    .step-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .step-desc { font-size: 14px; color: var(--text-muted); }
+
+    /* ===== FEATURES ===== */
+    #features { background: var(--bg3); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; }
+    .feature-card {
+      background: var(--bg2); padding: 40px 36px;
+      border: 1px solid transparent;
+      position: relative; overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .feature-card:hover {
+      border-color: rgba(15,30,210,0.4);
+      transform: translateY(-4px);
+    }
+    .feature-card.featured {
+      background: linear-gradient(135deg, rgba(15,30,210,0.15) 0%, rgba(0,212,255,0.05) 100%);
+      border-color: rgba(15,30,210,0.4);
+    }
+    .feature-icon {
+      font-size: 32px; margin-bottom: 16px;
+      filter: drop-shadow(0 0 8px rgba(0,212,255,0.4));
+    }
+    .feature-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+    .feature-desc { font-size: 14px; color: var(--text-muted); line-height: 1.8; }
+    .feature-tag {
+      display: inline-block; margin-top: 14px;
+      background: rgba(0,212,255,0.1);
+      border: 1px solid rgba(0,212,255,0.3);
+      color: var(--neon); font-size: 10px; font-weight: 700;
+      letter-spacing: 1.5px; padding: 4px 10px; border-radius: 2px;
+    }
+
+    /* ===== PRICING ===== */
+    #pricing { position: relative; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .pricing-card {
+      background: var(--bg2); padding: 40px 32px;
+      border: 1px solid var(--border);
+      position: relative; overflow: hidden;
+      transition: transform 0.3s;
+    }
+    .pricing-card:hover { transform: translateY(-6px); }
+    .pricing-card.featured {
+      background: linear-gradient(135deg, var(--accent) 0%, #1A2FE8 100%);
+      border-color: var(--accent-bright);
+      box-shadow: 0 0 60px var(--accent-glow);
+    }
+    .pricing-card.featured::before {
+      content: 'MOST POPULAR';
+      position: absolute; top: 16px; right: -28px;
+      background: var(--neon); color: #000;
+      font-size: 9px; font-weight: 800; letter-spacing: 2px;
+      padding: 4px 40px;
+      transform: rotate(45deg);
+    }
+    .plan-tier { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; }
+    .pricing-card.featured .plan-tier { color: rgba(255,255,255,0.7); }
+    .plan-price { font-size: 48px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+    .plan-price span { font-size: 16px; font-weight: 400; color: var(--text-muted); }
+    .pricing-card.featured .plan-price span { color: rgba(255,255,255,0.6); }
+    .plan-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 32px; line-height: 1.6; }
+    .pricing-card.featured .plan-desc { color: rgba(255,255,255,0.75); }
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .plan-features li { font-size: 13px; color: var(--text-muted); display: flex; gap: 8px; align-items: flex-start; }
+    .plan-features li::before { content: '►'; font-size: 8px; color: var(--neon); margin-top: 4px; flex-shrink: 0; }
+    .pricing-card.featured .plan-features li { color: rgba(255,255,255,0.8); }
+    .pricing-card.featured .plan-features li::before { color: #fff; }
+    .plan-btn {
+      width: 100%; padding: 14px;
+      background: rgba(15,30,210,0.2); border: 1px solid var(--border);
+      color: var(--text); font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .plan-btn:hover { background: var(--accent); border-color: var(--accent); }
+    .pricing-card.featured .plan-btn {
+      background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: #fff;
+    }
+    .pricing-card.featured .plan-btn:hover { background: rgba(255,255,255,0.25); }
+
+    /* ===== FAQ ===== */
+    #faq { background: var(--bg3); border-top: 1px solid var(--border); }
+    .faq-list { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 2px; }
+    .faq-item {
+      background: var(--bg2); border: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .faq-item:hover { border-color: var(--border); }
+    .faq-q {
+      padding: 22px 28px; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 15px; font-weight: 600;
+    }
+    .faq-q::after {
+      content: '+'; font-size: 20px; color: var(--accent-bright);
+      flex-shrink: 0;
+    }
+    .faq-a {
+      padding: 0 28px 22px;
+      font-size: 14px; color: var(--text-muted); line-height: 1.8;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--bg3); border-top: 1px solid var(--border);
+      padding: 60px 0 32px;
+    }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 24px;
+    }
+    .footer-top {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px;
+    }
+    .footer-brand .brand-name {
+      font-size: 22px; font-weight: 800; color: var(--neon);
+      text-shadow: 0 0 10px var(--neon-glow);
+      margin-bottom: 12px;
+    }
+    .footer-brand .brand-desc { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+    .footer-col h4 {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 16px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .footer-col ul li a { font-size: 13px; color: var(--text-muted); transition: color 0.2s; }
+    .footer-col ul li a:hover { color: var(--neon); }
+    .footer-bottom {
+      border-top: 1px solid var(--border); padding-top: 24px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-copy { font-size: 12px; color: var(--text-muted); }
+    .footer-legal { display: flex; gap: 20px; }
+    .footer-legal a { font-size: 12px; color: var(--text-muted); transition: color 0.2s; }
+    .footer-legal a:hover { color: var(--neon); }
+
+    /* ===== ASYMMETRIC DECORATIONS ===== */
+    .corner-deco {
+      position: absolute;
+      width: 100px; height: 100px;
+      border: 1px solid rgba(15,30,210,0.3);
+    }
+    .corner-deco.tl { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+    .corner-deco.br { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .solution-layout { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">HIKARU<span>CLOSET</span></div>
+    <div class="nav-links">
+      <a href="#problem">課題</a>
+      <a href="#solution">解決策</a>
+      <a href="#features">機能</a>
+      <a href="#pricing">料金</a>
+    </div>
+    <button class="nav-cta">無料で始める</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-radial"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="badge">AI STYLING SYSTEM v2.4</span>
+      </div>
+      <h1 class="hero-title glow-text">
+        試着ゼロで、<br>
+        <span class="line2">毎日のコーデが<br>決まる。</span>
+      </h1>
+      <p class="hero-sub">AIスタイリストアプリ — ひかるクローゼット</p>
+      <p class="hero-desc">
+        クローゼットをAIがスキャン。天気・気分・予定を読み取り、
+        あなたに最適なコーディネートを0秒で提案。
+        もう朝の服選びに時間を使わなくていい。
+      </p>
+      <div class="hero-actions">
+        <button class="btn-primary">今すぐ無料インストール</button>
+        <button class="btn-secondary">デモを見る ▶</button>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-phone-mock">
+        <div class="phone-notch"></div>
+        <div class="phone-screen-content">
+          <div class="phone-status">● AI ANALYZING — 0.3s</div>
+          <div class="phone-ai-label">今日のおすすめコーデ / TOKYO 14°C</div>
+          <div class="phone-outfit-cards">
+            <div class="phone-outfit-card">
+              <div class="outfit-icon a">👗</div>
+              <div class="outfit-info">
+                <div class="outfit-name">SMART CASUAL A</div>
+                <div class="outfit-tag">ミーティング向き</div>
+              </div>
+              <div class="outfit-score">97</div>
+            </div>
+            <div class="phone-outfit-card">
+              <div class="outfit-icon b">🧥</div>
+              <div class="outfit-info">
+                <div class="outfit-name">BUSINESS LIGHT</div>
+                <div class="outfit-tag">外出・訪問向き</div>
+              </div>
+              <div class="outfit-score">92</div>
+            </div>
+            <div class="phone-outfit-card">
+              <div class="outfit-icon c">✨</div>
+              <div class="outfit-info">
+                <div class="outfit-name">WEEKEND CHIC</div>
+                <div class="outfit-tag">デート・ランチ向き</div>
+              </div>
+              <div class="outfit-score">88</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-chip">
+          <span class="val">3.2万</span>
+          <span class="lbl">ACTIVE USERS</span>
+        </div>
+        <div class="stat-chip">
+          <span class="val">0.3秒</span>
+          <span class="lbl">AI RESPONSE</span>
+        </div>
+        <div class="stat-chip">
+          <span class="val">98%</span>
+          <span class="lbl">SATISFACTION</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem" class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge">PROBLEM ANALYSIS</span>
+      <h2 class="section-title">毎朝の服選び、<br>これだけ<span class="highlight">時間を奪われている</span></h2>
+      <p class="section-sub">20〜40代女性の83%が「朝の服選びでストレスを感じる」と回答</p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-num">01</div>
+        <h3 class="problem-title">平均23分の損失</h3>
+        <p class="problem-desc">毎朝クローゼットの前で費やす平均時間は23分。年間で約140時間。それは何に使えたか？</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">02</div>
+        <h3 class="problem-title">「何も着るものがない」症候群</h3>
+        <p class="problem-desc">服が溢れているのに「着るものがない」と感じるのはコーデの組み合わせがわからないから。</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">03</div>
+        <h3 class="problem-title">コンテキスト無視の提案</h3>
+        <p class="problem-desc">天気・気温・今日の予定・気分によってベストなコーデは変わる。静的なルールでは対応できない。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section id="solution" class="section">
+  <div class="bg-accent"></div>
+  <div class="container">
+    <div class="solution-layout">
+      <div class="solution-visual">
+        <div class="solution-terminal">
+          <div class="terminal-header">
+            <div class="t-dot r"></div>
+            <div class="t-dot y"></div>
+            <div class="t-dot g"></div>
+            <span class="terminal-title">HIKARU.AI STYLIST ENGINE</span>
+          </div>
+          <div class="terminal-line"><span class="t-prompt">→ </span><span class="t-cmd">scanning_closet(user_id: HK-2847)</span></div>
+          <div class="terminal-line"><span class="t-muted">  » 142 items detected</span></div>
+          <div class="terminal-line"><span class="t-muted">  » building style graph...</span></div>
+          <div class="terminal-line">&nbsp;</div>
+          <div class="terminal-line"><span class="t-prompt">→ </span><span class="t-cmd">fetch_context()</span></div>
+          <div class="terminal-line"><span class="t-muted">  » weather: 14°C / cloudy</span></div>
+          <div class="terminal-line"><span class="t-muted">  » schedule: office meeting 10:00</span></div>
+          <div class="terminal-line"><span class="t-muted">  » mood: energized</span></div>
+          <div class="terminal-line">&nbsp;</div>
+          <div class="terminal-line"><span class="t-prompt">→ </span><span class="t-cmd">generate_outfits(top=3)</span></div>
+          <div class="terminal-line"><span class="t-result">  ✓ outfit_A: score=97 [business-smart]</span></div>
+          <div class="terminal-line"><span class="t-result">  ✓ outfit_B: score=92 [professional]</span></div>
+          <div class="terminal-line"><span class="t-result">  ✓ outfit_C: score=88 [casual-chic]</span></div>
+          <div class="terminal-line">&nbsp;</div>
+          <div class="terminal-line"><span class="t-warn">  ⚡ response_time: 0.31s</span></div>
+        </div>
+      </div>
+      <div class="solution-content">
+        <span class="badge">AI SOLUTION</span>
+        <h2 class="section-title" style="text-align:left;margin-top:16px;">
+          AIが<span class="highlight">あなたの専属</span><br>スタイリストになる
+        </h2>
+        <div class="solution-steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <div class="step-title">クローゼットをスキャン</div>
+              <div class="step-desc">服の写真を撮るだけ。AIが自動でアイテムを分類・データベース化。</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <div class="step-title">コンテキストを自動取得</div>
+              <div class="step-desc">天気・カレンダー・気分を読み取り、今日に最適なコーデ条件を設定。</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <div class="step-title">0.3秒でトップ3を提案</div>
+              <div class="step-desc">AIが100万通りの組み合わせから、あなたのスタイルに合ったベスト3を瞬時に出力。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge">FEATURE MODULES</span>
+      <h2 class="section-title">スタイリングを<span class="highlight">再定義する</span>4つの機能</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card featured">
+        <div class="feature-icon">🤖</div>
+        <h3 class="feature-title">AIスタイリングエンジン</h3>
+        <p class="feature-desc">
+          ディープラーニングベースの推薦システムが、
+          あなたの好み・体型・ライフスタイルを学習。
+          使えば使うほど精度が上がるパーソナルAI。
+        </p>
+        <span class="feature-tag">CORE FEATURE</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3 class="feature-title">カレンダー連携</h3>
+        <p class="feature-desc">
+          Googleカレンダーと同期し、今日の予定（会議・デート・外出）に合わせた
+          ドレスコードを自動判定。状況に合ったコーデを提案。
+        </p>
+        <span class="feature-tag">SMART CONTEXT</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌤</div>
+        <h3 class="feature-title">リアルタイム天気対応</h3>
+        <p class="feature-desc">
+          気温・天気・降水確率を考慮したコーデ提案。
+          「今日寒いからアウター必須」を自動で反映。
+          季節の変わり目も対応。
+        </p>
+        <span class="feature-tag">WEATHER SYNC</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <h3 class="feature-title">クローゼット管理AI</h3>
+        <p class="feature-desc">
+          「最近着ていない服」「よく使う組み合わせ」を可視化。
+          不要な服の断捨離提案や、足りないアイテムの購入サジェストも。
+        </p>
+        <span class="feature-tag">CLOSET INTEL</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge">PRICING MATRIX</span>
+      <h2 class="section-title">シンプルな<span class="highlight">料金体系</span></h2>
+      <p class="section-sub">すべてのプランで14日間の無料トライアル付き</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="plan-tier">Free</div>
+        <div class="plan-price">¥0<span>/月</span></div>
+        <p class="plan-desc">まずは試してみたい方向け。基本機能を無料で体験。</p>
+        <ul class="plan-features">
+          <li>クローゼット登録 最大30アイテム</li>
+          <li>AIコーデ提案 1日3回</li>
+          <li>天気連携</li>
+          <li>基本スタイル分析</li>
+        </ul>
+        <button class="plan-btn">無料で始める</button>
+      </div>
+      <div class="pricing-card featured">
+        <div class="plan-tier">Premium</div>
+        <div class="plan-price">¥980<span>/月</span></div>
+        <p class="plan-desc">毎日使いたい方へ。フル機能でAIスタイリストを活用。</p>
+        <ul class="plan-features">
+          <li>クローゼット登録 無制限</li>
+          <li>AIコーデ提案 無制限</li>
+          <li>カレンダー・天気連携</li>
+          <li>パーソナルAI学習</li>
+          <li>週間コーデプランニング</li>
+          <li>ショッピング提案機能</li>
+        </ul>
+        <button class="plan-btn">14日間無料で試す</button>
+      </div>
+      <div class="pricing-card">
+        <div class="plan-tier">Brand Partner</div>
+        <div class="plan-price" style="font-size:28px;">成果報酬型</div>
+        <p class="plan-desc">ブランド・アパレルEC向け。売上発生時のみ課金。</p>
+        <ul class="plan-features">
+          <li>AIスタイリング内に自社商品表示</li>
+          <li>購買データ分析ダッシュボード</li>
+          <li>ターゲティング配信機能</li>
+          <li>ROIトラッキング</li>
+          <li>専任サポート担当</li>
+        </ul>
+        <button class="plan-btn">詳細を問い合わせる</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge">FAQ</span>
+      <h2 class="section-title">よくある<span class="highlight">質問</span></h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">AIは私の好みをどうやって学ぶの？</div>
+        <div class="faq-a">日々の「使う/使わない」のフィードバック、コーデ評価、アイテムの着用頻度などのデータから学習します。使えば使うほどあなた専用のスタイリングモデルが育ちます。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">クローゼット登録はどれくらい手間がかかる？</div>
+        <div class="faq-a">1アイテムあたり5秒程度。カメラで撮影するだけで、AIが自動的にカテゴリ・色・素材・シーンを分類します。100アイテムでも約8分で完了します。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">プライバシーは大丈夫？</div>
+        <div class="faq-a">写真・個人データは暗号化されたサーバーで管理し、第三者へ提供しません。いつでもデータの完全削除が可能です。プライバシーポリシーをご確認ください。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">iOSとAndroid両方に対応してる？</div>
+        <div class="faq-a">はい、iOS 15以上・Android 10以上に対応しています。両プラットフォームで同じアカウントを共有できます。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Premiumはいつでも解約できる？</div>
+        <div class="faq-a">いつでも解約可能です。解約後は次回更新日まで引き続きPremium機能をご利用いただけます。違約金等は一切ありません。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="brand-name">HIKARU CLOSET</div>
+        <p class="brand-desc">
+          AIがあなた専属のスタイリストになる。<br>
+          試着ゼロで、毎日のコーデが決まる。
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#">機能一覧</a></li>
+          <li><a href="#">料金プラン</a></li>
+          <li><a href="#">アップデート</a></li>
+          <li><a href="#">ロードマップ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">会社概要</a></li>
+          <li><a href="#">採用情報</a></li>
+          <li><a href="#">ブログ</a></li>
+          <li><a href="#">プレスキット</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">ヘルプセンター</a></li>
+          <li><a href="#">お問い合わせ</a></li>
+          <li><a href="#">プライバシーポリシー</a></li>
+          <li><a href="#">利用規約</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Hikaru Closet, Inc. All rights reserved.</div>
+      <div class="footer-legal">
+        <a href="#">利用規約</a>
+        <a href="#">プライバシー</a>
+        <a href="#">特定商取引法</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

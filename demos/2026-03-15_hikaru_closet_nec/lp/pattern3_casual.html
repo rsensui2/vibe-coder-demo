@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ひかるクローゼット | 毎朝のコーデが楽しくなるAIアプリ</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #FFF5F8;
+      --bg2: #FFEEF3;
+      --bg-white: #FFFFFF;
+      --pink: #FF6B9D;
+      --pink-light: #FFB3CC;
+      --pink-pale: #FFD6E5;
+      --pink-dark: #E0507A;
+      --text: #3D2030;
+      --text-mid: #7B5468;
+      --text-light: #B8879A;
+      --border: #F5D0DC;
+      --border2: rgba(255,107,157,0.2);
+      --yellow: #FFD166;
+      --mint: #A8E6CF;
+      --lavender: #C9B8FF;
+      --font-main: 'Segoe UI', system-ui, sans-serif;
+      --radius: 20px;
+      --radius-sm: 12px;
+      --shadow: 0 8px 32px rgba(255,107,157,0.12);
+      --shadow-lg: 0 20px 60px rgba(255,107,157,0.18);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ===== UTILITY ===== */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+    .section { padding: 100px 0; }
+    .tag-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--pink-pale); color: var(--pink-dark);
+      padding: 7px 18px; border-radius: 100px;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+    }
+    .tag-pill .dot { width: 6px; height: 6px; background: var(--pink); border-radius: 50%; }
+    .pink { color: var(--pink); }
+    .wave-deco {
+      width: 100%; overflow: hidden; line-height: 0;
+    }
+    .wave-deco svg { display: block; width: 100%; }
+
+    /* ===== DECO BLOBS ===== */
+    .blob {
+      position: absolute; border-radius: 50%;
+      filter: blur(60px); opacity: 0.4; pointer-events: none;
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(255,245,248,0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 28px; max-width: 1100px; margin: 0 auto;
+    }
+    .nav-logo {
+      font-size: 20px; font-weight: 800;
+      color: var(--text);
+    }
+    .nav-logo .logo-heart { color: var(--pink); }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a {
+      font-size: 14px; font-weight: 500; color: var(--text-mid);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--pink); }
+    .nav-cta {
+      background: var(--pink); color: #fff;
+      padding: 10px 24px; border-radius: 100px;
+      font-size: 13px; font-weight: 700; border: none; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(255,107,157,0.3);
+      transition: all 0.3s;
+    }
+    .nav-cta:hover {
+      background: var(--pink-dark);
+      box-shadow: 0 6px 30px rgba(255,107,157,0.4);
+      transform: translateY(-2px);
+    }
+
+    /* ===== HERO ===== */
+    #hero {
+      min-height: 100vh; padding-top: 80px;
+      display: flex; align-items: center;
+      position: relative; overflow: hidden;
+    }
+    .hero-blob-1 {
+      width: 500px; height: 500px;
+      background: var(--pink-pale);
+      top: -100px; right: -100px;
+    }
+    .hero-blob-2 {
+      width: 300px; height: 300px;
+      background: var(--lavender);
+      bottom: 0; left: -80px;
+      opacity: 0.25;
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+      max-width: 1100px; margin: 0 auto; padding: 0 28px;
+      position: relative; z-index: 2;
+    }
+    .hero-copy {}
+    .hero-eyebrow { margin-bottom: 16px; }
+    .hero-title {
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 900; line-height: 1.15; margin-bottom: 20px;
+      letter-spacing: -0.5px;
+    }
+    .hero-title .highlight-box {
+      background: var(--pink);
+      color: #fff; padding: 0 10px;
+      border-radius: 8px;
+      display: inline-block;
+      transform: rotate(-1deg);
+      margin-right: 4px;
+    }
+    .hero-desc {
+      font-size: 16px; color: var(--text-mid); line-height: 1.9;
+      margin-bottom: 36px;
+    }
+    .hero-action-row { display: flex; gap: 14px; align-items: center; margin-bottom: 40px; }
+    .btn-pink {
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      color: #fff; padding: 15px 36px; border-radius: 100px;
+      font-size: 15px; font-weight: 700; border: none; cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      transition: all 0.3s;
+    }
+    .btn-pink:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 24px 60px rgba(255,107,157,0.3);
+    }
+    .btn-text {
+      font-size: 14px; color: var(--text-mid); font-weight: 600;
+      display: flex; align-items: center; gap: 6px; cursor: pointer;
+      transition: color 0.2s;
+    }
+    .btn-text:hover { color: var(--pink); }
+    .hero-trust-row { display: flex; gap: 24px; }
+    .trust-item { display: flex; align-items: center; gap: 8px; }
+    .trust-icon { font-size: 18px; }
+    .trust-text { font-size: 12px; color: var(--text-light); font-weight: 600; }
+
+    /* Hero Phone */
+    .hero-visual { position: relative; }
+    .phone-wrapper {
+      position: relative; width: 300px; margin: 0 auto;
+    }
+    .phone-card {
+      background: #fff; border-radius: 36px;
+      box-shadow: var(--shadow-lg), 0 40px 80px rgba(255,107,157,0.12);
+      overflow: hidden; border: 6px solid #fff;
+      outline: 1px solid var(--border);
+    }
+    .phone-header-bar {
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      padding: 20px 20px 28px;
+      text-align: center; color: #fff;
+    }
+    .phone-header-bar .ph-title { font-size: 16px; font-weight: 800; }
+    .phone-header-bar .ph-sub { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+    .phone-body { padding: 20px; }
+    .ai-thinking-bar {
+      background: var(--bg2); border-radius: 12px;
+      padding: 10px 14px; margin-bottom: 14px;
+      font-size: 11px; color: var(--text-mid); display: flex; align-items: center; gap: 8px;
+    }
+    .ai-thinking-bar::before { content: '🤖'; font-size: 14px; }
+    .outfit-list { display: flex; flex-direction: column; gap: 10px; }
+    .outfit-item-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px;
+      display: flex; align-items: center; gap: 12px;
+      transition: transform 0.2s;
+    }
+    .outfit-item-card.picked {
+      border-color: var(--pink); background: #fff;
+      box-shadow: 0 4px 16px rgba(255,107,157,0.15);
+    }
+    .outfit-item-card .oic-icon { font-size: 24px; }
+    .outfit-item-card .oic-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .outfit-item-card .oic-tag { font-size: 10px; color: var(--text-light); }
+    .oic-score {
+      margin-left: auto; background: var(--pink);
+      color: #fff; padding: 4px 10px; border-radius: 100px;
+      font-size: 11px; font-weight: 700;
+    }
+
+    /* Floating badges */
+    .float-badge {
+      position: absolute; background: #fff;
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .float-badge .fb-emoji { font-size: 16px; margin-right: 6px; }
+    .float-badge .fb-text { font-size: 11px; font-weight: 700; color: var(--text); }
+    .float-badge .fb-sub { font-size: 10px; color: var(--text-light); }
+    .fb-top-right { top: 20px; right: -50px; }
+    .fb-bottom-left { bottom: 60px; left: -50px; }
+
+    /* ===== PROBLEM ===== */
+    #problem { background: var(--bg-white); }
+    .section-header { text-align: center; margin-bottom: 64px; }
+    .section-title-casual { font-size: clamp(28px, 4vw, 40px); font-weight: 900; line-height: 1.25; margin-top: 12px; }
+    .section-desc { font-size: 15px; color: var(--text-mid); margin-top: 14px; line-height: 1.8; }
+    .problem-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .problem-bubble-card {
+      background: var(--bg); border-radius: var(--radius);
+      padding: 36px 28px; text-align: center;
+      border: 2px solid var(--border);
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .problem-bubble-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+    .problem-bubble-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--pink-pale), var(--pink), var(--pink-pale));
+    }
+    .problem-emoji { font-size: 48px; margin-bottom: 16px; }
+    .problem-stat {
+      font-size: 40px; font-weight: 900; color: var(--pink);
+      line-height: 1; margin-bottom: 10px;
+    }
+    .problem-label { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+    .problem-text { font-size: 13px; color: var(--text-mid); line-height: 1.7; }
+
+    /* ===== SOLUTION ===== */
+    #solution {
+      background: linear-gradient(135deg, var(--bg) 0%, #FFF0F5 100%);
+      position: relative; overflow: hidden;
+    }
+    .solution-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .solution-left {}
+    .solution-steps-casual { display: flex; flex-direction: column; gap: 24px; margin-top: 32px; }
+    .step-casual {
+      background: #fff; border-radius: var(--radius);
+      padding: 24px; display: flex; gap: 18px; align-items: flex-start;
+      box-shadow: 0 4px 20px rgba(255,107,157,0.08);
+      border: 1px solid var(--border);
+    }
+    .step-bubble {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      color: #fff; font-size: 18px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; box-shadow: 0 4px 12px rgba(255,107,157,0.3);
+    }
+    .step-casual-body {}
+    .step-casual-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+    .step-casual-desc { font-size: 13px; color: var(--text-mid); line-height: 1.7; }
+    .solution-right { position: relative; }
+    .solution-cards-stack { position: relative; height: 420px; }
+    .solution-stack-card {
+      position: absolute; width: 100%;
+      background: #fff; border-radius: var(--radius);
+      padding: 24px; border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .solution-stack-card.c1 { top: 0; left: 10px; right: 10px; transform: rotate(-2deg); opacity: 0.5; }
+    .solution-stack-card.c2 { top: 20px; left: 5px; right: 5px; transform: rotate(-1deg); opacity: 0.75; }
+    .solution-stack-card.c3 { top: 40px; left: 0; right: 0; transform: rotate(0deg); z-index: 3; }
+    .stack-card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .stack-card-label { font-size: 12px; font-weight: 700; color: var(--pink); }
+    .stack-card-badge {
+      background: var(--pink-pale); color: var(--pink-dark);
+      font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 100px;
+    }
+    .stack-outfit-preview {
+      display: flex; gap: 10px; margin-bottom: 14px;
+    }
+    .outfit-preview-item {
+      flex: 1; background: var(--bg); border-radius: var(--radius-sm);
+      padding: 14px; text-align: center; font-size: 24px;
+      border: 1px solid var(--border);
+    }
+    .outfit-preview-item .op-label { font-size: 9px; color: var(--text-light); margin-top: 6px; }
+    .stack-ai-comment {
+      background: var(--bg); border-radius: var(--radius-sm);
+      padding: 12px 14px; font-size: 12px; color: var(--text-mid);
+      line-height: 1.6;
+    }
+    .stack-ai-comment strong { color: var(--pink); }
+
+    /* ===== FEATURES ===== */
+    #features { background: var(--bg-white); }
+    .features-casual-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .feature-bubble {
+      background: var(--bg); border-radius: var(--radius);
+      padding: 36px 32px;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .feature-bubble:hover { border-color: var(--border); transform: translateY(-4px); box-shadow: var(--shadow); }
+    .feature-bubble.starred {
+      background: linear-gradient(135deg, #FFF0F5 0%, #FFE8F0 100%);
+      border-color: var(--pink-pale);
+    }
+    .feature-bubble-icon {
+      width: 64px; height: 64px; border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; margin-bottom: 18px;
+    }
+    .fi-pink { background: var(--pink-pale); }
+    .fi-mint { background: rgba(168,230,207,0.4); }
+    .fi-yellow { background: rgba(255,209,102,0.3); }
+    .fi-lavender { background: rgba(201,184,255,0.3); }
+    .feature-bubble-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+    .feature-bubble-desc { font-size: 14px; color: var(--text-mid); line-height: 1.8; }
+    .feature-star-tag {
+      position: absolute; top: 16px; right: 16px;
+      background: var(--yellow); color: #3D2030;
+      font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 100px;
+    }
+
+    /* ===== HOW TO ===== */
+    #howto {
+      background: linear-gradient(135deg, var(--bg2) 0%, var(--bg) 100%);
+    }
+    .howto-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; position: relative; }
+    .howto-steps::before {
+      content: '';
+      position: absolute; top: 40px; left: 10%; right: 10%; height: 2px;
+      background: linear-gradient(90deg, var(--pink-pale), var(--pink), var(--pink-pale));
+      z-index: 0;
+    }
+    .howto-step { text-align: center; position: relative; z-index: 1; }
+    .howto-circle {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: #fff; border: 3px solid var(--pink);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; margin: 0 auto 16px;
+      box-shadow: 0 4px 20px rgba(255,107,157,0.2);
+    }
+    .howto-num {
+      position: absolute; top: -6px; right: calc(50% - 50px);
+      background: var(--pink); color: #fff;
+      width: 22px; height: 22px; border-radius: 50%;
+      font-size: 11px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .howto-step-title { font-size: 14px; font-weight: 800; margin-bottom: 6px; }
+    .howto-step-desc { font-size: 12px; color: var(--text-mid); line-height: 1.6; }
+
+    /* ===== PRICING ===== */
+    #pricing { background: var(--bg-white); }
+    .pricing-casual-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .pricing-bubble-card {
+      background: var(--bg); border-radius: var(--radius);
+      padding: 40px 32px; border: 2px solid var(--border);
+      position: relative; overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .pricing-bubble-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+    .pricing-bubble-card.featured {
+      background: linear-gradient(135deg, var(--pink) 0%, var(--pink-dark) 100%);
+      border-color: var(--pink); color: #fff;
+    }
+    .popular-ribbon {
+      position: absolute; top: 16px; right: -24px;
+      background: var(--yellow); color: var(--text);
+      font-size: 9px; font-weight: 800; letter-spacing: 1px;
+      padding: 4px 36px; transform: rotate(45deg);
+    }
+    .plan-name-casual { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; color: var(--text-mid); }
+    .pricing-bubble-card.featured .plan-name-casual { color: rgba(255,255,255,0.7); }
+    .plan-price-casual { font-size: 52px; font-weight: 900; line-height: 1; margin-bottom: 6px; }
+    .plan-price-casual span { font-size: 16px; font-weight: 500; color: var(--text-mid); }
+    .pricing-bubble-card.featured .plan-price-casual span { color: rgba(255,255,255,0.6); }
+    .plan-period { font-size: 12px; color: var(--text-light); margin-bottom: 28px; }
+    .pricing-bubble-card.featured .plan-period { color: rgba(255,255,255,0.6); }
+    .plan-divider { height: 1px; background: var(--border); margin-bottom: 24px; }
+    .pricing-bubble-card.featured .plan-divider { background: rgba(255,255,255,0.2); }
+    .plan-features-casual { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .plan-features-casual li { font-size: 13px; color: var(--text-mid); display: flex; gap: 8px; }
+    .plan-features-casual li .check { color: var(--pink); font-size: 16px; }
+    .pricing-bubble-card.featured .plan-features-casual li { color: rgba(255,255,255,0.85); }
+    .pricing-bubble-card.featured .plan-features-casual li .check { color: var(--yellow); }
+    .plan-btn-casual {
+      width: 100%; padding: 15px; border-radius: 100px;
+      background: #fff; border: 2px solid var(--border);
+      color: var(--text); font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .plan-btn-casual:hover { background: var(--pink); border-color: var(--pink); color: #fff; box-shadow: var(--shadow); }
+    .pricing-bubble-card.featured .plan-btn-casual {
+      background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4); color: #fff;
+    }
+    .pricing-bubble-card.featured .plan-btn-casual:hover { background: rgba(255,255,255,0.35); }
+
+    /* ===== FAQ ===== */
+    #faq { background: var(--bg); }
+    .faq-casual-list { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+    .faq-casual-item {
+      background: #fff; border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .faq-casual-item:hover { box-shadow: 0 4px 20px rgba(255,107,157,0.1); }
+    .faq-casual-q {
+      padding: 20px 24px; font-size: 15px; font-weight: 700;
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer;
+    }
+    .faq-casual-q .faq-icon {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--pink-pale); color: var(--pink);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 300; flex-shrink: 0;
+    }
+    .faq-casual-a {
+      padding: 0 24px 20px;
+      font-size: 14px; color: var(--text-mid); line-height: 1.8;
+      border-top: 1px solid var(--border); padding-top: 16px;
+    }
+
+    /* ===== CTA BANNER ===== */
+    #cta {
+      background: linear-gradient(135deg, var(--pink) 0%, var(--pink-dark) 100%);
+      padding: 80px 0; text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    #cta .blob {
+      background: rgba(255,255,255,0.1);
+      filter: blur(80px); opacity: 1;
+    }
+    .cta-blob-1 { width: 400px; height: 400px; top: -100px; left: -100px; }
+    .cta-blob-2 { width: 300px; height: 300px; bottom: -80px; right: -80px; }
+    #cta .cta-inner { position: relative; z-index: 2; }
+    #cta .cta-tag { background: rgba(255,255,255,0.2); color: #fff; margin-bottom: 20px; }
+    #cta h2 { font-size: clamp(28px, 4vw, 44px); font-weight: 900; line-height: 1.25; margin-bottom: 16px; }
+    #cta p { font-size: 16px; opacity: 0.85; margin-bottom: 36px; }
+    .btn-white {
+      background: #fff; color: var(--pink);
+      padding: 16px 48px; border-radius: 100px;
+      font-size: 15px; font-weight: 800; border: none; cursor: pointer;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      transition: all 0.3s;
+    }
+    .btn-white:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.2); }
+    .cta-note { margin-top: 14px; font-size: 12px; opacity: 0.65; }
+
+    /* ===== FOOTER ===== */
+    footer { background: var(--text); color: rgba(255,245,248,0.6); padding: 64px 0 32px; }
+    .footer-casual-inner { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+    .footer-casual-top {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px;
+    }
+    .footer-brand-casual .fn { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .footer-brand-casual .fn .fh { color: var(--pink-light); }
+    .footer-brand-casual .fd { font-size: 13px; color: rgba(255,245,248,0.4); line-height: 1.7; }
+    .footer-col-casual h4 { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,245,248,0.35); margin-bottom: 16px; }
+    .footer-col-casual ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .footer-col-casual ul li a { font-size: 13px; color: rgba(255,245,248,0.5); transition: color 0.2s; }
+    .footer-col-casual ul li a:hover { color: var(--pink-light); }
+    .footer-casual-bottom {
+      border-top: 1px solid rgba(255,245,248,0.1); padding-top: 24px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-casual-copy { font-size: 12px; }
+    .footer-casual-legal { display: flex; gap: 20px; }
+    .footer-casual-legal a { font-size: 12px; color: rgba(255,245,248,0.5); transition: color 0.2s; }
+    .footer-casual-legal a:hover { color: var(--pink-light); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .problem-cards { grid-template-columns: 1fr; }
+      .features-casual-grid { grid-template-columns: 1fr; }
+      .pricing-casual-grid { grid-template-columns: 1fr; }
+      .solution-grid { grid-template-columns: 1fr; }
+      .howto-steps { grid-template-columns: 1fr 1fr; }
+      .howto-steps::before { display: none; }
+      .footer-casual-top { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">ひかる<span class="logo-heart">♡</span>クローゼット</div>
+    <div class="nav-links">
+      <a href="#problem">お悩み</a>
+      <a href="#solution">解決策</a>
+      <a href="#features">機能</a>
+      <a href="#pricing">料金</a>
+    </div>
+    <button class="nav-cta">🎀 無料で始める</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="blob hero-blob-1"></div>
+  <div class="blob hero-blob-2"></div>
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <div class="hero-eyebrow">
+        <span class="tag-pill"><span class="dot"></span>AIスタイリストアプリ No.1</span>
+      </div>
+      <h1 class="hero-title">
+        <span class="highlight-box">試着ゼロ</span>で、<br>
+        毎日のコーデが<br>
+        決まる。<span class="pink">✨</span>
+      </h1>
+      <p class="hero-desc">
+        毎朝「今日何着よう…」って悩んでいるあなたへ。<br>
+        AIが服を選んでくれるから、朝がラクになる。<br>
+        クローゼットが、もっと好きになる。
+      </p>
+      <div class="hero-action-row">
+        <button class="btn-pink">🎀 無料でインストール</button>
+        <span class="btn-text">デモを見る ▶</span>
+      </div>
+      <div class="hero-trust-row">
+        <div class="trust-item">
+          <span class="trust-icon">⭐</span>
+          <span class="trust-text">3.2万人が使用中</span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon">💕</span>
+          <span class="trust-text">満足度98%</span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon">🆓</span>
+          <span class="trust-text">無料プランあり</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="phone-wrapper">
+        <div class="phone-card">
+          <div class="phone-header-bar">
+            <div class="ph-title">ひかる♡クローゼット</div>
+            <div class="ph-sub">今日のおすすめコーデ ✨</div>
+          </div>
+          <div class="phone-body">
+            <div class="ai-thinking-bar">AIが分析中… 東京 14°C • ミーティングあり</div>
+            <div class="outfit-list">
+              <div class="outfit-item-card picked">
+                <div class="oic-icon">👗</div>
+                <div>
+                  <div class="oic-name">スマートカジュアル</div>
+                  <div class="oic-tag">ミーティング向き ✓</div>
+                </div>
+                <div class="oic-score">97点</div>
+              </div>
+              <div class="outfit-item-card">
+                <div class="oic-icon">🧥</div>
+                <div>
+                  <div class="oic-name">ビジネスライト</div>
+                  <div class="oic-tag">外出・訪問向き</div>
+                </div>
+                <div class="oic-score">92点</div>
+              </div>
+              <div class="outfit-item-card">
+                <div class="oic-icon">✨</div>
+                <div>
+                  <div class="oic-name">ウィークエンドシック</div>
+                  <div class="oic-tag">週末・ランチ向き</div>
+                </div>
+                <div class="oic-score">88点</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="float-badge fb-top-right">
+          <span class="fb-emoji">⚡</span>
+          <span class="fb-text">0.3秒で提案</span>
+        </div>
+        <div class="float-badge fb-bottom-left">
+          <span class="fb-emoji">📅</span>
+          <span class="fb-text">カレンダー連携</span><br>
+          <span class="fb-sub">今日の予定に合わせて</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem" class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="tag-pill"><span class="dot"></span>こんなお悩み、ありませんか？</span>
+      <h2 class="section-title-casual">毎朝のコーデ選びが<span class="pink">つらい</span>、って思ってない？</h2>
+      <p class="section-desc">20〜40代女性の83%が感じている、クローゼット前の「あの憂鬱」</p>
+    </div>
+    <div class="problem-cards">
+      <div class="problem-bubble-card">
+        <div class="problem-emoji">⏰</div>
+        <div class="problem-stat">23分</div>
+        <div class="problem-label">毎朝の服選びに費やす時間</div>
+        <p class="problem-text">年間で約140時間。それだけの時間を、もっと自分のために使えたはずなのに。</p>
+      </div>
+      <div class="problem-bubble-card">
+        <div class="problem-emoji">😩</div>
+        <div class="problem-stat">73%</div>
+        <div class="problem-label">「服はあるのに選べない」経験</div>
+        <p class="problem-text">クローゼットが服で溢れているのに、どう組み合わせればいいかわからなくて諦める。</p>
+      </div>
+      <div class="problem-bubble-card">
+        <div class="problem-emoji">🌤</div>
+        <div class="problem-stat">毎日</div>
+        <div class="problem-label">天気・予定・気分は変わる</div>
+        <p class="problem-text">昨日のベストコーデが今日は違う。天気・シーン・気分に合わせるのって難しい。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section id="solution" class="section">
+  <div class="container">
+    <div class="solution-grid">
+      <div class="solution-left">
+        <span class="tag-pill"><span class="dot"></span>解決策</span>
+        <h2 class="section-title-casual" style="margin-top:16px;">
+          AIが毎朝あなたの<br>
+          <span class="pink">専属スタイリスト</span>になる💕
+        </h2>
+        <p class="section-desc" style="text-align:left; margin-top:16px; margin-bottom:0;">
+          クローゼットを登録したら、あとはアプリにおまかせ。
+          天気・予定・気分を読み取ったAIが、
+          あなたにぴったりのコーデを毎朝提案してくれる。
+        </p>
+        <div class="solution-steps-casual">
+          <div class="step-casual">
+            <div class="step-bubble">1</div>
+            <div class="step-casual-body">
+              <div class="step-casual-title">📸 クローゼットをスキャン</div>
+              <div class="step-casual-desc">服を撮影するだけ！AIが自動でカテゴリ・色・素材を分類してくれる。</div>
+            </div>
+          </div>
+          <div class="step-casual">
+            <div class="step-bubble">2</div>
+            <div class="step-casual-body">
+              <div class="step-casual-title">🌤 コンテキストを自動取得</div>
+              <div class="step-casual-desc">天気・カレンダー・気分を読み取って、今日の最適コーデ条件をセット。</div>
+            </div>
+          </div>
+          <div class="step-casual">
+            <div class="step-bubble">3</div>
+            <div class="step-casual-body">
+              <div class="step-casual-title">✨ 0.3秒でトップ3を提案</div>
+              <div class="step-casual-desc">100万通りの組み合わせから最適なコーデをズバッと提案。使うほど賢くなる。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="solution-right">
+        <div class="solution-cards-stack">
+          <div class="solution-stack-card c1"></div>
+          <div class="solution-stack-card c2"></div>
+          <div class="solution-stack-card c3">
+            <div class="stack-card-header">
+              <div class="stack-card-label">✨ AIのおすすめ — 97点</div>
+              <div class="stack-card-badge">今日のベスト</div>
+            </div>
+            <div class="stack-outfit-preview">
+              <div class="outfit-preview-item">
+                👗
+                <div class="op-label">ワンピース</div>
+              </div>
+              <div class="outfit-preview-item">
+                🧥
+                <div class="op-label">トレンチ</div>
+              </div>
+              <div class="outfit-preview-item">
+                👞
+                <div class="op-label">パンプス</div>
+              </div>
+            </div>
+            <div class="stack-ai-comment">
+              💬 「今日は<strong>14°C</strong>で少し肌寒め。大事な<strong>ミーティング</strong>があるので、ネイビーワンピース＋ベージュトレンチが◎ 知的でおしゃれな印象に！」
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="tag-pill"><span class="dot"></span>主要機能</span>
+      <h2 class="section-title-casual">コーデを<span class="pink">もっと楽しく</span>する4つの機能</h2>
+    </div>
+    <div class="features-casual-grid">
+      <div class="feature-bubble starred">
+        <span class="feature-star-tag">⭐ 人気No.1</span>
+        <div class="feature-bubble-icon fi-pink">🤖</div>
+        <h3 class="feature-bubble-title">AIスタイリングエンジン</h3>
+        <p class="feature-bubble-desc">あなたの好み・体型・ライフスタイルを学習する専用AI。使えば使うほど精度が上がって、あなたのことをわかってくれる。</p>
+      </div>
+      <div class="feature-bubble">
+        <div class="feature-bubble-icon fi-mint">📅</div>
+        <h3 class="feature-bubble-title">カレンダー連携</h3>
+        <p class="feature-bubble-desc">Googleカレンダーと同期。今日の予定（会議・デート・外出）に合わせたドレスコードを自動判定して、シーンにぴったりのコーデを提案。</p>
+      </div>
+      <div class="feature-bubble">
+        <div class="feature-bubble-icon fi-yellow">🌤</div>
+        <h3 class="feature-bubble-title">リアルタイム天気対応</h3>
+        <p class="feature-bubble-desc">気温・天気・降水確率を考慮。「今日寒いからアウター必須」を自動で反映してくれるから、服装選びの失敗ゼロ。</p>
+      </div>
+      <div class="feature-bubble">
+        <div class="feature-bubble-icon fi-lavender">📦</div>
+        <h3 class="feature-bubble-title">クローゼット管理AI</h3>
+        <p class="feature-bubble-desc">「最近着ていない服」「よく使う組み合わせ」を可視化。断捨離サポートや、足りないアイテムのショッピング提案も。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO -->
+<section id="howto" class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="tag-pill"><span class="dot"></span>使い方</span>
+      <h2 class="section-title-casual"><span class="pink">たった4ステップ</span>で始められる</h2>
+    </div>
+    <div class="howto-steps">
+      <div class="howto-step">
+        <div style="position:relative;display:inline-block;">
+          <div class="howto-circle">📱</div>
+          <div class="howto-num">1</div>
+        </div>
+        <div class="howto-step-title">アプリをDL</div>
+        <div class="howto-step-desc">iOS / Androidどちらでも無料でダウンロード</div>
+      </div>
+      <div class="howto-step">
+        <div style="position:relative;display:inline-block;">
+          <div class="howto-circle">📸</div>
+          <div class="howto-num">2</div>
+        </div>
+        <div class="howto-step-title">服を登録</div>
+        <div class="howto-step-desc">撮影するだけでAIが自動分類。100着でも8分！</div>
+      </div>
+      <div class="howto-step">
+        <div style="position:relative;display:inline-block;">
+          <div class="howto-circle">🔗</div>
+          <div class="howto-num">3</div>
+        </div>
+        <div class="howto-step-title">連携を設定</div>
+        <div class="howto-step-desc">天気・カレンダーとワンタップ連携</div>
+      </div>
+      <div class="howto-step">
+        <div style="position:relative;display:inline-block;">
+          <div class="howto-circle">✨</div>
+          <div class="howto-num">4</div>
+        </div>
+        <div class="howto-step-title">毎朝おまかせ</div>
+        <div class="howto-step-desc">朝アプリを開くと今日のベストコーデが表示！</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="tag-pill"><span class="dot"></span>料金プラン</span>
+      <h2 class="section-title-casual">まずは<span class="pink">無料</span>から始めてみて</h2>
+      <p class="section-desc">全プラン14日間の無料トライアル付き。クレジットカード不要✨</p>
+    </div>
+    <div class="pricing-casual-grid">
+      <div class="pricing-bubble-card">
+        <div class="plan-name-casual">Free</div>
+        <div class="plan-price-casual">¥0<span>/月</span></div>
+        <div class="plan-period">ずっと無料で使える基本プラン</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features-casual">
+          <li><span class="check">💕</span>クローゼット登録 最大30アイテム</li>
+          <li><span class="check">💕</span>AIコーデ提案 1日3回</li>
+          <li><span class="check">💕</span>天気連携</li>
+          <li><span class="check">💕</span>基本スタイル分析</li>
+        </ul>
+        <button class="plan-btn-casual">無料で始める 🎀</button>
+      </div>
+      <div class="pricing-bubble-card featured">
+        <div class="popular-ribbon">BEST</div>
+        <div class="plan-name-casual">Premium</div>
+        <div class="plan-price-casual">¥980<span>/月</span></div>
+        <div class="plan-period">毎日使いたい方のフルパッケージ</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features-casual">
+          <li><span class="check">💛</span>クローゼット登録 無制限</li>
+          <li><span class="check">💛</span>AIコーデ提案 無制限</li>
+          <li><span class="check">💛</span>カレンダー・天気連携</li>
+          <li><span class="check">💛</span>パーソナルAI学習</li>
+          <li><span class="check">💛</span>週間コーデプランニング</li>
+          <li><span class="check">💛</span>ショッピング提案機能</li>
+        </ul>
+        <button class="plan-btn-casual">14日間無料で試す ✨</button>
+      </div>
+      <div class="pricing-bubble-card">
+        <div class="plan-name-casual">Brand Partner</div>
+        <div class="plan-price-casual" style="font-size:30px; line-height:1.4; margin-bottom:4px;">成果<br>報酬型</div>
+        <div class="plan-period">ブランド・アパレルEC向け</div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features-casual">
+          <li><span class="check">💕</span>AI内に自社商品表示</li>
+          <li><span class="check">💕</span>購買データ分析</li>
+          <li><span class="check">💕</span>ターゲティング配信</li>
+          <li><span class="check">💕</span>ROIトラッキング</li>
+          <li><span class="check">💕</span>専任サポート</li>
+        </ul>
+        <button class="plan-btn-casual">詳細を問い合わせる</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="tag-pill"><span class="dot"></span>よくある質問</span>
+      <h2 class="section-title-casual">気になること、<span class="pink">全部答えます</span>💬</h2>
+    </div>
+    <div class="faq-casual-list">
+      <div class="faq-casual-item">
+        <div class="faq-casual-q">
+          AIは私の好みをどうやって学ぶの？
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-casual-a">毎日の「使う/使わない」フィードバック、着用頻度、コーデへの評価からAIが学習します。使えば使うほど、あなた専用のスタイリングモデルが育ちます💕</div>
+      </div>
+      <div class="faq-casual-item">
+        <div class="faq-casual-q">
+          登録ってどれくらい手間がかかる？
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-casual-a">1アイテムあたり約5秒！カメラで撮るだけで、AIが自動でカテゴリ・色・素材・シーンを分類。100アイテムでも約8分で完了できます📸</div>
+      </div>
+      <div class="faq-casual-item">
+        <div class="faq-casual-q">
+          プライバシーが心配なんだけど...
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-casual-a">写真・個人データは暗号化して保管し、第三者への提供は一切ありません。いつでも完全削除が可能です。安心してお使いください🔒</div>
+      </div>
+      <div class="faq-casual-item">
+        <div class="faq-casual-q">
+          iPhoneとAndroid、両方使える？
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-casual-a">はい！iOS 15以上・Android 10以上に対応しています。同じアカウントで複数端末を利用可能です📱</div>
+      </div>
+      <div class="faq-casual-item">
+        <div class="faq-casual-q">
+          Premiumはいつでも解約できる？
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-casual-a">もちろんです！いつでも解約できます。解約後は次回更新日まで引き続きPremium機能が使えます。違約金等は一切ありません💪</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section id="cta">
+  <div class="blob cta-blob-1"></div>
+  <div class="blob cta-blob-2"></div>
+  <div class="cta-inner container">
+    <span class="tag-pill cta-tag"><span class="dot" style="background:#fff;"></span>今すぐ始めよう</span>
+    <h2>今日から朝が<br>楽しくなる。🌸</h2>
+    <p>試着ゼロで、毎日のコーデが決まる。AIスタイリストを体験してみて。</p>
+    <button class="btn-white">🎀 無料でインストール</button>
+    <p class="cta-note">クレジットカード不要 · いつでも解約OK · 14日間無料</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-casual-inner">
+    <div class="footer-casual-top">
+      <div class="footer-brand-casual">
+        <div class="fn">ひかる<span class="fh">♡</span>クローゼット</div>
+        <p class="fd">AIがあなた専属のスタイリストになる。<br>試着ゼロで、毎日のコーデが決まる。</p>
+      </div>
+      <div class="footer-col-casual">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#">機能一覧</a></li>
+          <li><a href="#">料金プラン</a></li>
+          <li><a href="#">アップデート</a></li>
+          <li><a href="#">ロードマップ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col-casual">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">会社概要</a></li>
+          <li><a href="#">採用情報</a></li>
+          <li><a href="#">ブログ</a></li>
+          <li><a href="#">プレスキット</a></li>
+        </ul>
+      </div>
+      <div class="footer-col-casual">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">ヘルプセンター</a></li>
+          <li><a href="#">お問い合わせ</a></li>
+          <li><a href="#">プライバシー</a></li>
+          <li><a href="#">利用規約</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-casual-bottom">
+      <div class="footer-casual-copy">© 2026 Hikaru Closet, Inc. All rights reserved. 💕</div>
+      <div class="footer-casual-legal">
+        <a href="#">利用規約</a>
+        <a href="#">プライバシーポリシー</a>
+        <a href="#">特定商取引法</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ひかるクローゼット | AIスタイリスト — Premium</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #FAFAFA;
+      --bg-dark: #F0EDE8;
+      --bg-cream: #F7F4EF;
+      --black: #0A0A0A;
+      --charcoal: #1A1A1A;
+      --dark-gray: #2C2C2C;
+      --mid-gray: #6B6B6B;
+      --light-gray: #ACACAC;
+      --very-light: #E8E3DC;
+      --gold: #C9A86C;
+      --gold-dark: #A8884D;
+      --gold-light: #E0C896;
+      --gold-muted: rgba(201,168,108,0.15);
+      --font-serif: 'Georgia', 'Times New Roman', serif;
+      --font-sans: 'Segoe UI', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--charcoal);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ===== UTILITY ===== */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 48px; }
+    .section { padding: 120px 0; }
+    .serif { font-family: var(--font-serif); }
+    .gold { color: var(--gold); }
+    .eyebrow {
+      font-size: 10px; font-weight: 600; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--gold);
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .eyebrow::before, .eyebrow::after {
+      content: '';
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+    }
+    .eyebrow::before { max-width: 40px; }
+    .eyebrow::after { display: none; }
+    .eyebrow-center::before, .eyebrow-center::after { display: block; max-width: 60px; }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(250,250,250,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--very-light);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px; max-width: 1200px; margin: 0 auto;
+    }
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 16px; font-weight: 400; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--charcoal);
+    }
+    .nav-logo em { color: var(--gold); font-style: normal; }
+    .nav-links { display: flex; gap: 40px; }
+    .nav-links a {
+      font-size: 11px; font-weight: 500; color: var(--mid-gray);
+      letter-spacing: 2px; text-transform: uppercase;
+      position: relative; transition: color 0.3s;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+      height: 1px; background: var(--gold);
+      transform: scaleX(0); transition: transform 0.3s;
+    }
+    .nav-links a:hover { color: var(--charcoal); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+    .nav-cta {
+      background: transparent; border: 1px solid var(--charcoal);
+      color: var(--charcoal); padding: 12px 28px;
+      font-size: 10px; font-weight: 600; letter-spacing: 2.5px;
+      text-transform: uppercase; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .nav-cta:hover {
+      background: var(--charcoal); color: var(--bg);
+    }
+
+    /* ===== HERO — SPLIT SCREEN ===== */
+    #hero {
+      min-height: 100vh; padding-top: 0;
+      display: grid; grid-template-columns: 1fr 1fr;
+    }
+    .hero-left {
+      background: var(--charcoal);
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 120px 80px 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero-left::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #1A1A1A 0%, #0A0A14 100%);
+    }
+    .hero-left-content { position: relative; z-index: 2; }
+    .hero-left .eyebrow { color: var(--gold-light); }
+    .hero-left .eyebrow::before { background: linear-gradient(90deg, transparent, var(--gold-dark)); }
+    .hero-tagline {
+      font-family: var(--font-serif);
+      font-size: clamp(36px, 4vw, 58px);
+      font-weight: 400; line-height: 1.15;
+      color: #F5F0E8; margin-bottom: 32px;
+      letter-spacing: -0.5px;
+    }
+    .hero-tagline em {
+      font-style: italic; color: var(--gold-light);
+      display: block;
+    }
+    .hero-quote {
+      border-left: 2px solid var(--gold);
+      padding-left: 20px; margin-bottom: 48px;
+    }
+    .hero-quote p {
+      font-size: 15px; color: rgba(245,240,232,0.6);
+      line-height: 1.8; font-style: italic;
+    }
+    .hero-cta-group { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+    .btn-gold {
+      background: var(--gold); color: var(--charcoal);
+      padding: 16px 40px;
+      font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; border: none; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-gold:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(201,168,108,0.3);
+    }
+    .btn-outline-light {
+      background: transparent; border: 1px solid rgba(245,240,232,0.3);
+      color: rgba(245,240,232,0.7); padding: 14px 32px;
+      font-size: 11px; font-weight: 500; letter-spacing: 2px;
+      text-transform: uppercase; cursor: pointer; transition: all 0.3s;
+    }
+    .btn-outline-light:hover { border-color: var(--gold); color: var(--gold); }
+    .hero-social-proof {
+      position: absolute; bottom: 40px; left: 80px; right: 80px;
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid rgba(245,240,232,0.1);
+      padding-top: 24px;
+      z-index: 2;
+    }
+    .proof-item { text-align: center; }
+    .proof-num {
+      font-family: var(--font-serif);
+      font-size: 28px; color: var(--gold-light); font-weight: 400;
+    }
+    .proof-label {
+      font-size: 10px; color: rgba(245,240,232,0.4); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 4px;
+    }
+    .hero-right {
+      background: var(--bg-cream);
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 120px 80px 80px;
+      position: relative;
+    }
+    .hero-right-visual { position: relative; }
+    .wardrobe-display {
+      display: flex; gap: 16px; margin-bottom: 32px;
+    }
+    .wardrobe-item {
+      flex: 1; aspect-ratio: 2/3;
+      border: 1px solid var(--very-light);
+      background: #fff;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px;
+      font-size: 32px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+    .wardrobe-item:hover { transform: translateY(-8px); box-shadow: 0 16px 40px rgba(0,0,0,0.1); }
+    .wardrobe-item.selected {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px var(--gold), 0 12px 40px rgba(201,168,108,0.2);
+    }
+    .wardrobe-label { font-size: 10px; color: var(--mid-gray); letter-spacing: 1px; }
+    .ai-suggestion-box {
+      background: var(--charcoal); color: var(--bg);
+      padding: 24px 28px;
+    }
+    .ai-suggestion-box .ai-label {
+      font-size: 10px; color: var(--gold); letter-spacing: 2.5px;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .ai-suggestion-box .ai-text {
+      font-family: var(--font-serif); font-size: 15px;
+      line-height: 1.7; color: rgba(255,255,255,0.85);
+      font-style: italic;
+    }
+    .ai-suggestion-box .ai-meta {
+      margin-top: 12px; font-size: 11px; color: rgba(255,255,255,0.4);
+      letter-spacing: 1px;
+    }
+
+    /* ===== PROBLEM SECTION ===== */
+    #problem { background: var(--bg); }
+    .section-header-centered { text-align: center; margin-bottom: 72px; }
+    .section-title-serif {
+      font-family: var(--font-serif);
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 400; line-height: 1.25; margin-top: 12px;
+    }
+    .section-subtitle { font-size: 15px; color: var(--mid-gray); margin-top: 16px; line-height: 1.8; }
+    .problem-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px; }
+    .problem-item { text-align: center; }
+    .problem-icon-ring {
+      width: 80px; height: 80px; border-radius: 50%;
+      border: 1px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; margin: 0 auto 24px;
+    }
+    .problem-num-serif {
+      font-family: var(--font-serif);
+      font-size: 42px; color: var(--very-light); font-weight: 400;
+      line-height: 1; margin-bottom: 16px;
+    }
+    .problem-item-title { font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+    .problem-item-desc { font-size: 14px; color: var(--mid-gray); line-height: 1.8; }
+
+    /* ===== SOLUTION ===== */
+    #solution { background: var(--bg-dark); }
+    .solution-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center; }
+    .solution-image-side { position: relative; }
+    .solution-frame {
+      border: 1px solid var(--very-light);
+      background: var(--bg); padding: 48px 40px;
+      position: relative;
+    }
+    .solution-frame::before {
+      content: '';
+      position: absolute; top: -12px; left: 32px; right: 32px; height: 1px;
+      background: var(--gold);
+    }
+    .solution-frame::after {
+      content: '';
+      position: absolute; bottom: -12px; left: 32px; right: 32px; height: 1px;
+      background: var(--gold);
+    }
+    .steps-vertical { display: flex; flex-direction: column; gap: 0; }
+    .step-premium {
+      display: flex; gap: 24px;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--very-light);
+    }
+    .step-premium:last-child { border-bottom: none; }
+    .step-num-circle {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: var(--gold);
+      flex-shrink: 0;
+    }
+    .step-premium-body {}
+    .step-premium-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .step-premium-desc { font-size: 13px; color: var(--mid-gray); line-height: 1.7; }
+    .solution-text-side {}
+
+    /* ===== FEATURES ===== */
+    #features { background: var(--charcoal); color: #F5F0E8; }
+    #features .section-title-serif { color: #F5F0E8; }
+    #features .section-subtitle { color: rgba(245,240,232,0.5); }
+    .features-4grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: rgba(245,240,232,0.1); }
+    .feature-premium-card {
+      background: var(--charcoal); padding: 52px 48px;
+      position: relative; overflow: hidden;
+      transition: background 0.3s;
+    }
+    .feature-premium-card:hover { background: #242424; }
+    .feature-premium-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 48px; right: 48px; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,108,0.3), transparent);
+    }
+    .feature-category {
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 16px; font-weight: 600;
+    }
+    .feature-premium-title { font-family: var(--font-serif); font-size: 22px; margin-bottom: 14px; }
+    .feature-premium-desc { font-size: 14px; color: rgba(245,240,232,0.55); line-height: 1.8; }
+    .feature-num-bg {
+      position: absolute; top: 40px; right: 40px;
+      font-family: var(--font-serif);
+      font-size: 80px; color: rgba(245,240,232,0.04); font-weight: 400;
+      line-height: 1; pointer-events: none;
+    }
+
+    /* ===== TESTIMONIALS ===== */
+    #testimonials { background: var(--bg-cream); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+    .testimonial-card {
+      background: var(--bg); padding: 36px 32px;
+      border: 1px solid var(--very-light);
+      position: relative;
+    }
+    .testimonial-card::before {
+      content: '\201C';
+      font-family: var(--font-serif); font-size: 80px;
+      color: var(--gold-light); line-height: 0.7;
+      display: block; margin-bottom: 16px;
+    }
+    .testimonial-text { font-size: 14px; color: var(--mid-gray); line-height: 1.8; font-style: italic; margin-bottom: 24px; }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .author-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--bg-dark); border: 1px solid var(--very-light);
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .author-name { font-size: 13px; font-weight: 700; }
+    .author-title { font-size: 11px; color: var(--light-gray); }
+
+    /* ===== PRICING ===== */
+    #pricing { background: var(--bg); }
+    .pricing-premium-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .pricing-premium-card {
+      border: 1px solid var(--very-light); padding: 48px 36px;
+      position: relative; overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .pricing-premium-card:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(0,0,0,0.08); }
+    .pricing-premium-card.featured {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px var(--gold);
+    }
+    .pricing-premium-card.featured::before {
+      content: 'おすすめ';
+      position: absolute; top: 0; left: 0; right: 0;
+      background: var(--gold); color: var(--charcoal);
+      font-size: 10px; font-weight: 700; letter-spacing: 2px;
+      text-align: center; padding: 8px;
+    }
+    .pricing-premium-card.featured { padding-top: 60px; }
+    .plan-name-serif {
+      font-family: var(--font-serif); font-size: 24px; font-weight: 400;
+      margin-bottom: 8px;
+    }
+    .plan-price-premium {
+      font-size: 44px; font-weight: 800; margin: 20px 0 8px;
+      color: var(--charcoal);
+    }
+    .plan-price-premium span { font-size: 15px; font-weight: 400; color: var(--mid-gray); }
+    .plan-price-note { font-size: 12px; color: var(--light-gray); margin-bottom: 32px; }
+    .divider-gold { height: 1px; background: linear-gradient(90deg, var(--gold-light), transparent); margin-bottom: 28px; }
+    .plan-features-premium { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
+    .plan-features-premium li { font-size: 13px; color: var(--dark-gray); display: flex; gap: 10px; align-items: flex-start; }
+    .plan-features-premium li .check { color: var(--gold); font-size: 14px; flex-shrink: 0; }
+    .plan-btn-premium {
+      width: 100%; padding: 16px;
+      background: var(--charcoal); color: var(--bg);
+      font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; border: 1px solid var(--charcoal); cursor: pointer;
+      transition: all 0.3s;
+    }
+    .plan-btn-premium:hover {
+      background: transparent; color: var(--charcoal);
+    }
+    .pricing-premium-card.featured .plan-btn-premium {
+      background: var(--gold); border-color: var(--gold); color: var(--charcoal);
+    }
+    .pricing-premium-card.featured .plan-btn-premium:hover {
+      background: var(--gold-dark); border-color: var(--gold-dark);
+    }
+
+    /* ===== FAQ ===== */
+    #faq { background: var(--bg-dark); }
+    .faq-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+    .faq-col h3 { font-family: var(--font-serif); font-size: 28px; margin-bottom: 36px; }
+    .faq-premium-item { margin-bottom: 32px; border-bottom: 1px solid var(--very-light); padding-bottom: 28px; }
+    .faq-premium-item:last-child { border-bottom: none; }
+    .faq-premium-q { font-size: 15px; font-weight: 700; margin-bottom: 10px; color: var(--charcoal); }
+    .faq-premium-a { font-size: 13px; color: var(--mid-gray); line-height: 1.8; }
+
+    /* ===== FOOTER ===== */
+    footer { background: var(--charcoal); color: rgba(245,240,232,0.6); padding: 80px 0 40px; }
+    .footer-premium-inner { max-width: 1200px; margin: 0 auto; padding: 0 48px; }
+    .footer-brand-area { text-align: center; margin-bottom: 64px; }
+    .footer-brand-name {
+      font-family: var(--font-serif); font-size: 28px; font-weight: 400;
+      color: #F5F0E8; letter-spacing: 4px; text-transform: uppercase;
+    }
+    .footer-brand-name em { color: var(--gold-light); font-style: normal; }
+    .footer-tagline {
+      font-size: 13px; color: rgba(245,240,232,0.4); margin-top: 8px;
+      letter-spacing: 2px; text-transform: uppercase;
+    }
+    .footer-divider { width: 80px; height: 1px; background: var(--gold); margin: 24px auto; }
+    .footer-links-row {
+      display: flex; justify-content: center; gap: 40px; margin-bottom: 48px;
+    }
+    .footer-links-row a { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; transition: color 0.2s; }
+    .footer-links-row a:hover { color: var(--gold-light); }
+    .footer-copy-area {
+      border-top: 1px solid rgba(245,240,232,0.1); padding-top: 32px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-copy { font-size: 11px; letter-spacing: 1px; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      #hero { grid-template-columns: 1fr; }
+      .hero-right { display: none; }
+      .solution-two-col { grid-template-columns: 1fr; }
+      .problem-3col { grid-template-columns: 1fr; gap: 24px; }
+      .features-4grid { grid-template-columns: 1fr; }
+      .pricing-premium-grid { grid-template-columns: 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .faq-cols { grid-template-columns: 1fr; }
+      .container { padding: 0 24px; }
+      .nav-links { display: none; }
+      .nav-inner { padding: 16px 24px; }
+      .hero-left { padding: 100px 36px 80px; }
+      .hero-social-proof { left: 36px; right: 36px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">Hikaru<em>Closet</em></div>
+    <div class="nav-links">
+      <a href="#problem">悩み</a>
+      <a href="#solution">解決策</a>
+      <a href="#features">機能</a>
+      <a href="#pricing">料金</a>
+    </div>
+    <button class="nav-cta">無料体験を開始</button>
+  </div>
+</nav>
+
+<!-- HERO — SPLIT SCREEN -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="hero-left-content">
+      <div class="eyebrow">AI PERSONAL STYLIST</div>
+      <h1 class="hero-tagline serif">
+        試着ゼロで、<br>
+        <em>毎日のコーデが<br>決まる。</em>
+      </h1>
+      <div class="hero-quote">
+        <p>クローゼットに服はある。でも毎朝「着るものがない」と感じている——そのジレンマを、AIが終わらせる。</p>
+      </div>
+      <div class="hero-cta-group">
+        <button class="btn-gold">14日間無料で試す</button>
+        <button class="btn-outline-light">サービスを詳しく見る</button>
+      </div>
+    </div>
+    <div class="hero-social-proof">
+      <div class="proof-item">
+        <div class="proof-num serif">32,000+</div>
+        <div class="proof-label">Active Users</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num serif">0.3秒</div>
+        <div class="proof-label">Response Time</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num serif">98%</div>
+        <div class="proof-label">Satisfaction</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-right-visual">
+      <div class="wardrobe-display">
+        <div class="wardrobe-item selected">
+          👗
+          <span class="wardrobe-label">DRESS</span>
+        </div>
+        <div class="wardrobe-item">
+          🧥
+          <span class="wardrobe-label">COAT</span>
+        </div>
+        <div class="wardrobe-item">
+          👔
+          <span class="wardrobe-label">SHIRT</span>
+        </div>
+        <div class="wardrobe-item">
+          👖
+          <span class="wardrobe-label">PANTS</span>
+        </div>
+      </div>
+      <div class="ai-suggestion-box">
+        <div class="ai-label">AI スタイリスト提案</div>
+        <div class="ai-text">「今日は14°Cで少し肌寒め。大事なミーティングがあるので、ネイビードレスにベージュのトレンチを合わせるのはいかがでしょう？」</div>
+        <div class="ai-meta">⚡ 0.31秒で生成 &nbsp;|&nbsp; 東京・晴れ 14°C</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem" class="section">
+  <div class="container">
+    <div class="section-header-centered">
+      <div class="eyebrow eyebrow-center">THE PROBLEM</div>
+      <h2 class="section-title-serif serif">毎朝23分を、<span class="gold">服選びに費やしている</span></h2>
+      <p class="section-subtitle">20〜40代女性の83%が感じる、クローゼットの前でのストレス</p>
+    </div>
+    <div class="problem-3col">
+      <div class="problem-item">
+        <div class="problem-icon-ring">⏰</div>
+        <div class="problem-num-serif serif">23分</div>
+        <h3 class="problem-item-title">毎朝の平均ロスタイム</h3>
+        <p class="problem-item-desc">年換算で約140時間。それだけの時間を、本当は自分のために使えるはずだった。</p>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon-ring">👚</div>
+        <div class="problem-num-serif serif">73%</div>
+        <h3 class="problem-item-title">「服はあるのに…」症候群</h3>
+        <p class="problem-item-desc">クローゼットが服で溢れているのに、コーデの組み合わせがわからず諦める経験。</p>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon-ring">😔</div>
+        <div class="problem-num-serif serif">毎日</div>
+        <h3 class="problem-item-title">自信を持てない朝</h3>
+        <p class="problem-item-desc">コーデに迷ったまま出かけると、一日中どこか落ち着かない。服装の自信が気分を左右する。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section id="solution" class="section">
+  <div class="container">
+    <div class="solution-two-col">
+      <div class="solution-image-side">
+        <div class="solution-frame">
+          <div class="eyebrow" style="margin-bottom:24px;">HOW IT WORKS</div>
+          <div class="steps-vertical">
+            <div class="step-premium">
+              <div class="step-num-circle">01</div>
+              <div>
+                <div class="step-premium-title">クローゼットをスキャン</div>
+                <div class="step-premium-desc">服を撮影するだけ。AIが自動分類・データベース化。142アイテムでも8分で完了。</div>
+              </div>
+            </div>
+            <div class="step-premium">
+              <div class="step-num-circle">02</div>
+              <div>
+                <div class="step-premium-title">コンテキストを自動取得</div>
+                <div class="step-premium-desc">天気・カレンダー・気分を読み取り、今日の最適コーデ条件をセット。</div>
+              </div>
+            </div>
+            <div class="step-premium">
+              <div class="step-num-circle">03</div>
+              <div>
+                <div class="step-premium-title">0.3秒でトップ3を提案</div>
+                <div class="step-premium-desc">AIが100万通りの組み合わせから最適解を瞬時に出力。毎日精度が上がる。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="solution-text-side">
+        <div class="eyebrow">THE SOLUTION</div>
+        <h2 class="section-title-serif serif">
+          AIが、あなた専属の<br>
+          <span class="gold">スタイリストになる。</span>
+        </h2>
+        <p class="section-subtitle" style="text-align:left; margin-top:20px; margin-bottom:36px;">
+          世界中のファッションデータと、あなた自身の好み・体型・ライフスタイルを学習した
+          パーソナルAIが、毎朝最適なコーデを提案します。使うほど賢くなる。
+        </p>
+        <button class="btn-gold">今すぐ無料で試す</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="section">
+  <div class="container">
+    <div class="section-header-centered" style="margin-bottom:60px;">
+      <div class="eyebrow eyebrow-center" style="color:var(--gold-light);">
+        <span style="color:var(--gold-light)">FEATURES</span>
+      </div>
+      <h2 class="section-title-serif serif" style="color:#F5F0E8;">洗練された<span style="color:var(--gold-light);">4つの機能</span></h2>
+      <p class="section-subtitle">スタイリングの常識を塗り替えるAI機能群</p>
+    </div>
+    <div class="features-4grid">
+      <div class="feature-premium-card">
+        <div class="feature-num-bg">01</div>
+        <div class="feature-category">Core AI</div>
+        <h3 class="feature-premium-title serif">AIスタイリング<br>エンジン</h3>
+        <p class="feature-premium-desc">ディープラーニングがあなたの好み・体型を学習。使えば使うほど精度が向上するパーソナルモデル。</p>
+      </div>
+      <div class="feature-premium-card">
+        <div class="feature-num-bg">02</div>
+        <div class="feature-category">Context Aware</div>
+        <h3 class="feature-premium-title serif">カレンダー&<br>天気連携</h3>
+        <p class="feature-premium-desc">今日の予定と気象条件を自動取得。「重要会議×雨」でもベストなコーデを瞬時に提案。</p>
+      </div>
+      <div class="feature-premium-card">
+        <div class="feature-num-bg">03</div>
+        <div class="feature-category">Closet Intel</div>
+        <h3 class="feature-premium-title serif">クローゼット<br>分析AI</h3>
+        <p class="feature-premium-desc">「着ていない服」「よく使うコンビ」を可視化。断捨離提案から足りないアイテム発見まで。</p>
+      </div>
+      <div class="feature-premium-card">
+        <div class="feature-num-bg">04</div>
+        <div class="feature-category">Shopping</div>
+        <h3 class="feature-premium-title serif">スマート<br>ショッピング提案</h3>
+        <p class="feature-premium-desc">クローゼットのギャップを分析し、あなたのスタイルに合う新アイテムを提案。無駄買いをゼロに。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" class="section">
+  <div class="container">
+    <div class="section-header-centered">
+      <div class="eyebrow eyebrow-center">TESTIMONIALS</div>
+      <h2 class="section-title-serif serif">ユーザーの声</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <p class="testimonial-text">朝の支度時間が23分から5分になりました。毎日のコーデに自信が持てるようになって、職場での評価まで変わった気がします。</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">👩</div>
+          <div>
+            <div class="author-name">田中美咲さん</div>
+            <div class="author-title">マーケター / 32歳</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">「服はあるのに着るものがない」をずっと感じていたのですが、AIがコーデを提案してくれるようになって解決しました。クローゼットの可視化が特に良かった。</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">👩‍💼</div>
+          <div>
+            <div class="author-name">山本陽子さん</div>
+            <div class="author-title">IT企業 / 28歳</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">天気とカレンダーを見てくれるのが最高です。今日のシーンに合ったコーデを提案してくれるから、考える必要がない。これは手放せない。</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">👩‍🎨</div>
+          <div>
+            <div class="author-name">鈴木リナさん</div>
+            <div class="author-title">フリーランス / 35歳</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="section">
+  <div class="container">
+    <div class="section-header-centered">
+      <div class="eyebrow eyebrow-center">PRICING</div>
+      <h2 class="section-title-serif serif">シンプルな<span class="gold">料金体系</span></h2>
+      <p class="section-subtitle">すべてのプランで14日間の無料トライアル付き。クレジットカード不要。</p>
+    </div>
+    <div class="pricing-premium-grid">
+      <div class="pricing-premium-card">
+        <div class="plan-name-serif serif">Free</div>
+        <div class="plan-price-premium">¥0<span>/月</span></div>
+        <div class="plan-price-note">まずは体験してみたい方へ</div>
+        <div class="divider-gold"></div>
+        <ul class="plan-features-premium">
+          <li><span class="check">✦</span>クローゼット登録 最大30アイテム</li>
+          <li><span class="check">✦</span>AIコーデ提案 1日3回</li>
+          <li><span class="check">✦</span>天気連携</li>
+          <li><span class="check">✦</span>基本スタイル分析</li>
+        </ul>
+        <button class="plan-btn-premium">無料で始める</button>
+      </div>
+      <div class="pricing-premium-card featured">
+        <div class="plan-name-serif serif">Premium</div>
+        <div class="plan-price-premium">¥980<span>/月</span></div>
+        <div class="plan-price-note">毎日使いたい方のフルパッケージ</div>
+        <div class="divider-gold"></div>
+        <ul class="plan-features-premium">
+          <li><span class="check">✦</span>クローゼット登録 無制限</li>
+          <li><span class="check">✦</span>AIコーデ提案 無制限</li>
+          <li><span class="check">✦</span>カレンダー・天気連携</li>
+          <li><span class="check">✦</span>パーソナルAI学習</li>
+          <li><span class="check">✦</span>週間コーデプランニング</li>
+          <li><span class="check">✦</span>ショッピング提案機能</li>
+        </ul>
+        <button class="plan-btn-premium">14日間無料で試す</button>
+      </div>
+      <div class="pricing-premium-card">
+        <div class="plan-name-serif serif">Brand Partner</div>
+        <div class="plan-price-premium" style="font-size:28px; line-height:1.3; margin-bottom:4px;">成果<br>報酬型</div>
+        <div class="plan-price-note">ブランド・アパレルEC向け</div>
+        <div class="divider-gold"></div>
+        <ul class="plan-features-premium">
+          <li><span class="check">✦</span>AIスタイリング内に自社商品表示</li>
+          <li><span class="check">✦</span>購買データ分析</li>
+          <li><span class="check">✦</span>ターゲティング配信</li>
+          <li><span class="check">✦</span>ROIトラッキング</li>
+          <li><span class="check">✦</span>専任サポート</li>
+        </ul>
+        <button class="plan-btn-premium">詳細を問い合わせる</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="section">
+  <div class="container">
+    <div class="section-header-centered">
+      <div class="eyebrow eyebrow-center">FAQ</div>
+      <h2 class="section-title-serif serif">よくある質問</h2>
+    </div>
+    <div class="faq-cols">
+      <div class="faq-col">
+        <div class="faq-premium-item">
+          <div class="faq-premium-q">AIは私の好みをどうやって学ぶの？</div>
+          <div class="faq-premium-a">日々の「使う/使わない」フィードバック、着用頻度、評価データから学習します。使えば使うほどあなた専用のモデルが進化します。</div>
+        </div>
+        <div class="faq-premium-item">
+          <div class="faq-premium-q">登録作業はどれくらいかかる？</div>
+          <div class="faq-premium-a">1アイテム約5秒で撮影するだけ。AIが自動でカテゴリ・色・素材・シーンを分類します。100アイテムでも約8分です。</div>
+        </div>
+        <div class="faq-premium-item">
+          <div class="faq-premium-q">オフラインでも使える？</div>
+          <div class="faq-premium-a">基本的なコーデ参照はオフライン対応。AIリアルタイム提案にはインターネット接続が必要です。</div>
+        </div>
+      </div>
+      <div class="faq-col">
+        <div class="faq-premium-item">
+          <div class="faq-premium-q">プライバシーは安全？</div>
+          <div class="faq-premium-a">全データは暗号化して保管。第三者への提供は一切ありません。いつでも完全削除可能です。</div>
+        </div>
+        <div class="faq-premium-item">
+          <div class="faq-premium-q">iOSとAndroid両方使える？</div>
+          <div class="faq-premium-a">iOS 15以上・Android 10以上に対応。同じアカウントで複数端末を利用できます。</div>
+        </div>
+        <div class="faq-premium-item">
+          <div class="faq-premium-q">いつでも解約できる？</div>
+          <div class="faq-premium-a">いつでも解約可能。次回更新日まで利用でき、違約金は一切ありません。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-premium-inner">
+    <div class="footer-brand-area">
+      <div class="footer-brand-name serif">Hikaru<em>Closet</em></div>
+      <div class="footer-tagline">AI Personal Stylist — Since 2026</div>
+      <div class="footer-divider"></div>
+    </div>
+    <div class="footer-links-row">
+      <a href="#">機能</a>
+      <a href="#">料金</a>
+      <a href="#">会社概要</a>
+      <a href="#">ブログ</a>
+      <a href="#">採用</a>
+      <a href="#">お問い合わせ</a>
+    </div>
+    <div class="footer-copy-area">
+      <div class="footer-copy">© 2026 Hikaru Closet, Inc. All rights reserved.</div>
+      <div style="display:flex;gap:24px;">
+        <a href="#" style="font-size:11px;letter-spacing:1px;">プライバシーポリシー</a>
+        <a href="#" style="font-size:11px;letter-spacing:1px;">利用規約</a>
+        <a href="#" style="font-size:11px;letter-spacing:1px;">特定商取引法</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

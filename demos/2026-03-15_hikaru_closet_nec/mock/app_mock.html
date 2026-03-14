@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ひかるクローゼット - モックアプリ</title>
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+    padding: 20px;
+  }
+
+  /* ===== iPhone Frame ===== */
+  .iphone-frame {
+    width: 393px;
+    height: 852px;
+    background: #1a1a1a;
+    border-radius: 55px;
+    position: relative;
+    box-shadow:
+      0 0 0 2px #3a3a3a,
+      0 0 0 4px #1a1a1a,
+      0 30px 80px rgba(0,0,0,0.5),
+      inset 0 0 0 2px #2a2a2a;
+    overflow: hidden;
+  }
+
+  /* Side buttons */
+  .iphone-frame::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 140px;
+    width: 4px;
+    height: 36px;
+    background: #2a2a2a;
+    border-radius: 2px 0 0 2px;
+    box-shadow: 0 50px 0 #2a2a2a, 0 100px 0 #2a2a2a;
+  }
+  .iphone-frame::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 180px;
+    width: 4px;
+    height: 80px;
+    background: #2a2a2a;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ===== Screen ===== */
+  .screen {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+    background: #f8f9fa;
+    border-radius: 50px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== Dynamic Island ===== */
+  .dynamic-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 34px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 12px;
+    gap: 6px;
+  }
+  .dynamic-island .camera {
+    width: 12px;
+    height: 12px;
+    background: #1a1a2e;
+    border-radius: 50%;
+    border: 2px solid #2a2a4a;
+    position: relative;
+  }
+  .dynamic-island .camera::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #0F1ED2;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.6;
+  }
+  .dynamic-island .mic {
+    width: 8px;
+    height: 8px;
+    background: #1a1a2e;
+    border-radius: 50%;
+  }
+
+  /* ===== Status Bar ===== */
+  .status-bar {
+    height: 54px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 8px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+    background: transparent;
+  }
+  .status-time {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111;
+    letter-spacing: -0.5px;
+  }
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-icons svg {
+    fill: #111;
+  }
+
+  /* ===== App Header ===== */
+  .app-header {
+    background: #fff;
+    padding: 14px 20px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  }
+  .app-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .app-logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #0F1ED2, #4A5AE8);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #fff;
+  }
+  .app-logo-text {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0F1ED2;
+    letter-spacing: -0.5px;
+  }
+  .header-avatar {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, #0F1ED2, #8899FF);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  /* ===== Content Area ===== */
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .content-area::-webkit-scrollbar { display: none; }
+
+  /* ===== Tab Bar ===== */
+  .tab-bar {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid #e8e8e8;
+    display: flex;
+    height: 80px;
+    flex-shrink: 0;
+    padding-bottom: 14px;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    padding-top: 8px;
+    transition: all 0.2s;
+    border: none;
+    background: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab-item .tab-icon {
+    font-size: 22px;
+    line-height: 1;
+    transition: transform 0.2s;
+  }
+  .tab-item .tab-label {
+    font-size: 10px;
+    color: #999;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  .tab-item.active .tab-icon {
+    transform: scale(1.1);
+  }
+  .tab-item.active .tab-label {
+    color: #0F1ED2;
+    font-weight: 700;
+  }
+  .tab-icon-wrap {
+    position: relative;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tab-item.active .tab-icon-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: #0F1ED2;
+    border-radius: 50%;
+  }
+
+  /* ===== Screen Panels ===== */
+  .screen-panel {
+    display: none;
+    padding: 0;
+    min-height: 100%;
+  }
+  .screen-panel.active { display: block; }
+
+  /* ===== Accent Colors ===== */
+  :root {
+    --nec-blue: #0F1ED2;
+    --nec-blue-light: #4A5AE8;
+    --nec-blue-pale: #E8EAFE;
+    --nec-blue-mid: #C5CAFC;
+  }
+
+  /* ===== HOME SCREEN ===== */
+  .home-banner {
+    background: linear-gradient(135deg, #0F1ED2 0%, #2A3AE8 60%, #4A5AFF 100%);
+    padding: 20px 20px 28px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .home-banner::before {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: -30px;
+    width: 150px;
+    height: 150px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+  .home-banner::after {
+    content: '';
+    position: absolute;
+    right: 30px;
+    bottom: -40px;
+    width: 100px;
+    height: 100px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+  .banner-greeting {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .banner-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+  }
+  .banner-subtitle {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 14px;
+  }
+  .banner-weather {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.15);
+    display: inline-flex;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 10px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111;
+    letter-spacing: -0.3px;
+  }
+  .section-link {
+    font-size: 12px;
+    color: #0F1ED2;
+    font-weight: 600;
+  }
+  .coord-cards {
+    padding: 0 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .coord-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    border: 1px solid #f0f0f0;
+  }
+  .coord-card-inner {
+    display: flex;
+    align-items: stretch;
+  }
+  .coord-color-bar {
+    width: 6px;
+    flex-shrink: 0;
+  }
+  .coord-content {
+    flex: 1;
+    padding: 14px 14px 14px 12px;
+  }
+  .coord-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+  .coord-tag.recommend {
+    background: #E8EAFE;
+    color: #0F1ED2;
+  }
+  .coord-tag.casual {
+    background: #FFF3E0;
+    color: #E65100;
+  }
+  .coord-tag.formal {
+    background: #E8F5E9;
+    color: #2E7D32;
+  }
+  .coord-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+  }
+  .coord-items {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .coord-clothes {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .cloth-chip {
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 19px;
+    line-height: 1;
+  }
+  .coord-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .score-bar {
+    flex: 1;
+    height: 4px;
+    background: #eee;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0F1ED2, #4A5AE8);
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+  .score-label {
+    font-size: 11px;
+    color: #0F1ED2;
+    font-weight: 700;
+    min-width: 30px;
+  }
+  .coord-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .btn-small {
+    flex: 1;
+    padding: 8px;
+    border-radius: 10px;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-small.primary {
+    background: #0F1ED2;
+    color: #fff;
+  }
+  .btn-small.secondary {
+    background: #f0f2ff;
+    color: #0F1ED2;
+  }
+  .ai-hint-card {
+    margin: 0 20px 20px;
+    background: linear-gradient(135deg, #E8EAFE, #f0f2ff);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #C5CAFC;
+  }
+  .ai-hint-icon {
+    width: 40px;
+    height: 40px;
+    background: #0F1ED2;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .ai-hint-text { font-size: 12px; color: #333; line-height: 1.5; }
+  .ai-hint-text strong { color: #0F1ED2; font-weight: 700; }
+
+  /* ===== CLOSET SCREEN ===== */
+  .closet-filter {
+    background: #fff;
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .closet-filter::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    white-space: nowrap;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1.5px solid #e0e0e0;
+    background: #fff;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .filter-chip.active {
+    background: #0F1ED2;
+    border-color: #0F1ED2;
+    color: #fff;
+  }
+  .closet-stats {
+    display: flex;
+    padding: 12px 20px;
+    gap: 1px;
+    background: #f5f5f5;
+  }
+  .stat-item {
+    flex: 1;
+    background: #fff;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .stat-item:first-child { border-radius: 12px 0 0 12px; }
+  .stat-item:last-child { border-radius: 0 12px 12px 0; }
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0F1ED2;
+    letter-spacing: -1px;
+    display: block;
+  }
+  .stat-label { font-size: 10px; color: #999; font-weight: 500; }
+  .closet-grid {
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+  .cloth-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    border: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .cloth-card:active { transform: scale(0.96); }
+  .cloth-img {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    background: #f8f9fa;
+  }
+  .cloth-info {
+    padding: 6px 8px 8px;
+  }
+  .cloth-brand {
+    font-size: 9px;
+    color: #0F1ED2;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .cloth-name {
+    font-size: 11px;
+    color: #333;
+    font-weight: 600;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cloth-tag-row {
+    margin-top: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+  .micro-tag {
+    font-size: 9px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: #E8EAFE;
+    color: #0F1ED2;
+    font-weight: 600;
+  }
+  .add-cloth-btn {
+    margin: 0 16px 20px;
+    width: calc(100% - 32px);
+    padding: 14px;
+    background: linear-gradient(135deg, #0F1ED2, #2A3AE8);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(15,30,210,0.3);
+  }
+
+  /* ===== AI SCREEN ===== */
+  .ai-header {
+    background: linear-gradient(135deg, #0F1ED2 0%, #2A3AE8 100%);
+    padding: 16px 20px 20px;
+    color: #fff;
+    text-align: center;
+  }
+  .ai-avatar {
+    width: 56px;
+    height: 56px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 18px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+  .ai-name { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
+  .ai-desc { font-size: 12px; opacity: 0.8; }
+  .ai-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    font-size: 11px;
+    opacity: 0.9;
+  }
+  .online-dot {
+    width: 6px;
+    height: 6px;
+    background: #4AFF91;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #4AFF91;
+  }
+  .chat-area {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #f8f9fa;
+    min-height: 300px;
+  }
+  .chat-bubble-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .chat-bubble-wrap.user { flex-direction: row-reverse; }
+  .chat-ai-icon {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #0F1ED2, #4A5AE8);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .chat-bubble {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #111;
+  }
+  .chat-bubble.ai {
+    background: #fff;
+    border-radius: 4px 16px 16px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .chat-bubble.user {
+    background: #0F1ED2;
+    color: #fff;
+    border-radius: 16px 4px 16px 16px;
+  }
+  .chat-bubble-time {
+    font-size: 10px;
+    color: #bbb;
+    text-align: center;
+    padding: 4px 0;
+  }
+  .coord-preview-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-top: 4px;
+  }
+  .coord-preview-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0F1ED2;
+    margin-bottom: 8px;
+  }
+  .coord-preview-items {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .coord-preview-item {
+    flex: 1;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 8px;
+    text-align: center;
+  }
+  .coord-preview-item .emoji { font-size: 24px; display: block; margin-bottom: 4px; }
+  .coord-preview-item .label { font-size: 10px; color: #666; }
+  .coord-try-btn {
+    width: 100%;
+    padding: 10px;
+    background: #0F1ED2;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .quick-questions {
+    padding: 10px 16px 12px;
+    background: #f8f9fa;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-top: 1px solid #eee;
+  }
+  .quick-questions::-webkit-scrollbar { display: none; }
+  .quick-chip {
+    white-space: nowrap;
+    padding: 7px 12px;
+    border-radius: 20px;
+    border: 1.5px solid #0F1ED2;
+    background: #E8EAFE;
+    color: #0F1ED2;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .chat-input-area {
+    background: #fff;
+    border-top: 1px solid #eee;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .chat-input {
+    flex: 1;
+    background: #f5f6fa;
+    border: 1.5px solid #e8eafe;
+    border-radius: 20px;
+    padding: 10px 14px;
+    font-size: 13px;
+    outline: none;
+    color: #111;
+    font-family: inherit;
+  }
+  .chat-send-btn {
+    width: 38px;
+    height: 38px;
+    background: #0F1ED2;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* ===== VTRYON SCREEN ===== */
+  .vtryon-header {
+    background: #fff;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .vtryon-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 2px;
+    letter-spacing: -0.3px;
+  }
+  .vtryon-subtitle { font-size: 12px; color: #999; }
+  .vtryon-viewer {
+    margin: 14px 16px;
+    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 3/4;
+    box-shadow: 0 8px 32px rgba(15,30,210,0.25);
+  }
+  .vtryon-grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(15,30,210,0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15,30,210,0.15) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .vtryon-avatar {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .avatar-figure {
+    font-size: 80px;
+    line-height: 1;
+    display: block;
+    filter: drop-shadow(0 0 20px rgba(15,30,210,0.5));
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .avatar-clothes-overlay {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    border-radius: 14px;
+    padding: 8px 14px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .overlay-item {
+    text-align: center;
+  }
+  .overlay-emoji { font-size: 20px; display: block; }
+  .overlay-label { font-size: 9px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+  .viewer-controls {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .viewer-ctrl-btn {
+    width: 34px;
+    height: 34px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    color: #fff;
+  }
+  .vtryon-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: linear-gradient(135deg, #0F1ED2, #4A5AE8);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+  .vtryon-select-section {
+    padding: 0 16px 14px;
+  }
+  .vtryon-section-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  .vtryon-clothes-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .vtryon-clothes-scroll::-webkit-scrollbar { display: none; }
+  .vtryon-cloth-item {
+    flex-shrink: 0;
+    width: 68px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .vtryon-cloth-emoji {
+    width: 60px;
+    height: 60px;
+    background: #f0f2ff;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    margin-bottom: 4px;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .vtryon-cloth-item.selected .vtryon-cloth-emoji {
+    border-color: #0F1ED2;
+    background: #E8EAFE;
+  }
+  .vtryon-cloth-label {
+    font-size: 10px;
+    color: #666;
+    font-weight: 500;
+  }
+  .vtryon-actions {
+    padding: 10px 16px 16px;
+    display: flex;
+    gap: 10px;
+  }
+  .vtryon-btn {
+    flex: 1;
+    padding: 13px;
+    border-radius: 14px;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .vtryon-btn.primary {
+    background: linear-gradient(135deg, #0F1ED2, #2A3AE8);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(15,30,210,0.3);
+  }
+  .vtryon-btn.secondary {
+    background: #f0f2ff;
+    color: #0F1ED2;
+  }
+
+  /* ===== SETTINGS SCREEN ===== */
+  .settings-profile {
+    background: linear-gradient(135deg, #0F1ED2, #2A3AE8);
+    padding: 24px 20px;
+    text-align: center;
+    color: #fff;
+  }
+  .profile-avatar-large {
+    width: 72px;
+    height: 72px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 24px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    border: 3px solid rgba(255,255,255,0.3);
+  }
+  .profile-name { font-size: 20px; font-weight: 800; margin-bottom: 2px; }
+  .profile-email { font-size: 12px; opacity: 0.7; }
+  .profile-edit-btn {
+    margin-top: 12px;
+    display: inline-block;
+    padding: 7px 20px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.3);
+    cursor: pointer;
+    color: #fff;
+  }
+  .settings-section {
+    background: #f5f6fa;
+    padding: 14px 20px 6px;
+  }
+  .settings-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .settings-card {
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .settings-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    gap: 12px;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+  }
+  .settings-item:last-child { border-bottom: none; }
+  .settings-item-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .settings-item-info { flex: 1; }
+  .settings-item-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 2px;
+  }
+  .settings-item-value { font-size: 12px; color: #999; }
+  .settings-arrow { color: #ccc; font-size: 14px; }
+  .body-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 14px 16px;
+  }
+  .body-info-item {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 10px 12px;
+    border: 1.5px solid #eee;
+  }
+  .body-info-label { font-size: 11px; color: #999; margin-bottom: 4px; font-weight: 500; }
+  .body-info-value { font-size: 16px; font-weight: 800; color: #0F1ED2; }
+  .body-info-unit { font-size: 11px; color: #999; font-weight: 400; }
+  .taste-tags {
+    padding: 12px 16px 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .taste-tag {
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 2px solid #E8EAFE;
+    background: #f0f2ff;
+    color: #0F1ED2;
+    cursor: pointer;
+  }
+  .taste-tag.selected {
+    background: #0F1ED2;
+    border-color: #0F1ED2;
+    color: #fff;
+  }
+
+  /* ===== Scrollbar hiding global ===== */
+  * { scrollbar-width: none; }
+  *::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+
+<div class="iphone-frame">
+  <div class="screen">
+    <!-- Dynamic Island -->
+    <div class="dynamic-island">
+      <div class="mic"></div>
+      <div class="camera"></div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons">
+        <svg width="16" height="12" viewBox="0 0 16 12">
+          <rect x="0" y="3" width="3" height="9" rx="1"/>
+          <rect x="4.5" y="2" width="3" height="10" rx="1"/>
+          <rect x="9" y="0" width="3" height="12" rx="1"/>
+          <rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.3"/>
+        </svg>
+        <svg width="16" height="12" viewBox="0 0 16 12">
+          <path d="M8 2.5a7.5 7.5 0 0 1 7.5 7.5H13a5 5 0 0 0-10 0H.5A7.5 7.5 0 0 1 8 2.5z"/>
+          <path d="M8 5.5a4.5 4.5 0 0 1 4.5 4.5h-2A2.5 2.5 0 0 0 8 7.5a2.5 2.5 0 0 0-2.5 2.5h-2A4.5 4.5 0 0 1 8 5.5z"/>
+          <circle cx="8" cy="11" r="1.5"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12">
+          <rect x="0" y="1" width="22" height="10" rx="3" stroke="#111" stroke-width="1.2" fill="none"/>
+          <rect x="1.5" y="2.5" width="16" height="7" rx="1.5" fill="#111"/>
+          <path d="M23 4.5v3a1.5 1.5 0 0 0 0-3z" fill="#111"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- App Header -->
+    <div class="app-header">
+      <div class="app-logo">
+        <div class="app-logo-icon">👗</div>
+        <span class="app-logo-text">ひかるクローゼット</span>
+      </div>
+      <div class="header-avatar">H</div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+
+      <!-- HOME SCREEN -->
+      <div id="panel-home" class="screen-panel active">
+        <div class="home-banner">
+          <div class="banner-greeting">おはよう、ひかるさん 👋</div>
+          <div class="banner-title">今日のコーデ提案</div>
+          <div class="banner-subtitle">AIが3つのスタイルを準備しました</div>
+          <div class="banner-weather">🌤 東京 22°C・少し風あり</div>
+        </div>
+
+        <div class="section-header">
+          <span class="section-title">🎯 おすすめコーデ</span>
+          <span class="section-link">すべて見る</span>
+        </div>
+
+        <div class="coord-cards">
+          <!-- Card 1 -->
+          <div class="coord-card">
+            <div class="coord-card-inner">
+              <div class="coord-color-bar" style="background: linear-gradient(180deg, #0F1ED2, #4A5AE8);"></div>
+              <div class="coord-content">
+                <div class="coord-tag recommend">✨ 今日の1番推し</div>
+                <div class="coord-name">ビジネスカジュアル</div>
+                <div class="coord-clothes">
+                  <div class="cloth-chip">👔</div>
+                  <div class="cloth-chip">👖</div>
+                  <div class="cloth-chip">👞</div>
+                  <div class="cloth-chip">🧥</div>
+                </div>
+                <div class="coord-items">ネイビーシャツ × チノパン × スエードローファー</div>
+                <div class="coord-score">
+                  <div class="score-bar"><div class="score-fill" style="width:92%"></div></div>
+                  <span class="score-label">92%</span>
+                </div>
+                <div class="coord-actions">
+                  <button class="btn-small primary">試着してみる</button>
+                  <button class="btn-small secondary">保存</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="coord-card">
+            <div class="coord-card-inner">
+              <div class="coord-color-bar" style="background: linear-gradient(180deg, #FF7043, #FFA726);"></div>
+              <div class="coord-content">
+                <div class="coord-tag casual">🌿 カジュアル</div>
+                <div class="coord-name">休日リラックス</div>
+                <div class="coord-clothes">
+                  <div class="cloth-chip">👕</div>
+                  <div class="cloth-chip">🩳</div>
+                  <div class="cloth-chip">👟</div>
+                </div>
+                <div class="coord-items">ホワイトT × バミューダ × スニーカー</div>
+                <div class="coord-score">
+                  <div class="score-bar"><div class="score-fill" style="width:85%"></div></div>
+                  <span class="score-label">85%</span>
+                </div>
+                <div class="coord-actions">
+                  <button class="btn-small primary">試着してみる</button>
+                  <button class="btn-small secondary">保存</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="coord-card">
+            <div class="coord-card-inner">
+              <div class="coord-color-bar" style="background: linear-gradient(180deg, #2E7D32, #66BB6A);"></div>
+              <div class="coord-content">
+                <div class="coord-tag formal">💼 フォーマル</div>
+                <div class="coord-name">大事な会議に</div>
+                <div class="coord-clothes">
+                  <div class="cloth-chip">👔</div>
+                  <div class="cloth-chip">🎽</div>
+                  <div class="cloth-chip">👔</div>
+                  <div class="cloth-chip">👞</div>
+                </div>
+                <div class="coord-items">スーツジャケット × スラックス × ドレスシューズ</div>
+                <div class="coord-score">
+                  <div class="score-bar"><div class="score-fill" style="width:88%"></div></div>
+                  <span class="score-label">88%</span>
+                </div>
+                <div class="coord-actions">
+                  <button class="btn-small primary">試着してみる</button>
+                  <button class="btn-small secondary">保存</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-hint-card">
+          <div class="ai-hint-icon">🤖</div>
+          <div class="ai-hint-text">
+            <strong>AIスタイリストより</strong><br>
+            今日は少し気温が高め。薄手のアウターが正解です。22°Cならジャケット1枚で快適に。
+          </div>
+        </div>
+      </div>
+
+      <!-- CLOSET SCREEN -->
+      <div id="panel-closet" class="screen-panel">
+        <div class="closet-filter">
+          <div class="filter-chip active">すべて</div>
+          <div class="filter-chip">トップス</div>
+          <div class="filter-chip">ボトムス</div>
+          <div class="filter-chip">アウター</div>
+          <div class="filter-chip">シューズ</div>
+          <div class="filter-chip">小物</div>
+        </div>
+        <div class="closet-stats">
+          <div class="stat-item">
+            <span class="stat-num">42</span>
+            <span class="stat-label">総アイテム</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">18</span>
+            <span class="stat-label">今月着用</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">7</span>
+            <span class="stat-label">お気に入り</span>
+          </div>
+        </div>
+        <div class="closet-grid">
+          <div class="cloth-card">
+            <div class="cloth-img">👔</div>
+            <div class="cloth-info">
+              <div class="cloth-brand">UNIQLO</div>
+              <div class="cloth-name">オックスシャツ</div>
+              <div class="cloth-tag-row"><span class="micro-tag">ネイビー</span><span class="micro-tag">M</span></div>
+            </div>
+          </div>
+          <div class="cloth-card">
+            <div class="cloth-img">👖</div>
+            <div class="cloth-info">
+              <div class="cloth-brand">BEAMS</div>
+              <div class="cloth-name">スリムチノ</div>
+              <div class="cloth-tag-row"><span class="micro-tag">カーキ</span><span class="micro-tag">30</span></div>
+            </div>
+          </div>
+          <div class="cloth-card">
+            <div class="cloth-img">👟</div>
+            <div class="cloth-info">
+              <div class="cloth-brand">NIKE</div>
+              <div class="cloth-name">エアマックス</div>
+              <div class="cloth-tag-row"><span class="micro-tag">白</span><span class="micro-tag">26.5</span></div>
+            </div>
+          </div>
+          <div class="cloth-card">
+            <div class="cloth-img">🧥</div>
+            <div class="cloth-info">
+              <div class="cloth-brand">ZARA</div>
+              <div class="cloth-name">テーラードJK</div>
+              <div class="cloth-tag-row"><span class="micro-tag">グレー</span><span class="micro-tag">M</span></div>
+            </div>
+          </div>
+          <div class="cloth-card">
+            <div class="cloth-img">👕</div>
+            <div class="cloth-info">
+              <div class="cloth-brand">GU</div>
+              <div class="cloth-name">Vネック</div>
+              <div class="cloth-tag-row"><span class="micro-tag">白</span><span class="micro-tag">M</span></div>
+            </div>
+          </div>
+          <div class="cloth-card">
+            <div class="cloth-img">🩳</div>
+            <div class="cloth-info">
+              <div class="cloth-brand">UNIQLO</div>
+              <div class="cloth-name">イージーショーツ</div>
+              <div class="cloth-tag-row"><span class="micro-tag">黒</span><span class="micro-tag">M</span></div>
+            </div>
+          </div>
+          <div class="cloth-card">
+            <div class="cloth-img">👞</div>
+            <div class="cloth-info">
+              <div class="cloth-brand">REGAL</div>
+              <div class="cloth-name">プレーントゥ</div>
+              <div class="cloth-tag-row"><span class="micro-tag">茶</span><span class="micro-tag">26</span></div>
+            </div>
+          </div>
+          <div class="cloth-card">
+            <div class="cloth-img">🧣</div>
+            <div class="cloth-info">
+              <div class="cloth-brand">COS</div>
+              <div class="cloth-name">ウールマフラー</div>
+              <div class="cloth-tag-row"><span class="micro-tag">ベージュ</span></div>
+            </div>
+          </div>
+          <div class="cloth-card">
+            <div class="cloth-img">👜</div>
+            <div class="cloth-info">
+              <div class="cloth-brand">PORTER</div>
+              <div class="cloth-name">トートバッグ</div>
+              <div class="cloth-tag-row"><span class="micro-tag">黒</span></div>
+            </div>
+          </div>
+        </div>
+        <button class="add-cloth-btn">
+          <span>＋</span> 服を追加する
+        </button>
+      </div>
+
+      <!-- AI SCREEN -->
+      <div id="panel-ai" class="screen-panel">
+        <div class="ai-header">
+          <div class="ai-avatar">🤖</div>
+          <div class="ai-name">AIスタイリスト「ミク」</div>
+          <div class="ai-desc">あなただけのファッションアドバイザー</div>
+          <div class="ai-online"><div class="online-dot"></div>オンライン中</div>
+        </div>
+
+        <div class="chat-area">
+          <div class="chat-bubble-time">今日 9:38</div>
+
+          <div class="chat-bubble-wrap">
+            <div class="chat-ai-icon">🤖</div>
+            <div class="chat-bubble ai">
+              おはようございます、ひかるさん！今日の天気に合ったコーデを考えました 🌤
+            </div>
+          </div>
+
+          <div class="chat-bubble-wrap">
+            <div class="chat-ai-icon">🤖</div>
+            <div>
+              <div class="chat-bubble ai">
+                今日は少し暑くなりそうですね。こちらのコーデはいかがでしょう？
+              </div>
+              <div class="coord-preview-card">
+                <div class="coord-preview-title">✨ 本日のおすすめ</div>
+                <div class="coord-preview-items">
+                  <div class="coord-preview-item">
+                    <span class="emoji">👔</span>
+                    <span class="label">ネイビーシャツ</span>
+                  </div>
+                  <div class="coord-preview-item">
+                    <span class="emoji">👖</span>
+                    <span class="label">チノパン</span>
+                  </div>
+                  <div class="coord-preview-item">
+                    <span class="emoji">👞</span>
+                    <span class="label">ローファー</span>
+                  </div>
+                </div>
+                <button class="coord-try-btn">バーチャル試着してみる</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-bubble-wrap user">
+            <div class="chat-bubble user">
+              もう少しカジュアルにしたい！
+            </div>
+          </div>
+
+          <div class="chat-bubble-wrap">
+            <div class="chat-ai-icon">🤖</div>
+            <div class="chat-bubble ai">
+              了解です！シャツをホワイトTに替えて、シューズをスニーカーにするとグッとカジュアルになりますよ 👟 クローゼットにNIKEのエアマックスがありますね！
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-questions">
+          <div class="quick-chip">🌧 雨の日コーデ</div>
+          <div class="quick-chip">💼 デートに最適</div>
+          <div class="quick-chip">🎉 パーティー向け</div>
+          <div class="quick-chip">🏃 スポーティー</div>
+          <div class="quick-chip">❄️ 寒い日対応</div>
+        </div>
+
+        <div class="chat-input-area">
+          <input class="chat-input" type="text" placeholder="ミクに相談する...">
+          <button class="chat-send-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M22 2L11 13" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- VIRTUAL TRYON SCREEN -->
+      <div id="panel-vtryon" class="screen-panel">
+        <div class="vtryon-header">
+          <div class="vtryon-title">バーチャル試着</div>
+          <div class="vtryon-subtitle">AIが選んだコーデを3Dで確認しよう</div>
+        </div>
+
+        <div class="vtryon-viewer">
+          <div class="vtryon-grid-lines"></div>
+          <div class="vtryon-badge">🔮 AI 3D View</div>
+          <div class="vtryon-avatar">
+            <span class="avatar-figure">🧍</span>
+          </div>
+          <div class="avatar-clothes-overlay">
+            <div class="overlay-item">
+              <span class="overlay-emoji">👔</span>
+              <span class="overlay-label">シャツ</span>
+            </div>
+            <div class="overlay-item">
+              <span class="overlay-emoji">👖</span>
+              <span class="overlay-label">パンツ</span>
+            </div>
+            <div class="overlay-item">
+              <span class="overlay-emoji">👞</span>
+              <span class="overlay-label">シューズ</span>
+            </div>
+          </div>
+          <div class="viewer-controls">
+            <div class="viewer-ctrl-btn">↻</div>
+            <div class="viewer-ctrl-btn">＋</div>
+            <div class="viewer-ctrl-btn">－</div>
+            <div class="viewer-ctrl-btn">⬛</div>
+          </div>
+        </div>
+
+        <div class="vtryon-select-section">
+          <div class="vtryon-section-label">トップスを選ぶ</div>
+          <div class="vtryon-clothes-scroll">
+            <div class="vtryon-cloth-item selected">
+              <div class="vtryon-cloth-emoji">👔</div>
+              <div class="vtryon-cloth-label">ネイビーシャツ</div>
+            </div>
+            <div class="vtryon-cloth-item">
+              <div class="vtryon-cloth-emoji">👕</div>
+              <div class="vtryon-cloth-label">ホワイトT</div>
+            </div>
+            <div class="vtryon-cloth-item">
+              <div class="vtryon-cloth-emoji">🎽</div>
+              <div class="vtryon-cloth-label">ポロシャツ</div>
+            </div>
+            <div class="vtryon-cloth-item">
+              <div class="vtryon-cloth-emoji">🧶</div>
+              <div class="vtryon-cloth-label">ニット</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vtryon-select-section">
+          <div class="vtryon-section-label">ボトムスを選ぶ</div>
+          <div class="vtryon-clothes-scroll">
+            <div class="vtryon-cloth-item selected">
+              <div class="vtryon-cloth-emoji">👖</div>
+              <div class="vtryon-cloth-label">チノパン</div>
+            </div>
+            <div class="vtryon-cloth-item">
+              <div class="vtryon-cloth-emoji">🩳</div>
+              <div class="vtryon-cloth-label">ショーツ</div>
+            </div>
+            <div class="vtryon-cloth-item">
+              <div class="vtryon-cloth-emoji">👔</div>
+              <div class="vtryon-cloth-label">スラックス</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vtryon-actions">
+          <button class="vtryon-btn secondary">💾 保存</button>
+          <button class="vtryon-btn primary">📸 スクリーンショット</button>
+        </div>
+      </div>
+
+      <!-- SETTINGS SCREEN -->
+      <div id="panel-settings" class="screen-panel">
+        <div class="settings-profile">
+          <div class="profile-avatar-large">👩</div>
+          <div class="profile-name">ひかる</div>
+          <div class="profile-email">hikaru@example.com</div>
+          <button class="profile-edit-btn">プロフィールを編集</button>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">体型情報</div>
+          <div class="settings-card">
+            <div class="body-info-grid">
+              <div class="body-info-item">
+                <div class="body-info-label">身長</div>
+                <div class="body-info-value">163 <span class="body-info-unit">cm</span></div>
+              </div>
+              <div class="body-info-item">
+                <div class="body-info-label">体重</div>
+                <div class="body-info-value">52 <span class="body-info-unit">kg</span></div>
+              </div>
+              <div class="body-info-item">
+                <div class="body-info-label">バスト</div>
+                <div class="body-info-value">83 <span class="body-info-unit">cm</span></div>
+              </div>
+              <div class="body-info-item">
+                <div class="body-info-label">ウエスト</div>
+                <div class="body-info-value">61 <span class="body-info-unit">cm</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">好みタグ</div>
+          <div class="settings-card">
+            <div class="taste-tags">
+              <div class="taste-tag selected">カジュアル</div>
+              <div class="taste-tag selected">ミニマル</div>
+              <div class="taste-tag">ストリート</div>
+              <div class="taste-tag selected">フェミニン</div>
+              <div class="taste-tag">スポーティー</div>
+              <div class="taste-tag">モノトーン</div>
+              <div class="taste-tag selected">ナチュラル</div>
+              <div class="taste-tag">クール</div>
+              <div class="taste-tag">トラッド</div>
+              <div class="taste-tag selected">フレンチ</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">設定</div>
+          <div class="settings-card">
+            <div class="settings-item">
+              <div class="settings-item-icon" style="background:#E8EAFE;">🔔</div>
+              <div class="settings-item-info">
+                <div class="settings-item-label">通知設定</div>
+                <div class="settings-item-value">毎朝8:00にコーデ提案</div>
+              </div>
+              <div class="settings-arrow">›</div>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-icon" style="background:#FFF3E0;">🌤</div>
+              <div class="settings-item-info">
+                <div class="settings-item-label">天気連携</div>
+                <div class="settings-item-value">東京・自動更新中</div>
+              </div>
+              <div class="settings-arrow">›</div>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-icon" style="background:#E8F5E9;">🔗</div>
+              <div class="settings-item-info">
+                <div class="settings-item-label">ECサイト連携</div>
+                <div class="settings-item-value">ZOZOTOWN, Rakuten</div>
+              </div>
+              <div class="settings-arrow">›</div>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-icon" style="background:#FCE4EC;">🔒</div>
+              <div class="settings-item-info">
+                <div class="settings-item-label">プライバシー</div>
+                <div class="settings-item-value">データ管理・削除</div>
+              </div>
+              <div class="settings-arrow">›</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center; padding: 20px; color: #0F1ED2; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">
+          ひかるクローゼット v1.0.0<br>
+          <span style="color:#ccc; font-weight:400;">Powered by NEC × AI</span>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab-item active" onclick="switchTab('home', this)">
+        <div class="tab-icon-wrap">
+          <span class="tab-icon">🏠</span>
+        </div>
+        <span class="tab-label">ホーム</span>
+      </button>
+      <button class="tab-item" onclick="switchTab('closet', this)">
+        <div class="tab-icon-wrap">
+          <span class="tab-icon">👗</span>
+        </div>
+        <span class="tab-label">クローゼット</span>
+      </button>
+      <button class="tab-item" onclick="switchTab('ai', this)">
+        <div class="tab-icon-wrap">
+          <span class="tab-icon">🤖</span>
+        </div>
+        <span class="tab-label">AI提案</span>
+      </button>
+      <button class="tab-item" onclick="switchTab('vtryon', this)">
+        <div class="tab-icon-wrap">
+          <span class="tab-icon">🪄</span>
+        </div>
+        <span class="tab-label">試着</span>
+      </button>
+      <button class="tab-item" onclick="switchTab('settings', this)">
+        <div class="tab-icon-wrap">
+          <span class="tab-icon">⚙️</span>
+        </div>
+        <span class="tab-label">設定</span>
+      </button>
+    </div>
+  </div><!-- /screen -->
+</div><!-- /iphone-frame -->
+
+<script>
+function switchTab(tab, el) {
+  // Remove active from all panels
+  document.querySelectorAll('.screen-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+
+  // Activate target
+  document.getElementById('panel-' + tab).classList.add('active');
+  el.classList.add('active');
+
+  // Scroll content area to top
+  document.querySelector('.content-area').scrollTop = 0;
+}
+
+// Closet filter chip interactivity
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', function() {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Virtual try-on cloth selection
+document.querySelectorAll('.vtryon-cloth-item').forEach(item => {
+  item.addEventListener('click', function() {
+    const row = this.closest('.vtryon-clothes-scroll');
+    row.querySelectorAll('.vtryon-cloth-item').forEach(i => i.classList.remove('selected'));
+    this.classList.add('selected');
+  });
+});
+
+// Taste tag toggle
+document.querySelectorAll('.taste-tag').forEach(tag => {
+  tag.addEventListener('click', function() {
+    this.classList.toggle('selected');
+  });
+});
+</script>
+</body>
+</html>
