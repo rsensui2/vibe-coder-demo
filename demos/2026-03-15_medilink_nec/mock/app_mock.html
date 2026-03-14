@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediLink - 病院間電子カルテAI要約</title>
+  <style>
+    /* ============================================
+       RESET & BASE
+    ============================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(135deg, #e8eef7 0%, #d0ddf0 50%, #c5d3ec 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', 'Segoe UI', sans-serif;
+      padding: 40px 20px;
+    }
+
+    /* ============================================
+       DEMO WRAPPER
+    ============================================ */
+    .demo-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .demo-title {
+      text-align: center;
+      color: #0F1ED2;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .demo-subtitle {
+      text-align: center;
+      color: #555;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    /* ============================================
+       IPHONE FRAME
+    ============================================ */
+    .iphone-frame {
+      position: relative;
+      width: 375px;
+      height: 812px;
+      background: #1a1a1a;
+      border-radius: 54px;
+      box-shadow:
+        inset 0 0 0 2px #3a3a3a,
+        0 30px 80px rgba(0, 0, 0, 0.35),
+        0 10px 30px rgba(0, 0, 0, 0.2);
+      padding: 10px;
+    }
+
+    /* Side buttons */
+    .iphone-frame::before {
+      content: '';
+      position: absolute;
+      left: -3px;
+      top: 140px;
+      width: 3px;
+      height: 36px;
+      background: #2a2a2a;
+      border-radius: 2px 0 0 2px;
+      box-shadow: 0 50px 0 #2a2a2a, 0 100px 0 #2a2a2a;
+    }
+
+    .iphone-frame::after {
+      content: '';
+      position: absolute;
+      right: -3px;
+      top: 180px;
+      width: 3px;
+      height: 60px;
+      background: #2a2a2a;
+      border-radius: 0 2px 2px 0;
+    }
+
+    /* Inner screen bezel */
+    .iphone-screen {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      border-radius: 46px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ============================================
+       DYNAMIC ISLAND
+    ============================================ */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 34px;
+      background: #1a1a1a;
+      border-radius: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .dynamic-island .camera {
+      width: 10px;
+      height: 10px;
+      background: #2a2a2a;
+      border-radius: 50%;
+      border: 1px solid #333;
+    }
+
+    .dynamic-island .face-id {
+      width: 14px;
+      height: 14px;
+      background: #222;
+      border-radius: 50%;
+      border: 1.5px solid #1a6bbf;
+      position: relative;
+    }
+
+    .dynamic-island .face-id::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 5px;
+      height: 5px;
+      background: #1a6bbf;
+      border-radius: 50%;
+    }
+
+    /* ============================================
+       STATUS BAR
+    ============================================ */
+    .status-bar {
+      height: 58px;
+      padding: 14px 20px 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .status-time {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .status-icons svg {
+      width: 16px;
+      height: 12px;
+    }
+
+    /* ============================================
+       APP HEADER
+    ============================================ */
+    .app-header {
+      background: #0F1ED2;
+      padding: 10px 20px 14px;
+      flex-shrink: 0;
+    }
+
+    .app-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .app-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-logo-icon {
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .app-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+
+    .header-badge {
+      background: #ff3b30;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 10px;
+    }
+
+    .app-tagline {
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 2px;
+    }
+
+    /* ============================================
+       SCREEN CONTENT
+    ============================================ */
+    .screen-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .screen-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    .screen {
+      display: none;
+      padding: 16px;
+      min-height: 100%;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* ============================================
+       TAB BAR
+    ============================================ */
+    .tab-bar {
+      height: 82px;
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-around;
+      padding: 10px 4px 0;
+      flex-shrink: 0;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 12px;
+      transition: background 0.15s;
+      min-width: 56px;
+      border: none;
+      background: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .tab-item:hover {
+      background: #f0f2ff;
+    }
+
+    .tab-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .tab-label {
+      font-size: 10px;
+      color: #8e8e93;
+      font-weight: 500;
+    }
+
+    .tab-item.active .tab-label {
+      color: #0F1ED2;
+    }
+
+    .tab-item.active .tab-icon {
+      filter: none;
+    }
+
+    .tab-item.active {
+      background: #e8eaf9;
+    }
+
+    /* ============================================
+       SCREEN 1: HOME / DASHBOARD
+    ============================================ */
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      margin-top: 6px;
+    }
+
+    .summary-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .summary-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(15,30,210,0.12);
+    }
+
+    .summary-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .patient-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .patient-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .patient-meta {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .urgency-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .urgency-high {
+      background: #fff0f0;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+
+    .urgency-medium {
+      background: #fffbeb;
+      color: #d97706;
+      border: 1px solid #fde68a;
+    }
+
+    .urgency-low {
+      background: #f0fdf4;
+      color: #16a34a;
+      border: 1px solid #bbf7d0;
+    }
+
+    .summary-text {
+      font-size: 12px;
+      color: #4b5563;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .summary-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #f3f4f6;
+    }
+
+    .hospital-tag {
+      font-size: 10px;
+      color: #0F1ED2;
+      background: #e8eaf9;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .summary-date {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 10px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      border: 1px solid #f0f0f0;
+    }
+
+    .stat-number {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0F1ED2;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    /* ============================================
+       SCREEN 2: DETAIL
+    ============================================ */
+    .detail-patient-header {
+      background: linear-gradient(135deg, #0F1ED2, #2d3fe0);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+      color: #fff;
+    }
+
+    .detail-patient-name {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .detail-patient-meta {
+      font-size: 12px;
+      opacity: 0.8;
+      line-height: 1.5;
+    }
+
+    .detail-patient-id {
+      font-size: 11px;
+      opacity: 0.6;
+      margin-top: 6px;
+      font-family: monospace;
+    }
+
+    .ai-summary-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #f0f0f0;
+    }
+
+    .ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #0F1ED2;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .ai-summary-text {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.7;
+    }
+
+    .alert-card {
+      background: #fff5f5;
+      border: 1.5px solid #fecaca;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+
+    .alert-title {
+      color: #dc2626;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .alert-item {
+      color: #b91c1c;
+      font-size: 12px;
+      line-height: 1.6;
+      padding: 4px 0;
+      border-bottom: 1px solid #fee2e2;
+    }
+
+    .alert-item:last-child {
+      border-bottom: none;
+    }
+
+    .medication-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #f0f0f0;
+    }
+
+    .medication-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .medication-item:last-child {
+      border-bottom: none;
+    }
+
+    .med-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .med-dose {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .med-timing {
+      font-size: 11px;
+      color: #0F1ED2;
+      background: #e8eaf9;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .card-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ============================================
+       SCREEN 3: SEARCH
+    ============================================ */
+    .search-bar-wrapper {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 16px 12px 40px;
+      border: 2px solid #e5e7eb;
+      border-radius: 14px;
+      font-size: 14px;
+      color: #111;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: #0F1ED2;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 16px;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .filter-chip {
+      flex-shrink: 0;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1.5px solid #e5e7eb;
+      background: #fff;
+      color: #6b7280;
+      cursor: pointer;
+    }
+
+    .filter-chip.active {
+      background: #0F1ED2;
+      color: #fff;
+      border-color: #0F1ED2;
+    }
+
+    .search-result-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      border: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .patient-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0F1ED2, #4c5fec);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .result-patient-info {
+      flex: 1;
+    }
+
+    .result-patient-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 2px;
+    }
+
+    .result-patient-id {
+      font-size: 11px;
+      color: #9ca3af;
+      font-family: monospace;
+    }
+
+    .result-meta {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .facility-badge {
+      font-size: 10px;
+      background: #e8eaf9;
+      color: #0F1ED2;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-weight: 600;
+    }
+
+    .dept-badge {
+      font-size: 10px;
+      background: #f3f4f6;
+      color: #6b7280;
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
+
+    .result-arrow {
+      color: #d1d5db;
+      font-size: 16px;
+    }
+
+    /* ============================================
+       SCREEN 4: HANDOFF
+    ============================================ */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .form-required {
+      color: #dc2626;
+      margin-left: 2px;
+    }
+
+    .doctor-select-card {
+      background: #fff;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .doctor-select-card.selected {
+      border-color: #0F1ED2;
+      background: #f5f6ff;
+    }
+
+    .doctor-select-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .doctor-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0F1ED2, #4c5fec);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .doctor-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .doctor-dept {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .memo-textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 13px;
+      color: #374151;
+      background: #fff;
+      outline: none;
+      resize: none;
+      height: 100px;
+      transition: border-color 0.2s;
+      font-family: inherit;
+      line-height: 1.6;
+    }
+
+    .memo-textarea:focus {
+      border-color: #0F1ED2;
+    }
+
+    .patient-select-mini {
+      background: #fff;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .patient-select-mini.selected {
+      border-color: #0F1ED2;
+      background: #f5f6ff;
+    }
+
+    .urgency-selector {
+      display: flex;
+      gap: 8px;
+    }
+
+    .urgency-option {
+      flex: 1;
+      padding: 8px 4px;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .urgency-option.urgent.selected {
+      background: #fee2e2;
+      border-color: #dc2626;
+      color: #dc2626;
+    }
+
+    .urgency-option.normal.selected {
+      background: #fef3c7;
+      border-color: #d97706;
+      color: #d97706;
+    }
+
+    .urgency-option.routine.selected {
+      background: #d1fae5;
+      border-color: #16a34a;
+      color: #16a34a;
+    }
+
+    .send-button {
+      width: 100%;
+      background: #0F1ED2;
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .send-button:hover {
+      background: #0c18b5;
+    }
+
+    .send-button:active {
+      transform: scale(0.98);
+    }
+
+    /* ============================================
+       SCREEN 5: SETTINGS
+    ============================================ */
+    .settings-profile {
+      background: linear-gradient(135deg, #0F1ED2, #2d3fe0);
+      border-radius: 16px;
+      padding: 18px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: #fff;
+    }
+
+    .profile-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .profile-name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .profile-role {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .profile-hospital {
+      font-size: 11px;
+      opacity: 0.6;
+      margin-top: 2px;
+    }
+
+    .settings-section {
+      margin-bottom: 16px;
+    }
+
+    .settings-card {
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      border: 1px solid #f0f0f0;
+    }
+
+    .settings-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 16px;
+      border-bottom: 1px solid #f3f4f6;
+      cursor: pointer;
+    }
+
+    .settings-item:last-child {
+      border-bottom: none;
+    }
+
+    .settings-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .settings-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .si-blue { background: #e8eaf9; }
+    .si-green { background: #d1fae5; }
+    .si-orange { background: #fef3c7; }
+    .si-red { background: #fee2e2; }
+    .si-gray { background: #f3f4f6; }
+
+    .settings-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .settings-desc {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 1px;
+    }
+
+    .toggle {
+      width: 44px;
+      height: 26px;
+      background: #e5e7eb;
+      border-radius: 13px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle.on {
+      background: #0F1ED2;
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    .toggle.on::after {
+      transform: translateX(18px);
+    }
+
+    .settings-arrow {
+      color: #d1d5db;
+      font-size: 14px;
+    }
+
+    .facility-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #fff;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      border: 1px solid #f0f0f0;
+    }
+
+    .facility-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #0F1ED2;
+      flex-shrink: 0;
+    }
+
+    .facility-dot.connected {
+      background: #16a34a;
+    }
+
+    .facility-dot.pending {
+      background: #d97706;
+    }
+
+    .facility-name {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .facility-status {
+      font-size: 10px;
+      color: #6b7280;
+    }
+
+    .version-info {
+      text-align: center;
+      padding: 12px;
+      color: #d1d5db;
+      font-size: 11px;
+    }
+
+    /* ============================================
+       UTILS
+    ============================================ */
+    .page-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 14px;
+      padding-top: 4px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9ca3af;
+    }
+
+    .empty-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .nec-footer {
+      text-align: center;
+      margin-top: 6px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+    }
+  </style>
+</head>
+<body>
+
+<div class="demo-wrapper">
+  <div>
+    <div class="demo-title">🏥 MediLink</div>
+    <div class="demo-subtitle">病院間電子カルテAI要約システム — インタラクティブ モックアップ</div>
+  </div>
+
+  <!-- iPhone Frame -->
+  <div class="iphone-frame">
+    <div class="iphone-screen">
+
+      <!-- Dynamic Island -->
+      <div class="dynamic-island">
+        <div class="face-id"></div>
+        <div class="camera"></div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <!-- Signal -->
+          <svg viewBox="0 0 17 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="7" width="3" height="5" rx="1" fill="#111"/>
+            <rect x="4.5" y="4.5" width="3" height="7.5" rx="1" fill="#111"/>
+            <rect x="9" y="2" width="3" height="10" rx="1" fill="#111"/>
+            <rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/>
+          </svg>
+          <!-- WiFi -->
+          <svg viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#111"/>
+            <path d="M3.5 6.5C5 4.8 6.4 4 8 4s3 .8 4.5 2.5" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M1 3.5C3.3 1 5.5 0 8 0s4.7 1 7 3.5" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <!-- Battery -->
+          <svg viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#111" stroke-opacity="0.35"/>
+            <rect x="2" y="2" width="16" height="8" rx="2" fill="#111"/>
+            <path d="M23 4v4a2 2 0 0 0 0-4z" fill="#111" fill-opacity="0.4"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- App Header -->
+      <div class="app-header">
+        <div class="app-header-top">
+          <div class="app-logo">
+            <div class="app-logo-icon">🔗</div>
+            <span class="app-name">MediLink</span>
+          </div>
+          <span class="header-badge">緊急 2件</span>
+        </div>
+        <div class="app-tagline">AI-Powered 電子カルテ引き継ぎシステム</div>
+        <div class="nec-footer">Powered by NEC AI Platform</div>
+      </div>
+
+      <!-- ===== SCREEN 1: HOME ===== -->
+      <div class="screen active" id="screen-home">
+        <div class="page-title">ダッシュボード</div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-number">12</div>
+            <div class="stat-label">本日の要約</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" style="color:#dc2626">2</div>
+            <div class="stat-label">要注意患者</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" style="color:#16a34a">5</div>
+            <div class="stat-label">連携施設</div>
+          </div>
+        </div>
+
+        <div class="section-title">最近の要約</div>
+
+        <div class="summary-card" onclick="switchTab('detail')">
+          <div class="summary-card-header">
+            <div class="patient-info">
+              <span class="patient-name">田中 健一</span>
+              <span class="patient-meta">65歳・男性 ／ 内科</span>
+            </div>
+            <span class="urgency-badge urgency-high">🔴 要注意</span>
+          </div>
+          <div class="summary-text">心筋梗塞既往あり。ワルファリン投与中。腎機能低下（eGFR 42）により用量調整が必要。次回診察時に凝固系検査の実施を推奨。</div>
+          <div class="summary-card-footer">
+            <span class="hospital-tag">🏥 東京中央病院</span>
+            <span class="summary-date">2026/03/15 08:42</span>
+          </div>
+        </div>
+
+        <div class="summary-card" onclick="switchTab('detail')">
+          <div class="summary-card-header">
+            <div class="patient-info">
+              <span class="patient-name">佐藤 美代子</span>
+              <span class="patient-meta">72歳・女性 ／ 整形外科</span>
+            </div>
+            <span class="urgency-badge urgency-medium">🟡 注意</span>
+          </div>
+          <div class="summary-text">人工股関節置換術（THA）後3ヶ月経過。術後リハビリ継続中。骨粗鬆症に対するビスホスホネート投与中。転倒リスク管理が必要。</div>
+          <div class="summary-card-footer">
+            <span class="hospital-tag">🏥 品川リハビリ病院</span>
+            <span class="summary-date">2026/03/14 16:20</span>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-card-header">
+            <div class="patient-info">
+              <span class="patient-name">鈴木 正雄</span>
+              <span class="patient-meta">48歳・男性 ／ 糖尿病内科</span>
+            </div>
+            <span class="urgency-badge urgency-low">🟢 安定</span>
+          </div>
+          <div class="summary-text">2型糖尿病管理中。HbA1c 7.2%で安定。SGLT2阻害剤・DPP-4阻害剤の併用療法継続。定期的な眼科・腎臓内科との連携検査実施中。</div>
+          <div class="summary-card-footer">
+            <span class="hospital-tag">🏥 渋谷クリニック</span>
+            <span class="summary-date">2026/03/14 11:05</span>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-card-header">
+            <div class="patient-info">
+              <span class="patient-name">高橋 花子</span>
+              <span class="patient-meta">35歳・女性 ／ 消化器内科</span>
+            </div>
+            <span class="urgency-badge urgency-low">🟢 安定</span>
+          </div>
+          <div class="summary-text">潰瘍性大腸炎（中等度活動期）。メサラジン内服中。大腸内視鏡での粘膜治癒を確認。6ヶ月後の定期検査推奨。</div>
+          <div class="summary-card-footer">
+            <span class="hospital-tag">🏥 新宿大学病院</span>
+            <span class="summary-date">2026/03/13 14:30</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SCREEN 2: DETAIL ===== -->
+      <div class="screen" id="screen-detail">
+        <div class="detail-patient-header">
+          <div class="detail-patient-name">田中 健一</div>
+          <div class="detail-patient-meta">65歳・男性 ／ 内科・循環器科<br>血液型: A型 ／ 保険番号: 1234567890</div>
+          <div class="detail-patient-id">ID: PT-2024-0081452</div>
+        </div>
+
+        <div class="ai-summary-card">
+          <div class="ai-badge">✨ AI要約</div>
+          <div class="card-section-title">引き継ぎサマリー</div>
+          <div class="ai-summary-text">
+            65歳男性。急性心筋梗塞（前壁）の既往あり（2023年9月）、現在は外来フォロー中。慢性腎臓病（CKD Stage3b）を合併しており、腎機能を考慮した投薬管理が必要。現在ワルファリン投与中でPT-INR目標値2.0〜3.0。次回受診時に採血（凝固系・腎機能）を実施すること。
+          </div>
+        </div>
+
+        <div class="alert-card">
+          <div class="alert-title">⚠️ 重要アラート</div>
+          <div class="alert-item">🔴 ワルファリン投与中 — 他薬との相互作用に注意</div>
+          <div class="alert-item">🔴 eGFR 42 — NSAIDs禁忌、造影剤使用前に腎機能確認</div>
+          <div class="alert-item">🟡 ペニシリン系抗菌薬アレルギー歴あり</div>
+        </div>
+
+        <div class="medication-card">
+          <div class="card-section-title">💊 投薬履歴</div>
+          <div class="medication-item">
+            <div>
+              <div class="med-name">ワルファリンカリウム</div>
+              <div class="med-dose">3mg / 1錠</div>
+            </div>
+            <div class="med-timing">毎夕食後</div>
+          </div>
+          <div class="medication-item">
+            <div>
+              <div class="med-name">アスピリン腸溶錠</div>
+              <div class="med-dose">100mg / 1錠</div>
+            </div>
+            <div class="med-timing">毎朝食後</div>
+          </div>
+          <div class="medication-item">
+            <div>
+              <div class="med-name">フロセミド錠</div>
+              <div class="med-dose">20mg / 1錠</div>
+            </div>
+            <div class="med-timing">毎朝食後</div>
+          </div>
+          <div class="medication-item">
+            <div>
+              <div class="med-name">カルベジロール錠</div>
+              <div class="med-dose">10mg / 1錠</div>
+            </div>
+            <div class="med-timing">朝夕食後</div>
+          </div>
+        </div>
+
+        <div class="ai-summary-card" style="margin-bottom: 10px;">
+          <div class="card-section-title">📋 検査値推移（直近）</div>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 12px;">
+            <div style="text-align:center; padding: 8px; background: #f9fafb; border-radius: 8px;">
+              <div style="font-weight:700; color:#0F1ED2">7.2%</div>
+              <div style="color:#6b7280; font-size:10px;">HbA1c</div>
+            </div>
+            <div style="text-align:center; padding: 8px; background: #fff5f5; border-radius: 8px;">
+              <div style="font-weight:700; color:#dc2626">42</div>
+              <div style="color:#6b7280; font-size:10px;">eGFR</div>
+            </div>
+            <div style="text-align:center; padding: 8px; background: #f9fafb; border-radius: 8px;">
+              <div style="font-weight:700; color:#0F1ED2">2.4</div>
+              <div style="color:#6b7280; font-size:10px;">PT-INR</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SCREEN 3: SEARCH ===== -->
+      <div class="screen" id="screen-search">
+        <div class="page-title">患者検索</div>
+
+        <div class="search-bar-wrapper">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" type="text" placeholder="患者名・ID・診断名で検索">
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-chip active">すべて</div>
+          <div class="filter-chip">内科</div>
+          <div class="filter-chip">外科</div>
+          <div class="filter-chip">整形外科</div>
+          <div class="filter-chip">循環器科</div>
+          <div class="filter-chip">糖尿病内科</div>
+        </div>
+
+        <div class="section-title">検索結果 — 5件</div>
+
+        <div class="search-result-card" onclick="switchTab('detail')">
+          <div class="patient-avatar">田</div>
+          <div class="result-patient-info">
+            <div class="result-patient-name">田中 健一</div>
+            <div class="result-patient-id">ID: PT-2024-0081452</div>
+            <div class="result-meta">
+              <span class="facility-badge">東京中央病院</span>
+              <span class="dept-badge">内科</span>
+              <span class="urgency-badge urgency-high" style="font-size:10px; padding: 1px 6px;">要注意</span>
+            </div>
+          </div>
+          <span class="result-arrow">›</span>
+        </div>
+
+        <div class="search-result-card">
+          <div class="patient-avatar">佐</div>
+          <div class="result-patient-info">
+            <div class="result-patient-name">佐藤 美代子</div>
+            <div class="result-patient-id">ID: PT-2023-0074821</div>
+            <div class="result-meta">
+              <span class="facility-badge">品川リハビリ病院</span>
+              <span class="dept-badge">整形外科</span>
+            </div>
+          </div>
+          <span class="result-arrow">›</span>
+        </div>
+
+        <div class="search-result-card">
+          <div class="patient-avatar">鈴</div>
+          <div class="result-patient-info">
+            <div class="result-patient-name">鈴木 正雄</div>
+            <div class="result-patient-id">ID: PT-2022-0063440</div>
+            <div class="result-meta">
+              <span class="facility-badge">渋谷クリニック</span>
+              <span class="dept-badge">糖尿病内科</span>
+            </div>
+          </div>
+          <span class="result-arrow">›</span>
+        </div>
+
+        <div class="search-result-card">
+          <div class="patient-avatar">高</div>
+          <div class="result-patient-info">
+            <div class="result-patient-name">高橋 花子</div>
+            <div class="result-patient-id">ID: PT-2025-0092017</div>
+            <div class="result-meta">
+              <span class="facility-badge">新宿大学病院</span>
+              <span class="dept-badge">消化器内科</span>
+            </div>
+          </div>
+          <span class="result-arrow">›</span>
+        </div>
+
+        <div class="search-result-card">
+          <div class="patient-avatar">山</div>
+          <div class="result-patient-info">
+            <div class="result-patient-name">山田 太郎</div>
+            <div class="result-patient-id">ID: PT-2024-0088301</div>
+            <div class="result-meta">
+              <span class="facility-badge">港区クリニック</span>
+              <span class="dept-badge">循環器科</span>
+            </div>
+          </div>
+          <span class="result-arrow">›</span>
+        </div>
+      </div>
+
+      <!-- ===== SCREEN 4: HANDOFF ===== -->
+      <div class="screen" id="screen-handoff">
+        <div class="page-title">引き継ぎ送信</div>
+
+        <div class="form-group">
+          <label class="form-label">対象患者<span class="form-required">*</span></label>
+          <div class="patient-select-mini selected">
+            <div class="patient-avatar" style="width:32px;height:32px;font-size:13px;">田</div>
+            <div style="flex:1">
+              <div style="font-size:13px; font-weight:700; color:#0F1ED2;">田中 健一</div>
+              <div style="font-size:10px; color:#6b7280;">PT-2024-0081452 ／ 内科</div>
+            </div>
+            <span style="color:#0F1ED2; font-size:13px;">変更</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">宛先医師<span class="form-required">*</span></label>
+          <div class="doctor-select-card selected">
+            <div class="doctor-select-info">
+              <div class="doctor-avatar">中</div>
+              <div>
+                <div class="doctor-name">中村 圭介 先生</div>
+                <div class="doctor-dept">循環器科 ／ 品川リハビリ病院</div>
+              </div>
+            </div>
+            <span style="color:#0F1ED2; font-size:12px;">変更</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">緊急度<span class="form-required">*</span></label>
+          <div class="urgency-selector">
+            <div class="urgency-option urgent selected">🔴 緊急</div>
+            <div class="urgency-option normal">🟡 要注意</div>
+            <div class="urgency-option routine">🟢 通常</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">AI要約に含める情報</label>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="background:#fff; border:1.5px solid #0F1ED2; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:8px; font-size:12px;">
+              <span style="color:#0F1ED2;">☑</span> 投薬履歴・アレルギー
+            </div>
+            <div style="background:#fff; border:1.5px solid #0F1ED2; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:8px; font-size:12px;">
+              <span style="color:#0F1ED2;">☑</span> 検査値推移（直近3ヶ月）
+            </div>
+            <div style="background:#fff; border:1.5px solid #e5e7eb; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:8px; font-size:12px; color:#9ca3af;">
+              <span>☐</span> 画像診断レポート
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">申し送りメモ</label>
+          <textarea class="memo-textarea" placeholder="引き継ぎに際して特記事項があればご記入ください（任意）">ワルファリンの用量については先週の採血結果を踏まえて調整済みです。次回のPT-INR確認後に再度ご連絡します。</textarea>
+        </div>
+
+        <button class="send-button">
+          <span>📤</span> 引き継ぎを送信
+        </button>
+      </div>
+
+      <!-- ===== SCREEN 5: SETTINGS ===== -->
+      <div class="screen" id="screen-settings">
+        <div class="settings-profile">
+          <div class="profile-avatar">山</div>
+          <div>
+            <div class="profile-name">山本 誠司 先生</div>
+            <div class="profile-role">内科部長 ／ 指導医</div>
+            <div class="profile-hospital">🏥 東京中央病院</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="section-title">連携施設管理</div>
+          <div class="facility-item">
+            <div class="facility-dot connected"></div>
+            <div class="facility-name">東京中央病院</div>
+            <div class="facility-status">接続中</div>
+          </div>
+          <div class="facility-item">
+            <div class="facility-dot connected"></div>
+            <div class="facility-name">品川リハビリ病院</div>
+            <div class="facility-status">接続中</div>
+          </div>
+          <div class="facility-item">
+            <div class="facility-dot connected"></div>
+            <div class="facility-name">新宿大学病院</div>
+            <div class="facility-status">接続中</div>
+          </div>
+          <div class="facility-item">
+            <div class="facility-dot pending"></div>
+            <div class="facility-name">渋谷クリニック</div>
+            <div class="facility-status">承認待ち</div>
+          </div>
+          <div class="facility-item" style="border: 1.5px dashed #e5e7eb; background: #fafafa;">
+            <div style="width:10px; height:10px; border:1.5px dashed #9ca3af; border-radius:50%;"></div>
+            <div class="facility-name" style="color:#9ca3af;">＋ 施設を追加</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="section-title">通知設定</div>
+          <div class="settings-card">
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <div class="settings-icon si-red">🔴</div>
+                <div>
+                  <div class="settings-label">緊急アラート通知</div>
+                  <div class="settings-desc">要注意患者の引き継ぎを即時通知</div>
+                </div>
+              </div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <div class="settings-icon si-blue">📩</div>
+                <div>
+                  <div class="settings-label">新着引き継ぎ通知</div>
+                  <div class="settings-desc">宛先医師に届いた時に通知</div>
+                </div>
+              </div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <div class="settings-icon si-green">📊</div>
+                <div>
+                  <div class="settings-label">週次サマリー</div>
+                  <div class="settings-desc">毎週月曜朝9時に集計レポート</div>
+                </div>
+              </div>
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="section-title">セキュリティ</div>
+          <div class="settings-card">
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <div class="settings-icon si-blue">🔐</div>
+                <div>
+                  <div class="settings-label">生体認証（Face ID）</div>
+                  <div class="settings-desc">アプリ起動時に認証</div>
+                </div>
+              </div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <div class="settings-icon si-orange">🔒</div>
+                <div>
+                  <div class="settings-label">自動ロック</div>
+                  <div class="settings-desc">5分間操作なしでロック</div>
+                </div>
+              </div>
+              <span class="settings-arrow">›</span>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <div class="settings-icon si-green">🛡️</div>
+                <div>
+                  <div class="settings-label">監査ログ</div>
+                  <div class="settings-desc">アクセス履歴・操作記録</div>
+                </div>
+              </div>
+              <span class="settings-arrow">›</span>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <div class="settings-icon si-gray">🔑</div>
+                <div>
+                  <div class="settings-label">二段階認証</div>
+                  <div class="settings-desc">SMS / 認証アプリ</div>
+                </div>
+              </div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="section-title">アカウント</div>
+          <div class="settings-card">
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <div class="settings-icon si-blue">📋</div>
+                <div>
+                  <div class="settings-label">利用規約 / プライバシーポリシー</div>
+                </div>
+              </div>
+              <span class="settings-arrow">›</span>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <div class="settings-icon si-red">🚪</div>
+                <div>
+                  <div class="settings-label" style="color:#dc2626;">ログアウト</div>
+                </div>
+              </div>
+              <span class="settings-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="version-info">
+          MediLink v2.4.1 — NEC AI Platform<br>
+          HIPAA準拠 ／ 厚生労働省認定
+        </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <button class="tab-item active" id="tab-home" onclick="switchTab('home')">
+          <span class="tab-icon">🏠</span>
+          <span class="tab-label">ホーム</span>
+        </button>
+        <button class="tab-item" id="tab-detail" onclick="switchTab('detail')">
+          <span class="tab-icon">📄</span>
+          <span class="tab-label">カルテ</span>
+        </button>
+        <button class="tab-item" id="tab-search" onclick="switchTab('search')">
+          <span class="tab-icon">🔍</span>
+          <span class="tab-label">検索</span>
+        </button>
+        <button class="tab-item" id="tab-handoff" onclick="switchTab('handoff')">
+          <span class="tab-icon">📤</span>
+          <span class="tab-label">引き継ぎ</span>
+        </button>
+        <button class="tab-item" id="tab-settings" onclick="switchTab('settings')">
+          <span class="tab-icon">⚙️</span>
+          <span class="tab-label">設定</span>
+        </button>
+      </div>
+
+    </div><!-- /iphone-screen -->
+  </div><!-- /iphone-frame -->
+
+  <div style="text-align:center; color:#888; font-size:12px; max-width:375px; line-height:1.6;">
+    タブをタップして画面を切り替え。<br>
+    カードをタップするとカルテ詳細に遷移します。
+  </div>
+</div>
+
+<script>
+  function switchTab(name) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(function(s) {
+      s.classList.remove('active');
+    });
+    // Deactivate all tabs
+    document.querySelectorAll('.tab-item').forEach(function(t) {
+      t.classList.remove('active');
+    });
+    // Show target screen
+    var screen = document.getElementById('screen-' + name);
+    if (screen) {
+      screen.classList.add('active');
+      // Scroll to top
+      var content = screen.closest('.screen-content') || screen.parentElement;
+      if (content && content.classList.contains('screen-content')) {
+        content.scrollTop = 0;
+      }
+    }
+    // Activate tab
+    var tab = document.getElementById('tab-' + name);
+    if (tab) {
+      tab.classList.add('active');
+    }
+  }
+
+  // Urgency selector interaction
+  document.querySelectorAll('.urgency-option').forEach(function(opt) {
+    opt.addEventListener('click', function() {
+      var parent = this.parentElement;
+      parent.querySelectorAll('.urgency-option').forEach(function(o) {
+        o.classList.remove('selected');
+      });
+      this.classList.add('selected');
+    });
+  });
+
+  // Filter chips interaction
+  document.querySelectorAll('.filter-chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('.filter-chip').forEach(function(c) {
+        c.classList.remove('active');
+      });
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
