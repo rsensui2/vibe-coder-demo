@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StyleMirror - モックアプリ</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#1a1a2e; display:flex; justify-content:center; align-items:center; min-height:100vh; font-family:'Helvetica Neue',Arial,sans-serif; }
+.phone-frame { width:390px; height:844px; background:#000; border-radius:50px; padding:12px; box-shadow:0 40px 100px rgba(0,0,0,0.7); position:relative; }
+.dynamic-island { width:120px; height:34px; background:#000; border-radius:20px; position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:10; }
+.screen { width:100%; height:100%; background:#f8f9fa; border-radius:40px; overflow:hidden; display:flex; flex-direction:column; }
+.screen-content { flex:1; overflow:hidden; display:flex; flex-direction:column; padding-top:60px; }
+.tab-content { flex:1; overflow-y:auto; display:none; padding:16px; }
+.tab-content.active { display:block; }
+.tab-bar { background:#fff; border-top:1px solid #e8e8e8; display:flex; padding:8px 0 20px; position:sticky; bottom:0; }
+.tab-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; padding:4px; }
+.tab-icon { width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.tab-label { font-size:10px; color:#999; }
+.tab-item.active .tab-label { color:#0F1ED2; font-weight:600; }
+
+/* Header */
+.app-header { background:#0F1ED2; color:#fff; padding:16px 20px 12px; display:flex; align-items:center; justify-content:space-between; }
+.app-logo { font-size:18px; font-weight:700; letter-spacing:-0.5px; }
+.header-icon { width:36px; height:36px; background:rgba(255,255,255,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+
+/* Home */
+.camera-btn { width:160px; height:160px; border-radius:50%; background:linear-gradient(135deg,#0F1ED2,#2C69FF); display:flex; flex-direction:column; align-items:center; justify-content:center; margin:24px auto; box-shadow:0 12px 40px rgba(15,30,210,0.4); cursor:pointer; border:4px solid rgba(255,255,255,0.2); }
+.camera-icon { font-size:48px; }
+.camera-label { color:#fff; font-size:12px; font-weight:600; margin-top:8px; }
+.section-title { font-size:14px; font-weight:700; color:#1a1a2e; margin:16px 0 10px; }
+.coord-list { display:flex; flex-direction:column; gap:10px; }
+.coord-card { background:#fff; border-radius:16px; padding:14px; display:flex; gap:12px; align-items:center; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
+.coord-thumb { width:60px; height:60px; border-radius:12px; background:linear-gradient(135deg,#e8ecff,#c5cefd); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+.coord-info { flex:1; }
+.coord-title { font-size:13px; font-weight:600; color:#1a1a2e; }
+.coord-sub { font-size:11px; color:#999; margin-top:2px; }
+.coord-tag { display:inline-block; background:#e8ecff; color:#0F1ED2; font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; margin-top:4px; }
+.coord-match { font-size:20px; font-weight:700; color:#0F1ED2; }
+
+/* Coordinate */
+.item-photo { width:100%; height:180px; background:linear-gradient(135deg,#f0f4ff,#d8e0ff); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:60px; margin-bottom:12px; }
+.coord-patterns { display:flex; flex-direction:column; gap:8px; }
+.pattern-card { background:#fff; border-radius:12px; padding:12px; display:flex; align-items:center; gap:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.pattern-num { width:28px; height:28px; border-radius:8px; background:#0F1ED2; color:#fff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.pattern-items { flex:1; font-size:12px; color:#555; }
+.pattern-score { font-size:14px; font-weight:700; color:#0F1ED2; }
+.action-btns { display:flex; gap:8px; margin-top:8px; }
+.btn-fav { flex:1; padding:8px; border:1.5px solid #0F1ED2; color:#0F1ED2; border-radius:10px; font-size:12px; font-weight:600; background:transparent; cursor:pointer; }
+.btn-buy { flex:1; padding:8px; background:#0F1ED2; color:#fff; border:none; border-radius:10px; font-size:12px; font-weight:600; cursor:pointer; }
+
+/* AR Try-on */
+.ar-frame { width:100%; height:240px; background:linear-gradient(180deg,#1a1a2e 0%,#2d3461 100%); border-radius:16px; position:relative; overflow:hidden; margin-bottom:12px; display:flex; align-items:center; justify-content:center; }
+.ar-silhouette { width:100px; height:200px; background:rgba(255,255,255,0.1); border-radius:50px 50px 30px 30px; position:relative; }
+.ar-item-overlay { position:absolute; top:30px; left:50%; transform:translateX(-50%); font-size:48px; }
+.ar-label { color:#fff; font-size:12px; opacity:0.7; position:absolute; bottom:10px; left:50%; transform:translateX(-50%); }
+.ar-controls { display:flex; gap:8px; margin-bottom:12px; }
+.ar-btn { flex:1; background:#fff; border:1.5px solid #e0e0e0; border-radius:12px; padding:10px; font-size:12px; font-weight:600; color:#1a1a2e; cursor:pointer; text-align:center; }
+.ar-btn.active { border-color:#0F1ED2; color:#0F1ED2; background:#e8ecff; }
+.color-swatches { display:flex; gap:8px; margin-top:12px; }
+.swatch { width:36px; height:36px; border-radius:50%; cursor:pointer; border:2px solid transparent; }
+.swatch.active { border-color:#0F1ED2; transform:scale(1.1); }
+
+/* Closet */
+.closet-tabs { display:flex; gap:6px; margin-bottom:12px; overflow-x:auto; }
+.closet-tab { padding:6px 14px; border-radius:20px; background:#e8e8e8; font-size:12px; font-weight:600; color:#666; white-space:nowrap; cursor:pointer; border:none; }
+.closet-tab.active { background:#0F1ED2; color:#fff; }
+.closet-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.closet-item { aspect-ratio:1; border-radius:12px; background:linear-gradient(135deg,#f0f4ff,#d8e0ff); display:flex; align-items:center; justify-content:center; font-size:32px; cursor:pointer; position:relative; }
+.closet-add { border:2px dashed #ccc; background:#f8f9fa; color:#ccc; font-size:28px; }
+.closet-stats { background:#fff; border-radius:12px; padding:12px 14px; margin-bottom:12px; display:flex; justify-content:space-between; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.stat-item { text-align:center; }
+.stat-num { font-size:18px; font-weight:700; color:#0F1ED2; }
+.stat-label { font-size:10px; color:#999; }
+
+/* Profile */
+.profile-card { background:linear-gradient(135deg,#0F1ED2,#2C69FF); border-radius:16px; padding:20px; color:#fff; margin-bottom:12px; }
+.profile-name { font-size:18px; font-weight:700; }
+.profile-plan { display:inline-block; background:rgba(255,255,255,0.2); padding:3px 10px; border-radius:20px; font-size:11px; margin-top:4px; }
+.color-result { background:#fff; border-radius:12px; padding:12px 14px; margin-bottom:8px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.color-title { font-size:12px; font-weight:700; color:#1a1a2e; margin-bottom:8px; }
+.color-palette { display:flex; gap:6px; }
+.color-dot { width:32px; height:32px; border-radius:50%; }
+.setting-item { background:#fff; border-radius:12px; padding:14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.06); cursor:pointer; }
+.setting-label { font-size:13px; font-weight:600; color:#1a1a2e; }
+.setting-arrow { color:#ccc; }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="dynamic-island"></div>
+  <div class="screen">
+    <div class="app-header">
+      <span class="app-logo">StyleMirror</span>
+      <div class="header-icon">🔔</div>
+    </div>
+
+    <!-- Home -->
+    <div class="screen-content">
+      <div class="tab-content active" id="tab-home">
+        <div class="camera-btn" onclick="alert('カメラを起動')">
+          <div class="camera-icon">📷</div>
+          <div class="camera-label">タップして撮影</div>
+        </div>
+        <div class="section-title">最近のコーデ提案</div>
+        <div class="coord-list">
+          <div class="coord-card">
+            <div class="coord-thumb">👔</div>
+            <div class="coord-info">
+              <div class="coord-title">ネイビーシャツコーデ</div>
+              <div class="coord-sub">今日 14:32</div>
+              <div class="coord-tag">マッチ度</div>
+            </div>
+            <div class="coord-match">94%</div>
+          </div>
+          <div class="coord-card">
+            <div class="coord-thumb">🧥</div>
+            <div class="coord-info">
+              <div class="coord-title">カジュアルジャケットコーデ</div>
+              <div class="coord-sub">昨日 11:15</div>
+              <div class="coord-tag">マッチ度</div>
+            </div>
+            <div class="coord-match">88%</div>
+          </div>
+          <div class="coord-card">
+            <div class="coord-thumb">👗</div>
+            <div class="coord-info">
+              <div class="coord-title">フローラルワンピコーデ</div>
+              <div class="coord-sub">3日前 10:08</div>
+              <div class="coord-tag">マッチ度</div>
+            </div>
+            <div class="coord-match">91%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coordinate -->
+      <div class="tab-content" id="tab-coord">
+        <div class="item-photo">👔</div>
+        <div class="section-title">AIコーデ提案 5パターン</div>
+        <div class="coord-patterns">
+          <div class="pattern-card">
+            <div class="pattern-num">1</div>
+            <div class="pattern-items">ネイビーシャツ + チノパン + ローファー</div>
+            <div class="pattern-score">94%</div>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-num">2</div>
+            <div class="pattern-items">ネイビーシャツ + ジーンズ + スニーカー</div>
+            <div class="pattern-score">89%</div>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-num">3</div>
+            <div class="pattern-items">ネイビーシャツ + スラックス + 革靴</div>
+            <div class="pattern-score">86%</div>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-num">4</div>
+            <div class="pattern-items">ネイビーシャツ + ショートパンツ + サンダル</div>
+            <div class="pattern-score">82%</div>
+          </div>
+          <div class="pattern-card">
+            <div class="pattern-num">5</div>
+            <div class="pattern-items">ネイビーシャツ + カーゴパンツ + ブーツ</div>
+            <div class="pattern-score">78%</div>
+          </div>
+        </div>
+        <div class="action-btns">
+          <button class="btn-fav">❤️ 保存</button>
+          <button class="btn-buy">🛒 購入する</button>
+        </div>
+      </div>
+
+      <!-- AR Try-on -->
+      <div class="tab-content" id="tab-ar">
+        <div class="section-title">バーチャル試着</div>
+        <div class="ar-frame">
+          <div class="ar-silhouette">
+            <div class="ar-item-overlay">👔</div>
+          </div>
+          <div class="ar-label">AR試着中</div>
+        </div>
+        <div class="ar-controls">
+          <div class="ar-btn active">正面</div>
+          <div class="ar-btn">左</div>
+          <div class="ar-btn">右</div>
+          <div class="ar-btn">後ろ</div>
+        </div>
+        <div class="section-title">カラー選択</div>
+        <div class="color-swatches">
+          <div class="swatch active" style="background:#1a237e"></div>
+          <div class="swatch" style="background:#1565c0"></div>
+          <div class="swatch" style="background:#212121"></div>
+          <div class="swatch" style="background:#37474f"></div>
+          <div class="swatch" style="background:#4e342e"></div>
+          <div class="swatch" style="background:#f5f5f5; border:1px solid #e0e0e0"></div>
+        </div>
+      </div>
+
+      <!-- Closet -->
+      <div class="tab-content" id="tab-closet">
+        <div class="closet-stats">
+          <div class="stat-item"><div class="stat-num">32</div><div class="stat-label">登録数</div></div>
+          <div class="stat-item"><div class="stat-num">50</div><div class="stat-label">上限</div></div>
+          <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">コーデ数</div></div>
+        </div>
+        <div class="closet-tabs">
+          <button class="closet-tab active">すべて</button>
+          <button class="closet-tab">トップス</button>
+          <button class="closet-tab">ボトムス</button>
+          <button class="closet-tab">アウター</button>
+          <button class="closet-tab">シューズ</button>
+        </div>
+        <div class="closet-grid">
+          <div class="closet-item">👔</div>
+          <div class="closet-item">🧥</div>
+          <div class="closet-item">👗</div>
+          <div class="closet-item">👖</div>
+          <div class="closet-item">🧣</div>
+          <div class="closet-item">👟</div>
+          <div class="closet-item">👠</div>
+          <div class="closet-item">🧤</div>
+          <div class="closet-item closet-add">＋</div>
+        </div>
+      </div>
+
+      <!-- Profile -->
+      <div class="tab-content" id="tab-profile">
+        <div class="profile-card">
+          <div class="profile-name">田中 花子</div>
+          <div class="profile-plan">Free プラン</div>
+          <div style="margin-top:12px; font-size:12px; opacity:0.8;">今月の提案: 4/5回使用</div>
+        </div>
+        <div class="color-result">
+          <div class="color-title">パーソナルカラー診断結果: イエベ春</div>
+          <div class="color-palette">
+            <div class="color-dot" style="background:#FFB347"></div>
+            <div class="color-dot" style="background:#FF7F7F"></div>
+            <div class="color-dot" style="background:#90EE90"></div>
+            <div class="color-dot" style="background:#87CEEB"></div>
+            <div class="color-dot" style="background:#DDA0DD"></div>
+          </div>
+        </div>
+        <div class="setting-item"><span class="setting-label">体型データ設定</span><span class="setting-arrow">›</span></div>
+        <div class="setting-item"><span class="setting-label">プランをアップグレード</span><span class="setting-arrow">›</span></div>
+        <div class="setting-item"><span class="setting-label">通知設定</span><span class="setting-arrow">›</span></div>
+        <div class="setting-item"><span class="setting-label">プライバシー設定</span><span class="setting-arrow">›</span></div>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item active" id="nav-home" onclick="switchTab('home')">
+          <div class="tab-icon">🏠</div>
+          <div class="tab-label">ホーム</div>
+        </div>
+        <div class="tab-item" id="nav-coord" onclick="switchTab('coord')">
+          <div class="tab-icon">✨</div>
+          <div class="tab-label">コーデ</div>
+        </div>
+        <div class="tab-item" id="nav-ar" onclick="switchTab('ar')">
+          <div class="tab-icon">👗</div>
+          <div class="tab-label">試着</div>
+        </div>
+        <div class="tab-item" id="nav-closet" onclick="switchTab('closet')">
+          <div class="tab-icon">👚</div>
+          <div class="tab-label">クローゼット</div>
+        </div>
+        <div class="tab-item" id="nav-profile" onclick="switchTab('profile')">
+          <div class="tab-icon">👤</div>
+          <div class="tab-label">マイページ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+}
+</script>
+</body>
+</html>

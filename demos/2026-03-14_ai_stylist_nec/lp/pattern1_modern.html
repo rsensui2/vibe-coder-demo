@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StyleMirror | 撮るだけで、似合うがわかる。</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0A0A1A; --bg2: #0D0D24; --bg3: #111130;
+      --acc: #0F1ED2; --acc2: #2535FF; --glow: rgba(15,30,210,0.35);
+      --tx: #FFFFFF; --txm: #A0A8C8; --txd: #5A6080;
+      --brd: rgba(15,30,210,0.25); --brds: rgba(255,255,255,0.06);
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--tx); font-family: "Helvetica Neue","Hiragino Kaku Gothic ProN",sans-serif; line-height: 1.7; overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--acc); border-radius: 2px; }
+
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 64px;
+      background: rgba(10,10,26,0.88); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--brd);
+    }
+    .logo { font-size: 1.3rem; font-weight: 700; }
+    .logo span { color: var(--acc2); }
+    nav { display: flex; gap: 36px; }
+    nav a { color: var(--txm); text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+    nav a:hover { color: var(--tx); }
+    .btn-hd {
+      background: var(--acc); color: #fff; padding: 8px 22px; border-radius: 4px;
+      font-size: 0.875rem; font-weight: 600; text-decoration: none; transition: all 0.2s;
+    }
+    .btn-hd:hover { background: var(--acc2); box-shadow: 0 0 24px var(--glow); }
+
+    .hero {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 120px 24px 80px; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ""; position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 800px;
+      background: radial-gradient(ellipse, rgba(15,30,210,0.16) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--acc), transparent);
+    }
+    .grid-bg {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: linear-gradient(rgba(15,30,210,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,30,210,0.04) 1px, transparent 1px);
+      background-size: 80px 80px;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(15,30,210,0.15); border: 1px solid var(--brd); border-radius: 100px;
+      padding: 6px 18px; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--acc2); margin-bottom: 28px;
+    }
+    .badge::before { content: ""; width: 6px; height: 6px; background: var(--acc2); border-radius: 50%; box-shadow: 0 0 8px var(--acc2); }
+    h1 { font-size: clamp(3rem,7vw,5.5rem); font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 20px; }
+    h1 .hl { color: var(--acc2); position: relative; }
+    h1 .hl::after { content: ""; position: absolute; left: 0; bottom: -4px; right: 0; height: 3px; background: linear-gradient(90deg, var(--acc), var(--acc2), transparent); }
+    .sub { font-size: clamp(1rem,2vw,1.2rem); color: var(--txm); max-width: 540px; margin: 0 auto 14px; line-height: 1.8; }
+    .tagline { font-size: clamp(1.2rem,2.5vw,1.5rem); font-weight: 700; margin-bottom: 44px; }
+    .cta-g { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 56px; }
+    .btn-p {
+      display: inline-block; background: var(--acc); color: #fff;
+      padding: 15px 40px; border-radius: 6px; font-size: 1rem; font-weight: 700;
+      text-decoration: none; transition: all 0.25s;
+    }
+    .btn-p:hover { background: var(--acc2); box-shadow: 0 4px 32px var(--glow); transform: translateY(-2px); }
+    .btn-s {
+      display: inline-block; background: transparent; color: var(--txm);
+      padding: 15px 40px; border-radius: 6px; font-size: 1rem; font-weight: 600;
+      text-decoration: none; transition: all 0.25s; border: 1px solid var(--brd);
+    }
+    .btn-s:hover { color: var(--tx); background: rgba(15,30,210,0.08); border-color: rgba(15,30,210,0.5); }
+    .stats { display: flex; gap: 48px; justify-content: center; flex-wrap: wrap; }
+    .stat-n { font-size: 2rem; font-weight: 800; color: var(--acc2); display: block; line-height: 1; margin-bottom: 4px; }
+    .stat-l { font-size: 0.8rem; color: var(--txm); letter-spacing: 0.04em; }
+
+    .phone-wrap { position: absolute; right: 8vw; top: 50%; transform: translateY(-50%); }
+    .phone {
+      width: 210px; height: 420px; background: var(--bg3); border: 2px solid var(--brd);
+      border-radius: 34px; position: relative; overflow: hidden;
+      box-shadow: 0 0 60px rgba(15,30,210,0.2), 0 40px 80px rgba(0,0,0,0.5);
+    }
+    .p-notch { width: 70px; height: 20px; background: var(--bg2); border-radius: 0 0 14px 14px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); }
+    .p-screen { margin: 28px 10px 10px; background: linear-gradient(160deg,#0d1b4d,#091228); border-radius: 18px; height: calc(100% - 48px); overflow: hidden; display: flex; flex-direction: column; padding: 14px; }
+    .p-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .p-name { font-size: 0.6rem; font-weight: 700; color: var(--acc2); }
+    .p-btn { font-size: 0.5rem; background: var(--acc); color: #fff; padding: 3px 7px; border-radius: 3px; font-weight: 600; }
+    .p-vf { background: rgba(0,0,0,0.5); border: 1.5px solid rgba(15,30,210,0.6); border-radius: 9px; flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .vc { position: absolute; width: 14px; height: 14px; border-color: var(--acc2); border-style: solid; }
+    .vc.tl { top: 7px; left: 7px; border-width: 2px 0 0 2px; }
+    .vc.tr { top: 7px; right: 7px; border-width: 2px 2px 0 0; }
+    .vc.bl { bottom: 7px; left: 7px; border-width: 0 0 2px 2px; }
+    .vc.br { bottom: 7px; right: 7px; border-width: 0 2px 2px 0; }
+    .sl { position: absolute; left: 0; right: 0; height: 1.5px; background: linear-gradient(90deg,transparent,var(--acc2),transparent); animation: sc 2.5s ease-in-out infinite; }
+    @keyframes sc { 0%{top:20%;opacity:.7} 50%{top:75%;opacity:1} 100%{top:20%;opacity:.7} }
+    .p-icon { font-size: 1.8rem; opacity: 0.25; }
+    .p-res { margin-top: 9px; background: rgba(15,30,210,0.15); border: 1px solid var(--brd); border-radius: 7px; padding: 7px 9px; }
+    .p-res-t { font-size: 0.5rem; color: var(--acc2); font-weight: 700; margin-bottom: 4px; }
+    .pill { display: inline-block; background: rgba(15,30,210,0.2); border: 1px solid rgba(15,30,210,0.3); border-radius: 20px; padding: 2px 6px; font-size: 0.45rem; color: var(--txm); margin: 2px 2px 0 0; }
+
+    section { padding: 96px 24px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .stag { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--acc2); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .stag::before { content: ""; width: 22px; height: 2px; background: var(--acc); }
+    h2 { font-size: clamp(1.8rem,4vw,2.8rem); font-weight: 800; line-height: 1.25; letter-spacing: -0.02em; margin-bottom: 14px; }
+    .sdesc { font-size: 1rem; color: var(--txm); max-width: 520px; line-height: 1.8; }
+
+    .prob-sec { background: var(--bg2); border-top: 1px solid var(--brds); border-bottom: 1px solid var(--brds); }
+    .prob-hd { margin-bottom: 56px; }
+    .prob-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; }
+    .prob-card { background: var(--bg3); padding: 36px 28px; position: relative; overflow: hidden; transition: background 0.3s; }
+    .prob-card:hover { background: rgba(15,30,210,0.06); }
+    .prob-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg,var(--acc),transparent); opacity: 0; transition: opacity 0.3s; }
+    .prob-card:hover::before { opacity: 1; }
+    .prob-n { font-size: 3.5rem; font-weight: 900; color: rgba(15,30,210,0.12); line-height: 1; margin-bottom: 14px; letter-spacing: -0.04em; }
+    .prob-ic { font-size: 1.8rem; margin-bottom: 14px; display: block; }
+    .prob-ti { font-size: 1.1rem; font-weight: 700; margin-bottom: 9px; }
+    .prob-tx { font-size: 0.88rem; color: var(--txm); line-height: 1.75; }
+
+    .sol-hd { max-width: 600px; margin-bottom: 56px; }
+    .steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; position: relative; }
+    .steps::before { content: ""; position: absolute; top: 39px; left: 12%; right: 12%; height: 1px; background: linear-gradient(90deg,var(--acc),var(--acc2),var(--acc)); opacity: 0.35; }
+    .step { text-align: center; padding: 0 14px; }
+    .step-c { width: 78px; height: 78px; border-radius: 50%; background: var(--bg3); border: 2px solid var(--acc); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; position: relative; z-index: 1; transition: box-shadow 0.3s; }
+    .step:hover .step-c { box-shadow: 0 0 28px var(--glow); }
+    .step-n { font-size: 1.5rem; font-weight: 900; color: var(--acc2); }
+    .step-ic { font-size: 1.3rem; margin-bottom: 10px; display: block; }
+    .step-ti { font-size: 0.95rem; font-weight: 700; margin-bottom: 7px; }
+    .step-tx { font-size: 0.82rem; color: var(--txm); line-height: 1.7; }
+    .step-tm { display: inline-block; margin-top: 9px; font-size: 0.68rem; background: rgba(15,30,210,0.15); color: var(--acc2); padding: 3px 9px; border-radius: 20px; font-weight: 700; }
+
+    .feat-sec { background: var(--bg2); border-top: 1px solid var(--brds); border-bottom: 1px solid var(--brds); }
+    .feat-hd { margin-bottom: 56px; }
+    .feat-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 2px; }
+    .feat-card { background: var(--bg3); padding: 44px 36px; position: relative; overflow: hidden; transition: background 0.3s; }
+    .feat-card:hover { background: rgba(15,30,210,0.05); }
+    .feat-ic { width: 52px; height: 52px; background: rgba(15,30,210,0.12); border: 1px solid var(--brd); border-radius: 11px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 1.4rem; transition: box-shadow 0.3s; }
+    .feat-card:hover .feat-ic { box-shadow: 0 0 18px var(--glow); }
+    .feat-ti { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+    .feat-tx { font-size: 0.88rem; color: var(--txm); line-height: 1.8; }
+    .feat-tg { display: inline-block; margin-top: 14px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--acc2); }
+
+    .price-hd { text-align: center; margin-bottom: 56px; }
+    .price-hd .stag { justify-content: center; }
+    .price-hd .stag::before { display: none; }
+    .price-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; }
+    .price-card { background: var(--bg3); padding: 44px 32px; position: relative; overflow: hidden; transition: transform 0.3s; }
+    .price-card:hover { transform: translateY(-4px); }
+    .price-card.feat { background: rgba(15,30,210,0.1); border: 1px solid var(--acc); }
+    .price-card.feat::before { content: "MOST POPULAR"; position: absolute; top: 0; left: 50%; transform: translateX(-50%); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; background: var(--acc); color: #fff; padding: 4px 18px; border-radius: 0 0 7px 7px; }
+    .pn { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--txm); margin-bottom: 14px; }
+    .pp { font-size: 2.8rem; font-weight: 900; color: var(--tx); line-height: 1; margin-bottom: 4px; letter-spacing: -0.03em; }
+    .pp span { font-size: 0.9rem; font-weight: 400; color: var(--txd); }
+    .pd { font-size: 0.83rem; color: var(--txm); margin: 7px 0 28px; }
+    .pdiv { height: 1px; background: var(--brds); margin: 20px 0; }
+    .pf { list-style: none; margin-bottom: 36px; }
+    .pf li { font-size: 0.85rem; color: var(--txm); padding: 7px 0; display: flex; align-items: flex-start; gap: 9px; border-bottom: 1px solid var(--brds); }
+    .pf li:last-child { border-bottom: none; }
+    .pf li::before { content: "\2713"; color: var(--acc2); font-weight: 700; flex-shrink: 0; }
+    .btn-pl { display: block; text-align: center; padding: 13px 20px; border-radius: 5px; font-size: 0.88rem; font-weight: 700; letter-spacing: 0.04em; text-decoration: none; transition: all 0.25s; }
+    .btn-pl-p { background: var(--acc); color: #fff; }
+    .btn-pl-p:hover { background: var(--acc2); box-shadow: 0 4px 22px var(--glow); }
+    .btn-pl-o { background: transparent; color: var(--txm); border: 1px solid var(--brd); }
+    .btn-pl-o:hover { color: var(--tx); border-color: rgba(15,30,210,0.4); background: rgba(15,30,210,0.06); }
+    .nec-b { display: inline-flex; align-items: center; gap: 7px; background: rgba(15,30,210,0.08); border: 1px solid var(--brd); border-radius: 5px; padding: 5px 13px; font-size: 0.75rem; color: var(--txm); margin-top: 14px; }
+    .nec-b strong { color: var(--acc2); }
+
+    .faq-sec { background: var(--bg2); border-top: 1px solid var(--brds); border-bottom: 1px solid var(--brds); }
+    .faq-hd { max-width: 600px; margin: 0 auto 56px; text-align: center; }
+    .faq-hd .stag { justify-content: center; }
+    .faq-hd .stag::before { display: none; }
+    .faq-list { max-width: 740px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid var(--brds); }
+    .faq-q { width: 100%; background: none; border: none; cursor: pointer; text-align: left; padding: 26px 0; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .faq-qt { font-size: 0.95rem; font-weight: 600; color: var(--tx); line-height: 1.5; }
+    .faq-ic { width: 26px; height: 26px; border-radius: 50%; background: rgba(15,30,210,0.12); border: 1px solid var(--brd); color: var(--acc2); font-size: 1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; transition: background 0.2s; }
+    .faq-q:hover .faq-ic { background: rgba(15,30,210,0.22); }
+    .faq-a { display: none; padding: 0 0 26px; font-size: 0.88rem; color: var(--txm); line-height: 1.85; max-width: 660px; }
+    .faq-item.open .faq-a { display: block; }
+    .faq-item.open .faq-ic { background: rgba(15,30,210,0.22); }
+
+    footer { background: var(--bg); border-top: 1px solid var(--brd); padding: 80px 24px 40px; }
+    .ft-inner { max-width: 1100px; margin: 0 auto; }
+    .ft-cta { text-align: center; padding: 60px 20px; background: linear-gradient(135deg,rgba(15,30,210,0.11),rgba(15,30,210,0.04)); border: 1px solid var(--brd); border-radius: 14px; margin-bottom: 56px; }
+    .ft-cta h2 { font-size: clamp(1.5rem,3vw,2.2rem); font-weight: 800; margin-bottom: 10px; }
+    .ft-sub { font-size: 0.95rem; color: var(--txm); margin-bottom: 28px; }
+    .ft-bot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding-top: 36px; border-top: 1px solid var(--brds); }
+    .ft-logo { font-size: 1.1rem; font-weight: 700; }
+    .ft-logo span { color: var(--acc2); }
+    .ft-links { display: flex; gap: 24px; flex-wrap: wrap; }
+    .ft-links a { color: var(--txd); text-decoration: none; font-size: 0.8rem; transition: color 0.2s; }
+    .ft-links a:hover { color: var(--txm); }
+    .ft-copy { font-size: 0.78rem; color: var(--txd); }
+
+    @media (max-width: 900px) {
+      header { padding: 0 20px; }
+      nav { display: none; }
+      .phone-wrap { display: none; }
+      .prob-grid, .price-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: repeat(2,1fr); gap: 36px; }
+      .steps::before { display: none; }
+      .feat-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 540px) { .steps { grid-template-columns: 1fr; } .stats { gap: 28px; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Style<span>Mirror</span></div>
+  <nav>
+    <a href="#prob">課題</a>
+    <a href="#sol">仕組み</a>
+    <a href="#feat">機能</a>
+    <a href="#price">料金</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <a href="#price" class="btn-hd">無料で始める</a>
+</header>
+
+<section class="hero">
+  <div class="grid-bg"></div>
+  <div style="position:relative;z-index:1;">
+    <div class="badge">NEC AI POWERED &times; FASHION TECH</div>
+    <h1>試着室は、<br><span class="hl">もう要らない。</span></h1>
+    <p class="sub">店頭で見つけた服をスマホで撮るだけ。<br>NECのAI画像認識が0.3秒でコーデを提案。<br>あなたのクローゼットと自動でマッチング。</p>
+    <p class="tagline">撮るだけで、似合うがわかる。</p>
+    <div class="cta-g">
+      <a href="#price" class="btn-p">無料で始める &rarr;</a>
+      <a href="#sol" class="btn-s">仕組みを見る</a>
+    </div>
+    <div class="stats">
+      <div><span class="stat-n">0.3秒</span><span class="stat-l">AI解析速度</span></div>
+      <div><span class="stat-n">5パターン</span><span class="stat-l">コーデ提案数</span></div>
+      <div><span class="stat-n">98%</span><span class="stat-l">マッチング精度</span></div>
+      <div><span class="stat-n">無料</span><span class="stat-l">スタートプラン</span></div>
+    </div>
+  </div>
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="p-notch"></div>
+      <div class="p-screen">
+        <div class="p-bar">
+          <span class="p-name">StyleMirror</span>
+          <span class="p-btn">撮影</span>
+        </div>
+        <div class="p-vf">
+          <div class="vc tl"></div><div class="vc tr"></div>
+          <div class="vc bl"></div><div class="vc br"></div>
+          <div class="sl"></div>
+          <div class="p-icon">&#128247;</div>
+        </div>
+        <div class="p-res">
+          <div class="p-res-t">&#10024; コーデ5パターン生成完了</div>
+          <span class="pill">カジュアル</span>
+          <span class="pill">オフィス</span>
+          <span class="pill">デート</span>
+          <span class="pill">+2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="prob-sec" id="prob">
+  <div class="container">
+    <div class="prob-hd">
+      <div class="stag">Problem</div>
+      <h2>試着の3大問題、<br>全部解決します。</h2>
+      <p class="sdesc">現状のショッピング体験には根本的な3つの課題があります。StyleMirrorはそのすべてに答えます。</p>
+    </div>
+    <div class="prob-grid">
+      <div class="prob-card">
+        <div class="prob-n">01</div>
+        <span class="prob-ic">&#9203;</span>
+        <div class="prob-ti">試着室の待ち時間</div>
+        <p class="prob-tx">人気ブランドの試着室は15〜30分待ちが当たり前。時間を奪われ、購買意欲も失われます。</p>
+      </div>
+      <div class="prob-card">
+        <div class="prob-n">02</div>
+        <span class="prob-ic">&#129300;</span>
+        <div class="prob-ti">手持ち服との相性不明</div>
+        <p class="prob-tx">「家のあの服と合わせたら？」と考えながら試着しても、実際に組み合わせるまで分からない。</p>
+      </div>
+      <div class="prob-card">
+        <div class="prob-n">03</div>
+        <span class="prob-ic">&#128230;</span>
+        <div class="prob-ti">似た服の重複購入</div>
+        <p class="prob-tx">似たような服を持っているのに気づかず購入。クローゼットは増え、着回しは減る一方。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sol">
+  <div class="container">
+    <div class="sol-hd">
+      <div class="stag">Solution</div>
+      <h2>StyleMirrorの<br>仕組みは4ステップ。</h2>
+      <p class="sdesc">撮影からコーデ提案まで、AIが全部やります。あなたは服を選ぶだけ。</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-c"><span class="step-n">1</span></div>
+        <span class="step-ic">&#128247;</span>
+        <div class="step-ti">撮影</div>
+        <p class="step-tx">気になった服をスマホで撮影。店頭でも、ECサイトのスクショでも対応。</p>
+        <span class="step-tm">1タップ</span>
+      </div>
+      <div class="step">
+        <div class="step-c"><span class="step-n">2</span></div>
+        <span class="step-ic">&#129504;</span>
+        <div class="step-ti">AI解析</div>
+        <p class="step-tx">NECの画像認識AIが色・素材・シルエット・スタイルを瞬時に分析。</p>
+        <span class="step-tm">0.3秒</span>
+      </div>
+      <div class="step">
+        <div class="step-c"><span class="step-n">3</span></div>
+        <span class="step-ic">&#10024;</span>
+        <div class="step-ti">コーデ提案</div>
+        <p class="step-tx">手持ち服と組み合わせた5パターンのコーデを自動生成。</p>
+        <span class="step-tm">5パターン</span>
+      </div>
+      <div class="step">
+        <div class="step-c"><span class="step-n">4</span></div>
+        <span class="step-ic">&#128717;</span>
+        <div class="step-ti">ワンタップ購入</div>
+        <p class="step-tx">気に入ったコーデはワンタップで購入ページへ。迷いゼロのスマートショッピング。</p>
+        <span class="step-tm">即購入</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feat-sec" id="feat">
+  <div class="container">
+    <div class="feat-hd">
+      <div class="stag">Features</div>
+      <h2>4つの主要機能</h2>
+      <p class="sdesc">ファッションに関するあらゆる「迷い」を解消するために設計されています。</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-ic">&#127912;</div>
+        <div class="feat-ti">AIコーデ提案</div>
+        <p class="feat-tx">撮影した服と手持ち服の相性をAIがスコアリング。カジュアル・オフィス・デートなどシーン別に最大5パターンのコーデを自動生成。「これ、何と合わせれば？」の悩みがゼロになります。</p>
+        <span class="feat-tg">Core Feature</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ic">&#128065;</div>
+        <div class="feat-ti">バーチャル試着（AR）</div>
+        <p class="feat-tx">AR合成技術で自分の体型に服を重ねてリアルタイムプレビュー。試着室へ行く必要なし。スマホカメラの前に立つだけで、着用イメージが即座にわかります。</p>
+        <span class="feat-tg">Pro</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ic">&#127919;</div>
+        <div class="feat-ti">パーソナルカラー診断</div>
+        <p class="feat-tx">肌色×髪色を自動解析し、あなたに最適なカラーパレットを判定。イエベ・ブルベの分類だけでなく、実際に似合う色の服を優先してレコメンドします。</p>
+        <span class="feat-tg">Pro</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-ic">&#128083;</div>
+        <div class="feat-ti">クローゼット管理</div>
+        <p class="feat-tx">手持ち服を写真で登録するだけで、着回し回数・活用度・重複アイテムを可視化。「着てない服」「似た服」をAIが検出し、スマートな断捨離をサポートします。</p>
+        <span class="feat-tg">Core Feature</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="price">
+  <div class="container">
+    <div class="price-hd">
+      <div class="stag">Pricing</div>
+      <h2>シンプルな料金体系</h2>
+      <p class="sdesc" style="margin:0 auto;">まずは無料で始めて、使いながら必要な機能を追加できます。</p>
+    </div>
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="pn">Free</div>
+        <div class="pp">&#165;0<span> / 月</span></div>
+        <p class="pd">まず試したい方へ</p>
+        <div class="pdiv"></div>
+        <ul class="pf">
+          <li>月5回コーデ提案</li>
+          <li>クローゼット50着登録</li>
+          <li>基本AIマッチング</li>
+          <li>アプリ全機能のお試し</li>
+        </ul>
+        <a href="#" class="btn-pl btn-pl-o">無料で始める</a>
+      </div>
+      <div class="price-card feat">
+        <div class="pn">Pro</div>
+        <div class="pp">&#165;980<span> / 月</span></div>
+        <p class="pd">毎日使いたいあなたへ</p>
+        <div class="pdiv"></div>
+        <ul class="pf">
+          <li>無制限コーデ提案</li>
+          <li>クローゼット無制限登録</li>
+          <li>パーソナルカラー診断</li>
+          <li>AR バーチャル試着</li>
+          <li>着回し分析レポート</li>
+          <li>優先カスタマーサポート</li>
+        </ul>
+        <a href="#" class="btn-pl btn-pl-p">Pro を始める</a>
+      </div>
+      <div class="price-card">
+        <div class="pn">Enterprise</div>
+        <div class="pp" style="font-size:1.9rem;">要見積</div>
+        <p class="pd">店舗・ブランド向け</p>
+        <div class="pdiv"></div>
+        <ul class="pf">
+          <li>店舗向けAPI提供</li>
+          <li>顧客データ分析ダッシュボード</li>
+          <li>ブランド別カスタマイズ</li>
+          <li>在庫連携・購買データ統合</li>
+          <li>専任サクセスマネージャー</li>
+          <li>SLA保証・24時間サポート</li>
+        </ul>
+        <a href="mailto:enterprise@stylemirror.jp" class="btn-pl btn-pl-o">お問い合わせ</a>
+        <div class="nec-b"><strong>NEC</strong> AIエンジン搭載</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="faq-sec" id="faq">
+  <div class="container">
+    <div class="faq-hd">
+      <div class="stag">FAQ</div>
+      <h2>よくある質問</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="tf(this)">
+          <span class="faq-qt">どのくらい精度よくコーデを提案してくれますか？</span>
+          <span class="faq-ic">+</span>
+        </button>
+        <div class="faq-a">NECの画像認識AIは98%のマッチング精度を誇ります。服の色・素材・シルエット・スタイルを多角的に分析し、ファッションの専門知識をもとにコーデを生成します。クローゼットに登録された服が増えるほど、提案精度はさらに向上します。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="tf(this)">
+          <span class="faq-qt">店頭で撮影して問題ありませんか？</span>
+          <span class="faq-ic">+</span>
+        </button>
+        <div class="faq-a">店頭でのスマホ撮影は、各店舗のポリシーに従ってご利用ください。ECサイトのスクリーンショットや購入済み商品の写真からも同様にコーデ提案が可能です。ハンガー掛け・着用画像どちらにも対応しています。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="tf(this)">
+          <span class="faq-qt">クローゼットの服はどうやって登録しますか？</span>
+          <span class="faq-ic">+</span>
+        </button>
+        <div class="faq-a">服を着た状態またはハンガーに掛けた状態でスマホ撮影するだけです。AIが自動でカテゴリ・色・スタイルを分類します。楽天・Amazon・ZOZOなどの購入履歴との連携機能も順次対応予定です。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="tf(this)">
+          <span class="faq-qt">Enterpriseプランはどんな企業向けですか？</span>
+          <span class="faq-ic">+</span>
+        </button>
+        <div class="faq-a">アパレルブランド、セレクトショップ、百貨店、ECモール等を主な対象としています。顧客向けコーデ提案ツールとして自社アプリへ組み込むAPI形式、または店舗スタッフ向けタブレットアプリ形式でご提供可能です。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="tf(this)">
+          <span class="faq-qt">無料プランからProプランへの移行は簡単ですか？</span>
+          <span class="faq-ic">+</span>
+        </button>
+        <div class="faq-a">アプリ内から数タップで移行可能です。登録済みのクローゼットデータやコーデ履歴はすべて引き継がれます。いつでもキャンセル可能で、解約後も月末まではProの機能をご利用いただけます。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="ft-inner">
+    <div class="ft-cta">
+      <h2>今すぐ、スマートに着替えよう。</h2>
+      <p class="ft-sub">試着室に並ぶ時間を、自分らしいスタイルを見つける時間に。</p>
+      <a href="#price" class="btn-p" style="display:inline-block;">無料で始める &rarr;</a>
+    </div>
+    <div class="ft-bot">
+      <div class="ft-logo">Style<span>Mirror</span></div>
+      <div class="ft-links">
+        <a href="#">プライバシーポリシー</a>
+        <a href="#">利用規約</a>
+        <a href="#">お問い合わせ</a>
+        <a href="mailto:enterprise@stylemirror.jp">Enterprise</a>
+      </div>
+      <p class="ft-copy">&#169; 2026 StyleMirror Inc. Powered by NEC AI</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+function tf(btn) {
+  var item = btn.parentElement;
+  var open = item.classList.contains("open");
+  document.querySelectorAll(".faq-item").forEach(function(el){el.classList.remove("open");el.querySelector(".faq-ic").textContent="+";});
+  if(!open){item.classList.add("open");btn.querySelector(".faq-ic").textContent="\u2212";}
+}
+</script>
+</body>
+</html>
