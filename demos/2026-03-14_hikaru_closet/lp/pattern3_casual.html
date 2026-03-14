@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ひかるクローゼット - 試着なしで、コーデが決まる。</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #FFF0F5;
+    --bg2: #FFFFFF;
+    --bg3: #FFE4EF;
+    --accent: #FF4081;
+    --accent2: #FF80AB;
+    --accent3: #F06292;
+    --purple: #CE93D8;
+    --yellow: #FFD54F;
+    --mint: #80CBC4;
+    --text: #333344;
+    --text2: #777788;
+    --text3: #AAAACC;
+    --border: #FFD6E7;
+    --shadow: rgba(255,64,129,0.15);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ========== NAV ========== */
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    padding: 14px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,240,245,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 2px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nav-logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 4px 12px var(--shadow);
+  }
+
+  .nav-cta {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    padding: 10px 24px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    color: white;
+    border: none;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    box-shadow: 0 4px 16px var(--shadow);
+  }
+
+  .nav-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow);
+  }
+
+  /* ========== HERO ========== */
+  .hero {
+    min-height: 100vh;
+    padding: 120px 48px 80px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 60px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Decorative blobs */
+  .blob1 {
+    position: fixed;
+    top: -100px;
+    right: -200px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255,128,171,0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .blob2 {
+    position: fixed;
+    bottom: -200px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(206,147,216,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-content { position: relative; z-index: 1; }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 28px;
+    box-shadow: 0 4px 12px rgba(255,64,129,0.1);
+  }
+
+  .badge-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.7; }
+  }
+
+  .hero h1 {
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(36px, 4.5vw, 60px);
+    font-weight: 900;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+
+  .hero h1 .highlight {
+    color: var(--accent);
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero h1 .highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: rgba(255,64,129,0.15);
+    border-radius: 4px;
+    z-index: -1;
+  }
+
+  .hero-tagline {
+    font-size: clamp(18px, 2.2vw, 26px);
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 20px;
+  }
+
+  .hero-desc {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text2);
+    line-height: 1.9;
+    max-width: 460px;
+    margin-bottom: 36px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+
+  .btn-primary {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    padding: 16px 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    color: white;
+    border: none;
+    border-radius: 100px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 6px 20px rgba(255,64,129,0.35);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(255,64,129,0.4);
+  }
+
+  .btn-secondary {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    padding: 16px 32px;
+    background: white;
+    color: var(--accent);
+    border: 2px solid var(--border);
+    border-radius: 100px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    background: var(--bg3);
+    transform: translateY(-2px);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: white;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    box-shadow: 0 2px 8px rgba(255,64,129,0.08);
+  }
+
+  .stat-emoji { font-size: 18px; }
+
+  .stat-num {
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+  }
+
+  /* ========== PHONE MOCK (Cute Style) ========== */
+  .phone-wrap {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .phone-deco-top {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    font-size: 28px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .phone-deco-bottom {
+    position: absolute;
+    bottom: 20px;
+    left: -30px;
+    font-size: 24px;
+    animation: float 3s ease-in-out infinite 1s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .phone {
+    width: 220px;
+    height: 440px;
+    background: white;
+    border-radius: 36px;
+    border: 3px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+      0 4px 12px rgba(255,64,129,0.1),
+      0 16px 40px rgba(255,64,129,0.15),
+      0 32px 80px rgba(0,0,0,0.1);
+  }
+
+  .phone-top-bar {
+    height: 32px;
+    background: linear-gradient(135deg, #FFF0F5, var(--bg3));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phone-pill {
+    width: 64px;
+    height: 10px;
+    background: var(--border);
+    border-radius: 100px;
+  }
+
+  .phone-screen {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: calc(100% - 32px);
+  }
+
+  .phone-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 0;
+  }
+
+  .phone-app-name {
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    color: var(--accent);
+  }
+
+  .phone-profile {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+
+  .phone-scan-card {
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .phone-scan-card::after {
+    content: '✨';
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    font-size: 14px;
+  }
+
+  .scan-cam-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .scan-text {
+    font-size: 8px;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+  }
+
+  .phone-section-label {
+    font-size: 7px;
+    font-weight: 700;
+    color: var(--text3);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .phone-outfit {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .outfit-item {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 8px;
+    border: 1.5px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .outfit-color {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+  }
+
+  .outfit-name {
+    font-size: 7px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+  }
+
+  .outfit-match {
+    font-size: 6px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .phone-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 8px;
+    font-size: 8px;
+    font-weight: 700;
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    cursor: pointer;
+    text-align: center;
+    margin-top: auto;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px var(--shadow);
+  }
+
+  /* ========== SECTION BASE ========== */
+  .section-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 80px 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background: var(--bg3);
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 20px;
+    border: 1.5px solid var(--border);
+  }
+
+  .section-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(28px, 3vw, 42px);
+    font-weight: 900;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .section-sub {
+    font-size: 15px;
+    color: var(--text2);
+    line-height: 1.9;
+    max-width: 500px;
+    margin-bottom: 48px;
+  }
+
+  /* ========== PROBLEM ========== */
+  .problem-section {
+    background: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .problem-section::before {
+    content: '😓';
+    position: absolute;
+    top: 20px;
+    right: 60px;
+    font-size: 80px;
+    opacity: 0.06;
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .problem-card {
+    background: var(--bg);
+    border-radius: 20px;
+    padding: 32px 24px;
+    border: 2px solid var(--border);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .problem-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--accent2);
+    box-shadow: 0 12px 32px rgba(255,64,129,0.15);
+  }
+
+  .problem-card::after {
+    content: attr(data-emoji);
+    position: absolute;
+    bottom: -10px;
+    right: 10px;
+    font-size: 48px;
+    opacity: 0.12;
+  }
+
+  .problem-num-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .problem-icon { font-size: 32px; margin-bottom: 12px; display: block; }
+
+  .problem-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+
+  .problem-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.9;
+    font-weight: 400;
+  }
+
+  /* ========== SOLUTION ========== */
+  .solution-section { background: var(--bg); }
+
+  .solution-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    position: relative;
+  }
+
+  .solution-grid::before {
+    content: '→ →';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    color: var(--accent2);
+    letter-spacing: 80px;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .step-card {
+    background: white;
+    border-radius: 24px;
+    padding: 36px 28px;
+    border: 2px solid var(--border);
+    transition: all 0.3s;
+    text-align: center;
+    position: relative;
+  }
+
+  .step-card:hover {
+    border-color: var(--accent2);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(255,64,129,0.15);
+  }
+
+  .step-num-circle {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    color: white;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 16px var(--shadow);
+  }
+
+  .step-icon {
+    font-size: 40px;
+    display: block;
+    margin: 0 auto 16px;
+  }
+
+  .step-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.9;
+  }
+
+  .step-arrow {
+    position: absolute;
+    top: 50%;
+    right: -14px;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: var(--accent2);
+    z-index: 2;
+  }
+
+  /* ========== FEATURES ========== */
+  .features-section { background: white; }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .feature-card {
+    background: var(--bg);
+    border-radius: 24px;
+    padding: 36px 28px;
+    border: 2px solid var(--border);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(255,64,129,0.15);
+    border-color: var(--accent2);
+  }
+
+  .feature-icon-bubble {
+    width: 60px;
+    height: 60px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 24px;
+  }
+
+  .feature-card:nth-child(1) .feature-icon-bubble { background: linear-gradient(135deg, #FCE4EC, #F8BBD9); }
+  .feature-card:nth-child(2) .feature-icon-bubble { background: linear-gradient(135deg, #EDE7F6, #D1C4E9); }
+  .feature-card:nth-child(3) .feature-icon-bubble { background: linear-gradient(135deg, #E0F7FA, #B2EBF2); }
+
+  .feature-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .feature-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.9;
+    margin-bottom: 20px;
+  }
+
+  .feature-pill {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .feature-card:nth-child(1) .feature-pill { background: #FCE4EC; color: var(--accent); }
+  .feature-card:nth-child(2) .feature-pill { background: #EDE7F6; color: #9C27B0; }
+  .feature-card:nth-child(3) .feature-pill { background: #E0F7FA; color: #00838F; }
+
+  /* ========== PRICING ========== */
+  .pricing-section { background: var(--bg); }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .price-card {
+    background: white;
+    border-radius: 24px;
+    padding: 36px 28px;
+    border: 2px solid var(--border);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .price-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(255,64,129,0.12);
+  }
+
+  .price-card.featured {
+    background: linear-gradient(160deg, #FF4081, #F06292);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .price-card.featured::before {
+    content: '👑';
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 20px;
+  }
+
+  .featured-ribbon {
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--yellow);
+    color: var(--text);
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 20px;
+    border-radius: 0 0 12px 12px;
+    font-family: 'Nunito', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  .price-plan-icon { font-size: 28px; margin-bottom: 12px; display: block; }
+
+  .price-plan {
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text2);
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .price-card.featured .price-plan { color: rgba(255,255,255,0.8); }
+
+  .price-amount {
+    font-family: 'Nunito', sans-serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+    letter-spacing: -2px;
+  }
+
+  .price-amount span {
+    font-size: 18px;
+    letter-spacing: 0;
+    font-weight: 700;
+  }
+
+  .price-card.featured .price-amount { color: white; }
+
+  .price-period {
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+
+  .price-card.featured .price-period { color: rgba(255,255,255,0.7); }
+
+  .price-sep {
+    height: 2px;
+    background: var(--bg);
+    border-radius: 1px;
+    margin-bottom: 20px;
+  }
+
+  .price-card.featured .price-sep { background: rgba(255,255,255,0.2); }
+
+  .price-features {
+    list-style: none;
+    margin-bottom: 28px;
+  }
+
+  .price-features li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 0;
+    font-size: 13px;
+    color: var(--text2);
+    border-bottom: 1px dashed var(--border);
+    font-weight: 500;
+  }
+
+  .price-features li:last-child { border-bottom: none; }
+  .price-card.featured .price-features li { color: rgba(255,255,255,0.9); border-color: rgba(255,255,255,0.2); }
+
+  .price-features li::before {
+    content: '🌸';
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .price-card.featured .price-features li::before { content: '✨'; }
+
+  .price-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 100px;
+    border: 2px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+  }
+
+  .price-btn:hover {
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 6px 20px rgba(255,64,129,0.35);
+  }
+
+  .price-card.featured .price-btn {
+    background: white;
+    border-color: white;
+    color: var(--accent);
+  }
+
+  .price-card.featured .price-btn:hover { background: rgba(255,255,255,0.9); }
+
+  .discount-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    background: rgba(76,175,80,0.12);
+    color: #2E7D32;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+
+  /* ========== TESTIMONIALS ========== */
+  .testimonials-section { background: white; }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .testimonial-card {
+    background: var(--bg);
+    border-radius: 24px;
+    padding: 32px 24px;
+    border: 2px solid var(--border);
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .testimonial-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(255,64,129,0.1);
+    border-color: var(--accent2);
+  }
+
+  .stars { font-size: 16px; letter-spacing: 2px; margin-bottom: 16px; }
+
+  .testimonial-text {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.9;
+    margin-bottom: 24px;
+    font-weight: 400;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .testimonial-card:nth-child(1) .author-avatar { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+  .testimonial-card:nth-child(2) .author-avatar { background: linear-gradient(135deg, var(--purple), #9C27B0); }
+  .testimonial-card:nth-child(3) .author-avatar { background: linear-gradient(135deg, var(--mint), #009688); }
+
+  .author-name {
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .author-meta {
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  /* ========== FAQ ========== */
+  .faq-section { background: var(--bg); }
+
+  .faq-list {
+    max-width: 720px;
+  }
+
+  .faq-item {
+    background: white;
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .faq-item:hover { border-color: var(--accent2); }
+  .faq-item.open { border-color: var(--accent); box-shadow: 0 4px 16px rgba(255,64,129,0.1); }
+
+  .faq-q {
+    padding: 20px 24px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    user-select: none;
+    transition: color 0.2s;
+  }
+
+  .faq-q:hover { color: var(--accent); }
+
+  .faq-toggle {
+    width: 28px;
+    height: 28px;
+    background: var(--bg3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--accent);
+    flex-shrink: 0;
+    transition: all 0.3s;
+    font-weight: 700;
+  }
+
+  .faq-item.open .faq-toggle {
+    background: var(--accent);
+    color: white;
+    transform: rotate(45deg);
+  }
+
+  .faq-a {
+    padding: 0 24px 20px;
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.9;
+    display: none;
+    font-weight: 400;
+  }
+
+  .faq-item.open .faq-a { display: block; }
+
+  /* ========== FOOTER ========== */
+  footer {
+    background: linear-gradient(160deg, var(--accent), var(--accent3));
+    position: relative;
+    overflow: hidden;
+  }
+
+  footer::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  footer::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    left: -60px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .footer-cta-section {
+    padding: 100px 48px;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 24px;
+    backdrop-filter: blur(4px);
+  }
+
+  .footer-cta-section h2 {
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 900;
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+
+  .footer-cta-section p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 36px;
+    line-height: 1.9;
+  }
+
+  .btn-footer-cta {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    padding: 18px 52px;
+    background: white;
+    color: var(--accent);
+    border: none;
+    border-radius: 100px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  }
+
+  .btn-footer-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+  }
+
+  .footer-bottom {
+    padding: 20px 48px;
+    background: rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-logo {
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .footer-logo-icon {
+    width: 24px;
+    height: 24px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .footer-copy {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 400;
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 900px) {
+    nav { padding: 14px 20px; }
+    .hero { grid-template-columns: 1fr; padding: 100px 20px 60px; gap: 40px; }
+    .phone-wrap { order: -1; }
+    .section-wrap { padding: 60px 20px; }
+    .problem-grid, .solution-grid, .features-grid, .pricing-grid, .testimonials-grid {
+      grid-template-columns: 1fr;
+    }
+    .step-arrow { display: none; }
+    .footer-cta-section { padding: 60px 20px; }
+    .footer-bottom { flex-direction: column; gap: 10px; padding: 16px 20px; }
+    .hero-stats { gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Decorative blobs -->
+<div class="blob1"></div>
+<div class="blob2"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">👗</div>
+    ひかるクローゼット
+  </div>
+  <a href="#cta" class="nav-cta">🌸 無料で始める</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="badge-dot"></div>
+      AI ファッションアシスタント
+    </div>
+    <h1>もう<span class="highlight">試着</span>で<br>悩まない！</h1>
+    <p class="hero-tagline">試着なしで、コーデが決まる。✨</p>
+    <p class="hero-desc">店頭で見つけた服をスマホでパシャ！AIがあなたのクローゼットを見て、ベストコーデをすぐに提案してくれるよ🎀</p>
+    <div class="hero-actions">
+      <a href="#cta" class="btn-primary">🚀 今すぐ無料で始める</a>
+      <a href="#features" class="btn-secondary">もっと見る →</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-chip">
+        <div class="stat-emoji">👥</div>
+        <div>
+          <div class="stat-num">10,000+</div>
+          <div class="stat-label">ユーザー</div>
+        </div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-emoji">💖</div>
+        <div>
+          <div class="stat-num">98%</div>
+          <div class="stat-label">満足度</div>
+        </div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-emoji">⚡</div>
+        <div>
+          <div class="stat-num">3秒</div>
+          <div class="stat-label">で提案</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phone Mock Cute -->
+  <div class="phone-wrap">
+    <div class="phone-deco-top">🌸</div>
+    <div class="phone-deco-bottom">✨</div>
+    <div class="phone">
+      <div class="phone-top-bar">
+        <div class="phone-pill"></div>
+      </div>
+      <div class="phone-screen">
+        <div class="phone-header">
+          <div class="phone-app-name">ひかるクローゼット ✨</div>
+          <div class="phone-profile">👤</div>
+        </div>
+        <div class="phone-scan-card">
+          <div class="scan-cam-icon">📷</div>
+          <div class="scan-text">タップして服を撮影する</div>
+        </div>
+        <div class="phone-section-label">MY CLOSET</div>
+        <div class="phone-outfit">
+          <div class="outfit-item">
+            <div class="outfit-color" style="background:linear-gradient(135deg,#FFCCDD,#FF4081)"></div>
+            <div class="outfit-name">ピンクトップ</div>
+            <div class="outfit-match">💕 4コーデ</div>
+          </div>
+          <div class="outfit-item">
+            <div class="outfit-color" style="background:linear-gradient(135deg,#F3E5F5,#CE93D8)"></div>
+            <div class="outfit-name">ラベンダーSK</div>
+            <div class="outfit-match">💜 6コーデ</div>
+          </div>
+          <div class="outfit-item">
+            <div class="outfit-color" style="background:linear-gradient(135deg,#E3F2FD,#90CAF9)"></div>
+            <div class="outfit-name">ブルーデニム</div>
+            <div class="outfit-match">💙 8コーデ</div>
+          </div>
+          <div class="outfit-item">
+            <div class="outfit-color" style="background:linear-gradient(135deg,#FFF9C4,#FFD54F)"></div>
+            <div class="outfit-name">イエローワンピ</div>
+            <div class="outfit-match">💛 5コーデ</div>
+          </div>
+        </div>
+        <div class="phone-btn">✨ コーデを提案してもらう</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<div class="problem-section">
+  <div class="section-wrap">
+    <div class="section-chip">😓 こんな経験ない？</div>
+    <h2 class="section-title">試着って<br>疲れるよね…</h2>
+    <p class="section-sub">お買い物が好きなのに、いつもこんな悩みで頭がいっぱい。</p>
+    <div class="problem-grid">
+      <div class="problem-card" data-emoji="⏳">
+        <div class="problem-num-badge">1</div>
+        <span class="problem-icon">⏳</span>
+        <h3 class="problem-title">試着待ちが長い〜！</h3>
+        <p class="problem-desc">試着室の前でずっと待ったり、着替えを何回も繰り返したり。疲れてテンションが下がっちゃう。</p>
+      </div>
+      <div class="problem-card" data-emoji="🤔">
+        <div class="problem-num-badge">2</div>
+        <span class="problem-icon">🤔</span>
+        <h3 class="problem-title">「家の服と合う？」不安</h3>
+        <p class="problem-desc">かわいいと思っても、家のクローゼットと合わせられるか心配で、結局買えないことが多い。</p>
+      </div>
+      <div class="problem-card" data-emoji="💸">
+        <div class="problem-num-badge">3</div>
+        <span class="problem-icon">💸</span>
+        <h3 class="problem-title">「買ったのに着ない」問題</h3>
+        <p class="problem-desc">テンションで買ったけど着回しできなくて、結局タンスの肥やしに。もったいない！</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SOLUTION -->
+<div class="solution-section">
+  <div class="section-wrap">
+    <div class="section-chip">✨ 解決策</div>
+    <h2 class="section-title">3ステップで<br>すべて解決！</h2>
+    <p class="section-sub">ひかるクローゼットがあれば、ショッピングがもっと楽しくなるよ🎀</p>
+    <div class="solution-grid">
+      <div class="step-card">
+        <div class="step-arrow">→</div>
+        <div class="step-num-circle">1</div>
+        <span class="step-icon">📷</span>
+        <h3 class="step-title">撮影する</h3>
+        <p class="step-desc">気になった服をスマホでパシャ！AIが服の色・形・素材をすぐに認識するよ。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-arrow">→</div>
+        <div class="step-num-circle">2</div>
+        <span class="step-icon">🤖</span>
+        <h3 class="step-title">AIが分析</h3>
+        <p class="step-desc">あなたのクローゼットデータと照合して、AIが相性バッチリのコーデを3秒以内に提案！</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num-circle">3</div>
+        <span class="step-icon">🛍️</span>
+        <h3 class="step-title">コーデ確認 & 購入</h3>
+        <p class="step-desc">提案を見て購入判断！「この服、絶対着る！」ってわかるから後悔ゼロ✨</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div id="features" class="features-section">
+  <div class="section-wrap">
+    <div class="section-chip">🌟 主な機能</div>
+    <h2 class="section-title">こんなことが<br>できるよ！</h2>
+    <p class="section-sub">ファッションをもっと楽しくする3つの機能を紹介するね。</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon-bubble">📸</div>
+        <h3 class="feature-title">AIスキャン</h3>
+        <p class="feature-desc">服を撮るだけで色・デザイン・素材を自動認識！データはクラウドに保存されて、いつでも見れるよ。</p>
+        <div class="feature-pill">AI Powered 🤖</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-bubble">👚</div>
+        <h3 class="feature-title">スマートクローゼット</h3>
+        <p class="feature-desc">持ってる服を全部デジタル管理！カテゴリ・色・シーズン別に整理されて、全体が一目でわかる。</p>
+        <div class="feature-pill">便利に整理 ✨</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-bubble">🎨</div>
+        <h3 class="feature-title">コーデ提案</h3>
+        <p class="feature-desc">体型・好み・過去のコーデを学習して、あなただけのコーデを提案！毎日のスタイリングが楽しくなるよ。</p>
+        <div class="feature-pill">パーソナル 💖</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="pricing-section">
+  <div class="section-wrap">
+    <div class="section-chip">💰 料金プラン</div>
+    <h2 class="section-title">自分にぴったりの<br>プランを選ぼう！</h2>
+    <p class="section-sub">まずは無料から！使い方に合わせてプランを選んでね。</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <span class="price-plan-icon">🆓</span>
+        <div class="price-plan">Free</div>
+        <div class="price-amount">¥<span>0</span></div>
+        <div class="price-period">ずっと無料</div>
+        <div class="price-sep"></div>
+        <ul class="price-features">
+          <li>クローゼット10着まで</li>
+          <li>コーデ提案 月5回</li>
+          <li>基本スキャン機能</li>
+        </ul>
+        <button class="price-btn">無料で始める 🌸</button>
+      </div>
+      <div class="price-card featured">
+        <div class="featured-ribbon">人気 No.1</div>
+        <span class="price-plan-icon">⭐</span>
+        <div class="price-plan">Premium</div>
+        <div class="price-amount">¥980<span>/月</span></div>
+        <div class="price-period">月額プラン</div>
+        <div class="price-sep"></div>
+        <ul class="price-features">
+          <li>クローゼット 無制限</li>
+          <li>コーデ提案 無制限</li>
+          <li>AIスキャン 無制限</li>
+          <li>優先サポート</li>
+          <li>トレンドレポート</li>
+        </ul>
+        <button class="price-btn">今すぐ始める！</button>
+      </div>
+      <div class="price-card">
+        <span class="price-plan-icon">🎁</span>
+        <div class="price-plan">Annual</div>
+        <div class="price-amount">¥7,800<span>/年</span></div>
+        <div class="price-period">年額プラン <span class="discount-tag">🎉 35% OFF</span></div>
+        <div class="price-sep"></div>
+        <ul class="price-features">
+          <li>Premiumの全機能</li>
+          <li>月換算 ¥650/月 🎀</li>
+          <li>スタイリスト相談</li>
+          <li>限定テンプレート</li>
+          <li>最優先サポート</li>
+        </ul>
+        <button class="price-btn">年額プランで始める 🎁</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="testimonials-section">
+  <div class="section-wrap">
+    <div class="section-chip">💬 みんなの声</div>
+    <h2 class="section-title">使った人たちの<br>リアルな感想！</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">「これ使い始めてから、買い物での後悔がゼロになりました！撮影してAIに聞けばすぐわかるから、クローゼットもスッキリしたし最高です✨」</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">A</div>
+          <div>
+            <div class="author-name">青山 みさき</div>
+            <div class="author-meta">会社員・28歳</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">「毎朝何着ようか迷ってたのが、今は3秒で決まります！AIが自分の好みをちゃんと学習してくれてて、提案が毎回ぴったり💕」</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">S</div>
+          <div>
+            <div class="author-name">佐藤 はるか</div>
+            <div class="author-meta">大学生・21歳</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">「Premiumにしたら使い方が変わりました！迷ったらすぐ確認できるから衝動買いも減って、むしろ節約になってる気がする笑」</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">T</div>
+          <div>
+            <div class="author-name">田中 ゆき</div>
+            <div class="author-meta">フリーランサー・33歳</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section">
+  <div class="section-wrap">
+    <div class="section-chip">❓ よくある質問</div>
+    <h2 class="section-title">気になること<br>全部答えます！</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>AIの認識精度はどのくらい？</span>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">服の色・シルエット・素材感を95%以上の精度で認識します！明るい場所で撮ると精度がさらにアップします📸</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>私のデータ（写真など）は安全ですか？</span>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">すべてのデータは暗号化されて安全に保管されます。第三者への共有は一切なし！いつでも削除もできます🔒</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>プランはあとから変更できる？</span>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">もちろん！アプリ内からいつでもアップ・ダウングレードができます。まずは無料から試してみてね🌸</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>どんな服でも登録できる？</span>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">ブランドや値段に関係なく、どんな服でも登録できます！古着も海外ブランドも全然OK👗</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>解約はいつでもできる？</span>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">縛りは一切なし！マイページからいつでも解約できます。解約後も期間終了まで使えるから安心してね✨</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div id="cta" class="footer-cta-section">
+    <div class="footer-badge">🚀 今すぐ始めよう</div>
+    <h2>ファッションを、<br>もっと楽しく！🌸</h2>
+    <p>まずは無料で始めてみよう。あなたのクローゼットが変わるよ✨</p>
+    <a href="#" class="btn-footer-cta">🎀 今すぐ無料で始める</a>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-logo">
+      <div class="footer-logo-icon">👗</div>
+      ひかるクローゼット
+    </div>
+    <div class="footer-copy">© 2026 ひかるクローゼット. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+</script>
+</body>
+</html>

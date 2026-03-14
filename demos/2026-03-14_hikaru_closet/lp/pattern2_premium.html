@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ひかるクローゼット - 試着なしで、コーデが決まる。</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Serif+JP:wght@300;400;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #FAFAFA;
+    --bg2: #FFFFFF;
+    --bg3: #F5F0F2;
+    --accent: #E91E8C;
+    --accent-light: #FCE4F3;
+    --accent-mid: #F48FB1;
+    --text: #1A1A1A;
+    --text2: #6B6B6B;
+    --text3: #AAAAAA;
+    --border: #E8E0E5;
+    --border-accent: rgba(233,30,140,0.2);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Serif JP', serif;
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ========== NAV ========== */
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    padding: 20px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(250,250,250,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 1px;
+  }
+
+  .nav-logo span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--text2);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  .nav-cta {
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 10px 28px;
+    background: var(--text);
+    color: white;
+    border: none;
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-cta:hover { background: var(--accent); }
+
+  /* ========== HERO ========== */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 480px;
+    align-items: center;
+    padding: 120px 60px 80px;
+    gap: 80px;
+    max-width: 1280px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 60px;
+    right: 60px;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .hero-eyebrow {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 28px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(40px, 4.5vw, 68px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-tagline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(20px, 2vw, 28px);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--text2);
+    margin-bottom: 32px;
+  }
+
+  .hero-divider {
+    width: 48px;
+    height: 1px;
+    background: var(--accent);
+    margin-bottom: 28px;
+  }
+
+  .hero-desc {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--text2);
+    line-height: 2;
+    max-width: 440px;
+    margin-bottom: 44px;
+  }
+
+  .hero-cta-group {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 16px 48px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-primary:hover {
+    background: #C2006E;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(233,30,140,0.3);
+  }
+
+  .btn-outline {
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 16px 40px;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--text);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  .hero-trust {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .trust-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .trust-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .trust-label {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--text3);
+    letter-spacing: 0.5px;
+  }
+
+  .trust-sep {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+  }
+
+  /* ========== PHONE MOCK (Premium Style) ========== */
+  .phone-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .phone-shadow-block {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 160px;
+    height: 20px;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .phone {
+    width: 250px;
+    height: 500px;
+    background: #FFFFFF;
+    border-radius: 40px;
+    border: 8px solid #F0ECF0;
+    position: relative;
+    box-shadow: 
+      0 2px 4px rgba(0,0,0,0.04),
+      0 8px 24px rgba(0,0,0,0.08),
+      0 32px 80px rgba(0,0,0,0.12),
+      inset 0 1px 1px rgba(255,255,255,0.8);
+    overflow: hidden;
+  }
+
+  .phone-status-bar {
+    height: 28px;
+    background: #FAFAFA;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid #F0ECF0;
+  }
+
+  .status-time {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 8px;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .status-icons { font-size: 7px; color: #666; letter-spacing: 2px; }
+
+  .phone-screen {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .phone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+  }
+
+  .phone-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .phone-menu { display: flex; gap: 4px; }
+
+  .menu-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--text3);
+  }
+
+  .phone-banner {
+    height: 120px;
+    background: linear-gradient(135deg, var(--accent-light), #FCE4F3);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .phone-banner::before {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    width: 60px;
+    height: 60px;
+    background: rgba(233,30,140,0.1);
+    border-radius: 50%;
+  }
+
+  .camera-icon {
+    width: 36px;
+    height: 36px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 2px 8px rgba(233,30,140,0.2);
+  }
+
+  .banner-text {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 8px;
+    font-weight: 500;
+    color: var(--accent);
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
+  .section-label-phone {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 7px;
+    font-weight: 500;
+    color: var(--text3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .phone-items { display: flex; flex-direction: column; gap: 6px; }
+
+  .phone-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: var(--bg3);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .item-color {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .item-info { flex: 1; }
+
+  .item-name {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 8px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .item-match {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 7px;
+    color: var(--accent);
+    margin-top: 2px;
+  }
+
+  .item-arrow { font-size: 10px; color: var(--text3); }
+
+  .phone-home-indicator {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 2px;
+  }
+
+  /* ========== SECTION BASE ========== */
+  .section-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 60px;
+  }
+
+  .section-eyebrow {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 3vw, 44px);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .section-sub {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--text2);
+    max-width: 480px;
+    line-height: 2;
+  }
+
+  .section-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+    margin: 20px 0 48px;
+  }
+
+  /* ========== PROBLEM ========== */
+  .problem-section {
+    background: var(--bg3);
+    padding: 100px 0;
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    margin-top: 48px;
+  }
+
+  .problem-card {
+    padding: 40px 0;
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .problem-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--accent-light);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+
+  .problem-emoji { font-size: 24px; margin-bottom: 16px; }
+
+  .problem-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .problem-desc {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text2);
+    line-height: 2;
+  }
+
+  /* ========== SOLUTION ========== */
+  .solution-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 48px;
+  }
+
+  .step-card {
+    position: relative;
+    padding: 40px 32px;
+    background: white;
+    border: 1px solid var(--border);
+    transition: all 0.4s;
+  }
+
+  .step-card:hover {
+    border-color: var(--accent-mid);
+    box-shadow: 0 12px 40px rgba(233,30,140,0.08);
+    transform: translateY(-4px);
+  }
+
+  .step-connector {
+    position: absolute;
+    top: 50%;
+    right: -17px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: var(--accent-mid);
+    z-index: 1;
+  }
+
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--accent-light);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+
+  .step-icon { font-size: 28px; margin-bottom: 16px; }
+
+  .step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .step-desc {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text2);
+    line-height: 2;
+  }
+
+  /* ========== FEATURES ========== */
+  .features-section {
+    background: white;
+    padding: 100px 0;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-top: 48px;
+    border: 1px solid var(--border);
+  }
+
+  .feature-card {
+    padding: 48px 36px;
+    border-right: 1px solid var(--border);
+    transition: background 0.3s;
+  }
+
+  .feature-card:last-child { border-right: none; }
+  .feature-card:hover { background: var(--bg3); }
+
+  .feature-icon {
+    font-size: 32px;
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  .feature-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .feature-desc {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text2);
+    line-height: 2;
+    margin-bottom: 24px;
+  }
+
+  .feature-link {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 2px;
+    transition: opacity 0.2s;
+  }
+
+  .feature-link:hover { opacity: 0.7; }
+
+  /* ========== PRICING ========== */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 48px;
+  }
+
+  .price-card {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 44px 36px;
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .price-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+
+  .price-card.featured {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: white;
+  }
+
+  .price-card.featured .price-plan,
+  .price-card.featured .price-period,
+  .price-card.featured .price-desc { color: rgba(255,255,255,0.75); }
+
+  .price-card.featured .price-amount,
+  .price-card.featured .feature-li { color: white; }
+
+  .featured-tag {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: white;
+    background: rgba(255,255,255,0.25);
+    padding: 4px 12px;
+    border-radius: 100px;
+  }
+
+  .price-plan {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 28px;
+  }
+
+  .price-amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 4px;
+  }
+
+  .price-amount sub {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+    vertical-align: baseline;
+    letter-spacing: 0;
+  }
+
+  .price-period {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--text2);
+    margin-bottom: 32px;
+  }
+
+  .price-divider {
+    height: 1px;
+    background: rgba(0,0,0,0.08);
+    margin-bottom: 28px;
+  }
+
+  .price-card.featured .price-divider { background: rgba(255,255,255,0.2); }
+
+  .price-features {
+    list-style: none;
+    margin-bottom: 36px;
+  }
+
+  .price-features li {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--text2);
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .price-card.featured .price-features li { color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.1); }
+
+  .price-features li::before {
+    content: '·';
+    font-size: 20px;
+    color: var(--accent);
+    flex-shrink: 0;
+    line-height: 0.5;
+  }
+
+  .price-card.featured .price-features li::before { color: rgba(255,255,255,0.6); }
+
+  .price-btn {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .price-btn:hover { background: var(--text); color: white; }
+
+  .price-card.featured .price-btn {
+    background: white;
+    color: var(--accent);
+    border-color: white;
+  }
+
+  .price-card.featured .price-btn:hover { background: rgba(255,255,255,0.9); }
+
+  .discount-label {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 11px;
+    font-weight: 400;
+    color: #4CAF50;
+    background: rgba(76,175,80,0.1);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+
+  /* ========== TESTIMONIALS ========== */
+  .testimonials-section {
+    background: var(--bg3);
+    padding: 100px 0;
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 48px;
+  }
+
+  .testimonial-card {
+    background: white;
+    padding: 40px 32px;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+
+  .quote-mark {
+    font-family: 'Playfair Display', serif;
+    font-size: 64px;
+    color: var(--accent-light);
+    line-height: 1;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .testimonial-text {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text2);
+    line-height: 2;
+    margin-bottom: 28px;
+  }
+
+  .stars {
+    color: var(--accent);
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    border: 1px solid var(--border-accent);
+  }
+
+  .author-name {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .author-meta {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--text3);
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ========== FAQ ========== */
+  .faq-list {
+    max-width: 700px;
+    margin-top: 48px;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 0;
+  }
+
+  .faq-q {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    user-select: none;
+    transition: color 0.2s;
+  }
+
+  .faq-q:hover { color: var(--accent); }
+
+  .faq-icon {
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+
+  .faq-item.open .faq-icon {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    transform: rotate(45deg);
+  }
+
+  .faq-a {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text2);
+    line-height: 2;
+    padding-top: 16px;
+    display: none;
+  }
+
+  .faq-item.open .faq-a { display: block; }
+
+  /* ========== FOOTER ========== */
+  footer {
+    background: var(--text);
+  }
+
+  .footer-cta-section {
+    padding: 100px 60px;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .footer-eyebrow {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .footer-cta-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 700;
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+  }
+
+  .footer-cta-section h2 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .footer-cta-section p {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 40px;
+    line-height: 2;
+  }
+
+  .btn-footer-cta {
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 18px 56px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-footer-cta:hover { background: #C2006E; box-shadow: 0 12px 40px rgba(233,30,140,0.4); transform: translateY(-2px); }
+
+  .footer-bottom {
+    padding: 24px 60px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .footer-logo span { color: var(--accent); }
+
+  .footer-copy {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.5px;
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 1024px) {
+    .nav-links { display: none; }
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .hero { grid-template-columns: 1fr; padding: 100px 24px 60px; gap: 48px; }
+    .phone-wrap { order: -1; }
+    .section-wrap { padding: 60px 24px; }
+    .problem-section .section-wrap { padding: 60px 24px; }
+    .problem-grid, .solution-grid, .features-grid, .pricing-grid, .testimonials-grid {
+      grid-template-columns: 1fr;
+    }
+    .features-grid { border: none; gap: 16px; }
+    .feature-card { border: 1px solid var(--border); border-right: 1px solid var(--border) !important; }
+    .step-connector { display: none; }
+    .footer-cta-section { padding: 60px 24px; }
+    .footer-bottom { flex-direction: column; gap: 12px; padding: 20px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">ひかる<span>クローゼット</span></div>
+  <ul class="nav-links">
+    <li><a href="#problem">課題</a></li>
+    <li><a href="#solution">機能</a></li>
+    <li><a href="#pricing">料金</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#cta" class="nav-cta">無料で始める</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-eyebrow">AI Fashion Stylist</div>
+    <h1>あなたの<em>センス</em>を、<br>AIが引き出す</h1>
+    <p class="hero-tagline">試着なしで、コーデが決まる。</p>
+    <div class="hero-divider"></div>
+    <p class="hero-desc">店頭で気になった服をスマホで撮影するだけ。あなたのクローゼットとAIが連携して、今日のベストコーデを瞬時にご提案します。</p>
+    <div class="hero-cta-group">
+      <a href="#cta" class="btn-primary">今すぐ無料で始める</a>
+      <a href="#solution" class="btn-outline">詳しく見る</a>
+    </div>
+    <div class="hero-trust">
+      <div class="trust-item">
+        <div class="trust-num">10,000+</div>
+        <div class="trust-label">登録ユーザー</div>
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <div class="trust-num">98%</div>
+        <div class="trust-label">継続率</div>
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <div class="trust-num">3秒</div>
+        <div class="trust-label">コーデ提案</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phone Mock Premium -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-status-bar">
+        <div class="status-time">9:41</div>
+        <div class="status-icons">▪▪▪ ◀ ⬛</div>
+      </div>
+      <div class="phone-screen">
+        <div class="phone-header">
+          <div class="phone-title">ひかるクローゼット</div>
+          <div class="phone-menu">
+            <div class="menu-dot"></div>
+            <div class="menu-dot"></div>
+            <div class="menu-dot"></div>
+          </div>
+        </div>
+        <div class="phone-banner">
+          <div class="camera-icon">📷</div>
+          <div class="banner-text">服を撮影してコーデ提案を受ける</div>
+        </div>
+        <div class="section-label-phone">MY CLOSET</div>
+        <div class="phone-items">
+          <div class="phone-item">
+            <div class="item-color" style="background:linear-gradient(135deg,#F8BBD9,#E91E8C)"></div>
+            <div class="item-info">
+              <div class="item-name">フローラルブラウス</div>
+              <div class="item-match">✦ コーデ提案 4件あり</div>
+            </div>
+            <div class="item-arrow">›</div>
+          </div>
+          <div class="phone-item">
+            <div class="item-color" style="background:linear-gradient(135deg,#F5F5F5,#BDBDBD)"></div>
+            <div class="item-info">
+              <div class="item-name">ホワイトスカート</div>
+              <div class="item-match">✦ コーデ提案 6件あり</div>
+            </div>
+            <div class="item-arrow">›</div>
+          </div>
+          <div class="phone-item">
+            <div class="item-color" style="background:linear-gradient(135deg,#B0BEC5,#37474F)"></div>
+            <div class="item-info">
+              <div class="item-name">グレーコート</div>
+              <div class="item-match">✦ コーデ提案 3件あり</div>
+            </div>
+            <div class="item-arrow">›</div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-home-indicator"></div>
+    </div>
+    <div class="phone-shadow-block"></div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<div id="problem" class="problem-section">
+  <div class="section-wrap">
+    <div class="section-eyebrow">The Problem</div>
+    <h2 class="section-title">試着の悩みに、<br>終止符を。</h2>
+    <div class="section-divider"></div>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-num">I</div>
+        <div class="problem-emoji">⏳</div>
+        <h3 class="problem-title">試着の時間と手間</h3>
+        <p class="problem-desc">順番待ち、着替えの繰り返し、鏡の前での迷い。試着室でのストレスがショッピングの楽しさを損なっています。</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">II</div>
+        <div class="problem-emoji">🤔</div>
+        <h3 class="problem-title">「合う服」がわからない</h3>
+        <p class="problem-desc">素敵な服を見つけても「自分のクローゼットと合うか？」が分からず、購入を諦めることがあります。</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">III</div>
+        <div class="problem-emoji">👚</div>
+        <h3 class="problem-title">クローゼットが活かせない</h3>
+        <p class="problem-desc">毎月新しい服を買っても、実際に着る服は限られてしまう。せっかくの服が活かされていません。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SOLUTION -->
+<div id="solution">
+  <div class="section-wrap">
+    <div class="section-eyebrow">The Solution</div>
+    <h2 class="section-title">シンプルな<br>3ステップ</h2>
+    <div class="section-divider"></div>
+    <div class="solution-grid">
+      <div class="step-card">
+        <div class="step-connector">→</div>
+        <div class="step-num">01</div>
+        <div class="step-icon">📷</div>
+        <h3 class="step-title">スキャン</h3>
+        <p class="step-desc">店頭で気になった服をスマホで撮影。AIが色・シルエット・素材を瞬時に分析します。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-connector">→</div>
+        <div class="step-num">02</div>
+        <div class="step-icon">🧠</div>
+        <h3 class="step-title">AI分析</h3>
+        <p class="step-desc">クローゼットのデータと照合し、相性の良い組み合わせを自動的に検索・提案します。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon">✨</div>
+        <h3 class="step-title">コーデ決定</h3>
+        <p class="step-desc">提案を確認して購入判断。失敗のないショッピングと、毎日のコーデが楽になります。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="features-section">
+  <div class="section-wrap">
+    <div class="section-eyebrow">Key Features</div>
+    <h2 class="section-title">3つの主要機能</h2>
+    <div class="section-divider"></div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">📸</span>
+        <h3 class="feature-title">AIスキャン</h3>
+        <p class="feature-desc">服を撮影するだけで色・デザイン・素材感を高精度で認識。データはクラウドに自動保存されます。</p>
+        <a href="#cta" class="feature-link">詳しく見る →</a>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">👗</span>
+        <h3 class="feature-title">デジタルクローゼット</h3>
+        <p class="feature-desc">所有アイテムを一元管理。カテゴリ・色・シーズン別に整理され、クローゼット全体を把握できます。</p>
+        <a href="#cta" class="feature-link">詳しく見る →</a>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🎨</span>
+        <h3 class="feature-title">パーソナル提案</h3>
+        <p class="feature-desc">体型・好み・生活スタイルを学習したAIが、あなただけのコーデを無限に提案します。</p>
+        <a href="#cta" class="feature-link">詳しく見る →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div id="pricing">
+  <div class="section-wrap">
+    <div class="section-eyebrow">Pricing</div>
+    <h2 class="section-title">あなたに合った<br>プランを選ぶ</h2>
+    <div class="section-divider"></div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-plan">Free</div>
+        <div class="price-amount">¥<sub>0</sub></div>
+        <div class="price-period">月額 / 無料</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>クローゼット登録10着まで</li>
+          <li>コーデ提案 月5回</li>
+          <li>基本スキャン機能</li>
+        </ul>
+        <button class="price-btn">無料で始める</button>
+      </div>
+      <div class="price-card featured">
+        <div class="featured-tag">人気</div>
+        <div class="price-plan">Premium</div>
+        <div class="price-amount">¥980<sub>/月</sub></div>
+        <div class="price-period">月額プラン</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>クローゼット登録 無制限</li>
+          <li>コーデ提案 無制限</li>
+          <li>AIスキャン 無制限</li>
+          <li>優先サポート</li>
+          <li>トレンドレポート</li>
+        </ul>
+        <button class="price-btn">今すぐ始める</button>
+      </div>
+      <div class="price-card">
+        <div class="price-plan">Annual</div>
+        <div class="price-amount">¥7,800<sub>/年</sub></div>
+        <div class="price-period">年額プラン <span class="discount-label">35% OFF</span></div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>Premiumの全機能</li>
+          <li>月換算 ¥650/月</li>
+          <li>スタイリスト相談（月1回）</li>
+          <li>限定テンプレート</li>
+          <li>最優先サポート</li>
+        </ul>
+        <button class="price-btn">年額プランで始める</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="testimonials-section">
+  <div class="section-wrap">
+    <div class="section-eyebrow">Testimonials</div>
+    <h2 class="section-title">お客様の声</h2>
+    <div class="section-divider"></div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <span class="quote-mark">"</span>
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">服を買うたびに後悔していたのが嘘のようです。撮影して提案を見るだけで、本当に必要な服が分かるようになりました。クローゼットが整理されて気持ちが良いです。</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">A</div>
+          <div>
+            <div class="author-name">青山 みさき</div>
+            <div class="author-meta">会社員・28歳</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <span class="quote-mark">"</span>
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">毎朝コーデに悩んでいた時間が半分以下になりました。AIの提案が私のセンスを理解してくれていて、毎日のスタイリングが楽しくなりました。</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">S</div>
+          <div>
+            <div class="author-name">佐藤 はるか</div>
+            <div class="author-meta">大学生・21歳</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <span class="quote-mark">"</span>
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">Premiumプランに変えてから、ショッピングが全く変わりました。迷ったらすぐ確認できるから、衝動買いも減りました。投資以上の価値があります。</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">T</div>
+          <div>
+            <div class="author-name">田中 ゆき</div>
+            <div class="author-meta">フリーランサー・33歳</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div id="faq">
+  <div class="section-wrap">
+    <div class="section-eyebrow">FAQ</div>
+    <h2 class="section-title">よくあるご質問</h2>
+    <div class="section-divider"></div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>AIスキャンの精度はどのくらいですか？</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a">AIは色・シルエット・素材感を95%以上の精度で認識します。明るい環境での撮影をおすすめします。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>個人データはどのように管理されますか？</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a">すべてのデータは暗号化されて安全なクラウドに保管されます。第三者への共有は一切ありません。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>プランはいつでも変更できますか？</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a">はい、アプリ内からいつでもアップグレード・ダウングレードが可能です。料金は日割り計算です。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>どのようなブランド・アイテムに対応していますか？</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a">ブランド・価格帯に関係なく、あらゆる服に対応しています。古着や海外ブランドも問題ありません。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>解約はいつでも可能ですか？</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a">はい、縛りはありません。マイページからいつでも解約できます。解約後も期間終了まで機能をご利用いただけます。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div id="cta" class="footer-cta-section">
+    <div class="footer-eyebrow">Get Started</div>
+    <h2>あなたの<em>ファッション</em>を、<br>もっと自由に。</h2>
+    <p>今すぐ無料で始めて、スマートなクローゼットを体験してください。</p>
+    <a href="#" class="btn-footer-cta">今すぐ無料で始める</a>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-logo">ひかる<span>クローゼット</span></div>
+    <div class="footer-copy">© 2026 ひかるクローゼット. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ひかるクローゼット</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+    background: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  /* ===== VARIABLES ===== */
+  :root {
+    --main: #1A1A2E;
+    --accent: #E91E8C;
+    --sub: #FF6B9D;
+    --bg: #0F0F1E;
+    --surface: rgba(255,255,255,0.07);
+    --surface2: rgba(255,255,255,0.12);
+    --text: #FFFFFF;
+    --text-muted: rgba(255,255,255,0.55);
+    --border: rgba(255,255,255,0.15);
+    --card-bg: rgba(255,255,255,0.08);
+    --radius: 20px;
+    --tab-h: 80px;
+    --status-h: 54px;
+  }
+
+  /* ===== IPHONE FRAME ===== */
+  .iphone-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .iphone-frame {
+    width: 393px;
+    height: 852px;
+    background: #1c1c1e;
+    border-radius: 55px;
+    border: 2px solid #3a3a3c;
+    box-shadow:
+      0 0 0 8px #1c1c1e,
+      0 0 0 10px #3a3a3c,
+      0 30px 80px rgba(0,0,0,0.5),
+      inset 0 0 0 2px rgba(255,255,255,0.05);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Buttons on frame */
+  .iphone-frame::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 120px;
+    width: 5px;
+    height: 36px;
+    background: #3a3a3c;
+    border-radius: 3px 0 0 3px;
+    box-shadow: 0 50px 0 #3a3a3c, 0 100px 0 #3a3a3c;
+  }
+  .iphone-frame::after {
+    content: '';
+    position: absolute;
+    right: -12px;
+    top: 160px;
+    width: 5px;
+    height: 70px;
+    background: #3a3a3c;
+    border-radius: 0 3px 3px 0;
+  }
+
+  /* ===== SCREEN ===== */
+  .screen {
+    flex: 1;
+    background: var(--bg);
+    border-radius: 53px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ===== DYNAMIC ISLAND ===== */
+  .dynamic-island {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 37px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.06);
+  }
+  .di-camera {
+    width: 12px;
+    height: 12px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    margin-left: 28px;
+    border: 2px solid #2a2a2a;
+  }
+
+  /* ===== STATUS BAR ===== */
+  .status-bar {
+    height: var(--status-h);
+    padding: 0 28px;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 8px;
+    justify-content: space-between;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+  .status-time { font-size: 15px; font-weight: 700; }
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .battery {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .battery-body {
+    width: 24px;
+    height: 12px;
+    border: 1.5px solid white;
+    border-radius: 3px;
+    position: relative;
+    padding: 2px;
+  }
+  .battery-body::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 6px;
+    background: white;
+    border-radius: 0 2px 2px 0;
+  }
+  .battery-fill {
+    height: 100%;
+    width: 75%;
+    background: white;
+    border-radius: 1px;
+  }
+
+  /* ===== CONTENT AREA ===== */
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    position: relative;
+  }
+  .content-area::-webkit-scrollbar { display: none; }
+
+  /* ===== PAGES ===== */
+  .page {
+    display: none;
+    min-height: 100%;
+    padding: 16px 20px 20px;
+    animation: fadeIn 0.3s ease;
+  }
+  .page.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== PAGE HEADER ===== */
+  .page-header {
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .page-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+  .header-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--surface2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border: 1px solid var(--border);
+  }
+
+  /* ===== GLASSMORPHISM CARD ===== */
+  .glass-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* ===== TAB BAR ===== */
+  .tab-bar {
+    height: var(--tab-h);
+    background: rgba(26, 26, 46, 0.95);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    padding-top: 10px;
+    padding-bottom: 0;
+    flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0 4px;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+  }
+  .tab-item.active { color: var(--accent); }
+  .tab-icon {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    position: relative;
+    transition: transform 0.2s;
+  }
+  .tab-item.active .tab-icon { transform: scale(1.1); }
+  .tab-label {
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .tab-dot {
+    display: none;
+    width: 5px;
+    height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: absolute;
+    top: -2px;
+    right: -2px;
+  }
+  .tab-item.active .tab-dot { display: block; }
+
+  /* ===== HOME PAGE ===== */
+  .greeting-band {
+    background: linear-gradient(135deg, rgba(233,30,140,0.25) 0%, rgba(255,107,157,0.15) 100%);
+    border: 1px solid rgba(233,30,140,0.3);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .greeting-band::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(233,30,140,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .greeting-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .greeting-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+  }
+  .greeting-temp {
+    font-size: 12px;
+    color: var(--sub);
+    margin-top: 8px;
+    font-weight: 600;
+  }
+
+  .scan-btn {
+    width: 100%;
+    height: 80px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--sub) 100%);
+    border: none;
+    border-radius: 24px;
+    color: white;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    box-shadow: 0 8px 32px rgba(233,30,140,0.4), 0 2px 8px rgba(0,0,0,0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.5px;
+  }
+  .scan-btn:active { transform: scale(0.97); box-shadow: 0 4px 16px rgba(233,30,140,0.3); }
+  .scan-btn-icon { font-size: 28px; }
+
+  .section-label {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .section-more {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .history-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .history-card:hover { background: var(--surface2); }
+
+  .outfit-thumb {
+    width: 62px;
+    height: 72px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, var(--surface2) 0%, rgba(233,30,140,0.1) 100%);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  /* Clothing silhouettes */
+  .silhouette-tshirt {
+    width: 36px;
+    height: 40px;
+    background: linear-gradient(135deg, rgba(233,30,140,0.6), rgba(255,107,157,0.4));
+    clip-path: polygon(30% 0%, 70% 0%, 80% 12%, 100% 15%, 95% 35%, 82% 30%, 82% 100%, 18% 100%, 18% 30%, 5% 35%, 0% 15%, 20% 12%);
+    border-radius: 4px;
+  }
+  .silhouette-dress {
+    width: 36px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(255,107,157,0.7), rgba(233,30,140,0.4));
+    clip-path: polygon(35% 0%, 65% 0%, 75% 20%, 70% 22%, 95% 100%, 5% 100%, 30% 22%, 25% 20%);
+  }
+  .silhouette-jacket {
+    width: 40px;
+    height: 44px;
+    background: linear-gradient(135deg, rgba(100,100,200,0.7), rgba(60,60,120,0.5));
+    clip-path: polygon(25% 0%, 75% 0%, 85% 10%, 100% 12%, 100% 55%, 85% 50%, 85% 100%, 15% 100%, 15% 50%, 0% 55%, 0% 12%, 15% 10%);
+  }
+  .silhouette-pants {
+    width: 36px;
+    height: 46px;
+    background: linear-gradient(135deg, rgba(60,80,180,0.6), rgba(30,40,100,0.5));
+    clip-path: polygon(10% 0%, 90% 0%, 95% 50%, 80% 50%, 78% 100%, 50% 100%, 50% 52%, 50% 100%, 22% 100%, 20% 50%, 5% 50%);
+  }
+  .silhouette-skirt {
+    width: 38px;
+    height: 42px;
+    background: linear-gradient(135deg, rgba(200,80,150,0.6), rgba(140,40,100,0.4));
+    clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+  }
+  .silhouette-coat {
+    width: 40px;
+    height: 52px;
+    background: linear-gradient(135deg, rgba(80,80,80,0.7), rgba(40,40,40,0.5));
+    clip-path: polygon(22% 0%, 78% 0%, 88% 12%, 100% 14%, 98% 60%, 85% 55%, 83% 100%, 17% 100%, 15% 55%, 2% 60%, 0% 14%, 12% 12%);
+  }
+  .silhouette-blouse {
+    width: 36px;
+    height: 38px;
+    background: linear-gradient(135deg, rgba(255,200,220,0.8), rgba(233,30,140,0.4));
+    clip-path: polygon(30% 0%, 70% 0%, 78% 15%, 100% 18%, 96% 35%, 82% 30%, 82% 100%, 18% 100%, 18% 30%, 4% 35%, 0% 18%, 22% 15%);
+  }
+
+  .outfit-score {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: rgba(233,30,140,0.9);
+    color: white;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 5px;
+    border-radius: 6px;
+  }
+
+  .history-info { flex: 1; min-width: 0; }
+  .history-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .history-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .history-tag {
+    background: rgba(233,30,140,0.2);
+    color: var(--sub);
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid rgba(233,30,140,0.25);
+  }
+  .history-chevron { color: var(--text-muted); font-size: 16px; }
+
+  /* ===== SCAN PAGE ===== */
+  .scan-page { padding-top: 16px; }
+
+  .scan-finder-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    margin-bottom: 20px;
+    border-radius: 28px;
+    overflow: hidden;
+    background: #0a0a14;
+    border: 1px solid var(--border);
+  }
+
+  .scan-finder-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(233,30,140,0.05) 0%, transparent 70%);
+  }
+
+  .scan-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  .scan-border {
+    position: absolute;
+    top: 28px;
+    left: 28px;
+    right: 28px;
+    bottom: 28px;
+    border-radius: 16px;
+  }
+  /* Corner brackets */
+  .scan-border::before, .scan-border::after,
+  .scan-border-inner::before, .scan-border-inner::after {
+    content: '';
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border-color: var(--accent);
+    border-style: solid;
+  }
+  .scan-border::before {
+    top: 0; left: 0;
+    border-width: 3px 0 0 3px;
+    border-radius: 8px 0 0 0;
+  }
+  .scan-border::after {
+    top: 0; right: 0;
+    border-width: 3px 3px 0 0;
+    border-radius: 0 8px 0 0;
+  }
+  .scan-border-inner::before {
+    bottom: 0; left: 0;
+    border-width: 0 0 3px 3px;
+    border-radius: 0 0 0 8px;
+  }
+  .scan-border-inner::after {
+    bottom: 0; right: 0;
+    border-width: 0 3px 3px 0;
+    border-radius: 0 0 8px 0;
+  }
+
+  .scan-line {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    right: 30px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--sub), transparent);
+    animation: scanLine 2.5s ease-in-out infinite;
+    box-shadow: 0 0 12px rgba(233,30,140,0.6);
+    border-radius: 2px;
+  }
+  @keyframes scanLine {
+    0% { top: 30px; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: calc(100% - 30px); opacity: 0; }
+  }
+
+  .scan-item-preview {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .scan-item-silhouette {
+    width: 80px;
+    height: 90px;
+    background: linear-gradient(135deg, rgba(233,30,140,0.2), rgba(255,107,157,0.1));
+    clip-path: polygon(30% 0%, 70% 0%, 80% 12%, 100% 15%, 95% 35%, 82% 30%, 82% 100%, 18% 100%, 18% 30%, 5% 35%, 0% 15%, 20% 12%);
+    border-radius: 4px;
+    opacity: 0.6;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+  }
+  .scan-hint {
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  .scan-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .scan-main-btn {
+    width: 100%;
+    height: 64px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--sub) 100%);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 8px 28px rgba(233,30,140,0.4);
+    transition: transform 0.15s;
+  }
+  .scan-main-btn:active { transform: scale(0.97); }
+
+  .scan-sub-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .scan-sub-btn {
+    height: 52px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+  }
+  .scan-sub-btn:hover { background: rgba(255,255,255,0.18); }
+
+  /* AI Analyzing state */
+  .ai-analyzing {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    gap: 12px;
+  }
+  .ai-analyzing.visible { display: flex; }
+  .ai-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .ai-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--sub));
+    border-radius: 3px;
+    width: 0%;
+    animation: aiProgress 2.5s ease forwards;
+  }
+  @keyframes aiProgress {
+    0% { width: 0%; }
+    30% { width: 45%; }
+    70% { width: 78%; }
+    100% { width: 95%; }
+  }
+  .ai-status {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+  .ai-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .ai-tag {
+    background: rgba(233,30,140,0.2);
+    border: 1px solid rgba(233,30,140,0.4);
+    color: var(--sub);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    animation: tagAppear 0.3s ease backwards;
+  }
+  @keyframes tagAppear {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .ai-tag:nth-child(1) { animation-delay: 0.5s; }
+  .ai-tag:nth-child(2) { animation-delay: 0.9s; }
+  .ai-tag:nth-child(3) { animation-delay: 1.3s; }
+  .ai-tag:nth-child(4) { animation-delay: 1.7s; }
+
+  /* ===== OUTFIT SUGGEST PAGE ===== */
+  .suggest-header {
+    margin-bottom: 20px;
+  }
+  .suggest-count {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .suggest-count::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .swipe-indicator {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .outfit-cards-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .outfit-cards-track {
+    display: flex;
+    gap: 16px;
+    width: calc(300% + 32px);
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .outfit-suggest-card {
+    width: calc((100% - 32px) / 3);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .outfit-card-visual {
+    height: 200px;
+    background: linear-gradient(180deg, var(--surface) 0%, rgba(233,30,140,0.08) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+  }
+  .outfit-card-visual::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to top, rgba(26,26,46,0.8), transparent);
+  }
+
+  .outfit-items-display {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .outfit-item-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .outfit-item-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .outfit-card-info { padding: 16px; }
+
+  .outfit-score-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .outfit-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .score-badge {
+    background: linear-gradient(135deg, var(--accent), var(--sub));
+    color: white;
+    font-size: 18px;
+    font-weight: 900;
+    padding: 5px 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 1px;
+    box-shadow: 0 4px 12px rgba(233,30,140,0.3);
+  }
+  .score-unit { font-size: 11px; font-weight: 600; }
+
+  .outfit-why {
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .outfit-why-title {
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .outfit-why-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.6;
+  }
+
+  .outfit-tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .outfit-tag {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text-muted);
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .outfit-save-btn {
+    width: 100%;
+    height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--sub));
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .outfit-save-btn:active { opacity: 0.85; }
+
+  .swipe-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .swipe-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .swipe-dot.active {
+    background: var(--accent);
+    width: 24px;
+    box-shadow: 0 0 8px rgba(233,30,140,0.5);
+  }
+
+  .swipe-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .swipe-nav-btn {
+    height: 52px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .swipe-nav-btn:hover { background: var(--surface2); }
+
+  /* ===== CLOSET PAGE ===== */
+  .closet-stats {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .closet-stat {
+    flex: 1;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+    text-align: center;
+  }
+  .closet-stat-num {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--accent);
+    display: block;
+  }
+  .closet-stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .closet-filter {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .closet-filter::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    flex-shrink: 0;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 17px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .filter-chip.active {
+    background: linear-gradient(135deg, var(--accent), var(--sub));
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 12px rgba(233,30,140,0.3);
+  }
+
+  .closet-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .closet-item {
+    aspect-ratio: 0.75;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+    padding: 10px 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .closet-item:hover { transform: scale(1.02); }
+  .closet-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.5) 100%);
+    z-index: 1;
+  }
+  .closet-item-tag {
+    position: absolute;
+    bottom: 7px;
+    left: 7px;
+    right: 7px;
+    z-index: 2;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px);
+    border-radius: 8px;
+    padding: 4px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .closet-item-fav {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    z-index: 2;
+    font-size: 14px;
+  }
+  .closet-item-silhouette {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -52%);
+    z-index: 0;
+  }
+
+  .closet-add-btn {
+    width: 100%;
+    height: 56px;
+    border: 2px dashed rgba(233,30,140,0.4);
+    border-radius: 18px;
+    background: rgba(233,30,140,0.05);
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+  .closet-add-btn:hover {
+    background: rgba(233,30,140,0.1);
+    border-color: var(--accent);
+  }
+
+  /* ===== PROFILE PAGE ===== */
+  .profile-hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 22px;
+    padding: 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+  }
+  .profile-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 34px;
+    background: linear-gradient(135deg, var(--accent), var(--sub));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(233,30,140,0.4);
+  }
+  .profile-info { flex: 1; }
+  .profile-name {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .profile-type {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .profile-since {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .profile-edit-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+
+  /* Style Diagnosis */
+  .style-diag-card {
+    padding: 20px;
+    border-radius: 24px;
+    margin-bottom: 16px;
+  }
+  .diag-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .diag-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .radar-chart {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 16px;
+    position: relative;
+  }
+  .radar-chart svg { width: 100%; height: 100%; }
+
+  .style-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .style-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .style-bar-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    width: 70px;
+    flex-shrink: 0;
+  }
+  .style-bar-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .style-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+  }
+  .style-bar-pct {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    width: 34px;
+    text-align: right;
+  }
+
+  /* Premium Banner */
+  .premium-banner {
+    border-radius: 24px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    position: relative;
+    cursor: pointer;
+  }
+  .premium-banner-bg {
+    background: linear-gradient(135deg, #2D0A4E 0%, #1A0A2E 50%, #2D0A4E 100%);
+    border: 1px solid rgba(233,30,140,0.4);
+    padding: 22px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .premium-banner-bg::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, rgba(233,30,140,0.4) 0%, transparent 70%);
+  }
+  .premium-banner-bg::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    left: -30px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(155,0,255,0.3) 0%, transparent 70%);
+  }
+  .premium-crown { font-size: 28px; margin-bottom: 8px; display: block; }
+  .premium-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 6px;
+    position: relative;
+    z-index: 1;
+  }
+  .premium-title span {
+    background: linear-gradient(90deg, #FFD700, #FFA500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .premium-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.5;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .premium-features {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 1;
+  }
+  .premium-feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+  }
+  .premium-feature-check {
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg, var(--accent), var(--sub));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  .premium-cta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+  }
+  .premium-price {
+    color: white;
+  }
+  .premium-price-num {
+    font-size: 28px;
+    font-weight: 900;
+    color: #FFD700;
+  }
+  .premium-price-unit {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+  }
+  .premium-cta-btn {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--sub) 100%);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 12px 22px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(233,30,140,0.45);
+    transition: transform 0.15s;
+  }
+  .premium-cta-btn:active { transform: scale(0.95); }
+
+  .profile-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .profile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .profile-menu-item:last-child { border-bottom: none; }
+  .profile-menu-item:hover { background: rgba(255,255,255,0.05); }
+  .profile-menu-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .profile-menu-text { flex: 1; font-size: 15px; font-weight: 600; color: var(--text); }
+  .profile-menu-chevron { color: var(--text-muted); font-size: 14px; }
+
+  /* ===== UTILITIES ===== */
+  .mt-4 { margin-top: 4px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-12 { margin-top: 12px; }
+  .mt-16 { margin-top: 16px; }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--accent), var(--sub));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
+</head>
+<body>
+
+<div class="iphone-wrapper">
+  <div class="iphone-frame">
+    <div class="screen">
+
+      <!-- Dynamic Island -->
+      <div class="dynamic-island">
+        <div class="di-camera"></div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <span>📶</span>
+          <span>WiFi</span>
+          <div class="battery">
+            <div class="battery-body"><div class="battery-fill"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area">
+
+        <!-- ========== HOME PAGE ========== -->
+        <div class="page active" id="page-home">
+          <div class="page-header">
+            <div>
+              <div class="page-title">ひかるクローゼット</div>
+              <div class="page-subtitle">今日のコーデを見つけよう ✨</div>
+            </div>
+            <div class="header-icon">🔔</div>
+          </div>
+
+          <!-- Greeting Band -->
+          <div class="greeting-band glass-card">
+            <div class="greeting-name">こんにちは、ひかるさん！</div>
+            <div class="greeting-sub">今日も素敵なコーデを楽しみましょう</div>
+            <div class="greeting-temp">🌤 今日の天気：18°C — カーディガンがちょうどいいかも</div>
+          </div>
+
+          <!-- Camera Button -->
+          <button class="scan-btn" onclick="switchTab('scan')">
+            <span class="scan-btn-icon">📷</span>
+            <span>服をスキャンする</span>
+          </button>
+
+          <!-- Recent Outfits -->
+          <div class="section-label">
+            <span>最近のコーデ</span>
+            <span class="section-more" onclick="switchTab('suggest')">すべて見る →</span>
+          </div>
+
+          <div class="history-list">
+            <!-- Card 1 -->
+            <div class="history-card glass-card">
+              <div class="outfit-thumb">
+                <div class="silhouette-jacket"></div>
+                <div class="outfit-score">92</div>
+              </div>
+              <div class="history-info">
+                <div class="history-title">カジュアルシック</div>
+                <div class="history-meta">
+                  <span>3月13日</span>
+                  <span class="history-tag">オフィス</span>
+                </div>
+              </div>
+              <span class="history-chevron">›</span>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="history-card glass-card">
+              <div class="outfit-thumb">
+                <div class="silhouette-dress"></div>
+                <div class="outfit-score">88</div>
+              </div>
+              <div class="history-info">
+                <div class="history-title">フェミニンスタイル</div>
+                <div class="history-meta">
+                  <span>3月12日</span>
+                  <span class="history-tag">デート</span>
+                </div>
+              </div>
+              <span class="history-chevron">›</span>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="history-card glass-card">
+              <div class="outfit-thumb">
+                <div class="silhouette-coat"></div>
+                <div class="outfit-score">85</div>
+              </div>
+              <div class="history-info">
+                <div class="history-title">モノトーンコーデ</div>
+                <div class="history-meta">
+                  <span>3月11日</span>
+                  <span class="history-tag">お出かけ</span>
+                </div>
+              </div>
+              <span class="history-chevron">›</span>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="section-label mt-16">クイックアクション</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+            <div class="glass-card" style="padding:16px;cursor:pointer;text-align:center;" onclick="switchTab('closet')">
+              <div style="font-size:24px;margin-bottom:6px;">👗</div>
+              <div style="font-size:13px;font-weight:700;color:var(--text);">クローゼット</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">48着登録済み</div>
+            </div>
+            <div class="glass-card" style="padding:16px;cursor:pointer;text-align:center;" onclick="switchTab('suggest')">
+              <div style="font-size:24px;margin-bottom:6px;">✨</div>
+              <div style="font-size:13px;font-weight:700;color:var(--text);">コーデ提案</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">今日の3パターン</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== SCAN PAGE ========== -->
+        <div class="page" id="page-scan">
+          <div class="page-header">
+            <div>
+              <div class="page-title">服をスキャン</div>
+              <div class="page-subtitle">カメラで服を映してください</div>
+            </div>
+            <div class="header-icon">⚡</div>
+          </div>
+
+          <!-- Camera Finder -->
+          <div class="scan-finder-container">
+            <div class="scan-finder-bg"></div>
+            <div class="scan-grid"></div>
+            <div class="scan-border">
+              <div class="scan-border-inner"></div>
+            </div>
+            <div class="scan-line"></div>
+            <div class="scan-item-preview">
+              <div class="scan-item-silhouette"></div>
+              <div class="scan-hint">服を枠内に合わせてください</div>
+            </div>
+          </div>
+
+          <!-- Scan Controls -->
+          <div class="scan-controls">
+            <button class="scan-main-btn" onclick="startScan()">
+              <span>📷</span>
+              <span>この服をスキャン</span>
+            </button>
+
+            <!-- AI Analyzing -->
+            <div class="ai-analyzing" id="ai-analyzing">
+              <div style="width:100%;">
+                <div class="ai-progress-bar">
+                  <div class="ai-progress-fill" id="ai-progress"></div>
+                </div>
+              </div>
+              <div class="ai-status" id="ai-status">🤖 AI が解析しています...</div>
+              <div class="ai-tags" id="ai-tags">
+                <span class="ai-tag">白シャツ</span>
+                <span class="ai-tag">コットン素材</span>
+                <span class="ai-tag">フォーマル向き</span>
+                <span class="ai-tag">Size: M</span>
+              </div>
+            </div>
+
+            <div class="scan-sub-btns">
+              <button class="scan-sub-btn">
+                <span>🖼️</span>
+                <span>アルバムから</span>
+              </button>
+              <button class="scan-sub-btn">
+                <span>📋</span>
+                <span>手動で登録</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Scan Tips -->
+          <div class="glass-card mt-16" style="padding:14px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;">📌 スキャンのコツ</div>
+            <div style="font-size:12px;color:var(--text-muted);line-height:1.7;">
+              • 明るい場所で撮影する<br>
+              • 服を広げてシワを伸ばす<br>
+              • 枠内に服全体が収まるように<br>
+              • タグ部分も写すと素材が自動判定
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== SUGGEST PAGE ========== -->
+        <div class="page" id="page-suggest">
+          <div class="page-header">
+            <div>
+              <div class="page-title">コーデ提案</div>
+              <div class="page-subtitle">AIがあなたに最適なコーデを厳選</div>
+            </div>
+            <div class="header-icon">🎯</div>
+          </div>
+
+          <div class="suggest-header">
+            <div class="suggest-count">今日の提案 3パターン生成済み</div>
+            <div class="swipe-indicator">
+              <span>←</span>
+              <span style="font-size:12px;color:var(--text-muted);">スワイプで切り替え</span>
+              <span>→</span>
+            </div>
+          </div>
+
+          <!-- Outfit Cards -->
+          <div class="outfit-cards-container">
+            <div class="outfit-cards-track" id="outfit-track">
+
+              <!-- Card 1: Casual Chic -->
+              <div class="outfit-suggest-card">
+                <div class="outfit-card-visual">
+                  <div class="outfit-items-display">
+                    <div class="outfit-item-figure">
+                      <div class="silhouette-jacket" style="width:52px;height:58px;"></div>
+                      <div class="outfit-item-label">ジャケット</div>
+                    </div>
+                    <div class="outfit-item-figure">
+                      <div class="silhouette-tshirt" style="width:44px;height:50px;"></div>
+                      <div class="outfit-item-label">シャツ</div>
+                    </div>
+                    <div class="outfit-item-figure">
+                      <div class="silhouette-pants" style="width:42px;height:54px;"></div>
+                      <div class="outfit-item-label">パンツ</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="outfit-card-info">
+                  <div class="outfit-score-row">
+                    <div class="outfit-name">カジュアルシック</div>
+                    <div class="score-badge">92<span class="score-unit">点</span></div>
+                  </div>
+                  <div class="outfit-why">
+                    <div class="outfit-why-title">💡 なぜこのコーデ？</div>
+                    <div class="outfit-why-text">テーラードジャケットが上品さを演出。インナーのホワイトシャツとネイビーパンツのコントラストが洗練された印象を与えます。オフィスでも映えるスタイルです。</div>
+                  </div>
+                  <div class="outfit-tags-row">
+                    <span class="outfit-tag">オフィス向き</span>
+                    <span class="outfit-tag">フォーマル</span>
+                    <span class="outfit-tag">春コーデ</span>
+                  </div>
+                  <button class="outfit-save-btn">💾 このコーデを保存</button>
+                </div>
+              </div>
+
+              <!-- Card 2: Feminine -->
+              <div class="outfit-suggest-card">
+                <div class="outfit-card-visual" style="background:linear-gradient(180deg,rgba(233,30,140,0.08) 0%,rgba(255,107,157,0.05) 100%);">
+                  <div class="outfit-items-display">
+                    <div class="outfit-item-figure">
+                      <div class="silhouette-blouse" style="width:50px;height:46px;"></div>
+                      <div class="outfit-item-label">ブラウス</div>
+                    </div>
+                    <div class="outfit-item-figure">
+                      <div class="silhouette-skirt" style="width:48px;height:52px;"></div>
+                      <div class="outfit-item-label">スカート</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="outfit-card-info">
+                  <div class="outfit-score-row">
+                    <div class="outfit-name">フェミニンスタイル</div>
+                    <div class="score-badge">88<span class="score-unit">点</span></div>
+                  </div>
+                  <div class="outfit-why">
+                    <div class="outfit-why-title">💡 なぜこのコーデ？</div>
+                    <div class="outfit-why-text">淡いピンクのブラウスとフレアスカートの組み合わせが柔らかな印象に。春の暖かな日差しに映える、女性らしいコーデです。デートや女子会にぴったり。</div>
+                  </div>
+                  <div class="outfit-tags-row">
+                    <span class="outfit-tag">デート向き</span>
+                    <span class="outfit-tag">フェミニン</span>
+                    <span class="outfit-tag">春夏</span>
+                  </div>
+                  <button class="outfit-save-btn">💾 このコーデを保存</button>
+                </div>
+              </div>
+
+              <!-- Card 3: Monotone -->
+              <div class="outfit-suggest-card">
+                <div class="outfit-card-visual" style="background:linear-gradient(180deg,rgba(60,60,80,0.15) 0%,rgba(30,30,46,0.1) 100%);">
+                  <div class="outfit-items-display">
+                    <div class="outfit-item-figure">
+                      <div class="silhouette-coat" style="width:52px;height:62px;"></div>
+                      <div class="outfit-item-label">コート</div>
+                    </div>
+                    <div class="outfit-item-figure">
+                      <div class="silhouette-tshirt" style="width:40px;height:44px;background:linear-gradient(135deg,rgba(60,60,60,0.6),rgba(30,30,30,0.4));"></div>
+                      <div class="outfit-item-label">トップス</div>
+                    </div>
+                    <div class="outfit-item-figure">
+                      <div class="silhouette-pants" style="width:40px;height:50px;background:linear-gradient(135deg,rgba(30,30,30,0.7),rgba(10,10,10,0.6));"></div>
+                      <div class="outfit-item-label">パンツ</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="outfit-card-info">
+                  <div class="outfit-score-row">
+                    <div class="outfit-name">モノトーンコーデ</div>
+                    <div class="score-badge">85<span class="score-unit">点</span></div>
+                  </div>
+                  <div class="outfit-why">
+                    <div class="outfit-why-title">💡 なぜこのコーデ？</div>
+                    <div class="outfit-why-text">ブラック×グレーのモノトーンでまとめた都会的なスタイル。ロングコートが全体のバランスを整え、シンプルながらもスタイリッシュな印象を与えます。</div>
+                  </div>
+                  <div class="outfit-tags-row">
+                    <span class="outfit-tag">お出かけ</span>
+                    <span class="outfit-tag">都会的</span>
+                    <span class="outfit-tag">モノトーン</span>
+                  </div>
+                  <button class="outfit-save-btn">💾 このコーデを保存</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Dots -->
+          <div class="swipe-dots">
+            <div class="swipe-dot active" onclick="goToCard(0)"></div>
+            <div class="swipe-dot" onclick="goToCard(1)"></div>
+            <div class="swipe-dot" onclick="goToCard(2)"></div>
+          </div>
+
+          <!-- Nav Buttons -->
+          <div class="swipe-btns">
+            <button class="swipe-nav-btn" onclick="prevCard()">← 前のコーデ</button>
+            <button class="swipe-nav-btn" onclick="nextCard()">次のコーデ →</button>
+          </div>
+
+          <!-- Regenerate -->
+          <div class="mt-12" style="text-align:center;">
+            <button style="background:none;border:1px solid var(--border);border-radius:12px;color:var(--text-muted);font-size:13px;font-weight:600;padding:10px 24px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+              🔄 新しい提案を生成
+            </button>
+          </div>
+        </div>
+
+        <!-- ========== CLOSET PAGE ========== -->
+        <div class="page" id="page-closet">
+          <div class="page-header">
+            <div>
+              <div class="page-title">マイクローゼット</div>
+              <div class="page-subtitle">登録済みアイテム 48着</div>
+            </div>
+            <div class="header-icon">🔍</div>
+          </div>
+
+          <!-- Stats -->
+          <div class="closet-stats">
+            <div class="closet-stat glass-card">
+              <span class="closet-stat-num">48</span>
+              <span class="closet-stat-label">総アイテム</span>
+            </div>
+            <div class="closet-stat glass-card">
+              <span class="closet-stat-num">12</span>
+              <span class="closet-stat-label">トップス</span>
+            </div>
+            <div class="closet-stat glass-card">
+              <span class="closet-stat-num">8</span>
+              <span class="closet-stat-label">ボトムス</span>
+            </div>
+            <div class="closet-stat glass-card">
+              <span class="closet-stat-num">6</span>
+              <span class="closet-stat-label">アウター</span>
+            </div>
+          </div>
+
+          <!-- Filter Chips -->
+          <div class="closet-filter">
+            <button class="filter-chip active">すべて</button>
+            <button class="filter-chip">トップス</button>
+            <button class="filter-chip">ボトムス</button>
+            <button class="filter-chip">アウター</button>
+            <button class="filter-chip">ドレス</button>
+            <button class="filter-chip">シューズ</button>
+            <button class="filter-chip">バッグ</button>
+          </div>
+
+          <!-- Grid -->
+          <div class="closet-grid">
+
+            <!-- Item 1 -->
+            <div class="closet-item">
+              <div class="closet-item-silhouette silhouette-jacket" style="transform:translate(-50%,-52%) scale(1.3);opacity:0.8;"></div>
+              <div class="closet-item-fav">❤️</div>
+              <div class="closet-item-tag">テーラードJK</div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="closet-item">
+              <div class="closet-item-silhouette silhouette-dress" style="transform:translate(-50%,-52%) scale(1.3);opacity:0.8;"></div>
+              <div class="closet-item-tag">ワンピース</div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="closet-item">
+              <div class="closet-item-silhouette silhouette-tshirt" style="transform:translate(-50%,-52%) scale(1.3);opacity:0.8;"></div>
+              <div class="closet-item-fav">❤️</div>
+              <div class="closet-item-tag">白シャツ</div>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="closet-item">
+              <div class="closet-item-silhouette silhouette-pants" style="transform:translate(-50%,-52%) scale(1.3);opacity:0.8;"></div>
+              <div class="closet-item-tag">デニム</div>
+            </div>
+
+            <!-- Item 5 -->
+            <div class="closet-item">
+              <div class="closet-item-silhouette silhouette-coat" style="transform:translate(-50%,-52%) scale(1.1);opacity:0.8;"></div>
+              <div class="closet-item-fav">❤️</div>
+              <div class="closet-item-tag">トレンチ</div>
+            </div>
+
+            <!-- Item 6 -->
+            <div class="closet-item">
+              <div class="closet-item-silhouette silhouette-skirt" style="transform:translate(-50%,-52%) scale(1.3);opacity:0.8;"></div>
+              <div class="closet-item-tag">フレアSK</div>
+            </div>
+
+            <!-- Item 7 -->
+            <div class="closet-item">
+              <div class="closet-item-silhouette silhouette-blouse" style="transform:translate(-50%,-52%) scale(1.3);opacity:0.8;"></div>
+              <div class="closet-item-tag">ブラウス</div>
+            </div>
+
+            <!-- Item 8 -->
+            <div class="closet-item">
+              <div class="closet-item-silhouette" style="transform:translate(-50%,-52%);width:42px;height:52px;background:linear-gradient(135deg,rgba(80,80,80,0.7),rgba(40,40,40,0.5));clip-path:polygon(22% 0%, 78% 0%, 88% 12%, 100% 14%, 98% 60%, 85% 55%, 83% 100%, 17% 100%, 15% 55%, 2% 60%, 0% 14%, 12% 12%);"></div>
+              <div class="closet-item-tag">ニット</div>
+            </div>
+
+            <!-- Item 9 -->
+            <div class="closet-item">
+              <div class="closet-item-silhouette silhouette-jacket" style="transform:translate(-50%,-52%) scale(1.2);opacity:0.7;background:linear-gradient(135deg,rgba(200,160,80,0.7),rgba(160,120,40,0.5));"></div>
+              <div class="closet-item-fav">⭐</div>
+              <div class="closet-item-tag">デニムJK</div>
+            </div>
+
+            <!-- Item 10 -->
+            <div class="closet-item">
+              <div class="closet-item-silhouette silhouette-dress" style="transform:translate(-50%,-52%) scale(1.2);opacity:0.8;background:linear-gradient(135deg,rgba(60,80,180,0.7),rgba(40,60,140,0.5));"></div>
+              <div class="closet-item-tag">Vネックワンピ</div>
+            </div>
+
+            <!-- Item 11 -->
+            <div class="closet-item">
+              <div class="closet-item-silhouette silhouette-pants" style="transform:translate(-50%,-52%) scale(1.2);opacity:0.7;background:linear-gradient(135deg,rgba(100,100,100,0.6),rgba(50,50,50,0.5));"></div>
+              <div class="closet-item-tag">スラックス</div>
+            </div>
+
+            <!-- Item 12 -->
+            <div class="closet-item">
+              <div class="closet-item-silhouette silhouette-tshirt" style="transform:translate(-50%,-52%) scale(1.2);opacity:0.75;background:linear-gradient(135deg,rgba(200,100,200,0.6),rgba(160,60,160,0.4));"></div>
+              <div class="closet-item-fav">❤️</div>
+              <div class="closet-item-tag">ラベンダーT</div>
+            </div>
+
+          </div>
+
+          <!-- Add Button -->
+          <button class="closet-add-btn">
+            <span style="font-size:22px;">＋</span>
+            <span>新しいアイテムを追加</span>
+          </button>
+        </div>
+
+        <!-- ========== PROFILE PAGE ========== -->
+        <div class="page" id="page-profile">
+          <div class="page-header">
+            <div>
+              <div class="page-title">プロフィール</div>
+              <div class="page-subtitle">スタイル診断結果</div>
+            </div>
+            <div class="header-icon">⚙️</div>
+          </div>
+
+          <!-- Profile Hero -->
+          <div class="profile-hero glass-card">
+            <div class="profile-avatar">👗</div>
+            <div class="profile-info">
+              <div class="profile-name">ひかる</div>
+              <div class="profile-type gradient-text">フェミニンナチュラル</div>
+              <div class="profile-since">2024年3月から利用中 · 48着登録</div>
+            </div>
+            <button class="profile-edit-btn">編集</button>
+          </div>
+
+          <!-- Style Diagnosis -->
+          <div class="style-diag-card glass-card">
+            <div class="diag-title">🎯 スタイル診断</div>
+            <div class="diag-subtitle">あなたのファッション傾向を分析しました</div>
+
+            <!-- Radar Chart SVG -->
+            <div class="radar-chart">
+              <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Grid circles -->
+                <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <circle cx="100" cy="100" r="60" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <circle cx="100" cy="100" r="40" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <circle cx="100" cy="100" r="20" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <!-- Axes (6-point) -->
+                <line x1="100" y1="20" x2="100" y2="180" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <line x1="100" y1="100" x2="169" y2="60" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <line x1="100" y1="100" x2="169" y2="140" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <line x1="100" y1="100" x2="31" y2="60" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <line x1="100" y1="100" x2="31" y2="140" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <!-- Data polygon - フェミニン重め -->
+                <polygon
+                  points="100,36 157,68 151,148 100,164 49,148 43,68"
+                  fill="rgba(233,30,140,0.2)"
+                  stroke="rgba(233,30,140,0.7)"
+                  stroke-width="2"
+                />
+                <!-- Labels -->
+                <text x="100" y="14" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="10" font-family="sans-serif">フェミニン</text>
+                <text x="174" y="57" text-anchor="start" fill="rgba(255,255,255,0.6)" font-size="10" font-family="sans-serif">カジュアル</text>
+                <text x="174" y="148" text-anchor="start" fill="rgba(255,255,255,0.6)" font-size="10" font-family="sans-serif">ナチュラル</text>
+                <text x="100" y="186" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="10" font-family="sans-serif">クール</text>
+                <text x="26" y="148" text-anchor="end" fill="rgba(255,255,255,0.6)" font-size="10" font-family="sans-serif">エレガント</text>
+                <text x="26" y="57" text-anchor="end" fill="rgba(255,255,255,0.6)" font-size="10" font-family="sans-serif">スポーティ</text>
+              </svg>
+            </div>
+
+            <!-- Style Bars -->
+            <div class="style-bars">
+              <div class="style-bar-row">
+                <div class="style-bar-label">フェミニン</div>
+                <div class="style-bar-track">
+                  <div class="style-bar-fill" style="width:85%;background:linear-gradient(90deg,#E91E8C,#FF6B9D);"></div>
+                </div>
+                <div class="style-bar-pct">85%</div>
+              </div>
+              <div class="style-bar-row">
+                <div class="style-bar-label">カジュアル</div>
+                <div class="style-bar-track">
+                  <div class="style-bar-fill" style="width:72%;background:linear-gradient(90deg,#FF6B9D,#FFB6C1);"></div>
+                </div>
+                <div class="style-bar-pct">72%</div>
+              </div>
+              <div class="style-bar-row">
+                <div class="style-bar-label">ナチュラル</div>
+                <div class="style-bar-track">
+                  <div class="style-bar-fill" style="width:68%;background:linear-gradient(90deg,#9B59B6,#E91E8C);"></div>
+                </div>
+                <div class="style-bar-pct">68%</div>
+              </div>
+              <div class="style-bar-row">
+                <div class="style-bar-label">エレガント</div>
+                <div class="style-bar-track">
+                  <div class="style-bar-fill" style="width:60%;background:linear-gradient(90deg,#6C5CE7,#9B59B6);"></div>
+                </div>
+                <div class="style-bar-pct">60%</div>
+              </div>
+              <div class="style-bar-row">
+                <div class="style-bar-label">クール</div>
+                <div class="style-bar-track">
+                  <div class="style-bar-fill" style="width:42%;background:linear-gradient(90deg,#2980B9,#6C5CE7);"></div>
+                </div>
+                <div class="style-bar-pct">42%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Premium Banner -->
+          <div class="premium-banner">
+            <div class="premium-banner-bg">
+              <span class="premium-crown">👑</span>
+              <div class="premium-title">ひかるクローゼット <span>Premium</span></div>
+              <div class="premium-desc">AIがあなたのスタイルをさらに深く分析。無制限のコーデ提案と、季節トレンドを先取りしよう。</div>
+              <div class="premium-features">
+                <div class="premium-feature">
+                  <div class="premium-feature-check">✓</div>
+                  <span>AI コーデ提案 無制限</span>
+                </div>
+                <div class="premium-feature">
+                  <div class="premium-feature-check">✓</div>
+                  <span>季節トレンド先読みレポート</span>
+                </div>
+                <div class="premium-feature">
+                  <div class="premium-feature-check">✓</div>
+                  <span>カラーパレット診断</span>
+                </div>
+                <div class="premium-feature">
+                  <div class="premium-feature-check">✓</div>
+                  <span>ショッピングAIアシスタント</span>
+                </div>
+              </div>
+              <div class="premium-cta-row">
+                <div class="premium-price">
+                  <div class="premium-price-num">¥980</div>
+                  <div class="premium-price-unit">/ 月（税込）</div>
+                </div>
+                <button class="premium-cta-btn">今すぐ始める →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Menu -->
+          <div class="profile-menu">
+            <div class="profile-menu-item">
+              <div class="profile-menu-icon" style="background:rgba(233,30,140,0.2);">🎨</div>
+              <span class="profile-menu-text">カラー診断</span>
+              <span class="profile-menu-chevron">›</span>
+            </div>
+            <div class="profile-menu-item">
+              <div class="profile-menu-icon" style="background:rgba(107,70,193,0.2);">📊</div>
+              <span class="profile-menu-text">着用履歴</span>
+              <span class="profile-menu-chevron">›</span>
+            </div>
+            <div class="profile-menu-item">
+              <div class="profile-menu-icon" style="background:rgba(33,150,243,0.2);">🔗</div>
+              <span class="profile-menu-text">SNSシェア設定</span>
+              <span class="profile-menu-chevron">›</span>
+            </div>
+            <div class="profile-menu-item">
+              <div class="profile-menu-icon" style="background:rgba(255,193,7,0.2);">⭐</div>
+              <span class="profile-menu-text">アプリを評価する</span>
+              <span class="profile-menu-chevron">›</span>
+            </div>
+            <div class="profile-menu-item">
+              <div class="profile-menu-icon" style="background:rgba(255,255,255,0.08);">⚙️</div>
+              <span class="profile-menu-text">設定</span>
+              <span class="profile-menu-chevron">›</span>
+            </div>
+          </div>
+
+          <div style="height:16px;"></div>
+        </div>
+
+      </div><!-- /content-area -->
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <button class="tab-item active" id="tab-home" onclick="switchTab('home')">
+          <div class="tab-icon">🏠<span class="tab-dot"></span></div>
+          <span class="tab-label">ホーム</span>
+        </button>
+        <button class="tab-item" id="tab-scan" onclick="switchTab('scan')">
+          <div class="tab-icon">📷<span class="tab-dot"></span></div>
+          <span class="tab-label">スキャン</span>
+        </button>
+        <button class="tab-item" id="tab-suggest" onclick="switchTab('suggest')">
+          <div class="tab-icon">✨<span class="tab-dot"></span></div>
+          <span class="tab-label">提案</span>
+        </button>
+        <button class="tab-item" id="tab-closet" onclick="switchTab('closet')">
+          <div class="tab-icon">👗<span class="tab-dot"></span></div>
+          <span class="tab-label">クローゼット</span>
+        </button>
+        <button class="tab-item" id="tab-profile" onclick="switchTab('profile')">
+          <div class="tab-icon">👤<span class="tab-dot"></span></div>
+          <span class="tab-label">プロフィール</span>
+        </button>
+      </div>
+
+    </div><!-- /screen -->
+  </div><!-- /iphone-frame -->
+</div><!-- /iphone-wrapper -->
+
+<script>
+  // ===== TAB NAVIGATION =====
+  function switchTab(name) {
+    // Deactivate all
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+
+    // Activate target
+    const page = document.getElementById('page-' + name);
+    const tab = document.getElementById('tab-' + name);
+    if (page) page.classList.add('active');
+    if (tab) tab.classList.add('active');
+
+    // Scroll to top
+    document.querySelector('.content-area').scrollTop = 0;
+  }
+
+  // ===== FILTER CHIPS =====
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // ===== SCAN ANIMATION =====
+  let scanRunning = false;
+  function startScan() {
+    if (scanRunning) return;
+    scanRunning = true;
+
+    const analyzing = document.getElementById('ai-analyzing');
+    const btn = document.querySelector('.scan-main-btn');
+    const statusEl = document.getElementById('ai-status');
+    const progressEl = document.getElementById('ai-progress');
+
+    // Show analyzing
+    analyzing.classList.add('visible');
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+
+    // Reset progress animation
+    progressEl.style.animation = 'none';
+    progressEl.offsetHeight; // reflow
+    progressEl.style.animation = 'aiProgress 2.5s ease forwards';
+
+    const statuses = [
+      '🤖 AI が解析しています...',
+      '🔍 アイテムを認識中...',
+      '🏷️ タグ情報を抽出中...',
+      '✅ 解析完了！クローゼットに追加しますか？'
+    ];
+
+    let i = 0;
+    const statusInterval = setInterval(() => {
+      if (i < statuses.length) {
+        statusEl.textContent = statuses[i++];
+      } else {
+        clearInterval(statusInterval);
+        setTimeout(() => {
+          analyzing.classList.remove('visible');
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          scanRunning = false;
+        }, 1800);
+      }
+    }, 650);
+  }
+
+  // ===== OUTFIT SWIPE =====
+  let currentCard = 0;
+  const totalCards = 3;
+
+  function updateCardDisplay() {
+    const track = document.getElementById('outfit-track');
+    const trackWidth = track.parentElement.offsetWidth;
+    track.style.transform = `translateX(-${currentCard * (trackWidth + 16)}px)`;
+
+    // Update dots
+    document.querySelectorAll('.swipe-dot').forEach((dot, idx) => {
+      dot.classList.toggle('active', idx === currentCard);
+    });
+  }
+
+  function nextCard() {
+    if (currentCard < totalCards - 1) {
+      currentCard++;
+      updateCardDisplay();
+    }
+  }
+
+  function prevCard() {
+    if (currentCard > 0) {
+      currentCard--;
+      updateCardDisplay();
+    }
+  }
+
+  function goToCard(idx) {
+    currentCard = idx;
+    updateCardDisplay();
+  }
+
+  // Touch/swipe support for outfit cards
+  let touchStartX = 0;
+  let touchEndX = 0;
+  const outfitContainer = document.querySelector('.outfit-cards-container');
+
+  if (outfitContainer) {
+    outfitContainer.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    outfitContainer.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 40) {
+        if (diff > 0) nextCard();
+        else prevCard();
+      }
+    }, { passive: true });
+  }
+
+  // Initialize card widths on load
+  window.addEventListener('load', () => {
+    updateCardDisplay();
+    // Update clock
+    const now = new Date();
+    const h = now.getHours().toString().padStart(2, '0');
+    const m = now.getMinutes().toString().padStart(2, '0');
+    document.querySelector('.status-time').textContent = `${h}:${m}`;
+  });
+
+  window.addEventListener('resize', () => {
+    updateCardDisplay();
+  });
+</script>
+</body>
+</html>
