@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Omotenashi AI — 接待AIコンシェルジュ</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --gold: #C5A028;
+      --gold-light: #D4B84A;
+      --gold-pale: #F5EFD8;
+      --gold-border: rgba(197, 160, 40, 0.3);
+      --navy: #282D3C;
+      --navy-soft: #3A4055;
+      --white: #FFFFFF;
+      --off-white: #FAFAF8;
+      --gray-light: #F2F2EF;
+      --gray-mid: #E8E8E4;
+      --gray-text: #888880;
+      --body-text: #3C3C38;
+      --font-serif: 'Georgia', 'Times New Roman', 'Yu Mincho', '游明朝', serif;
+      --font-sans: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      color: var(--body-text);
+      background-color: var(--white);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    .serif { font-family: var(--font-serif); }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-serif);
+      font-weight: normal;
+      letter-spacing: 0.05em;
+      line-height: 1.4;
+    }
+
+    /* ===== NAVIGATION ===== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 4rem;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--gold-border);
+    }
+
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      letter-spacing: 0.15em;
+      color: var(--navy);
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: var(--gold);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      color: var(--navy);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold);
+    }
+
+    .nav-cta {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      color: var(--gold) !important;
+      border: 1px solid var(--gold);
+      padding: 0.5rem 1.5rem;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .nav-cta:hover {
+      background: var(--gold) !important;
+      color: var(--white) !important;
+    }
+
+    /* ===== HERO ===== */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 6rem;
+      position: relative;
+      background: var(--white);
+    }
+
+    .hero-inner {
+      max-width: 860px;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2.5rem;
+      display: block;
+    }
+
+    .hero-title {
+      font-size: clamp(2.4rem, 5vw, 4.2rem);
+      color: var(--navy);
+      margin-bottom: 1.5rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero-title-line {
+      display: block;
+    }
+
+    .hero-title-accent {
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero-title-accent::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), transparent);
+    }
+
+    .hero-subtitle {
+      font-size: clamp(0.9rem, 1.5vw, 1.05rem);
+      color: var(--gray-text);
+      max-width: 520px;
+      margin: 2.5rem auto 3.5rem;
+      line-height: 2;
+      letter-spacing: 0.05em;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1.5px solid var(--gold);
+      padding: 1rem 3rem;
+      text-decoration: none;
+      background: var(--white);
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background: var(--gold);
+      color: var(--white);
+    }
+
+    .btn-secondary {
+      display: inline-block;
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--navy);
+      padding: 1rem 3rem;
+      text-decoration: none;
+      border: 1.5px solid transparent;
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--navy);
+    }
+
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hero-scroll-hint span {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: scrollDown 2s ease infinite;
+    }
+
+    @keyframes scrollDown {
+      0% { transform: scaleY(0); transform-origin: top; opacity: 0; }
+      50% { transform: scaleY(1); transform-origin: top; opacity: 1; }
+      100% { transform: scaleY(1); transform-origin: bottom; opacity: 0; }
+    }
+
+    /* ===== SECTION BASE ===== */
+    section {
+      padding: 7rem 2rem;
+    }
+
+    .section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ===== PROBLEM SECTION ===== */
+    #problem {
+      background: var(--white);
+      padding: 8rem 2rem;
+    }
+
+    .problem-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 0 3rem;
+    }
+
+    .problem-gold-line {
+      display: flex;
+      justify-content: center;
+    }
+
+    .problem-gold-line::after {
+      content: '';
+      display: block;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--gold-light), rgba(197,160,40,0.1));
+      height: 100%;
+    }
+
+    .problem-content {}
+
+    .problem-title {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      color: var(--navy);
+      margin-bottom: 3rem;
+      line-height: 1.35;
+    }
+
+    .problem-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+      margin-top: 3.5rem;
+    }
+
+    .problem-card {
+      padding: 2.5rem 2rem;
+      border-top: 1px solid var(--gold-border);
+    }
+
+    .problem-card-num {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    .problem-card h3 {
+      font-size: 1rem;
+      color: var(--navy);
+      margin-bottom: 0.8rem;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .problem-card p {
+      font-size: 0.85rem;
+      color: var(--gray-text);
+      line-height: 1.9;
+    }
+
+    /* ===== SOLUTION SECTION ===== */
+    #solution {
+      padding: 0;
+      min-height: 80vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .solution-left {
+      padding: 8rem 5rem 8rem 6rem;
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .solution-right {
+      background: var(--gray-light);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8rem 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .solution-right::before {
+      content: '御';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18rem;
+      font-family: var(--font-serif);
+      color: rgba(197, 160, 40, 0.05);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .solution-title {
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      color: var(--navy);
+      margin-bottom: 2rem;
+      line-height: 1.4;
+    }
+
+    .solution-desc {
+      font-size: 0.9rem;
+      color: var(--body-text);
+      line-height: 2;
+      max-width: 440px;
+    }
+
+    .solution-list {
+      list-style: none;
+      margin-top: 2.5rem;
+    }
+
+    .solution-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.2rem 0;
+      border-bottom: 1px solid var(--gold-border);
+      font-size: 0.88rem;
+      color: var(--body-text);
+    }
+
+    .solution-list li:first-child {
+      border-top: 1px solid var(--gold-border);
+    }
+
+    .solution-list li::before {
+      content: '—';
+      color: var(--gold);
+      flex-shrink: 0;
+      margin-top: 0.05em;
+    }
+
+    .solution-right-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-item {}
+
+    .stat-num {
+      font-family: var(--font-serif);
+      font-size: 3rem;
+      color: var(--navy);
+      display: block;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-num span {
+      font-size: 1.4rem;
+      color: var(--gold);
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--gray-text);
+      letter-spacing: 0.05em;
+      line-height: 1.6;
+    }
+
+    /* ===== FEATURES SECTION ===== */
+    #features {
+      background: var(--off-white);
+      padding: 8rem 2rem;
+    }
+
+    .features-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 6rem;
+    }
+
+    .features-header h2 {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      color: var(--navy);
+      margin-top: 1rem;
+    }
+
+    .timeline {
+      max-width: 820px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 2.5rem;
+      top: 1rem;
+      bottom: 1rem;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--gold), rgba(197,160,40,0.2));
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 5rem 1fr;
+      gap: 2rem;
+      margin-bottom: 4rem;
+      position: relative;
+    }
+
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-node {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 0.2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .timeline-circle {
+      width: 1.2rem;
+      height: 1.2rem;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      background: var(--white);
+      box-shadow: 0 0 0 4px var(--off-white);
+      flex-shrink: 0;
+    }
+
+    .timeline-circle.active {
+      background: var(--gold);
+    }
+
+    .timeline-body {
+      padding-bottom: 2rem;
+    }
+
+    .timeline-num {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 0.8rem;
+    }
+
+    .timeline-body h3 {
+      font-size: 1.25rem;
+      color: var(--navy);
+      margin-bottom: 1rem;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .timeline-body p {
+      font-size: 0.88rem;
+      color: var(--gray-text);
+      line-height: 1.9;
+      max-width: 480px;
+    }
+
+    .feature-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid var(--gold-border);
+      padding: 0.25rem 0.75rem;
+      margin-top: 1rem;
+    }
+
+    /* ===== PRICING SECTION ===== */
+    #pricing {
+      background: var(--white);
+      padding: 8rem 2rem;
+    }
+
+    .pricing-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 5rem;
+    }
+
+    .pricing-header h2 {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      color: var(--navy);
+      margin-top: 1rem;
+    }
+
+    .pricing-table {
+      max-width: 900px;
+      margin: 0 auto;
+      border-top: 2px solid var(--gold);
+    }
+
+    .pricing-row {
+      display: grid;
+      grid-template-columns: 1.2fr repeat(3, 1fr);
+      border-bottom: 1px solid var(--gold-border);
+    }
+
+    .pricing-row.header-row {
+      border-bottom: 1px solid var(--gold);
+    }
+
+    .pricing-cell {
+      padding: 1.8rem 2rem;
+      font-size: 0.88rem;
+    }
+
+    .pricing-row.header-row .pricing-cell {
+      padding: 2rem 2rem;
+    }
+
+    .plan-name {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      color: var(--navy);
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+
+    .plan-price {
+      font-size: 1.8rem;
+      font-family: var(--font-serif);
+      color: var(--navy);
+      display: block;
+      line-height: 1.2;
+    }
+
+    .plan-price span {
+      font-size: 0.8rem;
+      color: var(--gray-text);
+      font-family: var(--font-sans);
+    }
+
+    .plan-price-sub {
+      font-size: 0.7rem;
+      color: var(--gray-text);
+      display: block;
+      margin-top: 0.2rem;
+    }
+
+    .plan-highlight {
+      background: var(--gold-pale);
+    }
+
+    .plan-highlight .plan-name,
+    .plan-highlight .plan-price {
+      color: var(--navy);
+    }
+
+    .pricing-cell .feature-label {
+      font-size: 0.8rem;
+      color: var(--body-text);
+      font-weight: 500;
+    }
+
+    .pricing-cell .feature-sub {
+      font-size: 0.75rem;
+      color: var(--gray-text);
+      display: block;
+      margin-top: 0.2rem;
+    }
+
+    .check { color: var(--gold); font-size: 1.1rem; }
+    .dash { color: var(--gray-mid); }
+
+    .pricing-cta {
+      text-align: center;
+      margin-top: 3.5rem;
+    }
+
+    .pricing-note {
+      font-size: 0.78rem;
+      color: var(--gray-text);
+      text-align: center;
+      margin-top: 1.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== FAQ SECTION ===== */
+    #faq {
+      background: var(--off-white);
+      padding: 8rem 2rem;
+    }
+
+    .faq-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 4rem;
+    }
+
+    .faq-header h2 {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      color: var(--navy);
+      margin-top: 1rem;
+    }
+
+    .faq-list {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--gold-border);
+    }
+
+    .faq-item:first-child {
+      border-top: 1px solid var(--gold-border);
+    }
+
+    .faq-question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2rem 0;
+      cursor: pointer;
+      gap: 1.5rem;
+    }
+
+    .faq-question h3 {
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--navy);
+      letter-spacing: 0.02em;
+      line-height: 1.5;
+    }
+
+    .faq-toggle {
+      width: 1.6rem;
+      height: 1.6rem;
+      border: 1px solid var(--gold-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--gold);
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    .faq-item.open .faq-toggle {
+      background: var(--gold);
+      color: var(--white);
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 0 0 2rem;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    .faq-answer p {
+      font-size: 0.88rem;
+      color: var(--gray-text);
+      line-height: 2;
+      padding-left: 0;
+    }
+
+    /* ===== CONTACT STRIP ===== */
+    #contact {
+      background: var(--navy);
+      padding: 7rem 2rem;
+      text-align: center;
+    }
+
+    .contact-inner {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .contact-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-title {
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-desc {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.6);
+      line-height: 2;
+      margin-bottom: 3rem;
+    }
+
+    .btn-gold {
+      display: inline-block;
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--navy);
+      background: var(--gold);
+      padding: 1.1rem 3.5rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 1.5px solid var(--gold);
+    }
+
+    .btn-gold:hover {
+      background: transparent;
+      color: var(--gold);
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--navy);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 3rem 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-logo {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+    }
+
+    .footer-logo span {
+      color: var(--gold);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--gold);
+    }
+
+    .footer-copy {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.08em;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 960px) {
+      nav {
+        padding: 1.2rem 2rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      #solution {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .solution-left {
+        padding: 5rem 2.5rem;
+      }
+
+      .solution-right {
+        padding: 5rem 2.5rem;
+        min-height: 60vh;
+      }
+
+      .solution-right::before {
+        font-size: 10rem;
+      }
+
+      .problem-inner {
+        grid-template-columns: 30px 1fr;
+        gap: 0 1.5rem;
+      }
+
+      .pricing-row {
+        grid-template-columns: 1fr;
+      }
+
+      .pricing-row.header-row {
+        display: none;
+      }
+
+      .pricing-cell {
+        padding: 1rem 1.5rem;
+      }
+
+      .pricing-cell::before {
+        content: attr(data-label);
+        font-size: 0.7rem;
+        color: var(--gray-text);
+        display: block;
+        margin-bottom: 0.3rem;
+        letter-spacing: 0.1em;
+      }
+
+      .plan-highlight {
+        order: -1;
+      }
+
+      footer {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 2.5rem 2rem;
+      }
+
+      .footer-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1.2rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      section {
+        padding: 5rem 1.5rem;
+      }
+
+      #hero {
+        padding: 7rem 1.5rem 5rem;
+      }
+
+      .hero-title {
+        font-size: 2.2rem;
+      }
+
+      .timeline::before {
+        left: 1.5rem;
+      }
+
+      .timeline-item {
+        grid-template-columns: 3rem 1fr;
+        gap: 1rem;
+      }
+
+      .solution-right-stats {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .problem-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION -->
+  <nav>
+    <a href="#" class="nav-logo">OMOTENASHI <span>AI</span></a>
+    <ul class="nav-links">
+      <li><a href="#problem">課題</a></li>
+      <li><a href="#solution">解決策</a></li>
+      <li><a href="#features">機能</a></li>
+      <li><a href="#pricing">料金</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#contact" class="nav-cta">お問い合わせ</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-inner">
+      <span class="hero-eyebrow">AI Concierge for Premium Entertainment</span>
+      <h1 class="hero-title">
+        <span class="hero-title-line">最高のおもてなしを、</span>
+        <span class="hero-title-accent">AIと共に。</span>
+      </h1>
+      <p class="hero-subtitle">
+        大切な商談相手に、忘れられない夜を。<br>
+        接待の準備から当日のフォローまで、<br>
+        AIが品格ある体験設計を支援します。
+      </p>
+      <div class="hero-cta-group">
+        <a href="#contact" class="btn-primary">無料デモを予約する</a>
+        <a href="#features" class="btn-secondary">機能を見る →</a>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section id="problem">
+    <div class="problem-inner">
+      <div class="problem-gold-line"></div>
+      <div class="problem-content">
+        <span class="section-label">The Challenge</span>
+        <h2 class="problem-title">
+          接待という重責を、<br>軽くする。
+        </h2>
+        <p style="font-size:0.92rem; color:var(--gray-text); line-height:2; max-width:560px;">
+          相手の嗜好を調べ、店を選び、手配し、当日の話題まで準備する。<br>
+          接待は、ビジネスの重要な場でありながら、その準備には膨大な時間と気遣いが求められます。
+        </p>
+
+        <div class="problem-cards">
+          <div class="problem-card">
+            <span class="problem-card-num">01</span>
+            <h3>情報収集の負担</h3>
+            <p>相手の趣味・嗜好・アレルギー・過去の会食履歴を把握するだけで数時間。担当者の属人的な記憶に頼る状況が続いています。</p>
+          </div>
+          <div class="problem-card">
+            <span class="problem-card-num">02</span>
+            <h3>店選びのリスク</h3>
+            <p>「あの店で失礼がなかったか」という不安は拭えません。場の格、料理の質、サービスの水準、全てを満たす選択は難しい。</p>
+          </div>
+          <div class="problem-card">
+            <span class="problem-card-num">03</span>
+            <h3>引き継ぎの断絶</h3>
+            <p>担当者が変わると、蓄積された関係性情報が失われます。新担当が一から関係を構築し直す非効率が生まれます。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section id="solution">
+    <div class="solution-left">
+      <span class="section-label">Our Solution</span>
+      <h2 class="solution-title">
+        AIが、接待の<br>記憶と判断を<br>担います。
+      </h2>
+      <p class="solution-desc">
+        Omotenashi AIは、接待に関わるすべての情報を一元管理し、最適な体験設計をAIが提案。担当者の勘や経験に依存しない、再現性のある「おもてなし」を実現します。
+      </p>
+      <ul class="solution-list">
+        <li>相手プロフィールの自動蓄積と引き継ぎ</li>
+        <li>シチュエーション別の店舗・コース提案</li>
+        <li>手配・予約の一括管理と当日リマインド</li>
+        <li>会食後のフォローアップ支援</li>
+      </ul>
+    </div>
+    <div class="solution-right">
+      <div class="solution-right-stats">
+        <div class="stat-item">
+          <span class="stat-num">82<span>%</span></span>
+          <span class="stat-label">準備時間の<br>削減率（導入企業平均）</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">3.8<span>×</span></span>
+          <span class="stat-label">商談成功率の<br>向上倍率</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">94<span>%</span></span>
+          <span class="stat-label">担当者の<br>満足度スコア</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">48<span>h</span></span>
+          <span class="stat-label">最短導入から<br>実運用まで</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="features-header">
+      <span class="section-label">Key Features</span>
+      <h2>4つの核心機能</h2>
+    </div>
+
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-node">
+          <div class="timeline-circle active"></div>
+        </div>
+        <div class="timeline-body">
+          <span class="timeline-num">Feature 01</span>
+          <h3>ゲストプロファイル管理</h3>
+          <p>
+            相手の嗜好・アレルギー・話題の禁忌・過去の会食履歴を自動整理。名刺情報やメール履歴と連携し、担当者が変わっても関係性が途切れません。AIが「その人らしい接待」を常に提案します。
+          </p>
+          <span class="feature-tag">Guest Intelligence</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-node">
+          <div class="timeline-circle"></div>
+        </div>
+        <div class="timeline-body">
+          <span class="timeline-num">Feature 02</span>
+          <h3>AI店舗・コースレコメンド</h3>
+          <p>
+            業種・役職・予算・エリア・季節・目的を入力するだけで、最適な店舗候補を3〜5件提案。ミシュランガイドや高級料亭との提携データベースをもとに、場の格にふさわしい選択肢を絞り込みます。
+          </p>
+          <span class="feature-tag">Smart Curation</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-node">
+          <div class="timeline-circle"></div>
+        </div>
+        <div class="timeline-body">
+          <span class="timeline-num">Feature 03</span>
+          <h3>手配・スケジュール一元管理</h3>
+          <p>
+            予約確認・リマインド・当日のタイムライン共有まで自動化。参加者全員へのカレンダー送付、前日のリマインド、移動手段の提案まで、AIコンシェルジュが抜けなく管理します。
+          </p>
+          <span class="feature-tag">Seamless Logistics</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-node">
+          <div class="timeline-circle"></div>
+        </div>
+        <div class="timeline-body">
+          <span class="timeline-num">Feature 04</span>
+          <h3>アフターフォロー支援</h3>
+          <p>
+            会食翌日のお礼メール文案生成から、次回の接待提案まで。会食の結果を記録し、関係性スコアを更新。長期的な信頼構築をデータで支援します。
+          </p>
+          <span class="feature-tag">Relationship Building</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="pricing-header">
+      <span class="section-label">Pricing</span>
+      <h2>シンプルな料金体系</h2>
+    </div>
+
+    <div class="pricing-table">
+      <div class="pricing-row header-row">
+        <div class="pricing-cell" style="color:var(--gray-text); font-size:0.78rem; letter-spacing:0.1em;">機能</div>
+        <div class="pricing-cell">
+          <span class="plan-name">スターター</span>
+          <span class="plan-price">¥49,800<span> /月</span></span>
+          <span class="plan-price-sub">〜10名まで</span>
+        </div>
+        <div class="pricing-cell plan-highlight">
+          <span class="plan-name">プロフェッショナル</span>
+          <span class="plan-price">¥148,000<span> /月</span></span>
+          <span class="plan-price-sub">〜50名まで ／ 最人気</span>
+        </div>
+        <div class="pricing-cell">
+          <span class="plan-name">エンタープライズ</span>
+          <span class="plan-price">要相談</span>
+          <span class="plan-price-sub">無制限・専任CS付き</span>
+        </div>
+      </div>
+
+      <div class="pricing-row">
+        <div class="pricing-cell">
+          <span class="feature-label">ゲストプロファイル管理</span>
+          <span class="feature-sub">登録可能ゲスト数</span>
+        </div>
+        <div class="pricing-cell" data-label="スターター">〜100名</div>
+        <div class="pricing-cell plan-highlight" data-label="プロフェッショナル">〜1,000名</div>
+        <div class="pricing-cell" data-label="エンタープライズ">無制限</div>
+      </div>
+
+      <div class="pricing-row">
+        <div class="pricing-cell">
+          <span class="feature-label">AIレコメンド</span>
+          <span class="feature-sub">月間提案回数</span>
+        </div>
+        <div class="pricing-cell" data-label="スターター">20回/月</div>
+        <div class="pricing-cell plan-highlight" data-label="プロフェッショナル">200回/月</div>
+        <div class="pricing-cell" data-label="エンタープライズ">無制限</div>
+      </div>
+
+      <div class="pricing-row">
+        <div class="pricing-cell">
+          <span class="feature-label">CRM連携</span>
+          <span class="feature-sub">Salesforce / HubSpot 等</span>
+        </div>
+        <div class="pricing-cell" data-label="スターター"><span class="dash">—</span></div>
+        <div class="pricing-cell plan-highlight" data-label="プロフェッショナル"><span class="check">✦</span></div>
+        <div class="pricing-cell" data-label="エンタープライズ"><span class="check">✦</span></div>
+      </div>
+
+      <div class="pricing-row">
+        <div class="pricing-cell">
+          <span class="feature-label">専任カスタマーサクセス</span>
+          <span class="feature-sub">導入・運用サポート</span>
+        </div>
+        <div class="pricing-cell" data-label="スターター"><span class="dash">—</span></div>
+        <div class="pricing-cell plan-highlight" data-label="プロフェッショナル"><span class="dash">—</span></div>
+        <div class="pricing-cell" data-label="エンタープライズ"><span class="check">✦</span></div>
+      </div>
+
+      <div class="pricing-row">
+        <div class="pricing-cell">
+          <span class="feature-label">SLA保証</span>
+          <span class="feature-sub">稼働率・応答時間</span>
+        </div>
+        <div class="pricing-cell" data-label="スターター">99.5%</div>
+        <div class="pricing-cell plan-highlight" data-label="プロフェッショナル">99.9%</div>
+        <div class="pricing-cell" data-label="エンタープライズ">99.99%</div>
+      </div>
+    </div>
+
+    <div class="pricing-cta">
+      <a href="#contact" class="btn-primary">14日間無料でお試し</a>
+    </div>
+    <p class="pricing-note">クレジットカード不要 ・ 契約期間の縛りなし ・ いつでも解約可能</p>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="faq-header">
+      <span class="section-label">FAQ</span>
+      <h2>よくあるご質問</h2>
+    </div>
+
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>既存のCRMやグループウェアとの連携は可能ですか？</h3>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-answer">
+          <p>Salesforce、HubSpot、Microsoft 365、Google Workspaceとの標準連携に対応しています（プロフェッショナルプラン以上）。その他のシステムについても、API連携をご相談いただけます。エンタープライズプランでは専任エンジニアが個別対応いたします。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>顧客情報や接待データの取り扱いはどのように管理されますか？</h3>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-answer">
+          <p>全データは国内データセンター（東京リージョン）にて暗号化して保管されます。ISO 27001認証取得済みのインフラを使用し、お客様のデータは第三者に提供しないことをサービス契約で保証しています。また、SOC 2 Type IIレポートの提供も可能です。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>導入から実際に使えるようになるまでどれくらいかかりますか？</h3>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-answer">
+          <p>スターター・プロフェッショナルプランは申込後48時間以内にご利用開始いただけます。既存データの移行が必要な場合は別途1〜2週間程度いただいております。エンタープライズプランは専任CSがオンボーディングを担当し、通常2〜4週間で全機能を稼働させます。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>推薦される飲食店・会場はどのような基準で選ばれていますか？</h3>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-answer">
+          <p>ミシュランガイド掲載店、老舗料亭、高評価ホテルのレストランを中心に、独自の審査基準（サービス品質・個室の有無・接待実績・キャンセルポリシー等）を経て厳選した約3,200施設と提携しています。接待の目的・予算・エリアに応じてAIが最適な選択肢を絞り込みます。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>無料トライアル期間中はすべての機能が使えますか？</h3>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-answer">
+          <p>14日間の無料トライアルでは、プロフェッショナルプランの全機能をご利用いただけます。ゲストプロファイル管理、AIレコメンド、手配管理機能を実際のビジネスシーンでお試しください。トライアル終了後に自動で課金されることはなく、ご自身のタイミングでプランをお選びいただけます。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-inner">
+      <span class="contact-eyebrow">Get Started</span>
+      <h2 class="contact-title serif">品格ある接待を、<br>今日から始める。</h2>
+      <p class="contact-desc">
+        14日間無料でお試しいただけます。<br>
+        導入のご相談から、デモのご予約まで、お気軽にお問い合わせください。
+      </p>
+      <a href="mailto:contact@omotenashi-ai.jp" class="btn-gold">デモを予約する</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="#" class="footer-logo">OMOTENASHI <span>AI</span></a>
+    <ul class="footer-links">
+      <li><a href="#">サービス概要</a></li>
+      <li><a href="#">料金プラン</a></li>
+      <li><a href="#">セキュリティ</a></li>
+      <li><a href="#">プライバシーポリシー</a></li>
+      <li><a href="#">利用規約</a></li>
+      <li><a href="#">お問い合わせ</a></li>
+    </ul>
+    <span class="footer-copy">© 2026 omotenashi-ai.jp All rights reserved.</span>
+  </footer>
+
+  <script>
+    function toggleFaq(el) {
+      const item = el.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    }
+
+    // Subtle fade-in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.timeline-item, .problem-card, .stat-item').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(24px)';
+      el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+      observer.observe(el);
+    });
+  </script>
+
+</body>
+</html>

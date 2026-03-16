@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Omotenashi AI - 接待AIコンシェルジュ</title>
+<style>
+  /* ============================
+     Reset & Base
+  ============================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: linear-gradient(135deg, #0a0f2e 0%, #1a2060 50%, #0F1ED2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
+    padding: 20px;
+  }
+
+  /* ============================
+     iPhone Frame
+  ============================ */
+  .iphone-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .iphone-frame {
+    position: relative;
+    width: 393px;
+    height: 852px;
+    background: #1a1a1a;
+    border-radius: 55px;
+    box-shadow:
+      0 0 0 2px #333,
+      0 0 0 6px #1a1a1a,
+      0 0 0 8px #444,
+      0 30px 80px rgba(0,0,0,0.8),
+      inset 0 0 0 1px rgba(255,255,255,0.1);
+    overflow: hidden;
+  }
+
+  /* Side buttons */
+  .iphone-frame::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 120px;
+    width: 4px;
+    height: 35px;
+    background: #333;
+    border-radius: 2px 0 0 2px;
+    box-shadow: 0 50px 0 #333, 0 100px 0 #333;
+  }
+  .iphone-frame::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 150px;
+    width: 4px;
+    height: 70px;
+    background: #333;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* Screen */
+  .iphone-screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #f2f2f7;
+    border-radius: 55px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 37px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .dynamic-island .camera {
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle at 40% 40%, #1a3a6e, #000d2e);
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .dynamic-island .sensor {
+    width: 10px;
+    height: 10px;
+    background: #0f0f1a;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 59px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 8px;
+    z-index: 50;
+    color: #000;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .status-bar .time { font-size: 15px; font-weight: 700; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; }
+  .status-bar .icons span { font-size: 13px; }
+
+  /* App Content */
+  .app-content {
+    position: absolute;
+    top: 59px;
+    left: 0; right: 0;
+    bottom: 83px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #f2f2f7;
+    -webkit-overflow-scrolling: touch;
+  }
+  .app-content::-webkit-scrollbar { display: none; }
+
+  /* ============================
+     Navigation Bar
+  ============================ */
+  .nav-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 83px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 0.5px solid rgba(0,0,0,0.12);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    padding-top: 10px;
+    z-index: 60;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    min-width: 60px;
+    transition: transform 0.15s ease;
+  }
+  .nav-item:active { transform: scale(0.9); }
+  .nav-item .nav-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.2s;
+  }
+  .nav-item .nav-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: #8e8e93;
+    transition: color 0.2s;
+  }
+  .nav-item.active .nav-icon { transform: scale(1.1); }
+  .nav-item.active .nav-label { color: #0F1ED2; font-weight: 700; }
+
+  /* ============================
+     Page System
+  ============================ */
+  .page { display: none; padding: 0 0 16px; }
+  .page.active { display: block; }
+
+  /* ============================
+     Common Components
+  ============================ */
+  .page-header {
+    background: linear-gradient(135deg, #0F1ED2, #3040e8);
+    color: white;
+    padding: 20px 20px 24px;
+    position: relative;
+  }
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .page-header p {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-top: 4px;
+  }
+  .page-header .header-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 36px;
+    opacity: 0.25;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6d6d72;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 20px 6px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 16px;
+    margin: 0 16px 10px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 2px 10px rgba(0,0,0,0.04);
+  }
+
+  .btn-primary {
+    background: #0F1ED2;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    letter-spacing: -0.2px;
+  }
+  .btn-primary:active { transform: scale(0.97); background: #0d19b8; }
+
+  .btn-secondary {
+    background: rgba(15,30,210,0.1);
+    color: #0F1ED2;
+    border: 1px solid rgba(15,30,210,0.2);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .btn-secondary:active { background: rgba(15,30,210,0.2); }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .badge-confirmed { background: #d1fae5; color: #065f46; }
+  .badge-pending   { background: #fef3c7; color: #92400e; }
+  .badge-done      { background: #ede9fe; color: #5b21b6; }
+  .badge-cancelled { background: #fee2e2; color: #991b1b; }
+
+  .stars { color: #f59e0b; font-size: 13px; letter-spacing: 1px; }
+
+  /* Form */
+  .form-group { margin-bottom: 14px; }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6d6d72;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #e5e5ea;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    background: white;
+    color: #1c1c1e;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-input:focus { border-color: #0F1ED2; }
+  select.form-input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236d6d72' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; }
+
+  /* Divider */
+  .divider { height: 0.5px; background: #e5e5ea; margin: 0 16px; }
+
+  /* ============================
+     Page 1: Home (Chat)
+  ============================ */
+  .chat-area {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .chat-bubble {
+    max-width: 85%;
+    padding: 12px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    position: relative;
+  }
+  .chat-bubble.ai {
+    background: white;
+    color: #1c1c1e;
+    align-self: flex-start;
+    border-bottom-left-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .chat-bubble.user {
+    background: #0F1ED2;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 6px;
+  }
+  .chat-avatar {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #0F1ED2, #5060f0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .chat-row {
+    display: flex;
+    flex-direction: column;
+  }
+  .chat-row.user-row { align-items: flex-end; }
+  .chat-time {
+    font-size: 10px;
+    color: #8e8e93;
+    margin-top: 3px;
+    padding: 0 4px;
+  }
+  .ai-typing {
+    display: flex;
+    gap: 5px;
+    padding: 12px 14px;
+    background: white;
+    border-radius: 18px;
+    border-bottom-left-radius: 6px;
+    align-self: flex-start;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .dot {
+    width: 7px; height: 7px;
+    background: #c5c5cc;
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+  }
+
+  /* Customer Info Card */
+  .customer-form-card {
+    background: white;
+    border-radius: 20px;
+    margin: 0 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .customer-form-header {
+    background: linear-gradient(90deg, #0F1ED2, #3040e8);
+    color: white;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .customer-form-body { padding: 16px; }
+
+  /* ============================
+     Page 2: AI Proposals
+  ============================ */
+  .restaurant-card {
+    background: white;
+    border-radius: 16px;
+    margin: 0 16px 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    position: relative;
+  }
+  .restaurant-card-img {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+  }
+  .restaurant-card-body { padding: 14px; }
+  .restaurant-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1c1c1e;
+    margin-bottom: 4px;
+  }
+  .restaurant-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .restaurant-tag {
+    background: #f0f0f5;
+    color: #636366;
+    border-radius: 8px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .restaurant-desc { font-size: 13px; color: #636366; line-height: 1.5; margin-bottom: 10px; }
+  .restaurant-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .restaurant-price { font-size: 16px; font-weight: 700; color: #0F1ED2; }
+  .recommend-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.3px;
+  }
+  .ai-reasoning {
+    background: linear-gradient(135deg, rgba(15,30,210,0.04), rgba(15,30,210,0.08));
+    border: 1px solid rgba(15,30,210,0.12);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin: 0 16px 16px;
+    font-size: 12px;
+    color: #3040e8;
+    line-height: 1.6;
+  }
+  .ai-reasoning strong { font-weight: 700; }
+
+  /* ============================
+     Page 3: Gifts
+  ============================ */
+  .gift-card {
+    background: white;
+    border-radius: 16px;
+    margin: 0 16px 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .gift-card-top {
+    display: flex;
+    gap: 14px;
+    padding: 16px;
+    align-items: flex-start;
+  }
+  .gift-emoji {
+    width: 72px;
+    height: 72px;
+    background: #f0f0f5;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    flex-shrink: 0;
+  }
+  .gift-info { flex: 1; }
+  .gift-name { font-size: 16px; font-weight: 700; color: #1c1c1e; margin-bottom: 3px; }
+  .gift-brand { font-size: 12px; color: #8e8e93; margin-bottom: 6px; }
+  .gift-price { font-size: 18px; font-weight: 700; color: #0F1ED2; }
+  .gift-card-bottom {
+    border-top: 0.5px solid #f0f0f5;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .wrapping-select {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1.5px solid #e5e5ea;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: inherit;
+    background: white;
+    color: #1c1c1e;
+    appearance: none;
+    outline: none;
+  }
+  .btn-order {
+    background: #0F1ED2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .btn-order:active { transform: scale(0.95); background: #0d19b8; }
+
+  /* ============================
+     Page 4: Reservations
+  ============================ */
+  .reservation-item {
+    background: white;
+    border-radius: 14px;
+    margin: 0 16px 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .reservation-date-box {
+    background: linear-gradient(135deg, #0F1ED2, #3040e8);
+    color: white;
+    border-radius: 10px;
+    padding: 8px 10px;
+    text-align: center;
+    min-width: 48px;
+    flex-shrink: 0;
+  }
+  .reservation-date-box .month { font-size: 10px; font-weight: 600; opacity: 0.8; }
+  .reservation-date-box .day   { font-size: 22px; font-weight: 800; line-height: 1; }
+  .reservation-date-box .year  { font-size: 9px; opacity: 0.7; }
+  .reservation-info { flex: 1; }
+  .reservation-title { font-size: 15px; font-weight: 700; color: #1c1c1e; margin-bottom: 4px; }
+  .reservation-detail { font-size: 12px; color: #8e8e93; line-height: 1.6; }
+  .reservation-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  /* FAB */
+  .fab {
+    position: sticky;
+    bottom: 16px;
+    right: 16px;
+    float: right;
+    margin-right: 16px;
+    width: 52px;
+    height: 52px;
+    background: #0F1ED2;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(15,30,210,0.5);
+    transition: all 0.2s;
+    z-index: 30;
+    font-family: inherit;
+    line-height: 1;
+  }
+  .fab:active { transform: scale(0.9); }
+
+  /* ============================
+     Page 5: History
+  ============================ */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 12px;
+    margin: 0 16px 12px;
+    padding: 10px 14px;
+    gap: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .search-icon { font-size: 16px; color: #8e8e93; }
+  .search-input {
+    flex: 1;
+    border: none;
+    font-size: 15px;
+    font-family: inherit;
+    color: #1c1c1e;
+    outline: none;
+    background: transparent;
+  }
+  .search-input::placeholder { color: #c7c7cc; }
+
+  .history-table {
+    background: white;
+    border-radius: 16px;
+    margin: 0 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  .history-row {
+    padding: 14px 16px;
+    border-bottom: 0.5px solid #f0f0f5;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .history-row:last-child { border-bottom: none; }
+  .history-row-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .history-client { font-size: 15px; font-weight: 700; color: #1c1c1e; }
+  .history-date { font-size: 11px; color: #8e8e93; }
+  .history-venue { font-size: 13px; color: #636366; }
+  .history-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .history-memo {
+    font-size: 12px;
+    color: #8e8e93;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .history-stats {
+    background: #f0f0f5;
+    border-radius: 12px;
+    padding: 8px 16px;
+    margin: 12px 16px 0;
+    display: flex;
+    justify-content: space-around;
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 800; color: #0F1ED2; }
+  .stat-label { font-size: 10px; color: #8e8e93; font-weight: 600; }
+
+  /* ============================
+     NEC Brand Strip
+  ============================ */
+  .nec-strip {
+    background: linear-gradient(90deg, #0F1ED2, #1a2de8);
+    color: white;
+    text-align: center;
+    padding: 6px 0;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+
+  /* Tag chips */
+  .chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .chip {
+    background: rgba(15,30,210,0.08);
+    color: #0F1ED2;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid rgba(15,30,210,0.15);
+  }
+
+  /* Quick stats strip */
+  .quick-stats {
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+  }
+  .quick-stat-card {
+    flex: 1;
+    background: white;
+    border-radius: 12px;
+    padding: 12px 10px;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .quick-stat-num { font-size: 20px; font-weight: 800; color: #0F1ED2; }
+  .quick-stat-label { font-size: 10px; color: #8e8e93; font-weight: 600; margin-top: 2px; }
+
+  /* Alert banner */
+  .alert-banner {
+    background: linear-gradient(90deg, rgba(245,158,11,0.15), rgba(245,158,11,0.08));
+    border-left: 3px solid #f59e0b;
+    border-radius: 0 10px 10px 0;
+    margin: 0 16px 12px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #92400e;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ============================
+     Animations
+  ============================ */
+  .page.active { animation: fadeInUp 0.25s ease; }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card-hover { transition: transform 0.15s; cursor: pointer; }
+  .card-hover:active { transform: scale(0.98); }
+</style>
+</head>
+<body>
+
+<div class="iphone-wrapper">
+  <div class="iphone-frame">
+    <div class="iphone-screen">
+
+      <!-- Dynamic Island -->
+      <div class="dynamic-island">
+        <div class="sensor"></div>
+        <div class="camera"></div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">16:48</span>
+        <div class="icons">
+          <span>●●●</span>
+          <span>WiFi</span>
+          <span>🔋</span>
+        </div>
+      </div>
+
+      <!-- App Content Area -->
+      <div class="app-content" id="appContent">
+
+        <!-- ========================
+             PAGE 1: HOME
+        ======================== -->
+        <div class="page active" id="page-home">
+          <!-- NEC Strip -->
+          <div class="nec-strip">Powered by NEC × Omotenashi AI</div>
+
+          <!-- Page Header -->
+          <div class="page-header">
+            <h1>🤝 おもてなしAI</h1>
+            <p>接待をもっとスマートに</p>
+            <span class="header-icon">🎌</span>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="quick-stats">
+            <div class="quick-stat-card">
+              <div class="quick-stat-num">12</div>
+              <div class="quick-stat-label">今月の接待</div>
+            </div>
+            <div class="quick-stat-card">
+              <div class="quick-stat-num">4.8</div>
+              <div class="quick-stat-label">平均評価</div>
+            </div>
+            <div class="quick-stat-card">
+              <div class="quick-stat-num">3</div>
+              <div class="quick-stat-label">今週の予定</div>
+            </div>
+          </div>
+
+          <!-- Alert -->
+          <div class="alert-banner">
+            ⚡ 明日15:00 — 田中部長との会食予約を確認してください
+          </div>
+
+          <!-- Chat Section -->
+          <div class="section-title">AIコンシェルジュ</div>
+          <div class="chat-area">
+            <div class="chat-row">
+              <div class="chat-avatar">🤖</div>
+              <div class="chat-bubble ai">
+                こんにちは！接待AIコンシェルジュです。<br>
+                今日はどちらのお客様をご接待予定ですか？
+              </div>
+              <div class="chat-time">16:40</div>
+            </div>
+            <div class="chat-row user-row">
+              <div class="chat-bubble user">明日、テクイオン様の田中部長をお招きします。予算は¥30,000/人で和食希望です。</div>
+              <div class="chat-time">16:42</div>
+            </div>
+            <div class="chat-row">
+              <div class="chat-avatar">🤖</div>
+              <div class="chat-bubble ai">
+                かしこまりました！<br>田中部長のご好みに合わせた会食先を <strong>3件</strong>ご提案します。「AI提案」タブをご確認ください。
+              </div>
+              <div class="chat-time">16:42</div>
+            </div>
+            <div class="ai-typing">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+
+          <!-- Customer Form -->
+          <div class="section-title">顧客情報入力</div>
+          <div class="customer-form-card">
+            <div class="customer-form-header">
+              <span>👔</span> お客様情報
+            </div>
+            <div class="customer-form-body">
+              <div class="form-group">
+                <label class="form-label">お客様名</label>
+                <input type="text" class="form-input" placeholder="例：田中 一郎" value="田中 一郎">
+              </div>
+              <div class="form-group">
+                <label class="form-label">会社名・役職</label>
+                <input type="text" class="form-input" placeholder="例：テクイオン株式会社 部長" value="テクイオン株式会社 部長">
+              </div>
+              <div class="form-group">
+                <label class="form-label">接待目的</label>
+                <select class="form-input">
+                  <option>商談・契約締結</option>
+                  <option>関係強化・懇親</option>
+                  <option>感謝・御礼</option>
+                  <option>情報共有・意見交換</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">予算（一人あたり）</label>
+                <select class="form-input">
+                  <option>〜¥10,000</option>
+                  <option>〜¥20,000</option>
+                  <option selected>〜¥30,000</option>
+                  <option>〜¥50,000</option>
+                  <option>¥50,000〜</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">料理のジャンル</label>
+                <select class="form-input">
+                  <option selected>和食</option>
+                  <option>フランス料理</option>
+                  <option>イタリア料理</option>
+                  <option>中国料理</option>
+                  <option>割烹・懐石</option>
+                </select>
+              </div>
+              <div class="chip-row">
+                <span class="chip">🌿 ベジ対応可</span>
+                <span class="chip">🍷 ワインリスト豊富</span>
+                <span class="chip">🎎 個室あり</span>
+              </div>
+            </div>
+          </div>
+          <div style="padding: 16px;">
+            <button class="btn-primary" onclick="switchPage('ai')">🤖 AIに提案してもらう</button>
+          </div>
+        </div><!-- /page-home -->
+
+
+        <!-- ========================
+             PAGE 2: AI提案
+        ======================== -->
+        <div class="page" id="page-ai">
+          <div class="nec-strip">Powered by NEC × Omotenashi AI</div>
+          <div class="page-header">
+            <h1>✨ AI提案</h1>
+            <p>田中部長 — 和食・¥30,000/人</p>
+            <span class="header-icon">🍱</span>
+          </div>
+
+          <!-- AI Reasoning -->
+          <div style="padding: 12px 0 0;">
+            <div class="ai-reasoning">
+              <strong>🤖 AIの分析：</strong>田中部長は過去の接待データより「個室・静かな環境・日本酒の品揃え」を重視される傾向があります。以下の3店舗を最優先でご提案します。
+            </div>
+          </div>
+
+          <!-- Restaurant 1 -->
+          <div class="restaurant-card card-hover">
+            <div class="recommend-badge">⭐ 最推薦</div>
+            <div class="restaurant-card-img" style="background: linear-gradient(135deg, #fef3c7, #fde68a);">🏮</div>
+            <div class="restaurant-card-body">
+              <div class="restaurant-name">瓢亭 麻布本店</div>
+              <div class="restaurant-meta">
+                <span class="restaurant-tag">📍 麻布十番</span>
+                <span class="restaurant-tag">懐石料理</span>
+                <div class="stars">★★★★★</div>
+                <span style="font-size:11px;color:#636366;">(4.9)</span>
+              </div>
+              <div class="restaurant-desc">京都の名流を東京で体感できる懐石の名店。全室完全個室、季節の素材を活かした繊細な料理と厳選日本酒。</div>
+              <div class="restaurant-footer">
+                <div class="restaurant-price">¥25,000〜/人</div>
+                <button class="btn-secondary">📅 予約する</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Restaurant 2 -->
+          <div class="restaurant-card card-hover">
+            <div class="restaurant-card-img" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0);">🍣</div>
+            <div class="restaurant-card-body">
+              <div class="restaurant-name">銀座 鮨 一心</div>
+              <div class="restaurant-meta">
+                <span class="restaurant-tag">📍 銀座</span>
+                <span class="restaurant-tag">江戸前寿司</span>
+                <div class="stars">★★★★★</div>
+                <span style="font-size:11px;color:#636366;">(4.8)</span>
+              </div>
+              <div class="restaurant-desc">東京湾直送の江戸前ネタが自慢の名店。カウンター席で職人の技を目の前で体感。おまかせコースのみ。</div>
+              <div class="restaurant-footer">
+                <div class="restaurant-price">¥30,000〜/人</div>
+                <button class="btn-secondary">📅 予約する</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Restaurant 3 -->
+          <div class="restaurant-card card-hover">
+            <div class="restaurant-card-img" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe);">🥩</div>
+            <div class="restaurant-card-body">
+              <div class="restaurant-name">和牛懐石 赤坂 松花堂</div>
+              <div class="restaurant-meta">
+                <span class="restaurant-tag">📍 赤坂</span>
+                <span class="restaurant-tag">和牛・懐石</span>
+                <div class="stars">★★★★☆</div>
+                <span style="font-size:11px;color:#636366;">(4.7)</span>
+              </div>
+              <div class="restaurant-desc">国産A5和牛と懐石の融合。モダンジャパニーズの洗練された空間でビジネス接待に最適な個室完備。</div>
+              <div class="restaurant-footer">
+                <div class="restaurant-price">¥28,000〜/人</div>
+                <button class="btn-secondary">📅 予約する</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding: 4px 16px 8px;">
+            <button class="btn-primary" onclick="switchPage('gifts')">🎁 お土産も提案してもらう</button>
+          </div>
+        </div><!-- /page-ai -->
+
+
+        <!-- ========================
+             PAGE 3: お土産
+        ======================== -->
+        <div class="page" id="page-gifts">
+          <div class="nec-strip">Powered by NEC × Omotenashi AI</div>
+          <div class="page-header">
+            <h1>🎁 お土産提案</h1>
+            <p>田中部長へのおすすめギフト</p>
+            <span class="header-icon">🎀</span>
+          </div>
+
+          <div style="padding: 12px 0 0;">
+            <div class="ai-reasoning">
+              <strong>🤖 AIの分析：</strong>田中部長のご趣味（日本酒・茶道）と季節感を考慮し、印象に残る逸品を3点セレクトしました。
+            </div>
+          </div>
+
+          <!-- Gift 1 -->
+          <div class="gift-card card-hover">
+            <div class="gift-card-top">
+              <div class="gift-emoji">🍶</div>
+              <div class="gift-info">
+                <div class="gift-name">獺祭 磨き二割三分</div>
+                <div class="gift-brand">旭酒造 / 山口県</div>
+                <div class="stars" style="margin-bottom:4px;">★★★★★</div>
+                <div class="gift-price">¥5,400</div>
+              </div>
+            </div>
+            <div class="gift-card-bottom">
+              <select class="wrapping-select">
+                <option>🎁 ラッピングなし</option>
+                <option>📦 のし紙（御礼）</option>
+                <option>🎀 贈答用ボックス</option>
+                <option>📮 直送（先方へ配達）</option>
+              </select>
+              <button class="btn-order">注文 →</button>
+            </div>
+          </div>
+
+          <!-- Gift 2 -->
+          <div class="gift-card card-hover">
+            <div class="gift-card-top">
+              <div class="gift-emoji">🍵</div>
+              <div class="gift-info">
+                <div class="gift-name">宇治抹茶 大吟醸詰合せ</div>
+                <div class="gift-brand">丸久小山園 / 京都</div>
+                <div class="stars" style="margin-bottom:4px;">★★★★☆</div>
+                <div class="gift-price">¥8,640</div>
+              </div>
+            </div>
+            <div class="gift-card-bottom">
+              <select class="wrapping-select">
+                <option>🎁 ラッピングなし</option>
+                <option>📦 のし紙（御礼）</option>
+                <option selected>🎀 贈答用ボックス</option>
+                <option>📮 直送（先方へ配達）</option>
+              </select>
+              <button class="btn-order">注文 →</button>
+            </div>
+          </div>
+
+          <!-- Gift 3 -->
+          <div class="gift-card card-hover">
+            <div class="gift-card-top">
+              <div class="gift-emoji">🧁</div>
+              <div class="gift-info">
+                <div class="gift-name">和菓子 四季めぐり</div>
+                <div class="gift-brand">とらや / 東京赤坂</div>
+                <div class="stars" style="margin-bottom:4px;">★★★★★</div>
+                <div class="gift-price">¥6,200</div>
+              </div>
+            </div>
+            <div class="gift-card-bottom">
+              <select class="wrapping-select">
+                <option>🎁 ラッピングなし</option>
+                <option selected>📦 のし紙（御礼）</option>
+                <option>🎀 贈答用ボックス</option>
+                <option>📮 直送（先方へ配達）</option>
+              </select>
+              <button class="btn-order">注文 →</button>
+            </div>
+          </div>
+
+          <div style="padding: 8px 16px 8px;">
+            <button class="btn-primary" onclick="switchPage('reservations')">📋 予約管理を確認する</button>
+          </div>
+        </div><!-- /page-gifts -->
+
+
+        <!-- ========================
+             PAGE 4: 予約管理
+        ======================== -->
+        <div class="page" id="page-reservations">
+          <div class="nec-strip">Powered by NEC × Omotenashi AI</div>
+          <div class="page-header">
+            <h1>📅 予約管理</h1>
+            <p>接待スケジュール一覧</p>
+            <span class="header-icon">🗓️</span>
+          </div>
+
+          <div class="section-title">今後の予定</div>
+
+          <!-- Reservation 1 -->
+          <div class="reservation-item card-hover">
+            <div class="reservation-date-box">
+              <div class="month">MAR</div>
+              <div class="day">17</div>
+              <div class="year">2026</div>
+            </div>
+            <div class="reservation-info">
+              <div class="reservation-title">田中部長 — テクイオン</div>
+              <div class="reservation-detail">
+                📍 瓢亭 麻布本店<br>
+                🕒 19:00〜21:30 ｜ 👥 4名<br>
+                💰 ¥25,000/人
+              </div>
+            </div>
+            <div class="reservation-actions">
+              <span class="badge badge-confirmed">確定</span>
+              <button class="btn-secondary" style="font-size:11px;padding:6px 10px;">詳細</button>
+            </div>
+          </div>
+
+          <!-- Reservation 2 -->
+          <div class="reservation-item card-hover">
+            <div class="reservation-date-box" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">
+              <div class="month">MAR</div>
+              <div class="day">21</div>
+              <div class="year">2026</div>
+            </div>
+            <div class="reservation-info">
+              <div class="reservation-title">山田常務 — フューチャーテック</div>
+              <div class="reservation-detail">
+                📍 銀座 鮨 一心<br>
+                🕒 18:30〜21:00 ｜ 👥 2名<br>
+                💰 ¥30,000/人
+              </div>
+            </div>
+            <div class="reservation-actions">
+              <span class="badge badge-pending">承認待ち</span>
+              <button class="btn-secondary" style="font-size:11px;padding:6px 10px;">詳細</button>
+            </div>
+          </div>
+
+          <!-- Reservation 3 -->
+          <div class="reservation-item card-hover">
+            <div class="reservation-date-box" style="background: linear-gradient(135deg, #6d28d9, #4c1d95);">
+              <div class="month">MAR</div>
+              <div class="day">25</div>
+              <div class="year">2026</div>
+            </div>
+            <div class="reservation-info">
+              <div class="reservation-title">佐藤社長 — グローバルキャピタル</div>
+              <div class="reservation-detail">
+                📍 和牛懐石 赤坂 松花堂<br>
+                🕒 19:30〜22:00 ｜ 👥 6名<br>
+                💰 ¥28,000/人
+              </div>
+            </div>
+            <div class="reservation-actions">
+              <span class="badge badge-confirmed">確定</span>
+              <button class="btn-secondary" style="font-size:11px;padding:6px 10px;">詳細</button>
+            </div>
+          </div>
+
+          <div class="section-title">完了済み</div>
+
+          <!-- Reservation done -->
+          <div class="reservation-item card-hover" style="opacity:0.65;">
+            <div class="reservation-date-box" style="background: #c7c7cc;">
+              <div class="month">MAR</div>
+              <div class="day">12</div>
+              <div class="year">2026</div>
+            </div>
+            <div class="reservation-info">
+              <div class="reservation-title">李部長 — アジアパートナーズ</div>
+              <div class="reservation-detail">
+                📍 瓢亭 麻布本店<br>
+                🕒 19:00〜21:00 ｜ 👥 3名
+              </div>
+            </div>
+            <div class="reservation-actions">
+              <span class="badge badge-done">完了</span>
+            </div>
+          </div>
+
+          <!-- FAB -->
+          <button class="fab" onclick="alert('新規接待を追加')">＋</button>
+
+        </div><!-- /page-reservations -->
+
+
+        <!-- ========================
+             PAGE 5: 履歴
+        ======================== -->
+        <div class="page" id="page-history">
+          <div class="nec-strip">Powered by NEC × Omotenashi AI</div>
+          <div class="page-header">
+            <h1>📊 接待履歴</h1>
+            <p>過去の接待記録</p>
+            <span class="header-icon">📝</span>
+          </div>
+
+          <!-- Stats -->
+          <div class="history-stats">
+            <div class="stat-item">
+              <div class="stat-num">48</div>
+              <div class="stat-label">総接待数</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-num">4.8</div>
+              <div class="stat-label">平均評価</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-num">¥2.4M</div>
+              <div class="stat-label">総支出</div>
+            </div>
+          </div>
+
+          <!-- Search -->
+          <div style="height: 12px;"></div>
+          <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="顧客名・会社名・お店で検索...">
+          </div>
+
+          <div class="section-title">最近の履歴</div>
+
+          <!-- History Table -->
+          <div class="history-table">
+
+            <div class="history-row card-hover">
+              <div class="history-row-top">
+                <div class="history-client">田中 一郎 部長</div>
+                <div class="history-date">2026.03.12</div>
+              </div>
+              <div class="history-venue">🏮 瓢亭 麻布本店 ｜ テクイオン株式会社</div>
+              <div class="history-bottom">
+                <div class="history-memo">💬 日本酒の話で盛り上がった。次回もぜひ</div>
+                <div class="stars">★★★★★</div>
+              </div>
+            </div>
+
+            <div class="history-row card-hover">
+              <div class="history-row-top">
+                <div class="history-client">李 建国 部長</div>
+                <div class="history-date">2026.03.05</div>
+              </div>
+              <div class="history-venue">🍣 銀座 鮨 一心 ｜ アジアパートナーズ</div>
+              <div class="history-bottom">
+                <div class="history-memo">💬 江戸前寿司に感動されていた</div>
+                <div class="stars">★★★★★</div>
+              </div>
+            </div>
+
+            <div class="history-row card-hover">
+              <div class="history-row-top">
+                <div class="history-client">鈴木 雅代 取締役</div>
+                <div class="history-date">2026.02.28</div>
+              </div>
+              <div class="history-venue">🥩 和牛懐石 赤坂 松花堂 ｜ イノベートHD</div>
+              <div class="history-bottom">
+                <div class="history-memo">💬 個室の雰囲気が良かった。要望通り</div>
+                <div class="stars">★★★★☆</div>
+              </div>
+            </div>
+
+            <div class="history-row card-hover">
+              <div class="history-row-top">
+                <div class="history-client">山田 誠 常務</div>
+                <div class="history-date">2026.02.20</div>
+              </div>
+              <div class="history-venue">🏮 瓢亭 麻布本店 ｜ フューチャーテック</div>
+              <div class="history-bottom">
+                <div class="history-memo">💬 契約書サインに向けて前向きな反応</div>
+                <div class="stars">★★★★★</div>
+              </div>
+            </div>
+
+            <div class="history-row card-hover">
+              <div class="history-row-top">
+                <div class="history-client">佐藤 健一 社長</div>
+                <div class="history-date">2026.02.14</div>
+              </div>
+              <div class="history-venue">🍣 銀座 鮨 一心 ｜ グローバルキャピタル</div>
+              <div class="history-bottom">
+                <div class="history-memo">💬 アレルギー対応も完璧。次の契約につながった</div>
+                <div class="stars">★★★★★</div>
+              </div>
+            </div>
+
+            <div class="history-row card-hover">
+              <div class="history-row-top">
+                <div class="history-client">王 冬梅 マネージャー</div>
+                <div class="history-date">2026.02.07</div>
+              </div>
+              <div class="history-venue">🍵 茶懐石 京都別院 ｜ チャイナビジネス</div>
+              <div class="history-bottom">
+                <div class="history-memo">💬 お茶のお点前が大変喜ばれた</div>
+                <div class="stars">★★★★☆</div>
+              </div>
+            </div>
+
+          </div>
+
+          <div style="height: 20px;"></div>
+        </div><!-- /page-history -->
+
+      </div><!-- /app-content -->
+
+      <!-- Navigation Bar -->
+      <div class="nav-bar">
+        <div class="nav-item active" id="nav-home" onclick="switchPage('home')">
+          <div class="nav-icon">🏠</div>
+          <span class="nav-label">ホーム</span>
+        </div>
+        <div class="nav-item" id="nav-ai" onclick="switchPage('ai')">
+          <div class="nav-icon">✨</div>
+          <span class="nav-label">AI提案</span>
+        </div>
+        <div class="nav-item" id="nav-gifts" onclick="switchPage('gifts')">
+          <div class="nav-icon">🎁</div>
+          <span class="nav-label">お土産</span>
+        </div>
+        <div class="nav-item" id="nav-reservations" onclick="switchPage('reservations')">
+          <div class="nav-icon">📅</div>
+          <span class="nav-label">予約管理</span>
+        </div>
+        <div class="nav-item" id="nav-history" onclick="switchPage('history')">
+          <div class="nav-icon">📊</div>
+          <span class="nav-label">履歴</span>
+        </div>
+      </div>
+
+    </div><!-- /iphone-screen -->
+  </div><!-- /iphone-frame -->
+</div><!-- /iphone-wrapper -->
+
+<script>
+  // Page switching
+  const pages = ['home', 'ai', 'gifts', 'reservations', 'history'];
+
+  function switchPage(target) {
+    // Hide all pages
+    pages.forEach(function(p) {
+      var el = document.getElementById('page-' + p);
+      if (el) { el.classList.remove('active'); }
+      var nav = document.getElementById('nav-' + p);
+      if (nav) { nav.classList.remove('active'); }
+    });
+
+    // Show target page
+    var targetPage = document.getElementById('page-' + target);
+    if (targetPage) {
+      targetPage.classList.add('active');
+    }
+    var targetNav = document.getElementById('nav-' + target);
+    if (targetNav) {
+      targetNav.classList.add('active');
+    }
+
+    // Scroll to top
+    var content = document.getElementById('appContent');
+    if (content) { content.scrollTop = 0; }
+  }
+</script>
+</body>
+</html>
