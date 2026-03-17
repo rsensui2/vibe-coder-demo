@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShiftSync - シフト最適化AI</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0D1B2A;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  }
+
+  /* iPhone Frame */
+  .iphone-frame {
+    width: 393px;
+    height: 852px;
+    background: #1A2E4A;
+    border-radius: 54px;
+    box-shadow:
+      0 0 0 2px #2A4060,
+      0 0 0 4px #1A2E4A,
+      0 0 0 6px #3A5070,
+      0 40px 80px rgba(0,0,0,0.8),
+      inset 0 0 0 1px rgba(255,255,255,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 37px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .dynamic-island::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    border: 2px solid #2a2a2a;
+  }
+  .dynamic-island::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #222;
+    border-radius: 50%;
+  }
+
+  /* Screen area */
+  .screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #0F1E30;
+    border-radius: 54px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Status bar */
+  .status-bar {
+    height: 59px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 8px;
+    flex-shrink: 0;
+  }
+  .status-time {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .status-icons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: #fff;
+    font-size: 12px;
+  }
+
+  /* Content area */
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 16px 0;
+    scrollbar-width: none;
+  }
+  .content-area::-webkit-scrollbar { display: none; }
+
+  /* Tab panels */
+  .tab-panel { display: none; padding-bottom: 20px; }
+  .tab-panel.active { display: block; }
+
+  /* Tab bar */
+  .tab-bar {
+    height: 83px;
+    background: rgba(26, 46, 74, 0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: flex-start;
+    padding: 8px 0 0;
+    flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 6px 4px;
+  }
+  .tab-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: transform 0.2s;
+  }
+  .tab-item:active .tab-icon { transform: scale(0.85); }
+  .tab-label {
+    font-size: 10px;
+    color: #6B8BB5;
+    font-weight: 500;
+  }
+  .tab-item.active .tab-label { color: #00C9A7; }
+
+  /* Page header */
+  .page-header {
+    padding: 16px 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .page-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .page-subtitle {
+    font-size: 13px;
+    color: #6B8BB5;
+    margin-top: 2px;
+  }
+
+  /* Card */
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 13px;
+    color: #6B8BB5;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* Progress bar */
+  .progress-wrap { margin-bottom: 8px; }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #B0C8E8;
+    margin-bottom: 6px;
+  }
+  .progress-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #00C9A7, #00E5C5);
+    transition: width 0.6s ease;
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .stat-card {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #00C9A7;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: #6B8BB5;
+    margin-top: 4px;
+  }
+
+  /* Warning badge */
+  .warning-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .warning-item:last-child { border-bottom: none; }
+  .staff-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .warning-info { flex: 1; }
+  .warning-name { font-size: 14px; color: #D0E4FF; font-weight: 600; }
+  .warning-desc { font-size: 12px; color: #6B8BB5; margin-top: 2px; }
+  .warning-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .badge-red { background: rgba(255, 75, 75, 0.2); color: #FF6B6B; }
+  .badge-yellow { background: rgba(255, 196, 57, 0.2); color: #FFC439; }
+  .badge-green { background: rgba(0, 201, 167, 0.2); color: #00C9A7; }
+
+  /* Quick action button */
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #00C9A7, #00B496);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+  }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-secondary {
+    width: 100%;
+    padding: 14px;
+    background: rgba(0, 201, 167, 0.1);
+    color: #00C9A7;
+    border: 1px solid rgba(0, 201, 167, 0.3);
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+  }
+
+  /* Staff list */
+  .staff-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+  }
+  .staff-item:last-child { border-bottom: none; }
+  .staff-info { flex: 1; }
+  .staff-name { font-size: 15px; color: #D0E4FF; font-weight: 600; }
+  .staff-role { font-size: 12px; color: #6B8BB5; margin-top: 2px; }
+  .staff-meta {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .tag-blue { background: rgba(100, 180, 255, 0.15); color: #64B4FF; }
+  .tag-purple { background: rgba(180, 100, 255, 0.15); color: #B464FF; }
+  .tag-orange { background: rgba(255, 160, 50, 0.15); color: #FFA032; }
+  .tag-teal { background: rgba(0, 201, 167, 0.15); color: #00C9A7; }
+  .staff-chevron { color: #3A5070; font-size: 18px; }
+
+  /* Compatibility score */
+  .compat-indicator {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .compat-good { background: rgba(0, 201, 167, 0.2); color: #00C9A7; border: 2px solid rgba(0, 201, 167, 0.4); }
+  .compat-mid { background: rgba(255, 196, 57, 0.2); color: #FFC439; border: 2px solid rgba(255, 196, 57, 0.4); }
+  .compat-bad { background: rgba(255, 75, 75, 0.2); color: #FF6B6B; border: 2px solid rgba(255, 75, 75, 0.4); }
+
+  /* Month selector */
+  .month-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+  }
+  .month-text { font-size: 18px; font-weight: 700; color: #fff; }
+  .month-nav {
+    width: 34px;
+    height: 34px;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    border-radius: 50%;
+    color: #B0C8E8;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* AI Generate button area */
+  .generate-area {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  /* Calendar */
+  .calendar {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .cal-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+  }
+  .cal-day-name {
+    padding: 10px 0;
+    font-size: 11px;
+    color: #6B8BB5;
+    font-weight: 600;
+  }
+  .cal-day-name:first-child { color: #FF6B6B; }
+  .cal-day-name:last-child { color: #64B4FF; }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+  }
+  .cal-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #B0C8E8;
+    position: relative;
+    cursor: pointer;
+    border-radius: 6px;
+    margin: 1px;
+  }
+  .cal-cell:hover { background: rgba(255,255,255,0.05); }
+  .cal-cell.empty { color: transparent; cursor: default; }
+  .cal-cell.today {
+    background: rgba(0, 201, 167, 0.2);
+    color: #00C9A7;
+    font-weight: 700;
+  }
+  .cal-cell.has-warning::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #FF6B6B;
+  }
+  .cal-cell.has-shift::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #00C9A7;
+  }
+  .cal-cell.weekend { color: #6B8BB5; }
+  .cal-cell.sunday { color: #FF8888; }
+
+  /* Shift detail row */
+  .shift-detail {
+    padding: 10px 14px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .shift-detail-title {
+    font-size: 13px;
+    color: #00C9A7;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .shift-staff-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .shift-chip {
+    font-size: 12px;
+    padding: 4px 10px;
+    background: rgba(0, 201, 167, 0.12);
+    color: #00C9A7;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 201, 167, 0.2);
+  }
+
+  /* Loading overlay */
+  .loading-overlay {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 30, 48, 0.92);
+    z-index: 200;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    border-radius: 54px;
+  }
+  .loading-overlay.show { display: flex; }
+  .spinner {
+    width: 52px;
+    height: 52px;
+    border: 3px solid rgba(0, 201, 167, 0.2);
+    border-top: 3px solid #00C9A7;
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { color: #00C9A7; font-size: 16px; font-weight: 600; }
+  .loading-sub { color: #6B8BB5; font-size: 13px; text-align: center; padding: 0 40px; }
+
+  /* Heatmap */
+  .heatmap-container {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .heatmap-container::-webkit-scrollbar { display: none; }
+  .heatmap-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 4px;
+  }
+  .heatmap-table th {
+    font-size: 11px;
+    color: #6B8BB5;
+    font-weight: 600;
+    padding: 4px;
+    text-align: center;
+  }
+  .heatmap-table td {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s;
+    vertical-align: middle;
+  }
+  .heatmap-table td:hover { transform: scale(1.1); }
+  .cell-self {
+    background: rgba(255,255,255,0.05);
+    color: #6B8BB5;
+    font-size: 10px;
+  }
+  .cell-90 { background: rgba(0, 201, 167, 0.5); color: #00FFD4; }
+  .cell-75 { background: rgba(0, 201, 167, 0.3); color: #00C9A7; }
+  .cell-60 { background: rgba(255, 196, 57, 0.25); color: #FFC439; }
+  .cell-40 { background: rgba(255, 120, 50, 0.3); color: #FF9060; }
+  .cell-20 { background: rgba(255, 75, 75, 0.35); color: #FF6B6B; }
+  .heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0 4px;
+    justify-content: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #6B8BB5;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  /* Settings */
+  .settings-section { margin-bottom: 20px; }
+  .settings-section-title {
+    font-size: 13px;
+    color: #6B8BB5;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding: 0 2px;
+  }
+  .settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    margin-bottom: 6px;
+  }
+  .settings-item-left { flex: 1; }
+  .settings-item-name { font-size: 15px; color: #D0E4FF; font-weight: 500; }
+  .settings-item-desc { font-size: 12px; color: #6B8BB5; margin-top: 2px; }
+
+  /* Toggle switch */
+  .toggle {
+    width: 50px;
+    height: 28px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 14px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: #00C9A7; }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+  .toggle.on::after { transform: translateX(22px); }
+
+  /* Risk alert settings */
+  .risk-slider-wrap { margin-top: 10px; }
+  .risk-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #6B8BB5;
+    margin-bottom: 6px;
+  }
+  .risk-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 6px;
+    background: linear-gradient(90deg, #00C9A7 60%, rgba(255,255,255,0.1) 60%);
+    border-radius: 3px;
+    outline: none;
+  }
+  .risk-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #00C9A7;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  /* Select dropdown */
+  .settings-select {
+    background: rgba(0, 201, 167, 0.1);
+    border: 1px solid rgba(0, 201, 167, 0.3);
+    border-radius: 8px;
+    color: #00C9A7;
+    font-size: 13px;
+    padding: 6px 10px;
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+  }
+
+  /* Alert banner */
+  .alert-banner {
+    background: rgba(255, 75, 75, 0.1);
+    border: 1px solid rgba(255, 75, 75, 0.25);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .alert-icon { font-size: 18px; flex-shrink: 0; }
+  .alert-text { font-size: 13px; color: #FFB0B0; line-height: 1.4; }
+
+  /* Accordion/expand */
+  .section-expand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .section-expand-title { font-size: 14px; color: #D0E4FF; font-weight: 600; }
+  .section-expand-icon { color: #6B8BB5; transition: transform 0.2s; }
+  .section-expand.open .section-expand-icon { transform: rotate(180deg); }
+
+  /* Notification row */
+  .notif-time-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .time-chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #6B8BB5;
+  }
+  .time-chip.selected {
+    background: rgba(0, 201, 167, 0.2);
+    color: #00C9A7;
+    border-color: rgba(0, 201, 167, 0.4);
+  }
+
+  /* App version footer */
+  .app-footer {
+    text-align: center;
+    padding: 10px;
+    color: #3A5070;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="iphone-frame">
+  <!-- Dynamic Island -->
+  <div class="dynamic-island"></div>
+
+  <div class="screen">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="status-time">15:32</span>
+      <div class="status-icons">
+        <span>●●●</span>
+        <span>WiFi</span>
+        <span>🔋</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-area" id="contentArea">
+
+      <!-- ===== HOME TAB ===== -->
+      <div class="tab-panel active" id="tab-home">
+        <div class="page-header">
+          <div>
+            <div class="page-title">ShiftSync 🌟</div>
+            <div class="page-subtitle">2026年3月 シフト管理</div>
+          </div>
+          <div style="font-size:28px">🤖</div>
+        </div>
+
+        <!-- Alert -->
+        <div class="alert-banner">
+          <div class="alert-icon">⚠️</div>
+          <div class="alert-text">田中・佐藤の相性スコアが低下しています。来週のシフトで同時配置を避けることを推奨します。</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-value">12</div>
+            <div class="stat-label">スタッフ数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">78%</div>
+            <div class="stat-label">シフト充足率</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">3</div>
+            <div class="stat-label">要注意ペア</div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="card">
+          <div class="card-title">📊 今月の進捗</div>
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>シフト埋め率</span>
+              <span style="color:#00C9A7">78%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:78%"></div>
+            </div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>スタッフ満足度</span>
+              <span style="color:#FFC439">65%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:65%; background: linear-gradient(90deg, #FFC439, #FFD566)"></div>
+            </div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>相性最適化スコア</span>
+              <span style="color:#00C9A7">82%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:82%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Warning staff -->
+        <div class="card">
+          <div class="card-title">⚡ 相性警告スタッフ</div>
+          <div class="warning-item">
+            <div class="staff-avatar" style="background:rgba(255,100,100,0.15)">😤</div>
+            <div class="warning-info">
+              <div class="warning-name">田中 誠一 ↔ 佐藤 花</div>
+              <div class="warning-desc">衝突頻度: 月3回 / 相性スコア 22</div>
+            </div>
+            <div class="warning-badge badge-red">要注意</div>
+          </div>
+          <div class="warning-item">
+            <div class="staff-avatar" style="background:rgba(255,196,57,0.15)">😒</div>
+            <div class="warning-info">
+              <div class="warning-name">鈴木 健 ↔ 山田 優</div>
+              <div class="warning-desc">業務スタイル不一致 / スコア 45</div>
+            </div>
+            <div class="warning-badge badge-yellow">注意</div>
+          </div>
+          <div class="warning-item">
+            <div class="staff-avatar" style="background:rgba(0,201,167,0.15)">😊</div>
+            <div class="warning-info">
+              <div class="warning-name">中村 彩 ↔ 伊藤 大輝</div>
+              <div class="warning-desc">高相性ペア / スコア 91</div>
+            </div>
+            <div class="warning-badge badge-green">推奨</div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <button class="btn-primary" onclick="switchTab('shift'); triggerGenerate()">
+          ✨ 来月シフトをAI生成
+        </button>
+        <button class="btn-secondary" onclick="switchTab('staff')">
+          👥 スタッフ情報を確認
+        </button>
+
+        <div class="app-footer">ShiftSync v2.1.0 • AI最適化エンジン搭載</div>
+      </div>
+
+      <!-- ===== STAFF TAB ===== -->
+      <div class="tab-panel" id="tab-staff">
+        <div class="page-header">
+          <div>
+            <div class="page-title">スタッフ管理</div>
+            <div class="page-subtitle">12名登録済み</div>
+          </div>
+          <div style="width:36px;height:36px;background:rgba(0,201,167,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#00C9A7;font-size:20px">+</div>
+        </div>
+
+        <!-- Search bar -->
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px;margin-bottom:14px;display:flex;gap:8px;align-items:center;">
+          <span style="color:#6B8BB5">🔍</span>
+          <span style="color:#3A5070;font-size:14px">スタッフを検索...</span>
+        </div>
+
+        <div class="card" style="padding:8px 16px">
+          <div class="staff-item">
+            <div class="staff-avatar" style="background:rgba(0,201,167,0.15);font-size:20px">👩</div>
+            <div class="staff-info">
+              <div class="staff-name">中村 彩</div>
+              <div class="staff-role">シフトリーダー • 月〜金</div>
+              <div class="staff-meta">
+                <span class="tag tag-blue">ISFJ型</span>
+                <span class="tag tag-teal">接客★5</span>
+                <span class="tag tag-teal">在籍3年</span>
+              </div>
+            </div>
+            <div class="compat-indicator compat-good">91</div>
+          </div>
+          <div class="staff-item">
+            <div class="staff-avatar" style="background:rgba(100,180,255,0.15);font-size:20px">👨</div>
+            <div class="staff-info">
+              <div class="staff-name">伊藤 大輝</div>
+              <div class="staff-role">スタッフ • 月水金</div>
+              <div class="staff-meta">
+                <span class="tag tag-blue">ENFP型</span>
+                <span class="tag tag-purple">調理★4</span>
+                <span class="tag tag-orange">★新人</span>
+              </div>
+            </div>
+            <div class="compat-indicator compat-good">88</div>
+          </div>
+          <div class="staff-item">
+            <div class="staff-avatar" style="background:rgba(255,100,100,0.15);font-size:20px">🧑</div>
+            <div class="staff-info">
+              <div class="staff-name">田中 誠一</div>
+              <div class="staff-role">スタッフ • 火木土</div>
+              <div class="staff-meta">
+                <span class="tag tag-purple">INTJ型</span>
+                <span class="tag tag-blue">管理★4</span>
+                <span class="tag tag-orange">⚠️ 佐藤NG</span>
+              </div>
+            </div>
+            <div class="compat-indicator compat-bad">22</div>
+          </div>
+          <div class="staff-item">
+            <div class="staff-avatar" style="background:rgba(255,196,57,0.15);font-size:20px">👱‍♀️</div>
+            <div class="staff-info">
+              <div class="staff-name">佐藤 花</div>
+              <div class="staff-role">スタッフ • 月火水</div>
+              <div class="staff-meta">
+                <span class="tag tag-orange">ESFP型</span>
+                <span class="tag tag-teal">接客★5</span>
+                <span class="tag tag-orange">⚠️ 田中NG</span>
+              </div>
+            </div>
+            <div class="compat-indicator compat-bad">22</div>
+          </div>
+          <div class="staff-item">
+            <div class="staff-avatar" style="background:rgba(180,100,255,0.15);font-size:20px">👨‍🦱</div>
+            <div class="staff-info">
+              <div class="staff-name">鈴木 健</div>
+              <div class="staff-role">スタッフ • 週末中心</div>
+              <div class="staff-meta">
+                <span class="tag tag-blue">ISTP型</span>
+                <span class="tag tag-purple">技術★4</span>
+              </div>
+            </div>
+            <div class="compat-indicator compat-mid">45</div>
+          </div>
+          <div class="staff-item">
+            <div class="staff-avatar" style="background:rgba(0,201,167,0.1);font-size:20px">👩‍🦰</div>
+            <div class="staff-info">
+              <div class="staff-name">山田 優</div>
+              <div class="staff-role">スタッフ • 木金土</div>
+              <div class="staff-meta">
+                <span class="tag tag-orange">ENFJ型</span>
+                <span class="tag tag-teal">接客★5</span>
+                <span class="tag tag-teal">在籍2年</span>
+              </div>
+            </div>
+            <div class="compat-indicator compat-mid">60</div>
+          </div>
+        </div>
+
+        <!-- Compatibility legend -->
+        <div class="card" style="display:flex;gap:12px;justify-content:center">
+          <span style="font-size:12px;color:#6B8BB5">相性スコア:</span>
+          <span style="font-size:12px;color:#00C9A7">● 良好(70+)</span>
+          <span style="font-size:12px;color:#FFC439">● 普通(40-69)</span>
+          <span style="font-size:12px;color:#FF6B6B">● 注意(〜39)</span>
+        </div>
+      </div>
+
+      <!-- ===== SHIFT TAB ===== -->
+      <div class="tab-panel" id="tab-shift">
+        <div class="page-header">
+          <div>
+            <div class="page-title">シフト生成</div>
+            <div class="page-subtitle">AI最適化シフト</div>
+          </div>
+        </div>
+
+        <!-- Month selector -->
+        <div class="month-selector">
+          <button class="month-nav">‹</button>
+          <div class="month-text" id="currentMonth">2026年 4月</div>
+          <button class="month-nav">›</button>
+        </div>
+
+        <!-- AI params -->
+        <div class="card">
+          <div class="card-title">⚙️ 生成オプション</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:14px;color:#B0C8E8">相性NG回避</span>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:14px;color:#B0C8E8">過去トラブル参照</span>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:14px;color:#B0C8E8">離職リスク配慮</span>
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Generate area -->
+        <div class="generate-area">
+          <button class="btn-primary" id="generateBtn" onclick="startGenerate()">
+            🤖 AIでシフトを自動生成
+          </button>
+        </div>
+
+        <!-- Calendar (result) -->
+        <div class="card" id="calendarResult">
+          <div class="card-title" style="margin-bottom:0">📅 2026年4月 シフトカレンダー</div>
+          <div style="margin-top:8px;margin-bottom:4px;display:flex;gap:8px;font-size:11px;color:#6B8BB5">
+            <span>● 緑点: シフト確定</span>
+            <span>● 赤点: 警告あり</span>
+          </div>
+          <div class="calendar">
+            <div class="cal-header">
+              <div class="cal-day-name">日</div>
+              <div class="cal-day-name">月</div>
+              <div class="cal-day-name">火</div>
+              <div class="cal-day-name">水</div>
+              <div class="cal-day-name">木</div>
+              <div class="cal-day-name">金</div>
+              <div class="cal-day-name">土</div>
+            </div>
+            <div class="cal-grid" id="calGrid">
+              <!-- April 2026: starts Wednesday -->
+              <div class="cal-cell empty"></div>
+              <div class="cal-cell empty"></div>
+              <div class="cal-cell empty"></div>
+              <div class="cal-cell has-shift">1</div>
+              <div class="cal-cell has-shift">2</div>
+              <div class="cal-cell has-shift">3</div>
+              <div class="cal-cell weekend">4</div>
+              <div class="cal-cell sunday">5</div>
+              <div class="cal-cell has-shift">6</div>
+              <div class="cal-cell has-shift">7</div>
+              <div class="cal-cell has-shift">8</div>
+              <div class="cal-cell has-shift">9</div>
+              <div class="cal-cell has-warning">10</div>
+              <div class="cal-cell weekend">11</div>
+              <div class="cal-cell sunday">12</div>
+              <div class="cal-cell has-shift">13</div>
+              <div class="cal-cell has-shift">14</div>
+              <div class="cal-cell has-shift">15</div>
+              <div class="cal-cell has-shift">16</div>
+              <div class="cal-cell has-shift">17</div>
+              <div class="cal-cell weekend">18</div>
+              <div class="cal-cell sunday today">19</div>
+              <div class="cal-cell has-shift">20</div>
+              <div class="cal-cell has-shift">21</div>
+              <div class="cal-cell has-warning">22</div>
+              <div class="cal-cell has-shift">23</div>
+              <div class="cal-cell has-shift">24</div>
+              <div class="cal-cell weekend">25</div>
+              <div class="cal-cell sunday">26</div>
+              <div class="cal-cell has-shift">27</div>
+              <div class="cal-cell has-shift">28</div>
+              <div class="cal-cell has-shift">29</div>
+              <div class="cal-cell">30</div>
+              <div class="cal-cell empty"></div>
+              <div class="cal-cell empty"></div>
+            </div>
+            <div class="shift-detail">
+              <div class="shift-detail-title">📋 4月15日(水) のシフト</div>
+              <div class="shift-staff-chips">
+                <span class="shift-chip">中村 彩 (L)</span>
+                <span class="shift-chip">伊藤 大輝</span>
+                <span class="shift-chip">山田 優</span>
+                <span class="shift-chip">+ 2名</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MAP TAB ===== -->
+      <div class="tab-panel" id="tab-map">
+        <div class="page-header">
+          <div>
+            <div class="page-title">相性マップ</div>
+            <div class="page-subtitle">スタッフ間相性ヒートマップ</div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="heatmap-legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:rgba(0,201,167,0.5)"></div>
+            <span>高相性</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:rgba(255,196,57,0.25)"></div>
+            <span>普通</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:rgba(255,75,75,0.35)"></div>
+            <span>要注意</span>
+          </div>
+        </div>
+
+        <div class="card" style="padding:12px">
+          <div class="heatmap-container">
+            <table class="heatmap-table">
+              <thead>
+                <tr>
+                  <th style="width:44px"></th>
+                  <th>中村</th>
+                  <th>伊藤</th>
+                  <th>田中</th>
+                  <th>佐藤</th>
+                  <th>鈴木</th>
+                  <th>山田</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th style="font-size:11px;color:#6B8BB5;text-align:right;padding-right:6px">中村</th>
+                  <td class="cell-self">自</td>
+                  <td class="cell-90">91</td>
+                  <td class="cell-60">62</td>
+                  <td class="cell-75">74</td>
+                  <td class="cell-60">58</td>
+                  <td class="cell-75">80</td>
+                </tr>
+                <tr>
+                  <th style="font-size:11px;color:#6B8BB5;text-align:right;padding-right:6px">伊藤</th>
+                  <td class="cell-90">91</td>
+                  <td class="cell-self">自</td>
+                  <td class="cell-40">48</td>
+                  <td class="cell-75">77</td>
+                  <td class="cell-75">70</td>
+                  <td class="cell-60">65</td>
+                </tr>
+                <tr>
+                  <th style="font-size:11px;color:#6B8BB5;text-align:right;padding-right:6px">田中</th>
+                  <td class="cell-60">62</td>
+                  <td class="cell-40">48</td>
+                  <td class="cell-self">自</td>
+                  <td class="cell-20">22</td>
+                  <td class="cell-40">41</td>
+                  <td class="cell-60">55</td>
+                </tr>
+                <tr>
+                  <th style="font-size:11px;color:#6B8BB5;text-align:right;padding-right:6px">佐藤</th>
+                  <td class="cell-75">74</td>
+                  <td class="cell-75">77</td>
+                  <td class="cell-20">22</td>
+                  <td class="cell-self">自</td>
+                  <td class="cell-60">63</td>
+                  <td class="cell-90">85</td>
+                </tr>
+                <tr>
+                  <th style="font-size:11px;color:#6B8BB5;text-align:right;padding-right:6px">鈴木</th>
+                  <td class="cell-60">58</td>
+                  <td class="cell-75">70</td>
+                  <td class="cell-40">41</td>
+                  <td class="cell-60">63</td>
+                  <td class="cell-self">自</td>
+                  <td class="cell-40">45</td>
+                </tr>
+                <tr>
+                  <th style="font-size:11px;color:#6B8BB5;text-align:right;padding-right:6px">山田</th>
+                  <td class="cell-75">80</td>
+                  <td class="cell-60">65</td>
+                  <td class="cell-60">55</td>
+                  <td class="cell-90">85</td>
+                  <td class="cell-40">45</td>
+                  <td class="cell-self">自</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Detail -->
+        <div class="card">
+          <div class="card-title">🔍 ハイライト分析</div>
+          <div class="warning-item">
+            <div style="font-size:24px">🤝</div>
+            <div class="warning-info">
+              <div class="warning-name">中村 彩 ↔ 伊藤 大輝</div>
+              <div class="warning-desc">AIが強く推奨するペア。リーダーシップと柔軟性の補完関係。</div>
+            </div>
+            <div class="warning-badge badge-green">91</div>
+          </div>
+          <div class="warning-item">
+            <div style="font-size:24px">⚠️</div>
+            <div class="warning-info">
+              <div class="warning-name">田中 誠一 ↔ 佐藤 花</div>
+              <div class="warning-desc">INTJ vs ESFP の典型的衝突パターン。同時配置を避けてください。</div>
+            </div>
+            <div class="warning-badge badge-red">22</div>
+          </div>
+          <div class="warning-item">
+            <div style="font-size:24px">💡</div>
+            <div class="warning-info">
+              <div class="warning-name">佐藤 花 ↔ 山田 優</div>
+              <div class="warning-desc">同じESF系タイプで高い共感性。混雑時間帯の相性◎。</div>
+            </div>
+            <div class="warning-badge badge-green">85</div>
+          </div>
+        </div>
+
+        <!-- AI recommendation -->
+        <div class="card" style="background: rgba(0,201,167,0.05); border-color: rgba(0,201,167,0.2)">
+          <div class="card-title" style="color:#00C9A7">🤖 AIアドバイス</div>
+          <div style="font-size:13px;color:#B0C8E8;line-height:1.6">
+            田中・佐藤は異なる思考スタイルを持ちます。中村をバッファに置くと衝突リスクが<strong style="color:#00C9A7">40%低減</strong>されることが過去データから判明しています。
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS TAB ===== -->
+      <div class="tab-panel" id="tab-settings">
+        <div class="page-header">
+          <div>
+            <div class="page-title">設定</div>
+            <div class="page-subtitle">ShiftSync 環境設定</div>
+          </div>
+        </div>
+
+        <!-- Notification settings -->
+        <div class="settings-section">
+          <div class="settings-section-title">🔔 通知設定</div>
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <div class="settings-item-name">シフト確定通知</div>
+              <div class="settings-item-desc">シフトが確定した時にプッシュ通知</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <div class="settings-item-name">相性警告アラート</div>
+              <div class="settings-item-desc">リスクペアが検出された時に通知</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <div class="settings-item-name">シフト変更リクエスト</div>
+              <div class="settings-item-desc">スタッフからの変更申請を通知</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <div class="settings-item-name">週次レポート</div>
+              <div class="settings-item-desc">毎週月曜日に先週のサマリー</div>
+            </div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+
+          <div class="card" style="margin-top:8px">
+            <div class="card-title">⏰ 通知時間帯</div>
+            <div class="notif-time-chips">
+              <div class="time-chip">06:00-09:00</div>
+              <div class="time-chip selected">09:00-18:00</div>
+              <div class="time-chip">18:00-21:00</div>
+              <div class="time-chip">終日</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk alert settings -->
+        <div class="settings-section">
+          <div class="settings-section-title">🚨 離職リスクアラート</div>
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <div class="settings-item-name">リスクアラート有効化</div>
+              <div class="settings-item-desc">AIが離職リスクを検知して警告</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="card" style="margin-top:8px">
+            <div class="card-title">🎚️ アラート感度</div>
+            <div class="risk-labels">
+              <span>低感度（誤報少）</span>
+              <span>高感度（早期検知）</span>
+            </div>
+            <input type="range" class="risk-slider" min="0" max="100" value="60">
+            <div style="margin-top:8px;font-size:12px;color:#6B8BB5;text-align:center">
+              現在: <span style="color:#00C9A7">中程度</span> — 相性スコア45以下で警告
+            </div>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <div class="settings-item-name">アラート通知先</div>
+              <div class="settings-item-desc">管理者へのエスカレーション</div>
+            </div>
+            <select class="settings-select">
+              <option>管理者のみ</option>
+              <option>全スタッフ</option>
+              <option>Slack連携</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- AI Engine settings -->
+        <div class="settings-section">
+          <div class="settings-section-title">🤖 AI エンジン設定</div>
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <div class="settings-item-name">自動シフト生成</div>
+              <div class="settings-item-desc">毎月25日に翌月分を自動生成</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <div class="settings-item-name">パーソナリティ分析</div>
+              <div class="settings-item-desc">MBTIデータを相性計算に使用</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <div class="settings-item-name">学習モード</div>
+              <div class="settings-item-desc">実際のシフト結果から継続学習</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+
+        <!-- App info -->
+        <div class="card" style="text-align:center">
+          <div style="font-size:32px;margin-bottom:8px">🔄</div>
+          <div style="font-size:15px;color:#D0E4FF;font-weight:600">ShiftSync</div>
+          <div style="font-size:12px;color:#6B8BB5;margin-top:4px">Version 2.1.0 • AIシフト最適化</div>
+          <div style="font-size:12px;color:#3A5070;margin-top:6px">© 2026 ShiftSync Inc.</div>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-item active" id="tabnav-home" onclick="switchTab('home')">
+        <div class="tab-icon">🏠</div>
+        <div class="tab-label">ホーム</div>
+      </div>
+      <div class="tab-item" id="tabnav-staff" onclick="switchTab('staff')">
+        <div class="tab-icon">👥</div>
+        <div class="tab-label">スタッフ</div>
+      </div>
+      <div class="tab-item" id="tabnav-shift" onclick="switchTab('shift')">
+        <div class="tab-icon">📅</div>
+        <div class="tab-label">シフト</div>
+      </div>
+      <div class="tab-item" id="tabnav-map" onclick="switchTab('map')">
+        <div class="tab-icon">🗺️</div>
+        <div class="tab-label">相性</div>
+      </div>
+      <div class="tab-item" id="tabnav-settings" onclick="switchTab('settings')">
+        <div class="tab-icon">⚙️</div>
+        <div class="tab-label">設定</div>
+      </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div style="font-size:48px">🤖</div>
+      <div class="spinner"></div>
+      <div class="loading-text">AIがシフトを最適化中...</div>
+      <div class="loading-sub">スタッフ12名の相性データを分析し、最適なシフトを生成しています</div>
+    </div>
+
+  </div><!-- /screen -->
+</div><!-- /iphone-frame -->
+
+<script>
+  function switchTab(tab) {
+    // Hide all panels
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+
+    // Show target
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('tabnav-' + tab).classList.add('active');
+
+    // Scroll to top
+    document.getElementById('contentArea').scrollTop = 0;
+  }
+
+  function startGenerate() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('show');
+
+    setTimeout(() => {
+      overlay.classList.remove('show');
+      // Show success message briefly
+      const btn = document.getElementById('generateBtn');
+      btn.textContent = '✅ シフト生成完了！';
+      btn.style.background = 'linear-gradient(135deg, #1A8C70, #17735C)';
+      setTimeout(() => {
+        btn.innerHTML = '🤖 AIでシフトを再生成';
+        btn.style.background = '';
+      }, 3000);
+    }, 2800);
+  }
+
+  function triggerGenerate() {
+    setTimeout(() => startGenerate(), 300);
+  }
+
+  // Toggle time chips
+  document.querySelectorAll('.time-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('selected'));
+      this.classList.add('selected');
+    });
+  });
+
+  // Calendar cell click
+  document.querySelectorAll('.cal-cell:not(.empty)').forEach(cell => {
+    cell.addEventListener('click', function() {
+      document.querySelectorAll('.cal-cell').forEach(c => c.style.background = '');
+      if (!this.classList.contains('today')) {
+        this.style.background = 'rgba(0, 201, 167, 0.15)';
+      }
+    });
+  });
+</script>
+</body>
+</html>

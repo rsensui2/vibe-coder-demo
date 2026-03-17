@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShiftSync — 相性まで、計算する。</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #FFF8F0;
+      --accent: #FF6B35;
+      --accent-light: #FFE8DD;
+      --accent-dark: #E0521C;
+      --dark: #1A1A1A;
+      --mid: #555555;
+      --light: #999999;
+      --white: #FFFFFF;
+      --yellow: #FFD166;
+      --teal: #06D6A0;
+      --font-main: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--dark);
+      font-family: var(--font-main);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h1, h2, h3 { line-height: 1.2; }
+    .section-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      padding: 4px 14px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(255,248,240,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid var(--accent-light);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--dark); }
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--mid);
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      background: var(--accent);
+      color: #fff !important;
+      padding: 8px 20px;
+      border-radius: 100px;
+      font-weight: 700 !important;
+      transition: background 0.2s !important;
+    }
+    .nav-cta:hover { background: var(--accent-dark) !important; color: #fff !important; }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      padding: 120px 5% 80px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28vw;
+      font-weight: 900;
+      color: rgba(255,107,53,0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      letter-spacing: -0.05em;
+      user-select: none;
+    }
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 60px;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-light);
+      color: var(--accent-dark);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+    .hero-tag::before {
+      content: '✦';
+      font-size: 0.7rem;
+    }
+    .hero-headline {
+      font-size: clamp(2.8rem, 6vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+      color: var(--dark);
+    }
+    .hero-headline .accent-word {
+      color: var(--accent);
+      display: inline-block;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      color: var(--mid);
+      margin: 20px 0 36px;
+      font-weight: 400;
+      max-width: 520px;
+    }
+    .hero-btns {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 16px 36px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+      box-shadow: 0 4px 20px rgba(255,107,53,0.35);
+    }
+    .btn-primary:hover {
+      background: var(--accent-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255,107,53,0.45);
+    }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--accent);
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 16px 28px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: 2px solid var(--accent);
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: var(--accent-light); }
+    .hero-stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 48px;
+    }
+    .hero-stat .num {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .hero-stat .label {
+      font-size: 0.78rem;
+      color: var(--light);
+      margin-top: 4px;
+    }
+
+    /* ===== PHONE MOCK ===== */
+    .phone-mock {
+      position: relative;
+      width: 280px;
+      height: 560px;
+      margin: 0 auto;
+    }
+    .phone-frame {
+      width: 100%;
+      height: 100%;
+      background: var(--dark);
+      border-radius: 44px;
+      padding: 16px 10px;
+      box-shadow:
+        0 30px 80px rgba(26,26,26,0.25),
+        0 0 0 2px rgba(255,255,255,0.1) inset;
+      position: relative;
+    }
+    .phone-notch {
+      width: 100px;
+      height: 28px;
+      background: var(--dark);
+      border-radius: 0 0 20px 20px;
+      margin: 0 auto 12px;
+      position: relative;
+      z-index: 2;
+    }
+    .phone-notch::after {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 10px;
+      background: #222;
+      border-radius: 50%;
+    }
+    .phone-screen {
+      background: var(--bg);
+      border-radius: 32px;
+      height: calc(100% - 32px);
+      overflow: hidden;
+      position: relative;
+    }
+    .phone-status {
+      background: var(--accent);
+      padding: 6px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .phone-content { padding: 12px; }
+    .phone-greeting {
+      font-size: 0.7rem;
+      color: var(--mid);
+      margin-bottom: 8px;
+    }
+    .phone-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--dark);
+    }
+    .phone-shift-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .phone-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .phone-shift-info { flex: 1; }
+    .phone-name { font-size: 0.68rem; font-weight: 700; }
+    .phone-time { font-size: 0.6rem; color: var(--light); }
+    .phone-badge {
+      font-size: 0.55rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 100px;
+    }
+    .badge-match { background: #e8f9f3; color: #06a77d; }
+    .badge-ai { background: var(--accent-light); color: var(--accent-dark); }
+    .phone-ai-chip {
+      background: linear-gradient(135deg, var(--accent), #FF9559);
+      color: #fff;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .phone-ai-chip::before { content: '✦'; }
+
+    /* Floating decorations */
+    .float-bubble {
+      position: absolute;
+      background: #fff;
+      border-radius: 100px;
+      padding: 8px 16px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      white-space: nowrap;
+    }
+    .bubble-1 {
+      top: -20px;
+      right: -40px;
+      color: var(--teal);
+      border: 2px solid var(--teal);
+    }
+    .bubble-2 {
+      bottom: 60px;
+      left: -50px;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+    }
+
+    /* ===== MARQUEE ===== */
+    .marquee-wrap {
+      background: var(--accent);
+      padding: 12px 0;
+      overflow: hidden;
+      display: flex;
+    }
+    .marquee-inner {
+      display: flex;
+      animation: marquee 20s linear infinite;
+      white-space: nowrap;
+    }
+    .marquee-item {
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .marquee-item::after {
+      content: '✦';
+      opacity: 0.5;
+    }
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ===== SECTIONS BASE ===== */
+    section { padding: 96px 5%; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-header { margin-bottom: 56px; }
+    .section-headline {
+      font-size: clamp(1.8rem, 3.5vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .section-desc {
+      font-size: 1rem;
+      color: var(--mid);
+      margin-top: 14px;
+      max-width: 560px;
+    }
+
+    /* ===== PROBLEM ===== */
+    .problem-section {
+      background: var(--dark);
+      position: relative;
+      overflow: hidden;
+    }
+    .problem-section::before {
+      content: 'PROBLEM';
+      position: absolute;
+      top: 50%;
+      right: -40px;
+      transform: translateY(-50%) rotate(90deg);
+      font-size: 8rem;
+      font-weight: 900;
+      color: rgba(255,255,255,0.03);
+      pointer-events: none;
+      letter-spacing: -0.05em;
+    }
+    .problem-section .section-tag { background: var(--accent); }
+    .problem-section .section-headline { color: #fff; }
+    .problem-section .section-desc { color: rgba(255,255,255,0.5); }
+    .problem-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .problem-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 36px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    .problem-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+    .problem-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--accent);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+    }
+    .problem-quote {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.9);
+      font-weight: 600;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+    .problem-quote::before { content: '「'; color: var(--accent); }
+    .problem-quote::after { content: '」'; color: var(--accent); }
+    .problem-who {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.35);
+    }
+    .problem-card-num {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      font-size: 4rem;
+      font-weight: 900;
+      color: rgba(255,255,255,0.04);
+      line-height: 1;
+    }
+
+    /* ===== SOLUTION ===== */
+    .solution-section { background: var(--bg); }
+    .solution-flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: #fff;
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+      overflow-x: auto;
+    }
+    .flow-step {
+      flex: 1;
+      min-width: 160px;
+      text-align: center;
+      padding: 0 16px;
+    }
+    .flow-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 16px;
+    }
+    .flow-icon.orange { background: var(--accent-light); }
+    .flow-icon.coral { background: #FFE8DD; }
+    .flow-icon.green { background: #E8FBF4; }
+    .flow-icon.purple { background: #EEE8FF; }
+    .flow-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--dark);
+    }
+    .flow-desc {
+      font-size: 0.75rem;
+      color: var(--mid);
+      line-height: 1.5;
+    }
+    .flow-arrow {
+      flex-shrink: 0;
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin: 0 8px;
+    }
+    .ai-badge-large {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--accent), #FF9559);
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 8px 20px;
+      border-radius: 100px;
+      margin: 32px auto 0;
+      display: flex;
+      width: fit-content;
+    }
+
+    /* ===== FEATURES ===== */
+    .features-section {
+      background: linear-gradient(180deg, var(--accent-light) 0%, var(--bg) 100%);
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .feature-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 40px 32px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(255,107,53,0.12);
+    }
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .feature-card:hover::after { transform: scaleX(1); }
+    .feature-num {
+      font-size: 5rem;
+      font-weight: 900;
+      color: var(--accent-light);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .feature-icon-wrap {
+      width: 56px;
+      height: 56px;
+      background: var(--accent-light);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+    }
+    .feature-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--dark);
+    }
+    .feature-desc {
+      font-size: 0.9rem;
+      color: var(--mid);
+      line-height: 1.7;
+    }
+    .feature-tag {
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent-dark);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-bottom: 8px;
+    }
+
+    /* ===== METRICS ===== */
+    .metrics-section {
+      background: var(--accent);
+      position: relative;
+      overflow: hidden;
+    }
+    .metrics-section::before {
+      content: '数字で証明';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14vw;
+      font-weight: 900;
+      color: rgba(255,255,255,0.06);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .metrics-section .section-tag {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+    .metrics-section .section-headline { color: #fff; }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+    }
+    .metric-item {
+      text-align: center;
+      padding: 40px 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: transform 0.3s, background 0.3s;
+    }
+    .metric-item:hover {
+      transform: translateY(-4px);
+      background: rgba(255,255,255,0.18);
+    }
+    .metric-num {
+      font-size: clamp(2.8rem, 4.5vw, 4rem);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 4px;
+    }
+    .metric-unit {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+    .metric-label {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      margin-top: 12px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    .metric-sub {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.45);
+      margin-top: 6px;
+    }
+
+    /* ===== PRICING ===== */
+    .pricing-section { background: var(--bg); }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+    .pricing-card {
+      background: #fff;
+      border-radius: 28px;
+      padding: 40px 32px;
+      border: 2px solid transparent;
+      position: relative;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.08);
+    }
+    .pricing-card.featured {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+      transform: scale(1.04);
+      box-shadow: 0 20px 60px rgba(255,107,53,0.35);
+    }
+    .pricing-card.featured:hover {
+      transform: scale(1.04) translateY(-4px);
+    }
+    .pricing-badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--yellow);
+      color: var(--dark);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 5px 16px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .pricing-plan {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .pricing-card.featured .pricing-plan { color: rgba(255,255,255,0.7); }
+    .pricing-price {
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      display: flex;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    .pricing-yen {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+    .pricing-period {
+      font-size: 0.85rem;
+      font-weight: 400;
+      align-self: flex-end;
+      margin-bottom: 6px;
+      opacity: 0.7;
+    }
+    .pricing-free { font-size: 2.2rem; font-weight: 900; color: var(--accent); margin: 12px 0 4px; }
+    .pricing-card.featured .pricing-free { color: #fff; }
+    .pricing-limit {
+      font-size: 0.82rem;
+      color: var(--mid);
+      margin: 8px 0 28px;
+    }
+    .pricing-card.featured .pricing-limit { color: rgba(255,255,255,0.7); }
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+    .pricing-features li {
+      padding: 8px 0;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .pricing-card.featured .pricing-features li {
+      border-bottom-color: rgba(255,255,255,0.1);
+    }
+    .pricing-features li::before {
+      content: '✓';
+      color: var(--teal);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .pricing-card.featured .pricing-features li::before { color: var(--yellow); }
+    .btn-pricing {
+      display: block;
+      text-align: center;
+      padding: 14px 24px;
+      border-radius: 100px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-pricing-default {
+      background: var(--accent-light);
+      color: var(--accent-dark);
+    }
+    .btn-pricing-default:hover { background: var(--accent); color: #fff; }
+    .btn-pricing-featured {
+      background: #fff;
+      color: var(--accent);
+    }
+    .btn-pricing-featured:hover { background: var(--yellow); color: var(--dark); }
+
+    /* ===== TESTIMONIALS ===== */
+    .testimonials-section {
+      background: var(--dark);
+    }
+    .testimonials-section .section-tag { background: var(--accent); }
+    .testimonials-section .section-headline { color: #fff; }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .testimonial-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 36px 28px;
+      transition: transform 0.3s, border-color 0.3s;
+      position: relative;
+    }
+    .testimonial-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+    .testimonial-quote-mark {
+      font-size: 4rem;
+      line-height: 1;
+      color: var(--accent);
+      font-family: Georgia, serif;
+      opacity: 0.5;
+      position: absolute;
+      top: 16px;
+      left: 24px;
+    }
+    .testimonial-text {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.8;
+      margin-bottom: 28px;
+      padding-top: 28px;
+    }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .author-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .author-info .name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .author-info .role {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 2px;
+    }
+    .star-row {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 12px;
+    }
+    .star { color: var(--yellow); font-size: 0.9rem; }
+
+    /* ===== FAQ ===== */
+    .faq-section { background: var(--bg); }
+    .faq-list { max-width: 760px; margin: 0 auto; }
+    .faq-item {
+      border-bottom: 2px solid var(--accent-light);
+      margin-bottom: 4px;
+    }
+    .faq-question {
+      width: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 22px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      text-align: left;
+      font-family: var(--font-main);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--dark);
+      transition: color 0.2s;
+    }
+    .faq-question:hover { color: var(--accent); }
+    .faq-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: background 0.2s, transform 0.3s;
+    }
+    .faq-item.open .faq-icon {
+      background: var(--accent);
+      color: #fff;
+      transform: rotate(45deg);
+    }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s;
+    }
+    .faq-item.open .faq-answer { max-height: 200px; }
+    .faq-answer p {
+      padding: 0 0 20px;
+      font-size: 0.92rem;
+      color: var(--mid);
+      line-height: 1.8;
+    }
+
+    /* ===== FOOTER CTA ===== */
+    .footer-cta {
+      background: var(--accent);
+      padding: 100px 5%;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .footer-cta::before {
+      content: 'START';
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 20vw;
+      font-weight: 900;
+      color: rgba(255,255,255,0.06);
+      white-space: nowrap;
+    }
+    .footer-cta-title {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .footer-cta-sub {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 44px;
+      position: relative;
+    }
+    .footer-cta .btn-primary {
+      background: #fff;
+      color: var(--accent);
+      font-size: 1.1rem;
+      padding: 18px 48px;
+      position: relative;
+    }
+    .footer-cta .btn-primary:hover {
+      background: var(--yellow);
+      color: var(--dark);
+    }
+    .footer-fine {
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.45);
+      position: relative;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: #111;
+      color: rgba(255,255,255,0.4);
+      padding: 48px 5%;
+      text-align: center;
+    }
+    .footer-logo {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .footer-logo span { color: var(--accent); }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      list-style: none;
+      margin-bottom: 24px;
+    }
+    .footer-links a {
+      text-decoration: none;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.82rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-copy {
+      font-size: 0.75rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .phone-mock { display: none; }
+      .problem-cards { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .pricing-card.featured { transform: none; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .solution-flow { flex-direction: column; align-items: flex-start; }
+      .flow-arrow { transform: rotate(90deg); margin: 8px auto; }
+    }
+    @media (max-width: 600px) {
+      section { padding: 64px 4%; }
+      .hero { padding: 100px 4% 60px; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+      .hero-stats { flex-wrap: wrap; gap: 20px; }
+    }
+
+    /* ===== PERSON SILHOUETTES (CSS Art) ===== */
+    .deco-people {
+      position: absolute;
+      bottom: 0;
+      right: 5%;
+      display: flex;
+      align-items: flex-end;
+      gap: 20px;
+      opacity: 0.07;
+      pointer-events: none;
+    }
+    .person {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .person-head {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-bottom: 4px;
+    }
+    .person-body {
+      width: 44px;
+      height: 60px;
+      border-radius: 22px 22px 0 0;
+      background: var(--accent);
+    }
+    .person.tall .person-head { width: 32px; height: 32px; }
+    .person.tall .person-body { height: 80px; width: 48px; }
+    .person.small .person-head { width: 22px; height: 22px; }
+    .person.small .person-body { height: 44px; width: 36px; }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo">Shift<span>Sync</span></div>
+    <ul class="nav-links">
+      <li><a href="#problem">課題</a></li>
+      <li><a href="#features">機能</a></li>
+      <li><a href="#pricing">料金</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#footer-cta" class="nav-cta">無料で始める</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-bg-text">SHIFT</div>
+    <div class="deco-people">
+      <div class="person small"><div class="person-head"></div><div class="person-body"></div></div>
+      <div class="person tall"><div class="person-head"></div><div class="person-body"></div></div>
+      <div class="person"><div class="person-head"></div><div class="person-body"></div></div>
+      <div class="person small"><div class="person-head"></div><div class="person-body"></div></div>
+    </div>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-tag">AIシフト管理 × 相性マッチング</div>
+        <h1 class="hero-headline">
+          相性まで、<br><span class="accent-word">計算する。</span>
+        </h1>
+        <p class="hero-sub">
+          介護・飲食・小売の現場を変えるAIシフト管理。<br>スキルだけでなく、人間関係・相性まで考慮した最適シフトを自動生成。
+        </p>
+        <div class="hero-btns">
+          <a href="#footer-cta" class="btn-primary">🚀 無料で始める</a>
+          <a href="#features" class="btn-secondary">機能を見る →</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="num">87%</div>
+            <div class="label">シフト作成時間削減</div>
+          </div>
+          <div class="hero-stat">
+            <div class="num">3,200+</div>
+            <div class="label">導入施設数</div>
+          </div>
+          <div class="hero-stat">
+            <div class="num">4.9★</div>
+            <div class="label">ユーザー評価</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone Mock -->
+      <div class="phone-mock">
+        <div class="float-bubble bubble-1">✦ AI最適化完了！</div>
+        <div class="float-bubble bubble-2">👥 相性スコア 94点</div>
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status">
+              <span>ShiftSync</span>
+              <span>✦ AI最適</span>
+            </div>
+            <div class="phone-content">
+              <div class="phone-greeting">今週のシフト（AI自動生成）</div>
+              <div class="phone-title">🌸 火曜日 09:00〜</div>
+              <div class="phone-shift-card">
+                <div class="phone-avatar" style="background:#FF6B35;">田</div>
+                <div class="phone-shift-info">
+                  <div class="phone-name">田中 さくら</div>
+                  <div class="phone-time">09:00〜17:00 介護棟A</div>
+                </div>
+                <span class="phone-badge badge-match">相性◎</span>
+              </div>
+              <div class="phone-shift-card">
+                <div class="phone-avatar" style="background:#06D6A0;">山</div>
+                <div class="phone-shift-info">
+                  <div class="phone-name">山本 けんた</div>
+                  <div class="phone-time">10:00〜18:00 介護棟B</div>
+                </div>
+                <span class="phone-badge badge-ai">AI推薦</span>
+              </div>
+              <div class="phone-shift-card">
+                <div class="phone-avatar" style="background:#9B5DE5;">鈴</div>
+                <div class="phone-shift-info">
+                  <div class="phone-name">鈴木 あかね</div>
+                  <div class="phone-time">12:00〜20:00 食堂</div>
+                </div>
+                <span class="phone-badge badge-match">相性◎</span>
+              </div>
+              <div class="phone-ai-chip">AIが相性を計算して最適配置しました</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-inner">
+      <span class="marquee-item">介護現場に特化</span>
+      <span class="marquee-item">飲食店舗対応</span>
+      <span class="marquee-item">AI相性マッチング</span>
+      <span class="marquee-item">自動シフト生成</span>
+      <span class="marquee-item">スマホ対応</span>
+      <span class="marquee-item">3分でセットアップ</span>
+      <span class="marquee-item">無料プランあり</span>
+      <span class="marquee-item">サポート充実</span>
+      <span class="marquee-item">介護現場に特化</span>
+      <span class="marquee-item">飲食店舗対応</span>
+      <span class="marquee-item">AI相性マッチング</span>
+      <span class="marquee-item">自動シフト生成</span>
+      <span class="marquee-item">スマホ対応</span>
+      <span class="marquee-item">3分でセットアップ</span>
+      <span class="marquee-item">無料プランあり</span>
+      <span class="marquee-item">サポート充実</span>
+    </div>
+  </div>
+
+  <!-- PROBLEM -->
+  <section class="problem-section" id="problem">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-tag">PROBLEM</div>
+        <h2 class="section-headline">現場の悩み、<br>全部わかってる。</h2>
+        <p class="section-desc">シフト管理の「なんとかしたい」をまるごと解決します。</p>
+      </div>
+      <div class="problem-cards">
+        <div class="problem-card">
+          <div class="problem-card-num">01</div>
+          <div class="problem-icon">😓</div>
+          <p class="problem-quote">毎週シフト作るのに3時間かかる。休みの日まで電話対応で疲弊してる</p>
+          <p class="problem-who">介護施設 主任 (40代女性)</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-card-num">02</div>
+          <div class="problem-icon">😤</div>
+          <p class="problem-quote">あの人とこの人を一緒にすると毎回トラブル。でも上手く調整できない</p>
+          <p class="problem-who">飲食チェーン 店長 (30代男性)</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-card-num">03</div>
+          <div class="problem-icon">📊</div>
+          <p class="problem-quote">急な欠員が出ると誰でもいいから入れるしかない。サービス品質が落ちてる</p>
+          <p class="problem-who">小売店舗 マネージャー (50代男性)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section class="solution-section" id="solution">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-tag">SOLUTION</div>
+        <h2 class="section-headline">AIが、丸ごと解決。</h2>
+        <p class="section-desc">シフト作成の悩みをAIが根本から変える。4ステップで完全自動化。</p>
+      </div>
+      <div class="solution-flow">
+        <div class="flow-step">
+          <div class="flow-icon orange">👤</div>
+          <div class="flow-title">スタッフ情報登録</div>
+          <div class="flow-desc">スキル・資格・希望勤務日時・過去の相性データを登録</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-icon coral">🧠</div>
+          <div class="flow-title">AI相性分析</div>
+          <div class="flow-desc">過去のシフト・評価データから自動で相性スコアを算出</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-icon green">⚡</div>
+          <div class="flow-title">最適シフト生成</div>
+          <div class="flow-desc">法令・人員基準・相性・希望を全部考慮して自動作成</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-icon purple">📱</div>
+          <div class="flow-title">自動通知・確認</div>
+          <div class="flow-desc">スタッフのスマホへ自動連絡。確認・変更もアプリで完結</div>
+        </div>
+      </div>
+      <div class="ai-badge-large">✦ AIが毎回学習してどんどん賢くなります</div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features-section" id="features">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-tag">FEATURES</div>
+        <h2 class="section-headline">3つの<br><span style="color:var(--accent);">すごい機能</span></h2>
+        <p class="section-desc">現場をリアルに変える、選ばれる3つの理由。</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-num">01</div>
+          <div class="feature-icon-wrap">🤝</div>
+          <div class="feature-tag">独自技術</div>
+          <h3 class="feature-title">AI相性マッチング</h3>
+          <p class="feature-desc">
+            過去のシフト実績・離職率・申し送り内容をAIが分析。スタッフ同士の相性スコアを可視化し、現場の雰囲気が良くなるシフトを自動生成します。
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">02</div>
+          <div class="feature-icon-wrap">⚡</div>
+          <div class="feature-tag">時短</div>
+          <h3 class="feature-title">3分シフト生成</h3>
+          <p class="feature-desc">
+            条件を入力するだけで1ヶ月分のシフトを最短3分で生成。法令遵守・人員基準・スタッフの希望を全部まとめて考慮するので修正ほぼゼロ。
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">03</div>
+          <div class="feature-icon-wrap">🔔</div>
+          <div class="feature-tag">自動化</div>
+          <h3 class="feature-title">欠員自動補填</h3>
+          <p class="feature-desc">
+            急な欠員が出た時、相性と空き状況を考慮して最適な代替スタッフをAIが即提案。LINEで通知・承諾が完結するので電話連絡ゼロに。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- METRICS -->
+  <section class="metrics-section" id="metrics">
+    <div class="section-inner">
+      <div class="section-header" style="text-align:center;">
+        <div class="section-tag">RESULTS</div>
+        <h2 class="section-headline" style="color:#fff;">導入すると、<br>こう変わる。</h2>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-item">
+          <div class="metric-num"><span>87</span><span class="metric-unit">%</span></div>
+          <div class="metric-label">シフト作成<br>時間削減</div>
+          <div class="metric-sub">平均3時間 → 24分</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-num"><span>62</span><span class="metric-unit">%</span></div>
+          <div class="metric-label">スタッフの<br>定着率向上</div>
+          <div class="metric-sub">導入後6ヶ月比較</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-num"><span>94</span><span class="metric-unit">点</span></div>
+          <div class="metric-label">平均相性<br>スコア</div>
+          <div class="metric-sub">導入前比 +31点</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-num"><span>3,200</span></div>
+          <div class="metric-label">導入施設数</div>
+          <div class="metric-sub">2024年累計</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing-section" id="pricing">
+    <div class="section-inner">
+      <div class="section-header" style="text-align:center;">
+        <div class="section-tag">PRICING</div>
+        <h2 class="section-headline">シンプルな<br>料金体系</h2>
+        <p class="section-desc" style="margin:14px auto 0;">まずは無料から。いつでもアップグレード可能。</p>
+      </div>
+      <div class="pricing-grid">
+        <!-- Free -->
+        <div class="pricing-card">
+          <div class="pricing-plan">Free</div>
+          <div class="pricing-free">無料</div>
+          <div class="pricing-limit">最大 10名まで</div>
+          <ul class="pricing-features">
+            <li>基本シフト自動生成</li>
+            <li>スタッフ管理（10名）</li>
+            <li>スマホアプリ対応</li>
+            <li>メール通知</li>
+            <li style="opacity:0.35;">相性マッチング</li>
+            <li style="opacity:0.35;">欠員自動補填</li>
+          </ul>
+          <a href="#" class="btn-pricing btn-pricing-default">無料で始める</a>
+        </div>
+        <!-- Pro (Featured) -->
+        <div class="pricing-card featured">
+          <div class="pricing-badge">✦ 一番人気</div>
+          <div class="pricing-plan">Pro</div>
+          <div class="pricing-price">
+            <span class="pricing-yen">¥</span>
+            <span>4,980</span>
+            <span class="pricing-period">/月</span>
+          </div>
+          <div class="pricing-limit">最大 50名まで</div>
+          <ul class="pricing-features">
+            <li>AI相性マッチング</li>
+            <li>スタッフ管理（50名）</li>
+            <li>欠員自動補填</li>
+            <li>LINE通知連携</li>
+            <li>データ分析レポート</li>
+            <li>優先サポート</li>
+          </ul>
+          <a href="#" class="btn-pricing btn-pricing-featured">14日間無料で試す</a>
+        </div>
+        <!-- Enterprise -->
+        <div class="pricing-card">
+          <div class="pricing-plan">Enterprise</div>
+          <div class="pricing-price">
+            <span class="pricing-yen">¥</span>
+            <span>19,800</span>
+            <span class="pricing-period">/月</span>
+          </div>
+          <div class="pricing-limit">スタッフ無制限</div>
+          <ul class="pricing-features">
+            <li>Proの全機能</li>
+            <li>複数拠点管理</li>
+            <li>API連携（HR/給与）</li>
+            <li>専任サポート担当</li>
+            <li>カスタム研修</li>
+            <li>SLA保証</li>
+          </ul>
+          <a href="#" class="btn-pricing btn-pricing-default">お問い合わせ</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials-section" id="testimonials">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-tag">VOICE</div>
+        <h2 class="section-headline">現場の声、<br>正直に。</h2>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-quote-mark">"</div>
+          <div class="star-row">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">
+            毎週3時間かけていたシフト作成が、今は30分かかりません。しかも相性を考えたシフトのおかげで、スタッフの雰囲気が明らかによくなりました。離職率も半年で40%下がって本当に驚いています。
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar" style="background:#FF6B35;">山</div>
+            <div class="author-info">
+              <div class="name">山田 美智子さん</div>
+              <div class="role">特別養護老人ホーム 主任 / 東京都</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-quote-mark">"</div>
+          <div class="star-row">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">
+            飲食店って相性の問題が一番難しいんですよ。ShiftSyncが入ってから「あの人と一緒の日は嫌」っていうトラブルがゼロになりました。AIが見えないところまで考えてくれてる感じがします。
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar" style="background:#06D6A0;">中</div>
+            <div class="author-info">
+              <div class="name">中村 拓哉さん</div>
+              <div class="role">居酒屋チェーン 店長 / 大阪府</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-quote-mark">"</div>
+          <div class="star-row">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">
+            急な欠員が出た時の対応が劇的に楽になりました。以前は電話かけまくってたのが、今はアプリから候補が自動で来てLINEで確認するだけ。休日に電話で呼び出されることがなくなりました！
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar" style="background:#9B5DE5;">佐</div>
+            <div class="author-info">
+              <div class="name">佐藤 健一さん</div>
+              <div class="role">スーパーマーケット マネージャー / 愛知県</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq-section" id="faq">
+    <div class="section-inner">
+      <div class="section-header" style="text-align:center;">
+        <div class="section-tag">FAQ</div>
+        <h2 class="section-headline">よくある<br>質問</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>無料プランからでも始められますか？</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>はい、10名まで完全無料でご利用いただけます。クレジットカード不要で今すぐ始められます。使い心地を確認してからProプランへのアップグレードをご検討ください。</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>既存のシフト管理表（Excelなど）から移行できますか？</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>はい、Excelファイルのインポート機能があります。既存データをそのまま取り込めるので、ゼロから入力し直す必要はありません。移行サポートも無料で対応しています。</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>相性スコアはどうやって計算されますか？</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>過去のシフト実績データ、スタッフ同士の評価・フィードバック、申し送り内容などを独自のAIモデルで分析します。使えば使うほど精度が上がり、現場に最適化されていきます。</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>介護職員処遇改善加算の計算に対応していますか？</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>はい、介護業界に特化した処遇改善加算・特定処遇改善加算の計算に対応しています。勤務実績から自動集計するので、書類作成の手間も大幅に削減できます。</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>スタッフのプライバシーは守られますか？</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>はい。データは全て国内サーバーで暗号化管理しています。個人情報の取り扱いはJIS Q 15001（プライバシーマーク）に準拠しており、第三者への提供は一切行いません。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER CTA -->
+  <section class="footer-cta" id="footer-cta">
+    <div class="footer-cta-title">今すぐ、始めよう。</div>
+    <p class="footer-cta-sub">クレジットカード不要。3分でセットアップ完了。</p>
+    <a href="#" class="btn-primary">🌸 無料で始める</a>
+    <p class="footer-fine">無料プランは10名まで。いつでもアップグレード・解約可能。</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Shift<span>Sync</span></div>
+    <ul class="footer-links">
+      <li><a href="#">サービス概要</a></li>
+      <li><a href="#">料金プラン</a></li>
+      <li><a href="#">プライバシーポリシー</a></li>
+      <li><a href="#">利用規約</a></li>
+      <li><a href="#">お問い合わせ</a></li>
+    </ul>
+    <p class="footer-copy">© 2026 ShiftSync. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // FAQ Accordion
+    function toggleFaq(btn) {
+      const item = btn.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    }
+
+    // Scroll animation (Intersection Observer)
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.problem-card, .feature-card, .metric-item, .pricing-card, .testimonial-card').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(24px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
