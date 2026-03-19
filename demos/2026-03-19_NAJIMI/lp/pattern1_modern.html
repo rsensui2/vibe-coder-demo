@@ -1,0 +1,2222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAJIMI - AI顔認識で、常連体験を。</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #1A1A2E;
+      --bg-mid: #0F3460;
+      --bg-card: #16213E;
+      --accent: #E8B86D;
+      --accent-light: #F5D49A;
+      --accent-dark: #C99A4E;
+      --text-primary: #F0EDE8;
+      --text-secondary: #B8B4AC;
+      --text-muted: #7A7870;
+      --border: rgba(232, 184, 109, 0.2);
+      --border-subtle: rgba(255,255,255,0.08);
+      --glow: rgba(232, 184, 109, 0.15);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Noto Serif JP', serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* ===== UTILITY ===== */
+    .container {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .accent-text {
+      color: var(--accent);
+    }
+
+    .accent-line {
+      display: inline-block;
+      width: 48px;
+      height: 2px;
+      background: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 500;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: var(--bg-dark);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 16px 36px;
+      border-radius: 2px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(232, 184, 109, 0.35);
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      color: var(--accent);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 500;
+      font-size: 15px;
+      padding: 14px 32px;
+      border-radius: 2px;
+      border: 1px solid var(--accent);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-outline:hover {
+      background: var(--glow);
+      transform: translateY(-2px);
+    }
+
+    /* ===== NAVIGATION ===== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 20px 0;
+      background: rgba(26, 26, 46, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+    }
+
+    .nav-logo span {
+      font-size: 11px;
+      display: block;
+      color: var(--text-secondary);
+      letter-spacing: 0.2em;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 300;
+      margin-top: -2px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      letter-spacing: 0.08em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+    }
+
+    .nav-cta {
+      background: var(--accent);
+      color: var(--bg-dark) !important;
+      padding: 10px 24px;
+      border-radius: 2px;
+      font-weight: 700 !important;
+      font-size: 13px !important;
+      transition: all 0.3s ease !important;
+    }
+
+    .nav-cta:hover {
+      background: var(--accent-light);
+      color: var(--bg-dark) !important;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      padding-top: 80px;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-mid) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      right: -200px;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(232, 184, 109, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(15, 52, 96, 0.4) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232, 184, 109, 0.12);
+      border: 1px solid rgba(232, 184, 109, 0.3);
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 12px;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      margin-bottom: 28px;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero-title {
+      font-size: clamp(38px, 5vw, 58px);
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-tagline {
+      font-size: clamp(18px, 2.5vw, 26px);
+      font-weight: 300;
+      color: var(--accent);
+      margin-bottom: 28px;
+      letter-spacing: 0.05em;
+      font-family: 'Noto Serif JP', serif;
+      font-style: italic;
+    }
+
+    .hero-desc {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.9;
+      margin-bottom: 44px;
+      max-width: 480px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 56px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .stat-item {
+      text-align: left;
+    }
+
+    .stat-number {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== SMARTPHONE MOCK ===== */
+    .phone-mock-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .phone-mock-wrapper::before {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232, 184, 109, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .phone-frame {
+      width: 260px;
+      height: 520px;
+      background: #0D0D1A;
+      border-radius: 40px;
+      border: 2px solid rgba(232, 184, 109, 0.4);
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(232, 184, 109, 0.1),
+        0 40px 80px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+      overflow: hidden;
+    }
+
+    .phone-notch {
+      width: 100px;
+      height: 24px;
+      background: #0D0D1A;
+      border-radius: 0 0 16px 16px;
+      margin: 0 auto;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #0F1A30 0%, #0A0A1A 100%);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .phone-status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 36px 20px 8px;
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .phone-camera-ui {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      gap: 12px;
+    }
+
+    .face-scan-area {
+      width: 160px;
+      height: 160px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .face-scan-area::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 2px solid rgba(232, 184, 109, 0.5);
+      border-radius: 50%;
+      animation: scan-rotate 3s linear infinite;
+    }
+
+    .face-scan-area::after {
+      content: '';
+      position: absolute;
+      inset: 12px;
+      border: 1px dashed rgba(232, 184, 109, 0.2);
+      border-radius: 50%;
+    }
+
+    @keyframes scan-rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .face-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(232, 184, 109, 0.08);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(232, 184, 109, 0.2);
+    }
+
+    .face-icon svg {
+      width: 44px;
+      height: 44px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    .corner-tl, .corner-tr, .corner-bl, .corner-br {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-color: var(--accent);
+      border-style: solid;
+    }
+
+    .corner-tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; border-radius: 3px 0 0 0; }
+    .corner-tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; border-radius: 0 3px 0 0; }
+    .corner-bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; border-radius: 0 0 0 3px; }
+    .corner-br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; border-radius: 0 0 3px 0; }
+
+    .scan-status {
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-align: center;
+    }
+
+    .welcome-card {
+      background: rgba(232, 184, 109, 0.1);
+      border: 1px solid rgba(232, 184, 109, 0.25);
+      border-radius: 12px;
+      padding: 12px 16px;
+      width: 100%;
+      text-align: left;
+    }
+
+    .welcome-card .welcome-label {
+      font-size: 9px;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .welcome-card .welcome-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Noto Serif JP', serif;
+    }
+
+    .welcome-card .welcome-note {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .tags-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tag-chip {
+      background: rgba(15, 52, 96, 0.6);
+      border: 1px solid rgba(232, 184, 109, 0.2);
+      border-radius: 100px;
+      padding: 4px 10px;
+      font-size: 9px;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== PAIN SECTION ===== */
+    .section-pain {
+      padding: 120px 0;
+      position: relative;
+    }
+
+    .section-pain::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 72px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 3.5vw, 42px);
+      font-weight: 700;
+      line-height: 1.35;
+      margin-top: 16px;
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+
+    .section-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    .pain-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .pain-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 40px 32px;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+
+    .pain-card:hover {
+      border-color: var(--border);
+    }
+
+    .pain-number {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 48px;
+      font-weight: 900;
+      color: rgba(232, 184, 109, 0.12);
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .pain-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(232, 184, 109, 0.08);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .pain-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    .pain-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .pain-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    /* ===== SOLUTION SECTION ===== */
+    .section-solution {
+      padding: 120px 0;
+      background: linear-gradient(180deg, var(--bg-dark) 0%, rgba(15, 52, 96, 0.3) 50%, var(--bg-dark) 100%);
+    }
+
+    .solution-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .solution-text .section-label {
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .solution-title {
+      font-size: clamp(28px, 3vw, 38px);
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 24px;
+    }
+
+    .solution-desc {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.9;
+      margin-bottom: 40px;
+    }
+
+    .solution-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .step-item:last-child {
+      border-bottom: none;
+    }
+
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+      font-family: 'Noto Serif JP', serif;
+    }
+
+    .step-content h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .step-content p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* Flow Diagram */
+    .flow-diagram {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 40px;
+    }
+
+    .flow-title {
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 500;
+    }
+
+    .flow-nodes {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .flow-node {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      position: relative;
+    }
+
+    .flow-node-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .flow-node-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(232, 184, 109, 0.1);
+      border: 1px solid rgba(232, 184, 109, 0.3);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .flow-node-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    .flow-node-line {
+      width: 1px;
+      flex: 1;
+      min-height: 32px;
+      background: linear-gradient(180deg, rgba(232, 184, 109, 0.3), transparent);
+      margin: 4px 0;
+    }
+
+    .flow-node-content {
+      padding-bottom: 32px;
+    }
+
+    .flow-node-content h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    .flow-node-content p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .flow-node:last-child .flow-node-line {
+      display: none;
+    }
+
+    .flow-node:last-child .flow-node-content {
+      padding-bottom: 0;
+    }
+
+    /* ===== FEATURES SECTION ===== */
+    .section-features {
+      padding: 120px 0;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--border-subtle);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      padding: 48px 36px;
+      transition: background 0.3s;
+    }
+
+    .feature-card:hover {
+      background: rgba(22, 33, 62, 0.8);
+    }
+
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      background: rgba(232, 184, 109, 0.08);
+      border: 1px solid rgba(232, 184, 109, 0.2);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .feature-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    .feature-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.35;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+
+    .feature-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .feature-tag {
+      font-size: 11px;
+      color: var(--accent);
+      border: 1px solid rgba(232, 184, 109, 0.25);
+      padding: 4px 10px;
+      border-radius: 2px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== USECASE SECTION ===== */
+    .section-usecase {
+      padding: 120px 0;
+      background: linear-gradient(180deg, transparent, rgba(15, 52, 96, 0.15), transparent);
+    }
+
+    .usecase-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .usecase-brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .usecase-logo {
+      width: 56px;
+      height: 56px;
+      background: rgba(232, 184, 109, 0.1);
+      border: 1px solid rgba(232, 184, 109, 0.2);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Noto Serif JP', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .usecase-brand-info h4 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .usecase-brand-info span {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .usecase-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 20px;
+    }
+
+    .metric-card.highlight {
+      border-color: rgba(232, 184, 109, 0.3);
+      background: rgba(232, 184, 109, 0.05);
+    }
+
+    .metric-value {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .usecase-quote {
+      background: var(--bg-card);
+      border-left: 3px solid var(--accent);
+      padding: 24px 28px;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .usecase-quote p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      font-style: italic;
+      font-family: 'Noto Serif JP', serif;
+    }
+
+    .usecase-quote cite {
+      display: block;
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: normal;
+    }
+
+    .usecase-story {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.9;
+      margin-bottom: 36px;
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-left: 1px solid rgba(232, 184, 109, 0.2);
+      padding-left: 24px;
+      margin-left: 8px;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 28px;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -29px;
+      top: 5px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+
+    .timeline-time {
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+
+    .timeline-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ===== PRICING SECTION ===== */
+    .section-pricing {
+      padding: 120px 0;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--border-subtle);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .pricing-card {
+      background: var(--bg-card);
+      padding: 48px 36px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pricing-card.featured {
+      background: linear-gradient(135deg, rgba(232, 184, 109, 0.08) 0%, var(--bg-card) 100%);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: var(--accent);
+      color: var(--bg-dark);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 2px;
+      letter-spacing: 0.08em;
+    }
+
+    .pricing-plan-name {
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .pricing-price {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .pricing-price span {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .pricing-cycle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    .pricing-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 40px;
+      flex: 1;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .pricing-features li::before {
+      content: '✓';
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ===== TESTIMONIALS ===== */
+    .section-testimonials {
+      padding: 120px 0;
+      background: linear-gradient(180deg, transparent, rgba(15, 52, 96, 0.12), transparent);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 64px;
+    }
+
+    .testimonial-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 36px 32px;
+      position: relative;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+
+    .testimonial-card:hover {
+      border-color: var(--border);
+      transform: translateY(-4px);
+    }
+
+    .testimonial-card::before {
+      content: '"';
+      font-family: 'Noto Serif JP', serif;
+      font-size: 80px;
+      color: rgba(232, 184, 109, 0.1);
+      position: absolute;
+      top: 16px;
+      right: 24px;
+      line-height: 1;
+    }
+
+    .stars {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+    }
+
+    .star {
+      color: var(--accent);
+      font-size: 14px;
+    }
+
+    .testimonial-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.85;
+      margin-bottom: 28px;
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 300;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(232, 184, 109, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: rgba(232, 184, 109, 0.08);
+      color: var(--accent);
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 700;
+    }
+
+    .author-info h5 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .author-info span {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .results-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 40px 48px;
+      margin-top: 64px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      text-align: center;
+    }
+
+    .result-item {}
+
+    .result-value {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .result-label {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ===== FAQ SECTION ===== */
+    .section-faq {
+      padding: 120px 0;
+    }
+
+    .faq-layout {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 80px;
+    }
+
+    .faq-side-title {
+      font-size: clamp(24px, 2.5vw, 32px);
+      font-weight: 700;
+      line-height: 1.4;
+      margin-top: 16px;
+      margin-bottom: 20px;
+    }
+
+    .faq-side-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 28px 0;
+    }
+
+    .faq-item:first-child {
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .faq-question {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      line-height: 1.5;
+    }
+
+    .faq-question::before {
+      content: 'Q';
+      color: var(--accent);
+      font-family: 'Noto Serif JP', serif;
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .faq-answer {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.85;
+      padding-left: 28px;
+    }
+
+    /* ===== FOOTER / CTA ===== */
+    .section-cta {
+      padding: 120px 0;
+      background: linear-gradient(135deg, var(--bg-mid) 0%, var(--bg-dark) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section-cta::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(232, 184, 109, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-inner {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-title {
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 900;
+      line-height: 1.25;
+      margin-bottom: 24px;
+    }
+
+    .cta-desc {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto 48px;
+      line-height: 1.8;
+    }
+
+    .cta-actions {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-note {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 24px;
+    }
+
+    footer {
+      background: rgba(0,0,0,0.4);
+      border-top: 1px solid var(--border-subtle);
+      padding: 56px 0 40px;
+    }
+
+    .footer-inner {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand .nav-logo {
+      font-size: 20px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .footer-brand p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .footer-col h5 {
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 500;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-col a {
+      font-size: 14px;
+      color: var(--text-secondary);
+      transition: color 0.2s;
+    }
+
+    .footer-col a:hover {
+      color: var(--accent);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: 12px;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+        text-align: center;
+      }
+      .hero-actions {
+        justify-content: center;
+      }
+      .hero-stats {
+        justify-content: center;
+      }
+      .phone-mock-wrapper {
+        order: -1;
+      }
+      .pain-grid { grid-template-columns: 1fr; gap: 24px; }
+      .features-grid { grid-template-columns: 1fr; gap: 2px; }
+      .pricing-grid { grid-template-columns: 1fr; gap: 2px; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .results-bar { grid-template-columns: 1fr 1fr; }
+      .solution-layout { grid-template-columns: 1fr; }
+      .usecase-layout { grid-template-columns: 1fr; }
+      .faq-layout { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .hero-stats { flex-direction: column; gap: 24px; }
+      .results-bar { grid-template-columns: 1fr 1fr; padding: 24px; }
+      .footer-inner { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION -->
+  <nav>
+    <div class="container">
+      <div class="nav-inner">
+        <a href="#" class="nav-logo">
+          NAJIMI
+          <span>AI顔認識 × 常連体験</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#solution">仕組み</a></li>
+          <li><a href="#features">機能</a></li>
+          <li><a href="#usecase">導入事例</a></li>
+          <li><a href="#pricing">料金</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#contact" class="nav-cta">無料デモを見る</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-inner">
+
+        <!-- LEFT: Text -->
+        <div class="hero-text">
+          <div class="hero-badge">AI POWERED FACE RECOGNITION</div>
+          <h1 class="hero-title">
+            顧客を、<br>
+            <span class="accent-text">覚える</span>店へ。
+          </h1>
+          <p class="hero-tagline">「何度来ても、はじめてじゃない。」</p>
+          <p class="hero-desc">
+            NAJIMIは、AI顔認識技術で商業施設の「馴染み感・常連感」を自動化するサービスです。
+            来店した瞬間にお客様を特定し、名前・嗜好・履歴に基づいたパーソナライズ対応を実現します。
+          </p>
+          <div class="hero-actions">
+            <a href="#contact" class="btn-primary">
+              無料デモを体験する
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+            <a href="#solution" class="btn-outline">仕組みを見る</a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-number">98%</div>
+              <div class="stat-label">顔認識精度</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">0.3秒</div>
+              <div class="stat-label">認識速度</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">+34%</div>
+              <div class="stat-label">顧客リピート率向上</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Phone Mock -->
+        <div class="phone-mock-wrapper">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="phone-status-bar">
+                <span>9:41</span>
+                <span>▌▌▌ ⌁</span>
+              </div>
+              <div class="phone-camera-ui">
+                <div style="font-size:11px; color:var(--text-muted); letter-spacing:0.1em; text-align:center;">NAJIMI SCAN</div>
+                <div class="face-scan-area">
+                  <div class="corner-tl"></div>
+                  <div class="corner-tr"></div>
+                  <div class="corner-bl"></div>
+                  <div class="corner-br"></div>
+                  <div class="face-icon">
+                    <svg viewBox="0 0 24 24">
+                      <circle cx="12" cy="8" r="4"/>
+                      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="scan-status">● ANALYZING...</div>
+                <div class="welcome-card">
+                  <div class="welcome-label">識別完了 — ようこそ</div>
+                  <div class="welcome-name">田中 誠様</div>
+                  <div class="welcome-note">🔥 27回目のご来店 · いつものカウンター席へ</div>
+                </div>
+                <div class="tags-row">
+                  <div class="tag-chip">天丼 特盛</div>
+                  <div class="tag-chip">辛さ控えめ</div>
+                  <div class="tag-chip">お一人様</div>
+                </div>
+                <div style="
+                  background: rgba(232,184,109,0.08);
+                  border: 1px solid rgba(232,184,109,0.2);
+                  border-radius: 8px;
+                  padding: 10px 14px;
+                  width: 100%;
+                  font-size: 10px;
+                  color: var(--text-secondary);
+                  line-height: 1.5;
+                ">
+                  💬 前回ご来店から14日<br>
+                  本日の限定：上天丼 1,400円
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIN SECTION -->
+  <section class="section-pain" id="pain">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">PROBLEM</span>
+        <h2 class="section-title">
+          飲食店・小売店が抱える<br>
+          <span class="accent-text">3つの根本的な課題</span>
+        </h2>
+        <p class="section-subtitle">
+          リピーター獲得のカギは「覚えられている」という体験。<br>しかし、その仕組みを人力で維持するのは限界があります。
+        </p>
+      </div>
+
+      <div class="pain-grid">
+        <div class="pain-card">
+          <div class="pain-number">01</div>
+          <div class="pain-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3>スタッフが覚えられない</h3>
+          <p>
+            高回転・多店舗・人員入れ替わりの激しい現場では、スタッフが常連客の顔・名前・好みを継続して把握することは事実上不可能。来るたびに「初めてのお客様」対応になってしまいます。
+          </p>
+        </div>
+
+        <div class="pain-card">
+          <div class="pain-number">02</div>
+          <div class="pain-icon">
+            <svg viewBox="0 0 24 24">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <path d="M8 21h8M12 17v4"/>
+            </svg>
+          </div>
+          <h3>CRMデータが活かせない</h3>
+          <p>
+            会員カードやアプリで顧客データを蓄積しても、実際の接客に繋げる手段がない。会員証提示率は平均20%以下。データは眠ったまま、現場には届きません。
+          </p>
+        </div>
+
+        <div class="pain-card">
+          <div class="pain-number">03</div>
+          <div class="pain-icon">
+            <svg viewBox="0 0 24 24">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          <h3>リピート施策のROIが見えない</h3>
+          <p>
+            ポイントカード・クーポン・LINE配信……リピーター向け施策にコストをかけても、誰が何回来たか、どの施策が効いたかを正確に測定できない。改善のサイクルが回りません。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION SECTION -->
+  <section class="section-solution" id="solution">
+    <div class="container">
+      <div class="solution-layout">
+        <div class="solution-text">
+          <span class="section-label">SOLUTION</span>
+          <div class="accent-line"></div>
+          <h2 class="solution-title">
+            NAJIMIが実現する<br>
+            <span class="accent-text">AI常連体験の仕組み</span>
+          </h2>
+          <p class="solution-desc">
+            カメラ1台を設置するだけ。来店した瞬間から顔認識が起動し、
+            スタッフのタブレットに「誰が来たか」「何が好きか」「何を話すべきか」が
+            リアルタイムで表示されます。
+          </p>
+          <div class="solution-steps">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <h4>入口カメラで瞬時に認識</h4>
+                <p>店舗入口に設置したスマートカメラが、来店客をリアルタイムで顔認識。0.3秒以内に個人を特定します。</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <h4>スタッフ端末に自動通知</h4>
+                <p>「田中様（27回目）／いつもの天丼特盛／辛さ控えめ」といった情報がスタッフのタブレット・スマホに即表示。</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <h4>嗜好データを自動蓄積・学習</h4>
+                <p>来店のたびに注文・滞在時間・席の好みが自動記録。AIが「このお客様の好み」を継続的に学習します。</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <h4>クロスストアで常連感を維持</h4>
+                <p>チェーン店舗間でデータ共有。初訪問の店舗でも「以前から知っているお客様」として対応できます。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-diagram">
+          <div class="flow-title">SYSTEM FLOW</div>
+          <div class="flow-nodes">
+            <div class="flow-node">
+              <div class="flow-node-left">
+                <div class="flow-node-icon">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M23 7l-7 5 7 5V7z"/>
+                    <rect x="1" y="5" width="15" height="14" rx="2"/>
+                  </svg>
+                </div>
+                <div class="flow-node-line"></div>
+              </div>
+              <div class="flow-node-content">
+                <h4>入口カメラ（NAJIMI Lens）</h4>
+                <p>4K対応・逆光補正・マスク対応。既存カメラへの後付けも可能。</p>
+              </div>
+            </div>
+
+            <div class="flow-node">
+              <div class="flow-node-left">
+                <div class="flow-node-icon">
+                  <svg viewBox="0 0 24 24">
+                    <rect x="2" y="3" width="20" height="14" rx="2"/>
+                    <path d="M8 21h8M12 17v4"/>
+                  </svg>
+                </div>
+                <div class="flow-node-line"></div>
+              </div>
+              <div class="flow-node-content">
+                <h4>エッジAI処理（オンプレミス）</h4>
+                <p>顔認識はローカル処理。生体情報がクラウドに送信されないプライバシー設計。</p>
+              </div>
+            </div>
+
+            <div class="flow-node">
+              <div class="flow-node-left">
+                <div class="flow-node-icon">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </div>
+                <div class="flow-node-line"></div>
+              </div>
+              <div class="flow-node-content">
+                <h4>スタッフ通知（NAJIMI Staff）</h4>
+                <p>iOS / Android アプリ。既存POSシステムとのAPI連携にも対応。</p>
+              </div>
+            </div>
+
+            <div class="flow-node">
+              <div class="flow-node-left">
+                <div class="flow-node-icon">
+                  <svg viewBox="0 0 24 24">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                  </svg>
+                </div>
+                <div class="flow-node-line"></div>
+              </div>
+              <div class="flow-node-content">
+                <h4>NAJIMI Analytics ダッシュボード</h4>
+                <p>来客数・リピート率・顧客別LTV・施策効果をリアルタイム可視化。</p>
+              </div>
+            </div>
+
+            <div class="flow-node">
+              <div class="flow-node-left">
+                <div class="flow-node-icon">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="flow-node-content">
+                <h4>個人情報保護・コンプライアンス</h4>
+                <p>個人情報保護法・GDPR準拠。同意取得フロー・データ削除機能を標準装備。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION -->
+  <section class="section-features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">FEATURES</span>
+        <h2 class="section-title">
+          3つの<span class="accent-text">コア機能</span>
+        </h2>
+        <p class="section-subtitle">
+          単なる顔認識にとどまらない。<br>NAJIMIは「常連体験」を生み出すための3層の機能を提供します。
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <h3>顔認識ウェルカム<br>FACE WELCOME</h3>
+          <p>
+            入店から0.3秒以内に顧客を特定。スタッフに名前・来店回数・過去の注文・最終来店日を即時通知。
+            「お名前、覚えています」という体験を自動で実現します。
+          </p>
+          <div class="feature-tags">
+            <span class="feature-tag">0.3sec</span>
+            <span class="feature-tag">98%精度</span>
+            <span class="feature-tag">マスク対応</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <h3>嗜好学習AI<br>PREFERENCE AI</h3>
+          <p>
+            来店のたびに注文・席の好み・同行人数・滞在時間を学習。AIが「次回おすすめ」「本日の特別提案」を
+            自動生成。パーソナライズされた接客を人手をかけずに実現します。
+          </p>
+          <div class="feature-tags">
+            <span class="feature-tag">機械学習</span>
+            <span class="feature-tag">POS連携</span>
+            <span class="feature-tag">来店予測</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <h3>クロスストア常連<br>CHAIN MEMORY</h3>
+          <p>
+            チェーン全店舗でデータを共有。A店で30回来たお客様がB店を初訪問しても、
+            「ご常連様」として迎えられます。グループ全体で「顔なじみ」の関係を構築します。
+          </p>
+          <div class="feature-tags">
+            <span class="feature-tag">全店舗共有</span>
+            <span class="feature-tag">API連携</span>
+            <span class="feature-tag">リアルタイム</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USECASE SECTION -->
+  <section class="section-usecase" id="usecase">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">CASE STUDY</span>
+        <h2 class="section-title">
+          <span class="accent-text">金子半之助</span> 導入事例
+        </h2>
+      </div>
+
+      <div class="usecase-layout">
+        <div class="usecase-left">
+          <div class="usecase-brand">
+            <div class="usecase-logo">金</div>
+            <div class="usecase-brand-info">
+              <h4>金子半之助</h4>
+              <span>天丼専門店 / 全国20店舗以上</span>
+            </div>
+          </div>
+
+          <div class="usecase-metrics">
+            <div class="metric-card highlight">
+              <div class="metric-value">+41%</div>
+              <div class="metric-label">月間リピート率向上</div>
+            </div>
+            <div class="metric-card highlight">
+              <div class="metric-value">+28%</div>
+              <div class="metric-label">客単価向上</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">3.2倍</div>
+              <div class="metric-label">常連認知率</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">6ヶ月</div>
+              <div class="metric-label">ROI回収期間</div>
+            </div>
+          </div>
+
+          <div class="usecase-quote">
+            <p>「スタッフ全員が田中さんを知っているような体験を、AIが実現してくれました。常連のお客様から『ここに来るとほっとする』という声が明らかに増えています。」</p>
+            <cite>金子半之助 店舗運営統括 / 山田 一郎 様</cite>
+          </div>
+        </div>
+
+        <div class="usecase-right">
+          <p class="usecase-story">
+            東京・日本橋に本店を構える天丼専門店「金子半之助」。行列ができる人気店でありながら、
+            高回転・多店舗展開という特性から「常連様対応の属人化」が長年の課題でした。
+            NAJIMI導入後、わずか3ヶ月で劇的な変化が起きました。
+          </p>
+
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-time">MONTH 1 — 導入・設定</div>
+              <div class="timeline-desc">日本橋本店にNAJIMI Lensを2台設置。既存POSとAPI連携。スタッフへのアプリ研修（30分）のみで運用開始。</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-time">MONTH 2 — データ蓄積</div>
+              <div class="timeline-desc">累計5,000人の顔データが登録完了。スタッフから「お客様が喜んでくれる」という声が続々。平均客単価が前月比+12%。</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-time">MONTH 3 — クロスストア展開</div>
+              <div class="timeline-desc">浅草・銀座店にも横展開。本店常連が他店を訪問した際に「ご常連様」として対応できるように。月間リピート率+41%達成。</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-time">MONTH 6 — ROI達成</div>
+              <div class="timeline-desc">初期投資を回収。現在は全20店舗への展開を進行中。顧客LTVが3.8倍に向上。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING SECTION -->
+  <section class="section-pricing" id="pricing">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">PRICING</span>
+        <h2 class="section-title">
+          シンプルな<span class="accent-text">料金プラン</span>
+        </h2>
+        <p class="section-subtitle">
+          1店舗からスタート可能。成長に合わせてスケールアップできます。
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-plan-name">STARTER</div>
+          <div class="pricing-price">¥98,000<span>/月</span></div>
+          <div class="pricing-cycle">初期費用 ¥300,000（カメラ含む）</div>
+          <p class="pricing-desc">1〜3店舗の小規模展開に最適。まずはNAJIMIの効果を一店舗から体感してください。</p>
+          <ul class="pricing-features">
+            <li>カメラ最大3台</li>
+            <li>顔認識ウェルカム機能</li>
+            <li>スタッフ通知アプリ（iOS/Android）</li>
+            <li>基本的な嗜好学習</li>
+            <li>分析ダッシュボード（基本版）</li>
+            <li>メールサポート</li>
+          </ul>
+          <a href="#contact" class="btn-outline">スターターで始める</a>
+        </div>
+
+        <div class="pricing-card featured">
+          <div class="pricing-badge">POPULAR</div>
+          <div class="pricing-plan-name">STANDARD</div>
+          <div class="pricing-price">¥298,000<span>/月</span></div>
+          <div class="pricing-cycle">初期費用 ¥500,000（カメラ含む）</div>
+          <p class="pricing-desc">複数店舗展開・クロスストア機能が必要な中規模チェーンに。最も多くのお客様に選ばれるプランです。</p>
+          <ul class="pricing-features">
+            <li>カメラ最大15台</li>
+            <li>全コア機能（顔認識・嗜好AI・クロスストア）</li>
+            <li>POS/予約システム連携</li>
+            <li>高度な分析ダッシュボード</li>
+            <li>来客予測・LTV分析</li>
+            <li>チャット・電話サポート</li>
+            <li>月次レポート（担当者付き）</li>
+          </ul>
+          <a href="#contact" class="btn-primary">スタンダードで始める</a>
+        </div>
+
+        <div class="pricing-card">
+          <div class="pricing-plan-name">ENTERPRISE</div>
+          <div class="pricing-price" style="font-size:28px;">要お見積り</div>
+          <div class="pricing-cycle">大規模展開・カスタム要件に対応</div>
+          <p class="pricing-desc">50店舗以上の大規模展開、独自カスタマイズ、グループ全社導入など、エンタープライズニーズに柔軟に対応します。</p>
+          <ul class="pricing-features">
+            <li>カメラ台数・店舗数 無制限</li>
+            <li>専任カスタマーサクセス</li>
+            <li>SLA保証（99.9%稼働率）</li>
+            <li>オンプレミス・プライベートクラウド対応</li>
+            <li>API・SDK提供</li>
+            <li>24時間365日サポート</li>
+            <li>導入〜運用のフルサポート</li>
+          </ul>
+          <a href="#contact" class="btn-outline">お問い合わせ</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS SECTION -->
+  <section class="section-testimonials" id="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">VOICE</span>
+        <h2 class="section-title">
+          導入店舗からの<span class="accent-text">お声</span>
+        </h2>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">
+            「スタッフが入れ替わっても常連さんへの対応が変わらなくなりました。お客様に『ここは自分のことを覚えてくれる』と言っていただけて、本当に嬉しいです。」
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">伊</div>
+            <div class="author-info">
+              <h5>伊藤 健太 様</h5>
+              <span>和食割烹 店主 / 東京・恵比寿</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">
+            「POSとの連携がスムーズで、導入時の研修も30分で完了しました。現場のスタッフから『接客が楽しくなった』という声が上がっていて、モチベーションにも繋がっています。」
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">佐</div>
+            <div class="author-info">
+              <h5>佐藤 美咲 様</h5>
+              <span>カフェチェーン SV / 大阪・梅田</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <p class="testimonial-text">
+            「個人情報の取り扱いを心配していましたが、エッジAI処理とコンプライアンス対応の説明を受けて安心できました。お客様への同意取得フローも用意されていて助かっています。」
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">中</div>
+            <div class="author-info">
+              <h5>中村 浩二 様</h5>
+              <span>居酒屋チェーン 経営者 / 名古屋</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-bar">
+        <div class="result-item">
+          <div class="result-value">120<span style="font-size:20px;">+</span></div>
+          <div class="result-label">導入店舗数</div>
+        </div>
+        <div class="result-item">
+          <div class="result-value">+34%</div>
+          <div class="result-label">平均リピート率向上</div>
+        </div>
+        <div class="result-item">
+          <div class="result-value">4.9<span style="font-size:20px;">/5</span></div>
+          <div class="result-label">顧客満足度</div>
+        </div>
+        <div class="result-item">
+          <div class="result-value">98%</div>
+          <div class="result-label">継続率（1年後）</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ SECTION -->
+  <section class="section-faq" id="faq">
+    <div class="container">
+      <div class="faq-layout">
+        <div class="faq-side">
+          <span class="section-label">FAQ</span>
+          <div class="accent-line"></div>
+          <h2 class="faq-side-title">よくある<br>ご質問</h2>
+          <p class="faq-side-desc">
+            導入前のご不安や疑問にお答えします。
+            その他のご質問はお気軽にお問い合わせください。
+          </p>
+        </div>
+
+        <div class="faq-list">
+          <div class="faq-item">
+            <div class="faq-question">個人情報・プライバシーの取り扱いは大丈夫ですか？</div>
+            <div class="faq-answer">
+              NAJIMIは個人情報保護法に完全準拠した設計です。顔認識処理はすべてローカルのエッジAIで完結し、顔画像データはクラウドに送信されません。お客様の同意取得フロー（入口掲示・QRコード同意）も標準で提供。データの削除要求にも即時対応できます。
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">既存のPOSシステムやカメラは使えますか？</div>
+            <div class="faq-answer">
+              主要なPOSシステム（SquareUp・Airレジ・レジパッドなど）とのAPI連携に対応しています。既存の防犯カメラへの後付けモジュール（NAJIMI Lens Adapter）もご用意。ゼロから機材を揃える必要はありません。詳細はお問い合わせください。
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">スタッフへの研修はどのくらいかかりますか？</div>
+            <div class="faq-answer">
+              平均30分の現場研修で運用開始できます。スタッフが使うNAJIMI Staffアプリは直感的なUIで設計されており、ITに不慣れな方でも問題ありません。動画マニュアルとチャットサポートも提供します。
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">マスク着用・眼鏡・帽子でも認識できますか？</div>
+            <div class="faq-answer">
+              はい。NAJIMIのAIモデルはマスク・眼鏡・帽子・フード着用状態での認識に最適化されています。通常の認識精度98%に対し、マスク着用時でも92%以上の精度を維持します。
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">導入後のサポート体制を教えてください。</div>
+            <div class="faq-answer">
+              スターターはメールサポート（平日9-18時）、スタンダード以上はチャット・電話対応（平日9-21時）を提供します。エンタープライズプランでは専任のカスタマーサクセスマネージャーが伴走。システムSLA（99.9%稼働率保証）も設定できます。
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">契約期間や解約条件はどうなっていますか？</div>
+            <div class="faq-answer">
+              最低契約期間は6ヶ月です。6ヶ月経過後は1ヶ月単位で解約可能。初期費用（カメラ・設置費用）は解約後も資産として残ります。まずは1店舗で効果を確認してからの拡大展開をおすすめしています。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA / FOOTER -->
+  <section class="section-cta" id="contact">
+    <div class="container">
+      <div class="cta-inner">
+        <span class="section-label">GET STARTED</span>
+        <h2 class="cta-title">
+          あなたの店を、<br>
+          <span class="accent-text">お客様が帰りたくなる場所</span>へ。
+        </h2>
+        <p class="cta-desc">
+          まずは無料デモをご体験ください。貴店の規模・業態に合わせた
+          カスタムプレゼンテーションをご用意します。
+        </p>
+        <div class="cta-actions">
+          <a href="mailto:hello@najimi.ai" class="btn-primary">
+            無料デモを申し込む
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="tel:0120-XXX-XXX" class="btn-outline">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.38 2 2 0 0 1 3.59 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            お電話でのお問い合わせ
+          </a>
+        </div>
+        <p class="cta-note">✓ デモ申込みは無料・無理な営業なし　✓ 最短1週間で導入可能　✓ 返金保証30日</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="nav-logo">NAJIMI</span>
+          <p>AI顔認識で商業施設の「馴染み感・常連感」を実現するサービス。すべてのお客様を、大切な常連様に。</p>
+        </div>
+        <div class="footer-col">
+          <h5>サービス</h5>
+          <ul>
+            <li><a href="#solution">仕組み</a></li>
+            <li><a href="#features">機能</a></li>
+            <li><a href="#usecase">導入事例</a></li>
+            <li><a href="#pricing">料金プラン</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>サポート</h5>
+          <ul>
+            <li><a href="#faq">よくある質問</a></li>
+            <li><a href="#">導入ガイド</a></li>
+            <li><a href="#">APIドキュメント</a></li>
+            <li><a href="#">ステータス</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>会社情報</h5>
+          <ul>
+            <li><a href="#">会社概要</a></li>
+            <li><a href="#">採用情報</a></li>
+            <li><a href="#">プレスリリース</a></li>
+            <li><a href="#">パートナー</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2026 NAJIMI Inc. All rights reserved.</p>
+        <ul class="footer-links">
+          <li><a href="#">プライバシーポリシー</a></li>
+          <li><a href="#">利用規約</a></li>
+          <li><a href="#">特定商取引法に基づく表示</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

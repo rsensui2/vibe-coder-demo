@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAJIMI - AI顔認識常連管理</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+    background: linear-gradient(135deg, #0d0d1a 0%, #1A1A2E 50%, #16213e 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .demo-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .brand-header {
+    text-align: center;
+    color: #E8B86D;
+  }
+  .brand-header h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: 0.3em;
+    text-shadow: 0 0 30px rgba(232,184,109,0.5);
+  }
+  .brand-header p {
+    font-size: 0.85rem;
+    color: rgba(245,240,232,0.6);
+    letter-spacing: 0.15em;
+    margin-top: 4px;
+  }
+
+  /* iPhone Frame */
+  .iphone-frame {
+    width: 393px;
+    height: 852px;
+    background: #1a1a1a;
+    border-radius: 54px;
+    position: relative;
+    box-shadow:
+      0 0 0 2px #3a3a3a,
+      0 0 0 4px #2a2a2a,
+      0 30px 80px rgba(0,0,0,0.8),
+      inset 0 0 0 2px #111;
+    overflow: hidden;
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 34px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .dynamic-island .camera-dot {
+    width: 10px;
+    height: 10px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    border: 2px solid #333;
+    position: relative;
+  }
+  .dynamic-island .camera-dot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 4px;
+    height: 4px;
+    background: #0a3d5c;
+    border-radius: 50%;
+  }
+  .dynamic-island .face-id-indicator {
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #E8B86D, #c4943a);
+    border-radius: 50%;
+    animation: pulse-di 2s infinite;
+  }
+  @keyframes pulse-di {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.6; transform:scale(0.8); }
+  }
+
+  /* Screen */
+  .screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #1A1A2E;
+    border-radius: 54px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-bar {
+    height: 56px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #F5F0E8;
+    flex-shrink: 0;
+  }
+  .status-bar .time { font-size: 15px; font-weight: 700; }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .status-icons svg { width: 16px; height: 12px; fill: #F5F0E8; }
+  .battery-icon {
+    width: 24px;
+    height: 12px;
+    border: 1.5px solid #F5F0E8;
+    border-radius: 3px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+  }
+  .battery-icon::after {
+    content:'';
+    position:absolute;
+    right:-5px;
+    top:50%;
+    transform:translateY(-50%);
+    width:3px;
+    height:6px;
+    background:#F5F0E8;
+    border-radius:0 2px 2px 0;
+  }
+  .battery-fill {
+    width: 75%;
+    height: 100%;
+    background: #4cd964;
+    border-radius: 1px;
+  }
+
+  /* Content area */
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    scrollbar-width: none;
+  }
+  .content-area::-webkit-scrollbar { display: none; }
+
+  /* Tab bar */
+  .tab-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 82px;
+    background: rgba(26,26,46,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(232,184,109,0.2);
+    display: flex;
+    align-items: flex-start;
+    padding-top: 8px;
+    border-radius: 0 0 54px 54px;
+    z-index: 50;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    padding: 6px 2px;
+    transition: all 0.2s;
+  }
+  .tab-icon {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: transform 0.2s;
+  }
+  .tab-label {
+    font-size: 9.5px;
+    color: rgba(245,240,232,0.4);
+    font-weight: 500;
+    transition: color 0.2s;
+    text-align: center;
+    letter-spacing: -0.2px;
+  }
+  .tab-item.active .tab-label { color: #E8B86D; }
+  .tab-item.active .tab-icon { transform: scale(1.1); }
+
+  /* Pages */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ===== HOME PAGE ===== */
+  .home-header {
+    background: linear-gradient(180deg, rgba(232,184,109,0.15) 0%, transparent 100%);
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid rgba(232,184,109,0.15);
+  }
+  .home-greeting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .greeting-text h2 {
+    font-size: 11px;
+    color: rgba(245,240,232,0.5);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .greeting-text h3 {
+    font-size: 18px;
+    color: #F5F0E8;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .store-logo {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #E8B86D, #c4943a);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  /* Notification Card */
+  .notification-card {
+    margin: 16px;
+    background: linear-gradient(135deg, rgba(232,184,109,0.2), rgba(232,184,109,0.05));
+    border: 1px solid rgba(232,184,109,0.4);
+    border-radius: 20px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .notification-card::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(232,184,109,0.3), transparent);
+    border-radius: 50%;
+  }
+  .notif-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .face-scan-icon {
+    width: 52px;
+    height: 52px;
+    background: rgba(232,184,109,0.2);
+    border: 2px solid #E8B86D;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .scan-ring {
+    position: absolute;
+    inset: -6px;
+    border: 2px solid rgba(232,184,109,0.4);
+    border-radius: 50%;
+    animation: scan-pulse 1.5s infinite;
+  }
+  @keyframes scan-pulse {
+    0% { transform:scale(1); opacity:1; }
+    100% { transform:scale(1.3); opacity:0; }
+  }
+  .notif-text h4 {
+    font-size: 13px;
+    color: #E8B86D;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .notif-text p {
+    font-size: 12px;
+    color: rgba(245,240,232,0.7);
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+  .welcome-message {
+    background: rgba(245,240,232,0.05);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #F5F0E8;
+    font-weight: 500;
+    line-height: 1.4;
+    border-left: 3px solid #E8B86D;
+  }
+
+  /* Loyalty badges */
+  .section-title {
+    font-size: 12px;
+    color: rgba(245,240,232,0.5);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0 16px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+  .loyalty-badges {
+    padding: 0 16px;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .loyalty-badges::-webkit-scrollbar { display: none; }
+  .badge-card {
+    background: rgba(245,240,232,0.06);
+    border: 1px solid rgba(232,184,109,0.25);
+    border-radius: 16px;
+    padding: 14px 16px;
+    min-width: 120px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .badge-card.earned {
+    background: linear-gradient(135deg, rgba(232,184,109,0.25), rgba(196,148,58,0.1));
+    border-color: #E8B86D;
+  }
+  .badge-icon { font-size: 26px; margin-bottom: 6px; }
+  .badge-name { font-size: 11px; color: #F5F0E8; font-weight: 600; }
+  .badge-desc { font-size: 10px; color: rgba(245,240,232,0.5); margin-top: 2px; }
+  .badge-earned-label {
+    margin-top: 6px;
+    font-size: 9px;
+    color: #E8B86D;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Visit progress */
+  .progress-section {
+    margin: 20px 16px 0;
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .progress-header span:first-child {
+    font-size: 12px;
+    color: rgba(245,240,232,0.6);
+  }
+  .progress-header span:last-child {
+    font-size: 12px;
+    color: #E8B86D;
+    font-weight: 700;
+  }
+  .progress-bar {
+    height: 6px;
+    background: rgba(245,240,232,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #E8B86D, #c4943a);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+  .progress-milestone {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+  .progress-milestone span {
+    font-size: 10px;
+    color: rgba(245,240,232,0.4);
+  }
+
+  /* Recent visits */
+  .recent-visits {
+    margin: 16px 16px 0;
+  }
+  .visit-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+  }
+  .visit-dot {
+    width: 8px;
+    height: 8px;
+    background: #E8B86D;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .visit-info { flex: 1; }
+  .visit-info .visit-date { font-size: 11px; color: rgba(245,240,232,0.5); }
+  .visit-info .visit-detail { font-size: 12px; color: #F5F0E8; margin-top: 1px; }
+  .visit-amount { font-size: 13px; color: #E8B86D; font-weight: 700; }
+
+  /* ===== PROFILE PAGE ===== */
+  .profile-hero {
+    background: linear-gradient(180deg, rgba(232,184,109,0.1) 0%, transparent 100%);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid rgba(232,184,109,0.15);
+  }
+  .profile-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #E8B86D, #c4943a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+    border: 3px solid rgba(232,184,109,0.5);
+    box-shadow: 0 0 20px rgba(232,184,109,0.3);
+  }
+  .profile-name h2 {
+    font-size: 20px;
+    color: #F5F0E8;
+    font-weight: 800;
+  }
+  .profile-name .loyalty-rank {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, rgba(232,184,109,0.3), rgba(196,148,58,0.1));
+    border: 1px solid #E8B86D;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+    color: #E8B86D;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 16px;
+  }
+  .stat-card {
+    background: rgba(245,240,232,0.06);
+    border: 1px solid rgba(232,184,109,0.2);
+    border-radius: 14px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: #E8B86D;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: rgba(245,240,232,0.5);
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+
+  /* Preferences */
+  .pref-section { padding: 0 16px; margin-bottom: 16px; }
+  .pref-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+  }
+  .pref-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(232,184,109,0.15);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .pref-info { flex: 1; }
+  .pref-info .pref-label { font-size: 11px; color: rgba(245,240,232,0.5); }
+  .pref-info .pref-value { font-size: 13px; color: #F5F0E8; font-weight: 600; margin-top: 1px; }
+  .pref-tag {
+    background: rgba(232,184,109,0.2);
+    border: 1px solid rgba(232,184,109,0.4);
+    border-radius: 8px;
+    padding: 3px 8px;
+    font-size: 11px;
+    color: #E8B86D;
+    font-weight: 600;
+  }
+
+  /* Visit chart */
+  .chart-container {
+    margin: 0 16px 16px;
+    background: rgba(245,240,232,0.04);
+    border: 1px solid rgba(232,184,109,0.15);
+    border-radius: 16px;
+    padding: 16px;
+  }
+  .chart-title {
+    font-size: 12px;
+    color: rgba(245,240,232,0.6);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .mini-bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 60px;
+  }
+  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar {
+    width: 100%;
+    background: linear-gradient(180deg, #E8B86D, rgba(232,184,109,0.4));
+    border-radius: 3px 3px 0 0;
+    transition: height 0.5s ease;
+  }
+  .bar-month { font-size: 9px; color: rgba(245,240,232,0.4); }
+
+  /* ===== VISIT LIST PAGE ===== */
+  .page-header {
+    padding: 20px 16px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(232,184,109,0.15);
+  }
+  .page-header h2 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #F5F0E8;
+  }
+  .page-header .date-badge {
+    font-size: 11px;
+    color: #E8B86D;
+    background: rgba(232,184,109,0.15);
+    border: 1px solid rgba(232,184,109,0.3);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .visit-summary-bar {
+    display: flex;
+    gap: 0;
+    padding: 12px 16px;
+    gap: 8px;
+  }
+  .summary-chip {
+    background: rgba(245,240,232,0.06);
+    border: 1px solid rgba(232,184,109,0.2);
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 11px;
+    color: rgba(245,240,232,0.7);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .summary-chip strong { color: #E8B86D; }
+
+  /* Customer list items */
+  .customer-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .customer-item:hover { background: rgba(232,184,109,0.05); }
+  .customer-face {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: rgba(245,240,232,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    border: 2px solid rgba(232,184,109,0.3);
+    position: relative;
+  }
+  .customer-face .visit-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #E8B86D;
+    color: #1A1A2E;
+    font-size: 9px;
+    font-weight: 800;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #1A1A2E;
+  }
+  .customer-info { flex: 1; }
+  .customer-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 3px;
+  }
+  .customer-name { font-size: 14px; color: #F5F0E8; font-weight: 700; }
+  .loyalty-tag {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .loyalty-gold { background: rgba(232,184,109,0.25); color: #E8B86D; border: 1px solid rgba(232,184,109,0.4); }
+  .loyalty-silver { background: rgba(192,192,192,0.2); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
+  .loyalty-regular { background: rgba(245,240,232,0.1); color: rgba(245,240,232,0.6); border: 1px solid rgba(245,240,232,0.15); }
+  .customer-meta { font-size: 11px; color: rgba(245,240,232,0.5); }
+  .action-btn {
+    background: rgba(232,184,109,0.15);
+    border: 1px solid rgba(232,184,109,0.4);
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 11px;
+    color: #E8B86D;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* Recommended action */
+  .rec-action {
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: rgba(232,184,109,0.8);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ===== SETTINGS PAGE ===== */
+  .settings-section { margin-bottom: 4px; }
+  .settings-section-title {
+    font-size: 11px;
+    color: rgba(245,240,232,0.4);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 16px 16px 8px;
+  }
+  .setting-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(245,240,232,0.04);
+    border-bottom: 1px solid rgba(245,240,232,0.05);
+  }
+  .setting-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .icon-orange { background: rgba(232,184,109,0.2); }
+  .icon-blue { background: rgba(64,120,200,0.2); }
+  .icon-green { background: rgba(50,205,100,0.2); }
+  .icon-red { background: rgba(255,80,80,0.2); }
+  .icon-purple { background: rgba(150,80,200,0.2); }
+  .setting-info { flex: 1; }
+  .setting-label { font-size: 14px; color: #F5F0E8; font-weight: 600; }
+  .setting-desc { font-size: 11px; color: rgba(245,240,232,0.4); margin-top: 1px; }
+  /* Toggle */
+  .toggle {
+    width: 48px;
+    height: 28px;
+    background: #E8B86D;
+    border-radius: 14px;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .toggle.off { background: rgba(245,240,232,0.2); }
+  .toggle::after {
+    content:'';
+    position:absolute;
+    top:3px;
+    right:3px;
+    width:22px;
+    height:22px;
+    background:#fff;
+    border-radius:50%;
+    box-shadow:0 2px 6px rgba(0,0,0,0.3);
+    transition:all 0.3s;
+  }
+  .toggle.off::after { right:auto; left:3px; }
+
+  /* Threshold selector */
+  .threshold-row {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .thresh-btn {
+    background: rgba(245,240,232,0.08);
+    border: 1px solid rgba(245,240,232,0.2);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: rgba(245,240,232,0.6);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .thresh-btn.active {
+    background: rgba(232,184,109,0.25);
+    border-color: #E8B86D;
+    color: #E8B86D;
+  }
+
+  /* Service cards */
+  .service-config {
+    margin: 0 16px 8px;
+    background: rgba(245,240,232,0.04);
+    border: 1px solid rgba(232,184,109,0.2);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .service-config-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(245,240,232,0.05);
+  }
+  .service-config-item:last-child { border-bottom: none; }
+  .service-emoji { font-size: 18px; flex-shrink: 0; width: 30px; text-align: center; }
+  .service-text { flex: 1; }
+  .service-name { font-size: 13px; color: #F5F0E8; font-weight: 600; }
+  .service-trigger { font-size: 11px; color: rgba(245,240,232,0.5); margin-top: 1px; }
+  .service-status {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+  .status-on { background: rgba(50,205,100,0.2); color: #32cd64; border: 1px solid rgba(50,205,100,0.3); }
+  .status-off { background: rgba(245,240,232,0.08); color: rgba(245,240,232,0.4); border: 1px solid rgba(245,240,232,0.1); }
+
+  /* ===== DASHBOARD PAGE ===== */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 16px;
+  }
+  .kpi-card {
+    background: rgba(245,240,232,0.06);
+    border: 1px solid rgba(232,184,109,0.2);
+    border-radius: 16px;
+    padding: 14px;
+  }
+  .kpi-card.full-width {
+    grid-column: 1 / -1;
+  }
+  .kpi-label {
+    font-size: 10px;
+    color: rgba(245,240,232,0.5);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #E8B86D;
+    line-height: 1.1;
+    margin-top: 4px;
+  }
+  .kpi-change {
+    font-size: 11px;
+    color: #32cd64;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .kpi-change.negative { color: #ff6464; }
+  .kpi-sub { font-size: 11px; color: rgba(245,240,232,0.4); margin-top: 2px; }
+
+  /* Loyalty distribution */
+  .loyalty-dist {
+    display: flex;
+    gap: 6px;
+    align-items: flex-end;
+    height: 70px;
+    margin-top: 10px;
+  }
+  .dist-bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .dist-bar { width: 100%; border-radius: 4px 4px 0 0; }
+  .dist-label { font-size: 9px; color: rgba(245,240,232,0.5); text-align: center; }
+  .dist-count { font-size: 11px; color: #F5F0E8; font-weight: 700; }
+
+  /* Menu ranking */
+  .menu-list { padding: 0 16px; }
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+  }
+  .menu-rank {
+    width: 22px;
+    font-size: 13px;
+    font-weight: 800;
+    color: rgba(245,240,232,0.3);
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .menu-rank.top { color: #E8B86D; }
+  .menu-name { flex: 1; font-size: 12px; color: #F5F0E8; font-weight: 500; }
+  .menu-count { font-size: 11px; color: rgba(245,240,232,0.5); }
+  .menu-bar-bg {
+    width: 60px;
+    height: 4px;
+    background: rgba(245,240,232,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .menu-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #E8B86D, rgba(232,184,109,0.5));
+    border-radius: 2px;
+  }
+
+  /* Heatmap */
+  .heatmap-container { padding: 0 16px 16px; }
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: 36px repeat(7, 1fr);
+    gap: 3px;
+    margin-top: 8px;
+  }
+  .hm-label {
+    font-size: 9px;
+    color: rgba(245,240,232,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
+  }
+  .hm-cell {
+    height: 22px;
+    border-radius: 4px;
+    background: rgba(232,184,109,0.08);
+  }
+  .hm-1 { background: rgba(232,184,109,0.2); }
+  .hm-2 { background: rgba(232,184,109,0.35); }
+  .hm-3 { background: rgba(232,184,109,0.55); }
+  .hm-4 { background: rgba(232,184,109,0.75); }
+  .hm-5 { background: rgba(232,184,109,0.95); }
+  .hm-day-label { font-size: 8.5px; color: rgba(245,240,232,0.4); display: flex; align-items: center; justify-content: center; }
+
+  /* Tabs active indicator */
+  .tab-active-dot {
+    width: 4px;
+    height: 4px;
+    background: #E8B86D;
+    border-radius: 50%;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+<div class="demo-wrapper">
+  <div class="brand-header">
+    <h1>NAJIMI</h1>
+    <p>AI顔認識 × 常連管理プラットフォーム</p>
+  </div>
+
+  <div class="iphone-frame">
+    <!-- Dynamic Island -->
+    <div class="dynamic-island">
+      <div class="camera-dot"></div>
+      <div class="face-id-indicator"></div>
+      <div class="camera-dot"></div>
+    </div>
+
+    <div class="screen">
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">14:27</span>
+        <div class="status-icons">
+          <svg viewBox="0 0 16 12"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity="0.4"/></svg>
+          <svg viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.3 3 1.7 4.7L0 3C2.1 1.1 4.9 0 8 0s5.9 1.1 8 3l-1.7 1.7C12.7 3 10.5 2 8 2z"/><path d="M8 5.5C6.3 5.5 4.8 6.2 3.7 7.3L2 5.6C3.5 4.1 5.6 3.2 8 3.2s4.5.9 6 2.4L12.3 7.3C11.2 6.2 9.7 5.5 8 5.5z"/><circle cx="8" cy="10" r="2"/></svg>
+          <div class="battery-icon"><div class="battery-fill"></div></div>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area" id="contentArea">
+
+        <!-- ===== HOME PAGE ===== -->
+        <div class="page active" id="page-home">
+          <div class="home-header">
+            <div class="home-greeting">
+              <div class="greeting-text">
+                <h2>NAJIMI Staff</h2>
+                <h3>麻布十番 グリル酒場</h3>
+              </div>
+              <div class="store-logo">🏮</div>
+            </div>
+          </div>
+
+          <div class="notification-card">
+            <div class="notif-top">
+              <div class="face-scan-icon">
+                😊
+                <div class="scan-ring"></div>
+              </div>
+              <div class="notif-text">
+                <h4>🎉 常連様を検知しました</h4>
+                <p>顔認識スキャン完了 — 2秒前</p>
+              </div>
+            </div>
+            <div class="welcome-message">
+              「いらっしゃいませ、鈴木様。<br>10回目のご来店ですね！<br>いつもありがとうございます✨」
+            </div>
+          </div>
+
+          <div class="section-title">常連度バッジ</div>
+          <div class="loyalty-badges">
+            <div class="badge-card earned">
+              <div class="badge-icon">👑</div>
+              <div class="badge-name">ゴールド会員</div>
+              <div class="badge-desc">10回以上</div>
+              <div class="badge-earned-label">★ 達成済み</div>
+            </div>
+            <div class="badge-card earned">
+              <div class="badge-icon">🍶</div>
+              <div class="badge-name">日本酒通</div>
+              <div class="badge-desc">日本酒5回注文</div>
+              <div class="badge-earned-label">★ 達成済み</div>
+            </div>
+            <div class="badge-card">
+              <div class="badge-icon">🏆</div>
+              <div class="badge-name">プラチナ</div>
+              <div class="badge-desc">20回以上</div>
+              <div class="badge-desc" style="color:rgba(245,240,232,0.4);font-size:10px;margin-top:4px;">あと10回</div>
+            </div>
+            <div class="badge-card">
+              <div class="badge-icon">🌙</div>
+              <div class="badge-name">夜の常連</div>
+              <div class="badge-desc">夜10回来店</div>
+              <div class="badge-desc" style="color:rgba(245,240,232,0.4);font-size:10px;margin-top:4px;">あと3回</div>
+            </div>
+          </div>
+
+          <div class="progress-section">
+            <div class="progress-header">
+              <span>プラチナまでの進捗</span>
+              <span>10 / 20回</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:50%"></div>
+            </div>
+            <div class="progress-milestone">
+              <span>0</span><span>5</span><span>10 ✓</span><span>15</span><span>20</span>
+            </div>
+          </div>
+
+          <div class="section-title" style="margin-top:20px">最近の来店履歴</div>
+          <div class="recent-visits">
+            <div class="visit-item">
+              <div class="visit-dot" style="background:#E8B86D"></div>
+              <div class="visit-info">
+                <div class="visit-date">2026年3月19日（今日）</div>
+                <div class="visit-detail">日本酒・お刺身盛り合わせ</div>
+              </div>
+              <div class="visit-amount">¥4,800</div>
+            </div>
+            <div class="visit-item">
+              <div class="visit-dot"></div>
+              <div class="visit-info">
+                <div class="visit-date">2026年3月12日</div>
+                <div class="visit-detail">焼き鳥コース・ビール</div>
+              </div>
+              <div class="visit-amount">¥3,200</div>
+            </div>
+            <div class="visit-item">
+              <div class="visit-dot"></div>
+              <div class="visit-info">
+                <div class="visit-date">2026年3月5日</div>
+                <div class="visit-detail">お任せコース</div>
+              </div>
+              <div class="visit-amount">¥6,500</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== PROFILE PAGE ===== -->
+        <div class="page" id="page-profile">
+          <div class="profile-hero">
+            <div class="profile-avatar">👤</div>
+            <div class="profile-name">
+              <h2>鈴木 一郎 様</h2>
+              <div class="loyalty-rank">👑 ゴールド会員</div>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value">10</div>
+              <div class="stat-label">来店回数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">¥4.2万</div>
+              <div class="stat-label">累計利用額</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">¥4,200</div>
+              <div class="stat-label">平均客単価</div>
+            </div>
+          </div>
+
+          <div class="section-title">お客様プロフィール</div>
+          <div class="pref-section">
+            <div class="pref-item">
+              <div class="pref-icon">🍶</div>
+              <div class="pref-info">
+                <div class="pref-label">よく注文するメニュー</div>
+                <div class="pref-value">日本酒・お刺身盛り合わせ</div>
+              </div>
+            </div>
+            <div class="pref-item">
+              <div class="pref-icon">🪑</div>
+              <div class="pref-info">
+                <div class="pref-label">席の好み</div>
+                <div class="pref-value">カウンター席（窓側）</div>
+              </div>
+              <div class="pref-tag">お気に入り</div>
+            </div>
+            <div class="pref-item">
+              <div class="pref-icon">🎂</div>
+              <div class="pref-info">
+                <div class="pref-label">誕生日</div>
+                <div class="pref-value">7月 15日（43歳）</div>
+              </div>
+              <div class="pref-tag" style="color:#ff6b6b;border-color:#ff6b6b;background:rgba(255,107,107,0.15)">あと4ヶ月</div>
+            </div>
+            <div class="pref-item">
+              <div class="pref-icon">⏰</div>
+              <div class="pref-info">
+                <div class="pref-label">よく来る時間帯</div>
+                <div class="pref-value">金・土 20:00〜22:00</div>
+              </div>
+            </div>
+            <div class="pref-item">
+              <div class="pref-icon">👥</div>
+              <div class="pref-info">
+                <div class="pref-label">来店パターン</div>
+                <div class="pref-value">ほぼ1人（時々2名）</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title" style="margin-top:4px">来店頻度（月別）</div>
+          <div class="chart-container">
+            <div class="chart-title">過去6ヶ月の来店回数</div>
+            <div class="mini-bar-chart">
+              <div class="bar-wrap"><div class="bar" style="height:24px"></div><div class="bar-month">10月</div></div>
+              <div class="bar-wrap"><div class="bar" style="height:16px"></div><div class="bar-month">11月</div></div>
+              <div class="bar-wrap"><div class="bar" style="height:36px"></div><div class="bar-month">12月</div></div>
+              <div class="bar-wrap"><div class="bar" style="height:24px"></div><div class="bar-month">1月</div></div>
+              <div class="bar-wrap"><div class="bar" style="height:48px"></div><div class="bar-month">2月</div></div>
+              <div class="bar-wrap"><div class="bar" style="height:56px;background:linear-gradient(180deg,#E8B86D,rgba(232,184,109,0.7))"></div><div class="bar-month" style="color:#E8B86D">3月</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== VISIT LIST PAGE ===== -->
+        <div class="page" id="page-list">
+          <div class="page-header">
+            <h2>本日の来店</h2>
+            <div class="date-badge">3月19日（水）</div>
+          </div>
+
+          <div class="visit-summary-bar">
+            <div class="summary-chip">来店 <strong>12名</strong></div>
+            <div class="summary-chip">常連 <strong>8名</strong></div>
+            <div class="summary-chip">新規 <strong>4名</strong></div>
+          </div>
+
+          <div class="customer-item">
+            <div class="customer-face">😊<div class="visit-badge">10</div></div>
+            <div class="customer-info">
+              <div class="customer-name-row">
+                <span class="customer-name">鈴木 一郎</span>
+                <span class="loyalty-tag loyalty-gold">GOLD</span>
+              </div>
+              <div class="customer-meta">20:14 入店 · カウンター希望</div>
+              <div class="rec-action">💡 本日サービス: 日本酒一杯無料</div>
+            </div>
+            <div class="action-btn">対応済</div>
+          </div>
+
+          <div class="customer-item">
+            <div class="customer-face">😄<div class="visit-badge">24</div></div>
+            <div class="customer-info">
+              <div class="customer-name-row">
+                <span class="customer-name">田中 美咲</span>
+                <span class="loyalty-tag loyalty-gold" style="background:rgba(220,220,255,0.25);color:#a0a0ff;border-color:rgba(160,160,255,0.5)">PLATINUM</span>
+              </div>
+              <div class="customer-meta">19:48 入店 · 個室希望</div>
+              <div class="rec-action">💡 誕生日まで2週間 → バースデーカード</div>
+            </div>
+            <div class="action-btn">案内中</div>
+          </div>
+
+          <div class="customer-item">
+            <div class="customer-face">🙂<div class="visit-badge">5</div></div>
+            <div class="customer-info">
+              <div class="customer-name-row">
+                <span class="customer-name">山田 健太</span>
+                <span class="loyalty-tag loyalty-silver">SILVER</span>
+              </div>
+              <div class="customer-meta">20:02 入店 · テーブル2名</div>
+              <div class="rec-action">💡 あと5回でGOLD → お知らせを</div>
+            </div>
+            <div class="action-btn">声かけ</div>
+          </div>
+
+          <div class="customer-item">
+            <div class="customer-face">😐<div class="visit-badge">2</div></div>
+            <div class="customer-info">
+              <div class="customer-name-row">
+                <span class="customer-name">佐藤 良子</span>
+                <span class="loyalty-tag loyalty-regular">常連</span>
+              </div>
+              <div class="customer-meta">19:55 入店 · テーブル4名</div>
+              <div class="rec-action">💡 3回目でスタンプカード特典</div>
+            </div>
+            <div class="action-btn">未対応</div>
+          </div>
+
+          <div class="customer-item">
+            <div class="customer-face">🆕<div class="visit-badge" style="background:#32cd64">1</div></div>
+            <div class="customer-info">
+              <div class="customer-name-row">
+                <span class="customer-name">（新規のお客様）</span>
+                <span class="loyalty-tag" style="background:rgba(50,205,100,0.2);color:#32cd64;border:1px solid rgba(50,205,100,0.3)">NEW</span>
+              </div>
+              <div class="customer-meta">20:20 入店 · 1名</div>
+              <div class="rec-action">💡 店舗カードとアプリ登録を案内</div>
+            </div>
+            <div class="action-btn">登録促進</div>
+          </div>
+        </div>
+
+        <!-- ===== SETTINGS PAGE ===== -->
+        <div class="page" id="page-settings">
+          <div class="page-header" style="margin-bottom:0">
+            <h2>設定</h2>
+            <div class="date-badge" style="color:#32cd64;background:rgba(50,205,100,0.15);border-color:rgba(50,205,100,0.3)">● システム稼働中</div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">常連サービスの閾値</div>
+            <div class="setting-item">
+              <div class="setting-icon icon-orange">🥉</div>
+              <div class="setting-info">
+                <div class="setting-label">ブロンズ認定</div>
+                <div class="setting-desc">来店回数でランク判定</div>
+              </div>
+              <div class="threshold-row">
+                <div class="thresh-btn">3回</div>
+                <div class="thresh-btn active">5回</div>
+                <div class="thresh-btn">10回</div>
+              </div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-icon icon-orange" style="background:rgba(192,192,192,0.2)">🥈</div>
+              <div class="setting-info">
+                <div class="setting-label">シルバー認定</div>
+                <div class="setting-desc">来店回数でランク判定</div>
+              </div>
+              <div class="threshold-row">
+                <div class="thresh-btn">5回</div>
+                <div class="thresh-btn active">10回</div>
+                <div class="thresh-btn">15回</div>
+              </div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-icon" style="background:rgba(232,184,109,0.2)">🥇</div>
+              <div class="setting-info">
+                <div class="setting-label">ゴールド認定</div>
+                <div class="setting-desc">来店回数でランク判定</div>
+              </div>
+              <div class="threshold-row">
+                <div class="thresh-btn">10回</div>
+                <div class="thresh-btn active">15回</div>
+                <div class="thresh-btn">20回</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">自動サービス設定</div>
+            <div class="service-config">
+              <div class="service-config-item">
+                <div class="service-emoji">🍶</div>
+                <div class="service-text">
+                  <div class="service-name">ゴールド：一杯サービス</div>
+                  <div class="service-trigger">5回目来店から自動適用</div>
+                </div>
+                <div class="service-status status-on">ON</div>
+              </div>
+              <div class="service-config-item">
+                <div class="service-emoji">🎂</div>
+                <div class="service-text">
+                  <div class="service-name">誕生日デザートサービス</div>
+                  <div class="service-trigger">誕生日月に自動適用</div>
+                </div>
+                <div class="service-status status-on">ON</div>
+              </div>
+              <div class="service-config-item">
+                <div class="service-emoji">🎁</div>
+                <div class="service-text">
+                  <div class="service-name">10回記念ギフト</div>
+                  <div class="service-trigger">10回目来店時に提供</div>
+                </div>
+                <div class="service-status status-on">ON</div>
+              </div>
+              <div class="service-config-item">
+                <div class="service-emoji">📱</div>
+                <div class="service-text">
+                  <div class="service-name">LINE限定クーポン配信</div>
+                  <div class="service-trigger">30日未来店で自動送信</div>
+                </div>
+                <div class="service-status status-off">OFF</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">通知設定</div>
+            <div class="setting-item">
+              <div class="setting-icon icon-orange">🔔</div>
+              <div class="setting-info">
+                <div class="setting-label">常連検知通知</div>
+                <div class="setting-desc">来店時にスタッフへ即時通知</div>
+              </div>
+              <div class="toggle"></div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-icon icon-blue">📊</div>
+              <div class="setting-info">
+                <div class="setting-label">日次レポート</div>
+                <div class="setting-desc">毎日22:00に来店サマリー</div>
+              </div>
+              <div class="toggle"></div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-icon icon-green">🎯</div>
+              <div class="setting-info">
+                <div class="setting-label">ランクアップ通知</div>
+                <div class="setting-desc">お客様がランクアップした時</div>
+              </div>
+              <div class="toggle"></div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-icon icon-red">⚠️</div>
+              <div class="setting-info">
+                <div class="setting-label">長期未来店アラート</div>
+                <div class="setting-desc">常連が60日来店なし</div>
+              </div>
+              <div class="toggle off"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== DASHBOARD PAGE ===== -->
+        <div class="page" id="page-dashboard">
+          <div class="page-header">
+            <h2>統計</h2>
+            <div class="date-badge">今月</div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">リピート率</div>
+              <div class="kpi-value">68%</div>
+              <div class="kpi-change">↑ +12% 先月比</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">常連顧客数</div>
+              <div class="kpi-value">142</div>
+              <div class="kpi-change">↑ +18人</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">平均客単価</div>
+              <div class="kpi-value">¥4.8k</div>
+              <div class="kpi-change">↑ +320円</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">月間来店数</div>
+              <div class="kpi-value">893</div>
+              <div class="kpi-sub">先月: 742回</div>
+            </div>
+          </div>
+
+          <div class="section-title">常連度分布</div>
+          <div class="kpi-card" style="margin:0 16px 16px;padding:14px;">
+            <div class="kpi-label" style="margin-bottom:6px">ランク別顧客数</div>
+            <div class="loyalty-dist">
+              <div class="dist-bar-group">
+                <div class="dist-count">48</div>
+                <div class="dist-bar" style="height:48px;background:rgba(220,220,255,0.5);border-radius:4px 4px 0 0"></div>
+                <div class="dist-label">プラチナ</div>
+              </div>
+              <div class="dist-bar-group">
+                <div class="dist-count">94</div>
+                <div class="dist-bar" style="height:62px;background:rgba(232,184,109,0.7);border-radius:4px 4px 0 0"></div>
+                <div class="dist-label">ゴールド</div>
+              </div>
+              <div class="dist-bar-group">
+                <div class="dist-count">187</div>
+                <div class="dist-bar" style="height:48px;background:rgba(192,192,192,0.5);border-radius:4px 4px 0 0"></div>
+                <div class="dist-label">シルバー</div>
+              </div>
+              <div class="dist-bar-group">
+                <div class="dist-count">342</div>
+                <div class="dist-bar" style="height:32px;background:rgba(245,240,232,0.25);border-radius:4px 4px 0 0"></div>
+                <div class="dist-label">ブロンズ</div>
+              </div>
+              <div class="dist-bar-group">
+                <div class="dist-count">512</div>
+                <div class="dist-bar" style="height:18px;background:rgba(50,205,100,0.4);border-radius:4px 4px 0 0"></div>
+                <div class="dist-label">新規</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">人気メニュー TOP 10</div>
+          <div class="menu-list">
+            <div class="menu-item">
+              <div class="menu-rank top">1</div>
+              <div class="menu-name">お刺身盛り合わせ</div>
+              <div class="menu-count">218注</div>
+              <div class="menu-bar-bg"><div class="menu-bar-fill" style="width:100%"></div></div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-rank top">2</div>
+              <div class="menu-name">焼き鳥おまかせ10本</div>
+              <div class="menu-count">196注</div>
+              <div class="menu-bar-bg"><div class="menu-bar-fill" style="width:90%"></div></div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-rank top">3</div>
+              <div class="menu-name">純米大吟醸（グラス）</div>
+              <div class="menu-count">184注</div>
+              <div class="menu-bar-bg"><div class="menu-bar-fill" style="width:84%"></div></div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-rank">4</div>
+              <div class="menu-name">黒毛和牛タタキ</div>
+              <div class="menu-count">156注</div>
+              <div class="menu-bar-bg"><div class="menu-bar-fill" style="width:71%"></div></div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-rank">5</div>
+              <div class="menu-name">プレミアムビール</div>
+              <div class="menu-count">143注</div>
+              <div class="menu-bar-bg"><div class="menu-bar-fill" style="width:65%"></div></div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-rank">6</div>
+              <div class="menu-name">だし巻き玉子</div>
+              <div class="menu-count">128注</div>
+              <div class="menu-bar-bg"><div class="menu-bar-fill" style="width:58%"></div></div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-rank">7</div>
+              <div class="menu-name">季節の天ぷら盛り</div>
+              <div class="menu-count">112注</div>
+              <div class="menu-bar-bg"><div class="menu-bar-fill" style="width:51%"></div></div>
+            </div>
+          </div>
+
+          <div class="section-title" style="margin-top:20px">来店頻度ヒートマップ</div>
+          <div class="heatmap-container">
+            <div class="heatmap-grid">
+              <div></div>
+              <div class="hm-day-label">月</div><div class="hm-day-label">火</div>
+              <div class="hm-day-label">水</div><div class="hm-day-label">木</div>
+              <div class="hm-day-label">金</div><div class="hm-day-label">土</div>
+              <div class="hm-day-label">日</div>
+              <!-- 17時 -->
+              <div class="hm-label">17</div>
+              <div class="hm-cell hm-1"></div><div class="hm-cell"></div>
+              <div class="hm-cell hm-1"></div><div class="hm-cell hm-2"></div>
+              <div class="hm-cell hm-2"></div><div class="hm-cell hm-3"></div>
+              <div class="hm-cell hm-3"></div>
+              <!-- 18時 -->
+              <div class="hm-label">18</div>
+              <div class="hm-cell hm-2"></div><div class="hm-cell hm-2"></div>
+              <div class="hm-cell hm-2"></div><div class="hm-cell hm-3"></div>
+              <div class="hm-cell hm-4"></div><div class="hm-cell hm-4"></div>
+              <div class="hm-cell hm-4"></div>
+              <!-- 19時 -->
+              <div class="hm-label">19</div>
+              <div class="hm-cell hm-2"></div><div class="hm-cell hm-3"></div>
+              <div class="hm-cell hm-3"></div><div class="hm-cell hm-3"></div>
+              <div class="hm-cell hm-5"></div><div class="hm-cell hm-5"></div>
+              <div class="hm-cell hm-4"></div>
+              <!-- 20時 -->
+              <div class="hm-label">20</div>
+              <div class="hm-cell hm-3"></div><div class="hm-cell hm-3"></div>
+              <div class="hm-cell hm-4"></div><div class="hm-cell hm-4"></div>
+              <div class="hm-cell hm-5"></div><div class="hm-cell hm-5"></div>
+              <div class="hm-cell hm-5"></div>
+              <!-- 21時 -->
+              <div class="hm-label">21</div>
+              <div class="hm-cell hm-2"></div><div class="hm-cell hm-2"></div>
+              <div class="hm-cell hm-3"></div><div class="hm-cell hm-3"></div>
+              <div class="hm-cell hm-4"></div><div class="hm-cell hm-5"></div>
+              <div class="hm-cell hm-4"></div>
+              <!-- 22時 -->
+              <div class="hm-label">22</div>
+              <div class="hm-cell hm-1"></div><div class="hm-cell hm-1"></div>
+              <div class="hm-cell hm-2"></div><div class="hm-cell hm-2"></div>
+              <div class="hm-cell hm-3"></div><div class="hm-cell hm-4"></div>
+              <div class="hm-cell hm-3"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:10px;justify-content:flex-end">
+              <span style="font-size:9px;color:rgba(245,240,232,0.4)">少</span>
+              <div style="width:14px;height:10px;border-radius:2px;background:rgba(232,184,109,0.08)"></div>
+              <div style="width:14px;height:10px;border-radius:2px" class="hm-2"></div>
+              <div style="width:14px;height:10px;border-radius:2px" class="hm-3"></div>
+              <div style="width:14px;height:10px;border-radius:2px" class="hm-4"></div>
+              <div style="width:14px;height:10px;border-radius:2px" class="hm-5"></div>
+              <span style="font-size:9px;color:rgba(245,240,232,0.4)">多</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end content-area -->
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <div class="tab-item active" onclick="switchTab('home',this)">
+          <div class="tab-icon">🏠</div>
+          <div class="tab-active-dot" id="dot-home"></div>
+          <div class="tab-label">ホーム</div>
+        </div>
+        <div class="tab-item" onclick="switchTab('profile',this)">
+          <div class="tab-icon">👤</div>
+          <div class="tab-active-dot" id="dot-profile" style="background:transparent"></div>
+          <div class="tab-label">顧客</div>
+        </div>
+        <div class="tab-item" onclick="switchTab('list',this)">
+          <div class="tab-icon">📋</div>
+          <div class="tab-active-dot" id="dot-list" style="background:transparent"></div>
+          <div class="tab-label">来店一覧</div>
+        </div>
+        <div class="tab-item" onclick="switchTab('settings',this)">
+          <div class="tab-icon">⚙️</div>
+          <div class="tab-active-dot" id="dot-settings" style="background:transparent"></div>
+          <div class="tab-label">設定</div>
+        </div>
+        <div class="tab-item" onclick="switchTab('dashboard',this)">
+          <div class="tab-icon">📊</div>
+          <div class="tab-active-dot" id="dot-dashboard" style="background:transparent"></div>
+          <div class="tab-label">統計</div>
+        </div>
+      </div>
+    </div><!-- end screen -->
+  </div><!-- end iphone-frame -->
+
+  <div style="text-align:center;color:rgba(245,240,232,0.3);font-size:11px;letter-spacing:0.1em">
+    NAJIMI v1.0 · AI顔認識常連管理 · Demo Prototype
+  </div>
+</div>
+
+<script>
+function switchTab(tabName, el) {
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // Show target page
+  document.getElementById('page-' + tabName).classList.add('active');
+  // Update tab items
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  // Update dots
+  document.querySelectorAll('[id^="dot-"]').forEach(d => d.style.background = 'transparent');
+  document.getElementById('dot-' + tabName).style.background = '#E8B86D';
+  // Scroll to top
+  document.getElementById('contentArea').scrollTop = 0;
+}
+
+// Toggle interaction
+document.querySelectorAll('.toggle').forEach(t => {
+  t.addEventListener('click', function() {
+    this.classList.toggle('off');
+  });
+});
+
+// Threshold buttons
+document.querySelectorAll('.thresh-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const row = this.closest('.threshold-row');
+    row.querySelectorAll('.thresh-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
