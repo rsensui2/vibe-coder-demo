@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SakuraAI — 今年の桜、AIが連れていく。</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #2D1B4E;
+    --bg-deep: #1A0F30;
+    --bg-mid: #3D2665;
+    --accent: #FF6B9D;
+    --accent2: #FF3D7F;
+    --accent3: #FF9DC6;
+    --cyan: #7DF9FF;
+    --gold: #FFD700;
+    --text: #F8F0FF;
+    --text-dim: rgba(248,240,255,0.65);
+    --text-muted: rgba(248,240,255,0.38);
+    --border: rgba(255,107,157,0.25);
+    --border-cyan: rgba(125,249,255,0.2);
+    --glow-pink: 0 0 30px rgba(255,107,157,0.5), 0 0 60px rgba(255,107,157,0.2);
+    --glow-cyan: 0 0 20px rgba(125,249,255,0.4);
+    --font-main: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    --font-display: 'Hiragino Mincho ProN', 'Noto Serif JP', Georgia, serif;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg-deep);
+    color: var(--text);
+    font-family: var(--font-main);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 40px;
+    background: rgba(26,15,48,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--accent);
+    text-shadow: var(--glow-pink);
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+  .nav-logo span { color: var(--text); font-weight: 300; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--text-dim); text-decoration: none; font-size: 0.88rem;
+    letter-spacing: 0.04em; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-cta {
+    background: var(--accent); color: #fff;
+    padding: 10px 22px; border-radius: 100px; font-size: 0.85rem;
+    text-decoration: none; font-weight: 700;
+    box-shadow: var(--glow-pink);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(255,107,157,0.7); }
+
+  /* ===== HERO ===== */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 100px 0 60px;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 70% 50%, rgba(255,107,157,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 30%, rgba(125,249,255,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 100% at 50% 100%, rgba(45,27,78,1) 0%, transparent 50%),
+      linear-gradient(135deg, #1A0F30 0%, #2D1B4E 40%, #3D1855 100%);
+    z-index: 0;
+  }
+  /* Sakura petals via CSS */
+  .petal {
+    position: absolute; width: 12px; height: 12px; z-index: 1;
+    background: var(--accent); border-radius: 50% 0 50% 0;
+    opacity: 0;
+    animation: fall linear infinite;
+  }
+  .petal:nth-child(1)  { left: 8%;  top: -5%; animation-duration: 8s;  animation-delay: 0s;   opacity: 0.6; width: 8px; height: 8px; }
+  .petal:nth-child(2)  { left: 20%; top: -5%; animation-duration: 12s; animation-delay: 2s;   opacity: 0.4; }
+  .petal:nth-child(3)  { left: 35%; top: -5%; animation-duration: 9s;  animation-delay: 4s;   opacity: 0.5; width: 10px; height: 10px; }
+  .petal:nth-child(4)  { left: 55%; top: -5%; animation-duration: 11s; animation-delay: 1s;   opacity: 0.3; width: 6px; height: 6px; }
+  .petal:nth-child(5)  { left: 70%; top: -5%; animation-duration: 7s;  animation-delay: 3s;   opacity: 0.6; width: 14px; height: 14px; }
+  .petal:nth-child(6)  { left: 82%; top: -5%; animation-duration: 10s; animation-delay: 5s;   opacity: 0.4; }
+  .petal:nth-child(7)  { left: 90%; top: -5%; animation-duration: 13s; animation-delay: 0.5s; opacity: 0.3; width: 8px; height: 8px; }
+  .petal:nth-child(8)  { left: 45%; top: -5%; animation-duration: 8.5s;animation-delay: 6s;   opacity: 0.5; width: 11px; height: 11px; }
+  @keyframes fall {
+    0%   { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.8; }
+    100% { transform: translateY(110vh) rotate(720deg) translateX(40px); opacity: 0; }
+  }
+  .hero-left {
+    position: relative; z-index: 2;
+    padding: 0 60px 0 80px;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,107,157,0.12);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px; font-size: 0.78rem;
+    color: var(--accent3); letter-spacing: 0.1em;
+    margin-bottom: 28px;
+  }
+  .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: var(--glow-pink); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 5vw, 4.2rem);
+    line-height: 1.15;
+    font-weight: 900;
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+  .hero-title .line1 { display: block; color: var(--text); }
+  .hero-title .line2 {
+    display: block;
+    background: linear-gradient(90deg, var(--accent) 0%, #FF3D7F 40%, var(--accent3) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    text-shadow: none;
+    filter: drop-shadow(0 0 20px rgba(255,107,157,0.6));
+  }
+  .hero-sub {
+    font-size: 1.1rem; color: var(--text-dim);
+    margin-bottom: 12px; line-height: 1.8;
+    max-width: 420px;
+  }
+  .hero-sub strong { color: var(--accent3); font-weight: 700; }
+  .hero-stats {
+    display: flex; gap: 32px; margin-bottom: 40px;
+  }
+  .stat { text-align: left; }
+  .stat-num {
+    font-size: 1.8rem; font-weight: 900;
+    color: var(--accent);
+    text-shadow: var(--glow-pink);
+    line-height: 1;
+  }
+  .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+  .hero-actions { display: flex; gap: 16px; align-items: center; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    color: #fff; border: none; padding: 16px 36px;
+    border-radius: 100px; font-size: 1rem; font-weight: 800;
+    cursor: pointer; text-decoration: none;
+    box-shadow: var(--glow-pink);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: inline-flex; align-items: center; gap: 8px;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 50px rgba(255,107,157,0.8); }
+  .btn-ghost {
+    color: var(--text-dim); text-decoration: none; font-size: 0.9rem;
+    display: flex; align-items: center; gap: 6px;
+    transition: color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--accent); }
+  .play-circle {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1.5px solid rgba(248,240,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+  }
+
+  /* Phone mock */
+  .hero-right {
+    position: relative; z-index: 2;
+    display: flex; justify-content: center; align-items: center;
+    padding: 40px;
+  }
+  .phone-wrap {
+    position: relative;
+  }
+  .phone-glow {
+    position: absolute; inset: -30px;
+    background: radial-gradient(ellipse, rgba(255,107,157,0.25) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+  @keyframes glowPulse { 0%,100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+  .phone-mock {
+    width: 260px; height: 520px;
+    background: #0D0820;
+    border-radius: 40px;
+    border: 2.5px solid rgba(255,107,157,0.5);
+    position: relative; overflow: hidden;
+    box-shadow: 0 0 0 8px rgba(255,107,157,0.06), var(--glow-pink), inset 0 0 40px rgba(255,107,157,0.05);
+    z-index: 1;
+  }
+  .phone-notch {
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    width: 80px; height: 22px; background: #0D0820;
+    border-radius: 0 0 14px 14px; z-index: 3;
+    border: 2px solid rgba(255,107,157,0.3); border-top: none;
+  }
+  .phone-screen {
+    position: absolute; inset: 0;
+    background: linear-gradient(160deg, #1A0F30 0%, #2D1B4E 50%, #200D35 100%);
+    padding: 52px 16px 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .phone-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 4px;
+  }
+  .phone-app-name {
+    font-size: 0.72rem; color: var(--accent); font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .phone-time { font-size: 0.6rem; color: var(--text-muted); }
+  .phone-map-mock {
+    width: 100%; height: 140px;
+    background: linear-gradient(135deg, #0D1B3E 0%, #1A2D5A 50%, #0D2440 100%);
+    border-radius: 16px;
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(125,249,255,0.15);
+  }
+  .map-dot {
+    position: absolute; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--accent);
+    box-shadow: var(--glow-pink);
+    animation: mapPulse 2s infinite;
+  }
+  .map-dot::after {
+    content: ''; position: absolute; inset: -6px;
+    border-radius: 50%; border: 2px solid var(--accent);
+    opacity: 0; animation: ripple 2s infinite;
+  }
+  .map-dot:nth-child(1) { top: 35%; left: 40%; }
+  .map-dot:nth-child(2) { top: 55%; left: 65%; background: var(--cyan); box-shadow: var(--glow-cyan); }
+  .map-dot:nth-child(2)::after { border-color: var(--cyan); }
+  .map-dot:nth-child(3) { top: 25%; left: 20%; background: var(--accent3); width: 10px; height: 10px; }
+  @keyframes mapPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+  @keyframes ripple { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2.5); opacity: 0; } }
+  .map-grid-line {
+    position: absolute; background: rgba(125,249,255,0.06);
+  }
+  .map-grid-line.h { left: 0; right: 0; height: 1px; }
+  .map-grid-line.v { top: 0; bottom: 0; width: 1px; }
+  .map-grid-line:nth-child(5) { top: 33%; }
+  .map-grid-line:nth-child(6) { top: 66%; }
+  .map-grid-line:nth-child(7) { left: 33%; }
+  .map-grid-line:nth-child(8) { left: 66%; }
+  .phone-card {
+    background: rgba(255,107,157,0.12);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+  }
+  .phone-card-label { font-size: 0.6rem; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 0.08em; }
+  .phone-card-title { font-size: 0.78rem; color: var(--text); font-weight: 700; margin-bottom: 6px; }
+  .phone-tag-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .phone-tag {
+    font-size: 0.55rem; padding: 3px 8px;
+    border-radius: 100px; border: 1px solid var(--border);
+    color: var(--accent3); background: rgba(255,107,157,0.08);
+  }
+  .phone-score-row {
+    display: flex; align-items: center; justify-content: space-between; margin-top: 6px;
+  }
+  .phone-score { font-size: 0.6rem; color: var(--text-muted); }
+  .score-bar { flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; margin: 0 8px; overflow: hidden; }
+  .score-fill { height: 100%; width: 78%; background: linear-gradient(90deg, var(--accent), var(--accent3)); border-radius: 4px; }
+  .phone-cta-btn {
+    background: var(--accent); color: #fff;
+    border-radius: 100px; padding: 10px;
+    text-align: center; font-size: 0.7rem; font-weight: 700;
+    border: none; cursor: pointer;
+    box-shadow: var(--glow-pink);
+  }
+  .phone-bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent), var(--accent3));
+    border-radius: 0 0 40px 40px;
+  }
+
+  /* ===== SECTION COMMON ===== */
+  section { position: relative; }
+  .section-inner { max-width: 1200px; margin: 0 auto; padding: 0 60px; }
+  .section-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 16px;
+  }
+  .section-tag::before { content: ''; display: block; width: 20px; height: 1px; background: var(--accent); }
+  .section-h2 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 900; line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .section-lead { color: var(--text-dim); font-size: 1.05rem; line-height: 1.8; max-width: 520px; }
+
+  /* ===== PROBLEM SECTION ===== */
+  #problem {
+    padding: 120px 0;
+    background: linear-gradient(180deg, #1A0F30 0%, #2D1B4E 100%);
+    clip-path: polygon(0 60px, 100% 0, 100% calc(100% - 60px), 0 100%);
+    margin: -60px 0;
+    padding-top: 180px; padding-bottom: 180px;
+  }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    margin-top: 60px;
+  }
+  .problem-cards { display: flex; flex-direction: column; gap: 20px; }
+  .problem-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 24px 28px;
+    display: flex; gap: 20px; align-items: flex-start;
+    transition: border-color 0.3s, transform 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .problem-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--accent);
+    transform: scaleY(0); transform-origin: bottom;
+    transition: transform 0.3s;
+  }
+  .problem-card:hover { border-color: var(--border); transform: translateX(8px); }
+  .problem-card:hover::before { transform: scaleY(1); }
+  .problem-icon {
+    font-size: 2rem; flex-shrink: 0;
+    width: 54px; height: 54px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,107,157,0.1); border-radius: 14px;
+  }
+  .problem-text h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+  .problem-text p { font-size: 0.88rem; color: var(--text-dim); line-height: 1.7; }
+  .problem-visual {
+    display: flex; align-items: center; justify-content: center;
+  }
+  .big-quote {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-weight: 900; line-height: 1.5;
+    color: var(--text-dim);
+    position: relative; padding: 32px;
+  }
+  .big-quote em {
+    font-style: normal; color: var(--accent);
+    text-shadow: var(--glow-pink);
+  }
+  .big-quote::before {
+    content: '\201C';
+    font-size: 8rem; color: rgba(255,107,157,0.12);
+    position: absolute; top: -20px; left: 0;
+    font-family: Georgia, serif; line-height: 1;
+  }
+
+  /* ===== SOLUTION SECTION ===== */
+  #solution {
+    padding: 140px 0;
+    background: var(--bg-deep);
+  }
+  .solution-header { margin-bottom: 72px; }
+  .solution-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border-radius: 24px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .feature-card {
+    background: var(--bg-deep);
+    padding: 48px 44px;
+    position: relative; overflow: hidden;
+    transition: background 0.3s;
+  }
+  .feature-card:hover { background: rgba(255,107,157,0.04); }
+  .feature-card::after {
+    content: ''; position: absolute;
+    right: -40px; bottom: -40px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,107,157,0.08) 0%, transparent 70%);
+  }
+  .feature-num {
+    font-size: 4rem; font-weight: 900; line-height: 1;
+    color: rgba(255,107,157,0.12);
+    margin-bottom: 20px;
+    font-family: Georgia, serif;
+  }
+  .feature-icon { font-size: 2.2rem; margin-bottom: 16px; }
+  .feature-title {
+    font-size: 1.25rem; font-weight: 800;
+    margin-bottom: 12px; color: var(--text);
+  }
+  .feature-title span { color: var(--accent); }
+  .feature-desc { font-size: 0.9rem; color: var(--text-dim); line-height: 1.75; }
+  .feature-tag {
+    display: inline-block; margin-top: 16px;
+    font-size: 0.72rem; padding: 4px 12px;
+    border-radius: 100px; border: 1px solid var(--border);
+    color: var(--accent3);
+  }
+
+  /* ===== DIAGNOSIS UI ===== */
+  #diagnosis {
+    padding: 140px 0;
+    background: linear-gradient(135deg, #1A0F30 0%, #2D1B4E 60%, #1D0D3A 100%);
+  }
+  .diagnosis-wrap {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: center; margin-top: 60px;
+  }
+  .diagnosis-ui {
+    background: rgba(13,8,32,0.8);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 36px;
+    box-shadow: var(--glow-pink), inset 0 0 60px rgba(255,107,157,0.02);
+    position: relative;
+  }
+  .diag-title-bar {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 28px; padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .diag-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .diag-dot.red { background: #FF5F57; }
+  .diag-dot.yellow { background: #FEBC2E; }
+  .diag-dot.green { background: #28C840; }
+  .diag-title { font-size: 0.85rem; color: var(--text-dim); margin-left: 8px; }
+  .diag-question { font-size: 1rem; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+  .diag-options { display: flex; flex-direction: column; gap: 10px; }
+  .diag-opt {
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.88rem; color: var(--text-dim);
+    cursor: pointer; transition: all 0.2s;
+    background: rgba(255,255,255,0.02);
+  }
+  .diag-opt:hover { border-color: var(--border); color: var(--text); background: rgba(255,107,157,0.06); }
+  .diag-opt.selected {
+    border-color: var(--accent); color: var(--text);
+    background: rgba(255,107,157,0.12);
+    box-shadow: inset 0 0 20px rgba(255,107,157,0.1);
+  }
+  .diag-opt.selected::before { content: '✓　'; color: var(--accent); }
+  .diag-progress {
+    margin-top: 24px; padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .diag-progress-label {
+    display: flex; justify-content: space-between;
+    font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;
+  }
+  .diag-progress-bar {
+    height: 6px; background: rgba(255,255,255,0.08);
+    border-radius: 6px; overflow: hidden;
+  }
+  .diag-progress-fill {
+    height: 100%; width: 40%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(255,107,157,0.6);
+  }
+  .diag-btn {
+    width: 100%; margin-top: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff; border: none; padding: 15px;
+    border-radius: 12px; font-size: 0.95rem; font-weight: 800;
+    cursor: pointer; box-shadow: var(--glow-pink);
+    transition: transform 0.2s;
+  }
+  .diag-btn:hover { transform: translateY(-2px); }
+  .diagnosis-copy { }
+  .diagnosis-copy .section-h2 { margin-bottom: 24px; }
+  .diagnosis-copy .section-lead { margin-bottom: 36px; }
+  .diag-steps { display: flex; flex-direction: column; gap: 20px; }
+  .diag-step {
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .step-num {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(255,107,157,0.15);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 900; color: var(--accent);
+  }
+  .step-text h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+  .step-text p { font-size: 0.83rem; color: var(--text-dim); line-height: 1.65; }
+
+  /* ===== PRICING ===== */
+  #pricing {
+    padding: 140px 0;
+    background: var(--bg-deep);
+  }
+  .pricing-header { text-align: center; margin-bottom: 16px; }
+  .pricing-header .section-tag { justify-content: center; }
+  .pricing-header .section-h2 { margin: 0 auto 16px; }
+  .pricing-sub { text-align: center; color: var(--text-dim); margin-bottom: 60px; }
+  .pricing-toggle {
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px; margin-bottom: 52px;
+  }
+  .toggle-label { font-size: 0.88rem; color: var(--text-dim); }
+  .toggle-label.active { color: var(--accent); font-weight: 700; }
+  .toggle-switch {
+    width: 52px; height: 28px;
+    background: var(--accent); border-radius: 100px;
+    position: relative; cursor: pointer;
+    box-shadow: var(--glow-pink);
+  }
+  .toggle-switch::after {
+    content: ''; position: absolute;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; top: 4px; left: 4px;
+    transition: left 0.2s;
+  }
+  .badge-save {
+    background: rgba(255,215,0,0.15); color: var(--gold);
+    border: 1px solid rgba(255,215,0,0.3);
+    font-size: 0.7rem; padding: 3px 10px; border-radius: 100px;
+    font-weight: 700;
+  }
+  .pricing-cards {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; align-items: start;
+  }
+  .pricing-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px; padding: 36px 32px;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .pricing-card:hover { transform: translateY(-6px); border-color: var(--border); }
+  .pricing-card.popular {
+    background: rgba(255,107,157,0.06);
+    border-color: var(--accent);
+    transform: translateY(-12px);
+    box-shadow: var(--glow-pink);
+  }
+  .pricing-card.popular:hover { transform: translateY(-18px); }
+  .popular-badge {
+    position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #fff;
+    font-size: 0.72rem; font-weight: 800; padding: 5px 18px;
+    border-radius: 0 0 12px 12px; letter-spacing: 0.05em;
+    box-shadow: var(--glow-pink);
+  }
+  .plan-name {
+    font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 8px; margin-top: 12px;
+  }
+  .plan-price {
+    font-size: 3rem; font-weight: 900; line-height: 1;
+    margin-bottom: 4px;
+  }
+  .plan-price sup { font-size: 1.2rem; vertical-align: super; font-weight: 400; }
+  .plan-price sub { font-size: 0.9rem; font-weight: 400; color: var(--text-dim); }
+  .popular .plan-price { color: var(--accent); text-shadow: var(--glow-pink); }
+  .plan-desc { font-size: 0.83rem; color: var(--text-dim); margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+  .plan-features li {
+    font-size: 0.88rem; color: var(--text-dim);
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .plan-features li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .plan-features li.off { color: var(--text-muted); }
+  .plan-features li.off::before { content: '—'; color: var(--text-muted); }
+  .plan-btn {
+    display: block; text-align: center; padding: 14px;
+    border-radius: 12px; font-size: 0.92rem; font-weight: 800;
+    text-decoration: none; transition: all 0.2s; cursor: pointer;
+    border: none;
+  }
+  .plan-btn.outline { border: 1.5px solid var(--border); color: var(--text); background: transparent; }
+  .plan-btn.outline:hover { border-color: var(--accent); color: var(--accent); }
+  .plan-btn.filled { background: var(--accent); color: #fff; box-shadow: var(--glow-pink); }
+  .plan-btn.filled:hover { box-shadow: 0 0 40px rgba(255,107,157,0.8); transform: translateY(-2px); }
+
+  /* ===== TESTIMONIALS ===== */
+  #testimonials {
+    padding: 140px 0;
+    background: linear-gradient(180deg, #1A0F30 0%, #2D1B4E 100%);
+    clip-path: polygon(0 40px, 100% 0, 100% calc(100% - 40px), 0 100%);
+    margin: -40px 0; padding-top: 180px; padding-bottom: 180px;
+  }
+  .testimonials-header { margin-bottom: 60px; }
+  .testimonials-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .testi-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px; padding: 28px;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .testi-card:hover { border-color: var(--border); transform: translateY(-4px); }
+  .testi-stars { color: var(--accent); font-size: 0.85rem; margin-bottom: 14px; letter-spacing: 2px; }
+  .testi-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.75; margin-bottom: 20px; }
+  .testi-text strong { color: var(--accent3); }
+  .testi-author { display: flex; align-items: center; gap: 12px; }
+  .testi-avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent3));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+  }
+  .testi-name { font-size: 0.85rem; font-weight: 700; margin-bottom: 2px; }
+  .testi-role { font-size: 0.72rem; color: var(--text-muted); }
+
+  /* ===== FAQ ===== */
+  #faq {
+    padding: 140px 0;
+    background: var(--bg-deep);
+  }
+  .faq-wrap {
+    display: grid; grid-template-columns: 1fr 2fr;
+    gap: 80px; margin-top: 60px;
+  }
+  .faq-sidebar { }
+  .faq-sidebar-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 16px; font-family: var(--font-display); }
+  .faq-sidebar-text { font-size: 0.88rem; color: var(--text-dim); line-height: 1.8; margin-bottom: 28px; }
+  .faq-contact {
+    background: rgba(255,107,157,0.08); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; font-size: 0.83rem;
+    color: var(--text-dim); line-height: 1.7;
+  }
+  .faq-contact a { color: var(--accent); text-decoration: none; }
+  .faq-list { display: flex; flex-direction: column; }
+  .faq-item {
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+  }
+  .faq-q {
+    padding: 22px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; font-size: 0.95rem; font-weight: 700;
+    color: var(--text); gap: 16px;
+    transition: color 0.2s;
+  }
+  .faq-q:hover { color: var(--accent); }
+  .faq-q-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; color: var(--accent); flex-shrink: 0;
+    transition: transform 0.3s;
+  }
+  .faq-a {
+    padding: 0 0 22px; font-size: 0.88rem;
+    color: var(--text-dim); line-height: 1.8; max-width: 580px;
+  }
+
+  /* ===== FOOTER CTA ===== */
+  #footer-cta {
+    padding: 140px 0 0;
+    background: linear-gradient(180deg, #2D1B4E 0%, #1A0F30 100%);
+  }
+  .footer-cta-inner {
+    text-align: center;
+    padding-bottom: 80px;
+    position: relative;
+  }
+  .footer-cta-inner::before {
+    content: '桜';
+    font-size: 20rem;
+    color: rgba(255,107,157,0.04);
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-family: var(--font-display);
+    line-height: 1;
+    pointer-events: none;
+  }
+  .footer-badge {
+    display: inline-block;
+    background: rgba(255,107,157,0.12); border: 1px solid var(--border);
+    border-radius: 100px; padding: 8px 20px;
+    font-size: 0.78rem; color: var(--accent3); letter-spacing: 0.1em;
+    margin-bottom: 28px;
+  }
+  .footer-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 900; line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .footer-title span {
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent3) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(255,107,157,0.5));
+  }
+  .footer-sub { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 48px; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .footer-actions { display: flex; gap: 16px; justify-content: center; align-items: center; margin-bottom: 24px; }
+  .footer-note { font-size: 0.78rem; color: var(--text-muted); }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 28px 0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-logo { font-family: var(--font-display); font-size: 1.2rem; color: var(--accent); font-weight: 700; }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 0.78rem; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--accent3); }
+  .footer-copy { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ===== FLOATING LINE DECO ===== */
+  .line-deco {
+    position: absolute; pointer-events: none; z-index: 0;
+    opacity: 0.15;
+  }
+  .line-deco.line1 {
+    top: 10%; right: -100px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    border: 1px solid var(--accent);
+  }
+  .line-deco.line2 {
+    bottom: 5%; left: -150px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    border: 1px solid var(--cyan);
+  }
+
+  /* ===== SCROLL INDICATOR ===== */
+  .scroll-indicator {
+    position: absolute; bottom: 36px; left: 80px;
+    display: flex; align-items: center; gap: 12px;
+    z-index: 2; color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.1em;
+  }
+  .scroll-line { width: 40px; height: 1px; background: rgba(255,107,157,0.4); position: relative; overflow: hidden; }
+  .scroll-line::after {
+    content: ''; position: absolute;
+    top: 0; left: -100%; width: 100%; height: 100%;
+    background: var(--accent);
+    animation: lineMove 2s linear infinite;
+  }
+  @keyframes lineMove { 0% { left: -100%; } 100% { left: 100%; } }
+
+  /* ===== RESPONSIVE ADJUSTMENTS ===== */
+  @media (max-width: 900px) {
+    #hero { grid-template-columns: 1fr; padding: 100px 0 60px; }
+    .hero-right { display: none; }
+    .hero-left { padding: 0 32px; }
+    .problem-grid, .diagnosis-wrap, .faq-wrap { grid-template-columns: 1fr; gap: 40px; }
+    .pricing-cards, .testimonials-grid, .solution-grid { grid-template-columns: 1fr; }
+    .pricing-card.popular { transform: none; }
+    .section-inner { padding: 0 28px; }
+    nav { padding: 14px 20px; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Sakura<span>AI</span></div>
+  <ul class="nav-links">
+    <li><a href="#problem">課題</a></li>
+    <li><a href="#solution">機能</a></li>
+    <li><a href="#diagnosis">診断</a></li>
+    <li><a href="#pricing">料金</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#footer-cta" class="nav-cta">今すぐ試す →</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <!-- Sakura petals -->
+  <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+  <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+  <div class="petal"></div><div class="petal"></div>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-dot"></span>
+      2026年 春の新機能 リリース
+    </div>
+    <h1 class="hero-title">
+      <span class="line1">今年の桜、</span>
+      <span class="line2">AIが連れていく。</span>
+    </h1>
+    <p class="hero-sub">
+      混雑・天気・開花状況をリアルタイムで解析。<br>
+      <strong>あなただけの桜スポット</strong>を、AIが瞬時に提案。<br>
+      もう「どこ行けばいい？」で悩まない。
+    </p>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">12万+</div>
+        <div class="stat-label">登録ユーザー</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">3,200+</div>
+        <div class="stat-label">桜スポット収録</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">98%</div>
+        <div class="stat-label">満足度</div>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <a href="#footer-cta" class="btn-primary">
+        🌸 無料で診断を始める
+      </a>
+      <a href="#solution" class="btn-ghost">
+        <span class="play-circle">▶</span>
+        使い方を見る
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="phone-wrap">
+      <div class="phone-glow"></div>
+      <div class="phone-mock">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-header">
+            <span class="phone-app-name">SakuraAI</span>
+            <span class="phone-time">16:38</span>
+          </div>
+          <!-- Map mock -->
+          <div class="phone-map-mock">
+            <div class="map-grid-line h" style="top:33%"></div>
+            <div class="map-grid-line h" style="top:66%"></div>
+            <div class="map-grid-line v" style="left:33%"></div>
+            <div class="map-grid-line v" style="left:66%"></div>
+            <div class="map-dot" style="top:35%;left:38%"><div class="map-dot" style="top:0;left:0;width:100%;height:100%;animation:none;position:relative;"></div></div>
+            <div class="map-dot" style="top:52%;left:62%;background:var(--cyan);box-shadow:var(--glow-cyan)"></div>
+            <div class="map-dot" style="top:22%;left:18%;background:var(--accent3);width:10px;height:10px"></div>
+          </div>
+          <!-- Recommendation card -->
+          <div class="phone-card">
+            <div class="phone-card-label">📍 AIのおすすめ #1</div>
+            <div class="phone-card-title">千鳥ヶ淵 — 開花率 87%</div>
+            <div class="phone-tag-row">
+              <span class="phone-tag">混雑度 低</span>
+              <span class="phone-tag">ライトアップ</span>
+              <span class="phone-tag">夜桜🌸</span>
+            </div>
+            <div class="phone-score-row">
+              <span class="phone-score">あなたへの一致度</span>
+              <div class="score-bar"><div class="score-fill"></div></div>
+              <span class="phone-score">78%</span>
+            </div>
+          </div>
+          <button class="phone-cta-btn">今すぐルート案内 →</button>
+        </div>
+        <div class="phone-bottom-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    Scroll to explore
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="section-inner">
+    <div class="section-tag">Problem</div>
+    <h2 class="section-h2">こんな経験、ありませんか？</h2>
+    <div class="problem-grid">
+      <div class="problem-cards">
+        <div class="problem-card">
+          <div class="problem-icon">😩</div>
+          <div class="problem-text">
+            <h3>混んでいすぎて花より人</h3>
+            <p>SNSで話題の場所に行ったら人だらけ。写真を撮ろうにも人の頭しか映らない。毎年同じ失敗を繰り返してしまう。</p>
+          </div>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">🌧️</div>
+          <div class="problem-text">
+            <h3>行ったら散ってた、雨だった</h3>
+            <p>週末の予定を立てたのに、開花が読めずタイミングを完全に外す。平年通りとか言われても正直よくわからない。</p>
+          </div>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">📱</div>
+          <div class="problem-text">
+            <h3>情報が多すぎて結局どこがいいか不明</h3>
+            <p>検索すると候補が多すぎる。レビューは古いし、リアルな混雑状況は誰も教えてくれない。ただ疲れる。</p>
+          </div>
+        </div>
+      </div>
+      <div class="problem-visual">
+        <div class="big-quote">
+          桜の季節、<em>毎年後悔</em>してませんか？<br>
+          <br>
+          今年こそ、<em>完璧なお花見</em>を。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section id="solution">
+  <div class="section-inner">
+    <div class="solution-header">
+      <div class="section-tag">Solution</div>
+      <h2 class="section-h2">SakuraAIが解決する<br>4つのこと</h2>
+    </div>
+    <div class="solution-grid">
+      <div class="feature-card">
+        <div class="feature-num">01</div>
+        <div class="feature-icon">🌸</div>
+        <h3 class="feature-title"><span>リアルタイム</span>開花予測AI</h3>
+        <p class="feature-desc">気象データ × 衛星画像 × ユーザーレポートを統合。今この瞬間の開花率を独自アルゴリズムで算出します。誤差±1日の精度。</p>
+        <span class="feature-tag">独自アルゴリズム</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">02</div>
+        <div class="feature-icon">🗺️</div>
+        <h3 class="feature-title"><span>混雑予測</span>マップ</h3>
+        <p class="feature-desc">過去3年分の人出データと今年の傾向を分析。「どこが空いているか」をヒートマップで可視化。穴場スポットを自動提案。</p>
+        <span class="feature-tag">ヒートマップ表示</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">03</div>
+        <div class="feature-icon">🌙</div>
+        <h3 class="feature-title"><span>夜桜</span>パーソナライズ</h3>
+        <p class="feature-desc">「夜景が好き」「静かな場所がいい」「子連れ」など、あなたの好みを学習してスポットをランキング。使えば使うほど精度が向上。</p>
+        <span class="feature-tag">機械学習</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">04</div>
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title"><span>当日リアルタイム</span>通知</h3>
+        <p class="feature-desc">「今が見頃です」「近くの穴場スポットが空いています」を即時通知。天気の急変も事前アラート。お花見の成功率を最大化。</p>
+        <span class="feature-tag">プッシュ通知</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIAGNOSIS -->
+<section id="diagnosis">
+  <div class="section-inner">
+    <div class="section-tag">Style Check</div>
+    <h2 class="section-h2">あなたの<br>花見スタイルを診断</h2>
+    <div class="diagnosis-wrap">
+      <div class="diagnosis-ui">
+        <div class="diag-title-bar">
+          <span class="diag-dot red"></span>
+          <span class="diag-dot yellow"></span>
+          <span class="diag-dot green"></span>
+          <span class="diag-title">SakuraAI スタイル診断</span>
+        </div>
+        <div class="diag-question">Q2. お花見の理想の雰囲気は？</div>
+        <div class="diag-options">
+          <div class="diag-opt selected">🌙 夜桜をしっぽり楽しみたい</div>
+          <div class="diag-opt">☀️ 昼間の明るい雰囲気が好き</div>
+          <div class="diag-opt">🎉 賑やかなお祭り感が好き</div>
+          <div class="diag-opt">🧘 静かな穴場スポットを探したい</div>
+        </div>
+        <div class="diag-progress">
+          <div class="diag-progress-label">
+            <span>2 / 5問</span>
+            <span>40%</span>
+          </div>
+          <div class="diag-progress-bar">
+            <div class="diag-progress-fill"></div>
+          </div>
+        </div>
+        <button class="diag-btn">次の質問へ →</button>
+      </div>
+      <div class="diagnosis-copy">
+        <p class="section-lead" style="margin-bottom:36px;">たった5問の質問で、あなただけの<br>花見スタイルを解析します。</p>
+        <div class="diag-steps">
+          <div class="diag-step">
+            <div class="step-num">1</div>
+            <div class="step-text">
+              <h4>5問に答えるだけ</h4>
+              <p>好み・スタイル・優先事項を選ぶだけ。所要時間は約60秒。</p>
+            </div>
+          </div>
+          <div class="diag-step">
+            <div class="step-num">2</div>
+            <div class="step-text">
+              <h4>AIがパターンを分析</h4>
+              <p>「夜桜派」「穴場派」「インスタ映え派」など10タイプに分類。</p>
+            </div>
+          </div>
+          <div class="diag-step">
+            <div class="step-num">3</div>
+            <div class="step-text">
+              <h4>カスタムスポットリスト生成</h4>
+              <p>あなたのタイプに合った桜スポット TOP10 をリスト化。今すぐ使える。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-inner">
+    <div class="pricing-header">
+      <div class="section-tag">Pricing</div>
+      <h2 class="section-h2">シンプルな料金プラン</h2>
+    </div>
+    <p class="pricing-sub">すべてのプランで無料トライアル14日間。クレジットカード不要。</p>
+    <div class="pricing-toggle">
+      <span class="toggle-label">月払い</span>
+      <div class="toggle-switch"></div>
+      <span class="toggle-label active">年払い</span>
+      <span class="badge-save">20% OFF</span>
+    </div>
+    <div class="pricing-cards">
+      <!-- Free -->
+      <div class="pricing-card">
+        <div class="plan-name">Free</div>
+        <div class="plan-price"><sup>¥</sup>0<sub>/月</sub></div>
+        <p class="plan-desc">まずは試してみたい方へ</p>
+        <ul class="plan-features">
+          <li>桜スポット検索（月10回）</li>
+          <li>開花予測（標準精度）</li>
+          <li>スタイル診断 1回</li>
+          <li class="off">リアルタイム混雑マップ</li>
+          <li class="off">プッシュ通知</li>
+          <li class="off">パーソナライズ学習</li>
+        </ul>
+        <a href="#" class="plan-btn outline">無料で始める</a>
+      </div>
+      <!-- Pro -->
+      <div class="pricing-card popular">
+        <div class="popular-badge">⚡ 一番人気</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price"><sup>¥</sup>680<sub>/月</sub></div>
+        <p class="plan-desc">お花見を本気で楽しみたい方へ</p>
+        <ul class="plan-features">
+          <li>桜スポット検索（無制限）</li>
+          <li>開花予測（高精度AIモデル）</li>
+          <li>スタイル診断 無制限</li>
+          <li>リアルタイム混雑マップ</li>
+          <li>プッシュ通知（カスタム設定）</li>
+          <li class="off">グループプランニング機能</li>
+        </ul>
+        <a href="#" class="plan-btn filled">14日間無料で試す</a>
+      </div>
+      <!-- Premium -->
+      <div class="pricing-card">
+        <div class="plan-name">Premium</div>
+        <div class="plan-price"><sup>¥</sup>1,480<sub>/月</sub></div>
+        <p class="plan-desc">チームや家族でフル活用したい方へ</p>
+        <ul class="plan-features">
+          <li>Pro の全機能</li>
+          <li>パーソナライズAI学習</li>
+          <li>グループプランニング機能</li>
+          <li>複数人のスタイル統合提案</li>
+          <li>優先サポート（24時間）</li>
+          <li>限定スポット先行情報</li>
+        </ul>
+        <a href="#" class="plan-btn outline">プレミアムを試す</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-inner">
+    <div class="testimonials-header">
+      <div class="section-tag">Voices</div>
+      <h2 class="section-h2">ユーザーの声</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">SakuraAIのおすすめ通りに行ったら、<strong>ほぼ貸切状態の夜桜スポット</strong>を発見。去年まで毎年失敗してたのが嘘みたい。来年も絶対使う。</p>
+        <div class="testi-author">
+          <div class="testi-avatar">🌸</div>
+          <div>
+            <div class="testi-name">田中 みか</div>
+            <div class="testi-role">都内在住 / 30代 / Pro プラン</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">開花予測の<strong>精度が異次元</strong>。気象庁の予報より当たってる気がします（笑）。今年初めて「満開の桜の下でお花見」ができました。</p>
+        <div class="testi-author">
+          <div class="testi-avatar">🌙</div>
+          <div>
+            <div class="testi-name">鈴木 健太郎</div>
+            <div class="testi-role">神奈川県在住 / 40代 / Premium プラン</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★☆</div>
+        <p class="testi-text">子連れでも安心して行ける穴場スポットを提案してくれる。<strong>「子連れ」タグで絞り込む</strong>だけで一発で候補が出てきて神助かりです。</p>
+        <div class="testi-author">
+          <div class="testi-avatar">🍡</div>
+          <div>
+            <div class="testi-name">小林 あやね</div>
+            <div class="testi-role">埼玉県在住 / 2児の母 / Pro プラン</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-inner">
+    <div class="section-tag">FAQ</div>
+    <h2 class="section-h2">よくある質問</h2>
+    <div class="faq-wrap">
+      <div class="faq-sidebar">
+        <h3 class="faq-sidebar-title">もっと詳しく<br>知りたい方へ</h3>
+        <p class="faq-sidebar-text">ご不明な点があればいつでもお気軽にご連絡ください。通常24時間以内にご返答いたします。</p>
+        <div class="faq-contact">
+          📧 <a href="mailto:support@sakura-ai.app">support@sakura-ai.app</a><br><br>
+          💬 アプリ内チャットでもご相談を受け付けています。
+        </div>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q">
+            無料プランでどこまで使えますか？
+            <span class="faq-q-icon">+</span>
+          </div>
+          <div class="faq-a">無料プランでは月10回の桜スポット検索、標準精度の開花予測、スタイル診断を1回ご利用いただけます。まずは機能を試していただくのに最適です。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            開花予測はどれくらい正確ですか？
+            <span class="faq-q-icon">+</span>
+          </div>
+          <div class="faq-a">Proプラン以上では過去5年分の気象データ・衛星画像・ユーザーレポートを組み合わせた独自AIモデルを使用。誤差±1日以内の精度を実現しています（2025年シーズン実績ベース）。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            解約はいつでもできますか？
+            <span class="faq-q-icon">+</span>
+          </div>
+          <div class="faq-a">はい、いつでも解約できます。解約後も現在の請求サイクルが終了するまでサービスをご利用いただけます。データは30日間保持されます。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            対応エリアはどこですか？
+            <span class="faq-q-icon">+</span>
+          </div>
+          <div class="faq-a">現在は日本全国47都道府県、3,200以上のスポットに対応しています。2026年秋には韓国・台湾の桜スポットにも対応予定です。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            家族みんなで使えますか？
+            <span class="faq-q-icon">+</span>
+          </div>
+          <div class="faq-a">Premiumプランではグループプランニング機能を使って複数人のスタイルを統合した提案を受けることができます。最大6名まで登録可能です。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER CTA -->
+<section id="footer-cta">
+  <div class="section-inner">
+    <div class="footer-cta-inner">
+      <div class="footer-badge">🌸 2026年 花見シーズン 開幕</div>
+      <h2 class="footer-title">
+        <span>今年こそ、</span><br>
+        完璧な花見を。
+      </h2>
+      <p class="footer-sub">AIが最適な桜スポットへ連れていく。<br>14日間無料、クレジットカード不要。</p>
+      <div class="footer-actions">
+        <a href="#" class="btn-primary">🌸 無料で始める（14日間）</a>
+      </div>
+      <p class="footer-note">※ クレジットカード登録不要・いつでも解約可能</p>
+    </div>
+    <div class="footer-bottom section-inner" style="padding:0">
+      <div class="footer-logo">SakuraAI</div>
+      <div class="footer-links">
+        <a href="#">利用規約</a>
+        <a href="#">プライバシーポリシー</a>
+        <a href="#">運営会社</a>
+        <a href="#">お問い合わせ</a>
+      </div>
+      <div class="footer-copy">© 2026 SakuraAI. All rights reserved.</div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Minimal JS: FAQ accordion
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('.faq-q-icon').textContent = '+';
+        i.querySelector('.faq-a').style.display = 'none';
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        q.querySelector('.faq-q-icon').textContent = '−';
+        item.querySelector('.faq-a').style.display = 'block';
+      }
+    });
+    // Hide answers initially
+    q.nextElementSibling.style.display = 'none';
+  });
+
+  // Diagnosis options: toggle selected
+  document.querySelectorAll('.diag-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.diag-opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+  });
+
+  // Smooth nav link behavior (already handled by CSS scroll-behavior)
+</script>
+</body>
+</html>

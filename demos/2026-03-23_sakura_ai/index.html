@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SakuraAI — Vibe Coder Bootcamp Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      background: #0a0a0a;
+      color: #ededed;
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    /* ===== MODAL (必須・削除禁止) ===== */
+    #modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    #modal.open { display: flex; }
+    #modal img {
+      max-width: 90vw;
+      max-height: 88vh;
+      border-radius: 8px;
+      object-fit: contain;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.8);
+    }
+    #modal-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+      opacity: 0.8;
+    }
+    #modal-close:hover { opacity: 1; }
+
+    /* ===== LAYOUT ===== */
+    .hero {
+      padding: 88px 24px 64px;
+      text-align: center;
+      border-bottom: 1px solid #222;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0a10 50%, #0a0a0a 100%);
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #aaa;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 800;
+      margin-bottom: 12px;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ff9eb5 0%, #ffccd5 50%, #ff6b8a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .tagline {
+      color: #888;
+      font-size: 1.05rem;
+      max-width: 540px;
+      margin: 0 auto 32px;
+    }
+    .hero-chips {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .chip {
+      background: #181818;
+      border: 1px solid #2a2a2a;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: #bbb;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    section { padding: 64px 0; border-bottom: 1px solid #1a1a1a; }
+    section:last-child { border-bottom: none; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .section-line { flex: 1; height: 1px; background: #222; }
+
+    /* ===== STATUS BAR ===== */
+    .status-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+      padding: 20px 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .status-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: #999;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .dot-green { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-gray { background: #444; }
+
+    /* ===== CARDS ===== */
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+
+    .card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .card:hover {
+      border-color: #ff9eb5;
+      transform: translateY(-2px);
+    }
+    .card-img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+      background: #1a1a1a;
+    }
+    .card-body { padding: 18px 20px; }
+    .card-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    .card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 6px; color: #ddd; }
+    .card-desc { font-size: 0.83rem; color: #666; line-height: 1.6; }
+
+    /* ===== SLIDES (クリック拡大必須) ===== */
+    .slides-row {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scroll-snap-type: x mandatory;
+    }
+    .slide-thumb {
+      flex-shrink: 0;
+      width: 220px;
+      aspect-ratio: 16/9;
+      border-radius: 8px;
+      border: 1px solid #222;
+      background: #1a1a1a;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      scroll-snap-align: start;
+    }
+    .slide-thumb:hover { border-color: #ff9eb5; }
+    .slide-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+
+    /* ===== IG GRID (クリック拡大必須) ===== */
+    .ig-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+    }
+    .ig-item {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: #1a1a1a;
+      border: 1px solid #222;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .ig-item:hover { border-color: #ff9eb5; }
+    .ig-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* ===== AUDIO ===== */
+    .audio-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .audio-icon { font-size: 2.5rem; flex-shrink: 0; }
+    .audio-info { flex: 1; }
+    .audio-title { font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
+    audio { width: 100%; margin-top: 12px; }
+
+    /* ===== DOCS ===== */
+    .doc-list { display: flex; flex-direction: column; gap: 10px; }
+    .doc-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 14px 18px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s;
+    }
+    .doc-item:hover { border-color: #444; }
+    .doc-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .doc-info { flex: 1; }
+    .doc-name { font-weight: 600; font-size: 0.9rem; color: #ddd; }
+    .doc-desc { font-size: 0.78rem; color: #666; margin-top: 2px; }
+    .doc-arrow { color: #555; font-size: 1rem; }
+
+    /* ===== BTN ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid #333;
+      color: #ccc;
+      transition: all 0.2s;
+      margin-top: 16px;
+    }
+    .btn:hover { border-color: #ff9eb5; color: #ff9eb5; }
+
+    /* ===== VIDEO ===== */
+    .video-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .video-card video { width: 100%; display: block; }
+    .video-body { padding: 16px 20px; }
+
+    /* ===== SNS ===== */
+    .sns-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 22px;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      padding: 40px 24px;
+      text-align: center;
+      color: #444;
+      font-size: 0.83rem;
+    }
+    footer a { color: #666; text-decoration: none; }
+    footer a:hover { color: #aaa; }
+    .powered { margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+<!-- ===== MODAL (必須・削除禁止) ===== -->
+<div id="modal" onclick="closeModal()">
+  <button id="modal-close" onclick="closeModal()">✕</button>
+  <img id="modal-img" src="" alt="">
+</div>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <div class="badge">🎓 Vibe Coder Bootcamp — Live Demo</div>
+  <h1>🌸 SakuraAI</h1>
+  <p class="tagline">今年の桜、AIが連れていく。</p>
+  <div class="hero-chips">
+    <div class="chip">🌸 お花見AI</div>
+    <div class="chip">📍 位置情報×AI</div>
+    <div class="chip">🤖 Vibe Coding</div>
+    <div class="chip">📱 モバイルアプリ</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-chip"><div class="dot dot-green"></div>LP × 3完成</div>
+    <div class="status-chip"><div class="dot dot-green"></div>モックアプリ完成</div>
+    <div class="status-chip"><div class="dot dot-green"></div>音声ラジオ完成</div>
+    <div class="status-chip"><div class="dot dot-green"></div>動画CM完成</div>
+    <div class="status-chip"><div class="dot dot-green"></div>スライド完成</div>
+    <div class="status-chip"><div class="dot dot-green"></div>Instagram × 10完成</div>
+  </div>
+
+  <!-- LP -->
+  <section>
+    <div class="section-header">
+      <div class="section-title">🖥️ ランディングページ × 3パターン</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="grid-3">
+      <a class="card" href="lp/pattern1_modern.html" target="_blank">
+        <img class="card-img" src="screenshots/lp_pattern1.png" alt="LP Pattern 1" onerror="this.style.background='#1a1a1a'">
+        <div class="card-body">
+          <div class="card-tag">Pattern 1</div>
+          <div class="card-title">モダン・シンプル</div>
+          <div class="card-desc">クリーンなデザインで機能を前面に</div>
+        </div>
+      </a>
+      <a class="card" href="lp/pattern2_premium.html" target="_blank">
+        <img class="card-img" src="screenshots/lp_pattern2.png" alt="LP Pattern 2" onerror="this.style.background='#1a1a1a'">
+        <div class="card-body">
+          <div class="card-tag">Pattern 2</div>
+          <div class="card-title">プレミアム・エレガント</div>
+          <div class="card-desc">桜の季節感を演出した高級感ある訴求</div>
+        </div>
+      </a>
+      <a class="card" href="lp/pattern3_casual.html" target="_blank">
+        <img class="card-img" src="screenshots/lp_pattern3.png" alt="LP Pattern 3" onerror="this.style.background='#1a1a1a'">
+        <div class="card-body">
+          <div class="card-tag">Pattern 3</div>
+          <div class="card-title">カジュアル・フレンドリー</div>
+          <div class="card-desc">親しみやすく行動喚起しやすい構成</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- MOCK APP -->
+  <section>
+    <div class="section-header">
+      <div class="section-title">📱 モックアプリ</div>
+      <div class="section-line"></div>
+    </div>
+    <a class="card" href="mock/app_mock.html" target="_blank">
+      <img class="card-img" src="screenshots/mock_app.png" alt="Mock App" style="aspect-ratio:16/7;" onerror="this.style.background='#1a1a1a'">
+      <div class="card-body">
+        <div class="card-tag">iPhone Mock</div>
+        <div class="card-title">SakuraAI アプリモック</div>
+        <div class="card-desc">お花見スポット探索・グループ調整・AI提案の主要画面をインタラクティブに体験</div>
+      </div>
+    </a>
+  </section>
+
+  <!-- SLIDES (クリック拡大必須) -->
+  <section>
+    <div class="section-header">
+      <div class="section-title">📊 プレゼンスライド</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="slides-row">
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260323_164018/images/slide_01.png')">
+        <img src="slides/slides_output/20260323_164018/images/slide_01.png" alt="Slide 1">
+      </div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260323_164018/images/slide_02.png')">
+        <img src="slides/slides_output/20260323_164018/images/slide_02.png" alt="Slide 2">
+      </div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260323_164018/images/slide_03.png')">
+        <img src="slides/slides_output/20260323_164018/images/slide_03.png" alt="Slide 3">
+      </div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260323_164018/images/slide_04.png')">
+        <img src="slides/slides_output/20260323_164018/images/slide_04.png" alt="Slide 4">
+      </div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260323_164018/images/slide_05.png')">
+        <img src="slides/slides_output/20260323_164018/images/slide_05.png" alt="Slide 5">
+      </div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260323_164018/images/slide_06.png')">
+        <img src="slides/slides_output/20260323_164018/images/slide_06.png" alt="Slide 6">
+      </div>
+      <div class="slide-thumb" onclick="openModal('slides/slides_output/20260323_164018/images/slide_07.png')">
+        <img src="slides/slides_output/20260323_164018/images/slide_07.png" alt="Slide 7">
+      </div>
+    </div>
+    <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+      <a class="btn" href="slides/sakura_ai.pdf" target="_blank">📄 PDF ダウンロード</a>
+    </div>
+  </section>
+
+  <!-- AUDIO -->
+  <section>
+    <div class="section-header">
+      <div class="section-title">🎙️ 音声ラジオ</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="audio-card">
+      <div class="audio-icon">🎙️</div>
+      <div class="audio-info">
+        <div class="audio-title">SakuraAI — サービスイントロ</div>
+        <div style="color:#666; font-size:0.83rem;">AIが最適なお花見スポットと日程を提案。今年の桜を最高の思い出に。</div>
+        <audio controls src="audio/intro.mp3"></audio>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIDEO -->
+  <section>
+    <div class="section-header">
+      <div class="section-title">🎬 動画CM</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="video-card">
+      <video controls>
+        <source src="video/promo.mp4" type="video/mp4">
+      </video>
+      <div class="video-body">
+        <div class="card-title">プロモ動画 30秒</div>
+        <div class="card-desc">桜×AIの世界観を映像で表現。SNS配信・セミナー会場での上映を想定した縦型動画CM。</div>
+        <a class="btn" href="video/promo.mp4" target="_blank">🎬 ダウンロード</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SNS -->
+  <section>
+    <div class="section-header">
+      <div class="section-title">🐦 X投稿 30日分</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="sns-card">
+      <div class="card-tag">SNS CONTENT</div>
+      <div style="font-weight:600; margin-bottom:8px;">30日分の投稿カレンダー生成済み</div>
+      <div style="color:#666; font-size:0.83rem; margin-bottom:12px;">お花見シーズンに向けた期待醸成から、機能紹介・ユーザーUGC活用まで戦略的に設計された投稿カレンダー</div>
+      <a class="btn" href="sns/x_posts_30days.md" target="_blank">📋 投稿一覧を見る →</a>
+    </div>
+  </section>
+
+  <!-- IG (クリック拡大必須) -->
+  <section>
+    <div class="section-header">
+      <div class="section-title">📸 Instagram 図解 × 10枚</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="ig-grid">
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_01_concept.png')"><img src="sns/instagram/ig_01_concept.png" alt="コンセプト"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_02_problem.png')"><img src="sns/instagram/ig_02_problem.png" alt="課題"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_03_feature1.png')"><img src="sns/instagram/ig_03_feature1.png" alt="機能1"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_04_feature2.png')"><img src="sns/instagram/ig_04_feature2.png" alt="機能2"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_05_feature3.png')"><img src="sns/instagram/ig_05_feature3.png" alt="機能3"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_06_howto.png')"><img src="sns/instagram/ig_06_howto.png" alt="使い方"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_07_price.png')"><img src="sns/instagram/ig_07_price.png" alt="料金"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_08_testimonial.png')"><img src="sns/instagram/ig_08_testimonial.png" alt="口コミ"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_09_map.png')"><img src="sns/instagram/ig_09_map.png" alt="マップ"></div>
+      <div class="ig-item" onclick="openModal('sns/instagram/ig_10_cta.png')"><img src="sns/instagram/ig_10_cta.png" alt="CTA"></div>
+    </div>
+  </section>
+
+  <!-- DOCS -->
+  <section>
+    <div class="section-header">
+      <div class="section-title">📋 企画ドキュメント</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="doc-list">
+      <a class="doc-item" href="docs/01_executive_summary.md" target="_blank">
+        <div class="doc-icon">📊</div>
+        <div class="doc-info">
+          <div class="doc-name">01. Executive Summary</div>
+          <div class="doc-desc">市場規模・競合優位性・KPI目標</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+      <a class="doc-item" href="docs/02_product_overview.md" target="_blank">
+        <div class="doc-icon">🔧</div>
+        <div class="doc-info">
+          <div class="doc-name">02. Product Overview</div>
+          <div class="doc-desc">コア機能・技術スタック・ロードマップ</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+      <a class="doc-item" href="docs/03_business_model.md" target="_blank">
+        <div class="doc-icon">💰</div>
+        <div class="doc-info">
+          <div class="doc-name">03. Business Model</div>
+          <div class="doc-desc">収益構造・Unit Economics・財務予測</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+      <a class="doc-item" href="docs/04_go_to_market.md" target="_blank">
+        <div class="doc-icon">🚀</div>
+        <div class="doc-info">
+          <div class="doc-name">04. Go-to-Market Strategy</div>
+          <div class="doc-desc">フリーミアム×バイラル・チャネル別CAC</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+      <a class="doc-item" href="docs/05_market_research.md" target="_blank">
+        <div class="doc-icon">🔍</div>
+        <div class="doc-info">
+          <div class="doc-name">05. Market Research</div>
+          <div class="doc-desc">市場規模・競合分析・ユーザーリサーチ</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div>
+    <strong style="color:#ff9eb5;">🌸 SakuraAI</strong> — 今年の桜、AIが連れていく。
+  </div>
+  <div style="margin-top:6px;">
+    Vibe Coder Bootcamp セミナーデモ | <a href="https://vibe-coder-bootcamp.com">vibe-coder-bootcamp.com</a>
+  </div>
+  <div class="powered">🤖 Generated by <strong style="color:#888;">Ryoko (Claude + OpenClaw)</strong> — 企画→デザイン→実装→公開まで全自動</div>
+</footer>
+
+<!-- ===== JS (必須・削除禁止) ===== -->
+<script>
+function openModal(src) {
+  document.getElementById('modal-img').src = src;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('modal-img').src = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+
+</body>
+</html>
