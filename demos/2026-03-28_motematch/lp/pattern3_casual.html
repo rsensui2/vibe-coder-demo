@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoteMatch - AIモテコーチング × マッチングアプリ</title>
+  <style>
+    /* =====================
+       リセット & 基本設定
+    ===================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #FFF5F7;
+      --bg-light: #FFFFFF;
+      --accent1: #FF6B9D;
+      --accent2: #FF2D55;
+      --accent3: #FF9F43;
+      --accent4: #A8E6CF;
+      --accent5: #DDA0DD;
+      --text-dark: #2C1A2E;
+      --text-mid: #5A3D5C;
+      --text-light: #9B7B9D;
+      --card-shadow: 0 8px 32px rgba(255, 107, 157, 0.15);
+      --border-radius: 20px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-dark);
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+
+    /* =====================
+       ナビゲーション
+    ===================== */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+      background: rgba(255, 245, 247, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 2px solid rgba(255, 107, 157, 0.2);
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-logo span {
+      font-size: 0.85rem;
+      display: block;
+      -webkit-text-fill-color: var(--text-light);
+      font-weight: 400;
+    }
+
+    .nav-cta {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-block;
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 45, 85, 0.4);
+    }
+
+    /* =====================
+       HERO セクション
+    ===================== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 40px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 装飾的背景テキスト */
+    .hero-bg-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(120px, 20vw, 240px);
+      font-weight: 900;
+      color: rgba(255, 107, 157, 0.06);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 0;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    /* フローティングデコレーション */
+    .hero-deco {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-deco-1 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255, 107, 157, 0.12), transparent 70%);
+      top: 10%;
+      right: 5%;
+    }
+
+    .hero-deco-2 {
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255, 45, 85, 0.08), transparent 70%);
+      bottom: 15%;
+      left: 5%;
+    }
+
+    .hero-deco-3 {
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(255, 159, 67, 0.1), transparent 70%);
+      top: 20%;
+      left: 15%;
+    }
+
+    /* 浮かぶハート */
+    .floating-hearts {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .heart-item {
+      position: absolute;
+      font-size: 1.5rem;
+      opacity: 0.15;
+      animation: floatHeart 6s ease-in-out infinite;
+    }
+
+    .heart-item:nth-child(1) { top: 15%; left: 10%; animation-delay: 0s; }
+    .heart-item:nth-child(2) { top: 25%; right: 12%; animation-delay: 1.5s; font-size: 2rem; }
+    .heart-item:nth-child(3) { top: 60%; left: 8%; animation-delay: 3s; font-size: 1rem; }
+    .heart-item:nth-child(4) { top: 70%; right: 8%; animation-delay: 0.8s; }
+    .heart-item:nth-child(5) { top: 40%; left: 20%; animation-delay: 2.2s; font-size: 0.8rem; }
+    .heart-item:nth-child(6) { bottom: 20%; right: 20%; animation-delay: 4s; font-size: 1.2rem; }
+
+    @keyframes floatHeart {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      max-width: 1100px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 107, 157, 0.12);
+      border: 1.5px solid rgba(255, 107, 157, 0.3);
+      color: var(--accent1);
+      padding: 8px 18px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      width: fit-content;
+    }
+
+    .hero-badge::before {
+      content: '✨';
+    }
+
+    .hero-headline {
+      font-size: clamp(2.8rem, 6vw, 4.8rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--text-dark);
+    }
+
+    .hero-headline .highlight {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+    }
+
+    .hero-headline .name-deco {
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero-headline .name-deco::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      border-radius: 2px;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-mid);
+      line-height: 1.8;
+    }
+
+    .hero-sub strong {
+      color: var(--accent2);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      text-decoration: none;
+      display: inline-block;
+      transition: transform 0.25s, box-shadow 0.25s;
+      box-shadow: 0 6px 24px rgba(255, 45, 85, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 32px rgba(255, 45, 85, 0.5);
+    }
+
+    .btn-secondary {
+      color: var(--accent1);
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-secondary::after {
+      content: '→';
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 32px;
+    }
+
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-stat-num {
+      font-size: 1.8rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+    }
+
+    .hero-stat-label {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+    /* =====================
+       スマホモック（CSSのみ）
+    ===================== */
+    .phone-mockup-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .phone-wrap {
+      position: relative;
+      animation: phoneBob 3s ease-in-out infinite;
+    }
+
+    @keyframes phoneBob {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-12px) rotate(1deg); }
+    }
+
+    .phone-outer {
+      width: 240px;
+      height: 480px;
+      background: linear-gradient(145deg, #2C1A2E, #1a0f1e);
+      border-radius: 36px;
+      padding: 12px;
+      box-shadow:
+        0 40px 80px rgba(44, 26, 46, 0.5),
+        0 0 0 2px rgba(255, 107, 157, 0.3),
+        inset 0 2px 4px rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    /* ノッチ */
+    .phone-outer::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 22px;
+      background: #2C1A2E;
+      border-radius: 0 0 14px 14px;
+      z-index: 10;
+    }
+
+    /* サイドボタン */
+    .phone-outer::after {
+      content: '';
+      position: absolute;
+      right: -4px;
+      top: 80px;
+      width: 4px;
+      height: 50px;
+      background: linear-gradient(180deg, #3d2040, #2C1A2E);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 26px;
+      background: linear-gradient(160deg, #FFF5F7 0%, #FFE4EC 100%);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* スクリーン内容 */
+    .phone-status-bar {
+      height: 28px;
+      background: rgba(255, 245, 247, 0.9);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 16px 4px;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .phone-app-header {
+      background: white;
+      padding: 10px 14px 8px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 107, 157, 0.1);
+    }
+
+    .phone-app-logo {
+      font-size: 12px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .phone-profile-cards {
+      flex: 1;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: hidden;
+    }
+
+    .phone-profile-card {
+      background: white;
+      border-radius: 12px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(255, 107, 157, 0.1);
+    }
+
+    .phone-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .phone-profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .phone-profile-name {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .phone-profile-tag {
+      font-size: 9px;
+      color: var(--text-light);
+    }
+
+    .phone-match-btn {
+      font-size: 8px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+      padding: 3px 7px;
+      border-radius: 8px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .phone-ai-coach-card {
+      margin: 0 10px 10px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      border-radius: 12px;
+      padding: 8px 10px;
+      color: white;
+    }
+
+    .phone-coach-label {
+      font-size: 8px;
+      font-weight: 700;
+      opacity: 0.8;
+      margin-bottom: 3px;
+    }
+
+    .phone-coach-msg {
+      font-size: 9px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    /* バッジ装飾 */
+    .phone-badge {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      background: linear-gradient(135deg, var(--accent3), #FF6B9D);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 50px;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(255, 159, 67, 0.4);
+    }
+
+    /* =====================
+       セクション共通
+    ===================== */
+    section {
+      padding: 100px 40px;
+    }
+
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent1);
+      margin-bottom: 16px;
+    }
+
+    .section-label::before {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      border-radius: 2px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+    }
+
+    .section-title .gradient-text {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--text-mid);
+      line-height: 1.8;
+      max-width: 560px;
+    }
+
+    /* =====================
+       課題提起セクション
+    ===================== */
+    .problem {
+      background: white;
+    }
+
+    .problem-intro {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .problem-intro .section-label {
+      margin: 0 auto 16px;
+    }
+
+    .problem-intro .section-title {
+      max-width: 700px;
+      margin: 0 auto 20px;
+      text-align: center;
+    }
+
+    .problem-intro .section-desc {
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .problem-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+
+    .problem-card {
+      background: var(--bg);
+      border-radius: var(--border-radius);
+      padding: 32px 24px;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid rgba(255, 107, 157, 0.1);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .problem-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--card-shadow);
+    }
+
+    .problem-card::before {
+      content: attr(data-emoji);
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      font-size: 60px;
+      opacity: 0.1;
+    }
+
+    .problem-card-emoji {
+      font-size: 2.4rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .problem-card-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .problem-card-text {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      line-height: 1.7;
+    }
+
+    .problem-punchline {
+      background: linear-gradient(135deg, var(--accent1) 0%, var(--accent2) 100%);
+      border-radius: 24px;
+      padding: 48px;
+      text-align: center;
+      color: white;
+    }
+
+    .problem-punchline h3 {
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 900;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .problem-punchline p {
+      font-size: 1rem;
+      opacity: 0.9;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* =====================
+       ソリューションセクション
+    ===================== */
+    .solution {
+      background: var(--bg);
+    }
+
+    .solution-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .solution-header .section-label {
+      margin: 0 auto 16px;
+    }
+
+    .solution-header .section-title {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+
+    .solution-header .section-desc {
+      text-align: center;
+      margin: 0 auto;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+
+    /* ステップ間のコネクター */
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 40px;
+      left: calc(33.33% - 10px);
+      right: calc(33.33% - 10px);
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      border-radius: 2px;
+      z-index: 0;
+    }
+
+    .step-card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 36px 28px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.25s;
+    }
+
+    .step-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .step-number {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+      font-size: 1.6rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 6px 20px rgba(255, 45, 85, 0.35);
+    }
+
+    .step-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .step-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+    }
+
+    .step-desc {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      line-height: 1.7;
+    }
+
+    /* =====================
+       主要機能セクション
+    ===================== */
+    .features {
+      background: white;
+    }
+
+    .features-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .features-header .section-label {
+      margin: 0 auto 16px;
+    }
+
+    .features-header .section-title {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .feature-card {
+      border-radius: 24px;
+      padding: 36px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-card:nth-child(1) {
+      background: linear-gradient(145deg, #FFF0F5, #FFE3EE);
+      border: 2px solid rgba(255, 107, 157, 0.2);
+    }
+
+    .feature-card:nth-child(2) {
+      background: linear-gradient(145deg, #FFF5F0, #FFE8D6);
+      border: 2px solid rgba(255, 159, 67, 0.2);
+    }
+
+    .feature-card:nth-child(3) {
+      background: linear-gradient(145deg, #F0FFF4, #D6FFE8);
+      border: 2px solid rgba(168, 230, 207, 0.3);
+    }
+
+    .feature-card-icon-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+    }
+
+    .feature-card:nth-child(1) .feature-card-icon-wrap {
+      background: linear-gradient(135deg, #FFB3CF, #FF6B9D);
+    }
+
+    .feature-card:nth-child(2) .feature-card-icon-wrap {
+      background: linear-gradient(135deg, #FFCF9D, #FF9F43);
+    }
+
+    .feature-card:nth-child(3) .feature-card-icon-wrap {
+      background: linear-gradient(135deg, #A8E6CF, #4CAF82);
+    }
+
+    .feature-card-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 50px;
+      margin-bottom: 12px;
+    }
+
+    .feature-card:nth-child(1) .feature-card-tag {
+      background: rgba(255, 45, 85, 0.1);
+      color: var(--accent2);
+    }
+
+    .feature-card:nth-child(2) .feature-card-tag {
+      background: rgba(255, 159, 67, 0.15);
+      color: #E08000;
+    }
+
+    .feature-card:nth-child(3) .feature-card-tag {
+      background: rgba(76, 175, 130, 0.1);
+      color: #2E8B57;
+    }
+
+    .feature-card-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card-desc {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      line-height: 1.75;
+      margin-bottom: 20px;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .feature-list li {
+      font-size: 0.85rem;
+      color: var(--text-mid);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .feature-list li::before {
+      content: '✓';
+      font-weight: 900;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .feature-card:nth-child(1) .feature-list li::before { color: var(--accent1); }
+    .feature-card:nth-child(2) .feature-list li::before { color: var(--accent3); }
+    .feature-card:nth-child(3) .feature-list li::before { color: #4CAF82; }
+
+    /* =====================
+       料金プランセクション
+    ===================== */
+    .pricing {
+      background: var(--bg);
+    }
+
+    .pricing-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .pricing-header .section-label {
+      margin: 0 auto 16px;
+    }
+
+    .pricing-header .section-title {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+
+    .pricing-header .section-desc {
+      text-align: center;
+      margin: 0 auto;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .pricing-card {
+      border-radius: 28px;
+      padding: 40px 32px;
+      background: white;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .pricing-card.recommended {
+      background: linear-gradient(145deg, #2C1A2E, #3d2040);
+      color: white;
+      transform: translateY(-12px);
+      box-shadow: 0 30px 70px rgba(44, 26, 46, 0.45);
+    }
+
+    .pricing-card.recommended:hover {
+      transform: translateY(-18px);
+    }
+
+    .pricing-recommend-badge {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 50px;
+    }
+
+    .pricing-plan-name {
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-light);
+      margin-bottom: 12px;
+    }
+
+    .pricing-card.recommended .pricing-plan-name {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .pricing-price {
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .pricing-price .price-amount {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--text-dark);
+      letter-spacing: -0.04em;
+    }
+
+    .pricing-card.recommended .pricing-price .price-amount {
+      color: white;
+    }
+
+    .pricing-price .price-free {
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .pricing-price .price-unit {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-mid);
+    }
+
+    .pricing-card.recommended .pricing-price .price-unit {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .pricing-desc {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .pricing-card.recommended .pricing-desc {
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .pricing-divider {
+      height: 1px;
+      background: rgba(0, 0, 0, 0.08);
+      margin-bottom: 28px;
+    }
+
+    .pricing-card.recommended .pricing-divider {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .pricing-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .pricing-features li {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .pricing-card.recommended .pricing-features li {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .pricing-features li .check {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255, 107, 157, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--accent1);
+      flex-shrink: 0;
+      font-weight: 900;
+    }
+
+    .pricing-card.recommended .pricing-features li .check {
+      background: rgba(255, 107, 157, 0.25);
+      color: var(--accent1);
+    }
+
+    .pricing-features li .cross {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: #ccc;
+      flex-shrink: 0;
+    }
+
+    .pricing-btn {
+      display: block;
+      text-align: center;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .pricing-card:not(.recommended) .pricing-btn {
+      background: var(--bg);
+      color: var(--accent1);
+      border: 2px solid rgba(255, 107, 157, 0.3);
+    }
+
+    .pricing-card:not(.recommended) .pricing-btn:hover {
+      background: rgba(255, 107, 157, 0.08);
+    }
+
+    .pricing-card.recommended .pricing-btn {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+      box-shadow: 0 8px 24px rgba(255, 45, 85, 0.4);
+    }
+
+    .pricing-card.recommended .pricing-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(255, 45, 85, 0.5);
+    }
+
+    /* =====================
+       ユーザーの声セクション
+    ===================== */
+    .testimonials {
+      background: white;
+    }
+
+    .testimonials-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .testimonials-header .section-label {
+      margin: 0 auto 16px;
+    }
+
+    .testimonials-header .section-title {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+    }
+
+    .testimonial-card {
+      background: var(--bg);
+      border-radius: 24px;
+      padding: 36px;
+      position: relative;
+      border: 2px solid rgba(255, 107, 157, 0.1);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--card-shadow);
+    }
+
+    .testimonial-quote-mark {
+      font-size: 4rem;
+      line-height: 1;
+      color: rgba(255, 107, 157, 0.2);
+      font-family: Georgia, serif;
+      margin-bottom: -10px;
+    }
+
+    .testimonial-text {
+      font-size: 1rem;
+      color: var(--text-mid);
+      line-height: 1.8;
+      margin-bottom: 24px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .testimonial-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .testimonial-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 3px;
+    }
+
+    .testimonial-profile {
+      font-size: 0.82rem;
+      color: var(--text-light);
+    }
+
+    .testimonial-before-after {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .testimonial-tag {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 50px;
+    }
+
+    .tag-before {
+      background: rgba(100, 100, 100, 0.1);
+      color: #777;
+    }
+
+    .tag-after {
+      background: rgba(255, 107, 157, 0.12);
+      color: var(--accent1);
+    }
+
+    .testimonial-stars {
+      margin-top: 12px;
+      font-size: 1rem;
+      color: var(--accent3);
+      letter-spacing: 2px;
+    }
+
+    /* =====================
+       FAQセクション
+    ===================== */
+    .faq {
+      background: var(--bg);
+    }
+
+    .faq-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .faq-header .section-label {
+      margin: 0 auto 16px;
+    }
+
+    .faq-header .section-title {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+
+    .faq-list {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .faq-item {
+      background: white;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 107, 157, 0.08);
+      transition: box-shadow 0.25s;
+    }
+
+    .faq-item:hover {
+      box-shadow: var(--card-shadow);
+    }
+
+    .faq-question {
+      padding: 24px 28px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      cursor: pointer;
+    }
+
+    .faq-q-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .faq-question-text {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .faq-answer {
+      padding: 0 28px 24px 76px;
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      line-height: 1.8;
+    }
+
+    /* =====================
+       フッター / CTA
+    ===================== */
+    footer {
+      background: linear-gradient(160deg, #2C1A2E 0%, #1a0f1e 100%);
+      color: white;
+      padding: 100px 40px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    footer::before {
+      content: '💕';
+      position: absolute;
+      font-size: 200px;
+      opacity: 0.04;
+      top: 50%;
+      right: 5%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .footer-cta {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    .footer-cta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 107, 157, 0.15);
+      border: 1.5px solid rgba(255, 107, 157, 0.3);
+      color: var(--accent1);
+      padding: 8px 18px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 28px;
+    }
+
+    .footer-cta h2 {
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+
+    .footer-cta h2 .gradient-text {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .footer-cta p {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.65);
+      max-width: 480px;
+      margin: 0 auto 36px;
+      line-height: 1.8;
+    }
+
+    .footer-cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-footer-primary {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: white;
+      padding: 18px 44px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-decoration: none;
+      display: inline-block;
+      transition: transform 0.25s, box-shadow 0.25s;
+      box-shadow: 0 8px 28px rgba(255, 45, 85, 0.45);
+    }
+
+    .btn-footer-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 40px rgba(255, 45, 85, 0.6);
+    }
+
+    .btn-footer-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      padding: 18px 44px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-block;
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      transition: background 0.25s;
+    }
+
+    .btn-footer-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .footer-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: 40px;
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-logo {
+      font-size: 1.3rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.5);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent1);
+    }
+
+    .footer-copy {
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 0.82rem;
+    }
+
+    /* =====================
+       レスポンシブ対応
+    ===================== */
+    @media (max-width: 900px) {
+      nav { padding: 14px 20px; }
+
+      section { padding: 72px 20px; }
+
+      .hero { padding: 100px 20px 60px; }
+
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+        text-align: center;
+      }
+
+      .hero-badge { margin: 0 auto; }
+
+      .hero-actions { justify-content: center; }
+
+      .hero-stats { justify-content: center; }
+
+      .phone-mockup-container { order: -1; }
+
+      .problem-cards { grid-template-columns: 1fr; }
+
+      .steps-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .steps-grid::before { display: none; }
+
+      .features-grid { grid-template-columns: 1fr; }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 440px;
+        margin: 0 auto;
+      }
+
+      .pricing-card.recommended { transform: none; }
+
+      .pricing-card.recommended:hover { transform: translateY(-6px); }
+
+      .testimonials-grid { grid-template-columns: 1fr; }
+
+      .footer-bottom { flex-direction: column; text-align: center; }
+
+      footer::before { display: none; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ナビゲーション -->
+  <nav>
+    <div class="nav-logo">
+      MoteMatch
+      <span>AIモテコーチング × マッチング</span>
+    </div>
+    <a href="#pricing" class="nav-cta">無料で始める</a>
+  </nav>
+
+  <!-- =====================
+       HEROセクション
+  ===================== -->
+  <section class="hero">
+
+    <!-- 背景装飾テキスト -->
+    <div class="hero-bg-text">LOVE</div>
+
+    <!-- 背景グラデーション装飾 -->
+    <div class="hero-deco hero-deco-1"></div>
+    <div class="hero-deco hero-deco-2"></div>
+    <div class="hero-deco hero-deco-3"></div>
+
+    <!-- 浮かぶハート -->
+    <div class="floating-hearts">
+      <span class="heart-item">💕</span>
+      <span class="heart-item">🌸</span>
+      <span class="heart-item">✨</span>
+      <span class="heart-item">💖</span>
+      <span class="heart-item">🌷</span>
+      <span class="heart-item">💗</span>
+    </div>
+
+    <div class="hero-inner">
+
+      <!-- テキストエリア -->
+      <div class="hero-content">
+        <span class="hero-badge">AIモテコーチング、はじまる</span>
+
+        <h1 class="hero-headline">
+          <span class="highlight">モテよう。</span><br>
+          <span class="name-deco">三部</span>みたいに。
+        </h1>
+
+        <p class="hero-sub">
+          AIがあなたの<strong>モテポテンシャル</strong>を徹底診断。<br>
+          プロ級コーチングで、<strong>最短ルートで理想の恋愛</strong>へ。<br>
+          もう「どうせ俺なんて」は言わせない。
+        </p>
+
+        <div class="hero-actions">
+          <a href="#pricing" class="btn-primary">🌸 無料診断スタート</a>
+          <a href="#features" class="btn-secondary">詳しく見る</a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-num">12,000+</span>
+            <span class="hero-stat-label">登録ユーザー数</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-num">87%</span>
+            <span class="hero-stat-label">3ヶ月以内に進展</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-num">4.8⭐</span>
+            <span class="hero-stat-label">ユーザー満足度</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- スマホモック（CSSのみ） -->
+      <div class="phone-mockup-container">
+        <div class="phone-wrap">
+          <div class="phone-badge">✨ AIコーチング中</div>
+          <div class="phone-outer">
+            <div class="phone-screen">
+              <div class="phone-status-bar">
+                <span>9:41</span>
+                <span>📶 🔋</span>
+              </div>
+              <div class="phone-app-header">
+                <div class="phone-app-logo">💕 MoteMatch</div>
+              </div>
+              <div class="phone-profile-cards">
+                <div class="phone-profile-card">
+                  <div class="phone-avatar">😊</div>
+                  <div class="phone-profile-info">
+                    <div class="phone-profile-name">あかり 24歳</div>
+                    <div class="phone-profile-tag">🌸 読書・カフェ好き</div>
+                  </div>
+                  <div class="phone-match-btn">💕 Match</div>
+                </div>
+                <div class="phone-profile-card">
+                  <div class="phone-avatar">🌺</div>
+                  <div class="phone-profile-info">
+                    <div class="phone-profile-name">ゆき 26歳</div>
+                    <div class="phone-profile-tag">🎵 音楽・料理好き</div>
+                  </div>
+                  <div class="phone-match-btn">💕 Match</div>
+                </div>
+                <div class="phone-profile-card">
+                  <div class="phone-avatar">🦋</div>
+                  <div class="phone-profile-info">
+                    <div class="phone-profile-name">はるか 23歳</div>
+                    <div class="phone-profile-tag">✨ 旅行・アート好き</div>
+                  </div>
+                  <div class="phone-match-btn">💕 Match</div>
+                </div>
+              </div>
+              <div class="phone-ai-coach-card">
+                <div class="phone-coach-label">🤖 AIコーチからのアドバイス</div>
+                <div class="phone-coach-msg">プロフィール写真を変えると<br>マッチ率が2.3倍UP！</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =====================
+       課題提起セクション
+  ===================== -->
+  <section class="problem">
+    <div class="section-inner">
+      <div class="problem-intro">
+        <span class="section-label">こんな悩みありませんか？</span>
+        <h2 class="section-title">
+          マッチングアプリ、<br>
+          <span class="gradient-text">使ってるのにモテない</span>問題
+        </h2>
+        <p class="section-desc">
+          「プロフィール頑張ったのに反応なし」「メッセージの返信が来ない」<br>
+          「やり取りはできるのに会えない」…あなただけじゃないです。
+        </p>
+      </div>
+
+      <div class="problem-cards">
+        <div class="problem-card" data-emoji="😩">
+          <span class="problem-card-emoji">😩</span>
+          <h3 class="problem-card-title">マッチしても続かない</h3>
+          <p class="problem-card-text">
+            「いいね」は送れる、マッチもする。でも3往復でなぜか返信が止まる。
+            何が悪いのかまったくわからない。そんなループを繰り返す毎日…。
+          </p>
+        </div>
+        <div class="problem-card" data-emoji="📸">
+          <span class="problem-card-emoji">📸</span>
+          <h3 class="problem-card-title">プロフィールの作り方がわからん</h3>
+          <p class="problem-card-text">
+            「趣味はNetflixと寝ること」しか書けない。
+            写真どれがいいかわからなくて自撮り20枚撮ったけど全部微妙。
+            もうどうすれば…。
+          </p>
+        </div>
+        <div class="problem-card" data-emoji="🤔">
+          <span class="problem-card-emoji">🤔</span>
+          <h3 class="problem-card-title">そもそも自分の「モテ力」がわからない</h3>
+          <p class="problem-card-text">
+            友達には「なんで彼女いないの？」と言われる。
+            でも実際のところ、自分の何が強みで何が弱点かが不明すぎる。
+            勘でやってきた恋愛はもう限界。
+          </p>
+        </div>
+      </div>
+
+      <div class="problem-punchline">
+        <h3>そんなあなたに、<br>AIモテコーチが必要です💡</h3>
+        <p>
+          個人差はあれど「モテ」にはロジックがある。
+          AIがデータに基づいてあなたの弱点を発見し、
+          具体的な改善アクションを提示します。
+          もう感覚任せの恋愛は終わり。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================
+       ソリューションセクション
+  ===================== -->
+  <section class="solution">
+    <div class="section-inner">
+      <div class="solution-header">
+        <span class="section-label">3ステップで変わる</span>
+        <h2 class="section-title">
+          MoteMatchの<br>
+          <span class="gradient-text">シンプルな仕組み</span>
+        </h2>
+        <p class="section-desc">
+          難しいことは何もない。3つのステップで、
+          「なんかモテる人」へのルートが開ける。
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <span class="step-icon">🔍</span>
+          <h3 class="step-title">AIがあなたを丸ごと診断</h3>
+          <p class="step-desc">
+            写真・プロフィール・過去のメッセージ履歴をAIが解析。
+            「あなたの魅力偏差値」を算出して、改善ポイントを可視化。
+            まずは現実を直視するところから始めよう。
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <span class="step-icon">💪</span>
+          <h3 class="step-title">パーソナルコーチングで磨く</h3>
+          <p class="step-desc">
+            あなた専用のプログラムで、写真の撮り方・プロフィールの言葉選び・
+            返信の仕方をトレーニング。
+            24時間いつでもAIコーチが伴走してくれる。
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <span class="step-icon">💕</span>
+          <h3 class="step-title">AIが相性の良い相手をマッチング</h3>
+          <p class="step-desc">
+            鍛えた「モテ力」を持って、いよいよマッチングへ。
+            AIがあなたの価値観・コミュニケーションスタイルに
+            合った相手を精度高く提案する。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================
+       主要機能セクション
+  ===================== -->
+  <section class="features" id="features">
+    <div class="section-inner">
+      <div class="features-header">
+        <span class="section-label">主要機能</span>
+        <h2 class="section-title">
+          <span class="gradient-text">3つの核心機能</span>が<br>あなたのモテを変える
+        </h2>
+      </div>
+
+      <div class="features-grid">
+
+        <!-- 診断 -->
+        <div class="feature-card">
+          <div class="feature-card-icon-wrap">💡</div>
+          <span class="feature-card-tag">AI診断</span>
+          <h3 class="feature-card-title">モテポテンシャル診断</h3>
+          <p class="feature-card-desc">
+            AIが外見・プロフィール・コミュニケーション力を多角的に分析。
+            「あなたの強み」と「伸びしろポイント」を数値化して教えてくれる。
+          </p>
+          <ul class="feature-list">
+            <li>写真の印象スコアリング（笑顔・清潔感・ポーズ）</li>
+            <li>プロフィール文の魅力度測定</li>
+            <li>メッセージトーン分析（親しみやすさ・返答率）</li>
+            <li>ライバル比較レポート</li>
+          </ul>
+        </div>
+
+        <!-- コーチング -->
+        <div class="feature-card">
+          <div class="feature-card-icon-wrap">🎯</div>
+          <span class="feature-card-tag">AIコーチング</span>
+          <h3 class="feature-card-title">パーソナルモテコーチ</h3>
+          <p class="feature-card-desc">
+            あなた専任のAIコーチが、毎日の「モテ改善タスク」を提案。
+            プロフィール改善から会話術まで、実践的なトレーニングを継続サポート。
+          </p>
+          <ul class="feature-list">
+            <li>デイリーモテミッション配信</li>
+            <li>プロフィールリライト提案</li>
+            <li>返信テンプレート＆カスタマイズ</li>
+            <li>進捗レポート＆褒めフィードバック</li>
+          </ul>
+        </div>
+
+        <!-- マッチング -->
+        <div class="feature-card">
+          <div class="feature-card-icon-wrap">💚</div>
+          <span class="feature-card-tag">AIマッチング</span>
+          <h3 class="feature-card-title">相性スマートマッチ</h3>
+          <p class="feature-card-desc">
+            価値観・ライフスタイル・コミュニケーションスタイルを総合的に判断。
+            「会いたい気持ちが続く相手」をAIが賢くピックアップ。
+          </p>
+          <ul class="feature-list">
+            <li>価値観マトリクスによる相性スコア算出</li>
+            <li>会話スタイル相性チェック</li>
+            <li>デートプラン提案機能</li>
+            <li>フォロー通知＆リマインダー</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================
+       料金プランセクション
+  ===================== -->
+  <section class="pricing" id="pricing">
+    <div class="section-inner">
+      <div class="pricing-header">
+        <span class="section-label">料金プラン</span>
+        <h2 class="section-title">
+          あなたに合った<br>
+          <span class="gradient-text">プランを選ぼう</span>
+        </h2>
+        <p class="section-desc">
+          まずは無料からスタートOK。本気になったらいつでもアップグレード。
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+
+        <!-- Free -->
+        <div class="pricing-card">
+          <div class="pricing-plan-name">Free</div>
+          <div class="pricing-price">
+            <span class="price-free">無料</span>
+          </div>
+          <p class="pricing-desc">まずはお試し。基本機能でモテの第一歩を。</p>
+          <div class="pricing-divider"></div>
+          <ul class="pricing-features">
+            <li>
+              <span class="check">✓</span>
+              <span>モテポテンシャル診断（月1回）</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span>プロフィール改善ヒント（3項目）</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span>マッチング機能（1日5件）</span>
+            </li>
+            <li>
+              <span class="cross">✗</span>
+              <span style="color:#ccc;">AIコーチングセッション</span>
+            </li>
+            <li>
+              <span class="cross">✗</span>
+              <span style="color:#ccc;">返信テンプレート</span>
+            </li>
+            <li>
+              <span class="cross">✗</span>
+              <span style="color:#ccc;">相性スマートマッチ</span>
+            </li>
+          </ul>
+          <a href="#" class="pricing-btn">無料で始める</a>
+        </div>
+
+        <!-- Standard (推奨) -->
+        <div class="pricing-card recommended">
+          <span class="pricing-recommend-badge">🔥 人気No.1</span>
+          <div class="pricing-plan-name">Standard</div>
+          <div class="pricing-price">
+            <span class="price-amount" style="color:white;">¥1,480</span>
+            <span class="price-unit">/月</span>
+          </div>
+          <p class="pricing-desc">コーチング本格スタートにベストな選択。</p>
+          <div class="pricing-divider"></div>
+          <ul class="pricing-features">
+            <li>
+              <span class="check">✓</span>
+              <span>モテポテンシャル診断（無制限）</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span>プロフィール改善ヒント（全項目）</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span>マッチング機能（無制限）</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span>AIコーチングセッション（週3回）</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span>返信テンプレート（50種類）</span>
+            </li>
+            <li>
+              <span class="cross">✗</span>
+              <span style="color:rgba(255,255,255,0.4);">相性スマートマッチ（Premium）</span>
+            </li>
+          </ul>
+          <a href="#" class="pricing-btn">Standard を始める</a>
+        </div>
+
+        <!-- Premium -->
+        <div class="pricing-card">
+          <div class="pricing-plan-name">Premium</div>
+          <div class="pricing-price">
+            <span class="price-amount">¥3,980</span>
+            <span class="price-unit">/月</span>
+          </div>
+          <p class="pricing-desc">最速でモテたい本気勢のための全部入り。</p>
+          <div class="pricing-divider"></div>
+          <ul class="pricing-features">
+            <li>
+              <span class="check">✓</span>
+              <span>Standardの全機能</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span>AIコーチングセッション（無制限）</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span>相性スマートマッチ（全機能）</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span>返信テンプレート（200種類以上）</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span>デートプラン提案＆フォロー</span>
+            </li>
+            <li>
+              <span class="check">✓</span>
+              <span>専任モテコーチへの相談（月2回）</span>
+            </li>
+          </ul>
+          <a href="#" class="pricing-btn">Premium を始める</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================
+       ユーザーの声セクション
+  ===================== -->
+  <section class="testimonials">
+    <div class="section-inner">
+      <div class="testimonials-header">
+        <span class="section-label">ユーザーの声</span>
+        <h2 class="section-title">
+          実際に<span class="gradient-text">変わった</span>人たちの話
+        </h2>
+      </div>
+
+      <div class="testimonials-grid">
+
+        <!-- 三部 28歳 -->
+        <div class="testimonial-card">
+          <div class="testimonial-quote-mark">"</div>
+          <p class="testimonial-text">
+            正直、最初は「AIにモテを教わるとか…」って思ってました。
+            でも診断してもらったら「返信のテンポが速すぎて相手に圧を与えてる」って指摘が
+            めちゃくちゃ的確で。直した途端にマッチ率が倍になりました。
+            今は彼女と付き合って3ヶ月目です。ありがとうMoteMatch。
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">👨</div>
+            <div>
+              <div class="testimonial-name">三部 · 28歳 · 会社員</div>
+              <div class="testimonial-profile">📍 東京都 · Standard会員</div>
+            </div>
+          </div>
+          <div class="testimonial-before-after">
+            <span class="testimonial-tag tag-before">Before: マッチ率5%</span>
+            <span>→</span>
+            <span class="testimonial-tag tag-after">After: マッチ率23%</span>
+          </div>
+          <div class="testimonial-stars">★★★★★</div>
+        </div>
+
+        <!-- 敦史 31歳 -->
+        <div class="testimonial-card">
+          <div class="testimonial-quote-mark">"</div>
+          <p class="testimonial-text">
+            31歳で独身、周りは結婚し始めてるしで焦ってました。
+            AIコーチに「敦史さんのプロフ写真、笑顔が少ないと近寄りにくく見える」って
+            ズバっと言われて。勇気出して写真を撮り直したら本当に変わりました。
+            Premium使って2ヶ月で5人と会えました。信じてよかった！
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">🧑</div>
+            <div>
+              <div class="testimonial-name">敦史 · 31歳 · エンジニア</div>
+              <div class="testimonial-profile">📍 大阪府 · Premium会員</div>
+            </div>
+          </div>
+          <div class="testimonial-before-after">
+            <span class="testimonial-tag tag-before">Before: 会えない0ヶ月</span>
+            <span>→</span>
+            <span class="testimonial-tag tag-after">After: 2ヶ月で5人とデート</span>
+          </div>
+          <div class="testimonial-stars">★★★★★</div>
+        </div>
+
+        <!-- 追加の声 -->
+        <div class="testimonial-card">
+          <div class="testimonial-quote-mark">"</div>
+          <p class="testimonial-text">
+            返信テンプレートが最高すぎる。
+            「こういう時なんて返せばいい？」って悩む時間がゼロになりました。
+            でも全然テンプレっぽくならないんですよ、不思議なことに。
+            AIがちゃんと相手に合わせてアレンジしてくれるから。
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">😄</div>
+            <div>
+              <div class="testimonial-name">そうた · 25歳 · 学生</div>
+              <div class="testimonial-profile">📍 神奈川県 · Standard会員</div>
+            </div>
+          </div>
+          <div class="testimonial-before-after">
+            <span class="testimonial-tag tag-before">Before: 返信率30%</span>
+            <span>→</span>
+            <span class="testimonial-tag tag-after">After: 返信率72%</span>
+          </div>
+          <div class="testimonial-stars">★★★★★</div>
+        </div>
+
+        <!-- もう一つの声 -->
+        <div class="testimonial-card">
+          <div class="testimonial-quote-mark">"</div>
+          <p class="testimonial-text">
+            友達に「モテたいならこれ使え」って勧められて半信半疑で始めたんですが、
+            診断で「あなたの魅力偏差値は68、特に知性・安定感が高評価」って出て
+            ちょっと泣きそうになりました笑。自信ついたら不思議とうまくいくんですよね。
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">🙂</div>
+            <div>
+              <div class="testimonial-name">けんた · 29歳 · 公務員</div>
+              <div class="testimonial-profile">📍 福岡県 · Premium会員</div>
+            </div>
+          </div>
+          <div class="testimonial-before-after">
+            <span class="testimonial-tag tag-before">Before: 自信なし</span>
+            <span>→</span>
+            <span class="testimonial-tag tag-after">After: 彼女できました💕</span>
+          </div>
+          <div class="testimonial-stars">★★★★★</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================
+       FAQセクション
+  ===================== -->
+  <section class="faq">
+    <div class="section-inner">
+      <div class="faq-header">
+        <span class="section-label">よくある質問</span>
+        <h2 class="section-title">
+          気になることに<br>
+          <span class="gradient-text">答えます</span>
+        </h2>
+      </div>
+
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <div class="faq-q-icon">Q</div>
+            <p class="faq-question-text">「三部みたいに」って誰ですか？</p>
+          </div>
+          <p class="faq-answer">
+            三部（みつべ）は、MoteMatchを使って3ヶ月でマッチ率を5倍にした実在ユーザーです。
+            彼のストーリーがSNSで話題になり、「三部みたいにモテたい」がスラングとして広まりました。
+            その名を冠した最高のエールを、あなたにも届けたいと思っています。
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <div class="faq-q-icon">Q</div>
+            <p class="faq-question-text">AIコーチは本当に効果があるんですか？</p>
+          </div>
+          <p class="faq-answer">
+            はい。独自に開発したモテ分析AIは、10万件以上のマッチングデータを学習しています。
+            「何が刺さるか」「何が引かせるか」をデータで把握しているため、
+            経験則ではなく統計的根拠に基づいたアドバイスが可能です。
+            ただし魔法ではありません。実行することが大切です。
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <div class="faq-q-icon">Q</div>
+            <p class="faq-question-text">無料プランでどこまで使えますか？</p>
+          </div>
+          <p class="faq-answer">
+            無料プランでは「モテポテンシャル診断（月1回）」「プロフィール改善ヒント（3項目）」
+            「マッチング機能（1日5件まで）」が使えます。
+            まずは診断を受けて、自分の現在地を知るところから始めてみてください。
+            満足いただけたらStandardへのアップグレードをお勧めします。
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <div class="faq-q-icon">Q</div>
+            <p class="faq-question-text">個人情報やメッセージ履歴は安全ですか？</p>
+          </div>
+          <p class="faq-answer">
+            すべてのデータは暗号化して保管し、第三者への販売や提供は一切行いません。
+            メッセージ履歴は診断・改善提案の目的のみに使用し、
+            AIの学習データに使用する際は完全に匿名化します。
+            プライバシーポリシーの詳細はフッターよりご確認ください。
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <div class="faq-q-icon">Q</div>
+            <p class="faq-question-text">いつでも解約できますか？</p>
+          </div>
+          <p class="faq-answer">
+            はい、いつでも解約可能です。解約はアプリの設定画面から1分で完了します。
+            解約後は次の更新日以降、課金は発生しません。
+            長期縛りや解約金は一切ありません。安心してお試しください。
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================
+       フッター / CTA
+  ===================== -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-cta">
+        <div class="footer-cta-badge">🌸 今すぐ無料で始められます</div>
+        <h2>
+          さあ、<span class="gradient-text">変わろう！</span>
+        </h2>
+        <p>
+          あなたのモテポテンシャルは、まだ眠ったままです。
+          診断は無料。後悔するとしたら「始めなかった自分」だけです。
+        </p>
+        <div class="footer-cta-buttons">
+          <a href="#" class="btn-footer-primary">🚀 無料診断をスタートする</a>
+          <a href="#features" class="btn-footer-secondary">機能を見る</a>
+        </div>
+      </div>
+
+      <div class="footer-divider"></div>
+
+      <div class="footer-bottom">
+        <div class="footer-logo">💕 MoteMatch</div>
+        <ul class="footer-links">
+          <li><a href="#">利用規約</a></li>
+          <li><a href="#">プライバシーポリシー</a></li>
+          <li><a href="#">特定商取引法</a></li>
+          <li><a href="#">お問い合わせ</a></li>
+        </ul>
+        <p class="footer-copy">© 2026 MoteMatch Inc. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
