@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Agent Dispatch Mock App</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(15, 23, 42, 0.88);
+      --card: rgba(255, 255, 255, 0.08);
+      --line: rgba(255, 255, 255, 0.12);
+      --text: #e5eef8;
+      --muted: #94a3b8;
+      --blue: #60a5fa;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #fb7185;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(96,165,250,.18), transparent 25%),
+        radial-gradient(circle at 80% 10%, rgba(34,197,94,.12), transparent 20%),
+        linear-gradient(135deg, #020617 0%, #0b1020 45%, #101c34 100%);
+      font-family: Inter, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      color: var(--text);
+      padding: 40px 16px;
+    }
+    .phone {
+      width: 390px;
+      height: 844px;
+      background: linear-gradient(180deg, #111827 0%, #030712 100%);
+      border-radius: 52px;
+      border: 10px solid #0f172a;
+      box-shadow: 0 30px 80px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.06);
+      position: relative;
+      overflow: hidden;
+    }
+    .island {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 34px;
+      border-radius: 18px;
+      background: #000;
+      z-index: 10;
+    }
+    .screen {
+      position: absolute;
+      inset: 0;
+      padding: 56px 18px 100px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 85% 0%, rgba(96,165,250,.13), transparent 25%),
+        linear-gradient(180deg, rgba(15,23,42,.98), rgba(2,6,23,1));
+    }
+    .statusbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #cbd5e1;
+      font-size: 12px;
+      margin-bottom: 18px;
+      letter-spacing: .04em;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 12px 30px rgba(0,0,0,.24);
+    }
+    .hero {
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, rgba(96,165,250,.2), rgba(34,197,94,.1));
+    }
+    .eyebrow {
+      color: #93c5fd;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: 24px;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .sub {
+      color: #cbd5e1;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .chips {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      font-size: 11px;
+      color: #dbeafe;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .metric {
+      padding: 14px;
+      border-radius: 20px;
+      background: var(--card);
+      border: 1px solid var(--line);
+    }
+    .metric .label { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+    .metric .value { font-size: 22px; font-weight: 800; }
+    .metric .delta { font-size: 11px; margin-top: 6px; color: #86efac; }
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 16px 0 10px;
+      font-size: 13px;
+      color: #f8fafc;
+      font-weight: 700;
+    }
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      background: linear-gradient(135deg, rgba(96,165,250,.25), rgba(34,197,94,.2));
+    }
+    .meta { flex: 1; }
+    .meta strong { display: block; font-size: 13px; margin-bottom: 4px; }
+    .meta span { display: block; font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .badge {
+      padding: 6px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .online { background: rgba(34,197,94,.16); color: #86efac; }
+    .warn { background: rgba(245,158,11,.16); color: #fcd34d; }
+    .hot { background: rgba(251,113,133,.16); color: #fda4af; }
+    .screen-page { display: none; height: 100%; overflow-y: auto; padding-bottom: 22px; }
+    .screen-page.active { display: block; }
+    .bar {
+      height: 9px;
+      background: rgba(255,255,255,.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--green)); }
+    .timeline {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .timeline .row {
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+    }
+    .timeline .row strong { font-size: 12px; display: block; margin-bottom: 4px; }
+    .timeline .row span { color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .tabs {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      background: rgba(15,23,42,.92);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 24px;
+      padding: 10px;
+      backdrop-filter: blur(20px);
+      z-index: 20;
+    }
+    .tab {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 10px;
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+      padding: 8px 4px;
+      border-radius: 16px;
+      cursor: pointer;
+    }
+    .tab.active {
+      background: rgba(96,165,250,.12);
+      color: #dbeafe;
+    }
+    .mini {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .mini-card {
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      min-height: 76px;
+    }
+    .mini-card strong { display:block; font-size: 14px; margin-bottom: 6px; }
+    .mini-card span { font-size: 10px; color: var(--muted); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="island"></div>
+    <div class="screen">
+      <div class="screen-page active" id="page-home">
+        <div class="statusbar"><span>9:41</span><span>AI Dispatch Console</span><span>5G 100%</span></div>
+        <div class="panel hero">
+          <div class="eyebrow">Workforce as a Service</div>
+          <h1>AIエージェントを
+            必要な部署へ即配属</h1>
+          <p class="sub">営業、CS、採用、総務、調査。人を採る前に、まず1体。現場のタスクを止めないためのAI派遣ダッシュボード。</p>
+          <div class="chips">
+            <div class="chip">最短即日導入</div>
+            <div class="chip">24時間稼働</div>
+            <div class="chip">役割特化</div>
+            <div class="chip">月額運用型</div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="metric">
+            <div class="label">稼働中エージェント</div>
+            <div class="value">12体</div>
+            <div class="delta">+3 今週配属</div>
+          </div>
+          <div class="metric">
+            <div class="label">削減工数</div>
+            <div class="value">286h</div>
+            <div class="delta">前月比 148%</div>
+          </div>
+        </div>
+
+        <div class="section-title"><span>本日の配属状況</span><span style="color:#93c5fd">Live</span></div>
+        <div class="list">
+          <div class="item">
+            <div class="icon">💼</div>
+            <div class="meta"><strong>営業アシスタント Ryoko-Sales</strong><span>見込み顧客調査 / 初回文面作成 / 日程調整を自動実行</span></div>
+            <div class="badge online">稼働中</div>
+          </div>
+          <div class="item">
+            <div class="icon">🎧</div>
+            <div class="meta"><strong>CS一次対応 Agent</strong><span>問い合わせ分類 / FAQ返信 / 緊急案件エスカレーション</span></div>
+            <div class="badge warn">要確認</div>
+          </div>
+          <div class="item">
+            <div class="icon">🧠</div>
+            <div class="meta"><strong>調査担当 Insight</strong><span>競合調査 / 市場スキャン / 週次レポート自動生成</span></div>
+            <div class="badge online">正常</div>
+          </div>
+        </div>
+
+        <div class="section-title"><span>KPIサマリー</span><span style="color:#86efac">更新済み</span></div>
+        <div class="panel">
+          <div class="label">問い合わせ一次対応完了率</div>
+          <div class="bar"><div class="fill" style="width:92%"></div></div>
+          <div class="label" style="margin-top:12px">商談前調査の自動化率</div>
+          <div class="bar"><div class="fill" style="width:84%"></div></div>
+          <div class="label" style="margin-top:12px">採用広報タスク消化率</div>
+          <div class="bar"><div class="fill" style="width:76%"></div></div>
+        </div>
+      </div>
+
+      <div class="screen-page" id="page-agents">
+        <div class="statusbar"><span>9:41</span><span>Assigned Agents</span><span>12 Active</span></div>
+        <div class="panel">
+          <div class="eyebrow">Agent Pool</div>
+          <h2 style="font-size:22px; margin-bottom:8px;">配属エージェント一覧</h2>
+          <p class="sub">役割ごとにKPI、接続ツール、報告頻度を設定。必要に応じて増員・停止・再設計できる。</p>
+        </div>
+
+        <div class="timeline">
+          <div class="row"><strong>営業支援チーム</strong><span>Ryoko-Sales / Lead Finder / Proposal Draft の3体でアポ獲得率を最大化。</span></div>
+          <div class="row"><strong>CSオペレーション</strong><span>一次応答とタグ付けをAI化し、人間は高難度案件だけに集中。</span></div>
+          <div class="row"><strong>採用広報ユニット</strong><span>求人票改善、候補者連絡、面談前情報整理を継続実行。</span></div>
+          <div class="row"><strong>バックオフィス補助</strong><span>議事録、日報、週報、数値集計をテンプレート運用で標準化。</span></div>
+        </div>
+
+        <div class="mini">
+          <div class="mini-card"><strong>4h</strong><span>平均立ち上がり時間</span></div>
+          <div class="mini-card"><strong>97%</strong><span>定型タスク自動処理率</span></div>
+          <div class="mini-card"><strong>24/7</strong><span>夜間休日も稼働</span></div>
+        </div>
+      </div>
+
+      <div class="screen-page" id="page-ops">
+        <div class="statusbar"><span>9:41</span><span>Operations Board</span><span>Stable</span></div>
+        <div class="panel">
+          <div class="eyebrow">Ops Center</div>
+          <h2 style="font-size:22px; margin-bottom:8px;">配属管理ボード</h2>
+          <p class="sub">どの部署に、どの役割のAIを、どれだけ配置しているかを横断管理。未割当業務の可視化も可能。</p>
+        </div>
+
+        <div class="section-title"><span>部署別アサイン率</span><span style="color:#fcd34d">Capacity</span></div>
+        <div class="panel">
+          <div class="label">営業部</div><div class="bar"><div class="fill" style="width:88%"></div></div>
+          <div class="label" style="margin-top:12px">カスタマーサクセス</div><div class="bar"><div class="fill" style="width:74%"></div></div>
+          <div class="label" style="margin-top:12px">採用/人事</div><div class="bar"><div class="fill" style="width:68%"></div></div>
+          <div class="label" style="margin-top:12px">経営企画/調査</div><div class="bar"><div class="fill" style="width:82%"></div></div>
+        </div>
+
+        <div class="section-title"><span>未割当タスク</span><span style="color:#fda4af">Hot</span></div>
+        <div class="list">
+          <div class="item"><div class="icon">📄</div><div class="meta"><strong>提案書一次ドラフト作成</strong><span>営業部からの依頼。毎週6件、担当不足。</span></div><div class="badge hot">高優先</div></div>
+          <div class="item"><div class="icon">🕘</div><div class="meta"><strong>夜間問い合わせ一次応答</strong><span>営業時間外の反応遅延が発生。専任AIで改善余地大。</span></div><div class="badge warn">追加候補</div></div>
+        </div>
+      </div>
+
+      <div class="screen-page" id="page-settings">
+        <div class="statusbar"><span>9:41</span><span>Settings</span><span>Admin</span></div>
+        <div class="panel">
+          <div class="eyebrow">Account</div>
+          <h2 style="font-size:22px; margin-bottom:8px;">導入設定</h2>
+          <p class="sub">接続ツール、報告頻度、アラート、KPI、稼働時間帯を調整。会社ごとにカスタム設計できる。</p>
+        </div>
+
+        <div class="list" style="margin-top:14px;">
+          <div class="item"><div class="icon">🔗</div><div class="meta"><strong>接続済みツール</strong><span>Slack / Gmail / HubSpot / Google Drive / Notion</span></div><div class="badge online">5連携</div></div>
+          <div class="item"><div class="icon">📊</div><div class="meta"><strong>週次レポート</strong><span>毎週月曜 8:00 に経営陣向けサマリーを自動送信</span></div><div class="badge online">有効</div></div>
+          <div class="item"><div class="icon">🛡️</div><div class="meta"><strong>承認フロー</strong><span>外部送信系タスクは人間承認を必須化</span></div><div class="badge online">安全</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-target="page-home"><span>🏠</span><span>Home</span></button>
+      <button class="tab" data-target="page-agents"><span>🤖</span><span>Agents</span></button>
+      <button class="tab" data-target="page-ops"><span>📋</span><span>Assign</span></button>
+      <button class="tab" data-target="page-settings"><span>⚙️</span><span>Settings</span></button>
+    </div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const pages = document.querySelectorAll('.screen-page');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        pages.forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.target).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Agent Dispatch | 人とAIの実行力を、ひとつの指令塔へ</title>
+  <meta name="description" content="問い合わせ対応、調査、提案作成、連携実行まで。AI Agent Dispatchは複数のAIエージェントを業務フローに沿って指揮・配車し、現場の生産性を押し上げます。" />
+  <style>
+    :root {
+      --bg: #0A0F1F;
+      --bg-soft: #101933;
+      --panel: rgba(16, 25, 51, 0.78);
+      --panel-strong: rgba(14, 21, 43, 0.96);
+      --line: rgba(94, 231, 255, 0.18);
+      --line-strong: rgba(94, 231, 255, 0.42);
+      --text: #f4f8ff;
+      --muted: #9ab0cf;
+      --accent: #5EE7FF;
+      --accent-2: #7d7bff;
+      --success: #8dffb0;
+      --warning: #ffd86b;
+      --danger: #ff8da1;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --radius-xl: 36px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --container: min(1180px, calc(100vw - 40px));
+      --grid: linear-gradient(rgba(94, 231, 255, 0.08) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(94, 231, 255, 0.08) 1px, transparent 1px);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Noto Sans JP", "Hiragino Sans", sans-serif;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(94, 231, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(125, 123, 255, 0.14), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(94, 231, 255, 0.09), transparent 34%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      letter-spacing: 0.02em;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: var(--grid);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.42), transparent 88%);
+      pointer-events: none;
+      opacity: 0.34;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .page-shell {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(28px);
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .blob.one {
+      width: 320px;
+      height: 320px;
+      top: 140px;
+      left: -120px;
+      background: radial-gradient(circle, rgba(94, 231, 255, 0.34), transparent 68%);
+    }
+
+    .blob.two {
+      width: 360px;
+      height: 360px;
+      top: 720px;
+      right: -120px;
+      background: radial-gradient(circle, rgba(125, 123, 255, 0.28), transparent 70%);
+    }
+
+    .blob.three {
+      width: 300px;
+      height: 300px;
+      bottom: 260px;
+      left: 18%;
+      background: radial-gradient(circle, rgba(141, 255, 176, 0.2), transparent 72%);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: rgba(10, 15, 31, 0.72);
+      border-bottom: 1px solid rgba(94, 231, 255, 0.12);
+    }
+
+    .topbar-inner {
+      width: var(--container);
+      margin: 0 auto;
+      padding: 18px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.95rem;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      position: relative;
+      background: linear-gradient(135deg, rgba(94, 231, 255, 0.18), rgba(125, 123, 255, 0.16));
+      border: 1px solid rgba(94, 231, 255, 0.24);
+      box-shadow: inset 0 0 24px rgba(94, 231, 255, 0.18);
+      overflow: hidden;
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), rgba(125, 123, 255, 0.9));
+    }
+
+    .brand-mark::before {
+      width: 26px;
+      height: 8px;
+      top: 11px;
+      left: 8px;
+      transform: rotate(-18deg);
+    }
+
+    .brand-mark::after {
+      width: 18px;
+      height: 8px;
+      bottom: 11px;
+      right: 8px;
+      transform: rotate(-18deg);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .nav a {
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .nav a:hover {
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), #78f3ff);
+      color: #06101d;
+      font-weight: 800;
+      box-shadow: 0 12px 40px rgba(94, 231, 255, 0.22);
+    }
+
+    .hero {
+      width: var(--container);
+      margin: 0 auto;
+      padding: 84px 0 72px;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 42px;
+      align-items: center;
+      min-height: calc(100vh - 88px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(94, 231, 255, 0.08);
+      border: 1px solid rgba(94, 231, 255, 0.18);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(94, 231, 255, 0.8);
+    }
+
+    .hero-copy h1 {
+      margin: 22px 0 20px;
+      font-size: clamp(2.8rem, 5vw, 5.6rem);
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+      font-weight: 900;
+    }
+
+    .hero-copy h1 .accent-line {
+      color: var(--accent);
+      text-shadow: 0 0 24px rgba(94, 231, 255, 0.34);
+    }
+
+    .hero-copy p {
+      max-width: 640px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 32px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.98rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #79f3ff);
+      color: #05111d;
+      box-shadow: 0 16px 42px rgba(94, 231, 255, 0.26);
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(94, 231, 255, 0.24);
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text);
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 34px;
+    }
+
+    .metric {
+      padding: 18px 18px 20px;
+      border-radius: var(--radius-md);
+      background: rgba(16, 25, 51, 0.5);
+      border: 1px solid rgba(94, 231, 255, 0.14);
+      backdrop-filter: blur(12px);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.45rem;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 700px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .orbital-card {
+      position: absolute;
+      border-radius: 22px;
+      padding: 16px 18px;
+      background: rgba(14, 21, 43, 0.88);
+      border: 1px solid rgba(94, 231, 255, 0.14);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      width: 210px;
+    }
+
+    .orbital-card small {
+      display: block;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .orbital-card strong {
+      display: block;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .orbital-card span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    .orbital-card.a {
+      top: 48px;
+      left: 6px;
+      transform: rotate(-7deg);
+    }
+
+    .orbital-card.b {
+      top: 116px;
+      right: 6px;
+      transform: rotate(7deg);
+    }
+
+    .orbital-card.c {
+      bottom: 96px;
+      left: 16px;
+      transform: rotate(-5deg);
+    }
+
+    .orbital-card.d {
+      bottom: 34px;
+      right: 12px;
+      transform: rotate(5deg);
+    }
+
+    .phone-wrap {
+      position: relative;
+      width: 360px;
+      padding: 22px;
+      border-radius: 42px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 32px 100px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(94, 231, 255, 0.12);
+      transform: rotate(-8deg);
+    }
+
+    .phone-wrap::before {
+      content: "";
+      position: absolute;
+      inset: -10px;
+      border-radius: 48px;
+      border: 1px solid rgba(94, 231, 255, 0.14);
+      pointer-events: none;
+    }
+
+    .phone {
+      border-radius: 30px;
+      padding: 16px;
+      background: linear-gradient(180deg, #060b18, #0e1730);
+      border: 1px solid rgba(94, 231, 255, 0.16);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .phone-notch {
+      width: 38%;
+      height: 24px;
+      border-radius: 0 0 18px 18px;
+      background: #03060f;
+      margin: -16px auto 14px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .phone-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-bottom: 14px;
+      padding: 0 2px;
+    }
+
+    .phone-hero {
+      padding: 18px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(94, 231, 255, 0.16), rgba(125, 123, 255, 0.14));
+      border: 1px solid rgba(94, 231, 255, 0.18);
+    }
+
+    .phone-hero .mini-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      font-size: 0.72rem;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .phone-hero h2 {
+      margin: 16px 0 10px;
+      font-size: 1.45rem;
+      line-height: 1.15;
+      letter-spacing: -0.04em;
+    }
+
+    .phone-hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.65;
+    }
+
+    .phone-stream {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .stream-item {
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(94, 231, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .stream-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .stream-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(94, 231, 255, 0.26), rgba(125, 123, 255, 0.22));
+      border: 1px solid rgba(94, 231, 255, 0.18);
+      flex-shrink: 0;
+    }
+
+    .stream-copy strong,
+    .stream-copy span {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stream-copy strong {
+      font-size: 0.88rem;
+    }
+
+    .stream-copy span {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .stream-state {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--success);
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(141, 255, 176, 0.08);
+      border: 1px solid rgba(141, 255, 176, 0.16);
+      flex-shrink: 0;
+    }
+
+    .section {
+      width: var(--container);
+      margin: 0 auto;
+      padding: 90px 0;
+      position: relative;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 24px;
+      margin-bottom: 38px;
+    }
+
+    .section-header h2 {
+      margin: 16px 0 0;
+      font-size: clamp(2rem, 3vw, 3.4rem);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+    }
+
+    .section-header p {
+      margin: 0;
+      max-width: 560px;
+      color: var(--muted);
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .problem-card,
+    .timeline-card,
+    .feature-card,
+    .pricing-card,
+    .testimonial,
+    .faq-item,
+    .cta-panel,
+    .solution-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .problem-card {
+      padding: 34px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .problem-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -80px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 141, 161, 0.12), transparent 68%);
+    }
+
+    .problem-list {
+      display: grid;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .problem-item {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .problem-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .problem-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: var(--danger);
+      background: rgba(255, 141, 161, 0.08);
+      border: 1px solid rgba(255, 141, 161, 0.18);
+    }
+
+    .problem-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1rem;
+    }
+
+    .problem-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .timeline-card {
+      padding: 28px;
+      display: grid;
+      align-content: start;
+      gap: 18px;
+    }
+
+    .timeline-card h3,
+    .solution-card h3,
+    .pricing-card h3,
+    .cta-panel h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      letter-spacing: -0.03em;
+    }
+
+    .timeline-line {
+      position: relative;
+      padding-left: 28px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .timeline-line::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: linear-gradient(to bottom, rgba(94, 231, 255, 0.42), rgba(94, 231, 255, 0.04));
+    }
+
+    .timeline-step {
+      position: relative;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: -24px;
+      top: 8px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 20px rgba(94, 231, 255, 0.54);
+    }
+
+    .timeline-step strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .timeline-step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .solution-layout {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .solution-card {
+      padding: 32px;
+    }
+
+    .solution-card p {
+      margin: 12px 0 0;
+      color: var(--muted);
+    }
+
+    .solution-points {
+      display: grid;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .solution-point {
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(94, 231, 255, 0.12);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .solution-point strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .solution-point span {
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+
+    .dispatch-board {
+      padding: 28px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(14, 21, 43, 0.98), rgba(10, 15, 31, 0.98));
+      border: 1px solid rgba(94, 231, 255, 0.16);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dispatch-board::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(94, 231, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(rgba(94, 231, 255, 0.08) 1px, transparent 1px);
+      background-size: 22px 22px;
+      opacity: 0.28;
+      pointer-events: none;
+    }
+
+    .board-header,
+    .board-footer {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .board-header {
+      margin-bottom: 20px;
+    }
+
+    .board-header strong {
+      font-size: 1.1rem;
+    }
+
+    .board-header span,
+    .board-footer span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .status-pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--accent);
+      border: 1px solid rgba(94, 231, 255, 0.18);
+      background: rgba(94, 231, 255, 0.06);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .board-columns {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .board-column {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(94, 231, 255, 0.1);
+      min-height: 320px;
+    }
+
+    .board-column h4 {
+      margin: 0 0 14px;
+      font-size: 0.92rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .task-card {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(10, 15, 31, 0.82);
+      border: 1px solid rgba(94, 231, 255, 0.12);
+      margin-bottom: 12px;
+    }
+
+    .task-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .task-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .task-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(94, 231, 255, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(94, 231, 255, 0.14);
+    }
+
+    .task-card strong {
+      display: block;
+      font-size: 0.96rem;
+      margin-bottom: 6px;
+    }
+
+    .task-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.83rem;
+      line-height: 1.6;
+    }
+
+    .task-progress {
+      margin-top: 12px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    .task-progress span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+      min-height: 100%;
+    }
+
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(94, 231, 255, 0.05), transparent 40%);
+      pointer-events: none;
+    }
+
+    .feature-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(94, 231, 255, 0.18);
+      background: linear-gradient(135deg, rgba(94, 231, 255, 0.18), rgba(125, 123, 255, 0.12));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-icon::before,
+    .feature-icon::after {
+      content: "";
+      position: absolute;
+      background: rgba(255, 255, 255, 0.78);
+      border-radius: 999px;
+    }
+
+    .feature-icon.orbit::before {
+      width: 28px;
+      height: 4px;
+      top: 27px;
+      left: 15px;
+    }
+
+    .feature-icon.orbit::after {
+      width: 10px;
+      height: 10px;
+      top: 16px;
+      right: 14px;
+    }
+
+    .feature-icon.logic::before {
+      width: 10px;
+      height: 10px;
+      top: 14px;
+      left: 14px;
+      box-shadow: 20px 0 0 rgba(255, 255, 255, 0.78), 10px 20px 0 rgba(255, 255, 255, 0.78);
+    }
+
+    .feature-icon.logic::after {
+      width: 26px;
+      height: 3px;
+      top: 22px;
+      left: 16px;
+      transform: rotate(35deg);
+      box-shadow: 0 12px 0 rgba(255, 255, 255, 0.78);
+    }
+
+    .feature-icon.flow::before {
+      width: 26px;
+      height: 4px;
+      top: 18px;
+      left: 16px;
+      box-shadow: 0 14px 0 rgba(255, 255, 255, 0.78);
+    }
+
+    .feature-icon.flow::after {
+      width: 12px;
+      height: 12px;
+      top: 14px;
+      right: 12px;
+      box-shadow: -20px 14px 0 rgba(255, 255, 255, 0.78);
+    }
+
+    .feature-card h3 {
+      margin: 0 0 12px;
+      font-size: 1.35rem;
+      letter-spacing: -0.03em;
+    }
+
+    .feature-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .feature-list {
+      margin: 20px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: start;
+      gap: 10px;
+      color: #d7e5ff;
+      font-size: 0.9rem;
+    }
+
+    .feature-list li::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 9px;
+      box-shadow: 0 0 14px rgba(94, 231, 255, 0.52);
+      flex-shrink: 0;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .pricing-card {
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pricing-card.popular {
+      transform: translateY(-14px);
+      border-color: var(--line-strong);
+      box-shadow: 0 30px 90px rgba(94, 231, 255, 0.12);
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(94, 231, 255, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(94, 231, 255, 0.18);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .pricing-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .pricing-price {
+      display: flex;
+      align-items: end;
+      gap: 8px;
+      margin: 18px 0 12px;
+    }
+
+    .pricing-price strong {
+      font-size: clamp(2.2rem, 4vw, 3.5rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+
+    .pricing-price span {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 5px;
+    }
+
+    .pricing-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .pricing-list {
+      list-style: none;
+      padding: 0;
+      margin: 22px 0 28px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .pricing-list li {
+      display: flex;
+      gap: 10px;
+      align-items: start;
+      font-size: 0.92rem;
+      color: #deebff;
+    }
+
+    .pricing-list li::before {
+      content: "";
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      margin-top: 4px;
+      background: radial-gradient(circle at 30% 30%, #ffffff, var(--accent));
+      box-shadow: 0 0 12px rgba(94, 231, 255, 0.42);
+      flex-shrink: 0;
+    }
+
+    .pricing-note {
+      color: var(--muted);
+      font-size: 0.84rem;
+      margin-top: 14px;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .testimonial {
+      padding: 28px;
+      position: relative;
+    }
+
+    .quote-mark {
+      font-size: 3.8rem;
+      line-height: 1;
+      color: rgba(94, 231, 255, 0.18);
+      position: absolute;
+      top: 14px;
+      right: 20px;
+      font-weight: 900;
+    }
+
+    .testimonial p {
+      margin: 0 0 22px;
+      color: #e3eeff;
+      font-size: 1rem;
+    }
+
+    .person {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(94, 231, 255, 0.28), rgba(125, 123, 255, 0.24));
+      border: 1px solid rgba(94, 231, 255, 0.16);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .person strong {
+      display: block;
+      font-size: 0.98rem;
+    }
+
+    .person span {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .faq-item {
+      padding: 24px;
+    }
+
+    .faq-item h3 {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    .faq-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .final-cta {
+      padding-top: 30px;
+      padding-bottom: 120px;
+    }
+
+    .cta-panel {
+      padding: 38px;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 26px;
+      align-items: center;
+    }
+
+    .cta-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(94, 231, 255, 0.08), transparent 40%, rgba(125, 123, 255, 0.08));
+      pointer-events: none;
+    }
+
+    .cta-copy,
+    .cta-side {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-copy p {
+      margin: 14px 0 0;
+      color: var(--muted);
+      max-width: 620px;
+    }
+
+    .cta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .cta-side {
+      display: grid;
+      gap: 14px;
+    }
+
+    .mini-stat {
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(94, 231, 255, 0.12);
+    }
+
+    .mini-stat strong {
+      display: block;
+      font-size: 1.35rem;
+      margin-bottom: 4px;
+    }
+
+    .mini-stat span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .footer {
+      width: var(--container);
+      margin: 0 auto;
+      padding: 0 0 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      color: var(--muted);
+      border-top: 1px solid rgba(94, 231, 255, 0.12);
+    }
+
+    .footer small {
+      display: block;
+      padding-top: 26px;
+      font-size: 0.84rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 18px;
+      padding-top: 26px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 1080px) {
+      .hero,
+      .problem-grid,
+      .solution-layout,
+      .cta-panel,
+      .pricing-grid,
+      .features-grid,
+      .testimonials-grid,
+      .faq-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 56px;
+      }
+
+      .hero-visual {
+        min-height: 620px;
+      }
+
+      .phone-wrap {
+        transform: rotate(-4deg);
+      }
+
+      .pricing-card.popular {
+        transform: none;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .topbar-inner {
+        flex-wrap: wrap;
+      }
+
+      .nav {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .section,
+      .hero {
+        width: min(100vw - 28px, 1180px);
+      }
+
+      .section-header {
+        flex-direction: column;
+        align-items: start;
+      }
+
+      .hero-metrics,
+      .board-columns {
+        grid-template-columns: 1fr;
+      }
+
+      .orbital-card {
+        width: min(210px, calc(100vw - 100px));
+      }
+
+      .orbital-card.a {
+        top: 16px;
+        left: 0;
+      }
+
+      .orbital-card.b {
+        top: 110px;
+        right: 0;
+      }
+
+      .orbital-card.c {
+        left: 0;
+      }
+
+      .orbital-card.d {
+        right: 0;
+      }
+
+      .footer {
+        flex-direction: column;
+        align-items: start;
+      }
+    }
+
+    @media (max-width: 580px) {
+      .topbar-inner {
+        padding: 14px 0;
+      }
+
+      .nav {
+        font-size: 0.88rem;
+      }
+
+      .nav-cta {
+        width: 100%;
+      }
+
+      .hero {
+        padding: 42px 0 48px;
+        min-height: auto;
+      }
+
+      .hero-copy p,
+      .section-header p,
+      .cta-copy p {
+        font-size: 0.96rem;
+      }
+
+      .phone-wrap {
+        width: min(100%, 330px);
+        padding: 16px;
+      }
+
+      .hero-visual {
+        min-height: 560px;
+      }
+
+      .orbital-card {
+        position: static;
+        transform: none;
+        width: 100%;
+      }
+
+      .hero-visual {
+        display: grid;
+        gap: 14px;
+      }
+
+      .pricing-card,
+      .feature-card,
+      .problem-card,
+      .timeline-card,
+      .solution-card,
+      .testimonial,
+      .faq-item,
+      .cta-panel {
+        padding: 22px;
+      }
+
+      .hero-actions,
+      .cta-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <div class="blob one"></div>
+    <div class="blob two"></div>
+    <div class="blob three"></div>
+
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="#top">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>AI Agent Dispatch</span>
+        </a>
+        <nav class="nav" aria-label="主要ナビゲーション">
+          <a href="#problem">課題</a>
+          <a href="#solution">解決策</a>
+          <a href="#features">機能</a>
+          <a href="#pricing">料金</a>
+          <a href="#faq">FAQ</a>
+          <a class="nav-cta" href="#cta">デモを予約</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            マルチエージェント運用を、現場の武器に。
+          </div>
+          <h1>
+            複数のAIを
+            <span class="accent-line">配車・指揮・実行</span>
+            する、新しい業務基盤。
+          </h1>
+          <p>
+            問い合わせ対応、リサーチ、見積もり作成、社内連携、Slack通知まで。
+            AI Agent Dispatchは、目的に応じて最適なAIエージェントを呼び分け、
+            人の判断を残したまま業務を一気通貫で前に進めるオペレーションOSです。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#cta">30分デモを予約する</a>
+            <a class="btn btn-secondary" href="#pricing">料金プランを見る</a>
+          </div>
+          <div class="hero-metrics">
+            <div class="metric">
+              <strong>最大72%</strong>
+              <span>初動対応の時間を短縮</span>
+            </div>
+            <div class="metric">
+              <strong>24/7</strong>
+              <span>AIエージェントが常時待機</span>
+            </div>
+            <div class="metric">
+              <strong>1つのUI</strong>
+              <span>現場の依頼窓口を統合</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="orbital-card a">
+            <small>routing</small>
+            <strong>問い合わせを自動トリアージ</strong>
+            <span>内容に応じて営業、CS、制作、調査系エージェントへ振り分け。</span>
+          </div>
+
+          <div class="orbital-card b">
+            <small>execution</small>
+            <strong>依頼から実行までを短縮</strong>
+            <span>人の待ち時間を減らし、最初の一手をAIが即時に開始します。</span>
+          </div>
+
+          <div class="phone-wrap" aria-label="AI Agent Dispatchのスマートフォンモック">
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="phone-status">
+                <span>09:41</span>
+                <span>Dispatch Live</span>
+              </div>
+
+              <div class="phone-hero">
+                <div class="mini-label">
+                  <span class="eyebrow-dot"></span>
+                  Live Ops
+                </div>
+                <h2>依頼が来た瞬間、最適なAIが動き出す。</h2>
+                <p>
+                  Slack・フォーム・社内チャットから入った依頼を一本化し、
+                  条件に応じて担当エージェントを自動で起動します。
+                </p>
+              </div>
+
+              <div class="phone-stream">
+                <div class="stream-item">
+                  <div class="stream-left">
+                    <div class="stream-icon"></div>
+                    <div class="stream-copy">
+                      <strong>見積もり依頼を解析</strong>
+                      <span>営業エージェントが内容確認中</span>
+                    </div>
+                  </div>
+                  <div class="stream-state">active</div>
+                </div>
+
+                <div class="stream-item">
+                  <div class="stream-left">
+                    <div class="stream-icon"></div>
+                    <div class="stream-copy">
+                      <strong>FAQ候補を自動提案</strong>
+                      <span>CSエージェントが回答を生成</span>
+                    </div>
+                  </div>
+                  <div class="stream-state">ready</div>
+                </div>
+
+                <div class="stream-item">
+                  <div class="stream-left">
+                    <div class="stream-icon"></div>
+                    <div class="stream-copy">
+                      <strong>競合調査を開始</strong>
+                      <span>Researchエージェントが情報収集中</span>
+                    </div>
+                  </div>
+                  <div class="stream-state">run</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="orbital-card c">
+            <small>visibility</small>
+            <strong>いま何が進んでいるかを可視化</strong>
+            <span>各エージェントの状態、成果物、承認待ちを1画面で確認できます。</span>
+          </div>
+
+          <div class="orbital-card d">
+            <small>governance</small>
+            <strong>承認ポイントを残したまま自動化</strong>
+            <span>勝手に送らない、勝手に公開しない。人の判断を挟む前提で設計。</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="problem">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">
+              <span class="eyebrow-dot"></span>
+              Problem
+            </div>
+            <h2>AIを入れたのに、現場が速くならない理由。</h2>
+          </div>
+          <p>
+            多くの組織では、AIツールは増えたのに「どのAIを、いつ、誰が、どう使うか」が属人化したまま。
+            その結果、依頼の初動が遅く、回答品質も安定せず、結局人が全部ハンドリングしています。
+          </p>
+        </div>
+
+        <div class="problem-grid">
+          <div class="problem-card">
+            <h3>現場で起きがちな3つの詰まり</h3>
+            <div class="problem-list">
+              <div class="problem-item">
+                <div class="problem-badge">01</div>
+                <div>
+                  <strong>入口がバラバラで、依頼が埋もれる</strong>
+                  <p>
+                    フォーム、メール、Slack、口頭依頼に情報が散在し、緊急案件でも気づくのが遅れます。
+                  </p>
+                </div>
+              </div>
+
+              <div class="problem-item">
+                <div class="problem-badge">02</div>
+                <div>
+                  <strong>AIの役割分担が決まっていない</strong>
+                  <p>
+                    調査、草案、返信、要約、連携処理を同じ人が都度判断。再現性が低く、運用も続きません。
+                  </p>
+                </div>
+              </div>
+
+              <div class="problem-item">
+                <div class="problem-badge">03</div>
+                <div>
+                  <strong>成果物は出るが、業務フローに乗らない</strong>
+                  <p>
+                    AIが生成したテキストが最終成果物にならず、転記・整形・共有・承認で再び人手が必要になります。
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="timeline-card">
+            <h3>よくある非効率の流れ</h3>
+            <div class="timeline-line">
+              <div class="timeline-step">
+                <strong>Step 1 — 依頼が届く</strong>
+                <p>窓口が複数あるため、誰が見るか曖昧なまま時間だけが過ぎる。</p>
+              </div>
+              <div class="timeline-step">
+                <strong>Step 2 — 人が状況を整理する</strong>
+                <p>要件確認、情報収集、優先度判断を毎回ゼロから実施。</p>
+              </div>
+              <div class="timeline-step">
+                <strong>Step 3 — AIをその場で探す</strong>
+                <p>使うツールやプロンプトが担当者依存で、品質差が大きい。</p>
+              </div>
+              <div class="timeline-step">
+                <strong>Step 4 — 最後は手作業で整える</strong>
+                <p>共有、通知、社内記録、次アクション設定まで人が手でつなぐ。</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section" id="solution">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">
+              <span class="eyebrow-dot"></span>
+              Solution
+            </div>
+            <h2>AI Agent Dispatchは、AI活用を「運用」まで設計する。</h2>
+          </div>
+          <p>
+            単体のAIチャットではなく、役割を持った複数エージェントを配車し、
+            判断・実行・連携・承認をひとつの流れとして扱う。だから現場で回ります。
+          </p>
+        </div>
+
+        <div class="solution-layout">
+          <div class="solution-card">
+            <h3>人の判断を残しつつ、初動と反復を自動化</h3>
+            <p>
+              AI Agent Dispatchは、依頼の受付からエージェント起動、成果物作成、承認待ち、通知までをつなぎ込み、
+              「AIを使った」ではなく「AIで前に進んだ」状態をつくります。
+            </p>
+            <div class="solution-points">
+              <div class="solution-point">
+                <strong>依頼内容を読んで最適な担当AIへルーティング</strong>
+                <span>営業・CS・制作・調査・バックオフィスなど役割別にディスパッチ。</span>
+              </div>
+              <div class="solution-point">
+                <strong>標準化されたプロンプトとフローで品質を平準化</strong>
+                <span>誰が依頼しても同じ土台でスタートするから、属人化が減ります。</span>
+              </div>
+              <div class="solution-point">
+                <strong>Slack・メール・ファイル・CRMまで接続可能</strong>
+                <span>生成して終わりではなく、実務のシステムへ受け渡しまで設計します。</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dispatch-board" aria-label="ディスパッチボードのイメージ">
+            <div class="board-header">
+              <div>
+                <strong>Dispatch Board</strong>
+                <span>業務リクエストの受付から完了までを一元管理</span>
+              </div>
+              <div class="status-pill">12 agents online</div>
+            </div>
+
+            <div class="board-columns">
+              <div class="board-column">
+                <h4>Incoming</h4>
+                <div class="task-card">
+                  <div class="task-top">
+                    <span class="task-tag">lead</span>
+                    <span>09:45</span>
+                  </div>
+                  <strong>新規問い合わせの一次分析</strong>
+                  <p>フォーム送信内容を解析し、温度感・業種・ニーズを分類。</p>
+                  <div class="task-progress"><span style="width: 84%;"></span></div>
+                </div>
+                <div class="task-card">
+                  <div class="task-top">
+                    <span class="task-tag">ops</span>
+                    <span>09:49</span>
+                  </div>
+                  <strong>週次レポートの素材収集</strong>
+                  <p>複数ソースからKPIデータを回収し、要約の準備を開始。</p>
+                  <div class="task-progress"><span style="width: 58%;"></span></div>
+                </div>
+              </div>
+
+              <div class="board-column">
+                <h4>Active Agents</h4>
+                <div class="task-card">
+                  <div class="task-top">
+                    <span class="task-tag">sales</span>
+                    <span>agent-03</span>
+                  </div>
+                  <strong>提案仮説を作成</strong>
+                  <p>対象業界と課題パターンをもとに、提案骨子をドラフト化。</p>
+                  <div class="task-progress"><span style="width: 73%;"></span></div>
+                </div>
+                <div class="task-card">
+                  <div class="task-top">
+                    <span class="task-tag">research</span>
+                    <span>agent-08</span>
+                  </div>
+                  <strong>競合比較表を生成</strong>
+                  <p>公開情報を取得し、主要機能・価格・導入難易度を整理。</p>
+                  <div class="task-progress"><span style="width: 67%;"></span></div>
+                </div>
+              </div>
+
+              <div class="board-column">
+                <h4>Approval &amp; Delivery</h4>
+                <div class="task-card">
+                  <div class="task-top">
+                    <span class="task-tag">review</span>
+                    <span>manager</span>
+                  </div>
+                  <strong>送信前チェック</strong>
+                  <p>AIが作成した返信案を確認し、1クリックで送信または修正。</p>
+                  <div class="task-progress"><span style="width: 94%;"></span></div>
+                </div>
+                <div class="task-card">
+                  <div class="task-top">
+                    <span class="task-tag">done</span>
+                    <span>09:58</span>
+                  </div>
+                  <strong>Slackへ進捗通知</strong>
+                  <p>完了報告と次アクションを関係者へ自動連携。</p>
+                  <div class="task-progress"><span style="width: 100%;"></span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="board-footer">
+              <span>依頼ごとに最適なエージェントを起動し、フロー単位で制御。</span>
+              <span>監査ログ / 状態可視化 / 人間承認に対応</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="features">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">
+              <span class="eyebrow-dot"></span>
+              Features
+            </div>
+            <h2>主要機能3つで、AI活用を現場実装まで引き上げる。</h2>
+          </div>
+          <p>
+            ただ高性能なモデルをつなぐだけでは足りません。ルーティング、制御、接続。
+            この3点を押さえることで、AI活用は「実験」から「運用」に変わります。
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon orbit"></div>
+            <h3>1. Agent Routing Engine</h3>
+            <p>
+              依頼の内容・緊急度・チャネル・担当領域を読み取り、最適なAIエージェントを自動で選定。
+              一次対応の迷いを減らし、初動スピードを大幅に改善します。
+            </p>
+            <ul class="feature-list">
+              <li>問い合わせ種別の自動分類</li>
+              <li>役割別エージェントへの自動配車</li>
+              <li>優先度に応じた分岐ルール設計</li>
+            </ul>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon logic"></div>
+            <h3>2. Human-in-the-Loop Control</h3>
+            <p>
+              外部送信、公開、承認、重要判断などのポイントでは必ず人間が介在。
+              現場に任せられる自動化と、事故を防ぐガバナンスを両立します。
+            </p>
+            <ul class="feature-list">
+              <li>承認フローとレビュー待ちの可視化</li>
+              <li>変更履歴・監査ログの追跡</li>
+              <li>誤送信や暴走を防ぐガードレール</li>
+            </ul>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon flow"></div>
+            <h3>3. Workflow Integration Layer</h3>
+            <p>
+              Slack、メール、Google Drive、CRM、社内DBなどと接続し、AIの成果物をそのまま業務に流し込みます。
+              コピペ運用を減らし、最後のひと手間まで自動化します。
+            </p>
+            <ul class="feature-list">
+              <li>通知・保存・同期まで一気通貫</li>
+              <li>既存業務ツールとの接続設計</li>
+              <li>部署ごとの運用フローに合わせた拡張</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="pricing">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">
+              <span class="eyebrow-dot"></span>
+              Pricing
+            </div>
+            <h2>フェーズに合わせて始められる3つの料金プラン。</h2>
+          </div>
+          <p>
+            まずは1業務から検証し、成果が見えたら全社運用へ拡張。AI導入をPoC止まりにしないための設計です。
+          </p>
+        </div>
+
+        <div class="pricing-grid">
+          <article class="pricing-card">
+            <div class="pricing-label">Starter</div>
+            <div class="pricing-price">
+              <strong>¥98,000</strong>
+              <span>/ 月</span>
+            </div>
+            <p class="pricing-desc">
+              まずは1つの窓口業務や定型フローから始めたい小規模チーム向け。
+            </p>
+            <ul class="pricing-list">
+              <li>1ユースケース導入</li>
+              <li>最大3エージェント構成</li>
+              <li>Slackまたはフォーム連携</li>
+              <li>月次レビュー1回</li>
+            </ul>
+            <a class="btn btn-secondary" href="#cta">相談する</a>
+            <div class="pricing-note">初期設計費は別途。最短2週間で導入可能。</div>
+          </article>
+
+          <article class="pricing-card popular">
+            <div class="popular-badge">Most chosen</div>
+            <div class="pricing-label">Growth</div>
+            <div class="pricing-price">
+              <strong>¥248,000</strong>
+              <span>/ 月</span>
+            </div>
+            <p class="pricing-desc">
+              部署単位でAI活用を定着させ、複数業務に横展開したい企業向けの標準プラン。
+            </p>
+            <ul class="pricing-list">
+              <li>3〜5ユースケース設計</li>
+              <li>最大10エージェント構成</li>
+              <li>承認フロー・ログ管理対応</li>
+              <li>Slack / メール / Drive連携</li>
+              <li>月2回の改善ミーティング</li>
+            </ul>
+            <a class="btn btn-primary" href="#cta">デモを予約する</a>
+            <div class="pricing-note">AI導入の成果指標設計まで伴走します。</div>
+          </article>
+
+          <article class="pricing-card">
+            <div class="pricing-label">Enterprise</div>
+            <div class="pricing-price">
+              <strong>Custom</strong>
+              <span>個別提案</span>
+            </div>
+            <p class="pricing-desc">
+              全社展開、複数部署横断、独自ガバナンス、既存システム接続が必要な大規模導入向け。
+            </p>
+            <ul class="pricing-list">
+              <li>全社設計・個別要件定義</li>
+              <li>SSO / CRM / DB / API連携</li>
+              <li>監査・セキュリティ設計支援</li>
+              <li>専用サポートと運用伴走</li>
+            </ul>
+            <a class="btn btn-secondary" href="#cta">要件相談する</a>
+            <div class="pricing-note">業界要件や社内ルールに合わせてカスタマイズ可能。</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="testimonials">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">
+              <span class="eyebrow-dot"></span>
+              Voices
+            </div>
+            <h2>ユーザーの声：導入後に変わったのは、AIの精度より「回り方」。</h2>
+          </div>
+          <p>
+            単発の自動化ではなく、現場の依頼処理そのものが滑らかになる。そんな変化を感じたチームの声です。
+          </p>
+        </div>
+
+        <div class="testimonials-grid">
+          <article class="testimonial">
+            <div class="quote-mark">“</div>
+            <p>
+              以前は問い合わせ対応の一次整理だけで午前中が終わっていたのに、今はAIが振り分けと草案作成まで済ませてくれる。
+              メンバーは判断と提案に集中できるようになりました。
+            </p>
+            <div class="person">
+              <div class="avatar">CS</div>
+              <div>
+                <strong>SaaS企業 カスタマーサクセス責任者</strong>
+                <span>月間問い合わせ 1,200件規模</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="testimonial">
+            <div class="quote-mark">“</div>
+            <p>
+              AIツール自体は色々試してきたけど、現場で使い続けられたのは初めて。
+              承認ポイントが明確で、Slackに自然に馴染むから運用が止まりませんでした。
+            </p>
+            <div class="person">
+              <div class="avatar">OP</div>
+              <div>
+                <strong>マーケティング支援会社 事業責任者</strong>
+                <span>提案作成と定例レポート業務に導入</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="faq">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">
+              <span class="eyebrow-dot"></span>
+              FAQ
+            </div>
+            <h2>導入前によく聞かれること。</h2>
+          </div>
+          <p>
+            技術導入のハードル、セキュリティ、既存ツールとの相性まで。実運用を前提にした質問に答えます。
+          </p>
+        </div>
+
+        <div class="faq-grid">
+          <article class="faq-item">
+            <h3>Q. ChatGPTやClaudeを使っているだけでも導入価値はありますか？</h3>
+            <p>
+              あります。単体AIの活用は個人最適に強い一方、組織運用では「入口・役割・承認・連携」の設計が不足しがちです。
+              AI Agent Dispatchは、そこを業務フローとして整えるための仕組みです。
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Q. どんな部署・業務から始めるのが向いていますか？</h3>
+            <p>
+              問い合わせ対応、営業一次対応、提案準備、定例レポート、情報収集、社内申請整理など、
+              反復性がありつつ判断ポイントが明確な業務から始めるのが最も成果が出やすいです。
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Q. AIが勝手に外部送信してしまうことはありませんか？</h3>
+            <p>
+              重要アクションには承認フローを設ける前提で設計します。レビュー待ち、送信前確認、監査ログを残せるため、
+              自動化しつつ統制を保てます。
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Q. 自社の既存ツールや独自運用に合わせられますか？</h3>
+            <p>
+              はい。Slack、メール、Google Workspace、CRM、データベースなどとの接続を前提に、現場のフローに合わせて設計します。
+              既存の運用を壊さず、無理なく組み込む進め方が可能です。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section final-cta" id="cta">
+        <div class="cta-panel">
+          <div class="cta-copy">
+            <div class="eyebrow">
+              <span class="eyebrow-dot"></span>
+              Final CTA
+            </div>
+            <h3>AI導入を、PoCで終わらせない。</h3>
+            <p>
+              まずは30分のデモで、あなたの現場にある依頼フローを一緒に見せてください。
+              どこにAIを差し込むべきか、どの業務から始めると成果が出やすいかまで、その場で具体化します。
+            </p>
+            <div class="cta-actions">
+              <a class="btn btn-primary" href="mailto:hello@ai-agent-dispatch.example?subject=AI%20Agent%20Dispatch%20Demo">デモを予約する</a>
+              <a class="btn btn-secondary" href="#top">トップに戻る</a>
+            </div>
+          </div>
+
+          <div class="cta-side">
+            <div class="mini-stat">
+              <strong>最短14日</strong>
+              <span>スモールスタートで現場導入を開始</span>
+            </div>
+            <div class="mini-stat">
+              <strong>業務起点</strong>
+              <span>AIありきではなく、フロー起点で設計</span>
+            </div>
+            <div class="mini-stat">
+              <strong>伴走型支援</strong>
+              <span>導入後の改善サイクルまで一緒に回す</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <small>© 2026 AI Agent Dispatch. All rights reserved.</small>
+      <div class="footer-links">
+        <a href="#problem">課題</a>
+        <a href="#features">機能</a>
+        <a href="#pricing">料金</a>
+        <a href="#cta">お問い合わせ</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIエージェント派遣事業 | Pattern 3 Casual</title>
+  <style>
+    :root {
+      --cream: #fff4ea;
+      --peach: #ffd8c2;
+      --coral: #ff6b6b;
+      --orange: #ff9f68;
+      --ink: #2a2233;
+      --mint: #99e2b4;
+      --white: #fffdfb;
+      --line: rgba(42, 34, 51, 0.12);
+      --shadow: 0 24px 60px rgba(255, 107, 107, 0.14);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(255,159,104,.35), transparent 26%),
+        radial-gradient(circle at 95% 0%, rgba(153,226,180,.28), transparent 20%),
+        linear-gradient(180deg, #fff9f5 0%, var(--cream) 44%, #fff 100%);
+      line-height: 1.7;
+    }
+    .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .stack { position: relative; }
+    .floating-card {
+      background: rgba(255,255,255,.82);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+    header {
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      background: rgba(255,249,245,.76);
+      border-bottom: 1px solid rgba(42,34,51,.06);
+    }
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+    }
+    .brand {
+      font-weight: 900;
+      letter-spacing: .02em;
+      font-size: 20px;
+    }
+    .brand span { color: var(--coral); }
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-size: 14px;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: rgba(42,34,51,.76);
+      font-weight: 700;
+    }
+    .cta-mini {
+      padding: 12px 18px;
+      background: linear-gradient(135deg, var(--coral), var(--orange));
+      color: white;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 800;
+      box-shadow: 0 14px 28px rgba(255,107,107,.24);
+    }
+    .hero {
+      padding: 52px 0 36px;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 28px;
+      align-items: center;
+    }
+    .bubble {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.7);
+      border: 1px solid rgba(255,255,255,.85);
+      font-weight: 800;
+      color: var(--coral);
+      margin-bottom: 18px;
+    }
+    h1 {
+      font-size: clamp(42px, 6vw, 76px);
+      line-height: 1.02;
+      margin: 0 0 16px;
+      letter-spacing: -.03em;
+    }
+    .lead {
+      font-size: 18px;
+      color: rgba(42,34,51,.78);
+      margin-bottom: 22px;
+      max-width: 600px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .btn-primary, .btn-secondary {
+      padding: 16px 24px;
+      border-radius: 18px;
+      text-decoration: none;
+      font-weight: 800;
+      display: inline-block;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--coral), var(--orange));
+      color: white;
+      box-shadow: 0 18px 40px rgba(255,107,107,.28);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,.72);
+      color: var(--ink);
+      border: 1px solid rgba(42,34,51,.08);
+    }
+    .mini-proof {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .mini-proof .card {
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(42,34,51,.08);
+    }
+    .mini-proof strong {
+      font-size: 28px;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .phone-card {
+      padding: 18px;
+      transform: rotate(-3deg);
+    }
+    .phone-shell {
+      margin: 0 auto;
+      width: 320px;
+      height: 640px;
+      border-radius: 42px;
+      background: linear-gradient(180deg, #2f2639, #17111e);
+      padding: 14px;
+      box-shadow: 0 28px 50px rgba(42,34,51,.24);
+      position: relative;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 28px;
+      border-radius: 20px;
+      background: #08050a;
+      z-index: 3;
+    }
+    .phone-screen {
+      height: 100%;
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at 80% 0%, rgba(255,107,107,.26), transparent 24%),
+        linear-gradient(180deg, #fff8f3, #ffeade);
+      padding: 56px 16px 18px;
+      overflow: hidden;
+      position: relative;
+    }
+    .app-card {
+      background: rgba(255,255,255,.86);
+      border: 1px solid rgba(42,34,51,.08);
+      border-radius: 22px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 12px 24px rgba(42,34,51,.08);
+    }
+    .app-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: rgba(42,34,51,.7);
+      margin-bottom: 12px;
+    }
+    .dot-group { display: flex; gap: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--coral); }
+    .assign-pill {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,107,107,.12);
+      color: var(--coral);
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .bars { display: grid; gap: 8px; }
+    .bar {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(42,34,51,.08);
+      overflow: hidden;
+    }
+    .bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--coral), var(--orange));
+    }
+    .agent-list { display: grid; gap: 10px; margin-top: 12px; }
+    .agent-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.7);
+      border: 1px solid rgba(42,34,51,.06);
+      font-size: 12px;
+    }
+    .badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      background: rgba(153,226,180,.34);
+    }
+    .section {
+      padding: 44px 0;
+    }
+    .section-head {
+      max-width: 760px;
+      margin-bottom: 22px;
+    }
+    .kicker {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--coral);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    h2 {
+      font-size: clamp(30px, 4vw, 54px);
+      line-height: 1.1;
+      margin: 0 0 12px;
+    }
+    .desc {
+      font-size: 17px;
+      color: rgba(42,34,51,.72);
+      margin: 0;
+    }
+    .problem-stack, .feature-grid, .plan-grid, .voice-grid, .faq-grid {
+      display: grid;
+      gap: 18px;
+    }
+    .problem-stack {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .card {
+      padding: 24px;
+      border-radius: 28px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(42,34,51,.08);
+      box-shadow: var(--shadow);
+    }
+    .card h3 { margin: 0 0 10px; font-size: 24px; }
+    .card p { margin: 0; color: rgba(42,34,51,.72); }
+    .solution-layout {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 18px;
+    }
+    .journey {
+      display: grid;
+      gap: 14px;
+    }
+    .journey-step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 18px;
+      border-radius: 24px;
+      background: rgba(255,255,255,.76);
+      border: 1px solid rgba(42,34,51,.08);
+    }
+    .step-no {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--coral), var(--orange));
+      color: white;
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+    .feature-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .feature-card .emoji {
+      font-size: 34px;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+    .plan-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .plan {
+      position: relative;
+      overflow: hidden;
+    }
+    .plan.recommended {
+      transform: translateY(-8px) rotate(-1deg);
+      border: 2px solid rgba(255,107,107,.24);
+    }
+    .tag {
+      display: inline-flex;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,107,107,.14);
+      color: var(--coral);
+      font-weight: 900;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+    .price {
+      font-size: 42px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+    .price small {
+      font-size: 15px;
+      color: rgba(42,34,51,.58);
+    }
+    ul.clean {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+    ul.clean li {
+      position: relative;
+      padding-left: 24px;
+      color: rgba(42,34,51,.74);
+    }
+    ul.clean li::before {
+      content: "●";
+      position: absolute;
+      left: 0;
+      color: var(--coral);
+      font-size: 10px;
+      top: 8px;
+    }
+    .voice-grid, .faq-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .quote {
+      font-size: 18px;
+      margin-bottom: 14px;
+      color: rgba(42,34,51,.82);
+    }
+    .person {
+      font-size: 13px;
+      color: rgba(42,34,51,.62);
+      font-weight: 700;
+    }
+    .faq-item details {
+      background: rgba(255,255,255,.84);
+      border-radius: 22px;
+      border: 1px solid rgba(42,34,51,.08);
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+    }
+    .faq-item summary {
+      cursor: pointer;
+      font-weight: 800;
+      list-style: none;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item p {
+      margin: 14px 0 0;
+      color: rgba(42,34,51,.72);
+    }
+    footer {
+      padding: 40px 0 72px;
+    }
+    .footer-card {
+      padding: 38px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(255,107,107,.16), rgba(255,159,104,.18));
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: 34px;
+      box-shadow: var(--shadow);
+    }
+    .footer-card h2 { margin-bottom: 12px; }
+    .footer-card p { margin: 0 auto 22px; max-width: 720px; color: rgba(42,34,51,.72); }
+    .footer-meta {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: rgba(42,34,51,.64);
+      font-weight: 700;
+    }
+    @media (max-width: 1024px) {
+      .hero-grid, .solution-layout, .problem-stack, .feature-grid, .plan-grid, .voice-grid, .faq-grid {
+        grid-template-columns: 1fr;
+      }
+      .phone-card { transform: none; }
+      .mini-proof { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <div class="brand">AI Agent <span>Dispatch</span></div>
+      <div class="nav-links">
+        <a href="#problem">課題</a>
+        <a href="#solution">ソリューション</a>
+        <a href="#features">機能</a>
+        <a href="#pricing">料金</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <a class="cta-mini" href="#cta">まずは1体、配属する</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="bubble">🍑 1人採る前に、まず1体。</div>
+          <h1>AIエージェントを<br>かわいく、でも本気で<br>現場に配属する。</h1>
+          <p class="lead">営業、CS、採用、調査、バックオフィス。採用で増やす前に、役割単位でAIを配属する。人手不足の時代にぴったりな、新しい“人材戦略”のかたち。</p>
+          <div class="hero-actions">
+            <a class="btn-primary" href="#cta">無料相談を予約する</a>
+            <a class="btn-secondary" href="#pricing">料金を見る</a>
+          </div>
+          <div class="mini-proof">
+            <div class="card"><strong>最短即日</strong><span>業務設計後、すぐ現場投入。</span></div>
+            <div class="card"><strong>24時間稼働</strong><span>夜間も休日も止まらない。</span></div>
+            <div class="card"><strong>役割特化</strong><span>部署ごとにぴったり設計。</span></div>
+          </div>
+        </div>
+        <div class="floating-card phone-card">
+          <div class="phone-shell">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="app-card">
+                <div class="app-top">
+                  <span>9:41</span>
+                  <div class="dot-group"><div class="dot"></div><div class="dot" style="background:#ff9f68"></div><div class="dot" style="background:#99e2b4"></div></div>
+                </div>
+                <div class="assign-pill">AI Dispatch Console</div>
+                <h3 style="margin:0 0 8px; font-size:24px;">今日の配属</h3>
+                <p style="margin:0 0 12px; font-size:13px; color:rgba(42,34,51,.66);">営業・CS・採用・調査に、12体のAIエージェントが稼働中。</p>
+                <div class="bars">
+                  <div class="bar"><span style="width:92%"></span></div>
+                  <div class="bar"><span style="width:81%"></span></div>
+                  <div class="bar"><span style="width:74%"></span></div>
+                </div>
+              </div>
+              <div class="agent-list">
+                <div class="agent-row"><span>営業アシスタント</span><span class="badge">稼働中</span></div>
+                <div class="agent-row"><span>CS一次対応</span><span class="badge">稼働中</span></div>
+                <div class="agent-row"><span>採用広報</span><span class="badge">配属済み</span></div>
+                <div class="agent-row"><span>調査担当</span><span class="badge">連携OK</span></div>
+              </div>
+              <div class="app-card" style="margin-top:14px;">
+                <strong style="display:block; margin-bottom:10px;">今週の削減工数</strong>
+                <div style="font-size:36px; font-weight:900; color:var(--coral); line-height:1;">286h</div>
+                <p style="margin:8px 0 0; font-size:12px; color:rgba(42,34,51,.66);">固定費を増やす前に、先に現場を回す。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="problem">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="kicker">problem</div>
+          <h2>採用したいのに、<br>採用してる時間がない。</h2>
+          <p class="desc">いま多くの会社で起きているのは、人数不足そのものよりも“すぐ回さないといけない仕事”が積み上がること。AIエージェント派遣は、その詰まりをほぐすための仕組み。</p>
+        </div>
+        <div class="problem-stack">
+          <div class="card">
+            <h3>採れない</h3>
+            <p>求人を出しても反応が薄い。採用競争が激しく、必要なタイミングで人が増えない。</p>
+          </div>
+          <div class="card">
+            <h3>育てられない</h3>
+            <p>入社しても教育工数が足りず、結局マネージャーが疲弊する。立ち上がりが遅い。</p>
+          </div>
+          <div class="card">
+            <h3>止められない</h3>
+            <p>問い合わせ、調査、調整、資料づくり。誰かがやらないと困る仕事が毎日発生する。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="solution">
+      <div class="wrap solution-layout">
+        <div class="card">
+          <div class="kicker">solution</div>
+          <h2 style="font-size:42px;">必要な役割を、<br>必要な部署へ、<br>そのまま配属。</h2>
+          <p class="desc">ツールを渡すのではなく、仕事を担う存在を渡す。営業補助、CS、採用広報、調査、バックオフィスなど、役割ごとにAIエージェントを設計して現場に入れる。</p>
+        </div>
+        <div class="journey">
+          <div class="journey-step">
+            <div class="step-no">1</div>
+            <div><strong>業務を棚卸し</strong><p>いま止まっている仕事、属人化している仕事、毎週発生する定型業務を整理。</p></div>
+          </div>
+          <div class="journey-step">
+            <div class="step-no">2</div>
+            <div><strong>AIの役割を定義</strong><p>担当範囲、接続ツール、KPI、報告形式を決めて“1体分の仕事”に落とし込む。</p></div>
+          </div>
+          <div class="journey-step">
+            <div class="step-no">3</div>
+            <div><strong>最短即日で配属</strong><p>Slack、メール、CRM、Driveなどに接続し、すぐ現場で稼働開始。</p></div>
+          </div>
+          <div class="journey-step">
+            <div class="step-no">4</div>
+            <div><strong>毎月チューニング</strong><p>現場のフィードバックをもとに、精度、役割範囲、KPIを改善し続ける。</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="kicker">features</div>
+          <h2>“かわいい見た目”で終わらない、<br>現場で効く3つの強み。</h2>
+        </div>
+        <div class="feature-grid">
+          <div class="card feature-card">
+            <div class="emoji">⚡</div>
+            <h3>導入が速い</h3>
+            <p>採用、面接、オンボーディングを待たず、業務定義後すぐ投入できる。まずは1体から始めやすい。</p>
+          </div>
+          <div class="card feature-card">
+            <div class="emoji">🧩</div>
+            <h3>役割で考えられる</h3>
+            <p>AIツールではなく、営業担当、CS担当、採用担当として考えられるから、社内説明も導入判断もしやすい。</p>
+          </div>
+          <div class="card feature-card">
+            <div class="emoji">📈</div>
+            <h3>成果で改善できる</h3>
+            <p>KPIをもとに、役割やフローを毎月改善。単なる自動化ではなく、運用込みで成果に寄せていく。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pricing">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="kicker">pricing</div>
+          <h2>気軽に始めて、<br>必要に応じて増員できる料金設計。</h2>
+          <p class="desc">固定費を大きく増やす前に、小さく始めて育てる。事業フェーズに合わせて、1体からチーム構成まで拡張できる。</p>
+        </div>
+        <div class="plan-grid">
+          <div class="card plan">
+            <div class="tag">Starter</div>
+            <h3>まずは1体</h3>
+            <div class="price">9.8<span>万円</span><small>/月〜</small></div>
+            <ul class="clean">
+              <li>1業務1エージェント配属</li>
+              <li>初期設計テンプレ付き</li>
+              <li>月次改善1回</li>
+              <li>Slack or メール連携</li>
+            </ul>
+          </div>
+          <div class="card plan recommended">
+            <div class="tag">Most Popular</div>
+            <h3>部署まるごと補助</h3>
+            <div class="price">29.8<span>万円</span><small>/月〜</small></div>
+            <ul class="clean">
+              <li>3体まで同時配属</li>
+              <li>複数ツール接続対応</li>
+              <li>KPIレポート付き</li>
+              <li>週次改善ミーティング</li>
+            </ul>
+          </div>
+          <div class="card plan">
+            <div class="tag">Growth Ops</div>
+            <h3>AIチーム化</h3>
+            <div class="price">49.8<span>万円</span><small>/月〜</small></div>
+            <ul class="clean">
+              <li>5体以上の混成チーム</li>
+              <li>業界特化設計</li>
+              <li>夜間運用オプション</li>
+              <li>経営レポート・改善提案</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="voices">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="kicker">voice</div>
+          <h2>導入イメージが湧く、<br>リアルな使われ方。</h2>
+        </div>
+        <div class="voice-grid">
+          <div class="card">
+            <p class="quote">「採用広報と候補者対応で毎日追われてたけど、AIエージェントを1体入れたら、面談の質に集中できるようになった。」</p>
+            <div class="person">スタートアップ / 人事責任者</div>
+          </div>
+          <div class="card">
+            <p class="quote">「営業前の調査と提案書の叩き台をAIに任せたら、少人数でも商談数を増やせた。人を増やす前に入れて正解だった。」</p>
+            <div class="person">BtoB企業 / 代表取締役</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="kicker">faq</div>
+          <h2>よくある質問</h2>
+        </div>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <details open>
+              <summary>本当にすぐ使い始められるの？</summary>
+              <p>はい。業務要件と接続先が整理できれば、最短即日で初期版を動かせる。まずは1業務から始めるのがおすすめ。</p>
+            </details>
+          </div>
+          <div class="faq-item">
+            <details>
+              <summary>どんな業務に向いている？</summary>
+              <p>問い合わせ一次対応、営業準備、採用広報、議事録整理、調査、日報・週報作成など、高頻度で定型化しやすい業務に向いている。</p>
+            </details>
+          </div>
+          <div class="faq-item">
+            <details>
+              <summary>人の仕事を全部置き換えるの？</summary>
+              <p>いいえ。AIエージェント派遣は、人の判断が必要な仕事を守るために、前後の業務を先に引き受ける考え方。</p>
+            </details>
+          </div>
+          <div class="faq-item">
+            <details>
+              <summary>セキュリティや承認フローは？</summary>
+              <p>外部送信や重要操作は人間承認を前提に設計できる。権限と責務を分けて、安心して現場導入できる。</p>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="cta">
+    <div class="wrap">
+      <div class="footer-card">
+        <div class="kicker">call to action</div>
+        <h2>欠員補充じゃなくて、<br>AI配属ではじめよう。</h2>
+        <p>人を採るか悩む前に、まずは1体。いま詰まっている仕事を、AIエージェントで先に流す。かわいく見えて、やることはかなり本気。そんな新しい派遣モデルを、一緒につくろう。</p>
+        <a class="btn-primary" href="mailto:hello@example.com">無料で相談する</a>
+        <div class="footer-meta">
+          <span>最短即日導入</span>
+          <span>月額9.8万円〜</span>
+          <span>役割特化で配属</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
