@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photomatch - モックアプリ</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Poppins', sans-serif; background: #0f0f0f; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    
+    .phone-frame {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border: 12px solid #333;
+      border-radius: 50px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    }
+    
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 28px;
+      background: #000;
+      border-radius: 0 0 20px 20px;
+      z-index: 10;
+    }
+    
+    .status-bar {
+      position: absolute;
+      top: 8px;
+      left: 0;
+      right: 0;
+      height: 20px;
+      background: #1B4965;
+      color: white;
+      font-size: 10px;
+      padding: 0 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 5;
+    }
+    
+    .screen {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      right: 0;
+      bottom: 60px;
+      background: white;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    .screen.active { display: block; }
+    
+    /* ホーム画面 */
+    .home-header { background: linear-gradient(135deg, #1B4965, #06A77D); color: white; padding: 20px; text-align: center; }
+    .home-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+    .home-header p { font-size: 12px; opacity: 0.8; }
+    .match-card { background: #f5f5f5; margin: 16px; padding: 16px; border-radius: 12px; border-left: 4px solid #F77F00; }
+    .match-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: #1B4965; }
+    .match-card p { font-size: 13px; color: #666; line-height: 1.5; }
+    .match-price { color: #F77F00; font-weight: 700; font-size: 18px; margin-top: 8px; }
+    
+    /* 検索画面 */
+    .search-header { padding: 16px; background: #f5f5f5; }
+    .search-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+    .filter-buttons { display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto; }
+    .filter-btn { padding: 8px 16px; border: 1px solid #ddd; border-radius: 20px; background: white; font-size: 12px; cursor: pointer; white-space: nowrap; }
+    .filter-btn.active { background: #F77F00; color: white; border-color: #F77F00; }
+    .photographer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; }
+    .photographer-card { background: white; border: 1px solid #eee; border-radius: 8px; overflow: hidden; }
+    .photographer-image { width: 100%; height: 120px; background: linear-gradient(45deg, #1B4965, #F77F00); }
+    .photographer-info { padding: 12px; }
+    .photographer-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .photographer-rating { font-size: 12px; color: #F77F00; }
+    
+    /* 通知画面 */
+    .notification-item { border-bottom: 1px solid #eee; padding: 16px; }
+    .notification-item:last-child { border-bottom: none; }
+    .notification-title { font-size: 14px; font-weight: 600; color: #1B4965; margin-bottom: 4px; }
+    .notification-time { font-size: 12px; color: #999; }
+    .badge { display: inline-block; background: #F77F00; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-top: 8px; }
+    
+    /* プロフィール画面 */
+    .profile-header { text-align: center; padding: 24px 16px; background: linear-gradient(135deg, #1B4965, #06A77D); color: white; }
+    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.3); margin: 0 auto 12px; }
+    .profile-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .profile-stat { display: flex; justify-content: space-around; margin-top: 20px; font-size: 13px; }
+    .profile-stat-item { text-align: center; }
+    .profile-stat-value { font-size: 20px; font-weight: 700; }
+    
+    .nav-tabs {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: white;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 5;
+    }
+    
+    .nav-tab {
+      flex: 1;
+      text-align: center;
+      cursor: pointer;
+      font-size: 10px;
+      color: #999;
+      padding: 8px 0;
+      border-top: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    
+    .nav-tab.active {
+      color: #F77F00;
+      border-top-color: #F77F00;
+    }
+    
+    .nav-icon { font-size: 20px; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="notch"></div>
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>●●●●●</span>
+    </div>
+
+    <!-- ホーム画面 -->
+    <div class="screen active" data-tab="home">
+      <div class="home-header">
+        <h1>Photomatch</h1>
+        <p>カメラマン・EC事業者マッチング</p>
+      </div>
+      <div class="match-card">
+        <h3>🏷️ 商品撮影案件</h3>
+        <p>ファッションEC事業者が商品撮影を依頼。ライティング＆編集込み。</p>
+        <div class="match-price">¥50,000</div>
+      </div>
+      <div class="match-card">
+        <h3>🏷️ 人物撮影</h3>
+        <p>スタートアップのチームフォト撮影。都内スタジオ。</p>
+        <div class="match-price">¥30,000</div>
+      </div>
+      <div class="match-card">
+        <h3>🏷️ 食べ物撮影</h3>
+        <p>食品メーカーの新商品キャンペーン撮影。</p>
+        <div class="match-price">¥40,000</div>
+      </div>
+    </div>
+
+    <!-- 検索画面 -->
+    <div class="screen" data-tab="search">
+      <div class="search-header">
+        <input type="text" class="search-input" placeholder="カメラマンを検索...">
+      </div>
+      <div class="filter-buttons">
+        <button class="filter-btn active">商品撮影</button>
+        <button class="filter-btn">人物</button>
+        <button class="filter-btn">食べ物</button>
+        <button class="filter-btn">風景</button>
+      </div>
+      <div class="photographer-grid">
+        <div class="photographer-card">
+          <div class="photographer-image"></div>
+          <div class="photographer-info">
+            <div class="photographer-name">田中太郎</div>
+            <div class="photographer-rating">⭐ 4.9</div>
+          </div>
+        </div>
+        <div class="photographer-card">
+          <div class="photographer-image"></div>
+          <div class="photographer-info">
+            <div class="photographer-name">佐藤花子</div>
+            <div class="photographer-rating">⭐ 4.7</div>
+          </div>
+        </div>
+        <div class="photographer-card">
+          <div class="photographer-image"></div>
+          <div class="photographer-info">
+            <div class="photographer-name">鈴木次郎</div>
+            <div class="photographer-rating">⭐ 4.8</div>
+          </div>
+        </div>
+        <div class="photographer-card">
+          <div class="photographer-image"></div>
+          <div class="photographer-info">
+            <div class="photographer-name">山田美咲</div>
+            <div class="photographer-rating">⭐ 4.6</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 通知画面 -->
+    <div class="screen" data-tab="notifications">
+      <div style="padding: 16px; background: #f5f5f5; text-align: center;">
+        <h2 style="font-size: 14px; font-weight: 600;">マッチング通知</h2>
+      </div>
+      <div class="notification-item">
+        <div class="notification-title">✅ マッチング成立</div>
+        <div class="notification-time">2時間前</div>
+        <div class="badge">受け入れ待機</div>
+      </div>
+      <div class="notification-item">
+        <div class="notification-title">📧 新規提案</div>
+        <div class="notification-time">5時間前</div>
+        <div class="badge">EC事業者から</div>
+      </div>
+      <div class="notification-item">
+        <div class="notification-title">⭐ 新しいレビュー</div>
+        <div class="notification-time">1日前</div>
+        <div class="badge">評価 5.0</div>
+      </div>
+    </div>
+
+    <!-- プロフィール画面 -->
+    <div class="screen" data-tab="profile">
+      <div class="profile-header">
+        <div class="profile-avatar"></div>
+        <div class="profile-name">田中太郎</div>
+        <div style="font-size: 12px; opacity: 0.9;">プロカメラマン</div>
+        <div class="profile-stat">
+          <div class="profile-stat-item">
+            <div class="profile-stat-value">52</div>
+            <div>仕事</div>
+          </div>
+          <div class="profile-stat-item">
+            <div class="profile-stat-value">¥2.6M</div>
+            <div>売上</div>
+          </div>
+          <div class="profile-stat-item">
+            <div class="profile-stat-value">4.9</div>
+            <div>評価</div>
+          </div>
+        </div>
+      </div>
+      <div style="padding: 16px;">
+        <div style="background: #f5f5f5; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+          <div style="font-size: 13px; font-weight: 600; margin-bottom: 4px;">🎯 専門分野</div>
+          <div style="font-size: 12px; color: #666;">商品撮影・EC撮影・ライティング</div>
+        </div>
+        <button style="width: 100%; padding: 12px; background: #F77F00; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">設定</button>
+      </div>
+    </div>
+
+    <!-- ナビゲーションタブ -->
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="switchTab('home')">
+        <div class="nav-icon">🏠</div>
+        <div>ホーム</div>
+      </div>
+      <div class="nav-tab" onclick="switchTab('search')">
+        <div class="nav-icon">🔍</div>
+        <div>検索</div>
+      </div>
+      <div class="nav-tab" onclick="switchTab('notifications')">
+        <div class="nav-icon">🔔</div>
+        <div>通知</div>
+      </div>
+      <div class="nav-tab" onclick="switchTab('profile')">
+        <div class="nav-icon">👤</div>
+        <div>プロフィール</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+      event.target.closest('.nav-tab').classList.add('active');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhotoMatch | AIがあなたの一枚を見つける</title>
+  <meta name="description" content="イベント写真を顔認識AIで瞬時に検索。PhotoMatchは、撮られた膨大な写真の中から自分の写真だけを最短10秒で見つけられる次世代フォト検索サービスです。" />
+  <style>
+    :root {
+      --bg: #1B4965;
+      --bg-deep: #102b3d;
+      --bg-soft: #245a7a;
+      --panel: rgba(10, 20, 30, 0.68);
+      --panel-strong: rgba(7, 14, 21, 0.88);
+      --text: #eef6fb;
+      --muted: #b8cfdd;
+      --accent: #F77F00;
+      --accent-soft: #ff9f40;
+      --accent-glow: rgba(247, 127, 0, 0.35);
+      --line: rgba(255, 255, 255, 0.1);
+      --success: #5eead4;
+      --danger: #ffb703;
+      --shadow: 0 30px 80px rgba(0, 0, 0, 0.38);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --max: 1220px;
+      --ease: 0.35s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(247, 127, 0, 0.22), transparent 32%),
+        radial-gradient(circle at 88% 20%, rgba(94, 234, 212, 0.12), transparent 22%),
+        radial-gradient(circle at 72% 78%, rgba(255, 255, 255, 0.08), transparent 24%),
+        linear-gradient(160deg, var(--bg-deep) 0%, var(--bg) 48%, #14354a 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    .btn,
+    .card,
+    .feature,
+    .price-card,
+    .faq-item,
+    .story,
+    .stat,
+    .mock-card,
+    .testimonial,
+    .badge,
+    .mini-panel {
+      transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease), background var(--ease), opacity var(--ease);
+    }
+
+    .btn:hover,
+    .card:hover,
+    .feature:hover,
+    .price-card:hover,
+    .faq-item:hover,
+    .story:hover,
+    .stat:hover,
+    .mock-card:hover,
+    .testimonial:hover,
+    .badge:hover,
+    .mini-panel:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28), 0 0 30px var(--accent-glow);
+    }
+
+    .page-noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 70px 70px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+      opacity: 0.32;
+      z-index: 0;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 999px;
+      filter: blur(40px);
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: 0;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .orb.one {
+      width: 260px;
+      height: 260px;
+      top: 8%;
+      right: -60px;
+      background: rgba(247, 127, 0, 0.22);
+    }
+
+    .orb.two {
+      width: 180px;
+      height: 180px;
+      bottom: 18%;
+      left: -40px;
+      background: rgba(94, 234, 212, 0.18);
+      animation-delay: 1.3s;
+    }
+
+    .orb.three {
+      width: 140px;
+      height: 140px;
+      top: 54%;
+      right: 16%;
+      background: rgba(255, 255, 255, 0.1);
+      animation-delay: 2.1s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) translateX(0px); }
+      50% { transform: translateY(-18px) translateX(12px); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 rgba(247, 127, 0, 0); }
+      50% { box-shadow: 0 0 35px rgba(247, 127, 0, 0.28); }
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: rgba(10, 18, 27, 0.5);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .header-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, var(--accent), #ffbd73);
+      color: #111;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      box-shadow: 0 0 26px var(--accent-glow);
+    }
+
+    .nav {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav a:hover {
+      color: var(--text);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 22px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #ff9a1a 100%);
+      color: #101010;
+      box-shadow: 0 16px 40px var(--accent-glow);
+      animation: pulseGlow 3.2s ease-in-out infinite;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), 0 0 28px var(--accent-glow);
+    }
+
+    .section {
+      position: relative;
+      z-index: 1;
+      padding: 88px 24px;
+    }
+
+    .container {
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--accent-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px var(--accent-glow);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p {
+      margin-top: 0;
+    }
+
+    .headline-xl {
+      font-size: clamp(42px, 6vw, 82px);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      margin: 22px 0 20px;
+      max-width: 9.5em;
+    }
+
+    .headline-xl .accent {
+      color: var(--accent);
+      text-shadow: 0 0 28px rgba(247, 127, 0, 0.35);
+    }
+
+    .lead {
+      max-width: 620px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .hero {
+      padding-top: 44px;
+      overflow: clip;
+    }
+
+    .hero-grid {
+      display: flex;
+      gap: 28px;
+      align-items: stretch;
+      justify-content: space-between;
+    }
+
+    .hero-copy {
+      flex: 1.05;
+      padding-top: 40px;
+      position: relative;
+    }
+
+    .hero-copy::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      top: 0;
+      left: 52%;
+      transform: rotate(18deg);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 32px;
+      opacity: 0.35;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 28px 0 30px;
+    }
+
+    .badge {
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+
+    .stat {
+      min-width: 168px;
+      padding: 18px 18px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.08);
+      transform: rotate(-2deg);
+    }
+
+    .stat:nth-child(2) {
+      transform: rotate(2deg) translateY(16px);
+    }
+
+    .stat:nth-child(3) {
+      transform: rotate(-1deg) translateY(-6px);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 30px;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .hero-visual {
+      flex: 0.95;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      min-height: 720px;
+    }
+
+    .tilt-panel {
+      position: absolute;
+      inset: 10% 6% 12% 8%;
+      border-radius: 36px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015));
+      transform: rotate(-7deg);
+      box-shadow: var(--shadow);
+    }
+
+    .mock-wrap {
+      width: 360px;
+      position: relative;
+      z-index: 2;
+      transform: rotate(8deg) translateY(18px);
+    }
+
+    .iphone {
+      border-radius: 48px;
+      padding: 16px;
+      background: linear-gradient(180deg, #0a0d10, #1a1d23);
+      box-shadow: 0 25px 65px rgba(0,0,0,0.52), 0 0 36px rgba(247,127,0,0.2);
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .iphone::before {
+      content: "";
+      width: 120px;
+      height: 28px;
+      background: #090b0f;
+      border-radius: 0 0 18px 18px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+    }
+
+    .screen {
+      border-radius: 34px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(247, 127, 0, 0.26), transparent 28%),
+        linear-gradient(180deg, #10293a 0%, #081218 100%);
+      min-height: 680px;
+      position: relative;
+    }
+
+    .screen-header {
+      padding: 26px 22px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: rgba(255,255,255,0.8);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .screen-stack {
+      padding: 0 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .mock-card {
+      padding: 16px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+    }
+
+    .mock-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .avatar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #ffd29d, #f77f00);
+      box-shadow: 0 8px 24px rgba(247,127,0,0.24);
+    }
+
+    .search-chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(247,127,0,0.12);
+      color: #ffbf76;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(247,127,0,0.24);
+    }
+
+    .mock-grid {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .thumb {
+      width: calc(50% - 5px);
+      aspect-ratio: 0.82;
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.02)),
+        linear-gradient(135deg, #355f7a, #173346);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .thumb::after {
+      content: "AI Match 98%";
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(247,127,0,0.88);
+      color: #111;
+    }
+
+    .thumb:nth-child(2n) {
+      transform: translateY(16px);
+    }
+
+    .scan-line {
+      position: absolute;
+      inset: auto 0 32% 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(94,234,212,0.9), transparent);
+      box-shadow: 0 0 20px rgba(94,234,212,0.6);
+    }
+
+    .floating-note,
+    .floating-note-b {
+      position: absolute;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(9, 17, 24, 0.78);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow);
+      max-width: 220px;
+      z-index: 3;
+    }
+
+    .floating-note {
+      left: 0;
+      top: 15%;
+      transform: rotate(-9deg);
+    }
+
+    .floating-note-b {
+      right: -10px;
+      bottom: 12%;
+      transform: rotate(8deg);
+    }
+
+    .floating-note strong,
+    .floating-note-b strong {
+      display: block;
+      color: var(--accent-soft);
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
+
+    .clients {
+      padding-top: 30px;
+    }
+
+    .client-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+
+    .mini-panel {
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .section-title h2 {
+      font-size: clamp(32px, 4vw, 56px);
+      line-height: 1.02;
+      margin-bottom: 12px;
+      letter-spacing: -0.03em;
+    }
+
+    .section-title p {
+      max-width: 560px;
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+
+    .problem-layout {
+      display: flex;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .problem-copy {
+      flex: 0.9;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .problem-cards {
+      flex: 1.1;
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      align-content: flex-start;
+    }
+
+    .card {
+      padding: 24px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow);
+    }
+
+    .story {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .story::before {
+      content: "";
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      right: -24px;
+      top: -24px;
+      border-radius: 30px;
+      transform: rotate(18deg);
+      background: rgba(247,127,0,0.1);
+      border: 1px solid rgba(247,127,0,0.15);
+    }
+
+    .story h3,
+    .feature h3,
+    .price-card h3,
+    .testimonial h3,
+    .faq-item h3 {
+      margin-bottom: 12px;
+      font-size: 22px;
+    }
+
+    .problem-item {
+      flex: 1 1 calc(50% - 9px);
+      min-width: 240px;
+      transform: rotate(-2deg);
+    }
+
+    .problem-item:nth-child(2n) {
+      transform: rotate(2deg) translateY(18px);
+    }
+
+    .problem-item .num {
+      display: inline-flex;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      align-items: center;
+      justify-content: center;
+      background: rgba(247,127,0,0.14);
+      color: var(--accent-soft);
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .quote-inline {
+      margin-top: 8px;
+      font-size: 18px;
+      color: #fff4e9;
+      font-weight: 600;
+    }
+
+    .solution-layout {
+      display: flex;
+      gap: 26px;
+      align-items: center;
+    }
+
+    .solution-visual,
+    .solution-copy {
+      flex: 1;
+    }
+
+    .solution-board {
+      position: relative;
+      padding: 34px;
+      border-radius: 34px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow);
+      transform: rotate(-3deg);
+    }
+
+    .solution-board::after {
+      content: "";
+      position: absolute;
+      inset: 16px;
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,0.06);
+      pointer-events: none;
+    }
+
+    .workflow {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .workflow-step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: rgba(6, 14, 22, 0.58);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .workflow-step .dot {
+      flex: 0 0 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), #ffbf76);
+      color: #111;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .feature-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .feature {
+      flex: 1 1 calc(33.333% - 12px);
+      min-width: 250px;
+      padding: 24px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -40px auto;
+      width: 120px;
+      height: 120px;
+      border-radius: 28px;
+      background: rgba(247,127,0,0.08);
+      transform: rotate(24deg);
+    }
+
+    .icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      background: rgba(247,127,0,0.12);
+      color: var(--accent-soft);
+      font-weight: 900;
+      font-size: 20px;
+      border: 1px solid rgba(247,127,0,0.18);
+    }
+
+    .pricing-grid {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 26px;
+    }
+
+    .price-card {
+      flex: 1 1 calc(33.333% - 12px);
+      min-width: 260px;
+      padding: 28px;
+      border-radius: 28px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .price-card.recommended {
+      border-color: rgba(247,127,0,0.45);
+      background: linear-gradient(180deg, rgba(247,127,0,0.12), rgba(255,255,255,0.045));
+      transform: translateY(-14px);
+      box-shadow: 0 28px 60px rgba(0,0,0,0.34), 0 0 34px rgba(247,127,0,0.18);
+    }
+
+    .price-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .tag {
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .recommended .tag {
+      background: rgba(247,127,0,0.16);
+      color: #ffd29d;
+    }
+
+    .price {
+      font-size: clamp(38px, 4vw, 54px);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      margin: 18px 0 10px;
+    }
+
+    .price span {
+      font-size: 16px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-left: 4px;
+      letter-spacing: 0;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 22px 0 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feature-list li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: var(--muted);
+    }
+
+    .feature-list li::before {
+      content: "✓";
+      color: var(--success);
+      font-weight: 800;
+      margin-top: 1px;
+    }
+
+    .testimonials-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .testimonial {
+      flex: 1 1 calc(33.333% - 12px);
+      min-width: 260px;
+      padding: 26px;
+      border-radius: 26px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+    }
+
+    .testimonial::before {
+      content: "“";
+      position: absolute;
+      right: 20px;
+      top: 8px;
+      font-size: 80px;
+      line-height: 1;
+      color: rgba(247,127,0,0.14);
+      font-family: Georgia, serif;
+    }
+
+    .person {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-top: 18px;
+    }
+
+    .person .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+    }
+
+    .faq-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .faq-item {
+      padding: 22px 24px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .faq-item h3 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      font-size: 20px;
+    }
+
+    .faq-item h3 span {
+      color: var(--accent-soft);
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .cta-band {
+      position: relative;
+      overflow: hidden;
+      border-radius: 34px;
+      padding: 34px;
+      background: linear-gradient(135deg, rgba(247,127,0,0.17), rgba(255,255,255,0.04));
+      border: 1px solid rgba(247,127,0,0.2);
+      box-shadow: var(--shadow);
+    }
+
+    .cta-band::before {
+      content: "";
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      right: -80px;
+      top: -80px;
+      background: rgba(247,127,0,0.22);
+      filter: blur(8px);
+    }
+
+    .cta-inner {
+      display: flex;
+      gap: 24px;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-copy {
+      max-width: 680px;
+    }
+
+    .cta-copy h2 {
+      font-size: clamp(34px, 4vw, 58px);
+      line-height: 1.03;
+      margin-bottom: 14px;
+      letter-spacing: -0.03em;
+    }
+
+    .cta-points {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .cta-points .badge {
+      background: rgba(10,18,27,0.44);
+    }
+
+    .footer {
+      padding: 34px 24px 56px;
+      color: rgba(255,255,255,0.62);
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .highlight {
+      color: var(--accent-soft);
+      font-weight: 700;
+    }
+
+    @media (max-width: 1100px) {
+      .hero-grid,
+      .problem-layout,
+      .solution-layout,
+      .cta-inner {
+        flex-direction: column;
+      }
+
+      .hero-visual {
+        min-height: auto;
+        padding-top: 20px;
+      }
+
+      .mock-wrap {
+        transform: rotate(4deg);
+      }
+
+      .floating-note,
+      .floating-note-b {
+        position: static;
+        transform: none;
+        max-width: none;
+        margin-top: 16px;
+      }
+
+      .price-card.recommended {
+        transform: none;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .header-inner {
+        padding: 14px 18px;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .section {
+        padding: 70px 18px;
+      }
+
+      .headline-xl {
+        font-size: clamp(38px, 12vw, 58px);
+      }
+
+      .hero-copy {
+        padding-top: 16px;
+      }
+
+      .mock-wrap {
+        width: min(100%, 360px);
+      }
+
+      .feature,
+      .price-card,
+      .testimonial,
+      .problem-item {
+        min-width: 100%;
+        flex-basis: 100%;
+      }
+
+      .section-title {
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .hero-actions,
+      .hero-meta,
+      .hero-stats,
+      .client-row,
+      .cta-points {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .screen {
+        min-height: 620px;
+      }
+
+      .stat:nth-child(2),
+      .stat:nth-child(3),
+      .problem-item,
+      .mock-wrap,
+      .solution-board {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-noise"></div>
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+  <div class="orb three"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="#top" class="brand" aria-label="PhotoMatch home">
+        <span class="brand-mark">PM</span>
+        <span>PhotoMatch</span>
+      </a>
+      <nav class="nav" aria-label="primary navigation">
+        <a href="#problem">課題</a>
+        <a href="#solution">解決策</a>
+        <a href="#features">機能</a>
+        <a href="#pricing">料金</a>
+        <a href="#faq">FAQ</a>
+        <a href="#cta" class="btn btn-secondary">無料デモ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="section hero">
+      <div class="container">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <span class="eyebrow">event photo search, redesigned</span>
+            <h1 class="headline-xl">
+              撮られたはず、を
+              <span class="accent">10秒で見つける。</span>
+            </h1>
+            <p class="lead">
+              PhotoMatchは、イベント・セミナー・スポーツ大会で撮影された大量写真の中から、顔認識AIで本人の写真だけを瞬時に抽出するフォト検索プラットフォーム。<span class="highlight">“探す時間” をゼロに近づける</span>、体験価値の高い導線です。
+            </p>
+
+            <div class="hero-meta">
+              <div class="badge">AI顔認識で自分の写真だけ表示</div>
+              <div class="badge">主催者の満足度向上</div>
+              <div class="badge">写真販売CV改善</div>
+            </div>
+
+            <div class="hero-actions">
+              <a href="#cta" class="btn btn-primary">今すぐ無料デモを試す</a>
+              <a href="#pricing" class="btn btn-secondary">料金プランを見る</a>
+            </div>
+
+            <div class="hero-stats">
+              <div class="stat">
+                <strong>10秒</strong>
+                <span>平均検索完了時間。フォーム入力より速い。</span>
+              </div>
+              <div class="stat">
+                <strong>5,000枚+</strong>
+                <span>大量撮影イベントでもストレスなく絞り込み。</span>
+              </div>
+              <div class="stat">
+                <strong>+32%</strong>
+                <span>写真閲覧率の改善イメージ。売上導線も強くなる。</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <div class="tilt-panel"></div>
+
+            <div class="floating-note">
+              <strong>Before</strong>
+              <p class="muted">「どこに写ってるかわからない」
+                「スクロール地獄」
+                「結局見つからず離脱」</p>
+            </div>
+
+            <div class="mock-wrap">
+              <div class="iphone">
+                <div class="screen">
+                  <div class="screen-header">
+                    <span>9:41</span>
+                    <span>5G • 100%</span>
+                  </div>
+                  <div class="screen-stack">
+                    <div class="mock-card">
+                      <div class="mock-top">
+                        <div class="avatar-row">
+                          <div class="avatar"></div>
+                          <div>
+                            <strong>AI Face Search</strong>
+                            <div class="muted">selfieをアップロード</div>
+                          </div>
+                        </div>
+                        <div class="search-chip">scanning</div>
+                      </div>
+                      <div class="scan-line"></div>
+                      <p class="muted">数千枚から、あなたが写っている写真だけを抽出中。</p>
+                    </div>
+
+                    <div class="mock-card">
+                      <strong>Matched Photos</strong>
+                      <p class="muted">confidenceの高い順に表示</p>
+                      <div class="mock-grid">
+                        <div class="thumb"></div>
+                        <div class="thumb"></div>
+                        <div class="thumb"></div>
+                        <div class="thumb"></div>
+                      </div>
+                    </div>
+
+                    <div class="mock-card">
+                      <strong>Download / Purchase</strong>
+                      <p class="muted">そのまま保存、共有、購入まで一気通貫。</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="floating-note-b">
+              <strong>After</strong>
+              <p class="muted">自分の写真だけ即表示。迷わない、離脱しない、ちゃんと嬉しい。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="clients">
+          <div class="client-row">
+            <div class="mini-panel">sports events</div>
+            <div class="mini-panel">campus festivals</div>
+            <div class="mini-panel">conferences</div>
+            <div class="mini-panel">fan meetups</div>
+            <div class="mini-panel">photo commerce</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="problem">
+      <div class="container">
+        <div class="section-title">
+          <div>
+            <span class="eyebrow">problem</span>
+            <h2>写真が多いほど、
+              体験はむしろ悪くなる。</h2>
+          </div>
+          <p>
+            撮影枚数が増えるのは価値のはずなのに、参加者からすると「探せない」「面倒」「もういいや」になりがち。PhotoMatchは、この取りこぼしをまっすぐ潰します。
+          </p>
+        </div>
+
+        <div class="problem-layout">
+          <div class="problem-copy">
+            <div class="card story">
+              <h3>主催者側のよくある悩み</h3>
+              <p class="muted">
+                大会やイベント後、写真共有ページを出しても、参加者は全部見ない。写真販売サイトに送客しても、<span class="highlight">自分の写真に辿り着く前に疲れる</span>。サポート問い合わせも増える。わりと最悪。
+              </p>
+              <p class="quote-inline">「写真はある。でも届いてない」</p>
+            </div>
+
+            <div class="card story">
+              <h3>参加者が感じていること</h3>
+              <p class="muted">
+                何百枚もスクロールして、自分が写ってるか確認するのは地味にしんどい。スマホだと特に厳しい。だから体験として記憶に残るのは、写真そのものよりも<span class="highlight">探す面倒さ</span>になってしまう。
+              </p>
+            </div>
+          </div>
+
+          <div class="problem-cards">
+            <div class="card problem-item">
+              <div class="num">01</div>
+              <h3>スクロール地獄</h3>
+              <p class="muted">500枚、1,000枚、5,000枚。増えるほど閲覧完了率が落ちる。</p>
+            </div>
+
+            <div class="card problem-item">
+              <div class="num">02</div>
+              <h3>離脱の早さ</h3>
+              <p class="muted">スマホ閲覧では数十秒で「もう無理」となる。売上導線も消える。</p>
+            </div>
+
+            <div class="card problem-item">
+              <div class="num">03</div>
+              <h3>問い合わせ増加</h3>
+              <p class="muted">「自分の写真どこですか？」対応で運営コストがじわじわ増える。</p>
+            </div>
+
+            <div class="card problem-item">
+              <div class="num">04</div>
+              <h3>感動の欠損</h3>
+              <p class="muted">本来は嬉しい写真体験が、面倒な記憶に上書きされる。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="solution">
+      <div class="container">
+        <div class="section-title">
+          <div>
+            <span class="eyebrow">solution</span>
+            <h2>やることは、
+              selfieを1枚アップするだけ。</h2>
+          </div>
+          <p>
+            参加者は自撮りを一枚送るだけ。あとはAIが本人を認識し、イベント写真群から一致候補を自動抽出。検索体験を、UIごと別物に変えます。
+          </p>
+        </div>
+
+        <div class="solution-layout">
+          <div class="solution-visual">
+            <div class="solution-board">
+              <div class="workflow">
+                <div class="workflow-step">
+                  <div class="dot">1</div>
+                  <div>
+                    <strong>顔写真をアップロード</strong>
+                    <p class="muted">フォーム不要。スマホから本人のselfieをアップするだけ。</p>
+                  </div>
+                </div>
+                <div class="workflow-step">
+                  <div class="dot">2</div>
+                  <div>
+                    <strong>AIが特徴量を抽出</strong>
+                    <p class="muted">イベント写真内の人物と照合し、高精度な一致候補を生成。</p>
+                  </div>
+                </div>
+                <div class="workflow-step">
+                  <div class="dot">3</div>
+                  <div>
+                    <strong>自分の写真だけ表示</strong>
+                    <p class="muted">結果ページは本人写真に最適化。探すUIから、見つかるUIへ。</p>
+                  </div>
+                </div>
+                <div class="workflow-step">
+                  <div class="dot">4</div>
+                  <div>
+                    <strong>保存・共有・購入へ接続</strong>
+                    <p class="muted">そのままダウンロードや販売導線までスムーズに繋がる。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="solution-copy">
+            <div class="card story">
+              <h3>UXが変わると、数字も変わる</h3>
+              <p class="muted">
+                PhotoMatchは単なるAI機能ではなく、参加者の感情を取り戻す導線設計です。<span class="highlight">「自分の写真がすぐ見つかった」</span>という瞬間は、満足度にも、シェア率にも、購入率にも効く。
+              </p>
+            </div>
+            <div class="card story">
+              <h3>導入のハードルは低い</h3>
+              <p class="muted">
+                撮影オペレーションを大きく変える必要はありません。既存の写真アップロードフローに後付けしやすく、イベントごとの単発運用にも、継続利用にも対応できます。
+              </p>
+            </div>
+            <div class="card story">
+              <h3>スマホ前提で設計</h3>
+              <p class="muted">
+                実際に使われるのはほぼスマホ。だからこそ、読み込み、検索、結果表示、CTAまで、すべてモバイル体験を中心に最適化しています。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-title">
+          <div>
+            <span class="eyebrow">features</span>
+            <h2>派手なだけじゃない。
+              ちゃんと実務に効く。</h2>
+          </div>
+          <p>
+            現場で本当に欲しいのは、見た目の未来感だけじゃなくて、導入しやすさ、成果への接続、そして安心感。そこまで含めて設計しています。
+          </p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature">
+            <div class="icon">AI</div>
+            <h3>高精度顔マッチング</h3>
+            <p class="muted">複数角度・複数枚のイベント写真から本人候補を抽出。大量写真でも実用的な精度を目指す。</p>
+          </article>
+
+          <article class="feature">
+            <div class="icon">UX</div>
+            <h3>モバイル最適UI</h3>
+            <p class="muted">スマホでの操作を前提に、アップロードから閲覧完了までを最短動線で構築。</p>
+          </article>
+
+          <article class="feature">
+            <div class="icon">CV</div>
+            <h3>販売導線に接続</h3>
+            <p class="muted">見つかった写真からそのまま購入ページ、ダウンロード、シェアへ遷移可能。</p>
+          </article>
+
+          <article class="feature">
+            <div class="icon">∞</div>
+            <h3>大量写真対応</h3>
+            <p class="muted">数百枚から数千枚規模まで。イベント規模に応じた柔軟な運用を想定。</p>
+          </article>
+
+          <article class="feature">
+            <div class="icon">SEC</div>
+            <h3>データ配慮設計</h3>
+            <p class="muted">顔データの取り扱い、保存期間、利用目的の明示など、安心して導入できる前提を整備。</p>
+          </article>
+
+          <article class="feature">
+            <div class="icon">OPS</div>
+            <h3>現場フローに後付けしやすい</h3>
+            <p class="muted">撮影チームや既存アップロード環境を全面刷新しなくても組み込みやすい設計。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pricing">
+      <div class="container">
+        <div class="section-title">
+          <div>
+            <span class="eyebrow">pricing</span>
+            <h2>小さく始めて、
+              当たったら広げればいい。</h2>
+          </div>
+          <p>
+            PoCから本番運用まで、イベント規模や導入目的に応じて選べる3プラン。最初からフル装備にする必要はありません。
+          </p>
+        </div>
+
+        <div class="pricing-grid">
+          <article class="price-card">
+            <div class="price-top">
+              <h3>Starter</h3>
+              <span class="tag">single event</span>
+            </div>
+            <p class="muted">まずは一回試したいイベント向け。小規模導入の叩き台。</p>
+            <div class="price">¥49,800<span>/ 回</span></div>
+            <ul class="feature-list">
+              <li>写真 1,000枚まで</li>
+              <li>selfie検索UI提供</li>
+              <li>基本サポート</li>
+              <li>7日間の結果公開</li>
+            </ul>
+            <a href="#cta" class="btn btn-ghost">このプランで相談</a>
+          </article>
+
+          <article class="price-card recommended">
+            <div class="price-top">
+              <h3>Growth</h3>
+              <span class="tag">recommended</span>
+            </div>
+            <p class="muted">集客、満足度、写真販売まで狙うならこれ。いちばん現実的。</p>
+            <div class="price">¥148,000<span>/ 月</span></div>
+            <ul class="feature-list">
+              <li>写真 10,000枚まで</li>
+              <li>ブランド別デザイン調整</li>
+              <li>販売CTA組み込み</li>
+              <li>分析レポート付き</li>
+              <li>優先サポート</li>
+            </ul>
+            <a href="#cta" class="btn btn-primary">おすすめで始める</a>
+          </article>
+
+          <article class="price-card">
+            <div class="price-top">
+              <h3>Enterprise</h3>
+              <span class="tag">custom</span>
+            </div>
+            <p class="muted">大規模イベントや継続開催向け。セキュリティ要件や業務設計まで含めて相談。</p>
+            <div class="price">Ask<span> us</span></div>
+            <ul class="feature-list">
+              <li>枚数上限の個別調整</li>
+              <li>独自ドメイン / API連携</li>
+              <li>保存期間・運用要件調整</li>
+              <li>専任オンボーディング</li>
+            </ul>
+            <a href="#cta" class="btn btn-ghost">個別見積もり</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="testimonials">
+      <div class="container">
+        <div class="section-title">
+          <div>
+            <span class="eyebrow">testimonials</span>
+            <h2>導入後に返ってくるのは、
+              だいたい嬉しい驚き。</h2>
+          </div>
+          <p>
+            まだLPだから数字は仮説も混ざる。でも、体験が変わる構造はかなり明快。使った人の反応は、想像しやすいくらい素直です。
+          </p>
+        </div>
+
+        <div class="testimonials-grid">
+          <article class="testimonial">
+            <h3>大学イベント運営</h3>
+            <p class="muted">「写真共有ページの滞在時間が明らかに伸びた。『自分の写真すぐ出た！』が一番強かったです。」</p>
+            <div class="person">
+              <div class="avatar"></div>
+              <div>
+                <strong>学園祭 実行委員会</strong>
+                <div class="muted">来場者 4,000名規模</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="testimonial">
+            <h3>スポーツ大会主催</h3>
+            <p class="muted">「問い合わせが減ったのが地味に助かった。参加者満足度だけじゃなく、運営の体感もかなり変わる。」</p>
+            <div class="person">
+              <div class="avatar"></div>
+              <div>
+                <strong>市民マラソン事務局</strong>
+                <div class="muted">撮影枚数 約8,500枚</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="testimonial">
+            <h3>写真販売プラットフォーム</h3>
+            <p class="muted">「購入導線の前で迷わせないのが効く。探す体験を削るだけでCVがこんなに違うのか、って感じ。」</p>
+            <div class="person">
+              <div class="avatar"></div>
+              <div>
+                <strong>EC運営マネージャー</strong>
+                <div class="muted">イベント販売連携</div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="container">
+        <div class="section-title">
+          <div>
+            <span class="eyebrow">faq</span>
+            <h2>そのへん、気になるよね。
+              先に答えます。</h2>
+          </div>
+          <p>
+            顔認識まわりは、便利さと同じくらい安心感が大事。導入検討でよく出るポイントを、先にまとめました。
+          </p>
+        </div>
+
+        <div class="faq-wrap">
+          <article class="faq-item">
+            <h3>顔写真データはどう扱われますか？ <span>+</span></h3>
+            <p class="muted">利用目的、保存期間、削除ポリシーを明示したうえで運用します。要件に応じて保存しない設計や短期保持にも対応可能です。</p>
+          </article>
+
+          <article class="faq-item">
+            <h3>既存の写真共有サイトと連携できますか？ <span>+</span></h3>
+            <p class="muted">はい。単独LPとしても、既存システムへの後付け導線としても設計できます。APIやリンク遷移での連携相談も可能です。</p>
+          </article>
+
+          <article class="faq-item">
+            <h3>精度が心配です。 <span>+</span></h3>
+            <p class="muted">撮影条件や写真品質で変動はありますが、PoCで実データ検証しながら最適化できます。いきなり本番フル導入しなくていいのが救いです。</p>
+          </article>
+
+          <article class="faq-item">
+            <h3>イベント単発でも使えますか？ <span>+</span></h3>
+            <p class="muted">もちろん。単発イベント向けのStarterプランを用意しています。まず一回試して、反応を見てから広げるのが王道です。</p>
+          </article>
+
+          <article class="faq-item">
+            <h3>ブランドカラーやトーンは調整できますか？ <span>+</span></h3>
+            <p class="muted">できます。PhotoMatchの検索体験そのものは活かしつつ、イベントごとの世界観に合わせたUI調整に対応します。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="cta">
+      <div class="container">
+        <div class="cta-band">
+          <div class="cta-inner">
+            <div class="cta-copy">
+              <span class="eyebrow">cta</span>
+              <h2>写真体験を、
+                “探す” から “見つかる” に変えよう。</h2>
+              <p class="lead">
+                次のイベントで使えるか、まずは無料デモで確認してください。運営フロー、想定枚数、販売導線まで含めて、ちょうどいい導入形を一緒に設計します。
+              </p>
+              <div class="cta-points">
+                <div class="badge">無料デモあり</div>
+                <div class="badge">PoC相談OK</div>
+                <div class="badge">単発イベント対応</div>
+              </div>
+            </div>
+            <div>
+              <a href="mailto:hello@photomatch-demo.jp" class="btn btn-primary">無料デモを申し込む</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <strong>PhotoMatch</strong><br />
+        <span>AI Event Photo Discovery Platform</span>
+      </div>
+      <div class="footer-links">
+        <a href="#problem">課題</a>
+        <a href="#features">機能</a>
+        <a href="#pricing">料金</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

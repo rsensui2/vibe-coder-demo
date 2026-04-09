@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhotoMatch Premium | 出会いの精度を、見た目から変える</title>
+  <meta name="description" content="PhotoMatch Premiumは、マッチングアプリ用プロフィール写真を戦略的にアップデートするプレミアム撮影体験。第一印象を整え、出会いの質を変える。" />
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --bg-soft: #f8f6f0;
+      --bg-deep: #111111;
+      --ink: #141414;
+      --ink-soft: #5b5b5b;
+      --line: rgba(20, 20, 20, 0.12);
+      --accent: #D4AF37;
+      --accent-soft: rgba(212, 175, 55, 0.16);
+      --accent-deep: #a88417;
+      --white: #ffffff;
+      --shadow: 0 30px 80px rgba(0, 0, 0, 0.08);
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --container: 1200px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Hiragino Sans", "Yu Gothic", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfaf7 100%);
+      line-height: 1.7;
+      letter-spacing: 0.02em;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    .page-shell {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-shell::before,
+    .page-shell::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(12px);
+      opacity: 0.5;
+    }
+
+    .page-shell::before {
+      top: -160px;
+      right: -160px;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.18) 0%, rgba(212, 175, 55, 0) 70%);
+    }
+
+    .page-shell::after {
+      bottom: -180px;
+      left: -180px;
+      background: radial-gradient(circle, rgba(17, 17, 17, 0.08) 0%, rgba(17, 17, 17, 0) 72%);
+    }
+
+    .container {
+      width: min(calc(100% - 48px), var(--container));
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: rgba(255, 255, 255, 0.78);
+      border-bottom: 1px solid rgba(20, 20, 20, 0.06);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 82px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(255, 255, 255, 0.85));
+      color: var(--accent-deep);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 14px;
+      color: var(--ink-soft);
+    }
+
+    .nav a:hover { color: var(--ink); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 54px;
+      padding: 0 28px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #e1c15a 0%, var(--accent) 45%, #b9921c 100%);
+      color: #111;
+      box-shadow: 0 18px 36px rgba(212, 175, 55, 0.28);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.7);
+      border-color: rgba(20, 20, 20, 0.12);
+      color: var(--ink);
+    }
+
+    .hero {
+      min-height: calc(100vh - 82px);
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      position: relative;
+    }
+
+    .hero-left,
+    .hero-right {
+      min-height: calc(100vh - 82px);
+      padding: 88px 6vw 72px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hero-left {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,246,240,0.98)),
+        radial-gradient(circle at top left, rgba(212, 175, 55, 0.14), rgba(212,175,55,0) 42%);
+    }
+
+    .hero-right {
+      color: var(--white);
+      background:
+        linear-gradient(180deg, rgba(10,10,10,0.78), rgba(17,17,17,0.94)),
+        url('https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1600&q=80') center/cover;
+      overflow: hidden;
+    }
+
+    .hero-right::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, rgba(212,175,55,0.18), rgba(0,0,0,0.18) 40%, rgba(0,0,0,0.38));
+    }
+
+    .hero-left > *,
+    .hero-right > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      width: fit-content;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(212, 175, 55, 0.22);
+      color: var(--accent-deep);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    }
+
+    .eyebrow-dark {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(212,175,55,0.3);
+      color: #f6df8c;
+      backdrop-filter: blur(12px);
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      margin-top: 28px;
+      font-family: "Cormorant Garamond", "Times New Roman", serif;
+      font-size: clamp(52px, 7vw, 96px);
+      line-height: 0.95;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-title-accent {
+      color: var(--accent-deep);
+      display: block;
+      margin-top: 10px;
+    }
+
+    .hero-copy {
+      margin-top: 28px;
+      max-width: 620px;
+      font-size: 17px;
+      color: var(--ink-soft);
+    }
+
+    .hero-actions {
+      margin-top: 36px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .hero-metrics {
+      margin-top: 52px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      max-width: 720px;
+    }
+
+    .metric-card {
+      padding: 24px 22px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.75);
+      border: 1px solid rgba(20,20,20,0.07);
+      box-shadow: var(--shadow);
+    }
+
+    .metric-value {
+      display: block;
+      font-size: clamp(28px, 3vw, 42px);
+      line-height: 1;
+      font-family: "Cormorant Garamond", serif;
+      color: var(--accent-deep);
+      margin-bottom: 10px;
+    }
+
+    .metric-label {
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+
+    .right-panel {
+      width: min(100%, 520px);
+      margin-left: auto;
+      padding: 34px;
+      border-radius: var(--radius-xl);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 28px 50px rgba(0,0,0,0.28);
+    }
+
+    .right-panel h2 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 40px;
+      line-height: 1.05;
+      margin-top: 20px;
+    }
+
+    .right-panel p {
+      margin-top: 18px;
+      color: rgba(255,255,255,0.78);
+      font-size: 15px;
+    }
+
+    .persona-list {
+      margin-top: 28px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .persona-item {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 16px 0;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .persona-item:first-child { border-top: none; padding-top: 0; }
+
+    .persona-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(212,175,55,0.16);
+      color: #f6df8c;
+      font-weight: 700;
+      border: 1px solid rgba(212,175,55,0.28);
+    }
+
+    .split-section {
+      padding: 120px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 38px;
+      align-items: stretch;
+    }
+
+    .section-panel {
+      border-radius: var(--radius-xl);
+      padding: 44px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-panel.light {
+      background: linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
+      border: 1px solid rgba(20,20,20,0.06);
+    }
+
+    .section-panel.dark {
+      background: linear-gradient(180deg, #171717 0%, #0f0f0f 100%);
+      color: var(--white);
+      border: 1px solid rgba(212,175,55,0.14);
+    }
+
+    .section-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+    }
+
+    .section-panel.dark .section-kicker { color: #f0d67b; }
+
+    .section-title {
+      margin-top: 18px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(40px, 4vw, 62px);
+      line-height: 0.98;
+      letter-spacing: -0.03em;
+    }
+
+    .section-copy {
+      margin-top: 18px;
+      font-size: 16px;
+      color: var(--ink-soft);
+      max-width: 540px;
+    }
+
+    .section-panel.dark .section-copy { color: rgba(255,255,255,0.72); }
+
+    .problem-list,
+    .feature-list,
+    .faq-list,
+    .price-list,
+    .testimonial-list {
+      margin-top: 30px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .problem-card,
+    .feature-card,
+    .faq-item,
+    .price-card,
+    .testimonial-card {
+      padding: 24px;
+      border-radius: var(--radius-md);
+    }
+
+    .problem-card,
+    .feature-card,
+    .faq-item,
+    .testimonial-card {
+      background: rgba(255,255,255,0.78);
+      border: 1px solid rgba(20,20,20,0.06);
+    }
+
+    .section-panel.dark .feature-card,
+    .section-panel.dark .testimonial-card,
+    .section-panel.dark .faq-item {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .problem-card strong,
+    .feature-card strong,
+    .faq-item strong,
+    .price-card strong,
+    .testimonial-card strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .problem-card p,
+    .feature-card p,
+    .faq-item p,
+    .price-card p,
+    .testimonial-card p {
+      font-size: 15px;
+      color: var(--ink-soft);
+    }
+
+    .section-panel.dark .feature-card p,
+    .section-panel.dark .testimonial-card p,
+    .section-panel.dark .faq-item p {
+      color: rgba(255,255,255,0.72);
+    }
+
+    .timeline {
+      margin-top: 32px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .timeline-step {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 20px;
+      align-items: start;
+      padding: 20px 0;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .timeline-step:first-child { border-top: none; padding-top: 0; }
+
+    .timeline-no {
+      width: 62px;
+      height: 62px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(212,175,55,0.25), rgba(255,255,255,0.06));
+      border: 1px solid rgba(212,175,55,0.26);
+      color: #f4de8c;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 26px;
+    }
+
+    .feature-grid {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .feature-card {
+      min-height: 220px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,248,242,1));
+      box-shadow: 0 18px 36px rgba(0,0,0,0.05);
+    }
+
+    .feature-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 16px;
+      background: var(--accent-soft);
+      color: var(--accent-deep);
+      font-weight: 700;
+    }
+
+    .price-wrap {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .price-card {
+      background: linear-gradient(180deg, #fffdf8, #f7f2e2);
+      border: 1px solid rgba(212,175,55,0.28);
+      box-shadow: 0 20px 40px rgba(212,175,55,0.12);
+    }
+
+    .price-tag {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin: 18px 0 10px;
+      font-family: "Cormorant Garamond", serif;
+    }
+
+    .price-tag .amount {
+      font-size: clamp(48px, 5vw, 72px);
+      line-height: 0.95;
+      color: var(--accent-deep);
+    }
+
+    .price-tag .unit {
+      font-size: 18px;
+      color: var(--ink-soft);
+    }
+
+    .price-points {
+      margin-top: 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .price-point {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 14px;
+      color: var(--ink-soft);
+    }
+
+    .dot {
+      flex: 0 0 10px;
+      width: 10px;
+      height: 10px;
+      margin-top: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(212,175,55,0.14);
+    }
+
+    .compare-box {
+      padding: 30px;
+      border-radius: var(--radius-lg);
+      background: rgba(17,17,17,0.94);
+      color: var(--white);
+      border: 1px solid rgba(212,175,55,0.18);
+    }
+
+    .compare-table {
+      margin-top: 24px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 0.8fr;
+      gap: 16px;
+      padding: 14px 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 14px;
+    }
+
+    .compare-row:first-child { border-top: none; padding-top: 0; }
+
+    .compare-row span:last-child {
+      color: #f0d67b;
+      font-weight: 700;
+    }
+
+    .testimonials-grid {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .testimonial-card {
+      min-height: 260px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,247,240,1));
+      box-shadow: 0 18px 34px rgba(0,0,0,0.05);
+    }
+
+    .quote-mark {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 60px;
+      line-height: 0.8;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .profile {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(20,20,20,0.08);
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+
+    .faq-layout {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 20px;
+    }
+
+    .faq-side {
+      padding: 30px;
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .faq-side ul {
+      margin: 20px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 14px;
+      color: rgba(255,255,255,0.72);
+      font-size: 14px;
+    }
+
+    .faq-item {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .cta-footer {
+      padding: 40px;
+      border-radius: 36px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 26px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96), rgba(247,243,230,0.98)),
+        radial-gradient(circle at top right, rgba(212,175,55,0.18), transparent 32%);
+      border: 1px solid rgba(212,175,55,0.22);
+      box-shadow: 0 30px 70px rgba(0,0,0,0.08);
+    }
+
+    .cta-card {
+      padding: 30px;
+      border-radius: 28px;
+      background: rgba(17,17,17,0.96);
+      color: var(--white);
+      border: 1px solid rgba(212,175,55,0.18);
+    }
+
+    .cta-card p {
+      color: rgba(255,255,255,0.74);
+      margin-top: 14px;
+    }
+
+    .cta-badges {
+      margin-top: 26px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .badge {
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(212,175,55,0.14);
+      border: 1px solid rgba(212,175,55,0.25);
+      color: var(--accent-deep);
+      font-weight: 700;
+    }
+
+    .footer-meta {
+      padding: 38px 0 60px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+
+    @media (max-width: 1100px) {
+      .hero,
+      .section-grid,
+      .price-wrap,
+      .faq-layout,
+      .cta-footer {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-left,
+      .hero-right {
+        min-height: auto;
+      }
+
+      .testimonials-grid,
+      .feature-grid,
+      .hero-metrics {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .container { width: min(calc(100% - 28px), var(--container)); }
+      .nav { display: none; }
+      .hero-left,
+      .hero-right,
+      .section-panel,
+      .cta-footer,
+      .cta-card { padding: 28px; }
+      .hero-metrics,
+      .testimonials-grid,
+      .feature-grid,
+      .faq-layout { grid-template-columns: 1fr; }
+      .topbar-inner { min-height: 72px; }
+      h1 { font-size: 54px; }
+      .footer-meta { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a class="brand" href="#top">
+          <span class="brand-mark">P</span>
+          <span>PhotoMatch Premium</span>
+        </a>
+        <nav class="nav">
+          <a href="#problem">課題</a>
+          <a href="#solution">解決策</a>
+          <a href="#features">特徴</a>
+          <a href="#pricing">料金</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+        <a class="btn btn-primary" href="#cta">Reserve Session</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-left">
+          <span class="eyebrow">Premium Image Direction</span>
+          <h1>
+            写真を変えるだけで、
+            <span class="hero-title-accent">出会いの温度は変わる。</span>
+          </h1>
+          <p class="hero-copy">
+            PhotoMatch Premiumは、マッチングアプリでの第一印象を戦略的に整えるためのプレミアム撮影サービス。
+            ただ盛るのではなく、会いたくなる信頼感と余裕を一枚に設計する。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#cta">無料カウンセリングを予約</a>
+            <a class="btn btn-secondary" href="#pricing">プランを見る</a>
+          </div>
+          <div class="hero-metrics">
+            <article class="metric-card">
+              <span class="metric-value">3.1x</span>
+              <span class="metric-label">プロフィール閲覧後のいいね獲得率向上イメージ</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-value">90min</span>
+              <span class="metric-label">スタイリングから撮影まで完結する集中セッション</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-value">48h</span>
+              <span class="metric-label">レタッチ済み納品までの最短時間</span>
+            </article>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="right-panel">
+            <span class="eyebrow eyebrow-dark">For Selective Singles</span>
+            <h2>雰囲気は、偶然じゃない。</h2>
+            <p>
+              ハイエンドブランドのビジュアル設計を応用し、恋愛市場における「信頼」「品」「親しみ」を同時に伝える。
+              ラフすぎず、キメすぎず、その人の勝ち筋に合わせて写真を組み立てる。
+            </p>
+            <div class="persona-list">
+              <div class="persona-item">
+                <div class="persona-icon">01</div>
+                <div>
+                  <strong>忙しくて撮り直しが後回しの経営者・管理職</strong>
+                  <p>実物の魅力より、今のプロフィール写真が損している人向け。</p>
+                </div>
+              </div>
+              <div class="persona-item">
+                <div class="persona-icon">02</div>
+                <div>
+                  <strong>誠実なのに、写真で硬く見えてしまう人</strong>
+                  <p>親しみやすさと知性のバランスを、構図と光で調整する。</p>
+                </div>
+              </div>
+              <div class="persona-item">
+                <div class="persona-icon">03</div>
+                <div>
+                  <strong>ハイクラス志向の出会いに合わせて印象を整えたい人</strong>
+                  <p>量より質のマッチングへ、写真の解像度を上げる。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="problem" class="split-section">
+        <div class="container section-grid">
+          <div class="section-panel light">
+            <span class="section-kicker">Problem</span>
+            <h2 class="section-title">いい人そう、で止まる写真はもったいない。</h2>
+            <p class="section-copy">
+              恋愛市場では、数秒で判断される。プロフィール文が良くても、写真がその価値を支えきれていないとマッチ率は鈍る。
+              ありがちなのは「清潔感はあるけど記憶に残らない」状態。
+            </p>
+            <div class="problem-list">
+              <div class="problem-card">
+                <strong>自撮り感が抜けず、生活感だけが残る</strong>
+                <p>部屋の照明、角度、背景の散らかりが無意識にノイズになる。悪くないのに、選ばれにくい。</p>
+              </div>
+              <div class="problem-card">
+                <strong>真面目さは伝わるが、余裕や色気が見えない</strong>
+                <p>仕事ができる人ほど、写真では固くなる。親しみと品の設計がないまま出してしまいがち。</p>
+              </div>
+              <div class="problem-card">
+                <strong>頑張って加工した結果、逆に不自然になる</strong>
+                <p>盛りすぎは、会った時の違和感になる。高単価層ほど、このズレに敏感。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-panel dark">
+            <span class="section-kicker">Market Reality</span>
+            <h2 class="section-title">写真は履歴書じゃなく、体験の予告編。</h2>
+            <p class="section-copy">
+              相手が見ているのは顔の造形だけじゃない。どんな時間を過ごせそうか、その予感。
+              だから必要なのは、ただのポートレートではなく「会いたくなる空気感」の演出。
+            </p>
+            <div class="timeline">
+              <div class="timeline-step">
+                <div class="timeline-no">1</div>
+                <div>
+                  <strong>3秒で雰囲気が判定される</strong>
+                  <p>視線、姿勢、服の質感、背景のトーン。情報は一瞬でまとめて読まれる。</p>
+                </div>
+              </div>
+              <div class="timeline-step">
+                <div class="timeline-no">2</div>
+                <div>
+                  <strong>誠実さだけでは差別化にならない</strong>
+                  <p>「安心」だけでなく、「一緒にいて楽しそう」が必要になる。</p>
+                </div>
+              </div>
+              <div class="timeline-step">
+                <div class="timeline-no">3</div>
+                <div>
+                  <strong>高いマッチ率は、戦略的な印象設計から始まる</strong>
+                  <p>場当たり的に撮るのではなく、狙う層に合わせて演出を最適化する。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="solution" class="split-section">
+        <div class="container section-grid">
+          <div class="section-panel dark">
+            <span class="section-kicker">Solution</span>
+            <h2 class="section-title">戦略とムードで、印象を設計する。</h2>
+            <p class="section-copy">
+              PhotoMatch Premiumは、プロフィール写真を「なんとなく撮る」から「勝ち筋で撮る」へ変える。
+              ヒアリングで理想の出会い方を言語化し、服装、ロケーション、表情、セレクトまで一気通貫で伴走する。
+            </p>
+            <div class="timeline">
+              <div class="timeline-step">
+                <div class="timeline-no">A</div>
+                <div>
+                  <strong>ポジショニング診断</strong>
+                  <p>狙う層、避けたい見え方、仕事や趣味との整合性まで整理して、写真のコンセプトを決める。</p>
+                </div>
+              </div>
+              <div class="timeline-step">
+                <div class="timeline-no">B</div>
+                <div>
+                  <strong>スタイリングディレクション</strong>
+                  <p>手持ち服の選定でも、買い足し提案でもOK。清潔感の先にある「余裕」を作る。</p>
+                </div>
+              </div>
+              <div class="timeline-step">
+                <div class="timeline-no">C</div>
+                <div>
+                  <strong>マッチング前提のセレクト</strong>
+                  <p>写真映えだけでなく、アプリ上で並んだ時に止まるカットを優先して仕上げる。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-panel light">
+            <span class="section-kicker">Transformation</span>
+            <h2 class="section-title">自然なのに、明らかに違う。</h2>
+            <p class="section-copy">
+              作り込みすぎないのに、なぜか惹かれる。そんな上質さを目指す。
+              顔だけをきれいに撮るのではなく、その人の生活レベルや価値観までにじむような画を作るのがPremiumの仕事。
+            </p>
+            <div class="problem-list">
+              <div class="problem-card">
+                <strong>Before</strong>
+                <p>証明写真っぽい、友達に撮られた感、頑張ってるのに普通、で止まる。</p>
+              </div>
+              <div class="problem-card">
+                <strong>After</strong>
+                <p>知性、余裕、誠実さ、親しみやすさが同居し、「この人ちょっと気になる」に変わる。</p>
+              </div>
+              <div class="problem-card">
+                <strong>Why it works</strong>
+                <p>構図、距離感、視線、服の素材感、背景の抜け感を全部まとめて設計しているから。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="split-section">
+        <div class="container">
+          <div class="section-grid">
+            <div class="section-panel light">
+              <span class="section-kicker">Features</span>
+              <h2 class="section-title">プレミアムである理由は、細部に出る。</h2>
+              <p class="section-copy">
+                安い撮影サービスとの差は、シャッターを切る前にどれだけ考えているか。
+                PhotoMatch Premiumは、事前設計から納品後の使い方まで、ちゃんと実務的に強い。
+              </p>
+            </div>
+            <div class="section-panel dark">
+              <span class="section-kicker">Signature Experience</span>
+              <h2 class="section-title">ただの撮影会で終わらせない。</h2>
+              <p class="section-copy">
+                印象設計、撮影、セレクト、掲載順のアドバイスまで一本化。
+                「良い写真が撮れた」で終わらず、「ちゃんと反応が変わる」までを見据える。
+              </p>
+            </div>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature-card">
+              <div class="feature-icon">01</div>
+              <strong>アプリ最適化のアートディレクション</strong>
+              <p>バストアップ、全身、趣味カット、サブ写真まで、アプリUIでの見え方を前提に設計する。</p>
+            </article>
+            <article class="feature-card">
+              <div class="feature-icon">02</div>
+              <strong>ロケーション選定の精度</strong>
+              <p>ホテルラウンジ、街角、グリーン、カフェなど、狙う印象ごとに背景トーンを切り替える。</p>
+            </article>
+            <article class="feature-card">
+              <div class="feature-icon">03</div>
+              <strong>大人っぽさを壊さないレタッチ</strong>
+              <p>肌補正は清潔感を足す程度に。実物とのズレを生まない、ハイエンド寄りの調整。</p>
+            </article>
+            <article class="feature-card">
+              <div class="feature-icon">04</div>
+              <strong>プロフィール文との整合性確認</strong>
+              <p>テキストが誠実なら写真も誠実に、遊び心があるなら少し温度感を足す。全体で矛盾させない。</p>
+            </article>
+            <article class="feature-card">
+              <div class="feature-icon">05</div>
+              <strong>ポージングが苦手でも成立する導線</strong>
+              <p>細かい指示を言語化しすぎず、会話と動線で自然な表情を引き出すから、撮られ慣れてなくても安心。</p>
+            </article>
+            <article class="feature-card">
+              <div class="feature-icon">06</div>
+              <strong>納品後の実装アドバイス</strong>
+              <p>どの写真を1枚目に置くか、サブ写真に何を入れるか、反応を見てどう差し替えるかまでサポート。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="pricing" class="split-section">
+        <div class="container section-grid">
+          <div class="section-panel light">
+            <span class="section-kicker">Pricing</span>
+            <h2 class="section-title">安くはない。でも、安売りもしない。</h2>
+            <p class="section-copy">
+              恋愛の入口で損をしないための投資として、必要な設計と品質に絞ったプラン。
+              量産型ではなく、一人ずつ丁寧に仕上げるため、予約枠は限定している。
+            </p>
+            <div class="price-wrap">
+              <div class="price-card">
+                <strong>Premium Session</strong>
+                <div class="price-tag">
+                  <span class="amount">¥49,800</span>
+                  <span class="unit">税込 / 1 session</span>
+                </div>
+                <p>プロフィール用途に最適化した撮影・選定・軽レタッチ込みのベースプラン。</p>
+                <div class="price-points">
+                  <div class="price-point"><span class="dot"></span><span>事前オンラインヒアリング 30分</span></div>
+                  <div class="price-point"><span class="dot"></span><span>撮影 90分、2ロケーション相当</span></div>
+                  <div class="price-point"><span class="dot"></span><span>納品 12カット、48時間以内</span></div>
+                  <div class="price-point"><span class="dot"></span><span>掲載順・写真選定アドバイス付き</span></div>
+                </div>
+              </div>
+              <div class="compare-box">
+                <strong>Option Menu</strong>
+                <div class="compare-table">
+                  <div class="compare-row"><span>ファッション事前相談</span><span>30分</span><span>+ ¥8,800</span></div>
+                  <div class="compare-row"><span>ヘアメイク同行</span><span>当日</span><span>+ ¥16,500</span></div>
+                  <div class="compare-row"><span>追加レタッチ納品</span><span>5カット</span><span>+ ¥6,600</span></div>
+                  <div class="compare-row"><span>プロフィール文フィードバック</span><span>1回</span><span>+ ¥5,500</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-panel dark">
+            <span class="section-kicker">Comparison</span>
+            <h2 class="section-title">一般的な撮影との違い</h2>
+            <p class="section-copy">
+              ただ写真を撮るなら、もっと安い選択肢はいくらでもある。
+              でも「会いたくなる印象」をちゃんと作るサービスは、意外と少ない。
+            </p>
+            <div class="testimonial-list">
+              <div class="testimonial-card">
+                <strong>一般的な宣材撮影</strong>
+                <p>きれいには撮れるが、恋愛市場の空気感まで踏み込まない。結果、無難で終わる。</p>
+              </div>
+              <div class="testimonial-card">
+                <strong>格安マッチング写真サービス</strong>
+                <p>テンプレ感が強く、誰でも同じ仕上がりになりやすい。ハイクラス層には薄い。</p>
+              </div>
+              <div class="testimonial-card">
+                <strong>PhotoMatch Premium</strong>
+                <p>ターゲット設計、スタイリング、掲載順まで含めて最適化。写真を成果物として扱う。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="split-section">
+        <div class="container">
+          <div class="section-grid">
+            <div class="section-panel light">
+              <span class="section-kicker">Testimonials</span>
+              <h2 class="section-title">「自分の見え方」を初めて理解できた。</h2>
+              <p class="section-copy">
+                ただ褒めるのではなく、どう見えていて、どう変えればいいかが分かるから腹落ちする。
+                納品後の反応まで含めて、ちゃんと手応えが残る。
+              </p>
+            </div>
+            <div class="section-panel dark">
+              <span class="section-kicker">Client Voice</span>
+              <h2 class="section-title">派手じゃない。でも、結果が違う。</h2>
+              <p class="section-copy">
+                プレミアム感は、過剰演出ではなく解像度に宿る。
+                目立つより、選ばれる方向へ寄せた人たちの声を置いておく。
+              </p>
+            </div>
+          </div>
+
+          <div class="testimonials-grid">
+            <article class="testimonial-card">
+              <div class="quote-mark">“</div>
+              <strong>アプリを開くたび、写真が足を引っ張ってたと気づいた。</strong>
+              <p>
+                仕事では信頼されるのに、恋愛になると反応が薄い理由が写真だった。
+                変に若作りせず、落ち着いたまま印象を上げてくれたのがありがたかった。
+              </p>
+              <div class="profile">38歳 / 経営者 / 初月のマッチ数が約2.4倍に</div>
+            </article>
+            <article class="testimonial-card">
+              <div class="quote-mark">“</div>
+              <strong>自然体なのに、明らかに垢抜けて見える。</strong>
+              <p>
+                撮影中に気合いを入れさせられる感じがなくて、むしろ会話してたら終わった。
+                でも写真を見たら、ちゃんと余裕のある人に見えていて笑った。
+              </p>
+              <div class="profile">32歳 / 外資系勤務 / 1枚目変更後に返信率改善</div>
+            </article>
+            <article class="testimonial-card">
+              <div class="quote-mark">“</div>
+              <strong>高そうな店に行く人、ではなく上質な人に見える。</strong>
+              <p>
+                いやらしいラグジュアリー感じゃなく、暮らしの質が高そうに見える絶妙なライン。
+                そこが一番よかった。会った時のギャップもない。
+              </p>
+              <div class="profile">41歳 / 医療関連 / 真剣交際につながる出会いが増加</div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" class="split-section">
+        <div class="container section-grid">
+          <div class="section-panel dark">
+            <span class="section-kicker">FAQ</span>
+            <h2 class="section-title">気になることは、先に潰しておく。</h2>
+            <p class="section-copy">
+              プレミアムサービスほど、申し込む前に確認したいことが多い。
+              よくある質問に、ちゃんと答える。
+            </p>
+            <div class="faq-layout">
+              <div class="faq-side">
+                <strong>こんな人に向いている</strong>
+                <ul>
+                  <li>• 写真を変えても、なぜ反応が違うかまで知りたい人</li>
+                  <li>• 誠実さを保ちつつ、もう少し洗練された印象に寄せたい人</li>
+                  <li>• 量より質の出会いを重視したい人</li>
+                </ul>
+              </div>
+              <div class="faq-list">
+                <div class="faq-item">
+                  <strong>Q. 撮られるのが苦手でも大丈夫？</strong>
+                  <p>A. 大丈夫。無理に笑わせたり、ポーズを押し付けたりしない。会話と動線で自然な表情を引き出す設計にしている。</p>
+                </div>
+                <div class="faq-item">
+                  <strong>Q. 手持ちの服だけでも対応できる？</strong>
+                  <p>A. できる。事前に写真を見ながら、使える服と避けた方がいい服を判断する。必要なら買い足し提案もする。</p>
+                </div>
+                <div class="faq-item">
+                  <strong>Q. レタッチはどの程度？</strong>
+                  <p>A. 清潔感を整える範囲。実物との差が出る加工はしない。会った時に好印象が続くことを優先する。</p>
+                </div>
+                <div class="faq-item">
+                  <strong>Q. 女性向け、または別ジャンルでも使える？</strong>
+                  <p>A. 使える。マッチングアプリ向けの印象設計は男女問わず応用可能。目的に応じて演出を変える。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="cta" class="section-panel light">
+            <span class="section-kicker">CTA Footer</span>
+            <h2 class="section-title">次の出会いを、写真で取りこぼさない。</h2>
+            <p class="section-copy">
+              申し込み前に、今のプロフィール写真をざっくり見てほしい。そんな相談からでもいい。
+              無理なセールスはしない。合わなければ、そう言う。
+            </p>
+            <div class="cta-footer">
+              <div>
+                <div class="cta-badges">
+                  <span class="badge">Limited Monthly Slots</span>
+                  <span class="badge">Tokyo Premium Shoot</span>
+                  <span class="badge">Profile Strategy Included</span>
+                </div>
+                <div style="margin-top: 26px; display: flex; flex-wrap: wrap; gap: 14px;">
+                  <a class="btn btn-primary" href="mailto:premium@photomatch.jp?subject=PhotoMatch%20Premium%20%E7%9B%B8%E8%AB%87">メールで相談する</a>
+                  <a class="btn btn-secondary" href="https://example.com" target="_blank" rel="noopener">LINEで空き枠を見る</a>
+                </div>
+              </div>
+              <div class="cta-card">
+                <strong>初回カウンセリング内容</strong>
+                <p>
+                  現在のプロフィール写真確認、狙いたい出会いの方向性、改善ポイントの仮説共有。
+                  ここで方向性が合えば撮影へ進む。合わなければ、そのまま見送ってもらって大丈夫。
+                </p>
+                <p>
+                  所要時間: 20分<br />
+                  形式: オンライン / 対面どちらも可<br />
+                  料金: 無料
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="container footer-meta">
+      <span>© 2026 PhotoMatch Premium. All rights reserved.</span>
+      <span>Elegance, clarity, and chemistry, designed with intent.</span>
+    </footer>
+  </div>
+</body>
+</html>
