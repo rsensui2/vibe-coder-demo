@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentDispatch - モックアプリ</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #060a12;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  }
+
+  /* ===== IPHONE FRAME ===== */
+  .iphone {
+    position: relative;
+    width: 393px;
+    height: 852px;
+    background: #0A0F1C;
+    border-radius: 54px;
+    box-shadow:
+      0 0 0 2px #2a2a3a,
+      0 0 0 4px #1a1a2e,
+      0 40px 80px rgba(0,0,0,0.8),
+      inset 0 0 0 1px rgba(255,255,255,0.08);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* Side buttons */
+  .iphone::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 160px;
+    width: 4px;
+    height: 40px;
+    background: #1e1e2e;
+    border-radius: 2px 0 0 2px;
+    box-shadow: 0 56px 0 #1e1e2e, 0 104px 0 #1e1e2e;
+  }
+  .iphone::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 190px;
+    width: 4px;
+    height: 72px;
+    background: #1e1e2e;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ===== DYNAMIC ISLAND ===== */
+  .dynamic-island {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 37px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .di-camera {
+    width: 12px;
+    height: 12px;
+    background: #1a1a2a;
+    border-radius: 50%;
+    border: 2px solid #0d0d1a;
+    position: relative;
+  }
+  .di-camera::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 4px; height: 4px;
+    background: #2a3060;
+    border-radius: 50%;
+  }
+  .di-sensor {
+    width: 10px;
+    height: 10px;
+    background: #111;
+    border-radius: 50%;
+    border: 1px solid #222;
+  }
+
+  /* ===== STATUS BAR ===== */
+  .status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 28px 8px;
+    justify-content: space-between;
+    z-index: 50;
+  }
+  .status-time {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #fff;
+    font-size: 12px;
+  }
+  .status-icons svg {
+    width: 16px;
+    height: 12px;
+    fill: #fff;
+  }
+  .battery {
+    width: 25px;
+    height: 12px;
+    border: 1.5px solid rgba(255,255,255,0.6);
+    border-radius: 3px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+  }
+  .battery::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 5px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 0 1px 1px 0;
+  }
+  .battery-fill {
+    width: 70%;
+    height: 100%;
+    background: #fff;
+    border-radius: 1px;
+  }
+
+  /* ===== SCREEN CONTAINER ===== */
+  .screen-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+  }
+  .screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    flex-direction: column;
+    background: #0A0F1C;
+  }
+  .screen.active { display: flex; }
+
+  /* ===== CONTENT AREA ===== */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 68px 20px 90px;
+    scrollbar-width: none;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* ===== BOTTOM TAB NAV ===== */
+  .tab-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 84px;
+    background: rgba(10,15,28,0.92);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(0,229,255,0.12);
+    display: flex;
+    align-items: flex-start;
+    padding-top: 10px;
+    z-index: 200;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: all 0.2s;
+  }
+  .tab-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    line-height: 1;
+    transition: transform 0.2s;
+  }
+  .tab-label {
+    font-size: 10px;
+    color: #4a5568;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .tab-item.active .tab-label { color: #00E5FF; }
+  .tab-item.active .tab-icon { transform: scale(1.1); }
+  .tab-item:hover .tab-label { color: rgba(0,229,255,0.7); }
+
+  /* ===== PAGE HEADER ===== */
+  .page-header {
+    padding: 0 0 16px;
+  }
+  .page-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .page-subtitle {
+    font-size: 13px;
+    color: #5a6a8a;
+    margin-top: 2px;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(0,229,255,0.2); }
+
+  /* ===== STAT CARDS ===== */
+  .stats-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    flex: 1;
+    background: rgba(0,229,255,0.06);
+    border: 1px solid rgba(0,229,255,0.15);
+    border-radius: 14px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: #00E5FF;
+    letter-spacing: -1px;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: #5a6a8a;
+    margin-top: 2px;
+  }
+
+  /* ===== AGENT CARD ===== */
+  .agent-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .agent-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: #00E5FF;
+    border-radius: 3px 0 0 3px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .agent-card:hover::before { opacity: 1; }
+  .agent-card:hover { border-color: rgba(0,229,255,0.25); transform: translateX(2px); }
+  .agent-card.warning { border-color: rgba(255,61,113,0.25); }
+  .agent-card.warning::before { background: #FF3D71; }
+  .agent-card.warning:hover::before { opacity: 1; }
+
+  .agent-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .agent-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #00E5FF22, #00E5FF44);
+    border: 1px solid rgba(0,229,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .agent-info { flex: 1; min-width: 0; }
+  .agent-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e2e8f0;
+  }
+  .agent-role {
+    font-size: 12px;
+    color: #5a6a8a;
+    margin-top: 1px;
+  }
+  .status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+  .status-active {
+    background: rgba(0,229,255,0.15);
+    color: #00E5FF;
+    border: 1px solid rgba(0,229,255,0.3);
+  }
+  .status-warning {
+    background: rgba(255,61,113,0.15);
+    color: #FF3D71;
+    border: 1px solid rgba(255,61,113,0.3);
+  }
+  .status-idle {
+    background: rgba(255,255,255,0.08);
+    color: #6b7280;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .agent-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .meta-item {
+    font-size: 11px;
+    color: #5a6a8a;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00B4CC, #00E5FF);
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  /* ===== SECTION TITLE ===== */
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #5a6a8a;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  /* ===== SCREEN 2: DETAIL ===== */
+  .detail-hero {
+    background: linear-gradient(135deg, rgba(0,229,255,0.08), rgba(0,229,255,0.02));
+    border: 1px solid rgba(0,229,255,0.15);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .hero-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #00E5FF22, #00E5FF55);
+    border: 2px solid rgba(0,229,255,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 12px;
+  }
+  .hero-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .hero-role {
+    font-size: 13px;
+    color: #5a6a8a;
+    margin-top: 2px;
+  }
+  .hero-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .hero-stat-val {
+    font-size: 20px;
+    font-weight: 700;
+    color: #00E5FF;
+  }
+  .hero-stat-label {
+    font-size: 11px;
+    color: #5a6a8a;
+  }
+
+  .skill-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.2);
+    color: #00E5FF;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 20px;
+    margin: 0 4px 6px 0;
+  }
+  .skills-wrap { display: flex; flex-wrap: wrap; padding: 4px 0; }
+
+  .report-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .report-label { font-size: 13px; color: #94a3b8; }
+  .report-val { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+  .report-val.accent { color: #00E5FF; }
+
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #00E5FF;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 14px;
+    width: fit-content;
+  }
+
+  /* ===== SCREEN 3: NEW DISPATCH (STEPS) ===== */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 24px;
+  }
+  .step-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #5a6a8a;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s;
+  }
+  .step-dot.done {
+    background: rgba(0,229,255,0.2);
+    border-color: #00E5FF;
+    color: #00E5FF;
+  }
+  .step-dot.active {
+    background: #00E5FF;
+    border-color: #00E5FF;
+    color: #0A0F1C;
+    box-shadow: 0 0 12px rgba(0,229,255,0.5);
+  }
+  .step-line {
+    width: 50px;
+    height: 1.5px;
+    background: rgba(255,255,255,0.1);
+    transition: background 0.3s;
+  }
+  .step-line.done { background: rgba(0,229,255,0.4); }
+
+  .step-panel { display: none; }
+  .step-panel.active { display: block; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #5a6a8a;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
+  }
+  .form-input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: #e2e8f0;
+    font-size: 14px;
+    padding: 11px 14px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: rgba(0,229,255,0.5); }
+  .form-input::placeholder { color: #3a4a6a; }
+  textarea.form-input { resize: none; height: 80px; }
+
+  .option-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 2px 0; }
+  .chip {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(255,255,255,0.1);
+    color: #94a3b8;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.04);
+  }
+  .chip.selected {
+    background: rgba(0,229,255,0.12);
+    border-color: #00E5FF;
+    color: #00E5FF;
+  }
+  .chip:hover:not(.selected) { border-color: rgba(0,229,255,0.3); color: rgba(0,229,255,0.7); }
+
+  .customize-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .customize-row-label { font-size: 14px; color: #94a3b8; }
+  .toggle {
+    width: 44px;
+    height: 26px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .toggle.on { background: #00E5FF; }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    transition: left 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  .toggle.on::after { left: 21px; }
+
+  .confirm-box {
+    background: linear-gradient(135deg, rgba(0,229,255,0.06), rgba(0,229,255,0.02));
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .confirm-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+  }
+  .confirm-key { font-size: 13px; color: #5a6a8a; }
+  .confirm-val { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #00C4D9, #00E5FF);
+    color: #0A0F1C;
+    box-shadow: 0 4px 20px rgba(0,229,255,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,229,255,0.4); }
+  .btn-secondary {
+    background: rgba(255,255,255,0.06);
+    color: #94a3b8;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.09); }
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .btn-row .btn { flex: 1; }
+
+  /* ===== SCREEN 4: MESSAGES ===== */
+  .msg-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .msg-card:hover { border-color: rgba(0,229,255,0.2); }
+  .msg-card.unread { border-left: 3px solid #00E5FF; }
+  .msg-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .msg-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #00E5FF22, #00E5FF44);
+    border: 1px solid rgba(0,229,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .msg-meta { flex: 1; min-width: 0; }
+  .msg-from { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+  .msg-time { font-size: 11px; color: #4a5a7a; }
+  .msg-body { font-size: 13px; color: #7a8aa8; line-height: 1.5; }
+  .msg-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+  }
+  .tag-report { background: rgba(0,229,255,0.12); color: #00E5FF; }
+  .tag-alert { background: rgba(255,61,113,0.12); color: #FF3D71; }
+  .tag-complete { background: rgba(16,185,129,0.12); color: #10b981; }
+  .unread-dot {
+    width: 8px;
+    height: 8px;
+    background: #00E5FF;
+    border-radius: 50%;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    box-shadow: 0 0 6px rgba(0,229,255,0.6);
+  }
+
+  /* ===== SCREEN 5: SETTINGS ===== */
+  .profile-card {
+    background: linear-gradient(135deg, rgba(0,229,255,0.07), rgba(0,229,255,0.02));
+    border: 1px solid rgba(0,229,255,0.15);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #1a2040, #0d1530);
+    border: 2px solid rgba(0,229,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    margin: 0 auto 12px;
+  }
+  .profile-name { font-size: 18px; font-weight: 700; color: #fff; }
+  .profile-plan {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    background: rgba(0,229,255,0.1);
+    border: 1px solid rgba(0,229,255,0.25);
+    color: #00E5FF;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .settings-group { margin-bottom: 20px; }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row-left { display: flex; align-items: center; gap: 12px; }
+  .settings-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .si-cyan { background: rgba(0,229,255,0.12); }
+  .si-purple { background: rgba(139,92,246,0.12); }
+  .si-green { background: rgba(16,185,129,0.12); }
+  .si-red { background: rgba(255,61,113,0.12); }
+  .si-orange { background: rgba(251,146,60,0.12); }
+  .settings-row-name { font-size: 14px; color: #e2e8f0; font-weight: 500; }
+  .settings-row-val { font-size: 13px; color: #5a6a8a; }
+  .settings-arrow { color: #3a4a6a; font-size: 12px; margin-left: 6px; }
+
+  .plan-card {
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 10px;
+    border: 1.5px solid transparent;
+  }
+  .plan-current {
+    background: linear-gradient(135deg, rgba(0,229,255,0.08), rgba(0,229,255,0.03));
+    border-color: rgba(0,229,255,0.3);
+  }
+  .plan-other {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.08);
+  }
+  .plan-header { display: flex; justify-content: space-between; align-items: center; }
+  .plan-name { font-size: 15px; font-weight: 700; color: #e2e8f0; }
+  .plan-price { font-size: 15px; font-weight: 700; color: #00E5FF; }
+  .plan-price span { font-size: 11px; color: #5a6a8a; font-weight: 400; }
+  .plan-desc { font-size: 12px; color: #5a6a8a; margin-top: 6px; }
+
+  /* ===== GLOW / DECORATIONS ===== */
+  .glow-text { color: #00E5FF; }
+  .accent-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #00E5FF;
+    border-radius: 50%;
+    margin-right: 6px;
+    box-shadow: 0 0 6px rgba(0,229,255,0.6);
+    vertical-align: middle;
+  }
+  .pulse {
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Home alert banner */
+  .alert-banner {
+    background: rgba(255,61,113,0.1);
+    border: 1px solid rgba(255,61,113,0.25);
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .alert-icon { font-size: 16px; }
+  .alert-text { font-size: 13px; color: #FF3D71; line-height: 1.4; }
+
+  /* ===== HOME ACTIVITY FEED ===== */
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .dot-cyan { background: #00E5FF; box-shadow: 0 0 6px rgba(0,229,255,0.5); }
+  .dot-red { background: #FF3D71; box-shadow: 0 0 6px rgba(255,61,113,0.5); }
+  .dot-green { background: #10b981; box-shadow: 0 0 6px rgba(16,185,129,0.5); }
+  .activity-content { flex: 1; }
+  .activity-text { font-size: 13px; color: #94a3b8; line-height: 1.4; }
+  .activity-time { font-size: 11px; color: #3a4a6a; margin-top: 2px; }
+
+  /* success screen */
+  .success-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+  }
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 24px;
+    background: rgba(0,229,255,0.12);
+    border: 2px solid rgba(0,229,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
+  .success-title { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .success-sub { font-size: 14px; color: #5a6a8a; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="iphone">
+  <!-- Dynamic Island -->
+  <div class="dynamic-island">
+    <div class="di-sensor"></div>
+    <div class="di-camera"></div>
+    <div class="di-sensor"></div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-time">23:09</span>
+    <div class="status-icons">
+      <!-- Signal -->
+      <svg viewBox="0 0 16 12"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.3"/></svg>
+      <!-- WiFi -->
+      <svg viewBox="0 0 18 14"><path d="M9 11a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm0-4C6.6 7 4.5 8 3 9.7l1.5 1.5A5.8 5.8 0 019 9c1.8 0 3.4.8 4.5 2.2l1.5-1.5A7.8 7.8 0 009 7zm0-4C5.3 3 2.1 4.5 0 7l1.5 1.5A9.8 9.8 0 019 5c2.9 0 5.5 1.2 7.5 3.2L18 6.7A11.8 11.8 0 009 3z"/></svg>
+      <div class="battery"><div class="battery-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- Screen Container -->
+  <div class="screen-container">
+
+    <!-- ===== SCREEN 1: HOME ===== -->
+    <div class="screen active" id="screen-home">
+      <div class="content">
+        <div class="page-header">
+          <div class="page-title">ダッシュボード</div>
+          <div class="page-subtitle">稼働中エージェント 5体</div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-num">5</div>
+            <div class="stat-label">稼働中</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">23</div>
+            <div class="stat-label">今月タスク</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">98<span style="font-size:14px">%</span></div>
+            <div class="stat-label">完了率</div>
+          </div>
+        </div>
+
+        <div class="alert-banner">
+          <span class="alert-icon">⚠️</span>
+          <span class="alert-text">SNS運用エージェントが応答なし — 確認が必要です</span>
+        </div>
+
+        <div class="section-title">派遣中エージェント</div>
+
+        <div class="agent-card" onclick="showDetail('data-analyst')">
+          <div class="agent-header">
+            <div class="agent-avatar">📊</div>
+            <div class="agent-info">
+              <div class="agent-name">データ分析エージェント</div>
+              <div class="agent-role">売上レポート・KPI分析</div>
+            </div>
+            <span class="status-badge status-active">稼働中</span>
+          </div>
+          <div class="agent-meta">
+            <div class="meta-item">⏱ 連続 4日</div>
+            <div class="meta-item">📋 タスク 8/10</div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+        </div>
+
+        <div class="agent-card" onclick="showDetail('marketing')">
+          <div class="agent-header">
+            <div class="agent-avatar">📣</div>
+            <div class="agent-info">
+              <div class="agent-name">マーケティングエージェント</div>
+              <div class="agent-role">コンテンツ生成・配信管理</div>
+            </div>
+            <span class="status-badge status-active">稼働中</span>
+          </div>
+          <div class="agent-meta">
+            <div class="meta-item">⏱ 連続 12日</div>
+            <div class="meta-item">📋 タスク 15/20</div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+        </div>
+
+        <div class="agent-card warning">
+          <div class="agent-header">
+            <div class="agent-avatar" style="background:linear-gradient(135deg,#FF3D7122,#FF3D7144);border-color:rgba(255,61,113,0.3)">📱</div>
+            <div class="agent-info">
+              <div class="agent-name">SNS運用エージェント</div>
+              <div class="agent-role">X・Instagram 投稿管理</div>
+            </div>
+            <span class="status-badge status-warning">応答なし</span>
+          </div>
+          <div class="agent-meta">
+            <div class="meta-item" style="color:#FF3D71">⚠️ 2時間前から無応答</div>
+          </div>
+        </div>
+
+        <div class="agent-card" onclick="showDetail('support')">
+          <div class="agent-header">
+            <div class="agent-avatar">🎧</div>
+            <div class="agent-info">
+              <div class="agent-name">カスタマーサポートエージェント</div>
+              <div class="agent-role">問い合わせ対応・FAQ更新</div>
+            </div>
+            <span class="status-badge status-active">稼働中</span>
+          </div>
+          <div class="agent-meta">
+            <div class="meta-item">⏱ 連続 7日</div>
+            <div class="meta-item">📋 タスク 31/32</div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:97%"></div></div>
+        </div>
+
+        <div class="agent-card">
+          <div class="agent-header">
+            <div class="agent-avatar">📝</div>
+            <div class="agent-info">
+              <div class="agent-name">議事録エージェント</div>
+              <div class="agent-role">会議記録・要約・タスク抽出</div>
+            </div>
+            <span class="status-badge status-idle">待機中</span>
+          </div>
+          <div class="agent-meta">
+            <div class="meta-item">🔔 次の会議を待機中</div>
+          </div>
+        </div>
+
+        <div class="section-title">最近のアクティビティ</div>
+        <div class="card" style="padding:8px 14px">
+          <div class="activity-item">
+            <div class="activity-dot dot-cyan pulse"></div>
+            <div class="activity-content">
+              <div class="activity-text">データ分析エージェントが月次レポートを完成しました</div>
+              <div class="activity-time">3分前</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-red"></div>
+            <div class="activity-content">
+              <div class="activity-text">SNS運用エージェントからの応答が途絶えました</div>
+              <div class="activity-time">2時間前</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div class="activity-content">
+              <div class="activity-text">カスタマーサポートエージェントが31件のチケットを処理</div>
+              <div class="activity-time">5時間前</div>
+            </div>
+          </div>
+          <div class="activity-item" style="border:none">
+            <div class="activity-dot dot-cyan"></div>
+            <div class="activity-content">
+              <div class="activity-text">マーケティングエージェントがメルマガ下書きを送信</div>
+              <div class="activity-time">昨日 18:42</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 2: DETAIL ===== -->
+    <div class="screen" id="screen-detail">
+      <div class="content">
+        <div class="back-btn" onclick="goBack()">← ダッシュボード</div>
+
+        <div class="detail-hero">
+          <div class="hero-avatar">📊</div>
+          <div class="hero-name">データ分析エージェント</div>
+          <div class="hero-role">売上レポート・KPI分析・予測モデリング</div>
+          <div class="hero-stats">
+            <div>
+              <div class="hero-stat-val">4日</div>
+              <div class="hero-stat-label">連続稼働</div>
+            </div>
+            <div>
+              <div class="hero-stat-val">98%</div>
+              <div class="hero-stat-label">完了率</div>
+            </div>
+            <div>
+              <div class="hero-stat-val">2.1h</div>
+              <div class="hero-stat-label">平均処理</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">スキル一覧</div>
+        <div class="card">
+          <div class="skills-wrap">
+            <span class="skill-tag">📊 データ集計</span>
+            <span class="skill-tag">📈 グラフ生成</span>
+            <span class="skill-tag">🔍 異常検知</span>
+            <span class="skill-tag">📋 レポート作成</span>
+            <span class="skill-tag">🤖 予測モデル</span>
+            <span class="skill-tag">💬 Slack通知</span>
+            <span class="skill-tag">📧 メール配信</span>
+            <span class="skill-tag">🔗 API連携</span>
+          </div>
+        </div>
+
+        <div class="section-title">今月の成果レポート</div>
+        <div class="card" style="padding:6px 16px">
+          <div class="report-row">
+            <span class="report-label">処理タスク数</span>
+            <span class="report-val accent">23件</span>
+          </div>
+          <div class="report-row">
+            <span class="report-label">生成レポート</span>
+            <span class="report-val">月次×1・週次×4</span>
+          </div>
+          <div class="report-row">
+            <span class="report-label">検出した異常</span>
+            <span class="report-val" style="color:#FF3D71">2件</span>
+          </div>
+          <div class="report-row">
+            <span class="report-label">節約した工数</span>
+            <span class="report-val accent">約 48時間</span>
+          </div>
+          <div class="report-row">
+            <span class="report-label">稼働時間計</span>
+            <span class="report-val">96時間</span>
+          </div>
+          <div class="report-row" style="border:none">
+            <span class="report-label">コスト効率</span>
+            <span class="report-val accent">★ 優秀</span>
+          </div>
+        </div>
+
+        <div class="section-title">直近のタスク</div>
+        <div class="card">
+          <div class="report-row">
+            <span class="report-label">✅ 月次売上レポート生成</span>
+            <span class="report-val" style="font-size:12px;color:#5a6a8a">3分前</span>
+          </div>
+          <div class="report-row">
+            <span class="report-label">✅ KPIダッシュボード更新</span>
+            <span class="report-val" style="font-size:12px;color:#5a6a8a">昨日</span>
+          </div>
+          <div class="report-row" style="border:none">
+            <span class="report-label">🔄 Q1予測モデル更新中</span>
+            <span class="report-val" style="font-size:12px;color:#00E5FF">進行中</span>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-secondary" style="font-size:13px">⏸ 一時停止</button>
+          <button class="btn btn-primary" style="font-size:13px">💬 指示を出す</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 3: NEW DISPATCH ===== -->
+    <div class="screen" id="screen-new">
+      <div class="content" id="new-content">
+        <div class="page-header">
+          <div class="page-title">新規派遣</div>
+          <div class="page-subtitle">エージェントを設定して開始</div>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          <div class="step-dot active" id="step1-dot">1</div>
+          <div class="step-line" id="line1-2"></div>
+          <div class="step-dot" id="step2-dot">2</div>
+          <div class="step-line" id="line2-3"></div>
+          <div class="step-dot" id="step3-dot">3</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:-8px;margin-bottom:20px;padding:0 4px">
+          <span style="font-size:11px;color:#5a6a8a;width:60px;text-align:center">ヒアリング</span>
+          <span style="font-size:11px;color:#5a6a8a;width:60px;text-align:center">カスタマイズ</span>
+          <span style="font-size:11px;color:#5a6a8a;width:60px;text-align:center">開始</span>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="step-panel active" id="step-1">
+          <div class="form-group">
+            <div class="form-label">エージェントの種類</div>
+            <div class="option-chips">
+              <div class="chip selected" onclick="selectChip(this)">📊 データ分析</div>
+              <div class="chip" onclick="selectChip(this)">📣 マーケティング</div>
+              <div class="chip" onclick="selectChip(this)">🎧 サポート</div>
+              <div class="chip" onclick="selectChip(this)">📝 議事録</div>
+              <div class="chip" onclick="selectChip(this)">💼 営業支援</div>
+              <div class="chip" onclick="selectChip(this)">🔧 カスタム</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">主な業務内容</div>
+            <textarea class="form-input" placeholder="例：毎週月曜の売上データを集計してSlackに報告してほしい"></textarea>
+          </div>
+          <div class="form-group">
+            <div class="form-label">優先度</div>
+            <div class="option-chips">
+              <div class="chip" onclick="selectChipGroup(this,'priority')">低</div>
+              <div class="chip selected" onclick="selectChipGroup(this,'priority')">中</div>
+              <div class="chip" onclick="selectChipGroup(this,'priority')">高</div>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="nextStep(2)">次へ →</button>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-panel" id="step-2">
+          <div class="form-group">
+            <div class="form-label">エージェント名</div>
+            <input type="text" class="form-input" value="データ分析エージェント" placeholder="エージェントの名前">
+          </div>
+          <div class="form-group">
+            <div class="form-label">レポート形式</div>
+            <div class="option-chips">
+              <div class="chip selected" onclick="selectChip(this)">Slack通知</div>
+              <div class="chip" onclick="selectChip(this)">メール</div>
+              <div class="chip" onclick="selectChip(this)">ファイル出力</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">詳細設定</div>
+            <div class="customize-row">
+              <span class="customize-row-label">自動レポート生成</span>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="customize-row">
+              <span class="customize-row-label">異常検知アラート</span>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="customize-row">
+              <span class="customize-row-label">週次サマリー</span>
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="customize-row">
+              <span class="customize-row-label">予測モデリング</span>
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-secondary" onclick="nextStep(1)">← 戻る</button>
+            <button class="btn btn-primary" onclick="nextStep(3)">次へ →</button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-panel" id="step-3">
+          <div class="confirm-box">
+            <div style="font-size:13px;font-weight:600;color:#00E5FF;margin-bottom:12px">📋 設定確認</div>
+            <div class="confirm-row">
+              <span class="confirm-key">エージェント種別</span>
+              <span class="confirm-val">データ分析</span>
+            </div>
+            <div class="confirm-row">
+              <span class="confirm-key">エージェント名</span>
+              <span class="confirm-val">データ分析エージェント</span>
+            </div>
+            <div class="confirm-row">
+              <span class="confirm-key">通知方法</span>
+              <span class="confirm-val">Slack通知</span>
+            </div>
+            <div class="confirm-row">
+              <span class="confirm-key">優先度</span>
+              <span class="confirm-val">中</span>
+            </div>
+            <div class="confirm-row">
+              <span class="confirm-key">自動レポート</span>
+              <span class="confirm-val" style="color:#00E5FF">有効</span>
+            </div>
+            <div class="confirm-row">
+              <span class="confirm-key">異常検知</span>
+              <span class="confirm-val" style="color:#00E5FF">有効</span>
+            </div>
+          </div>
+          <div class="card" style="background:rgba(255,61,113,0.05);border-color:rgba(255,61,113,0.15)">
+            <div style="font-size:12px;color:#FF3D71;font-weight:600;margin-bottom:4px">料金目安</div>
+            <div style="font-size:20px;font-weight:700;color:#fff">¥ 9,800 <span style="font-size:13px;color:#5a6a8a;font-weight:400">/ 月〜</span></div>
+            <div style="font-size:12px;color:#5a6a8a;margin-top:4px">現在のプランに含まれています</div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-secondary" onclick="nextStep(2)">← 戻る</button>
+            <button class="btn btn-primary" onclick="launchAgent()">🚀 派遣開始</button>
+          </div>
+        </div>
+
+        <!-- Success -->
+        <div class="step-panel" id="step-success">
+          <div class="success-screen">
+            <div class="success-icon">🚀</div>
+            <div class="success-title">派遣を開始しました！</div>
+            <div class="success-sub">データ分析エージェントが<br>稼働を開始しました。<br><br>レポートの準備ができ次第<br>Slackに通知します。</div>
+            <div style="margin-top:28px;width:100%">
+              <button class="btn btn-primary" onclick="resetNew()">ダッシュボードへ</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 4: MESSAGES ===== -->
+    <div class="screen" id="screen-messages">
+      <div class="content">
+        <div class="page-header">
+          <div class="page-title">メッセージ</div>
+          <div class="page-subtitle">エージェントからの報告</div>
+        </div>
+
+        <div class="msg-card unread">
+          <div class="unread-dot"></div>
+          <span class="msg-tag tag-alert">⚠️ アラート</span>
+          <div class="msg-header">
+            <div class="msg-avatar" style="background:linear-gradient(135deg,#FF3D7122,#FF3D7144);border-color:rgba(255,61,113,0.2)">📱</div>
+            <div class="msg-meta">
+              <div class="msg-from">SNS運用エージェント</div>
+              <div class="msg-time">2時間前 — 要確認</div>
+            </div>
+          </div>
+          <div class="msg-body">Instagram APIのレート制限に達しました。本日のスケジュール投稿（3件）が保留されています。手動確認が必要です。</div>
+        </div>
+
+        <div class="msg-card unread">
+          <div class="unread-dot"></div>
+          <span class="msg-tag tag-report">📊 レポート</span>
+          <div class="msg-header">
+            <div class="msg-avatar">📊</div>
+            <div class="msg-meta">
+              <div class="msg-from">データ分析エージェント</div>
+              <div class="msg-time">3分前</div>
+            </div>
+          </div>
+          <div class="msg-body">4月度の月次売上レポートが完成しました。先月比+12.3%を達成。詳細は添付のPDFをご確認ください。</div>
+        </div>
+
+        <div class="msg-card">
+          <span class="msg-tag tag-complete">✅ 完了</span>
+          <div class="msg-header">
+            <div class="msg-avatar">🎧</div>
+            <div class="msg-meta">
+              <div class="msg-from">カスタマーサポートエージェント</div>
+              <div class="msg-time">5時間前</div>
+            </div>
+          </div>
+          <div class="msg-body">本日の問い合わせ31件を処理完了。うち28件を自動解決、3件を担当者にエスカレーション済みです。</div>
+        </div>
+
+        <div class="msg-card">
+          <span class="msg-tag tag-report">📊 レポート</span>
+          <div class="msg-header">
+            <div class="msg-avatar">📣</div>
+            <div class="msg-meta">
+              <div class="msg-from">マーケティングエージェント</div>
+              <div class="msg-time">昨日 18:42</div>
+            </div>
+          </div>
+          <div class="msg-body">4月第2週のメルマガ下書きをご確認ください。件名候補を3パターン用意しました。承認後に配信します。</div>
+        </div>
+
+        <div class="msg-card">
+          <span class="msg-tag tag-complete">✅ 完了</span>
+          <div class="msg-header">
+            <div class="msg-avatar">📝</div>
+            <div class="msg-meta">
+              <div class="msg-from">議事録エージェント</div>
+              <div class="msg-time">昨日 15:00</div>
+            </div>
+          </div>
+          <div class="msg-body">定例MTG（14:00〜15:00）の議事録を作成しました。アクションアイテム5件を抽出。Notionに保存完了です。</div>
+        </div>
+
+        <div class="msg-card">
+          <span class="msg-tag tag-report">📊 週次</span>
+          <div class="msg-header">
+            <div class="msg-avatar">📊</div>
+            <div class="msg-meta">
+              <div class="msg-from">データ分析エージェント</div>
+              <div class="msg-time">2日前</div>
+            </div>
+          </div>
+          <div class="msg-body">週次KPIサマリー（4/1〜4/7）をお届けします。主要指標はすべて目標値を達成しています。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 5: SETTINGS ===== -->
+    <div class="screen" id="screen-settings">
+      <div class="content">
+        <div class="page-header">
+          <div class="page-title">設定</div>
+          <div class="page-subtitle">アカウントとプラン管理</div>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-avatar">👤</div>
+          <div class="profile-name">泉水 亮介</div>
+          <div style="font-size:13px;color:#5a6a8a;margin-top:2px">rsensui@tekion.co.jp</div>
+          <div class="profile-plan">✦ Businessプラン</div>
+        </div>
+
+        <div class="section-title">通知設定</div>
+        <div class="card settings-group" style="padding:4px 16px">
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-icon si-cyan">🔔</div>
+              <span class="settings-row-name">エージェントアラート</span>
+            </div>
+            <div style="display:flex;align-items:center">
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-icon si-purple">📊</div>
+              <span class="settings-row-name">週次レポート通知</span>
+            </div>
+            <div style="display:flex;align-items:center">
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-icon si-green">✅</div>
+              <span class="settings-row-name">タスク完了通知</span>
+            </div>
+            <div style="display:flex;align-items:center">
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-icon si-orange">📧</div>
+              <span class="settings-row-name">メール通知</span>
+            </div>
+            <div style="display:flex;align-items:center">
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">料金プラン</div>
+        <div class="plan-card plan-current">
+          <div class="plan-header">
+            <span class="plan-name">✦ Business</span>
+            <span class="plan-price">¥29,800 <span>/ 月</span></span>
+          </div>
+          <div class="plan-desc">エージェント10体まで ・ 優先サポート ・ 高度な分析機能 ・ API連携無制限</div>
+          <div style="margin-top:8px;font-size:12px;color:#00E5FF;font-weight:600">現在のプラン</div>
+        </div>
+        <div class="plan-card plan-other">
+          <div class="plan-header">
+            <span class="plan-name">Enterprise</span>
+            <span class="plan-price">要相談 <span></span></span>
+          </div>
+          <div class="plan-desc">無制限エージェント ・ 専任CSM ・ SLA保証 ・ オンプレ対応</div>
+          <button class="btn btn-secondary" style="margin-top:10px;font-size:13px;padding:10px">お問い合わせ</button>
+        </div>
+
+        <div class="section-title">アカウント管理</div>
+        <div class="card settings-group" style="padding:4px 16px">
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-icon si-cyan">🔗</div>
+              <span class="settings-row-name">連携サービス管理</span>
+            </div>
+            <div style="display:flex;align-items:center">
+              <span class="settings-row-val">4件</span>
+              <span class="settings-arrow">›</span>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-icon si-purple">🔐</div>
+              <span class="settings-row-name">セキュリティ設定</span>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-left">
+              <div class="settings-icon si-orange">📄</div>
+              <span class="settings-row-name">請求履歴</span>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+          <div class="settings-row" style="border:none">
+            <div class="settings-row-left">
+              <div class="settings-icon si-red">🚪</div>
+              <span class="settings-row-name" style="color:#FF3D71">ログアウト</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;padding:8px 0 4px;color:#2a3a5a;font-size:12px">
+          AgentDispatch v1.2.0 · 利用規約 · プライバシー
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /screen-container -->
+
+  <!-- Bottom Tab Nav -->
+  <nav class="tab-nav">
+    <div class="tab-item active" id="tab-home" onclick="switchTab('home')">
+      <div class="tab-icon">🏠</div>
+      <span class="tab-label">ホーム</span>
+    </div>
+    <div class="tab-item" id="tab-detail" onclick="switchTab('detail')" style="display:none"></div>
+    <div class="tab-item" id="tab-new" onclick="switchTab('new')">
+      <div class="tab-icon">➕</div>
+      <span class="tab-label">新規派遣</span>
+    </div>
+    <div class="tab-item" id="tab-messages" onclick="switchTab('messages')">
+      <div class="tab-icon" style="position:relative">
+        💬
+        <span style="position:absolute;top:-4px;right:-4px;width:14px;height:14px;background:#FF3D71;border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;line-height:1">2</span>
+      </div>
+      <span class="tab-label">メッセージ</span>
+    </div>
+    <div class="tab-item" id="tab-settings" onclick="switchTab('settings')">
+      <div class="tab-icon">⚙️</div>
+      <span class="tab-label">設定</span>
+    </div>
+  </nav>
+</div><!-- /iphone -->
+
+<script>
+  const tabs = ['home','detail','new','messages','settings'];
+  let currentStep = 1;
+
+  function switchTab(name) {
+    tabs.forEach(t => {
+      document.getElementById('screen-' + t).classList.remove('active');
+      const tabEl = document.getElementById('tab-' + t);
+      if (tabEl) tabEl.classList.remove('active');
+    });
+    document.getElementById('screen-' + name).classList.add('active');
+    const tabEl = document.getElementById('tab-' + name);
+    if (tabEl) tabEl.classList.add('active');
+  }
+
+  function showDetail(type) {
+    switchTab('detail');
+  }
+
+  function goBack() {
+    switchTab('home');
+  }
+
+  function nextStep(n) {
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active','done'));
+    document.querySelectorAll('.step-line').forEach(l => l.classList.remove('done'));
+
+    if (n <= 3) {
+      for (let i = 1; i < n; i++) {
+        document.getElementById('step' + i + '-dot').classList.add('done');
+        const line = document.getElementById('line' + i + '-' + (i+1));
+        if (line) line.classList.add('done');
+      }
+      document.getElementById('step' + n + '-dot').classList.add('active');
+      document.getElementById('step-' + n).classList.add('active');
+    } else {
+      // success
+      document.getElementById('step-success').classList.add('active');
+    }
+    currentStep = n;
+  }
+
+  function launchAgent() {
+    nextStep(4);
+  }
+
+  function resetNew() {
+    nextStep(1);
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('step-1').classList.add('active');
+    document.querySelectorAll('.step-dot').forEach(d => { d.classList.remove('active','done'); });
+    document.querySelector('#step1-dot').classList.add('active');
+    document.querySelectorAll('.step-line').forEach(l => l.classList.remove('done'));
+    switchTab('home');
+  }
+
+  function selectChip(el) {
+    const parent = el.closest('.option-chips');
+    parent.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectChipGroup(el, group) {
+    selectChip(el);
+  }
+</script>
+</body>
+</html>

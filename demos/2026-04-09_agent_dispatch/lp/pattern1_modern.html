@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentDispatch — 自分を派遣する</title>
+<style>
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0A0F1C;
+  --bg2: #0D1526;
+  --bg3: #111827;
+  --accent: #00E5FF;
+  --hot: #FF3D71;
+  --white: #F0F4FF;
+  --gray: #7A8499;
+  --border: rgba(0,229,255,0.15);
+  --font: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+a { color: var(--accent); text-decoration: none; }
+img { max-width: 100%; }
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 4px 12px;
+  border-radius: 2px;
+  margin-bottom: 20px;
+}
+.tag--hot { color: var(--hot); border-color: var(--hot); }
+
+h1, h2, h3 { line-height: 1.15; font-weight: 900; }
+h1 { font-size: clamp(2.6rem, 6vw, 5rem); }
+h2 { font-size: clamp(2rem, 4vw, 3.2rem); }
+h3 { font-size: clamp(1.3rem, 2.5vw, 1.8rem); }
+
+.accent-text { color: var(--accent); }
+.hot-text { color: var(--hot); }
+.gray-text { color: var(--gray); }
+
+/* ============================================
+   NAV
+   ============================================ */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 64px;
+  background: rgba(10,15,28,0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: var(--white);
+}
+.nav-logo span { color: var(--accent); }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray);
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--accent); }
+.nav-cta {
+  background: var(--accent);
+  color: var(--bg) !important;
+  padding: 8px 20px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  transition: opacity 0.2s;
+}
+.nav-cta:hover { opacity: 0.85; color: var(--bg) !important; }
+
+/* ============================================
+   SECTION LAYOUT
+   ============================================ */
+section { padding: 100px 40px; }
+.container { max-width: 1100px; margin: 0 auto; }
+.container--wide { max-width: 1300px; margin: 0 auto; }
+
+/* ============================================
+   HERO
+   ============================================ */
+#hero {
+  min-height: 100vh;
+  padding-top: 120px;
+  padding-bottom: 80px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* diagonal BG stripe */
+#hero::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  right: -5%;
+  width: 55%;
+  height: 130%;
+  background: linear-gradient(135deg, rgba(0,229,255,0.04) 0%, rgba(255,61,113,0.03) 100%);
+  transform: skewX(-8deg);
+  pointer-events: none;
+}
+
+/* neon grid lines */
+#hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--hot);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 2px;
+  background: var(--hot);
+}
+
+.hero-title {
+  margin-bottom: 28px;
+}
+.hero-title em {
+  font-style: normal;
+  color: var(--accent);
+  position: relative;
+}
+.hero-title em::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent);
+  opacity: 0.4;
+}
+
+.hero-sub {
+  font-size: 1.15rem;
+  color: var(--gray);
+  max-width: 520px;
+  margin-bottom: 40px;
+  line-height: 1.8;
+}
+
+.hero-actions { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+
+.btn-primary {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  padding: 16px 36px;
+  border-radius: 3px;
+  transition: box-shadow 0.25s, transform 0.2s;
+}
+.btn-primary:hover {
+  box-shadow: 0 0 28px rgba(0,229,255,0.5);
+  transform: translateY(-2px);
+  color: var(--bg);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(240,244,255,0.2);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 15px 28px;
+  border-radius: 3px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-ghost svg { width: 16px; height: 16px; fill: currentColor; }
+
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 52px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+.hero-stat-num {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.hero-stat-label { font-size: 12px; color: var(--gray); letter-spacing: 0.05em; }
+
+/* ---------- PHONE MOCK ---------- */
+.phone-mock-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* glow ring */
+.phone-mock-wrap::before {
+  content: '';
+  position: absolute;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,229,255,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.phone {
+  width: 260px;
+  height: 530px;
+  background: #080D1A;
+  border-radius: 44px;
+  border: 2px solid rgba(0,229,255,0.3);
+  box-shadow:
+    0 0 0 6px rgba(0,229,255,0.06),
+    0 40px 80px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  position: relative;
+  overflow: hidden;
+  transform: rotate(-4deg);
+}
+
+/* notch */
+.phone::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100px; height: 28px;
+  background: #080D1A;
+  border-radius: 0 0 20px 20px;
+  z-index: 10;
+  border: 2px solid rgba(0,229,255,0.2);
+  border-top: none;
+}
+
+/* status bar line */
+.phone-status {
+  position: absolute;
+  top: 36px; left: 20px; right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(240,244,255,0.5);
+  z-index: 5;
+}
+
+.phone-screen {
+  position: absolute;
+  inset: 28px 0 0;
+  overflow: hidden;
+  background: linear-gradient(160deg, #0D1526 0%, #080D1A 100%);
+}
+
+.phone-app-header {
+  padding: 20px 18px 12px;
+  border-bottom: 1px solid rgba(0,229,255,0.1);
+}
+.phone-app-title {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.phone-app-sub { font-size: 9px; color: var(--gray); margin-top: 2px; }
+
+.phone-agent-card {
+  margin: 14px 14px 0;
+  background: rgba(0,229,255,0.06);
+  border: 1px solid rgba(0,229,255,0.18);
+  border-radius: 10px;
+  padding: 12px;
+}
+.pac-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.pac-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--hot));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; color: var(--bg);
+  flex-shrink: 0;
+}
+.pac-info { flex: 1; }
+.pac-name { font-size: 11px; font-weight: 800; color: var(--white); }
+.pac-role { font-size: 9px; color: var(--gray); }
+.pac-badge {
+  font-size: 8px; font-weight: 800;
+  background: rgba(0,229,255,0.15);
+  color: var(--accent);
+  padding: 2px 7px; border-radius: 20px;
+  letter-spacing: 0.05em;
+}
+.pac-metrics { display: flex; gap: 8px; }
+.pac-metric {
+  flex: 1;
+  background: rgba(255,255,255,0.03);
+  border-radius: 6px;
+  padding: 6px 8px;
+  text-align: center;
+}
+.pac-metric-val { font-size: 13px; font-weight: 900; color: var(--accent); line-height: 1; }
+.pac-metric-lbl { font-size: 8px; color: var(--gray); }
+
+.phone-task-list { padding: 12px 14px; }
+.ptl-title { font-size: 9px; color: var(--gray); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+.ptl-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.ptl-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.ptl-dot--green { background: #00E5A0; box-shadow: 0 0 6px #00E5A0; }
+.ptl-dot--accent { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+.ptl-dot--hot { background: var(--hot); box-shadow: 0 0 6px var(--hot); }
+.ptl-dot--gray { background: var(--gray); }
+.ptl-text { font-size: 9px; color: var(--white); flex: 1; }
+.ptl-time { font-size: 8px; color: var(--gray); }
+
+.phone-cta-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 10px 14px 16px;
+  background: linear-gradient(0deg, rgba(8,13,26,1) 60%, transparent);
+}
+.pcta-btn {
+  display: block;
+  background: var(--accent);
+  color: var(--bg);
+  text-align: center;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+/* ============================================
+   PROBLEM SECTION
+   ============================================ */
+#problem {
+  background: var(--bg2);
+  position: relative;
+  overflow: hidden;
+}
+#problem::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: linear-gradient(90deg, var(--hot), transparent 60%);
+}
+
+.problem-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.problem-lead {
+  font-size: 1.2rem;
+  line-height: 1.9;
+  color: var(--gray);
+  margin-top: 24px;
+}
+.problem-lead strong { color: var(--white); font-weight: 800; }
+
+.problem-cards { display: flex; flex-direction: column; gap: 16px; margin-top: 40px; }
+
+.prob-card {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 24px;
+  background: var(--bg3);
+  border: 1px solid rgba(255,61,113,0.15);
+  border-radius: 4px;
+  position: relative;
+}
+.prob-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--hot);
+  border-radius: 4px 0 0 4px;
+}
+.prob-num {
+  font-size: 2rem;
+  font-weight: 900;
+  color: rgba(255,61,113,0.3);
+  line-height: 1;
+  flex-shrink: 0;
+  width: 40px;
+  text-align: center;
+}
+.prob-title { font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+.prob-desc { font-size: 13px; color: var(--gray); line-height: 1.7; }
+
+/* ============================================
+   SOLUTION
+   ============================================ */
+#solution {
+  position: relative;
+  overflow: hidden;
+}
+#solution::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 50%, rgba(0,229,255,0.03) 100%);
+  pointer-events: none;
+}
+
+.solution-header { text-align: center; max-width: 740px; margin: 0 auto 72px; }
+.solution-header p { font-size: 1.1rem; color: var(--gray); margin-top: 20px; line-height: 1.8; }
+
+.solution-flow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.solution-flow::before {
+  content: '';
+  position: absolute;
+  top: 48px; left: calc(16.66% + 20px); right: calc(16.66% + 20px);
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--hot), var(--accent));
+  opacity: 0.3;
+}
+
+.sf-step {
+  padding: 40px 32px;
+  text-align: center;
+  position: relative;
+}
+
+.sf-icon {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  background: rgba(0,229,255,0.08);
+  border: 2px solid rgba(0,229,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 28px;
+  position: relative;
+  font-size: 2.2rem;
+  transition: border-color 0.3s, background 0.3s;
+}
+.sf-icon:hover {
+  border-color: var(--accent);
+  background: rgba(0,229,255,0.15);
+}
+
+.sf-step-num {
+  position: absolute;
+  top: -8px; right: -8px;
+  width: 26px; height: 26px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 11px;
+  font-weight: 900;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.sf-label { font-size: 0.85rem; font-weight: 800; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+.sf-title { font-size: 1.25rem; font-weight: 900; margin-bottom: 12px; }
+.sf-desc { font-size: 13px; color: var(--gray); line-height: 1.8; }
+
+/* ============================================
+   FEATURES
+   ============================================ */
+#features {
+  background: var(--bg2);
+  position: relative;
+}
+#features::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 40%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent));
+}
+
+.features-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: end;
+  margin-bottom: 60px;
+}
+.features-header p { font-size: 1.1rem; color: var(--gray); line-height: 1.8; margin-top: 20px; }
+.features-tagline {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: right;
+  line-height: 1.6;
+}
+
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.feat-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 36px 28px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.feat-card:hover {
+  border-color: rgba(0,229,255,0.4);
+  transform: translateY(-4px);
+}
+
+/* skew accent */
+.feat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: -20px;
+  width: 60px; height: 100%;
+  background: rgba(0,229,255,0.025);
+  transform: skewX(-6deg);
+}
+
+.feat-icon-wrap {
+  width: 56px; height: 56px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 24px;
+}
+.feat-icon-wrap--accent { background: rgba(0,229,255,0.1); }
+.feat-icon-wrap--hot { background: rgba(255,61,113,0.1); }
+.feat-icon-wrap--purple { background: rgba(140,82,255,0.1); }
+
+.feat-title { font-size: 1.15rem; font-weight: 900; margin-bottom: 12px; }
+.feat-desc { font-size: 13px; color: var(--gray); line-height: 1.8; margin-bottom: 20px; }
+.feat-list { list-style: none; }
+.feat-list li {
+  font-size: 12px;
+  color: var(--gray);
+  padding: 5px 0;
+  padding-left: 18px;
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.feat-list li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+/* ============================================
+   PRICING
+   ============================================ */
+#pricing {
+  position: relative;
+  overflow: hidden;
+}
+#pricing::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,229,255,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.pricing-header { text-align: center; max-width: 600px; margin: 0 auto 64px; }
+.pricing-header p { color: var(--gray); margin-top: 16px; font-size: 1.05rem; }
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.price-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 40px 32px;
+  position: relative;
+  transition: transform 0.3s;
+}
+.price-card:hover { transform: translateY(-6px); }
+
+.price-card--featured {
+  background: linear-gradient(160deg, rgba(0,229,255,0.06) 0%, var(--bg2) 60%);
+  border-color: rgba(0,229,255,0.4);
+  transform: scale(1.04);
+}
+.price-card--featured:hover { transform: scale(1.04) translateY(-6px); }
+
+.price-badge {
+  position: absolute;
+  top: -12px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 16px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.price-plan { font-size: 13px; font-weight: 800; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px; }
+.price-amount { font-size: 2.6rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+.price-amount span { font-size: 1rem; font-weight: 600; color: var(--gray); }
+.price-billing { font-size: 12px; color: var(--gray); margin-bottom: 28px; }
+.price-divider { height: 1px; background: var(--border); margin-bottom: 28px; }
+.price-features { list-style: none; margin-bottom: 36px; }
+.price-features li {
+  font-size: 13px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--gray);
+}
+.price-features li span.check { color: var(--accent); font-size: 15px; font-weight: 900; flex-shrink: 0; }
+.price-features li span.x { color: rgba(255,255,255,0.15); font-size: 15px; flex-shrink: 0; }
+
+.btn-plan {
+  display: block;
+  text-align: center;
+  padding: 14px;
+  border-radius: 4px;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: all 0.25s;
+}
+.btn-plan--accent {
+  background: var(--accent);
+  color: var(--bg);
+}
+.btn-plan--accent:hover { box-shadow: 0 0 24px rgba(0,229,255,0.4); color: var(--bg); }
+.btn-plan--ghost {
+  border: 1px solid var(--border);
+  color: var(--white);
+}
+.btn-plan--ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ============================================
+   TESTIMONIALS
+   ============================================ */
+#testimonials {
+  background: var(--bg2);
+  position: relative;
+  overflow: hidden;
+}
+#testimonials::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 3px;
+  background: linear-gradient(90deg, var(--accent), transparent 60%);
+}
+
+.testimonials-header { text-align: center; max-width: 600px; margin: 0 auto 64px; }
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.testi-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 32px;
+  position: relative;
+  transition: border-color 0.3s;
+}
+.testi-card:hover { border-color: rgba(0,229,255,0.35); }
+
+.testi-quote-mark {
+  font-size: 3.5rem;
+  line-height: 0.6;
+  color: var(--accent);
+  opacity: 0.3;
+  font-weight: 900;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.testi-text {
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--gray);
+  margin-bottom: 24px;
+}
+.testi-text strong { color: var(--white); font-weight: 700; }
+
+.testi-meta { display: flex; align-items: center; gap: 14px; }
+
+.testi-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 900;
+  flex-shrink: 0;
+  color: var(--bg);
+}
+.testi-avatar--a { background: linear-gradient(135deg, var(--accent), #0080FF); }
+.testi-avatar--b { background: linear-gradient(135deg, var(--hot), #FF8C00); }
+.testi-avatar--c { background: linear-gradient(135deg, #8C52FF, var(--hot)); }
+
+.testi-name { font-size: 14px; font-weight: 800; }
+.testi-role { font-size: 12px; color: var(--gray); }
+
+.testi-result {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: rgba(0,229,255,0.06);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 4px 4px 0;
+}
+.testi-result-val { font-size: 1.3rem; font-weight: 900; color: var(--accent); line-height: 1; }
+.testi-result-label { font-size: 11px; color: var(--gray); margin-top: 2px; }
+
+/* ============================================
+   FAQ
+   ============================================ */
+#faq { position: relative; }
+
+.faq-inner {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.faq-sidebar h2 { margin-bottom: 20px; }
+.faq-sidebar p { color: var(--gray); line-height: 1.8; font-size: 1rem; }
+.faq-sidebar .btn-primary { margin-top: 32px; }
+
+.faq-list { display: flex; flex-direction: column; gap: 0; }
+
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.faq-item:first-child { border-top: 1px solid var(--border); }
+
+.faq-q {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 24px 0;
+  text-align: left;
+  color: var(--white);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  font-family: var(--font);
+  transition: color 0.2s;
+}
+.faq-q:hover { color: var(--accent); }
+.faq-q-icon {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--accent);
+  transition: background 0.2s;
+}
+
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+.faq-item.open .faq-a { max-height: 200px; }
+.faq-item.open .faq-q { color: var(--accent); }
+.faq-item.open .faq-q-icon { background: rgba(0,229,255,0.12); }
+
+.faq-a-inner {
+  padding: 0 0 24px;
+  font-size: 14px;
+  color: var(--gray);
+  line-height: 1.85;
+}
+
+/* ============================================
+   FOOTER / CTA
+   ============================================ */
+#footer-cta {
+  background: var(--bg3);
+  position: relative;
+  overflow: hidden;
+  padding: 120px 40px;
+  text-align: center;
+}
+
+#footer-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--hot), transparent);
+}
+
+#footer-cta::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse, rgba(0,229,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.footer-cta-inner { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+.footer-cta-pre {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--hot);
+  margin-bottom: 20px;
+}
+#footer-cta h2 { margin-bottom: 20px; }
+#footer-cta p { color: var(--gray); font-size: 1.1rem; margin-bottom: 44px; line-height: 1.8; }
+
+.footer-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.footer-bar {
+  background: var(--bg);
+  padding: 28px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  border-top: 1px solid var(--border);
+}
+.footer-brand {
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+.footer-brand span { color: var(--accent); }
+.footer-nav { display: flex; gap: 28px; flex-wrap: wrap; }
+.footer-nav a { font-size: 12px; color: var(--gray); transition: color 0.2s; }
+.footer-nav a:hover { color: var(--accent); }
+.footer-copy { font-size: 11px; color: rgba(122,132,153,0.6); }
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  section { padding: 72px 20px; }
+  .hero-inner { grid-template-columns: 1fr; }
+  .phone-mock-wrap { display: none; }
+  .problem-inner { grid-template-columns: 1fr; gap: 40px; }
+  .solution-flow { grid-template-columns: 1fr; }
+  .solution-flow::before { display: none; }
+  .feature-cards { grid-template-columns: 1fr; }
+  .features-header { grid-template-columns: 1fr; }
+  .features-tagline { text-align: left; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .price-card--featured { transform: none; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .faq-inner { grid-template-columns: 1fr; gap: 40px; }
+  .footer-bar { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     NAV
+     ============================================ -->
+<nav>
+  <div class="nav-logo">Agent<span>Dispatch</span></div>
+  <div class="nav-links">
+    <a href="#problem">課題</a>
+    <a href="#solution">解決策</a>
+    <a href="#features">機能</a>
+    <a href="#pricing">料金</a>
+    <a href="#faq">FAQ</a>
+    <a href="#footer-cta" class="nav-cta">無料で試す</a>
+  </div>
+</nav>
+
+<!-- ============================================
+     HERO
+     ============================================ -->
+<section id="hero">
+  <div class="container--wide">
+    <div class="hero-inner">
+
+      <!-- LEFT: copy -->
+      <div class="hero-copy">
+        <div class="hero-eyebrow">New Era of Work</div>
+
+        <h1 class="hero-title">
+          あなたを<br>
+          <em>24時間</em>、<br>
+          世界中に<br>派遣する。
+        </h1>
+
+        <p class="hero-sub">
+          AIエージェントが、あなたの代わりに考え、動き、結果を出す。<br>
+          もう「人手不足」とは言わせない。<br>
+          あなたのスキル・知識・判断軸をエージェント化して、世界に展開しよう。
+        </p>
+
+        <div class="hero-actions">
+          <a href="#footer-cta" class="btn-primary">今すぐエージェントを作る →</a>
+          <a href="#solution" class="btn-ghost">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            デモを見る
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div>
+            <div class="hero-stat-num">3.2×</div>
+            <div class="hero-stat-label">平均生産性向上</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">24h</div>
+            <div class="hero-stat-label">稼働時間</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">1,800+</div>
+            <div class="hero-stat-label">導入エージェント数</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: phone mock -->
+      <div class="phone-mock-wrap">
+        <div class="phone">
+          <div class="phone-status">
+            <span>9:41</span>
+            <span>●●●</span>
+          </div>
+          <div class="phone-screen">
+            <div class="phone-app-header">
+              <div class="phone-app-title">AgentDispatch</div>
+              <div class="phone-app-sub">マイエージェント稼働中</div>
+            </div>
+
+            <div class="phone-agent-card">
+              <div class="pac-row">
+                <div class="pac-avatar">R</div>
+                <div class="pac-info">
+                  <div class="pac-name">Ryosuke Agent</div>
+                  <div class="pac-role">BizDev / Strategy</div>
+                </div>
+                <div class="pac-badge">稼働中</div>
+              </div>
+              <div class="pac-metrics">
+                <div class="pac-metric">
+                  <div class="pac-metric-val">47</div>
+                  <div class="pac-metric-lbl">今日の処理</div>
+                </div>
+                <div class="pac-metric">
+                  <div class="pac-metric-val">98%</div>
+                  <div class="pac-metric-lbl">達成率</div>
+                </div>
+                <div class="pac-metric">
+                  <div class="pac-metric-val">¥0</div>
+                  <div class="pac-metric-lbl">追加コスト</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="phone-task-list">
+              <div class="ptl-title">実行中タスク</div>
+              <div class="ptl-item">
+                <div class="ptl-dot ptl-dot--green"></div>
+                <div class="ptl-text">提案資料を3社に送信完了</div>
+                <div class="ptl-time">13:20</div>
+              </div>
+              <div class="ptl-item">
+                <div class="ptl-dot ptl-dot--accent"></div>
+                <div class="ptl-text">新規リードを14件スカウト中</div>
+                <div class="ptl-time">進行中</div>
+              </div>
+              <div class="ptl-item">
+                <div class="ptl-dot ptl-dot--hot"></div>
+                <div class="ptl-text">契約書レビュー待ち（優先）</div>
+                <div class="ptl-time">待機中</div>
+              </div>
+              <div class="ptl-item">
+                <div class="ptl-dot ptl-dot--gray"></div>
+                <div class="ptl-text">月次レポート自動生成</div>
+                <div class="ptl-time">22:00</div>
+              </div>
+            </div>
+
+            <div class="phone-cta-bar">
+              <div class="pcta-btn">＋ 新しいタスクを追加</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     PROBLEM
+     ============================================ -->
+<section id="problem">
+  <div class="container">
+    <div class="problem-inner">
+
+      <div>
+        <span class="tag tag--hot">Problem</span>
+        <h2>あなたは<br><span class="hot-text">一人しかいない。</span><br>でも仕事は増え続ける。</h2>
+        <p class="problem-lead">
+          優秀な人ほど、<strong>「あなたにしかできない仕事」</strong>に時間を奪われる。<br>
+          繰り返す作業、調査、調整、報告——<br>
+          そのすべてが、あなたの本来の価値を消耗させている。
+        </p>
+      </div>
+
+      <div class="problem-cards">
+        <div class="prob-card">
+          <div class="prob-num">01</div>
+          <div>
+            <div class="prob-title">時間は有限、チャンスは無限</div>
+            <div class="prob-desc">1日24時間では処理しきれない商談・リサーチ・フォローアップ。やるべきことはわかっているのに、手が回らない。</div>
+          </div>
+        </div>
+        <div class="prob-card">
+          <div class="prob-num">02</div>
+          <div>
+            <div class="prob-title">採用コストは青天井</div>
+            <div class="prob-desc">人を雇えば月数十万。でもその仕事の多くは、適切なAIなら数百円でこなせる。コスト構造が時代遅れになっている。</div>
+          </div>
+        </div>
+        <div class="prob-card">
+          <div class="prob-num">03</div>
+          <div>
+            <div class="prob-title">スキルが自分の中で死んでいる</div>
+            <div class="prob-desc">あなたが積み上げた経験・判断軸・ノウハウは、あなたが寝ている間も、休んでいる間も、眠り続けている。もったいない。</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SOLUTION
+     ============================================ -->
+<section id="solution">
+  <div class="container">
+    <div class="solution-header">
+      <span class="tag">Solution</span>
+      <h2>あなたを<span class="accent-text">エージェント化</span>する、<br>たった3ステップ</h2>
+      <p>技術的な知識は不要。あなたのことを教えるだけで、AIが「あなた」として世界中で動き始める。</p>
+    </div>
+
+    <div class="solution-flow">
+      <div class="sf-step">
+        <div class="sf-icon">
+          🧠
+          <span class="sf-step-num">1</span>
+        </div>
+        <div class="sf-label">Step 01</div>
+        <div class="sf-title">あなたを<br>学習させる</div>
+        <div class="sf-desc">スキル・判断基準・コミュニケーションスタイル・過去の仕事実績をAIに吸収させる。面接形式で30分あれば完了。</div>
+      </div>
+
+      <div class="sf-step">
+        <div class="sf-icon">
+          ⚡
+          <span class="sf-step-num">2</span>
+        </div>
+        <div class="sf-label">Step 02</div>
+        <div class="sf-title">タスクを<br>割り当てる</div>
+        <div class="sf-desc">何をやらせるか指定するだけ。メール対応・リサーチ・提案書作成・スケジュール調整、すべてお任せ。</div>
+      </div>
+
+      <div class="sf-step">
+        <div class="sf-icon">
+          🚀
+          <span class="sf-step-num">3</span>
+        </div>
+        <div class="sf-label">Step 03</div>
+        <div class="sf-title">あなたが眠る間も<br>動き続ける</div>
+        <div class="sf-desc">24時間365日、あなたのスタイルで仕事を処理。重要な判断だけあなたに届く。あとは自動で完結。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     FEATURES
+     ============================================ -->
+<section id="features">
+  <div class="container">
+    <div class="features-header">
+      <div>
+        <span class="tag">Features</span>
+        <h2>あなたの代わりに<br>動く、3つの力</h2>
+        <p>単なる自動化ツールじゃない。AgentDispatchはあなたの分身として、文脈を理解し、判断し、実行する。</p>
+      </div>
+      <div class="features-tagline">
+        "自分らしさ"を<br>
+        <span class="accent-text">スケールさせる</span><br>
+        唯一のプラットフォーム
+      </div>
+    </div>
+
+    <div class="feature-cards">
+
+      <div class="feat-card">
+        <div class="feat-icon-wrap feat-icon-wrap--accent">🎯</div>
+        <div class="feat-title">パーソナライズド<br>インテリジェンス</div>
+        <div class="feat-desc">あなたの過去の意思決定パターンを学習し、「あなたなら何と答えるか」を高精度で再現する。</div>
+        <ul class="feat-list">
+          <li>コミュニケーションスタイル自動学習</li>
+          <li>業界・専門用語の最適化</li>
+          <li>判断軸のカスタムチューニング</li>
+          <li>継続学習で精度が向上</li>
+        </ul>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon-wrap feat-icon-wrap--hot">🔗</div>
+        <div class="feat-title">マルチチャンネル<br>オートメーション</div>
+        <div class="feat-desc">Slack、Gmail、Notion、Salesforce——あなたが使っているすべてのツールに接続して、横断的に動く。</div>
+        <ul class="feat-list">
+          <li>50以上のSaaS連携</li>
+          <li>メール・チャット自動応答</li>
+          <li>データ収集・レポート生成</li>
+          <li>カレンダー・スケジュール最適化</li>
+        </ul>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon-wrap feat-icon-wrap--purple">📊</div>
+        <div class="feat-title">リアルタイム<br>ダッシュボード</div>
+        <div class="feat-desc">エージェントが何をしているか、どんな成果を出したか、どこで判断を仰ぐべきかを一目で把握できる。</div>
+        <ul class="feat-list">
+          <li>タスク進捗リアルタイム表示</li>
+          <li>ROI・コスト削減レポート</li>
+          <li>例外・要確認アラート</li>
+          <li>週次サマリー自動送信</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     PRICING
+     ============================================ -->
+<section id="pricing">
+  <div class="container">
+    <div class="pricing-header">
+      <span class="tag">Pricing</span>
+      <h2>シンプルな料金体系</h2>
+      <p>人を雇うコストの1/10以下で、24時間働くエージェントを手に入れる。</p>
+    </div>
+
+    <div class="pricing-grid">
+
+      <!-- Starter -->
+      <div class="price-card">
+        <div class="price-plan">Starter</div>
+        <div class="price-amount">¥9,800<span>/月</span></div>
+        <div class="price-billing">年払い時（月払いは ¥12,800）</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> エージェント1体</li>
+          <li><span class="check">✓</span> 月1,000タスクまで</li>
+          <li><span class="check">✓</span> 基本SaaS連携（10個）</li>
+          <li><span class="check">✓</span> メールサポート</li>
+          <li><span class="x">✗</span> カスタムチューニング</li>
+          <li><span class="x">✗</span> API連携</li>
+        </ul>
+        <a href="#footer-cta" class="btn-plan btn-plan--ghost">無料トライアルを始める</a>
+      </div>
+
+      <!-- Pro (featured) -->
+      <div class="price-card price-card--featured">
+        <div class="price-badge">Most Popular</div>
+        <div class="price-plan">Pro</div>
+        <div class="price-amount">¥29,800<span>/月</span></div>
+        <div class="price-billing">年払い時（月払いは ¥39,800）</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> エージェント5体まで</li>
+          <li><span class="check">✓</span> 月無制限タスク</li>
+          <li><span class="check">✓</span> 全SaaS連携（50個以上）</li>
+          <li><span class="check">✓</span> チャット優先サポート</li>
+          <li><span class="check">✓</span> カスタムチューニング</li>
+          <li><span class="check">✓</span> API連携</li>
+        </ul>
+        <a href="#footer-cta" class="btn-plan btn-plan--accent">Proを始める →</a>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="price-card">
+        <div class="price-plan">Enterprise</div>
+        <div class="price-amount">要<span>相談</span></div>
+        <div class="price-billing">チーム・組織向けカスタムプラン</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> エージェント無制限</li>
+          <li><span class="check">✓</span> 専用インフラ</li>
+          <li><span class="check">✓</span> SSO・SAML対応</li>
+          <li><span class="check">✓</span> 専任CSM</li>
+          <li><span class="check">✓</span> SLA 99.9%保証</li>
+          <li><span class="check">✓</span> オンプレ対応可</li>
+        </ul>
+        <a href="#footer-cta" class="btn-plan btn-plan--ghost">お問い合わせ</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     TESTIMONIALS
+     ============================================ -->
+<section id="testimonials">
+  <div class="container">
+    <div class="testimonials-header">
+      <span class="tag">Voice</span>
+      <h2>使った人が語る、<br><span class="accent-text">リアルな変化</span></h2>
+    </div>
+
+    <div class="testimonials-grid">
+
+      <div class="testi-card">
+        <span class="testi-quote-mark">"</span>
+        <p class="testi-text">
+          商談後のフォローアップメールを毎回手書きしていたのが、<strong>エージェントが自動で送ってくれるようになった。</strong>しかも自分が書いたより質が高い。
+        </p>
+        <div class="testi-meta">
+          <div class="testi-avatar testi-avatar--a">T</div>
+          <div>
+            <div class="testi-name">田中 健司</div>
+            <div class="testi-role">スタートアップ CEO / 32歳</div>
+          </div>
+        </div>
+        <div class="testi-result">
+          <div class="testi-result-val">週14時間</div>
+          <div class="testi-result-label">削減できた時間</div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <span class="testi-quote-mark">"</span>
+        <p class="testi-text">
+          フリーランスで複数のクライアントを抱えていて限界だったけど、<strong>エージェントが並行して動いてくれるおかげで受注数が3倍に。</strong>
+        </p>
+        <div class="testi-meta">
+          <div class="testi-avatar testi-avatar--b">M</div>
+          <div>
+            <div class="testi-name">村上 あかり</div>
+            <div class="testi-role">マーケターフリーランス / 28歳</div>
+          </div>
+        </div>
+        <div class="testi-result">
+          <div class="testi-result-val">売上 3.2倍</div>
+          <div class="testi-result-label">3ヶ月で達成</div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <span class="testi-quote-mark">"</span>
+        <p class="testi-text">
+          正直懐疑的だったが、自分のSlack文体を完璧に学習して<strong>社内チャットを代理で処理してくれる</strong>のを見た瞬間、確信に変わった。
+        </p>
+        <div class="testi-meta">
+          <div class="testi-avatar testi-avatar--c">S</div>
+          <div>
+            <div class="testi-name">佐藤 拓也</div>
+            <div class="testi-role">コンサルタント / 41歳</div>
+          </div>
+        </div>
+        <div class="testi-result">
+          <div class="testi-result-val">稼働 +6h/日</div>
+          <div class="testi-result-label">実質的な時間増加</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     FAQ
+     ============================================ -->
+<section id="faq">
+  <div class="container">
+    <div class="faq-inner">
+
+      <div class="faq-sidebar">
+        <span class="tag">FAQ</span>
+        <h2>よくある<br>質問</h2>
+        <p>他にご不明な点があれば、お気軽にお問い合わせください。24時間以内にご返信します。</p>
+        <a href="#footer-cta" class="btn-primary">相談してみる</a>
+      </div>
+
+      <div class="faq-list" id="faqList">
+        <div class="faq-item open">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            AIに仕事を任せて、情報漏洩のリスクはないですか？
+            <span class="faq-q-icon">−</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">
+              全データはエンドツーエンドで暗号化され、エージェントはあなたの専用サンドボックス内で動作します。第三者への共有は一切なく、SOC2 Type IIの認証を取得済みです。オンプレミス対応（Enterpriseプラン）も可能です。
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            エージェントに「私らしさ」を学習させるにはどれくらいかかりますか？
+            <span class="faq-q-icon">＋</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">
+              初期セットアップは約30分の対話形式で完了します。その後、実際の業務を通じて継続的に精度が向上します。多くのユーザーが1週間以内に「自分そのものだ」と感じる精度に達したと報告しています。
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            エージェントが間違いを犯した場合、どうなりますか？
+            <span class="faq-q-icon">＋</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">
+              重要な外部アクション（メール送信、契約書類の処理など）は、デフォルトでヒューマン承認が必要な設定になっています。また、全アクションのログが記録されており、ロールバックも可能です。信頼度スコアに基づいて自動化レベルを段階的に調整できます。
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            現在使っているツール（Slack、Notionなど）と連携できますか？
+            <span class="faq-q-icon">＋</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">
+              はい。50以上のSaaSと標準で連携しています（Slack、Gmail、Notion、Salesforce、HubSpot、Googleカレンダー、Airtable等）。Zapier・Make経由でさらに5,000以上のサービスとも接続可能です。
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            解約はいつでもできますか？
+            <span class="faq-q-icon">＋</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">
+              月払いプランはいつでも解約可能です。年払いプランは解約後も残り期間中はご利用いただけます。データのエクスポートも無料で対応しています。縛り一切なし、解約手数料も0円です。
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            法人での利用も可能ですか？
+            <span class="faq-q-icon">＋</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">
+              はい。Enterpriseプランでは複数メンバーのエージェントを一括管理でき、組織横断での活用が可能です。請求書払い・稟議対応・セキュリティ審査のサポートも行っています。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     FOOTER CTA
+     ============================================ -->
+<section id="footer-cta">
+  <div class="footer-cta-inner">
+    <div class="footer-cta-pre">Limited Early Access</div>
+    <h2>今日、あなたの<br><span class="accent-text">分身</span>を作ろう。</h2>
+    <p>
+      毎週100名限定での受け入れです。<br>
+      あなたが寝ている間も、休んでいる間も、<br>世界中で働き続けるエージェントを今すぐ起動しよう。
+    </p>
+    <div class="footer-actions">
+      <a href="#" class="btn-primary">無料で14日間試す →</a>
+      <a href="#" class="btn-ghost">デモを予約する</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer-bar">
+  <div class="footer-brand">Agent<span>Dispatch</span></div>
+  <nav class="footer-nav">
+    <a href="#">サービス概要</a>
+    <a href="#">料金</a>
+    <a href="#">ブログ</a>
+    <a href="#">お問い合わせ</a>
+    <a href="#">プライバシーポリシー</a>
+    <a href="#">利用規約</a>
+  </nav>
+  <div class="footer-copy">© 2026 AgentDispatch. All rights reserved.</div>
+</footer>
+
+<script>
+function toggleFaq(btn) {
+  var item = btn.closest('.faq-item');
+  var isOpen = item.classList.contains('open');
+  // close all
+  document.querySelectorAll('.faq-item').forEach(function(el) {
+    el.classList.remove('open');
+    el.querySelector('.faq-q-icon').textContent = '＋';
+  });
+  if (!isOpen) {
+    item.classList.add('open');
+    btn.querySelector('.faq-q-icon').textContent = '−';
+  }
+}
+</script>
+</body>
+</html>

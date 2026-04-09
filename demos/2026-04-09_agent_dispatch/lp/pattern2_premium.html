@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Dispatch — 自分を派遣する</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #B8860B;
+    --gold-light: #D4A520;
+    --gold-pale: #F5EDD0;
+    --gold-border: #C9A227;
+    --black: #111111;
+    --dark: #1A1A1A;
+    --gray: #555555;
+    --gray-light: #888888;
+    --off-white: #FAFAF8;
+    --white: #FFFFFF;
+    --serif: 'Georgia', 'Times New Roman', serif;
+    --sans: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    background: var(--white);
+    color: var(--dark);
+    font-family: var(--sans);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ===== UTILITY ===== */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+  .gold-line {
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: var(--gold);
+    margin: 0 auto 32px;
+  }
+  .gold-line--left { margin-left: 0; }
+  .label {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: block;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: normal;
+    color: var(--black);
+    line-height: 1.25;
+    margin-bottom: 20px;
+  }
+  .section-lead {
+    font-size: 1.05rem;
+    color: var(--gray);
+    max-width: 560px;
+    line-height: 1.9;
+  }
+  .btn-gold {
+    display: inline-block;
+    padding: 16px 48px;
+    background: var(--gold);
+    color: var(--white);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .btn-outline {
+    display: inline-block;
+    padding: 14px 44px;
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+  }
+  .btn-outline:hover { background: var(--gold); color: var(--white); }
+
+  /* ===== NAVIGATION ===== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.96);
+    border-bottom: 1px solid #E8E2D0;
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    letter-spacing: 0.05em;
+    color: var(--black);
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta {
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 10px 28px;
+    background: var(--gold);
+    color: var(--white);
+    transition: background 0.3s;
+  }
+  .nav-cta:hover { background: var(--gold-light); }
+
+  /* ===== HERO ===== */
+  #hero {
+    min-height: 100vh;
+    padding-top: 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    background: var(--white);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg-text {
+    position: absolute;
+    top: 50%;
+    left: -2%;
+    transform: translateY(-50%);
+    font-family: var(--serif);
+    font-size: clamp(100px, 14vw, 180px);
+    font-weight: normal;
+    color: transparent;
+    -webkit-text-stroke: 1px #E8E2D0;
+    line-height: 1;
+    user-select: none;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 0;
+  }
+  .hero-content {
+    padding: 80px 40px 80px 80px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-eyebrow {
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+  }
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(2.8rem, 5.5vw, 5rem);
+    font-weight: normal;
+    color: var(--black);
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .hero-title-sub {
+    font-family: var(--serif);
+    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+    font-weight: normal;
+    color: var(--gold);
+    margin-bottom: 36px;
+    font-style: italic;
+  }
+  .hero-desc {
+    font-size: 1rem;
+    color: var(--gray);
+    line-height: 1.9;
+    max-width: 420px;
+    margin-bottom: 48px;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .hero-stats {
+    margin-top: 64px;
+    display: flex;
+    gap: 48px;
+  }
+  .stat-item {}
+  .stat-num {
+    font-family: var(--serif);
+    font-size: 2.4rem;
+    color: var(--black);
+    font-weight: normal;
+    line-height: 1;
+  }
+  .stat-num span { color: var(--gold); font-size: 1.4rem; }
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--gray-light);
+    letter-spacing: 0.08em;
+    margin-top: 6px;
+  }
+
+  /* ===== スマートフォンモック ===== */
+  .hero-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 40px;
+    position: relative;
+    z-index: 1;
+  }
+  .phone-scene {
+    position: relative;
+    width: 280px;
+  }
+  .phone-mock {
+    width: 260px;
+    height: 520px;
+    background: var(--black);
+    border-radius: 40px;
+    position: relative;
+    box-shadow:
+      0 40px 80px rgba(0,0,0,0.18),
+      0 2px 4px rgba(0,0,0,0.08),
+      inset 0 0 0 1px rgba(255,255,255,0.08);
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  .phone-mock::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 26px;
+    background: var(--black);
+    border-radius: 0 0 16px 16px;
+    z-index: 10;
+  }
+  .phone-screen {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, #0D0D0D 0%, #1A1506 50%, #0D0D0D 100%);
+    border-radius: 40px;
+    padding: 50px 20px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow: hidden;
+  }
+  .phone-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .phone-logo-text {
+    font-family: var(--serif);
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+  }
+  .phone-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.7;
+  }
+  .phone-hero-text {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--white);
+    line-height: 1.3;
+  }
+  .phone-hero-text em {
+    color: var(--gold);
+    font-style: normal;
+  }
+  .phone-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(184,134,11,0.3);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .phone-card-label {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .phone-card-title {
+    font-size: 13px;
+    color: var(--white);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .phone-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+  .phone-bar-label { font-size: 8px; color: rgba(255,255,255,0.5); width: 36px; }
+  .phone-bar-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .phone-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 2px;
+  }
+  .phone-status-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .phone-badge {
+    font-size: 8px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(184,134,11,0.4);
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+  .phone-btn {
+    margin-top: 6px;
+    background: var(--gold);
+    color: var(--black);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  .phone-glow {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(184,134,11,0.15) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .phone-float-card {
+    position: absolute;
+    right: -60px;
+    top: 30%;
+    background: var(--white);
+    border-left: 3px solid var(--gold);
+    padding: 12px 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    width: 160px;
+  }
+  .phone-float-label {
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .phone-float-val {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    color: var(--black);
+    line-height: 1;
+  }
+  .phone-float-sub {
+    font-size: 8px;
+    color: var(--gray-light);
+    margin-top: 2px;
+  }
+
+  /* ===== 課題提起 ===== */
+  #problem {
+    background: var(--off-white);
+    padding: 120px 0;
+  }
+  .problem-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .problem-content {}
+  .problem-list {
+    margin-top: 40px;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .problem-item {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    padding: 28px 0;
+    border-bottom: 1px solid #E0D8C4;
+  }
+  .problem-item:first-child { border-top: 1px solid #E0D8C4; }
+  .problem-num {
+    font-family: var(--serif);
+    font-size: 2rem;
+    color: #D4C8A0;
+    font-weight: normal;
+    line-height: 1;
+    min-width: 36px;
+  }
+  .problem-text-wrap {}
+  .problem-title-sm {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--black);
+    margin-bottom: 6px;
+  }
+  .problem-desc-sm {
+    font-size: 0.9rem;
+    color: var(--gray);
+    line-height: 1.7;
+  }
+  .problem-quote {
+    background: var(--white);
+    border: 1px solid #E0D8C4;
+    padding: 48px 40px;
+    position: relative;
+  }
+  .problem-quote::before {
+    content: '"';
+    font-family: var(--serif);
+    font-size: 8rem;
+    color: var(--gold-pale);
+    position: absolute;
+    top: -20px;
+    left: 24px;
+    line-height: 1;
+  }
+  .quote-text {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    color: var(--black);
+    line-height: 1.7;
+    position: relative;
+    z-index: 1;
+  }
+  .quote-author {
+    margin-top: 24px;
+    font-size: 0.82rem;
+    color: var(--gray-light);
+    letter-spacing: 0.06em;
+  }
+
+  /* ===== ソリューション ===== */
+  #solution {
+    padding: 140px 0;
+    background: var(--black);
+    position: relative;
+    overflow: hidden;
+  }
+  .solution-bg-word {
+    position: absolute;
+    right: -5%;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--serif);
+    font-size: 20vw;
+    font-weight: normal;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(184,134,11,0.1);
+    line-height: 1;
+    user-select: none;
+    pointer-events: none;
+  }
+  .solution-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .solution-inner .label { color: var(--gold); }
+  .solution-inner .section-title { color: var(--white); }
+  .solution-inner .section-lead { color: rgba(255,255,255,0.6); margin: 0 auto 60px; }
+  .solution-steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: rgba(184,134,11,0.2);
+    margin-top: 64px;
+    text-align: left;
+  }
+  .step-card {
+    background: var(--black);
+    padding: 48px 36px;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .step-card:hover { background: #0D0D0D; }
+  .step-arrow {
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 40px;
+    background: var(--gold);
+  }
+  .step-num {
+    font-family: var(--serif);
+    font-size: 3rem;
+    color: rgba(184,134,11,0.3);
+    font-weight: normal;
+    margin-bottom: 20px;
+    line-height: 1;
+  }
+  .step-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+  .step-desc {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.8;
+  }
+  .step-icon {
+    font-size: 1.8rem;
+    margin-bottom: 16px;
+  }
+
+  /* ===== 主要機能 ===== */
+  #features {
+    padding: 140px 0;
+    background: var(--white);
+  }
+  .features-header {
+    text-align: center;
+    margin-bottom: 80px;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: #E8E2D0;
+  }
+  .feature-card {
+    background: var(--white);
+    padding: 56px 44px;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+  .feature-card:hover::after { transform: scaleX(1); }
+  .feature-card:hover { background: var(--off-white); }
+  .feature-icon-wrap {
+    width: 56px;
+    height: 56px;
+    border: 1px solid var(--gold-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+    font-size: 1.6rem;
+  }
+  .feature-title {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    color: var(--black);
+    margin-bottom: 16px;
+    font-weight: normal;
+  }
+  .feature-desc {
+    font-size: 0.9rem;
+    color: var(--gray);
+    line-height: 1.85;
+  }
+  .feature-list {
+    margin-top: 20px;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .feature-list li {
+    font-size: 0.85rem;
+    color: var(--gray);
+    padding-left: 16px;
+    position: relative;
+  }
+  .feature-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.75rem;
+  }
+
+  /* ===== 料金プラン ===== */
+  #pricing {
+    padding: 140px 0;
+    background: var(--off-white);
+  }
+  .pricing-header {
+    text-align: center;
+    margin-bottom: 72px;
+  }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .plan-card {
+    background: var(--white);
+    border: 1px solid #E0D8C4;
+    padding: 48px 36px;
+    position: relative;
+    transition: box-shadow 0.3s;
+  }
+  .plan-card:hover {
+    box-shadow: 0 16px 48px rgba(0,0,0,0.08);
+  }
+  .plan-card--featured {
+    background: var(--black);
+    border-color: var(--gold);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.16);
+    transform: translateY(-12px);
+  }
+  .plan-card--featured:hover {
+    box-shadow: 0 32px 80px rgba(0,0,0,0.24);
+  }
+  .plan-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    padding: 5px 20px;
+    white-space: nowrap;
+  }
+  .plan-name {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    color: var(--black);
+    font-weight: normal;
+    margin-bottom: 6px;
+  }
+  .plan-card--featured .plan-name { color: var(--white); }
+  .plan-tagline {
+    font-size: 0.82rem;
+    color: var(--gray-light);
+    margin-bottom: 32px;
+  }
+  .plan-card--featured .plan-tagline { color: rgba(255,255,255,0.5); }
+  .plan-price-wrap {
+    margin-bottom: 36px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid #E0D8C4;
+  }
+  .plan-card--featured .plan-price-wrap { border-color: rgba(184,134,11,0.3); }
+  .plan-price {
+    font-family: var(--serif);
+    font-size: 3rem;
+    color: var(--black);
+    font-weight: normal;
+    line-height: 1;
+  }
+  .plan-card--featured .plan-price { color: var(--white); }
+  .plan-price-unit {
+    font-size: 0.9rem;
+    color: var(--gray);
+    margin-top: 6px;
+  }
+  .plan-card--featured .plan-price-unit { color: rgba(255,255,255,0.5); }
+  .plan-features-list {
+    list-style: none;
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .plan-features-list li {
+    font-size: 0.88rem;
+    color: var(--gray);
+    padding-left: 22px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .plan-card--featured .plan-features-list li { color: rgba(255,255,255,0.7); }
+  .plan-features-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .plan-card--featured .btn-gold { width: 100%; text-align: center; }
+  .plan-card:not(.plan-card--featured) .btn-outline { width: 100%; text-align: center; }
+
+  /* ===== ユーザーの声 ===== */
+  #testimonials {
+    padding: 140px 0;
+    background: var(--white);
+    overflow: hidden;
+  }
+  .testimonials-header {
+    text-align: center;
+    margin-bottom: 72px;
+  }
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: #E8E2D0;
+  }
+  .testi-card {
+    background: var(--white);
+    padding: 48px 40px;
+    position: relative;
+  }
+  .testi-stars {
+    color: var(--gold);
+    font-size: 1rem;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+  }
+  .testi-text {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    color: var(--black);
+    line-height: 1.8;
+    margin-bottom: 32px;
+    font-style: italic;
+  }
+  .testi-author {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .testi-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--gold-pale);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: var(--serif);
+    flex-shrink: 0;
+  }
+  .testi-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--black);
+  }
+  .testi-role {
+    font-size: 0.78rem;
+    color: var(--gray-light);
+    margin-top: 2px;
+  }
+  .testi-num {
+    position: absolute;
+    top: 32px;
+    right: 40px;
+    font-family: var(--serif);
+    font-size: 4rem;
+    color: var(--gold-pale);
+    font-weight: normal;
+    line-height: 1;
+    user-select: none;
+  }
+
+  /* ===== FAQ ===== */
+  #faq {
+    padding: 140px 0;
+    background: var(--off-white);
+  }
+  .faq-inner {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .faq-sidebar {}
+  .faq-sidebar .section-title { font-size: clamp(1.8rem, 3vw, 2.6rem); }
+  .faq-sidebar .section-lead { margin-top: 20px; }
+  .faq-contact-note {
+    margin-top: 40px;
+    padding: 28px 24px;
+    background: var(--white);
+    border-left: 3px solid var(--gold);
+  }
+  .faq-contact-note p {
+    font-size: 0.88rem;
+    color: var(--gray);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .faq-list {
+    list-style: none;
+  }
+  .faq-item {
+    border-bottom: 1px solid #E0D8C4;
+  }
+  .faq-item:first-child { border-top: 1px solid #E0D8C4; }
+  .faq-q {
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 28px 0;
+    text-align: left;
+    font-size: 0.96rem;
+    font-weight: 600;
+    color: var(--black);
+    font-family: var(--sans);
+    line-height: 1.5;
+  }
+  .faq-q:hover { color: var(--gold); }
+  .faq-icon {
+    font-size: 1.2rem;
+    color: var(--gold);
+    font-weight: normal;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: transform 0.3s;
+    display: inline-block;
+  }
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+  .faq-a {
+    font-size: 0.9rem;
+    color: var(--gray);
+    line-height: 1.85;
+    padding-bottom: 28px;
+    display: none;
+  }
+  .faq-item.open .faq-a { display: block; }
+
+  /* ===== CTA / FOOTER ===== */
+  #footer {
+    background: var(--black);
+    position: relative;
+    overflow: hidden;
+  }
+  .footer-cta {
+    padding: 120px 40px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    border-bottom: 1px solid rgba(184,134,11,0.2);
+  }
+  .footer-cta-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 50%, rgba(184,134,11,0.08) 0%, transparent 70%);
+    z-index: 0;
+  }
+  .footer-cta .label { color: var(--gold); text-align: center; display: block; }
+  .cta-title {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 5vw, 4.5rem);
+    color: var(--white);
+    font-weight: normal;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .cta-title em {
+    color: var(--gold);
+    font-style: italic;
+  }
+  .cta-sub {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.5);
+    max-width: 500px;
+    margin: 0 auto 48px;
+    line-height: 1.8;
+    position: relative;
+    z-index: 1;
+  }
+  .cta-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+  .btn-gold--large {
+    padding: 20px 64px;
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+  }
+  .btn-ghost {
+    display: inline-block;
+    padding: 20px 48px;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: border-color 0.3s, color 0.3s;
+  }
+  .btn-ghost:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .footer-bottom {
+    padding: 48px 40px;
+  }
+  .footer-bottom-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1100px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  .footer-logo {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    color: var(--white);
+    letter-spacing: 0.05em;
+  }
+  .footer-logo span { color: var(--gold); }
+  .footer-nav {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+  .footer-nav a {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.06em;
+    transition: color 0.2s;
+  }
+  .footer-nav a:hover { color: var(--gold); }
+  .footer-copy {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.06em;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    #hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-content { padding: 100px 24px 40px; }
+    .hero-visual { padding: 40px 24px 60px; }
+    .hero-stats { gap: 32px; }
+    .problem-inner { grid-template-columns: 1fr; gap: 48px; }
+    .solution-steps { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .plan-card--featured { transform: none; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .faq-inner { grid-template-columns: 1fr; gap: 40px; }
+    .container { padding: 0 24px; }
+    .phone-float-card { display: none; }
+    .footer-bottom-inner { flex-direction: column; text-align: center; }
+    .footer-nav { justify-content: center; }
+  }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--off-white); }
+  ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav>
+  <div class="nav-logo">Agent<span>.</span>Dispatch</div>
+  <ul class="nav-links">
+    <li><a href="#problem">課題</a></li>
+    <li><a href="#solution">ソリューション</a></li>
+    <li><a href="#features">機能</a></li>
+    <li><a href="#pricing">料金</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#footer" class="nav-cta">無料で始める</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-text">AGENT</div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">Agent Dispatch</div>
+    <h1 class="hero-title">自分を、<br>派遣する。</h1>
+    <p class="hero-title-sub">あなたの代わりに、AIが動く。</p>
+    <p class="hero-desc">
+      会議、メール、調査、交渉——あなたが直接やる必要はない。
+      あなたの思考回路を持ったAIエージェントが、24時間365日、静かに仕事をこなす。
+    </p>
+    <div class="hero-actions">
+      <a href="#footer" class="btn-gold">今すぐ派遣を開始する</a>
+      <a href="#solution" class="btn-outline">仕組みを見る</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">24<span>h</span></div>
+        <div class="stat-label">稼働時間</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3<span>×</span></div>
+        <div class="stat-label">生産性向上</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">98<span>%</span></div>
+        <div class="stat-label">タスク完遂率</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="phone-scene">
+      <div class="phone-mock">
+        <div class="phone-glow"></div>
+        <div class="phone-screen">
+          <div class="phone-header-bar">
+            <span class="phone-logo-text">AGENT.DISPATCH</span>
+            <div class="phone-dot"></div>
+          </div>
+          <div class="phone-hero-text">あなたの<em>分身</em>が<br>今日も働いている</div>
+          <div class="phone-card">
+            <div class="phone-card-label">Active Agents</div>
+            <div class="phone-card-title">本日の稼働状況</div>
+            <div class="phone-bar-row">
+              <span class="phone-bar-label">メール</span>
+              <div class="phone-bar-track"><div class="phone-bar-fill" style="width:82%"></div></div>
+            </div>
+            <div class="phone-bar-row">
+              <span class="phone-bar-label">調査</span>
+              <div class="phone-bar-track"><div class="phone-bar-fill" style="width:67%"></div></div>
+            </div>
+            <div class="phone-bar-row">
+              <span class="phone-bar-label">会議</span>
+              <div class="phone-bar-track"><div class="phone-bar-fill" style="width:91%"></div></div>
+            </div>
+          </div>
+          <div class="phone-status-row">
+            <span class="phone-badge">稼働中</span>
+            <span class="phone-badge">12タスク完了</span>
+            <span class="phone-badge">節約: 6.2h</span>
+          </div>
+          <div class="phone-btn">エージェントを確認する →</div>
+        </div>
+      </div>
+      <div class="phone-float-card">
+        <div class="phone-float-label">Today Saved</div>
+        <div class="phone-float-val">6.2h</div>
+        <div class="phone-float-sub">あなたの代わりに完了</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 課題提起 -->
+<section id="problem">
+  <div class="container">
+    <div class="problem-inner">
+      <div class="problem-content">
+        <span class="label">The Problem</span>
+        <h2 class="section-title">あなたの時間は<br>本当に<br>有限だ。</h2>
+        <ul class="problem-list">
+          <li class="problem-item">
+            <span class="problem-num">01</span>
+            <div class="problem-text-wrap">
+              <div class="problem-title-sm">返信に追われる毎日</div>
+              <div class="problem-desc-sm">メールやチャットの返信だけで1日の3割が消える。本質的な仕事に集中できない。</div>
+            </div>
+          </li>
+          <li class="problem-item">
+            <span class="problem-num">02</span>
+            <div class="problem-text-wrap">
+              <div class="problem-title-sm">情報収集の非効率</div>
+              <div class="problem-desc-sm">市場調査、競合分析、最新情報のキャッチアップ——全部自分でやる必要があるのか？</div>
+            </div>
+          </li>
+          <li class="problem-item">
+            <span class="problem-num">03</span>
+            <div class="problem-text-wrap">
+              <div class="problem-title-sm">スケールしない個人の限界</div>
+              <div class="problem-desc-sm">あなたが1人でできることには天井がある。でも採用・外注は高コストでリスクが高い。</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="problem-quote">
+        <p class="quote-text">
+          「一番大事な仕事に集中したい。でも雑務が多すぎて、戦略を考える時間がない。」
+        </p>
+        <div class="quote-author">— 創業5年目のスタートアップCEO</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ソリューション -->
+<section id="solution">
+  <div class="solution-bg-word">SOLVE</div>
+  <div class="container">
+    <div class="solution-inner">
+      <span class="label">The Solution</span>
+      <h2 class="section-title" style="color:var(--white)">AIを<em style="color:var(--gold);font-style:italic">派遣する</em>、<br>という発想の転換</h2>
+      <p class="section-lead">
+        あなたの判断軸・コミュニケーションスタイル・優先順位をAIに学習させる。
+        そのAIが「あなたの分身」として、日々のタスクを自律的にこなす。
+      </p>
+      <div class="solution-steps">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-icon">🧠</div>
+          <div class="step-title">あなたを学習させる</div>
+          <div class="step-desc">過去のメール・資料・思考メモをインプット。あなたの「判断パターン」をAIが習得します。</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-icon">⚡</div>
+          <div class="step-title">エージェントを配備する</div>
+          <div class="step-desc">タスクの種類別に特化したエージェントを起動。メール、調査、会議準備など役割分担で動きます。</div>
+        </div>
+        <div class="step-card" style="border-right:none">
+          <div class="step-num">03</div>
+          <div class="step-icon">📊</div>
+          <div class="step-title">成果をレビューする</div>
+          <div class="step-desc">エージェントの成果物を確認・承認するだけ。フィードバックで精度は日々向上します。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 主要機能 -->
+<section id="features">
+  <div class="container">
+    <div class="features-header">
+      <span class="label">Key Features</span>
+      <h2 class="section-title">3つのコア機能</h2>
+      <p class="section-lead" style="margin:0 auto">あなたの分身が持つべき能力を、厳選してパッケージ化しました。</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon-wrap">✉️</div>
+        <h3 class="feature-title">Communication<br>Agent</h3>
+        <p class="feature-desc">メール・チャット・提案書の起草を自動化。あなたのトーン・語彙・スタイルを完全再現し、相手に合わせた文章を瞬時に生成します。</p>
+        <ul class="feature-list">
+          <li>受信メールの自動分類・優先度付け</li>
+          <li>あなたの文体を学習した返信草稿</li>
+          <li>多言語コミュニケーション対応</li>
+          <li>定型連絡の完全自動化</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">🔍</div>
+        <h3 class="feature-title">Research<br>Agent</h3>
+        <p class="feature-desc">市場調査・競合分析・最新トレンドのモニタリングを24時間継続。必要な情報を必要なタイミングに、構造化されたレポートで届けます。</p>
+        <ul class="feature-list">
+          <li>業界ニュースのリアルタイム監視</li>
+          <li>競合動向の自動サマリー配信</li>
+          <li>データソースの横断検索・統合</li>
+          <li>カスタマイズ可能なレポート形式</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">🗓️</div>
+        <h3 class="feature-title">Operations<br>Agent</h3>
+        <p class="feature-desc">会議の準備・議事録作成・タスク管理・進捗追跡まで、プロジェクト運営に関わる業務を自律的にハンドリングします。</p>
+        <ul class="feature-list">
+          <li>会議前ブリーフィングの自動生成</li>
+          <li>議事録・アクションアイテムの抽出</li>
+          <li>デッドライン管理と事前アラート</li>
+          <li>チームへの進捗レポート自動配信</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 料金プラン -->
+<section id="pricing">
+  <div class="container">
+    <div class="pricing-header">
+      <span class="label">Pricing</span>
+      <h2 class="section-title">シンプルな料金体系</h2>
+      <p class="section-lead" style="margin:0 auto">隠れたコストなし。あなたの規模に合わせて選べます。</p>
+    </div>
+    <div class="pricing-grid">
+      <!-- Starter -->
+      <div class="plan-card">
+        <div class="plan-name">Starter</div>
+        <div class="plan-tagline">個人・フリーランス向け</div>
+        <div class="plan-price-wrap">
+          <div class="plan-price">¥29,800</div>
+          <div class="plan-price-unit">/ 月（税別）</div>
+        </div>
+        <ul class="plan-features-list">
+          <li>エージェント 1体</li>
+          <li>月500タスクまで</li>
+          <li>Communication Agent</li>
+          <li>メールサポート</li>
+          <li>基本ダッシュボード</li>
+        </ul>
+        <a href="#footer" class="btn-outline">このプランを選ぶ</a>
+      </div>
+      <!-- Professional (featured) -->
+      <div class="plan-card plan-card--featured">
+        <div class="plan-badge">MOST POPULAR</div>
+        <div class="plan-name">Professional</div>
+        <div class="plan-tagline">スタートアップ・中小企業向け</div>
+        <div class="plan-price-wrap">
+          <div class="plan-price">¥98,000</div>
+          <div class="plan-price-unit">/ 月（税別）</div>
+        </div>
+        <ul class="plan-features-list">
+          <li>エージェント 3体</li>
+          <li>月3,000タスクまで</li>
+          <li>全エージェント利用可</li>
+          <li>専任サクセスマネージャー</li>
+          <li>カスタム学習データ対応</li>
+          <li>Slack / Notion 連携</li>
+          <li>分析レポート月次提供</li>
+        </ul>
+        <a href="#footer" class="btn-gold">このプランを選ぶ</a>
+      </div>
+      <!-- Enterprise -->
+      <div class="plan-card">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-tagline">大企業・カスタム要件向け</div>
+        <div class="plan-price-wrap">
+          <div class="plan-price">個別見積</div>
+          <div class="plan-price-unit">ご要件に合わせてご提案</div>
+        </div>
+        <ul class="plan-features-list">
+          <li>エージェント 無制限</li>
+          <li>タスク数 無制限</li>
+          <li>専用インフラ構築</li>
+          <li>セキュリティ監査対応</li>
+          <li>API連携・カスタム開発</li>
+          <li>SLA保証・24時間サポート</li>
+          <li>オンサイト導入支援</li>
+        </ul>
+        <a href="#footer" class="btn-outline">お問い合わせ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ユーザーの声 -->
+<section id="testimonials">
+  <div class="container">
+    <div class="testimonials-header">
+      <span class="label">Testimonials</span>
+      <h2 class="section-title">使った人の声</h2>
+      <p class="section-lead" style="margin:0 auto">「自分を派遣する」を実践した方々のリアルな体験談。</p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testi-card">
+        <div class="testi-num">"</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">
+          週40時間かかっていたルーティン業務が、今や6時間のレビューだけで済む。
+          その分、戦略立案と顧客との深い会話に時間を使えるようになった。
+        </p>
+        <div class="testi-author">
+          <div class="testi-avatar">K</div>
+          <div>
+            <div class="testi-name">川島 健太郎</div>
+            <div class="testi-role">スタートアップCEO / IT業</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-num">"</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">
+          海外クライアントとのメールのやり取りが完全に自動化された。
+          時差も言語も気にせず、朝起きたら全部完了している感覚が最高。
+        </p>
+        <div class="testi-author">
+          <div class="testi-avatar">M</div>
+          <div>
+            <div class="testi-name">松本 美咲</div>
+            <div class="testi-role">フリーランスコンサルタント</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-num">"</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">
+          競合調査レポートが毎朝届く。以前は1週間かかっていた情報収集が、
+          今は「読む」だけになった。意思決定のスピードが3倍になった。
+        </p>
+        <div class="testi-author">
+          <div class="testi-avatar">T</div>
+          <div>
+            <div class="testi-name">田中 誠一</div>
+            <div class="testi-role">事業会社 マーケティング部長</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="faq-inner">
+      <div class="faq-sidebar">
+        <span class="label">FAQ</span>
+        <h2 class="section-title">よくある<br>質問</h2>
+        <p class="section-lead">疑問や不安があればご遠慮なく。どんな小さな質問にもお答えします。</p>
+        <div class="faq-contact-note">
+          <p>他にご質問がある場合は、お気軽にお問い合わせください。通常24時間以内にご回答します。</p>
+          <a href="#footer" class="btn-outline" style="font-size:0.82rem;padding:10px 24px">お問い合わせ</a>
+        </div>
+      </div>
+      <ul class="faq-list">
+        <li class="faq-item open">
+          <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+            AIエージェントは本当に「私らしい」文章を書けますか？
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            はい。Agent Dispatchは、あなたの過去のメール・資料・コミュニケーションパターンを学習することで、文体・語彙・トーンを忠実に再現します。導入後2〜4週間でほぼ区別がつかないレベルに到達する方が多いです。
+          </div>
+        </li>
+        <li class="faq-item">
+          <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+            データのセキュリティはどうなっていますか？
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            お客様のデータはエンドツーエンドで暗号化され、第三者に提供・学習利用されることはありません。国内データセンターでの処理に対応しており、エンタープライズプランでは専用インフラの構築も可能です。
+          </div>
+        </li>
+        <li class="faq-item">
+          <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+            導入までどのくらいの期間がかかりますか？
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            Starter・Professionalプランは最短即日から稼働可能です。初期設定とデータのインプットを合わせて通常1〜3営業日で完了します。Enterpriseプランは要件定義から通常2〜4週間です。
+          </div>
+        </li>
+        <li class="faq-item">
+          <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+            解約はいつでもできますか？
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            はい。月払いプランはいつでも翌月以降の解約が可能です。年払いプランは契約期間終了時の解約となります。解約後もデータはご要望に応じてエクスポートできます。
+          </div>
+        </li>
+        <li class="faq-item">
+          <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+            どんな業種・職種に向いていますか？
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            コミュニケーション・情報収集・オペレーション管理が多い業種すべてに向いています。特にコンサルティング、マーケティング、営業、経営企画、フリーランス（ライター・デザイナー・エンジニア）の方々に高い満足度をいただいています。
+          </div>
+        </li>
+        <li class="faq-item">
+          <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+            無料トライアルはありますか？
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            はい。14日間の無料トライアルをご用意しています。クレジットカード登録なしで始められます。トライアル期間中はProfessionalプランの全機能をお試しいただけます。
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CTA / FOOTER -->
+<footer id="footer">
+  <div class="footer-cta">
+    <div class="footer-cta-bg"></div>
+    <span class="label">Get Started</span>
+    <h2 class="cta-title">
+      あなたの時間を、<br><em>本当に大切なこと</em>に使え。
+    </h2>
+    <p class="cta-sub">
+      14日間無料、クレジットカード不要。
+      今日から、AIを「派遣」しよう。
+    </p>
+    <div class="cta-actions">
+      <a href="#" class="btn-gold btn-gold--large">無料トライアルを始める</a>
+      <a href="#" class="btn-ghost">資料を請求する</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-bottom-inner">
+      <div class="footer-logo">Agent<span>.</span>Dispatch</div>
+      <ul class="footer-nav">
+        <li><a href="#">プライバシーポリシー</a></li>
+        <li><a href="#">利用規約</a></li>
+        <li><a href="#">特定商取引法に基づく表記</a></li>
+        <li><a href="#">お問い合わせ</a></li>
+      </ul>
+      <div class="footer-copy">© 2026 Agent Dispatch. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
