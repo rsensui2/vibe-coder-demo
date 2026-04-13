@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TacoRun（タコラン）- アプリモック</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0D0500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 20px;
+  }
+
+  /* iPhone Frame */
+  .iphone-frame {
+    width: 390px;
+    height: 844px;
+    background: #1A0A00;
+    border-radius: 54px;
+    border: 3px solid #3A2A1A;
+    box-shadow:
+      0 0 0 6px #0D0500,
+      0 0 0 8px #2A1A0A,
+      0 30px 80px rgba(0,0,0,0.8),
+      inset 0 0 20px rgba(255,107,43,0.05);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Notch */
+  .iphone-frame::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 34px;
+    background: #0D0500;
+    border-radius: 0 0 20px 20px;
+    z-index: 100;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    height: 50px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 8px;
+    color: #FFF8F0;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 50;
+  }
+  .status-time { font-size: 15px; font-weight: 800; }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .battery { width: 25px; height: 12px; border: 1.5px solid #FFF8F0; border-radius: 3px; position: relative; }
+  .battery::after { content: ''; position: absolute; right: -5px; top: 2px; width: 3px; height: 7px; background: #FFF8F0; border-radius: 1px; }
+  .battery-fill { width: 18px; height: 8px; background: #27AE60; border-radius: 1px; margin: 1px; }
+  .signal { display: flex; gap: 2px; align-items: flex-end; }
+  .signal span { width: 3px; background: #FFF8F0; border-radius: 1px; }
+  .signal span:nth-child(1) { height: 4px; }
+  .signal span:nth-child(2) { height: 7px; }
+  .signal span:nth-child(3) { height: 10px; }
+  .signal span:nth-child(4) { height: 13px; }
+
+  /* Screen Container */
+  .screen-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Screens */
+  .screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow-y: auto;
+    color: #FFF8F0;
+    display: none;
+    scrollbar-width: none;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .screen.active { display: block; }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    height: 80px;
+    background: rgba(26,10,0,0.95);
+    border-top: 1px solid rgba(255,107,43,0.2);
+    display: flex;
+    flex-shrink: 0;
+    padding-bottom: 10px;
+    backdrop-filter: blur(10px);
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding-top: 8px;
+  }
+  .nav-item .nav-icon { font-size: 22px; line-height: 1; }
+  .nav-item .nav-label { font-size: 10px; color: #8A6A4A; font-family: 'Inter', sans-serif; }
+  .nav-item.active .nav-label { color: #FF6B2B; }
+  .nav-item.active .nav-icon { filter: drop-shadow(0 0 4px #FF6B2B); }
+
+  /* ===== SCREEN 1: HOME ===== */
+  .screen-home {
+    background: #1A0A00;
+  }
+  .home-header {
+    padding: 16px 20px 12px;
+    background: linear-gradient(180deg, #2A1A08 0%, #1A0A00 100%);
+  }
+  .home-logo {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    color: #FF6B2B;
+    letter-spacing: -1px;
+  }
+  .home-logo span { color: #FFF8F0; }
+  .home-subtitle { font-size: 11px; color: #C0934A; margin-top: 2px; }
+  .search-bar {
+    background: rgba(255,248,240,0.08);
+    border: 1px solid rgba(255,107,43,0.3);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin: 12px 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #9A7A5A;
+    font-size: 13px;
+  }
+  .filter-chips {
+    display: flex;
+    gap: 8px;
+    padding: 10px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-chips::-webkit-scrollbar { display: none; }
+  .chip {
+    background: rgba(255,107,43,0.15);
+    border: 1px solid rgba(255,107,43,0.3);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 11px;
+    color: #FF6B2B;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .chip.active { background: #FF6B2B; color: #1A0A00; font-weight: 700; }
+
+  /* Banner */
+  .promo-banner {
+    margin: 0 20px 16px;
+    background: linear-gradient(135deg, #FF6B2B 0%, #C0392B 100%);
+    border-radius: 16px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .promo-banner::after {
+    content: '🌮';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 48px;
+    opacity: 0.3;
+  }
+  .promo-tag { font-size: 10px; font-weight: 700; color: rgba(255,248,240,0.7); letter-spacing: 1px; text-transform: uppercase; }
+  .promo-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 18px; color: #FFF8F0; margin-top: 4px; line-height: 1.2; }
+  .promo-desc { font-size: 11px; color: rgba(255,248,240,0.8); margin-top: 4px; }
+
+  /* Section */
+  .section-title {
+    padding: 4px 20px 10px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: #FFF8F0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-more { font-size: 11px; color: #FF6B2B; font-weight: 400; }
+
+  /* Store Cards */
+  .store-list { padding: 0 20px; display: flex; flex-direction: column; gap: 14px; padding-bottom: 10px; }
+  .store-card {
+    background: rgba(255,248,240,0.04);
+    border: 1px solid rgba(255,107,43,0.15);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .store-card-img {
+    height: 110px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+    background: linear-gradient(135deg, #2A1208 0%, #3A1A08 100%);
+  }
+  .store-badge-time {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #FF6B2B;
+    color: #1A0A00;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-family: 'Inter', sans-serif;
+  }
+  .store-badge-pass {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #F39C12;
+    color: #1A0A00;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+  }
+  .store-card-body { padding: 10px 12px 12px; }
+  .store-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .store-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #9A7A5A; }
+  .store-rating { color: #F39C12; font-weight: 700; }
+  .store-spice { letter-spacing: 1px; }
+  .store-tags { display: flex; gap: 4px; margin-top: 6px; }
+  .tag { background: rgba(255,107,43,0.1); border-radius: 4px; padding: 2px 6px; font-size: 10px; color: #C0934A; }
+
+  /* ===== SCREEN 2: ORDER / TOPPING ===== */
+  .screen-order { background: #1A0A00; }
+  .order-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,107,43,0.15);
+  }
+  .back-btn {
+    width: 32px; height: 32px;
+    background: rgba(255,248,240,0.08);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer;
+  }
+  .order-store-name { font-weight: 700; font-size: 15px; flex: 1; }
+  .menu-item-hero {
+    height: 160px;
+    background: linear-gradient(135deg, #2A1208, #3D1A08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 72px;
+    position: relative;
+  }
+  .menu-item-info { padding: 16px 20px; }
+  .menu-item-name { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 20px; }
+  .menu-item-desc { font-size: 12px; color: #9A7A5A; margin-top: 4px; line-height: 1.5; }
+  .menu-item-price { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; color: #FF6B2B; margin-top: 8px; }
+  .menu-item-spice { font-size: 14px; margin-top: 4px; }
+
+  /* Menu List */
+  .menu-tabs { display: flex; gap: 0; padding: 0 20px 12px; border-bottom: 1px solid rgba(255,107,43,0.1); }
+  .menu-tab { flex: 1; text-align: center; padding: 6px; font-size: 12px; color: #8A6A4A; cursor: pointer; }
+  .menu-tab.active { color: #FF6B2B; border-bottom: 2px solid #FF6B2B; font-weight: 700; }
+  .menu-list { padding: 12px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .menu-row {
+    display: flex; gap: 10px; align-items: center;
+    background: rgba(255,248,240,0.04);
+    border: 1px solid rgba(255,107,43,0.1);
+    border-radius: 12px; padding: 10px 12px; cursor: pointer;
+  }
+  .menu-row-emoji { font-size: 28px; width: 40px; text-align: center; }
+  .menu-row-body { flex: 1; }
+  .menu-row-name { font-size: 13px; font-weight: 700; }
+  .menu-row-sub { font-size: 11px; color: #9A7A5A; margin-top: 2px; }
+  .menu-row-price { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: #FF6B2B; }
+
+  /* Topping Section */
+  .section-divider { height: 1px; background: rgba(255,107,43,0.1); margin: 4px 20px; }
+  .topping-section { padding: 14px 20px; }
+  .topping-title { font-weight: 700; font-size: 13px; margin-bottom: 2px; }
+  .topping-subtitle { font-size: 11px; color: #8A6A4A; margin-bottom: 10px; }
+
+  /* Tortilla Selector */
+  .tortilla-selector { display: flex; gap: 8px; margin-bottom: 12px; }
+  .tortilla-btn {
+    flex: 1; padding: 8px; border-radius: 10px; text-align: center;
+    border: 2px solid rgba(255,107,43,0.2);
+    font-size: 12px; cursor: pointer; background: rgba(255,248,240,0.03);
+    color: #9A7A5A;
+  }
+  .tortilla-btn.active { border-color: #FF6B2B; color: #FF6B2B; background: rgba(255,107,43,0.1); font-weight: 700; }
+
+  /* Topping Grid */
+  .topping-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .topping-item {
+    background: rgba(255,248,240,0.04);
+    border: 2px solid rgba(255,107,43,0.12);
+    border-radius: 12px;
+    padding: 10px 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; transition: all 0.2s; position: relative;
+  }
+  .topping-item.checked { border-color: #FF6B2B; background: rgba(255,107,43,0.12); }
+  .topping-item.checked::after {
+    content: '✓';
+    position: absolute; top: 4px; right: 6px;
+    font-size: 10px; color: #FF6B2B; font-weight: 700;
+  }
+  .topping-emoji { font-size: 22px; }
+  .topping-label { font-size: 10px; color: #C0934A; text-align: center; }
+
+  /* Spice Level */
+  .spice-selector { display: flex; gap: 8px; margin-top: 12px; }
+  .spice-btn {
+    flex: 1; padding: 8px 4px; border-radius: 10px; text-align: center;
+    border: 2px solid rgba(255,107,43,0.2);
+    font-size: 11px; cursor: pointer; color: #9A7A5A;
+  }
+  .spice-btn.active { border-color: #C0392B; background: rgba(192,57,43,0.15); color: #FF6B6B; font-weight: 700; }
+
+  /* Order Button */
+  .order-btn-wrap { padding: 14px 20px 6px; }
+  .order-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #FF6B2B, #E84A10);
+    color: #FFF8F0;
+    border: none;
+    border-radius: 14px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .order-btn-price { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 800; }
+
+  /* ===== SCREEN 3: GPS TRACKING ===== */
+  .screen-gps { background: #1A0A00; display: flex; flex-direction: column; }
+
+  /* Map Area */
+  .map-area {
+    flex: 1;
+    background: #2A3A2A;
+    position: relative;
+    overflow: hidden;
+    min-height: 420px;
+  }
+
+  /* CSS Map Grid */
+  .map-grid {
+    position: absolute; inset: 0;
+    background-color: #2A3A2A;
+  }
+  /* Roads */
+  .road-h {
+    position: absolute; left: 0; right: 0;
+    background: #4A5A3A; height: 12px;
+  }
+  .road-v {
+    position: absolute; top: 0; bottom: 0;
+    background: #4A5A3A; width: 12px;
+  }
+  .road-main-h { height: 20px; background: #5A6A4A; }
+  .road-main-v { width: 20px; background: #5A6A4A; }
+
+  /* Blocks */
+  .block {
+    position: absolute;
+    background: #1E2E1E;
+    border-radius: 4px;
+  }
+
+  /* Location Pins */
+  .pin {
+    position: absolute;
+    display: flex; flex-direction: column; align-items: center;
+    transform: translateX(-50%);
+    z-index: 10;
+  }
+  .pin-dot {
+    width: 36px; height: 36px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pin-dot-inner {
+    width: 24px; height: 24px;
+    background: #FFF8F0;
+    border-radius: 50%;
+    transform: rotate(45deg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+  .pin-label {
+    margin-top: 6px;
+    background: rgba(0,0,0,0.75);
+    color: #FFF8F0;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    transform: rotate(0deg);
+  }
+
+  /* Delivery Route */
+  .delivery-route {
+    position: absolute;
+    border: 3px dashed #FF6B2B;
+    border-radius: 40px;
+    opacity: 0.7;
+  }
+
+  /* Rider Icon */
+  .rider-pin {
+    position: absolute;
+    z-index: 20;
+    display: flex; flex-direction: column; align-items: center;
+    transform: translateX(-50%);
+  }
+  .rider-avatar {
+    width: 44px; height: 44px;
+    background: #FF6B2B;
+    border-radius: 50%;
+    border: 3px solid #FFF8F0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 15px rgba(255,107,43,0.6);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 4px 15px rgba(255,107,43,0.6); }
+    50% { box-shadow: 0 4px 25px rgba(255,107,43,1); }
+  }
+  .rider-label {
+    background: #FF6B2B;
+    color: #1A0A00;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+    white-space: nowrap;
+  }
+
+  /* Map Overlay Header */
+  .map-header {
+    position: absolute;
+    top: 12px; left: 12px; right: 12px;
+    z-index: 30;
+    background: rgba(26,10,0,0.9);
+    border: 1px solid rgba(255,107,43,0.3);
+    border-radius: 14px;
+    padding: 12px 14px;
+    backdrop-filter: blur(10px);
+  }
+  .map-eta {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    color: #FF6B2B;
+  }
+  .map-eta-label { font-size: 11px; color: #9A7A5A; }
+  .map-status-row { display: flex; gap: 6px; margin-top: 8px; }
+  .status-step {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px;
+  }
+  .status-step-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #3A2A1A;
+  }
+  .status-step.done .status-step-dot { background: #27AE60; }
+  .status-step.current .status-step-dot { background: #FF6B2B; box-shadow: 0 0 6px #FF6B2B; }
+  .status-step-line {
+    flex: 1; height: 2px; background: #3A2A1A;
+    align-self: center;
+    margin-top: -14px;
+  }
+  .status-step.done .status-step-line { background: #27AE60; }
+  .status-step-label { font-size: 9px; color: #8A6A4A; text-align: center; }
+  .status-step.done .status-step-label,
+  .status-step.current .status-step-label { color: #FFF8F0; }
+
+  /* Tracking Bottom Card */
+  .tracking-card {
+    background: #1A0A00;
+    border-top: 1px solid rgba(255,107,43,0.2);
+    padding: 16px 20px;
+  }
+  .tracking-card-title { font-weight: 700; font-size: 13px; color: #FFF8F0; margin-bottom: 10px; }
+  .rider-row {
+    display: flex; gap: 12px; align-items: center;
+    background: rgba(255,248,240,0.04);
+    border-radius: 12px; padding: 10px 12px;
+  }
+  .rider-face {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #FF6B2B, #C0392B);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .rider-info { flex: 1; }
+  .rider-name { font-weight: 700; font-size: 13px; }
+  .rider-sub { font-size: 11px; color: #9A7A5A; margin-top: 2px; }
+  .rider-rating { color: #F39C12; font-size: 12px; }
+  .call-btn {
+    width: 36px; height: 36px;
+    background: rgba(255,107,43,0.15);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer;
+  }
+
+  /* Step Bar */
+  .step-bar-wrap {
+    display: flex; align-items: center; margin-top: 12px; gap: 0;
+  }
+  .step-item { display: flex; flex-direction: column; align-items: center; flex: 1; }
+  .step-circle {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .step-circle.done { background: #27AE60; color: #FFF8F0; }
+  .step-circle.current { background: #FF6B2B; color: #1A0A00; }
+  .step-circle.pending { background: rgba(255,248,240,0.08); color: #8A6A4A; }
+  .step-connector { flex: 1; height: 2px; background: rgba(255,248,240,0.1); margin-bottom: 14px; }
+  .step-connector.done { background: #27AE60; }
+  .step-label { font-size: 9px; color: #9A7A5A; text-align: center; margin-top: 4px; }
+
+  /* ===== SCREEN 4: TACOPASS ===== */
+  .screen-pass { background: #1A0A00; }
+  .pass-header {
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .pass-header-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 18px; }
+  .pass-header-title span { color: #FF6B2B; }
+
+  /* Membership Card */
+  .member-card {
+    margin: 0 20px 20px;
+    background: linear-gradient(135deg, #FF6B2B 0%, #C0392B 40%, #8B0000 100%);
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(255,107,43,0.4);
+  }
+  .member-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 140px; height: 140px;
+    border: 2px solid rgba(255,248,240,0.15);
+    border-radius: 50%;
+  }
+  .member-card::after {
+    content: '';
+    position: absolute;
+    bottom: -50px; right: -20px;
+    width: 160px; height: 160px;
+    border: 2px solid rgba(255,248,240,0.1);
+    border-radius: 50%;
+  }
+  .card-plan-badge {
+    display: inline-block;
+    background: rgba(255,248,240,0.2);
+    border: 1px solid rgba(255,248,240,0.3);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #FFF8F0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .card-brand {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    color: #FFF8F0;
+    margin-top: 12px;
+    letter-spacing: -1px;
+  }
+  .card-brand span { color: rgba(255,248,240,0.7); font-size: 16px; font-weight: 400; }
+  .card-member-info { margin-top: 16px; }
+  .card-member-label { font-size: 10px; color: rgba(255,248,240,0.6); letter-spacing: 1px; }
+  .card-member-name { font-weight: 700; font-size: 16px; color: #FFF8F0; }
+  .card-member-id { font-family: 'Inter', sans-serif; font-size: 12px; color: rgba(255,248,240,0.6); letter-spacing: 2px; margin-top: 8px; }
+  .card-expires { font-size: 11px; color: rgba(255,248,240,0.5); margin-top: 4px; }
+  .card-taco-icon { position: absolute; bottom: 16px; right: 20px; font-size: 36px; opacity: 0.3; }
+
+  /* Stats Row */
+  .pass-stats {
+    display: flex; gap: 10px; padding: 0 20px 16px;
+  }
+  .stat-box {
+    flex: 1;
+    background: rgba(255,248,240,0.05);
+    border: 1px solid rgba(255,107,43,0.15);
+    border-radius: 14px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-value { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 20px; color: #FF6B2B; }
+  .stat-label { font-size: 10px; color: #8A6A4A; margin-top: 2px; }
+
+  /* Benefits List */
+  .benefits-section { padding: 0 20px 16px; }
+  .benefits-title { font-weight: 700; font-size: 13px; margin-bottom: 10px; }
+  .benefit-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    background: rgba(255,248,240,0.03);
+    border: 1px solid rgba(255,107,43,0.1);
+    border-radius: 12px;
+    margin-bottom: 6px;
+  }
+  .benefit-icon { font-size: 22px; width: 32px; text-align: center; }
+  .benefit-body { flex: 1; }
+  .benefit-name { font-size: 13px; font-weight: 700; }
+  .benefit-desc { font-size: 11px; color: #8A6A4A; margin-top: 1px; }
+  .benefit-badge { font-size: 10px; color: #27AE60; font-weight: 700; background: rgba(39,174,96,0.1); padding: 2px 6px; border-radius: 4px; }
+
+  /* Plan Selector */
+  .plan-section { padding: 0 20px 16px; }
+  .plan-title { font-weight: 700; font-size: 13px; margin-bottom: 10px; }
+  .plan-card {
+    background: rgba(255,248,240,0.04);
+    border: 2px solid rgba(255,107,43,0.15);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .plan-card.current { border-color: #FF6B2B; }
+  .plan-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .plan-name { font-weight: 700; font-size: 14px; }
+  .plan-price { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 18px; color: #FF6B2B; }
+  .plan-price span { font-size: 11px; font-weight: 400; color: #8A6A4A; }
+  .plan-desc { font-size: 11px; color: #9A7A5A; margin-top: 4px; }
+
+  /* ===== SCREEN 5: HISTORY ===== */
+  .screen-history { background: #1A0A00; }
+  .history-header { padding: 16px 20px; }
+  .history-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 20px; }
+
+  /* History Tabs */
+  .history-tabs { display: flex; padding: 0 20px 12px; gap: 0; border-bottom: 1px solid rgba(255,107,43,0.1); }
+  .history-tab {
+    flex: 1; text-align: center; padding: 6px 4px;
+    font-size: 12px; color: #8A6A4A; cursor: pointer;
+  }
+  .history-tab.active { color: #FF6B2B; border-bottom: 2px solid #FF6B2B; font-weight: 700; }
+
+  /* Order Cards */
+  .order-list { padding: 12px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .order-card {
+    background: rgba(255,248,240,0.04);
+    border: 1px solid rgba(255,107,43,0.12);
+    border-radius: 16px; overflow: hidden;
+  }
+  .order-card-header {
+    background: rgba(255,107,43,0.08);
+    padding: 10px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .order-date { font-size: 11px; color: #9A7A5A; }
+  .order-status-badge {
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px;
+  }
+  .badge-delivered { background: rgba(39,174,96,0.2); color: #27AE60; }
+  .badge-preparing { background: rgba(255,107,43,0.2); color: #FF6B2B; }
+  .order-card-body { padding: 12px 14px; }
+  .order-store-label { font-size: 11px; color: #9A7A5A; }
+  .order-items { font-weight: 700; font-size: 14px; margin: 2px 0 6px; }
+  .order-meta { display: flex; justify-content: space-between; align-items: center; }
+  .order-total { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; color: #FF6B2B; }
+  .order-pass-tag { font-size: 10px; color: #F39C12; background: rgba(243,156,18,0.1); padding: 2px 6px; border-radius: 4px; }
+
+  /* Review Section */
+  .review-section { padding: 12px 14px; border-top: 1px solid rgba(255,107,43,0.1); }
+  .review-label { font-size: 11px; color: #9A7A5A; margin-bottom: 6px; }
+  .star-row { display: flex; gap: 3px; margin-bottom: 8px; }
+  .star { font-size: 18px; cursor: pointer; }
+  .star.filled { color: #F39C12; }
+  .star.empty { color: #3A2A1A; }
+  .review-text { font-size: 12px; color: #C0934A; line-height: 1.5; }
+  .review-photo-row { display: flex; gap: 6px; margin-top: 8px; }
+  .review-photo {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, #2A1208, #3D1A08);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    border: 1px solid rgba(255,107,43,0.2);
+  }
+  .review-photo.add {
+    border: 1px dashed rgba(255,107,43,0.3);
+    font-size: 20px;
+    color: rgba(255,107,43,0.5);
+  }
+
+  /* Reorder Button */
+  .reorder-btn {
+    margin: 0 14px 14px;
+    padding: 10px;
+    background: rgba(255,107,43,0.1);
+    border: 1px solid rgba(255,107,43,0.3);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #FF6B2B;
+    cursor: pointer;
+  }
+
+  /* Responsive Label outside phone */
+  .demo-label {
+    position: absolute;
+    top: -36px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #FF6B2B;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    white-space: nowrap;
+    letter-spacing: -0.5px;
+  }
+  .demo-wrap { position: relative; }
+
+  /* Screen label indicator */
+  .screen-indicator {
+    position: absolute;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 5px;
+    z-index: 50;
+    pointer-events: none;
+  }
+  .indicator-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(255,248,240,0.2);
+  }
+  .indicator-dot.active { background: #FF6B2B; width: 14px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+  <div class="demo-label">TacoRun（タコラン）</div>
+  <div class="iphone-frame">
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-time">9:41</div>
+      <div style="width:60px;"></div><!-- Notch spacer -->
+      <div class="status-icons">
+        <div class="signal"><span></span><span></span><span></span><span></span></div>
+        <div style="font-size:11px;font-family:Inter,sans-serif;">5G</div>
+        <div class="battery"><div class="battery-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- Screen Container -->
+    <div class="screen-container">
+
+      <!-- SCREEN 1: HOME -->
+      <div class="screen screen-home active" id="screen-0">
+
+        <div class="home-header">
+          <div class="home-logo">Taco<span>Run</span> 🌮</div>
+          <div class="home-subtitle">渋谷区・港区・新宿区 に配達中</div>
+        </div>
+
+        <div class="search-bar">
+          <span>🔍</span>
+          <span>タコス・メキシカン料理を検索</span>
+        </div>
+
+        <div class="filter-chips">
+          <div class="chip active">全て</div>
+          <div class="chip">タコス</div>
+          <div class="chip">ブリトー</div>
+          <div class="chip">ナチョス</div>
+          <div class="chip">30分以内</div>
+          <div class="chip">TacoPass</div>
+        </div>
+
+        <div class="promo-banner">
+          <div class="promo-tag">今週限定</div>
+          <div class="promo-title">TacoPass加入で<br>初月無料！</div>
+          <div class="promo-desc">毎週タコス1個無料 + 配達料0円</div>
+        </div>
+
+        <div class="section-title">
+          あなたの近くの店舗 <span class="section-more">全て見る →</span>
+        </div>
+
+        <div class="store-list">
+
+          <div class="store-card" onclick="switchScreen(1)">
+            <div class="store-card-img">
+              🌮
+              <div class="store-badge-time">⚡ 28分</div>
+              <div class="store-badge-pass">TacoPass</div>
+            </div>
+            <div class="store-card-body">
+              <div class="store-name">タコスタジオ渋谷</div>
+              <div class="store-meta">
+                <span class="store-rating">★ 4.7</span>
+                <span>（312件）</span>
+                <span class="store-spice">🌶️🌶️🌶️</span>
+                <span>本格メキシカン</span>
+              </div>
+              <div class="store-tags">
+                <div class="tag">カルニタス</div>
+                <div class="tag">ベジ対応</div>
+                <div class="tag">人気</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="store-card" onclick="switchScreen(1)">
+            <div class="store-card-img">
+              🌯
+              <div class="store-badge-time">⚡ 33分</div>
+            </div>
+            <div class="store-card-body">
+              <div class="store-name">エルパソ新宿</div>
+              <div class="store-meta">
+                <span class="store-rating">★ 4.5</span>
+                <span>（189件）</span>
+                <span class="store-spice">🌶️🌶️</span>
+                <span>テクスメクス</span>
+              </div>
+              <div class="store-tags">
+                <div class="tag">ブリトー</div>
+                <div class="tag">ナチョス</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="store-card" onclick="switchScreen(1)">
+            <div class="store-card-img">
+              🥙
+              <div class="store-badge-time">⚡ 22分</div>
+              <div class="store-badge-pass">TacoPass</div>
+            </div>
+            <div class="store-card-body">
+              <div class="store-name">ロコタコ代官山</div>
+              <div class="store-meta">
+                <span class="store-rating">★ 4.9</span>
+                <span>（441件）</span>
+                <span class="store-spice">🌶️🌶️🌶️</span>
+                <span>ストリート系</span>
+              </div>
+              <div class="store-tags">
+                <div class="tag">スパイシー</div>
+                <div class="tag">映え</div>
+                <div class="tag">新店</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+
+      <!-- SCREEN 2: ORDER + TOPPING -->
+      <div class="screen screen-order" id="screen-1">
+
+        <div class="order-header">
+          <div class="back-btn" onclick="switchScreen(0)">←</div>
+          <div class="order-store-name">タコスタジオ渋谷</div>
+          <span style="font-size:11px;color:#9A7A5A;">⚡ 28分</span>
+        </div>
+
+        <div class="menu-tabs">
+          <div class="menu-tab active">タコス</div>
+          <div class="menu-tab">ブリトー</div>
+          <div class="menu-tab">サイド</div>
+          <div class="menu-tab">ドリンク</div>
+        </div>
+
+        <div class="menu-list">
+          <div class="menu-row">
+            <div class="menu-row-emoji">🌮</div>
+            <div class="menu-row-body">
+              <div class="menu-row-name">カルニタスタコス</div>
+              <div class="menu-row-sub">豚肩ロース煮込み・パクチー・サルサ 🌶️🌶️</div>
+            </div>
+            <div class="menu-row-price">¥680</div>
+          </div>
+          <div class="menu-row">
+            <div class="menu-row-emoji">🌮</div>
+            <div class="menu-row-body">
+              <div class="menu-row-name">ティンガタコス</div>
+              <div class="menu-row-sub">チポトレ風チキン・アボカド 🌶️🌶️🌶️</div>
+            </div>
+            <div class="menu-row-price">¥720</div>
+          </div>
+          <div class="menu-row">
+            <div class="menu-row-emoji">🌮</div>
+            <div class="menu-row-body">
+              <div class="menu-row-name">バルバコアタコス</div>
+              <div class="menu-row-sub">牛頬肉スロークック・チポトレ 🌶️🌶️</div>
+            </div>
+            <div class="menu-row-price">¥780</div>
+          </div>
+          <div class="menu-row">
+            <div class="menu-row-emoji">🌮</div>
+            <div class="menu-row-body">
+              <div class="menu-row-name">シュリンプタコス</div>
+              <div class="menu-row-sub">海老ソテー・マンゴーサルサ 🌶️</div>
+            </div>
+            <div class="menu-row-price">¥850</div>
+          </div>
+          <div class="menu-row">
+            <div class="menu-row-emoji">🌱</div>
+            <div class="menu-row-body">
+              <div class="menu-row-name">ブラックビーンタコス</div>
+              <div class="menu-row-sub">黒豆・ロースト野菜・チーズ 🌶️</div>
+            </div>
+            <div class="menu-row-price">¥620</div>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="topping-section">
+          <div class="topping-title">カスタムトッピング</div>
+          <div class="topping-subtitle">トルティーヤを選んでください</div>
+
+          <div class="tortilla-selector">
+            <div class="tortilla-btn active" onclick="this.parentElement.querySelectorAll('.tortilla-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">🌽 コーントルティーヤ</div>
+            <div class="tortilla-btn" onclick="this.parentElement.querySelectorAll('.tortilla-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">🌾 フラワートルティーヤ</div>
+          </div>
+
+          <div class="topping-subtitle">トッピングを選んでください（複数可）</div>
+          <div class="topping-grid">
+            <div class="topping-item checked" onclick="this.classList.toggle('checked')">
+              <div class="topping-emoji">🥑</div>
+              <div class="topping-label">アボカド</div>
+            </div>
+            <div class="topping-item checked" onclick="this.classList.toggle('checked')">
+              <div class="topping-emoji">🧀</div>
+              <div class="topping-label">チーズ</div>
+            </div>
+            <div class="topping-item" onclick="this.classList.toggle('checked')">
+              <div class="topping-emoji">🌿</div>
+              <div class="topping-label">パクチー</div>
+            </div>
+            <div class="topping-item" onclick="this.classList.toggle('checked')">
+              <div class="topping-emoji">🧅</div>
+              <div class="topping-label">玉ねぎ</div>
+            </div>
+            <div class="topping-item checked" onclick="this.classList.toggle('checked')">
+              <div class="topping-emoji">🍅</div>
+              <div class="topping-label">サルサ</div>
+            </div>
+            <div class="topping-item" onclick="this.classList.toggle('checked')">
+              <div class="topping-emoji">🌶️</div>
+              <div class="topping-label">ハラペーニョ</div>
+            </div>
+            <div class="topping-item" onclick="this.classList.toggle('checked')">
+              <div class="topping-emoji">🍋</div>
+              <div class="topping-label">ライム</div>
+            </div>
+            <div class="topping-item" onclick="this.classList.toggle('checked')">
+              <div class="topping-emoji">🥬</div>
+              <div class="topping-label">レタス</div>
+            </div>
+            <div class="topping-item" onclick="this.classList.toggle('checked')">
+              <div class="topping-emoji">🫙</div>
+              <div class="topping-label">サワークリーム</div>
+            </div>
+            <div class="topping-item" onclick="this.classList.toggle('checked')">
+              <div class="topping-emoji">🥜</div>
+              <div class="topping-label">グワカモーレ</div>
+            </div>
+            <div class="topping-item" onclick="this.classList.toggle('checked')">
+              <div class="topping-emoji">🌽</div>
+              <div class="topping-label">コーン</div>
+            </div>
+          </div>
+
+          <div class="topping-subtitle" style="margin-top:12px;">スパイス度</div>
+          <div class="spice-selector">
+            <div class="spice-btn" onclick="document.querySelectorAll('#screen-1 .spice-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">マイルド<br>🌶️</div>
+            <div class="spice-btn active" onclick="document.querySelectorAll('#screen-1 .spice-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">スパイシー<br>🌶️🌶️</div>
+            <div class="spice-btn" onclick="document.querySelectorAll('#screen-1 .spice-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">激辛<br>🌶️🌶️🌶️</div>
+          </div>
+        </div>
+
+        <div class="order-btn-wrap">
+          <button class="order-btn" onclick="switchScreen(2)">
+            <span>注文する（カルニタス×2）</span>
+            <span class="order-btn-price">¥1,360</span>
+          </button>
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+
+      <!-- SCREEN 3: GPS TRACKING -->
+      <div class="screen screen-gps" id="screen-2" style="display:none; flex-direction:column;">
+
+        <!-- Map Area -->
+        <div class="map-area">
+          <div class="map-grid">
+            <!-- Horizontal roads -->
+            <div class="road-h" style="top:25%"></div>
+            <div class="road-h road-main-h" style="top:42%"></div>
+            <div class="road-h" style="top:60%"></div>
+            <div class="road-h" style="top:78%"></div>
+            <!-- Vertical roads -->
+            <div class="road-v" style="left:22%"></div>
+            <div class="road-v road-main-v" style="left:45%"></div>
+            <div class="road-v" style="left:68%"></div>
+            <!-- Blocks -->
+            <div class="block" style="left:2%;top:5%;width:18%;height:18%;"></div>
+            <div class="block" style="left:25%;top:5%;width:17%;height:18%;"></div>
+            <div class="block" style="left:49%;top:5%;width:17%;height:18%;"></div>
+            <div class="block" style="left:71%;top:5%;width:26%;height:18%;"></div>
+            <div class="block" style="left:2%;top:28%;width:18%;height:11%;"></div>
+            <div class="block" style="left:25%;top:28%;width:17%;height:11%;"></div>
+            <div class="block" style="left:49%;top:28%;width:17%;height:11%;"></div>
+            <div class="block" style="left:71%;top:28%;width:26%;height:11%;"></div>
+            <div class="block" style="left:2%;top:45%;width:18%;height:12%;"></div>
+            <div class="block" style="left:25%;top:45%;width:17%;height:12%;"></div>
+            <div class="block" style="left:49%;top:45%;width:17%;height:12%;"></div>
+            <div class="block" style="left:71%;top:45%;width:26%;height:12%;"></div>
+            <div class="block" style="left:2%;top:63%;width:18%;height:12%;"></div>
+            <div class="block" style="left:25%;top:63%;width:17%;height:12%;"></div>
+            <div class="block" style="left:49%;top:63%;width:17%;height:12%;"></div>
+            <div class="block" style="left:71%;top:63%;width:26%;height:12%;"></div>
+          </div>
+
+          <!-- Route Line -->
+          <div class="delivery-route" style="left:35%;top:30%;width:30%;height:20%;border-bottom:none;border-right:none;"></div>
+
+          <!-- Store Pin -->
+          <div class="pin" style="left:22%;top:25%;">
+            <div class="pin-dot" style="background:#F39C12;">
+              <div class="pin-dot-inner">🏪</div>
+            </div>
+            <div class="pin-label">タコスタジオ</div>
+          </div>
+
+          <!-- Destination Pin -->
+          <div class="pin" style="left:62%;top:44%;">
+            <div class="pin-dot" style="background:#27AE60;">
+              <div class="pin-dot-inner">🏠</div>
+            </div>
+            <div class="pin-label">あなたの住所</div>
+          </div>
+
+          <!-- Rider Pin -->
+          <div class="rider-pin" style="left:40%;top:34%;">
+            <div class="rider-avatar">🛵</div>
+            <div class="rider-label">田中さん</div>
+          </div>
+
+          <!-- Map Header -->
+          <div class="map-header">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div class="map-eta">あと12分</div>
+                <div class="map-eta-label">推定到着: 20:43</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:12px;font-weight:700;color:#27AE60;">● 配達中</div>
+                <div style="font-size:11px;color:#9A7A5A;margin-top:2px;">残り 0.8km</div>
+              </div>
+            </div>
+            <!-- Status Steps -->
+            <div class="step-bar-wrap" style="margin-top:10px;">
+              <div class="step-item">
+                <div class="step-circle done">✓</div>
+                <div class="step-label">注文確認</div>
+              </div>
+              <div class="step-connector done"></div>
+              <div class="step-item">
+                <div class="step-circle done">✓</div>
+                <div class="step-label">調理完了</div>
+              </div>
+              <div class="step-connector done"></div>
+              <div class="step-item">
+                <div class="step-circle current">🛵</div>
+                <div class="step-label">配達中</div>
+              </div>
+              <div class="step-connector"></div>
+              <div class="step-item">
+                <div class="step-circle pending">🏠</div>
+                <div class="step-label">到着</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tracking Bottom Card -->
+        <div class="tracking-card">
+          <div class="tracking-card-title">配達員情報</div>
+          <div class="rider-row">
+            <div class="rider-face">👨</div>
+            <div class="rider-info">
+              <div class="rider-name">田中 ケンジ</div>
+              <div class="rider-sub">
+                <span class="rider-rating">★ 4.9</span>
+                <span style="color:#8A6A4A;"> · 配達件数 1,247回</span>
+              </div>
+            </div>
+            <div class="call-btn">📞</div>
+          </div>
+          <div style="margin-top:12px;">
+            <div style="font-size:11px;color:#9A7A5A;margin-bottom:6px;">ご注文内容</div>
+            <div style="font-size:12px;color:#FFF8F0;">カルニタスタコス × 2</div>
+            <div style="font-size:11px;color:#FF6B2B;margin-top:4px;">TacoPass適用 配達料無料</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCREEN 4: TACOPASS -->
+      <div class="screen screen-pass" id="screen-3">
+
+        <div class="pass-header">
+          <div class="pass-header-title"><span>Taco</span>Pass 会員証</div>
+        </div>
+
+        <!-- Membership Card -->
+        <div class="member-card">
+          <div class="card-plan-badge">TacoPass Pro</div>
+          <div class="card-brand">TacoRun <span>by TacoRun Inc.</span></div>
+          <div class="card-taco-icon">🌮</div>
+          <div class="card-member-info">
+            <div class="card-member-label">MEMBER NAME</div>
+            <div class="card-member-name">山田 タロウ</div>
+          </div>
+          <div class="card-member-id">TR · 0042 · 8861 · 3390</div>
+          <div class="card-expires">有効期限: 2027年04月 / 次回更新: 自動更新中</div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="pass-stats">
+          <div class="stat-box">
+            <div class="stat-value">47</div>
+            <div class="stat-label">累計注文</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value">¥0</div>
+            <div class="stat-label">配達料節約</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value">8</div>
+            <div class="stat-label">無料タコス</div>
+          </div>
+        </div>
+
+        <!-- Benefits List -->
+        <div class="benefits-section">
+          <div class="benefits-title">会員特典</div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">🚀</div>
+            <div class="benefit-body">
+              <div class="benefit-name">配達料金 完全無料</div>
+              <div class="benefit-desc">全店舗・何度注文しても¥0</div>
+            </div>
+            <div class="benefit-badge">有効</div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">🌮</div>
+            <div class="benefit-body">
+              <div class="benefit-name">毎日タコス1個無料</div>
+              <div class="benefit-desc">Pro限定 · 対象全店舗で使える</div>
+            </div>
+            <div class="benefit-badge">有効</div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">⭐</div>
+            <div class="benefit-body">
+              <div class="benefit-name">VIP店舗 優先注文</div>
+              <div class="benefit-desc">人気店・ランチピーク時も優先対応</div>
+            </div>
+            <div class="benefit-badge">有効</div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">🎁</div>
+            <div class="benefit-body">
+              <div class="benefit-name">誕生月 特別クーポン</div>
+              <div class="benefit-desc">4月限定 ¥500割引クーポン配布中</div>
+            </div>
+            <div class="benefit-badge">使用可能</div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">📊</div>
+            <div class="benefit-body">
+              <div class="benefit-name">注文履歴 無制限保存</div>
+              <div class="benefit-desc">お気に入りメニュー自動提案</div>
+            </div>
+            <div class="benefit-badge">有効</div>
+          </div>
+        </div>
+
+        <!-- Plan Cards -->
+        <div class="plan-section">
+          <div class="plan-title">プラン一覧</div>
+          <div class="plan-card">
+            <div class="plan-card-top">
+              <div class="plan-name">スタンダード</div>
+              <div class="plan-price">無料 <span>/ 月</span></div>
+            </div>
+            <div class="plan-desc">配達料 ¥250〜 · 基本機能</div>
+          </div>
+          <div class="plan-card">
+            <div class="plan-card-top">
+              <div class="plan-name">TacoPass</div>
+              <div class="plan-price">¥980 <span>/ 月</span></div>
+            </div>
+            <div class="plan-desc">配達無料 + 毎週タコス1個無料</div>
+          </div>
+          <div class="plan-card current">
+            <div class="plan-card-top">
+              <div class="plan-name">TacoPass Pro ✓</div>
+              <div class="plan-price">¥1,980 <span>/ 月</span></div>
+            </div>
+            <div class="plan-desc">配達無料 + 毎日タコス + VIP優先</div>
+          </div>
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+
+      <!-- SCREEN 5: ORDER HISTORY -->
+      <div class="screen screen-history" id="screen-4">
+
+        <div class="history-header">
+          <div class="history-title">注文履歴</div>
+        </div>
+
+        <div class="history-tabs">
+          <div class="history-tab active">すべて</div>
+          <div class="history-tab">配達済み</div>
+          <div class="history-tab">レビュー待ち</div>
+        </div>
+
+        <div class="order-list">
+
+          <!-- Order 1 - with review -->
+          <div class="order-card">
+            <div class="order-card-header">
+              <div class="order-date">2026年4月12日（日）19:47</div>
+              <div class="order-status-badge badge-delivered">配達済み</div>
+            </div>
+            <div class="order-card-body">
+              <div class="order-store-label">タコスタジオ渋谷</div>
+              <div class="order-items">カルニタスタコス × 2・ナチョス × 1</div>
+              <div class="order-meta">
+                <div class="order-total">¥2,040</div>
+                <div class="order-pass-tag">TacoPass 配達無料</div>
+              </div>
+            </div>
+            <div class="review-section">
+              <div class="review-label">あなたのレビュー</div>
+              <div class="star-row">
+                <div class="star filled">★</div>
+                <div class="star filled">★</div>
+                <div class="star filled">★</div>
+                <div class="star filled">★</div>
+                <div class="star filled">★</div>
+              </div>
+              <div class="review-text">「カルニタスの煮込みが最高。コーントルティーヤがカリカリで本格的。また絶対頼む！」</div>
+              <div class="review-photo-row">
+                <div class="review-photo">🌮</div>
+                <div class="review-photo">🥑</div>
+                <div class="review-photo add">＋</div>
+              </div>
+            </div>
+            <div class="reorder-btn">🔄 同じ内容で再注文</div>
+          </div>
+
+          <!-- Order 2 - preparing -->
+          <div class="order-card">
+            <div class="order-card-header">
+              <div class="order-date">2026年4月13日（月）12:23</div>
+              <div class="order-status-badge badge-preparing">配達中</div>
+            </div>
+            <div class="order-card-body">
+              <div class="order-store-label">ロコタコ代官山</div>
+              <div class="order-items">ティンガタコス × 1・シュリンプタコス × 1</div>
+              <div class="order-meta">
+                <div class="order-total">¥1,570</div>
+                <div class="order-pass-tag">TacoPass 配達無料</div>
+              </div>
+            </div>
+            <div style="padding:10px 14px 14px;">
+              <div style="font-size:11px;color:#FF6B2B;">⚡ あと8分で到着予定</div>
+              <div style="background:rgba(255,107,43,0.08);border-radius:8px;height:4px;margin-top:6px;overflow:hidden;">
+                <div style="background:#FF6B2B;height:100%;width:75%;border-radius:8px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order 3 -->
+          <div class="order-card">
+            <div class="order-card-header">
+              <div class="order-date">2026年4月10日（土）20:15</div>
+              <div class="order-status-badge badge-delivered">配達済み</div>
+            </div>
+            <div class="order-card-body">
+              <div class="order-store-label">エルパソ新宿</div>
+              <div class="order-items">バルバコアタコス × 3・グワカモーレ</div>
+              <div class="order-meta">
+                <div class="order-total">¥2,680</div>
+                <div class="order-pass-tag">TacoPass 配達無料</div>
+              </div>
+            </div>
+            <div class="review-section">
+              <div class="review-label">レビューを書く</div>
+              <div class="star-row">
+                <div class="star filled">★</div>
+                <div class="star filled">★</div>
+                <div class="star filled">★</div>
+                <div class="star filled">★</div>
+                <div class="star empty">★</div>
+              </div>
+              <div style="margin-top:6px;padding:8px 10px;background:rgba(255,248,240,0.04);border:1px dashed rgba(255,107,43,0.2);border-radius:8px;">
+                <div style="font-size:11px;color:#8A6A4A;">タップしてレビューを入力...</div>
+              </div>
+            </div>
+            <div class="reorder-btn">🔄 同じ内容で再注文</div>
+          </div>
+
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+
+    </div><!-- /screen-container -->
+
+    <!-- Screen Indicators -->
+    <div class="screen-indicator">
+      <div class="indicator-dot active" id="dot-0"></div>
+      <div class="indicator-dot" id="dot-1"></div>
+      <div class="indicator-dot" id="dot-2"></div>
+      <div class="indicator-dot" id="dot-3"></div>
+      <div class="indicator-dot" id="dot-4"></div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item active" id="nav-0" onclick="switchScreen(0)">
+        <div class="nav-icon">🏠</div>
+        <div class="nav-label">ホーム</div>
+      </div>
+      <div class="nav-item" id="nav-1" onclick="switchScreen(1)">
+        <div class="nav-icon">🌮</div>
+        <div class="nav-label">注文</div>
+      </div>
+      <div class="nav-item" id="nav-2" onclick="switchScreen(2)">
+        <div class="nav-icon">📍</div>
+        <div class="nav-label">追跡</div>
+      </div>
+      <div class="nav-item" id="nav-3" onclick="switchScreen(3)">
+        <div class="nav-icon">⭐</div>
+        <div class="nav-label">TacoPass</div>
+      </div>
+      <div class="nav-item" id="nav-4" onclick="switchScreen(4)">
+        <div class="nav-icon">📋</div>
+        <div class="nav-label">履歴</div>
+      </div>
+    </div>
+
+  </div><!-- /iphone-frame -->
+</div><!-- /demo-wrap -->
+
+<script>
+function switchScreen(idx) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach((s, i) => {
+    if (i === 2) {
+      s.style.display = 'none';
+    } else {
+      s.style.display = 'none';
+    }
+    s.classList.remove('active');
+  });
+
+  // Show target screen
+  const target = document.getElementById('screen-' + idx);
+  if (idx === 2) {
+    target.style.display = 'flex';
+  } else {
+    target.style.display = 'block';
+  }
+  target.classList.add('active');
+
+  // Update nav
+  document.querySelectorAll('.nav-item').forEach((n, i) => {
+    n.classList.toggle('active', i === idx);
+  });
+
+  // Update dots
+  document.querySelectorAll('.indicator-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === idx);
+  });
+}
+</script>
+</body>
+</html>

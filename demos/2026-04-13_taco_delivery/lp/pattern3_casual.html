@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TacoRun – 本格タコスをドアまで | Casual</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root{
+  --bg:#FFF8F0;--bg2:#FFFFFF;--bg3:#FEF3E2;
+  --acc:#F39C12;--acc-d:#D68910;--acc-l:#FEF9E7;
+  --red:#C0392B;--red-l:#FDEDEC;
+  --grn:#27AE60;--grn-l:#E8F8EE;
+  --txt:#2C2C2C;--txt2:#666;--txt3:#AAA;
+  --yel:#F39C12;
+  --r:20px;--rs:12px
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--txt);line-height:1.7;overflow-x:hidden}
+h1,h2,h3{font-family:'Inter','Noto Sans JP',sans-serif}
+
+/* ── DECORATIVE SHAPES ── */
+.shape{position:absolute;border-radius:50%;pointer-events:none;opacity:.5}
+.s1{width:300px;height:300px;background:#FEF9E7;top:-100px;right:-80px}
+.s2{width:200px;height:200px;background:#FDEDEC;bottom:50px;left:-60px}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,248,240,.95);backdrop-filter:blur(16px);border-bottom:2px solid var(--acc);padding:.85rem 5%;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{font-family:'Inter',sans-serif;font-weight:800;font-size:1.3rem;color:var(--red)}.nav-logo em{color:var(--acc);font-style:normal}
+.nav-btn{background:var(--acc);color:#fff;border:none;padding:.5rem 1.4rem;border-radius:50px;font-weight:700;font-size:.875rem;cursor:pointer;text-decoration:none;font-family:'Noto Sans JP',sans-serif;transition:background .2s,box-shadow .2s,transform .2s;display:inline-block}
+.nav-btn:hover{background:var(--acc-d);transform:translateY(-2px);box-shadow:0 6px 18px rgba(243,156,18,.4)}
+
+/* ── HERO ── */
+.hero{min-height:100vh;padding:7rem 5% 4rem;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;position:relative;overflow:hidden;background:var(--bg)}
+.hero .shape.s1{opacity:.6}
+.hero .shape.s2{opacity:.4}
+.hero-emoji-deco{position:absolute;font-size:80px;opacity:.08;top:15%;left:3%;transform:rotate(-10deg);pointer-events:none}
+.hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:var(--acc);color:#fff;padding:.4rem 1rem;border-radius:50px;font-size:.85rem;font-weight:700;margin-bottom:1.5rem}
+.hero h1{font-size:clamp(2rem,3.5vw,3.4rem);font-weight:800;line-height:1.18;margin-bottom:1rem;letter-spacing:-1px}
+.hero h1 .hl-yel{color:var(--acc)}
+.hero h1 .hl-red{color:var(--red)}
+.hero h1 .block{display:block}
+.hero-sub{font-size:.98rem;color:var(--txt2);margin-bottom:2rem;line-height:1.9}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2.5rem}
+.btn-y{background:var(--acc);color:#fff;border:none;padding:.9rem 2rem;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none;font-family:'Noto Sans JP',sans-serif;display:inline-block;transition:all .2s;box-shadow:0 4px 16px rgba(243,156,18,.35)}
+.btn-y:hover{background:var(--acc-d);transform:translateY(-3px);box-shadow:0 12px 28px rgba(243,156,18,.45)}
+.btn-r{background:var(--red);color:#fff;border:none;padding:.9rem 2rem;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none;font-family:'Noto Sans JP',sans-serif;display:inline-block;transition:all .2s}
+.btn-r:hover{background:#A93226;transform:translateY(-3px)}
+.hero-badge-row{display:flex;gap:.8rem;flex-wrap:wrap}
+.hbadge{background:var(--bg2);border:1.5px solid rgba(0,0,0,.08);color:var(--txt2);padding:.35rem .85rem;border-radius:50px;font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:.3rem}
+
+/* ── PHONE MOCKUP (CSS ONLY, warm/colorful) ── */
+.phone-wrap{display:flex;justify-content:center;align-items:center;position:relative;z-index:1}
+.phone-blob{position:absolute;width:320px;height:320px;border-radius:60% 40% 55% 45% / 45% 55% 40% 60%;background:linear-gradient(135deg,rgba(243,156,18,.2),rgba(192,57,43,.12));pointer-events:none}
+.phone{width:272px;height:548px;background:#2C2C2C;border-radius:44px;padding:11px;
+  box-shadow:0 0 0 2px #3A3A3A,0 0 0 4px #282828,0 30px 70px rgba(0,0,0,.2),0 0 40px rgba(243,156,18,.2);
+  position:relative}
+.phone-notch{width:80px;height:20px;background:#2C2C2C;border-radius:0 0 16px 16px;margin:0 auto 6px;position:relative;z-index:2}
+.pscreen{background:#1A1A1A;border-radius:35px;height:100%;padding:28px 14px 14px;overflow:hidden;display:flex;flex-direction:column;gap:9px}
+.psbar{display:flex;justify-content:space-between;font-size:9px;color:#777;font-family:'Inter',sans-serif}
+.ph{display:flex;justify-content:space-between;align-items:center}
+.ph-logo{font-family:'Inter',sans-serif;font-weight:800;font-size:15px;color:#F39C12}
+.ph-bell{width:28px;height:28px;background:rgba(243,156,18,.18);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px}
+/* map - warm theme */
+.pmap{height:162px;background:linear-gradient(148deg,#1A2A1A,#233020,#162010);border-radius:14px;position:relative;overflow:hidden;flex-shrink:0}
+.pmap::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:22px 22px}
+.rd1{position:absolute;top:46%;left:0;right:0;height:8px;background:rgba(255,255,255,.12)}
+.rd2{position:absolute;top:0;bottom:0;left:28%;width:8px;background:rgba(255,255,255,.12)}
+.rd3{position:absolute;top:0;bottom:0;right:22%;width:8px;background:rgba(255,255,255,.12)}
+.route{position:absolute;top:43%;left:16%;width:57%;height:0;border-top:2.5px dashed #F39C12;opacity:.9}
+.pin{position:absolute;top:11%;right:16%}
+.pin::before{content:'';position:absolute;width:16px;height:16px;background:#F39C12;border-radius:50% 50% 50% 0;transform:rotate(-45deg)}
+.pin::after{content:'';position:absolute;top:4px;left:4px;width:8px;height:8px;background:#fff;border-radius:50%}
+.scoot{position:absolute;top:33%;left:12%;font-size:18px;transform:scaleX(-1);filter:drop-shadow(0 0 5px rgba(243,156,18,.7))}
+.mbadge{position:absolute;top:10px;left:10px;background:#F39C12;color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:18px;font-family:'Inter',sans-serif;white-space:nowrap}
+/* order card */
+.ocard{background:rgba(255,255,255,.08);border:1px solid rgba(243,156,18,.25);border-radius:14px;padding:11px}
+.ocard-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.olbl{font-size:8px;color:#666;text-transform:uppercase;letter-spacing:1px;font-family:'Inter',sans-serif}
+.ostatus{font-size:8px;color:#4CAF50;font-weight:700;background:rgba(76,175,80,.15);padding:2px 6px;border-radius:8px;font-family:'Inter',sans-serif}
+.orow{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.oi{width:34px;height:34px;background:linear-gradient(135deg,#F39C12,#C0392B);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.oinfo{flex:1}
+.oname{font-size:10px;font-weight:700;color:#FFF8F0;line-height:1.3}
+.ometa{font-size:8px;color:#666;font-family:'Inter',sans-serif}
+.oprice{font-family:'Inter',sans-serif;font-size:12px;font-weight:800;color:#F39C12}
+.prog{display:flex;justify-content:space-between;position:relative}
+.prog::before{content:'';position:absolute;top:7px;left:8px;right:8px;height:1.5px;background:rgba(255,255,255,.08)}
+.pstep{display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;z-index:1}
+.pdot{width:15px;height:15px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.15)}
+.pstep.done .pdot{background:#27AE60;border-color:#27AE60}
+.pstep.act .pdot{background:#F39C12;border-color:#F39C12;box-shadow:0 0 7px rgba(243,156,18,.6)}
+.plbl{font-size:6.5px;color:#555;font-family:'Inter',sans-serif;white-space:nowrap}
+.pstep.done .plbl{color:#27AE60}
+.pstep.act .plbl{color:#F39C12;font-weight:700}
+.bnav{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:7px 14px;display:flex;justify-content:space-around;align-items:center;margin-top:auto}
+.bni{font-size:17px;opacity:.3}
+.bni.act{opacity:1}
+
+/* ── SECTIONS ── */
+section{padding:5rem 5%}
+.stag{display:inline-flex;align-items:center;gap:.4rem;background:var(--acc);color:#fff;font-size:.78rem;font-weight:700;padding:.3rem .8rem;border-radius:50px;margin-bottom:.8rem}
+.stitle{font-size:clamp(1.7rem,3vw,2.6rem);font-weight:800;line-height:1.2;margin-bottom:.9rem;letter-spacing:-.5px}
+.ssub{color:var(--txt2);font-size:.97rem;line-height:1.85;max-width:600px}
+.center-txt{text-align:center}.center-txt .ssub{margin:0 auto}
+
+/* ── PAIN ── */
+.pain{background:var(--red-l);border-radius:0;position:relative;overflow:hidden}
+.pain::before{content:'😰';position:absolute;font-size:180px;opacity:.06;right:-20px;top:50%;transform:translateY(-50%);pointer-events:none}
+.pain-inner{display:grid;grid-template-columns:auto 1fr;gap:4rem;align-items:center}
+.pain-big{font-family:'Inter',sans-serif;font-size:clamp(5rem,10vw,9rem);font-weight:800;color:var(--red);opacity:.15;line-height:1;writing-mode:vertical-rl;text-orientation:mixed;user-select:none}
+.pgrid{display:flex;flex-direction:column;gap:1.2rem}
+.pcard{background:var(--bg2);border-radius:var(--r);padding:1.5rem;box-shadow:0 4px 20px rgba(192,57,43,.08);display:flex;gap:1rem;align-items:flex-start;transition:transform .2s,box-shadow .2s}
+.pcard:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(192,57,43,.12)}
+.pico{font-size:2rem;flex-shrink:0;line-height:1;margin-top:.1rem}
+.pcard h3{font-size:.95rem;font-weight:700;color:var(--red);margin-bottom:.4rem}
+.pcard p{color:var(--txt2);font-size:.875rem;line-height:1.75}
+
+/* ── SOLUTION ── */
+.sol{background:var(--bg2)}
+.sol-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+.sol-card{border-radius:var(--r);padding:2rem;text-align:center;position:relative;overflow:hidden}
+.sol-card:nth-child(1){background:var(--acc-l)}
+.sol-card:nth-child(2){background:#E8F8EE}
+.sol-card:nth-child(3){background:#FEF3E2}
+.sol-card-num{font-family:'Inter',sans-serif;font-size:4rem;font-weight:800;line-height:1;margin-bottom:.3rem}
+.sol-card:nth-child(1) .sol-card-num{color:var(--acc)}
+.sol-card:nth-child(2) .sol-card-num{color:var(--grn)}
+.sol-card:nth-child(3) .sol-card-num{color:var(--red)}
+.sol-card-unit{font-size:.85rem;font-weight:700;color:var(--txt2);margin-bottom:.6rem}
+.sol-card h3{font-size:1rem;font-weight:700;margin-bottom:.5rem}
+.sol-card p{color:var(--txt2);font-size:.875rem;line-height:1.75}
+.sol-total{margin-top:2rem;background:var(--acc);border-radius:var(--r);padding:2rem;display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap;text-align:center}
+.sol-total-num{font-family:'Inter',sans-serif;font-size:5rem;font-weight:800;color:#fff;line-height:1}
+.sol-total-txt{color:rgba(255,255,255,.9);font-size:1.1rem;font-weight:700;text-align:left}
+.sol-total-txt span{display:block;font-size:.85rem;font-weight:400;opacity:.8;margin-top:.3rem}
+
+/* ── FEATURES ── */
+.feat{background:var(--bg)}
+.fgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-top:3rem}
+.fcard{border-radius:var(--r);padding:2rem;display:flex;gap:1.5rem;align-items:flex-start;transition:all .3s;border:2px solid transparent}
+.fcard:nth-child(1){background:var(--acc-l);border-color:rgba(243,156,18,.2)}
+.fcard:nth-child(2){background:var(--grn-l);border-color:rgba(39,174,96,.2)}
+.fcard:nth-child(3){background:var(--red-l);border-color:rgba(192,57,43,.15)}
+.fcard:nth-child(4){background:#F0F3FF;border-color:rgba(100,100,200,.15)}
+.fcard:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(0,0,0,.08)}
+.fico-wrap{width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0}
+.fcard:nth-child(1) .fico-wrap{background:rgba(243,156,18,.25)}
+.fcard:nth-child(2) .fico-wrap{background:rgba(39,174,96,.2)}
+.fcard:nth-child(3) .fico-wrap{background:rgba(192,57,43,.15)}
+.fcard:nth-child(4) .fico-wrap{background:rgba(100,100,200,.15)}
+.fcard h3{font-size:1.05rem;font-weight:700;margin-bottom:.5rem}
+.fcard p{color:var(--txt2);font-size:.875rem;line-height:1.75}
+
+/* ── PLANS ── */
+.plans{background:var(--bg3);position:relative;overflow:hidden}
+.plans::before{content:'🎉';position:absolute;font-size:200px;opacity:.05;right:-30px;top:50%;transform:translateY(-50%);pointer-events:none}
+.plangrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+.plancard{background:var(--bg2);border:2px solid rgba(0,0,0,.07);border-radius:var(--r);padding:2rem;position:relative;transition:all .3s;overflow:hidden}
+.plancard:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.1)}
+.plancard.feat2{border-color:var(--acc);background:linear-gradient(145deg,#FFFDF5,#FEF9E7)}
+.plancard.feat2::after{content:'⭐';position:absolute;top:-20px;right:-20px;font-size:100px;opacity:.08;pointer-events:none}
+.planbadge{display:inline-flex;align-items:center;gap:.3rem;background:var(--acc);color:#fff;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:50px;margin-bottom:1rem}
+.planname{font-size:1.1rem;font-weight:800;margin-bottom:.5rem}
+.planprice{font-family:'Inter',sans-serif;font-size:2.4rem;font-weight:800;color:var(--red);margin-bottom:.2rem;line-height:1}
+.planprice small{font-size:.85rem;font-weight:400;color:var(--txt3)}
+.planfs{list-style:none;margin:1.5rem 0;display:flex;flex-direction:column;gap:.7rem}
+.planfs li{font-size:.875rem;color:var(--txt2);display:flex;align-items:flex-start;gap:.6rem}
+.planfs li::before{content:'✓';color:var(--grn);font-weight:700;flex-shrink:0}
+.planfs li.na{opacity:.4}
+.planfs li.na::before{content:'−';color:var(--txt3)}
+.plancta{width:100%;padding:.9rem;border-radius:50px;font-weight:700;font-size:.9rem;cursor:pointer;border:none;font-family:'Noto Sans JP',sans-serif;transition:all .2s}
+.plancta.py{background:var(--acc);color:#fff}.plancta.py:hover{background:var(--acc-d);box-shadow:0 8px 22px rgba(243,156,18,.4)}
+.plancta.pr{background:var(--red);color:#fff}.plancta.pr:hover{background:#A93226}
+.plancta.ps{background:var(--bg);color:var(--txt2);border:2px solid rgba(0,0,0,.1)}.plancta.ps:hover{border-color:var(--acc);color:var(--acc)}
+
+/* ── REVIEWS ── */
+.reviews{background:var(--bg2)}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+.rcard{background:var(--bg);border-radius:var(--r);padding:1.8rem;border:2px solid transparent;transition:all .3s}
+.rcard:nth-child(1){border-color:rgba(243,156,18,.25)}
+.rcard:nth-child(2){border-color:rgba(39,174,96,.2)}
+.rcard:nth-child(3){border-color:rgba(192,57,43,.2)}
+.rcard:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.08)}
+.stars{color:var(--yel);font-size:1rem;margin-bottom:.8rem;letter-spacing:2px}
+.rtxt{color:var(--txt2);font-size:.9rem;line-height:1.78;margin-bottom:1.2rem}
+.ruser{display:flex;align-items:center;gap:.8rem;padding-top:1rem;border-top:1.5px dashed rgba(0,0,0,.08)}
+.rav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.rcard:nth-child(1) .rav{background:var(--acc-l)}
+.rcard:nth-child(2) .rav{background:var(--grn-l)}
+.rcard:nth-child(3) .rav{background:var(--red-l)}
+.rname{font-size:.875rem;font-weight:700}
+.rmeta{font-size:.75rem;color:var(--txt3)}
+
+/* ── FAQ ── */
+.faq{background:var(--bg3)}
+.faqlist{max-width:760px;margin:3rem auto 0;display:flex;flex-direction:column;gap:.8rem}
+details{background:var(--bg2);border:2px solid rgba(0,0,0,.06);border-radius:var(--r);overflow:hidden;transition:border-color .2s}
+details[open]{border-color:var(--acc)}
+summary{padding:1.1rem 1.4rem;font-weight:700;font-size:.93rem;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;transition:color .2s;user-select:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'+';font-size:1.3rem;color:var(--acc);font-weight:400;font-family:'Inter',sans-serif}
+details[open] summary{color:var(--acc)}
+details[open] summary::after{content:'−'}
+details p{padding:0 1.4rem 1.1rem;color:var(--txt2);font-size:.875rem;line-height:1.85}
+
+/* ── FOOTER CTA ── */
+.fcta{background:linear-gradient(135deg,var(--red),#E74C3C);color:#fff;text-align:center;padding:7rem 5%;position:relative;overflow:hidden}
+.fcta::before{content:'🌮🎉🌶️';position:absolute;font-size:80px;opacity:.08;left:5%;top:50%;transform:translateY(-50%);letter-spacing:20px;pointer-events:none}
+.fcta::after{content:'🎊🌮🔥';position:absolute;font-size:80px;opacity:.08;right:5%;top:50%;transform:translateY(-50%);letter-spacing:20px;pointer-events:none}
+.fcta h2{font-size:clamp(2rem,4vw,3.2rem);font-weight:800;margin-bottom:1rem;letter-spacing:-1px;position:relative}
+.fcta h2 .yel{color:var(--acc)}
+.fcta p{color:rgba(255,255,255,.85);font-size:1.05rem;margin-bottom:2.5rem;position:relative}
+.fcta-btns{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:2.5rem;position:relative}
+.btn-white{background:#fff;color:var(--red);border:none;padding:.9rem 2rem;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none;font-family:'Noto Sans JP',sans-serif;display:inline-block;transition:all .2s;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.btn-white:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(0,0,0,.25)}
+.btn-outline-w{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.6);padding:.9rem 2rem;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none;font-family:'Noto Sans JP',sans-serif;display:inline-block;transition:all .2s}
+.btn-outline-w:hover{background:rgba(255,255,255,.15);border-color:#fff}
+.fcta-sub{color:rgba(255,255,255,.5);font-size:.82rem;position:relative}
+footer{background:var(--txt);padding:2rem 5%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.flogo{font-family:'Inter',sans-serif;font-weight:800;font-size:1.15rem;color:var(--acc)}
+.flinks{display:flex;gap:1.4rem;list-style:none}
+.flinks a{color:#888;text-decoration:none;font-size:.82rem;transition:color .2s}
+.flinks a:hover{color:#fff}
+.fcopy{color:#666;font-size:.78rem}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){.fgrid{grid-template-columns:1fr}.plangrid{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr;text-align:center;padding-top:5.5rem}
+  .phone-wrap{order:-1}
+  .hero-badge-row{justify-content:center}
+  .hero-btns{justify-content:center}
+  .pain-inner{grid-template-columns:1fr}
+  .pain-big{display:none}
+  .sol-cards,.fgrid,.plangrid,.rgrid{grid-template-columns:1fr}
+  footer{flex-direction:column;text-align:center}
+  .flinks{flex-wrap:wrap;justify-content:center}
+}
+@media(max-width:480px){section{padding:3rem 4%}.phone{width:230px;height:462px}.pmap{height:132px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Taco<em>Run</em></div>
+  <a href="#cta" class="nav-btn">🌮 今すぐ注文</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="shape s1"></div>
+  <div class="shape s2"></div>
+  <div class="hero-emoji-deco">🌮</div>
+
+  <div>
+    <div class="hero-tag">🎉 最速33分デリバリー 開始！</div>
+    <h1>
+      <span class="block">本格タコス、</span>
+      <span class="block hl-red">すぐ食べたい？</span>
+      <span class="block hl-yel">33分で届く！</span>
+    </h1>
+    <p class="hero-sub">
+      3分で頼んで、30分で到着。🌮<br>
+      エリアのタコス専門店まるごとデリバリー。<br>
+      11種トッピングで自分だけのタコスを作ろう！
+    </p>
+    <div class="hero-btns">
+      <a href="#cta" class="btn-y">🌮 今すぐ注文する</a>
+      <a href="#plans" class="btn-r">TacoPassを見る</a>
+    </div>
+    <div class="hero-badge-row">
+      <div class="hbadge">✅ 初回送料無料</div>
+      <div class="hbadge">⭐ 評価4.9</div>
+      <div class="hbadge">🔥 1,200件のクチコミ</div>
+    </div>
+  </div>
+
+  <!-- CSS-only phone mockup -->
+  <div class="phone-wrap">
+    <div class="phone-blob"></div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="pscreen">
+        <div class="psbar"><span>9:41</span><span>●●● 5G ■■■</span></div>
+        <div class="ph">
+          <span class="ph-logo">TacoRun</span>
+          <div class="ph-bell">🔔</div>
+        </div>
+        <div class="pmap">
+          <div class="rd1"></div><div class="rd2"></div><div class="rd3"></div>
+          <div class="route"></div>
+          <div class="pin"></div>
+          <div class="scoot">🛵</div>
+          <div class="mbadge">⚡ あと23分</div>
+        </div>
+        <div class="ocard">
+          <div class="ocard-h">
+            <span class="olbl">現在の注文</span>
+            <span class="ostatus">● 配達中</span>
+          </div>
+          <div class="orow">
+            <div class="oi">🌮</div>
+            <div class="oinfo">
+              <div class="oname">スパイシービーフタコス</div>
+              <div class="ometa">コーントルティーヤ × 辛さ★★★</div>
+            </div>
+            <div class="oprice">¥850</div>
+          </div>
+          <div class="prog">
+            <div class="pstep done"><div class="pdot"></div><div class="plbl">注文</div></div>
+            <div class="pstep done"><div class="pdot"></div><div class="plbl">調理</div></div>
+            <div class="pstep act"><div class="pdot"></div><div class="plbl">配達中</div></div>
+            <div class="pstep"><div class="pdot"></div><div class="plbl">到着</div></div>
+          </div>
+        </div>
+        <div class="bnav">
+          <span class="bni act">🏠</span>
+          <span class="bni">🔍</span>
+          <span class="bni">📋</span>
+          <span class="bni">🌮</span>
+          <span class="bni">👤</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 課題提起 ── -->
+<section class="pain" id="pain">
+  <div class="pain-inner">
+    <div class="pain-big" aria-hidden="true">悩</div>
+    <div>
+      <span class="stag">😩 こんな悩みない？</span>
+      <h2 class="stitle">本格タコス、<br>なんで食べられないの？</h2>
+      <p class="ssub" style="margin-bottom:1.5rem">タコスが好きなのに、近くに専門店がなくてガマンしてる。そんな悩み、TacoRunが解決します！</p>
+      <div class="pgrid">
+        <div class="pcard">
+          <span class="pico">🏃</span>
+          <div>
+            <h3>電車乗らないと食べられない</h3>
+            <p>本格タコス専門店は都市部でも少ない。ランチに電車に乗る時間なんてない。もっと気軽に食べたい！</p>
+          </div>
+        </div>
+        <div class="pcard">
+          <span class="pico">😒</span>
+          <div>
+            <h3>デリバリーアプリにメキシコ料理がない</h3>
+            <p>大手デリバリーでタコスを探すと、本格的じゃない店ばかり。本場の味が全然届かない！</p>
+          </div>
+        </div>
+        <div class="pcard">
+          <span class="pico">🙃</span>
+          <div>
+            <h3>トッピングが選べない</h3>
+            <p>チーズ多め・辛さ少なめ・アボカドたっぷり…で頼みたいのに、カスタマイズできるサービスがない！</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ソリューション ── -->
+<section class="sol" id="solution">
+  <span class="stag">🚀 解決策</span>
+  <h2 class="stitle">TacoRunなら、全部解決！</h2>
+  <p class="ssub">3ステップで本格タコスがドアまで届く。シンプルで速くて美味しい。それがTacoRun。</p>
+  <div class="sol-cards">
+    <div class="sol-card">
+      <div class="sol-card-num">3</div>
+      <div class="sol-card-unit">分で注文完了</div>
+      <h3>アプリを開いてサクッと注文</h3>
+      <p>エリアのタコス専門店を一覧表示。トッピングも数タップで設定完了。</p>
+    </div>
+    <div class="sol-card">
+      <div class="sol-card-num">15</div>
+      <div class="sol-card-unit">分で調理完了</div>
+      <h3>専門シェフがすぐ作る</h3>
+      <p>保温パッケージで揚げたてサクサクのまま梱包。お店の味をそのまま届ける。</p>
+    </div>
+    <div class="sol-card">
+      <div class="sol-card-num">15</div>
+      <div class="sol-card-unit">分で配達完了</div>
+      <h3>GPS追跡でリアルタイム確認</h3>
+      <p>配達員の現在地をリアルタイムで追跡。到着まであと何分かが一目でわかる。</p>
+    </div>
+  </div>
+  <div class="sol-total">
+    <div class="sol-total-num">33分</div>
+    <div class="sol-total-txt">
+      合計最速33分でドアまで！
+      <span>注文3分 + 調理15分 + 配達15分</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── 主要機能 ── -->
+<section class="feat" id="features">
+  <span class="stag">✨ 主要機能</span>
+  <h2 class="stitle">4つの推しポイント</h2>
+  <p class="ssub">TacoRunはここが違う。タコスデリバリーのために作られた機能がズラリ。</p>
+  <div class="fgrid">
+    <div class="fcard">
+      <div class="fico-wrap">🗺️</div>
+      <div>
+        <h3>リアルタイムGPS追跡</h3>
+        <p>注文から配達まで全工程をリアルタイムで追跡！配達員がどこにいるか秒単位で確認できて、到着まで安心して待てます。</p>
+      </div>
+    </div>
+    <div class="fcard">
+      <div class="fico-wrap">🌮</div>
+      <div>
+        <h3>11種カスタムトッピング</h3>
+        <p>トルティーヤ・肉種・スパイス度・チーズ・サルサ・アボカドなど11種を自由にカスタマイズ。世界にひとつだけのタコスを！</p>
+      </div>
+    </div>
+    <div class="fcard">
+      <div class="fico-wrap">🏪</div>
+      <div>
+        <h3>エリア内全店舗一覧</h3>
+        <p>エリアのタコス専門店・メキシコ料理店をすべて表示。評価・配達時間・価格でフィルタリングして自分好みのお店を即発見！</p>
+      </div>
+    </div>
+    <div class="fcard">
+      <div class="fico-wrap">🔥</div>
+      <div>
+        <h3>保温専用パッケージ</h3>
+        <p>タコス専用設計の保温パッケージで揚げたての食感をキープ。お店で食べるのと変わらないクオリティで届けます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TacoPassプラン ── -->
+<section class="plans center-txt" id="plans">
+  <span class="stag">💳 料金プラン</span>
+  <h2 class="stitle">TacoPassで<br>毎週タダタコス！</h2>
+  <p class="ssub">月980円でデリバリー無料＋週1タコス無料。ヘビーユーザーほど激お得な設計！</p>
+  <div class="plangrid">
+    <div class="plancard">
+      <div class="planname">スタンダード</div>
+      <div class="planprice">無料</div>
+      <ul class="planfs">
+        <li>エリア内全店舗注文可能</li>
+        <li>リアルタイムGPS追跡</li>
+        <li>11種カスタムトッピング</li>
+        <li class="na">デリバリー料金: ¥250〜</li>
+        <li class="na">毎週タダタコスクーポン</li>
+        <li class="na">VIP店舗優先注文</li>
+      </ul>
+      <button class="plancta ps">まずは無料で試す</button>
+    </div>
+    <div class="plancard feat2">
+      <div class="planbadge">🔥 人気 No.1</div>
+      <div class="planname">TacoPass</div>
+      <div class="planprice">¥980<small> / 月</small></div>
+      <ul class="planfs">
+        <li>エリア内全店舗注文可能</li>
+        <li>リアルタイムGPS追跡</li>
+        <li>11種カスタムトッピング</li>
+        <li>デリバリー無料（回数無制限）</li>
+        <li>毎週1タコス無料クーポン</li>
+        <li class="na">VIP店舗優先注文</li>
+      </ul>
+      <button class="plancta py">TacoPassを始める 🌮</button>
+    </div>
+    <div class="plancard">
+      <div class="planname">TacoPass Pro</div>
+      <div class="planprice">¥1,980<small> / 月</small></div>
+      <ul class="planfs">
+        <li>TacoPassの全特典</li>
+        <li>デリバリー無料（回数無制限）</li>
+        <li>毎日1タコス無料クーポン</li>
+        <li>VIP店舗優先注文</li>
+        <li>限定メニュー先行アクセス</li>
+      </ul>
+      <button class="plancta pr">Proにアップグレード</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── ユーザーの声 ── -->
+<section class="reviews center-txt" id="reviews">
+  <span class="stag">💬 みんなの声</span>
+  <h2 class="stitle">4.9★ 最高のレビューをもらってます</h2>
+  <p class="ssub">1,200件以上のレビューで評価4.9！みんなが絶賛中！</p>
+  <div class="rgrid">
+    <div class="rcard">
+      <div class="stars">★★★★★</div>
+      <p class="rtxt">「今まで本格タコスはお店まで行くしかないと思ってた！TacoRunで頼んだら、お店で食べるのと変わらない味が届いてびっくり。保温パッケージが神すぎる。」</p>
+      <div class="ruser">
+        <div class="rav">😊</div>
+        <div><div class="rname">田中 美咲（27）</div><div class="rmeta">TacoPass会員 / 渋谷区</div></div>
+      </div>
+    </div>
+    <div class="rcard">
+      <div class="stars">★★★★★</div>
+      <p class="rtxt">「毎日ランチに使ってます！TacoPassでデリバリー無料になって、週に一回は無料タコスがもらえる。コスパ最強すぎて他のアプリ使えなくなった笑」</p>
+      <div class="ruser">
+        <div class="rav">🤩</div>
+        <div><div class="rname">鈴木 拓也（31）</div><div class="rmeta">TacoPass Pro会員 / 新宿区</div></div>
+      </div>
+    </div>
+    <div class="rcard">
+      <div class="stars">★★★★☆</div>
+      <p class="rtxt">「11種のトッピングで毎回違う組み合わせを試してる！フラワートルティーヤ＋ポークカルニタス＋チポートレソースが個人的ベスト。カスタマイズが楽しすぎる。」</p>
+      <div class="ruser">
+        <div class="rav">😋</div>
+        <div><div class="rname">伊藤 彩花（24）</div><div class="rmeta">スタンダード会員 / 港区</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section class="faq center-txt" id="faq">
+  <span class="stag">❓ よくある質問</span>
+  <h2 class="stitle">FAQ</h2>
+  <p class="ssub">気になることがあったらチェック！</p>
+  <div class="faqlist">
+    <details>
+      <summary>配達エリアはどこですか？</summary>
+      <p>現在、東京23区・横浜市・大阪市・名古屋市の主要エリアでサービス提供中。順次拡大予定です。アプリで郵便番号を入力すると、対応エリアか確認できます。</p>
+    </details>
+    <details>
+      <summary>本当に33分で届きますか？</summary>
+      <p>注文から最速33分（注文3分・調理15分・配達15分）を目標にしています。交通状況・店舗の混雑状況により多少前後しますが、平均配達時間は35分前後です。注文確定後にリアルタイムで到着予定時刻をお知らせします。</p>
+    </details>
+    <details>
+      <summary>TacoPassはいつでも解約できますか？</summary>
+      <p>はい、いつでも解約可能です！解約後も契約期間終了まで特典は継続利用できます。アプリの「マイページ」→「プランの変更」から簡単に手続きできます。違約金・解約手数料は一切かかりません。</p>
+    </details>
+    <details>
+      <summary>トッピングのカスタマイズはどこまでできますか？</summary>
+      <p>トルティーヤ種（コーン/フラワー）、肉種（ビーフ/チキン/ポーク/豆）、スパイス度（1〜5段階）、トッピング11種（チーズ・サルサ・アボカド・ライム・シラントロ・オニオン・ハラペーニョ・サワークリーム・ピコデガヨ・グアカモーレ・ソフリート）をお選びいただけます！</p>
+    </details>
+    <details>
+      <summary>支払い方法は何が使えますか？</summary>
+      <p>クレジットカード（VISA/Mastercard/AMEX/JCB）、Apple Pay、Google Pay、PayPay、d払い、au PAYに対応。請求書払い（法人向け）も受け付けています。</p>
+    </details>
+  </div>
+</section>
+
+<!-- ── フッターCTA ── -->
+<section class="fcta" id="cta">
+  <h2>今すぐダウンロードして、<br><span class="yel">タコスを頼もう！🌮🎉</span></h2>
+  <p>無料ダウンロード。初回注文は送料無料。TacoPassも最初の1ヶ月は無料でお試しいただけます。</p>
+  <div class="fcta-btns">
+    <a href="#" class="btn-white">🍎 iOS版をダウンロード</a>
+    <a href="#" class="btn-outline-w">▶ Android版をダウンロード</a>
+  </div>
+  <p class="fcta-sub">App Store / Google Play で「TacoRun」を検索</p>
+</section>
+
+<footer>
+  <div class="flogo">TacoRun 🌮</div>
+  <ul class="flinks">
+    <li><a href="#">利用規約</a></li>
+    <li><a href="#">プライバシーポリシー</a></li>
+    <li><a href="#">運営会社</a></li>
+    <li><a href="#">お問い合わせ</a></li>
+  </ul>
+  <div class="fcopy">© 2026 TacoRun. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
