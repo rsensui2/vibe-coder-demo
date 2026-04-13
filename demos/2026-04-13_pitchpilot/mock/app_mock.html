@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PitchPilot - AI営業資料自動生成</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0D0D1A;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 40px 20px;
+  }
+
+  /* ===== BRAND HEADER ===== */
+  .brand {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #E94560, #c72040);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .brand-sub {
+    font-size: 12px;
+    color: #888;
+    font-weight: 400;
+    display: block;
+    letter-spacing: 0;
+  }
+
+  /* ===== iPHONE FRAME ===== */
+  .iphone-outer {
+    width: 393px;
+    background: #1c1c1e;
+    border-radius: 54px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 1px #3a3a3c,
+      0 40px 80px rgba(0,0,0,0.8),
+      inset 0 0 0 1px #48484a;
+    position: relative;
+  }
+  .iphone-screen {
+    background: #1A1A2E;
+    border-radius: 44px;
+    overflow: hidden;
+    height: 852px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== DYNAMIC ISLAND ===== */
+  .dynamic-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 37px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .di-camera {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    position: relative;
+  }
+  .di-camera::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #111;
+  }
+  .di-sensor {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #0a2a1a;
+    border: 1px solid #1a3a2a;
+  }
+
+  /* ===== STATUS BAR ===== */
+  .status-bar {
+    height: 59px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 10px;
+    flex-shrink: 0;
+  }
+  .status-time {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-icons svg { color: #fff; }
+
+  /* ===== APP CONTENT AREA ===== */
+  .app-content {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ===== SCREENS ===== */
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 0 0 90px;
+  }
+  .screen.active { display: flex; }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* ===== TAB BAR ===== */
+  .tab-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 88px;
+    background: rgba(15,15,30,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: flex-start;
+    padding-top: 12px;
+    z-index: 50;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab-icon {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    filter: grayscale(1) brightness(0.5);
+    transition: all 0.2s;
+  }
+  .tab-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  .tab-item.active .tab-icon {
+    filter: none;
+    transform: scale(1.1);
+  }
+  .tab-item.active .tab-label {
+    color: #E94560;
+  }
+  .tab-item.active .tab-icon-svg { color: #E94560; }
+
+  /* ===== COMMON COMPONENTS ===== */
+  .screen-header {
+    padding: 20px 24px 16px;
+    flex-shrink: 0;
+  }
+  .screen-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .screen-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 4px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 18px;
+    margin: 0 20px 12px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #E94560, #c72040);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: calc(100% - 40px);
+    margin: 0 20px 12px;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 20px rgba(233,69,96,0.35);
+  }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-secondary {
+    background: rgba(255,255,255,0.07);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    width: calc(100% - 40px);
+    margin: 0 20px 12px;
+    transition: all 0.2s;
+  }
+
+  /* ===== SCREEN 1: HOME ===== */
+  .home-hero {
+    margin: 8px 20px 20px;
+    background: linear-gradient(135deg, rgba(233,69,96,0.15), rgba(233,69,96,0.05));
+    border: 1px solid rgba(233,69,96,0.2);
+    border-radius: 20px;
+    padding: 24px;
+    text-align: center;
+  }
+  .hero-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .hero-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .hero-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.6;
+  }
+
+  .input-wrapper {
+    margin: 0 20px 12px;
+    position: relative;
+  }
+  .input-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+    display: block;
+    font-weight: 600;
+  }
+  .input-field {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: #E94560; }
+  .input-field::placeholder { color: rgba(255,255,255,0.25); }
+
+  .section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 0 24px;
+    margin: 8px 0 12px;
+  }
+
+  .recent-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 20px 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+  .recent-icon {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .recent-info { flex: 1; }
+  .recent-name { font-size: 14px; font-weight: 600; color: #fff; }
+  .recent-meta { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+  .recent-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .badge-done { background: rgba(52,199,89,0.15); color: #34C759; }
+  .badge-gen  { background: rgba(233,69,96,0.15); color: #E94560; }
+
+  /* ===== SCREEN 2: GENERATING ===== */
+  .gen-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 28px;
+    gap: 0;
+  }
+  .gen-orb {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    position: relative;
+    margin-bottom: 32px;
+    flex-shrink: 0;
+  }
+  .orb-core {
+    position: absolute;
+    inset: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, #E94560, #8B0020);
+    animation: pulse-core 2s ease-in-out infinite;
+  }
+  .orb-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(233,69,96,0.4);
+    animation: ring-expand 2s ease-out infinite;
+  }
+  .orb-ring2 {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(233,69,96,0.2);
+    animation: ring-expand 2s ease-out infinite 0.6s;
+  }
+  .orb-ring3 {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(233,69,96,0.1);
+    animation: ring-expand 2s ease-out infinite 1.2s;
+  }
+  @keyframes pulse-core {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(233,69,96,0.5); }
+    50%        { transform: scale(1.05); box-shadow: 0 0 60px rgba(233,69,96,0.8); }
+  }
+  @keyframes ring-expand {
+    0%   { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+
+  .gen-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .gen-company {
+    font-size: 14px;
+    color: #E94560;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .gen-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .gen-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #E94560, #ff6b8a);
+    border-radius: 4px;
+    animation: progress-flow 8s ease-in-out forwards;
+  }
+  @keyframes progress-flow {
+    0%   { width: 0%; }
+    20%  { width: 25%; }
+    50%  { width: 58%; }
+    80%  { width: 82%; }
+    100% { width: 95%; }
+  }
+
+  .gen-steps { width: 100%; display: flex; flex-direction: column; gap: 14px; }
+  .gen-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .step-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .step-dot.done {
+    background: rgba(52,199,89,0.15);
+    color: #34C759;
+    border: 1px solid rgba(52,199,89,0.3);
+  }
+  .step-dot.active {
+    background: rgba(233,69,96,0.15);
+    color: #E94560;
+    border: 1px solid rgba(233,69,96,0.4);
+    animation: step-pulse 1s ease-in-out infinite;
+  }
+  .step-dot.pending {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  @keyframes step-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(233,69,96,0.4); }
+    50%       { box-shadow: 0 0 0 6px rgba(233,69,96,0); }
+  }
+  .step-text { font-size: 14px; font-weight: 500; }
+  .step-text.done   { color: rgba(255,255,255,0.6); }
+  .step-text.active { color: #fff; }
+  .step-text.pending{ color: rgba(255,255,255,0.25); }
+
+  .gen-eta {
+    margin-top: 32px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+  }
+  .gen-eta span { color: rgba(255,255,255,0.7); font-weight: 600; }
+
+  /* ===== SCREEN 3: COMPLETE ===== */
+  .complete-success {
+    margin: 12px 20px;
+    background: rgba(52,199,89,0.08);
+    border: 1px solid rgba(52,199,89,0.2);
+    border-radius: 16px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .success-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(52,199,89,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .success-text { font-size: 14px; font-weight: 600; color: #34C759; }
+  .success-sub  { font-size: 12px; color: rgba(52,199,89,0.7); margin-top: 2px; }
+
+  .doc-preview {
+    margin: 0 20px 16px;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .doc-preview-header {
+    background: #1A1A2E;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid #E94560;
+  }
+  .doc-logo-mini {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, #E94560, #c72040);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    color: white;
+  }
+  .doc-title-mini {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+  .doc-slide {
+    padding: 18px;
+    background: #fafafa;
+  }
+  .doc-slide-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A1A2E;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  .doc-slide-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .doc-slide-box {
+    background: #f0f0f5;
+    border-radius: 8px;
+    padding: 10px 12px;
+    flex: 1;
+  }
+  .dsb-label { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+  .dsb-value { font-size: 13px; font-weight: 600; color: #1A1A2E; margin-top: 3px; }
+  .dsb-accent { color: #E94560; }
+  .doc-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 50px;
+    margin-top: 12px;
+  }
+  .chart-bar {
+    flex: 1;
+    background: linear-gradient(to top, #E94560, rgba(233,69,96,0.4));
+    border-radius: 4px 4px 0 0;
+  }
+  .doc-pages {
+    display: flex;
+    gap: 6px;
+    padding: 12px 18px;
+    background: #f5f5f7;
+    overflow-x: auto;
+  }
+  .doc-page-thumb {
+    width: 48px; height: 34px;
+    background: #fff;
+    border-radius: 5px;
+    border: 1.5px solid #ddd;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    color: #aaa;
+    font-weight: 600;
+  }
+  .doc-page-thumb.selected {
+    border-color: #E94560;
+    color: #E94560;
+  }
+
+  .dl-options {
+    margin: 0 20px 12px;
+    display: flex;
+    gap: 10px;
+  }
+  .dl-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 12px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .dl-btn.primary-dl {
+    background: linear-gradient(135deg, #E94560, #c72040);
+    border-color: transparent;
+    box-shadow: 0 4px 16px rgba(233,69,96,0.3);
+  }
+
+  /* ===== SCREEN 4: LIST ===== */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px 16px;
+    overflow-x: auto;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .filter-chip.active {
+    background: #E94560;
+    color: #fff;
+  }
+  .filter-chip.inactive {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.5);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .doc-list-item {
+    margin: 0 20px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .doc-list-item:active { transform: scale(0.98); }
+  .dli-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .dli-company { font-size: 16px; font-weight: 700; color: #fff; }
+  .dli-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .dli-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .dli-meta { font-size: 12px; color: rgba(255,255,255,0.4); }
+  .dli-actions { display: flex; gap: 8px; }
+  .dli-action-btn {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .dli-pages {
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dli-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,0.25); }
+
+  .stats-row {
+    display: flex;
+    gap: 10px;
+    margin: 0 20px 20px;
+  }
+  .stat-box {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 24px;
+    font-weight: 700;
+    color: #E94560;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  /* ===== SCREEN 5: SETTINGS ===== */
+  .plan-card {
+    margin: 0 20px 16px;
+    background: linear-gradient(135deg, rgba(233,69,96,0.12), rgba(233,69,96,0.04));
+    border: 1px solid rgba(233,69,96,0.25);
+    border-radius: 20px;
+    padding: 20px;
+  }
+  .plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(233,69,96,0.2);
+    border: 1px solid rgba(233,69,96,0.35);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #E94560;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+  }
+  .plan-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .plan-price {
+    font-size: 28px;
+    font-weight: 700;
+    color: #E94560;
+    margin-bottom: 14px;
+  }
+  .plan-price span { font-size: 14px; color: rgba(255,255,255,0.45); font-weight: 400; }
+  .plan-features { display: flex; flex-direction: column; gap: 8px; }
+  .plan-feat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+  }
+  .feat-check {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: rgba(52,199,89,0.15);
+    color: #34C759;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .settings-section {
+    padding: 0 20px;
+    margin-bottom: 8px;
+  }
+  .settings-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  .settings-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+  }
+  .settings-item:last-child { border-bottom: none; }
+  .si-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+  .si-content { flex: 1; }
+  .si-label { font-size: 15px; font-weight: 500; color: #fff; }
+  .si-sub { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+  .si-arrow { color: rgba(255,255,255,0.25); font-size: 14px; }
+
+  .team-member {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .team-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .team-info { flex: 1; }
+  .team-name { font-size: 14px; font-weight: 600; color: #fff; }
+  .team-role { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  .team-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  .invite-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: rgba(233,69,96,0.08);
+    border: 1px dashed rgba(233,69,96,0.3);
+    border-radius: 12px;
+    color: #E94560;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  /* ===== AI DOTS ANIMATION ===== */
+  .ai-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .ai-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #E94560;
+    animation: ai-bounce 1.4s ease-in-out infinite;
+  }
+  .ai-dot:nth-child(1) { animation-delay: 0s; }
+  .ai-dot:nth-child(2) { animation-delay: 0.2s; }
+  .ai-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes ai-bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40%            { transform: scale(1); opacity: 1; }
+  }
+
+  /* ===== SHIMMER ANIMATION ===== */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+    animation: shimmer 2s infinite;
+  }
+  @keyframes shimmer {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* ===== TOGGLE SWITCH ===== */
+  .toggle {
+    width: 44px; height: 26px;
+    background: #E94560;
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 21px;
+    width: 20px; height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    transition: left 0.2s;
+  }
+  .toggle.off { background: rgba(255,255,255,0.12); }
+  .toggle.off::after { left: 3px; }
+</style>
+</head>
+<body>
+
+<div class="brand">
+  <div class="brand-logo">⚡</div>
+  <div>
+    PitchPilot
+    <span class="brand-sub">AI営業資料自動生成 SaaS</span>
+  </div>
+</div>
+
+<!-- iPHONE FRAME -->
+<div class="iphone-outer">
+  <div class="iphone-screen">
+
+    <!-- Dynamic Island -->
+    <div class="dynamic-island">
+      <div class="di-sensor"></div>
+      <div class="di-camera"></div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons">
+        <!-- Signal -->
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="white">
+          <rect x="0" y="6" width="3" height="6" rx="1"/>
+          <rect x="4.5" y="4" width="3" height="8" rx="1"/>
+          <rect x="9" y="2" width="3" height="10" rx="1"/>
+          <rect x="13.5" y="0" width="3" height="12" rx="1"/>
+        </svg>
+        <!-- WiFi -->
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="white">
+          <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/>
+          <path d="M8 5.5C5.8 5.5 3.8 6.4 2.3 7.9l1.4 1.4C4.9 8.1 6.3 7.5 8 7.5s3.1.6 4.3 1.8l1.4-1.4C12.2 6.4 10.2 5.5 8 5.5z" fill-opacity=".6"/>
+          <path d="M8 1.5C4.7 1.5 1.7 2.9 0 5.2l1.5 1.3C3 4.5 5.4 3.5 8 3.5s5 1 6.5 3l1.5-1.3C14.3 2.9 11.3 1.5 8 1.5z" fill-opacity=".3"/>
+        </svg>
+        <!-- Battery -->
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+          <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".35"/>
+          <rect x="2" y="2" width="16" height="8" rx="2" fill="white"/>
+          <path d="M23 4v4a2 2 0 0 0 0-4z" fill="white" fill-opacity=".4"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- App Content -->
+    <div class="app-content">
+
+      <!-- ===== SCREEN 1: HOME ===== -->
+      <div class="screen active" id="screen-home">
+        <div class="screen-header">
+          <div class="screen-title">PitchPilot ⚡</div>
+          <div class="screen-subtitle">AI が営業資料を自動生成します</div>
+        </div>
+
+        <div class="home-hero">
+          <span class="hero-icon">🚀</span>
+          <div class="hero-title">企業名を入力するだけ</div>
+          <div class="hero-desc">AIが企業情報を収集し、<br>10分でプロ品質の営業資料を完成させます</div>
+        </div>
+
+        <label class="input-label" style="padding: 0 24px;">対象企業名</label>
+        <div class="input-wrapper">
+          <input class="input-field" type="text" placeholder="例：株式会社〇〇 または 英語名" value="株式会社サンプル">
+        </div>
+
+        <div class="input-wrapper" style="margin-top: 4px;">
+          <label class="input-label" style="margin-bottom: 8px;">資料タイプ</label>
+          <div style="display: flex; gap: 8px;">
+            <div style="flex:1; background: rgba(233,69,96,0.12); border: 1.5px solid #E94560; border-radius: 10px; padding: 10px; text-align: center; font-size: 13px; font-weight: 600; color: #E94560; cursor: pointer;">提案書</div>
+            <div style="flex:1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; text-align: center; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.5); cursor: pointer;">会社紹介</div>
+            <div style="flex:1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; text-align: center; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.5); cursor: pointer;">見積書</div>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="switchScreen('generating')" style="margin-top: 16px;">
+          ⚡ AI生成開始
+        </button>
+
+        <div class="section-label">最近の資料</div>
+
+        <div class="recent-item">
+          <div class="recent-icon" style="background: rgba(233,69,96,0.1);">🏢</div>
+          <div class="recent-info">
+            <div class="recent-name">株式会社テクノベーション</div>
+            <div class="recent-meta">2分前 • 提案書 • 24スライド</div>
+          </div>
+          <div class="recent-badge badge-done">完成</div>
+        </div>
+
+        <div class="recent-item">
+          <div class="recent-icon" style="background: rgba(100,200,100,0.1);">🌿</div>
+          <div class="recent-info">
+            <div class="recent-name">グリーンテック合同会社</div>
+            <div class="recent-meta">1時間前 • 会社紹介 • 18スライド</div>
+          </div>
+          <div class="recent-badge badge-done">完成</div>
+        </div>
+
+        <div class="recent-item shimmer">
+          <div class="recent-icon" style="background: rgba(233,69,96,0.08);">🔄</div>
+          <div class="recent-info">
+            <div class="recent-name">フューチャーデザイン株式会社</div>
+            <div class="recent-meta">
+              生成中
+              <span class="ai-dots" style="margin-left: 4px;">
+                <span class="ai-dot"></span>
+                <span class="ai-dot"></span>
+                <span class="ai-dot"></span>
+              </span>
+            </div>
+          </div>
+          <div class="recent-badge badge-gen">生成中</div>
+        </div>
+      </div>
+
+      <!-- ===== SCREEN 2: GENERATING ===== -->
+      <div class="screen" id="screen-generating">
+        <div class="screen-header">
+          <div class="screen-title">生成中</div>
+          <div class="screen-subtitle">AIが資料を作成しています</div>
+        </div>
+
+        <div class="gen-center">
+          <div class="gen-orb">
+            <div class="orb-ring3"></div>
+            <div class="orb-ring2"></div>
+            <div class="orb-ring"></div>
+            <div class="orb-core"></div>
+          </div>
+
+          <div class="gen-title">AIが分析しています</div>
+          <div class="gen-company">株式会社サンプル</div>
+
+          <div class="gen-progress-bar">
+            <div class="gen-progress-fill"></div>
+          </div>
+
+          <div class="gen-steps">
+            <div class="gen-step">
+              <div class="step-dot done">✓</div>
+              <div class="step-text done">企業基本情報を収集完了</div>
+            </div>
+            <div class="gen-step">
+              <div class="step-dot done">✓</div>
+              <div class="step-text done">財務データ・売上規模を分析完了</div>
+            </div>
+            <div class="gen-step">
+              <div class="step-dot active">
+                <span class="ai-dots">
+                  <span class="ai-dot" style="width:3px;height:3px;"></span>
+                  <span class="ai-dot" style="width:3px;height:3px;"></span>
+                  <span class="ai-dot" style="width:3px;height:3px;"></span>
+                </span>
+              </div>
+              <div class="step-text active">競合・市場ポジションを調査中...</div>
+            </div>
+            <div class="gen-step">
+              <div class="step-dot pending">4</div>
+              <div class="step-text pending">課題・ニーズを推定</div>
+            </div>
+            <div class="gen-step">
+              <div class="step-dot pending">5</div>
+              <div class="step-text pending">提案内容をカスタマイズ</div>
+            </div>
+            <div class="gen-step">
+              <div class="step-dot pending">6</div>
+              <div class="step-text pending">スライドデザインを生成</div>
+            </div>
+          </div>
+
+          <div class="gen-eta">完成まで約 <span>6分</span></div>
+        </div>
+      </div>
+
+      <!-- ===== SCREEN 3: COMPLETE ===== -->
+      <div class="screen" id="screen-complete">
+        <div class="screen-header">
+          <div class="screen-title">資料完成 🎉</div>
+          <div class="screen-subtitle">株式会社テクノベーション</div>
+        </div>
+
+        <div class="complete-success">
+          <div class="success-icon">✅</div>
+          <div>
+            <div class="success-text">生成完了！</div>
+            <div class="success-sub">24スライド • 8分32秒で完成</div>
+          </div>
+        </div>
+
+        <div class="doc-preview">
+          <div class="doc-preview-header">
+            <div class="doc-logo-mini">⚡</div>
+            <div class="doc-title-mini">株式会社テクノベーション 御中</div>
+          </div>
+          <div class="doc-slide">
+            <div class="doc-slide-title">🎯 御社への提案概要</div>
+            <div class="doc-slide-row">
+              <div class="doc-slide-box">
+                <div class="dsb-label">課題</div>
+                <div class="dsb-value">営業効率化</div>
+              </div>
+              <div class="doc-slide-box">
+                <div class="dsb-label">ROI予測</div>
+                <div class="dsb-value dsb-accent">+340%</div>
+              </div>
+            </div>
+            <div class="doc-slide-row">
+              <div class="doc-slide-box" style="flex: 2;">
+                <div class="dsb-label">導入後の効果（月次）</div>
+                <div class="doc-chart">
+                  <div class="chart-bar" style="height:30%"></div>
+                  <div class="chart-bar" style="height:45%"></div>
+                  <div class="chart-bar" style="height:60%"></div>
+                  <div class="chart-bar" style="height:78%"></div>
+                  <div class="chart-bar" style="height:90%"></div>
+                  <div class="chart-bar" style="height:100%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="doc-pages">
+            <div class="doc-page-thumb selected">表紙</div>
+            <div class="doc-page-thumb">2</div>
+            <div class="doc-page-thumb">3</div>
+            <div class="doc-page-thumb">4</div>
+            <div class="doc-page-thumb">5</div>
+            <div class="doc-page-thumb" style="font-size:8px;">+19</div>
+          </div>
+        </div>
+
+        <div class="dl-options">
+          <div class="dl-btn primary-dl">⬇ PDF DL</div>
+          <div class="dl-btn">📊 PPTX</div>
+          <div class="dl-btn">📤 共有</div>
+        </div>
+
+        <div class="card">
+          <div style="font-size:13px; font-weight:700; color:#fff; margin-bottom:10px;">📊 AIインサイト</div>
+          <div style="font-size:12px; color:rgba(255,255,255,0.55); line-height:1.8;">
+            • テクノベーション社は<span style="color:#E94560;font-weight:600;">DX推進</span>を最重点課題に設定<br>
+            • 競合他社比でIT投資が<span style="color:#E94560;font-weight:600;">+23%増加</span>トレンド<br>
+            • 決裁者は<span style="color:#E94560;font-weight:600;">コスト削減効果</span>を最重視する傾向
+          </div>
+        </div>
+
+        <button class="btn-secondary">✉ 担当者にメール送付</button>
+      </div>
+
+      <!-- ===== SCREEN 4: LIST ===== -->
+      <div class="screen" id="screen-list">
+        <div class="screen-header">
+          <div class="screen-title">資料一覧</div>
+          <div class="screen-subtitle">生成済みの営業資料</div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-num">47</div>
+            <div class="stat-label">総生成数</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">8.2<span style="font-size:14px;">分</span></div>
+            <div class="stat-label">平均生成時間</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">89<span style="font-size:14px;">%</span></div>
+            <div class="stat-label">活用率</div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-chip active">すべて</div>
+          <div class="filter-chip inactive">提案書</div>
+          <div class="filter-chip inactive">会社紹介</div>
+          <div class="filter-chip inactive">見積書</div>
+          <div class="filter-chip inactive">完成済み</div>
+        </div>
+
+        <div class="doc-list-item">
+          <div class="dli-header">
+            <div class="dli-company">株式会社テクノベーション</div>
+            <div class="dli-status badge-done" style="background:rgba(52,199,89,0.12); color:#34C759;">完成</div>
+          </div>
+          <div class="dli-pages">
+            📄 提案書
+            <div class="dli-dot"></div>
+            24スライド
+            <div class="dli-dot"></div>
+            PDF / PPTX
+          </div>
+          <div class="dli-footer" style="margin-top: 10px;">
+            <div class="dli-meta">2026/04/13 09:15</div>
+            <div class="dli-actions">
+              <div class="dli-action-btn">📤</div>
+              <div class="dli-action-btn">⬇</div>
+              <div class="dli-action-btn">✉</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-list-item">
+          <div class="dli-header">
+            <div class="dli-company">グリーンテック合同会社</div>
+            <div class="dli-status badge-done" style="background:rgba(52,199,89,0.12); color:#34C759;">完成</div>
+          </div>
+          <div class="dli-pages">
+            🏢 会社紹介
+            <div class="dli-dot"></div>
+            18スライド
+            <div class="dli-dot"></div>
+            PDF
+          </div>
+          <div class="dli-footer" style="margin-top: 10px;">
+            <div class="dli-meta">2026/04/13 08:22</div>
+            <div class="dli-actions">
+              <div class="dli-action-btn">📤</div>
+              <div class="dli-action-btn">⬇</div>
+              <div class="dli-action-btn">✉</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-list-item shimmer">
+          <div class="dli-header">
+            <div class="dli-company">フューチャーデザイン株式会社</div>
+            <div class="dli-status" style="background:rgba(233,69,96,0.12); color:#E94560; font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px;">生成中</div>
+          </div>
+          <div class="dli-pages" style="color:rgba(233,69,96,0.6);">
+            📄 提案書
+            <div class="dli-dot"></div>
+            <span class="ai-dots"><span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span></span>
+          </div>
+          <div class="dli-footer" style="margin-top: 10px;">
+            <div class="dli-meta">2026/04/13 09:31 開始</div>
+            <div class="dli-meta" style="color: #E94560;">完成まで約4分...</div>
+          </div>
+        </div>
+
+        <div class="doc-list-item">
+          <div class="dli-header">
+            <div class="dli-company">イノベートジャパン株式会社</div>
+            <div class="dli-status badge-done" style="background:rgba(52,199,89,0.12); color:#34C759;">完成</div>
+          </div>
+          <div class="dli-pages">
+            💰 見積書
+            <div class="dli-dot"></div>
+            12スライド
+            <div class="dli-dot"></div>
+            PDF / PPTX
+          </div>
+          <div class="dli-footer" style="margin-top: 10px;">
+            <div class="dli-meta">2026/04/12 15:40</div>
+            <div class="dli-actions">
+              <div class="dli-action-btn">📤</div>
+              <div class="dli-action-btn">⬇</div>
+              <div class="dli-action-btn">✉</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SCREEN 5: SETTINGS ===== -->
+      <div class="screen" id="screen-settings">
+        <div class="screen-header">
+          <div class="screen-title">設定</div>
+          <div class="screen-subtitle">アカウント・チーム管理</div>
+        </div>
+
+        <!-- Profile -->
+        <div style="display: flex; align-items: center; gap: 14px; margin: 0 20px 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 16px;">
+          <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #E94560, #8B0020); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: #fff;">泉</div>
+          <div style="flex:1;">
+            <div style="font-size: 16px; font-weight: 700; color: #fff;">泉水 亮介</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px;">rsensui@tekion.co.jp</div>
+          </div>
+          <div style="font-size: 22px; color: rgba(255,255,255,0.25);">›</div>
+        </div>
+
+        <!-- Current Plan -->
+        <div class="plan-card">
+          <div class="plan-badge">⭐ Current Plan</div>
+          <div class="plan-name">Pro プラン</div>
+          <div class="plan-price">¥9,800 <span>/ 月（税込）</span></div>
+          <div class="plan-features">
+            <div class="plan-feat"><div class="feat-check">✓</div>月100件の資料生成</div>
+            <div class="plan-feat"><div class="feat-check">✓</div>チームメンバー5名まで</div>
+            <div class="plan-feat"><div class="feat-check">✓</div>PDF / PPTX エクスポート</div>
+            <div class="plan-feat"><div class="feat-check">✓</div>AIインサイト機能</div>
+          </div>
+          <button class="btn-primary" style="margin: 16px 0 0; width: 100%;">🚀 Enterpriseにアップグレード</button>
+        </div>
+
+        <!-- Team -->
+        <div class="settings-section" style="margin-bottom: 20px;">
+          <div class="settings-section-title">チームメンバー</div>
+          <div class="card" style="margin: 0;">
+            <div class="team-member">
+              <div class="team-avatar" style="background: rgba(233,69,96,0.15); color: #E94560;">泉</div>
+              <div class="team-info">
+                <div class="team-name">泉水 亮介</div>
+                <div class="team-role">rsensui@tekion.co.jp</div>
+              </div>
+              <div class="team-badge" style="background: rgba(233,69,96,0.12); color: #E94560;">オーナー</div>
+            </div>
+            <div class="team-member">
+              <div class="team-avatar" style="background: rgba(100,180,255,0.15); color: #64B4FF;">山</div>
+              <div class="team-info">
+                <div class="team-name">山田 ひかる</div>
+                <div class="team-role">hikaru@tekion.co.jp</div>
+              </div>
+              <div class="team-badge" style="background: rgba(52,199,89,0.12); color: #34C759;">メンバー</div>
+            </div>
+            <div class="team-member" style="border-bottom: none;">
+              <div class="team-avatar" style="background: rgba(255,200,50,0.15); color: #FFC832;">田</div>
+              <div class="team-info">
+                <div class="team-name">田中 美咲</div>
+                <div class="team-role">misaki@tekion.co.jp</div>
+              </div>
+              <div class="team-badge" style="background: rgba(52,199,89,0.12); color: #34C759;">メンバー</div>
+            </div>
+            <button class="invite-btn">＋ メンバーを招待</button>
+          </div>
+        </div>
+
+        <!-- Settings Items -->
+        <div class="settings-section">
+          <div class="settings-section-title">アプリ設定</div>
+          <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 0 16px;">
+            <div class="settings-item">
+              <div class="si-icon" style="background: rgba(233,69,96,0.12);">🔔</div>
+              <div class="si-content">
+                <div class="si-label">生成完了通知</div>
+                <div class="si-sub">資料完成時にプッシュ通知</div>
+              </div>
+              <div class="toggle"></div>
+            </div>
+            <div class="settings-item">
+              <div class="si-icon" style="background: rgba(100,180,255,0.12);">📧</div>
+              <div class="si-content">
+                <div class="si-label">メール自動送付</div>
+                <div class="si-sub">完成時に担当者へ自動送信</div>
+              </div>
+              <div class="toggle off"></div>
+            </div>
+            <div class="settings-item" style="border-bottom: none;">
+              <div class="si-icon" style="background: rgba(150,100,255,0.12);">🌐</div>
+              <div class="si-content">
+                <div class="si-label">言語</div>
+                <div class="si-sub">日本語</div>
+              </div>
+              <div class="si-arrow">›</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 20px;"></div>
+
+        <button class="btn-secondary" style="color: rgba(233,69,96,0.8); border-color: rgba(233,69,96,0.2); background: rgba(233,69,96,0.05);">
+          ログアウト
+        </button>
+      </div>
+
+    </div><!-- /app-content -->
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-item active" id="tab-home" onclick="switchScreen('home')">
+        <div class="tab-icon">🏠</div>
+        <div class="tab-label">ホーム</div>
+      </div>
+      <div class="tab-item" id="tab-generating" onclick="switchScreen('generating')">
+        <div class="tab-icon">⚡</div>
+        <div class="tab-label">生成中</div>
+      </div>
+      <div class="tab-item" id="tab-complete" onclick="switchScreen('complete')">
+        <div class="tab-icon">✅</div>
+        <div class="tab-label">完成</div>
+      </div>
+      <div class="tab-item" id="tab-list" onclick="switchScreen('list')">
+        <div class="tab-icon">📋</div>
+        <div class="tab-label">一覧</div>
+      </div>
+      <div class="tab-item" id="tab-settings" onclick="switchScreen('settings')">
+        <div class="tab-icon">⚙️</div>
+        <div class="tab-label">設定</div>
+      </div>
+    </div>
+
+  </div><!-- /iphone-screen -->
+</div><!-- /iphone-outer -->
+
+<script>
+  function switchScreen(name) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    // Deactivate all tabs
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+
+    // Show target screen
+    document.getElementById('screen-' + name).classList.add('active');
+    // Activate tab
+    const tab = document.getElementById('tab-' + name);
+    if (tab) tab.classList.add('active');
+  }
+
+  // Restart generating animation when switching to that screen
+  const genScreen = document.getElementById('screen-generating');
+  const tabGen = document.getElementById('tab-generating');
+  tabGen.addEventListener('click', () => {
+    const fill = genScreen.querySelector('.gen-progress-fill');
+    fill.style.animation = 'none';
+    fill.offsetHeight; // reflow
+    fill.style.animation = '';
+  });
+</script>
+</body>
+</html>
