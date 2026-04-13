@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodSense – あなたの舌に、AIが寄り添う。</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0A0F1C;
+    --bg2:       #111827;
+    --bg3:       #1C2537;
+    --accent:    #00E5FF;
+    --hot:       #FF3D71;
+    --coral:     #FF4757;
+    --amber:     #FFB347;
+    --green:     #6BCB77;
+    --text:      #F0F4FF;
+    --muted:     #7B8FAB;
+    --card:      #141E33;
+    --border:    rgba(0,229,255,0.12);
+    --radius:    20px;
+    --nav-h:     72px;
+  }
+
+  body {
+    background: #050810;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Noto Sans JP', 'DM Sans', sans-serif;
+    color: var(--text);
+  }
+
+  /* iPhone Frame */
+  .iphone {
+    width: 390px;
+    height: 844px;
+    background: #000;
+    border-radius: 54px;
+    border: 10px solid #1a1a2e;
+    box-shadow:
+      0 0 0 1px #2a2a4e,
+      0 40px 80px rgba(0,0,0,0.9),
+      inset 0 0 30px rgba(0,229,255,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 36px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+  }
+
+  /* Screen container */
+  .screen-wrap {
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    overflow: hidden;
+    position: relative;
+    border-radius: 44px;
+  }
+
+  .screen {
+    display: none;
+    width: 100%;
+    height: calc(100% - var(--nav-h));
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-top: 60px;
+    scrollbar-width: none;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .screen.active { display: block; }
+
+  /* Status bar */
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 54px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 28px 0;
+    z-index: 50;
+    background: var(--bg);
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .status-bar .time { font-size: 15px; }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    background: rgba(10,15,28,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px 8px;
+    z-index: 50;
+  }
+  .nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 16px;
+    transition: all 0.2s;
+    color: var(--muted);
+  }
+  .nav-btn.active { color: var(--accent); }
+  .nav-btn svg { width: 24px; height: 24px; }
+  .nav-btn span { font-size: 10px; font-weight: 700; }
+  .nav-btn.active svg { filter: drop-shadow(0 0 6px var(--accent)); }
+
+  /* Common components */
+  .px { padding-left: 20px; padding-right: 20px; }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .section-title { font-size: 18px; font-weight: 700; }
+  .see-all { font-size: 13px; color: var(--accent); font-weight: 600; cursor: pointer; }
+
+  .tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(0,229,255,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0,229,255,0.25);
+  }
+  .tag.hot { background: rgba(255,61,113,0.12); color: var(--hot); border-color: rgba(255,61,113,0.3); }
+  .tag.amber { background: rgba(255,179,71,0.12); color: var(--amber); border-color: rgba(255,179,71,0.3); }
+  .tag.green { background: rgba(107,203,119,0.12); color: var(--green); border-color: rgba(107,203,119,0.3); }
+
+  .stars { color: var(--amber); font-size: 13px; }
+  .rating-num { font-family: 'DM Sans', sans-serif; font-weight: 700; color: var(--amber); font-size: 14px; }
+
+  /* === SCREEN 1: HOME === */
+  .hero-banner {
+    margin: 0 20px 24px;
+    background: linear-gradient(135deg, #0D1B3E 0%, #1a0a2e 100%);
+    border-radius: var(--radius);
+    padding: 20px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-banner::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 150px; height: 150px;
+    background: radial-gradient(circle, rgba(0,229,255,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .hero-location svg { width: 14px; height: 14px; color: var(--accent); }
+  .hero-ai-msg {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .hero-ai-msg em { color: var(--accent); font-style: normal; }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #000;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .quick-filters {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-chip {
+    flex-shrink: 0;
+    padding: 8px 18px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--bg3);
+    color: var(--muted);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-chip.active {
+    background: rgba(0,229,255,0.12);
+    color: var(--accent);
+    border-color: rgba(0,229,255,0.3);
+  }
+
+  .restaurant-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin: 0 20px 16px;
+  }
+  .rest-img {
+    width: 100%;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    position: relative;
+  }
+  .rest-img.ramen { background: linear-gradient(135deg, #2d0a0a 0%, #4a1010 100%); }
+  .rest-img.sushi { background: linear-gradient(135deg, #0a1a2d 0%, #102a40 100%); }
+  .rest-img.yakiniku { background: linear-gradient(135deg, #1a0d00 0%, #3d2000 100%); }
+  .ai-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(0,229,255,0.9);
+    color: #000;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 9999px;
+  }
+  .match-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    background: rgba(255,61,113,0.9);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 9999px;
+  }
+  .rest-body { padding: 14px; }
+  .rest-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .rest-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .rest-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* === SCREEN 2: AGENT DETAIL === */
+  .agent-header {
+    margin: 0 20px 20px;
+    background: linear-gradient(135deg, #0a1a2d 0%, #0d2040 100%);
+    border-radius: var(--radius);
+    padding: 20px;
+    border: 1px solid rgba(0,229,255,0.2);
+    text-align: center;
+  }
+  .agent-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #0066ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 12px;
+    box-shadow: 0 0 24px rgba(0,229,255,0.4);
+  }
+  .agent-name { font-size: 20px; font-weight: 900; margin-bottom: 4px; }
+  .agent-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+  .agent-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .stat-cell {
+    background: rgba(10,15,28,0.8);
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .stat-val { font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .skill-bar-wrap { margin: 0 20px 16px; }
+  .skill-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .skill-name { font-size: 13px; width: 80px; flex-shrink: 0; }
+  .skill-track {
+    flex: 1;
+    height: 6px;
+    background: var(--bg3);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+  .skill-fill {
+    height: 100%;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, var(--accent), #0066ff);
+  }
+  .skill-pct { font-size: 12px; font-weight: 700; color: var(--accent); width: 36px; text-align: right; font-family: 'DM Sans', sans-serif; }
+
+  .recent-rec { margin: 0 20px; }
+  .rec-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+  .rec-icon { font-size: 32px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: var(--bg3); border-radius: 12px; }
+  .rec-info { flex: 1; }
+  .rec-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .rec-meta { font-size: 12px; color: var(--muted); }
+  .rec-match { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; color: var(--hot); }
+
+  /* === SCREEN 3: NEW DISPATCH === */
+  .dispatch-form { padding: 0 20px 20px; }
+  .form-section { margin-bottom: 24px; }
+  .form-label { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px; }
+  .option-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .option-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .option-card.selected {
+    background: rgba(0,229,255,0.08);
+    border-color: var(--accent);
+    box-shadow: 0 0 16px rgba(0,229,255,0.1);
+  }
+  .option-card .icon { font-size: 28px; display: block; margin-bottom: 6px; }
+  .option-card .label { font-size: 13px; font-weight: 700; }
+  .option-card .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .budget-slider { display: flex; gap: 8px; }
+  .budget-btn {
+    flex: 1;
+    padding: 10px 6px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+  }
+  .budget-btn.active {
+    background: rgba(255,179,71,0.12);
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+
+  .dispatch-btn {
+    width: 100%;
+    height: 56px;
+    background: linear-gradient(90deg, var(--hot), #ff6b9d);
+    border: none;
+    border-radius: 9999px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 8px 24px rgba(255,61,113,0.35);
+    margin-top: 8px;
+  }
+
+  /* === SCREEN 4: MESSAGES === */
+  .msg-room {
+    background: var(--card);
+    border-radius: 14px;
+    margin: 0 20px 12px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .room-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .room-avatar.group { background: linear-gradient(135deg, var(--hot), #ff6b9d); }
+  .room-avatar.ai { background: linear-gradient(135deg, var(--accent), #0066ff); }
+  .room-info { flex: 1; min-width: 0; }
+  .room-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .room-last { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .room-meta { text-align: right; }
+  .room-time { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .room-badge {
+    width: 20px; height: 20px;
+    background: var(--hot);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+  }
+
+  .ai-suggestion-card {
+    margin: 0 20px 20px;
+    background: linear-gradient(135deg, rgba(0,229,255,0.06) 0%, rgba(0,102,255,0.06) 100%);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .ai-label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 12px; }
+  .ai-rest-row { display: flex; align-items: center; gap: 12px; }
+  .ai-rest-img { width: 56px; height: 56px; border-radius: 12px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .ai-rest-info { flex: 1; }
+  .ai-rest-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .share-btn { background: var(--accent); color: #000; font-size: 12px; font-weight: 700; padding: 8px 16px; border-radius: 9999px; border: none; cursor: pointer; }
+
+  /* === SCREEN 5: SETTINGS === */
+  .profile-card {
+    margin: 0 20px 24px;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .profile-avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--hot), var(--amber));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 0 20px rgba(255,61,113,0.3);
+  }
+  .profile-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .profile-sub { font-size: 13px; color: var(--muted); }
+  .profile-level {
+    margin-left: auto;
+    text-align: center;
+  }
+  .level-num { font-family: 'DM Sans', sans-serif; font-size: 28px; font-weight: 700; color: var(--accent); }
+  .level-label { font-size: 10px; color: var(--muted); }
+
+  .taste-section { margin: 0 20px 20px; }
+  .taste-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+  .taste-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .settings-list { margin: 0 20px; }
+  .settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .settings-item:last-child { border-bottom: none; }
+  .settings-left { display: flex; align-items: center; gap: 12px; }
+  .settings-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .si-blue { background: rgba(0,229,255,0.12); }
+  .si-red { background: rgba(255,61,113,0.12); }
+  .si-amber { background: rgba(255,179,71,0.12); }
+  .si-green { background: rgba(107,203,119,0.12); }
+  .settings-name { font-size: 15px; font-weight: 600; }
+  .settings-sub { font-size: 12px; color: var(--muted); }
+
+  /* Toggle switch */
+  .toggle { position: relative; width: 44px; height: 26px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--bg3);
+    border-radius: 9999px;
+    transition: .3s;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 20px; width: 20px;
+    left: 3px; bottom: 3px;
+    background: var(--muted);
+    border-radius: 50%;
+    transition: .3s;
+  }
+  .toggle input:checked + .toggle-slider { background: rgba(0,229,255,0.3); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: var(--accent); }
+
+  .chevron { color: var(--muted); font-size: 18px; }
+
+  /* Scrollable horizontal section */
+  .h-scroll {
+    display: flex;
+    gap: 14px;
+    padding: 0 20px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .agent-mini-card {
+    flex-shrink: 0;
+    width: 120px;
+    background: var(--card);
+    border-radius: 16px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    text-align: center;
+    cursor: pointer;
+  }
+  .agent-mini-card.active-agent { border-color: var(--accent); box-shadow: 0 0 16px rgba(0,229,255,0.15); }
+  .agent-mini-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .a-blue { background: linear-gradient(135deg, #0044ff, #00aaff); }
+  .a-hot  { background: linear-gradient(135deg, var(--hot), #ff8a80); }
+  .a-amb  { background: linear-gradient(135deg, var(--amber), #ff8800); }
+  .a-grn  { background: linear-gradient(135deg, var(--green), #00c853); }
+  .agent-mini-name { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+  .agent-mini-rate { font-size: 11px; color: var(--accent); font-family: 'DM Sans', sans-serif; }
+</style>
+</head>
+<body>
+
+<div class="iphone">
+  <div class="dynamic-island"></div>
+  <div class="screen-wrap">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="time">21:43</span>
+      <div class="status-icons">
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity="0.4"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 1.5C10.8 1.5 13.3 2.7 15 4.7L16 3.5C14 1.3 11.2 0 8 0S2 1.3 0 3.5L1 4.7C2.7 2.7 5.2 1.5 8 1.5z"/><path d="M8 4.5C10 4.5 11.8 5.4 13 6.9L14 5.7C12.5 3.9 10.4 2.8 8 2.8S3.5 3.9 2 5.7L3 6.9C4.2 5.4 6 4.5 8 4.5z"/><circle cx="8" cy="10" r="2"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor"><rect x="0" y="1" width="22" height="10" rx="3" stroke="currentColor" stroke-width="1.2" fill="none"/><rect x="22.5" y="4" width="2.5" height="4" rx="1.2"/><rect x="1.5" y="2.5" width="17" height="7" rx="1.5" fill="var(--green)"/></svg>
+      </div>
+    </div>
+
+    <!-- SCREEN 1: HOME -->
+    <div class="screen active" id="screen-home">
+      <div class="hero-banner">
+        <div class="hero-location">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          渋谷区・現在地から検索中
+        </div>
+        <div class="hero-ai-msg">こんばんは、田中さん👋<br><em>今夜は辛いものが食べたい気分</em>ですね。<br>近くで9店舗見つけました。</div>
+        <button class="hero-cta">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          AIに案内してもらう
+        </button>
+      </div>
+
+      <div class="quick-filters">
+        <div class="filter-chip active">🌙 今夜</div>
+        <div class="filter-chip">☀️ ランチ</div>
+        <div class="filter-chip">💑 デート</div>
+        <div class="filter-chip">👥 友達と</div>
+        <div class="filter-chip">🧘 ひとり飯</div>
+        <div class="filter-chip">💼 接待</div>
+      </div>
+
+      <div class="px"><div class="section-header"><span class="section-title">AIのおすすめ</span><span class="see-all">すべて見る</span></div></div>
+
+      <div class="restaurant-card">
+        <div class="rest-img ramen">🍜
+          <div class="ai-badge">AIピック</div>
+          <div class="match-badge">96% 合致</div>
+        </div>
+        <div class="rest-body">
+          <div class="rest-name">麻辣担担麺 炎 渋谷本店</div>
+          <div class="rest-meta">
+            <span class="stars">★★★★★</span>
+            <span class="rating-num">4.6</span>
+            <span>•</span>
+            <span>渋谷区道玄坂</span>
+            <span>•</span>
+            <span>徒歩6分</span>
+          </div>
+          <div class="rest-tags">
+            <span class="tag hot">#担担麺</span>
+            <span class="tag">#渋谷</span>
+            <span class="tag amber">#¥800〜1,500</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="restaurant-card">
+        <div class="rest-img sushi">🍣
+          <div class="ai-badge">人気急上昇</div>
+        </div>
+        <div class="rest-body">
+          <div class="rest-name">鮨 はせ川 恵比寿</div>
+          <div class="rest-meta">
+            <span class="stars">★★★★</span>
+            <span class="rating-num">4.4</span>
+            <span>•</span>
+            <span>恵比寿</span>
+            <span>•</span>
+            <span>徒歩12分</span>
+          </div>
+          <div class="rest-tags">
+            <span class="tag">#江戸前鮨</span>
+            <span class="tag">#恵比寿</span>
+            <span class="tag amber">#¥5,000〜10,000</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="px" style="margin-bottom:14px;"><div class="section-header"><span class="section-title">あなたのAIエージェント</span><span class="see-all">管理</span></div></div>
+      <div class="h-scroll">
+        <div class="agent-mini-card active-agent">
+          <div class="agent-mini-avatar a-hot">🌶️</div>
+          <div class="agent-mini-name">旨辛エージェント</div>
+          <div class="agent-mini-rate">稼働中</div>
+        </div>
+        <div class="agent-mini-card">
+          <div class="agent-mini-avatar a-blue">🍱</div>
+          <div class="agent-mini-name">コスパエージェント</div>
+          <div class="agent-mini-rate">4件発見</div>
+        </div>
+        <div class="agent-mini-card">
+          <div class="agent-mini-avatar a-amb">🥂</div>
+          <div class="agent-mini-name">デートエージェント</div>
+          <div class="agent-mini-rate">週末待機</div>
+        </div>
+        <div class="agent-mini-card">
+          <div class="agent-mini-avatar a-grn">🥗</div>
+          <div class="agent-mini-name">ヘルシーエージェント</div>
+          <div class="agent-mini-rate">新着3件</div>
+        </div>
+      </div>
+
+      <div class="restaurant-card">
+        <div class="rest-img yakiniku">🥩
+          <div class="match-badge">88% 合致</div>
+        </div>
+        <div class="rest-body">
+          <div class="rest-name">黒毛和牛 焼肉 和王 代官山</div>
+          <div class="rest-meta">
+            <span class="stars">★★★★</span>
+            <span class="rating-num">4.2</span>
+            <span>•</span>
+            <span>代官山</span>
+            <span>•</span>
+            <span>徒歩18分</span>
+          </div>
+          <div class="rest-tags">
+            <span class="tag">#焼肉</span>
+            <span class="tag">#代官山</span>
+            <span class="tag hot">#要予約</span>
+            <span class="tag amber">#¥8,000〜</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: AGENT DETAIL -->
+    <div class="screen" id="screen-agent">
+      <div class="agent-header">
+        <div class="agent-avatar">🌶️</div>
+        <div class="agent-name">旨辛エージェント v2.3</div>
+        <div class="agent-sub">あなたの辛味嗜好を深層学習済み • 累計312回の推薦</div>
+        <div class="agent-stats">
+          <div class="stat-cell">
+            <div class="stat-val">96%</div>
+            <div class="stat-label">推薦精度</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val">312</div>
+            <div class="stat-label">累計推薦数</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val">4.7</div>
+            <div class="stat-label">平均評価</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px"><div class="section-header" style="margin-bottom:12px;"><span class="section-title">習得スキル</span></div></div>
+      <div class="skill-bar-wrap">
+        <div class="skill-row">
+          <span class="skill-name">辛味識別</span>
+          <div class="skill-track"><div class="skill-fill" style="width:95%"></div></div>
+          <span class="skill-pct">95%</span>
+        </div>
+        <div class="skill-row">
+          <span class="skill-name">地域選定</span>
+          <div class="skill-track"><div class="skill-fill" style="width:88%"></div></div>
+          <span class="skill-pct">88%</span>
+        </div>
+        <div class="skill-row">
+          <span class="skill-name">コスパ判定</span>
+          <div class="skill-track"><div class="skill-fill" style="width:82%"></div></div>
+          <span class="skill-pct">82%</span>
+        </div>
+        <div class="skill-row">
+          <span class="skill-name">混雑予測</span>
+          <div class="skill-track"><div class="skill-fill" style="width:76%"></div></div>
+          <span class="skill-pct">76%</span>
+        </div>
+        <div class="skill-row">
+          <span class="skill-name">口コミ要約</span>
+          <div class="skill-track"><div class="skill-fill" style="width:91%"></div></div>
+          <span class="skill-pct">91%</span>
+        </div>
+      </div>
+
+      <div class="px"><div class="section-header"><span class="section-title">最近の推薦履歴</span><span class="see-all">全件</span></div></div>
+      <div class="recent-rec">
+        <div class="rec-item">
+          <div class="rec-icon">🍜</div>
+          <div class="rec-info">
+            <div class="rec-name">蒙古タンメン中本 渋谷店</div>
+            <div class="rec-meta">4月11日 • 辛さLv5 • ¥900</div>
+          </div>
+          <div class="rec-match">97%</div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-icon">🌮</div>
+          <div class="rec-info">
+            <div class="rec-name">メキシカンスパイス タコベル</div>
+            <div class="rec-meta">4月8日 • 新宿 • ¥1,200</div>
+          </div>
+          <div class="rec-match">91%</div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-icon">🍛</div>
+          <div class="rec-info">
+            <div class="rec-name">スパイスカレー奥カレー</div>
+            <div class="rec-meta">4月5日 • 恵比寿 • ¥1,400</div>
+          </div>
+          <div class="rec-match">94%</div>
+        </div>
+      </div>
+
+      <div class="px" style="margin-top: 20px;">
+        <button class="dispatch-btn" style="background: linear-gradient(90deg, var(--accent), #0066ff); box-shadow: 0 8px 24px rgba(0,229,255,0.25);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          このエージェントで今すぐ探す
+        </button>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: NEW DISPATCH -->
+    <div class="screen" id="screen-dispatch">
+      <div class="px" style="margin-bottom: 20px;">
+        <div style="font-size: 22px; font-weight: 900; margin-bottom: 6px;">新規エージェント派遣</div>
+        <div style="font-size: 13px; color: var(--muted);">条件を設定して、AIに最適な一軒を探してもらいましょう</div>
+      </div>
+
+      <div class="dispatch-form">
+        <div class="form-section">
+          <div class="form-label">シーン</div>
+          <div class="option-grid">
+            <div class="option-card selected">
+              <span class="icon">💑</span>
+              <div class="label">デート</div>
+              <div class="sub">ロマンチック・特別感</div>
+            </div>
+            <div class="option-card">
+              <span class="icon">👥</span>
+              <div class="label">友達と</div>
+              <div class="sub">賑やか・シェアOK</div>
+            </div>
+            <div class="option-card">
+              <span class="icon">🧘</span>
+              <div class="label">ひとり飯</div>
+              <div class="sub">カウンター・集中</div>
+            </div>
+            <div class="option-card">
+              <span class="icon">💼</span>
+              <div class="label">接待</div>
+              <div class="sub">高級・個室あり</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-label">予算 (1名)</div>
+          <div class="budget-slider">
+            <div class="budget-btn">〜1,000</div>
+            <div class="budget-btn active">1,000〜3,000</div>
+            <div class="budget-btn">3,000〜8,000</div>
+            <div class="budget-btn">8,000〜</div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-label">ジャンル</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <span class="tag" style="cursor:pointer;">🍜 ラーメン</span>
+            <span class="tag hot" style="cursor:pointer; background: rgba(255,61,113,0.2); border-color: var(--hot);">🍛 カレー</span>
+            <span class="tag" style="cursor:pointer;">🍣 寿司</span>
+            <span class="tag amber" style="cursor:pointer; background: rgba(255,179,71,0.2); border-color: var(--amber);">🥩 焼肉</span>
+            <span class="tag" style="cursor:pointer;">🍝 イタリアン</span>
+            <span class="tag" style="cursor:pointer;">🍷 フレンチ</span>
+            <span class="tag green" style="cursor:pointer; background: rgba(107,203,119,0.2); border-color: var(--green);">🥗 ヘルシー</span>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-label">エリア・移動手段</div>
+          <div style="background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 10px;">
+            <span>📍</span>
+            <span style="font-size: 14px; font-weight: 600;">渋谷駅周辺 • 徒歩15分以内</span>
+            <span style="margin-left: auto; color: var(--accent); font-size: 13px;">変更</span>
+          </div>
+        </div>
+
+        <div class="form-section" style="background: rgba(0,229,255,0.05); border: 1px solid rgba(0,229,255,0.15); border-radius: 16px; padding: 16px; margin-bottom: 8px;">
+          <div style="font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 8px;">⚡ AIプレビュー</div>
+          <div style="font-size: 13px; line-height: 1.6; color: var(--text);">「恵比寿〜渋谷エリアのデート向けカレー店、1人¥1,000〜¥3,000、徒歩15分以内」で<strong style="color: var(--accent);">23件</strong>が候補になります。</div>
+        </div>
+
+        <button class="dispatch-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          エージェントを派遣する
+        </button>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: MESSAGES -->
+    <div class="screen" id="screen-msg">
+      <div class="px" style="margin-bottom: 16px;">
+        <div style="font-size: 22px; font-weight: 900; margin-bottom: 6px;">メッセージ</div>
+        <div style="font-size: 13px; color: var(--muted);">友達とお店を共有・相談しよう</div>
+      </div>
+
+      <div class="ai-suggestion-card">
+        <div class="ai-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          AIから提案
+        </div>
+        <div class="ai-rest-row">
+          <div class="ai-rest-img">🍜</div>
+          <div class="ai-rest-info">
+            <div class="ai-rest-name">麻辣担担麺 炎</div>
+            <div style="font-size: 12px; color: var(--muted);">渋谷 • ★4.6 • ¥900〜</div>
+            <div style="font-size: 12px; color: var(--accent); margin-top: 4px;">友達グループで話題沸騰中</div>
+          </div>
+          <button class="share-btn">シェア</button>
+        </div>
+      </div>
+
+      <div style="padding: 0 20px 12px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">グループ</div>
+      <div class="msg-room">
+        <div class="room-avatar group">👨‍👩‍👦</div>
+        <div class="room-info">
+          <div class="room-name">渋谷グルメ部 (5人)</div>
+          <div class="room-last">AI: 「今週末のランチ候補を3件選びました」</div>
+        </div>
+        <div class="room-meta">
+          <div class="room-time">21:30</div>
+          <div class="room-badge">3</div>
+        </div>
+      </div>
+      <div class="msg-room">
+        <div class="room-avatar" style="background: linear-gradient(135deg, #6BCB77, #00c853);">💑</div>
+        <div class="room-info">
+          <div class="room-name">彩香さんとのデートプラン</div>
+          <div class="room-last">AIが恵比寿の3軒を比較中...</div>
+        </div>
+        <div class="room-meta">
+          <div class="room-time">20:15</div>
+          <div class="room-badge">1</div>
+        </div>
+      </div>
+
+      <div style="padding: 8px 20px 12px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">AIエージェント</div>
+      <div class="msg-room">
+        <div class="room-avatar ai">🤖</div>
+        <div class="room-info">
+          <div class="room-name">FoodSense AI</div>
+          <div class="room-last">旨辛エージェントが9件の新着店舗を発見しました</div>
+        </div>
+        <div class="room-meta">
+          <div class="room-time">今日</div>
+        </div>
+      </div>
+      <div class="msg-room">
+        <div class="room-avatar" style="background: linear-gradient(135deg, var(--amber), #ff8800);">🥂</div>
+        <div class="room-info">
+          <div class="room-name">デートエージェント</div>
+          <div class="room-last">土曜夜に予約可能な個室店を3件見つけました</div>
+        </div>
+        <div class="room-meta">
+          <div class="room-time">昨日</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 5: SETTINGS -->
+    <div class="screen" id="screen-settings">
+      <div class="profile-card">
+        <div class="profile-avatar">😋</div>
+        <div>
+          <div class="profile-name">田中 雄介</div>
+          <div class="profile-sub">グルメマスター • 2021年から利用</div>
+          <div style="margin-top: 6px; display: flex; gap: 6px;">
+            <span class="tag" style="font-size:11px;">レビュー 47件</span>
+            <span class="tag amber" style="font-size:11px;">訪問 132店</span>
+          </div>
+        </div>
+        <div class="profile-level">
+          <div class="level-num">Lv.28</div>
+          <div class="level-label">グルメ度</div>
+        </div>
+      </div>
+
+      <div class="taste-section">
+        <div class="taste-label">あなたの味覚プロファイル</div>
+        <div class="taste-tags">
+          <span class="tag hot">🌶️ 辛い</span>
+          <span class="tag amber">🥩 肉系</span>
+          <span class="tag">🍜 ラーメン好き</span>
+          <span class="tag green">🥗 野菜もOK</span>
+          <span class="tag">🍶 日本酒好き</span>
+        </div>
+      </div>
+
+      <div style="padding: 0 20px 12px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">AI学習状況</div>
+      <div style="margin: 0 20px 20px; background: var(--card); border-radius: 16px; padding: 16px; border: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+          <span style="font-size: 14px; font-weight: 700;">学習データ量</span>
+          <span style="font-family: 'DM Sans'; font-size: 16px; font-weight: 700; color: var(--accent);">1,247件</span>
+        </div>
+        <div style="height: 8px; background: var(--bg3); border-radius: 9999px; overflow: hidden;">
+          <div style="height: 100%; width: 78%; background: linear-gradient(90deg, var(--accent), #0066ff); border-radius: 9999px;"></div>
+        </div>
+        <div style="font-size: 12px; color: var(--muted); margin-top: 8px;">次のレベルアップまで あと253件のフィードバック</div>
+      </div>
+
+      <div style="padding: 0 20px 12px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">設定</div>
+      <div class="settings-list" style="background: var(--card); border-radius: 16px; padding: 0 16px; margin: 0 20px 20px; border: 1px solid var(--border);">
+        <div class="settings-item">
+          <div class="settings-left">
+            <div class="settings-icon si-blue">🔔</div>
+            <div>
+              <div class="settings-name">プッシュ通知</div>
+              <div class="settings-sub">AIピックのお知らせ</div>
+            </div>
+          </div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="settings-item">
+          <div class="settings-left">
+            <div class="settings-icon si-red">📍</div>
+            <div>
+              <div class="settings-name">位置情報</div>
+              <div class="settings-sub">常に許可</div>
+            </div>
+          </div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="settings-item">
+          <div class="settings-left">
+            <div class="settings-icon si-amber">🤖</div>
+            <div>
+              <div class="settings-name">AI自動学習</div>
+              <div class="settings-sub">訪問履歴から学習</div>
+            </div>
+          </div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="settings-item">
+          <div class="settings-left">
+            <div class="settings-icon si-green">👥</div>
+            <div>
+              <div class="settings-name">ソーシャル連携</div>
+              <div class="settings-sub">友達の訪問情報</div>
+            </div>
+          </div>
+          <span class="chevron">›</span>
+        </div>
+        <div class="settings-item" style="border-bottom: none;">
+          <div class="settings-left">
+            <div class="settings-icon si-blue">💳</div>
+            <div>
+              <div class="settings-name">プレミアムプラン</div>
+              <div class="settings-sub">¥980/月 • AIエージェント無制限</div>
+            </div>
+          </div>
+          <span style="background: var(--hot); color: #fff; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 9999px;">利用中</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" onclick="switchScreen('home', this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>ホーム</span>
+      </button>
+      <button class="nav-btn" onclick="switchScreen('agent', this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+        <span>エージェント</span>
+      </button>
+      <button class="nav-btn" onclick="switchScreen('dispatch', this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <span>新規派遣</span>
+      </button>
+      <button class="nav-btn" onclick="switchScreen('msg', this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        <span>メッセージ</span>
+      </button>
+      <button class="nav-btn" onclick="switchScreen('settings', this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <span>設定</span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<script>
+function switchScreen(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

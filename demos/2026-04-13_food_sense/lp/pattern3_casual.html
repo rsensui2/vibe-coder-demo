@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodSense | あなたの舌に、AIが寄り添う。</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=DM+Sans:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #FFF8F0;
+    --coral: #FF6B35;
+    --coral-light: #FF8C60;
+    --coral-pale: #FFE8DC;
+    --coral-deep: #E55A25;
+    --yellow: #FFD166;
+    --green: #6BCB77;
+    --text: #2D2D2D;
+    --muted: #888;
+    --white: #FFFFFF;
+    --border: #F0E4D6;
+    --card-shadow: 0 4px 20px rgba(255,107,53,0.1);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 40px;
+    background: rgba(255,248,240,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid var(--coral-pale);
+  }
+  .logo {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 900; font-size: 22px;
+    color: var(--coral);
+  }
+  .logo-wave { display: inline-block; animation: wave 2s ease-in-out infinite; }
+  @keyframes wave { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(5deg)} }
+  nav ul { display: flex; gap: 28px; list-style: none; }
+  nav ul a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color .2s; }
+  nav ul a:hover { color: var(--coral); }
+  .nav-cta {
+    background: var(--coral);
+    color: var(--white); border: none; padding: 10px 24px;
+    border-radius: 9999px; font-weight: 700; font-size: 14px;
+    cursor: pointer; transition: background .2s, transform .1s;
+    box-shadow: 0 4px 12px rgba(255,107,53,0.3);
+  }
+  .nav-cta:hover { background: var(--coral-deep); transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  .hero-section {
+    min-height: 100vh;
+    padding: 120px 40px 80px;
+    display: flex; align-items: center;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg-deco {
+    position: absolute; pointer-events: none;
+  }
+  .deco-circle1 {
+    width: 400px; height: 400px; border-radius: 50%;
+    background: var(--coral-pale);
+    top: -100px; right: -100px;
+    opacity: 0.6;
+  }
+  .deco-circle2 {
+    width: 200px; height: 200px; border-radius: 50%;
+    background: var(--yellow);
+    bottom: 50px; left: -60px;
+    opacity: 0.4;
+  }
+  .deco-dots {
+    top: 200px; left: 60px;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--coral); opacity: 0.3; }
+
+  .hero-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 60px; align-items: center;
+    position: relative; z-index: 1;
+  }
+
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--white);
+    border: 2px solid var(--coral-pale);
+    color: var(--coral); font-size: 13px; font-weight: 700;
+    padding: 8px 20px; border-radius: 9999px;
+    margin-bottom: 24px;
+    box-shadow: var(--card-shadow);
+  }
+  .hero-tag-icon { font-size: 16px; }
+
+  .hero-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(36px, 4.5vw, 60px);
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: -1.5px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .hero-title .line2 { color: var(--coral); }
+
+  .hero-title-sub {
+    font-size: clamp(20px, 2.5vw, 32px);
+    font-weight: 700; color: var(--text);
+    opacity: 0.6; margin-bottom: 24px; line-height: 1.4;
+  }
+
+  .hero-sub {
+    color: var(--muted); font-size: 15px; line-height: 1.9;
+    margin-bottom: 36px; max-width: 440px;
+  }
+
+  .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+  .btn-coral {
+    background: var(--coral);
+    color: var(--white); border: none;
+    padding: 16px 36px; border-radius: 9999px;
+    font-weight: 700; font-size: 16px; cursor: pointer;
+    transition: background .2s, transform .15s;
+    box-shadow: 0 6px 20px rgba(255,107,53,0.35);
+  }
+  .btn-coral:hover { background: var(--coral-deep); transform: translateY(-2px); }
+  .btn-soft {
+    background: var(--white);
+    border: 2px solid var(--border);
+    color: var(--text); padding: 16px 36px;
+    border-radius: 9999px; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: border-color .2s, color .2s;
+  }
+  .btn-soft:hover { border-color: var(--coral); color: var(--coral); }
+
+  .hero-badges {
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  .badge {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    padding: 8px 16px; border-radius: 9999px;
+    font-size: 13px; font-weight: 700; color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .badge .badge-num { color: var(--coral); }
+
+  /* ── PHONE MOCK (Casual) ── */
+  .phone-area {
+    display: flex; justify-content: center; align-items: center;
+    position: relative;
+  }
+
+  .sticker1 {
+    position: absolute; top: -20px; right: 20px;
+    background: var(--yellow);
+    color: var(--text); font-size: 11px; font-weight: 700;
+    padding: 8px 14px; border-radius: 9999px;
+    transform: rotate(8deg);
+    box-shadow: 0 4px 12px rgba(255,209,102,0.4);
+    z-index: 3;
+  }
+  .sticker2 {
+    position: absolute; bottom: 40px; left: -10px;
+    background: var(--green);
+    color: var(--white); font-size: 11px; font-weight: 700;
+    padding: 8px 14px; border-radius: 9999px;
+    transform: rotate(-6deg);
+    box-shadow: 0 4px 12px rgba(107,203,119,0.4);
+    z-index: 3;
+  }
+
+  .phone {
+    width: 260px; height: 520px;
+    background: var(--white);
+    border-radius: 40px;
+    border: 3px solid var(--coral-pale);
+    box-shadow:
+      8px 8px 0 var(--coral-pale),
+      0 20px 60px rgba(255,107,53,0.15);
+    position: relative; z-index: 1;
+    overflow: hidden;
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{transform:translateY(0) rotate(1deg)} 50%{transform:translateY(-12px) rotate(1deg)} }
+
+  .phone::before {
+    content: '';
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 100px; height: 26px;
+    background: var(--cream);
+    border-radius: 0 0 18px 18px;
+    z-index: 10;
+  }
+
+  .phone-screen {
+    position: absolute; inset: 0;
+    padding: 44px 12px 16px;
+    background: var(--cream);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .phone-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 4px; margin-bottom: 2px;
+  }
+  .ph-logo { font-family: 'DM Sans', sans-serif; font-weight: 900; font-size: 16px; color: var(--coral); }
+  .ph-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--coral-pale); border: 2px solid var(--coral);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .ph-search {
+    background: var(--white); border: 2px solid var(--coral-pale);
+    border-radius: 12px; padding: 8px 12px;
+    font-size: 11px; color: var(--muted);
+    display: flex; gap: 6px; align-items: center;
+  }
+
+  .ph-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ph-chip {
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 9999px; padding: 4px 10px;
+    font-size: 10px; font-weight: 700; color: var(--text);
+  }
+  .ph-chip.active { background: var(--coral); border-color: var(--coral); color: var(--white); }
+
+  .ph-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .ph-card-img {
+    height: 72px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .ph-img1 { background: linear-gradient(135deg, #FFD166, #FF6B35); }
+  .ph-img2 { background: linear-gradient(135deg, #B5EAD7, #6BCB77); }
+  .ph-card-body { padding: 8px 10px; }
+  .ph-card-name { font-size: 11px; font-weight: 700; color: var(--text); }
+  .ph-card-tag { font-size: 9px; color: var(--muted); }
+  .ph-card-row {
+    display: flex; justify-content: space-between; align-items: center; margin-top: 4px;
+  }
+  .ph-card-stars { color: var(--coral); font-size: 10px; }
+  .ph-card-match {
+    font-size: 10px; font-weight: 700; color: var(--coral);
+    background: var(--coral-pale); padding: 2px 6px; border-radius: 9999px;
+  }
+
+  /* ── SECTION COMMON ── */
+  section { padding: 100px 40px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .section-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--coral-pale); color: var(--coral);
+    font-size: 12px; font-weight: 700; padding: 6px 16px;
+    border-radius: 9999px; margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(28px, 3.5vw, 48px);
+    font-weight: 900; line-height: 1.2;
+    letter-spacing: -1px; margin-bottom: 16px;
+  }
+  .section-sub { color: var(--muted); font-size: 15px; max-width: 520px; line-height: 1.9; }
+
+  /* ── PROBLEM ── */
+  .problem { background: var(--white); }
+  .problem-cards {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; margin-top: 56px;
+  }
+  .problem-card {
+    background: var(--cream);
+    border: 2px solid var(--border);
+    border-radius: 24px; padding: 32px;
+    position: relative;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .problem-card:hover { transform: translateY(-6px) rotate(-0.5deg); box-shadow: var(--card-shadow); }
+  .problem-card-num {
+    position: absolute; top: -16px; left: 24px;
+    background: var(--coral); color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 900;
+    padding: 4px 14px; border-radius: 9999px;
+  }
+  .problem-card-icon { font-size: 36px; margin-bottom: 16px; }
+  .problem-card-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .problem-card-desc { color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+  /* ── SOLUTION ── */
+  .solution { background: var(--cream); }
+  .solution-inner {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 64px; align-items: center; margin-top: 56px;
+  }
+  .solution-card-stack { display: flex; flex-direction: column; gap: 16px; }
+  .solution-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 20px; padding: 24px;
+    display: flex; gap: 16px; align-items: flex-start;
+    box-shadow: 4px 4px 0 var(--coral-pale);
+    transition: transform .2s;
+  }
+  .solution-card:hover { transform: translateX(4px); }
+  .sc-icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .sci1 { background: var(--coral-pale); }
+  .sci2 { background: #FFF4CC; }
+  .sci3 { background: #D4F0D9; }
+  .sc-body { }
+  .sc-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .sc-desc { color: var(--muted); font-size: 13px; line-height: 1.7; }
+
+  .solution-right { }
+  .solution-big-card {
+    background: var(--coral);
+    color: var(--white);
+    border-radius: 28px; padding: 40px 36px;
+    box-shadow: 8px 8px 0 var(--coral-deep);
+    margin-bottom: 20px;
+  }
+  .solution-big-card-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 28px; font-weight: 900; margin-bottom: 12px; line-height: 1.2;
+  }
+  .solution-big-card-desc { font-size: 14px; opacity: 0.85; line-height: 1.8; }
+  .solution-mini-cards {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .solution-mini {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 16px; padding: 20px;
+    text-align: center;
+    box-shadow: 4px 4px 0 var(--border);
+  }
+  .solution-mini-num {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 32px; font-weight: 900; color: var(--coral);
+    line-height: 1;
+  }
+  .solution-mini-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* ── FEATURES ── */
+  .features { background: var(--white); }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; margin-top: 56px;
+  }
+  .feature-card {
+    background: var(--cream);
+    border: 2px solid var(--border);
+    border-radius: 24px; padding: 36px 28px;
+    transition: transform .2s, box-shadow .2s;
+    position: relative;
+  }
+  .feature-card:nth-child(2) { transform: rotate(1deg); }
+  .feature-card:nth-child(3) { transform: rotate(-0.5deg); }
+  .feature-card:hover { transform: translateY(-8px) rotate(0deg) !important; box-shadow: 8px 8px 0 var(--coral-pale); }
+  .feature-icon-wrap {
+    width: 64px; height: 64px; border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; margin-bottom: 20px;
+  }
+  .fi1 { background: var(--coral-pale); }
+  .fi2 { background: #FFF4CC; }
+  .fi3 { background: #D4F0D9; }
+  .feature-num-tag {
+    position: absolute; top: 20px; right: 20px;
+    background: var(--white); border: 1.5px solid var(--border);
+    color: var(--coral); font-size: 11px; font-weight: 700;
+    padding: 4px 10px; border-radius: 9999px;
+  }
+  .feature-title { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+  .feature-desc { color: var(--muted); font-size: 14px; line-height: 1.8; }
+  .feature-tag {
+    display: inline-block; margin-top: 16px;
+    background: var(--coral-pale); color: var(--coral);
+    font-size: 11px; font-weight: 700;
+    padding: 4px 12px; border-radius: 9999px;
+  }
+
+  /* ── PRICING ── */
+  .pricing { background: var(--cream); }
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; margin-top: 56px; align-items: start;
+  }
+  .price-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 24px; padding: 36px 28px;
+    transition: transform .2s;
+  }
+  .price-card:hover { transform: translateY(-4px); }
+  .price-card.featured {
+    background: var(--coral);
+    border-color: var(--coral);
+    color: var(--white);
+    box-shadow: 8px 8px 0 var(--coral-deep);
+  }
+  .price-card.featured .price-plan { color: rgba(255,255,255,0.7); }
+  .price-card.featured .price-sub { color: rgba(255,255,255,0.7); }
+  .price-card.featured .price-features li { color: rgba(255,255,255,0.9); }
+  .price-card.featured .price-features li::before { content: '✓'; }
+  .price-popular {
+    display: inline-block;
+    background: var(--yellow); color: var(--text);
+    font-size: 11px; font-weight: 700; padding: 4px 14px;
+    border-radius: 9999px; margin-bottom: 16px;
+  }
+  .price-plan { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
+  .price-amount {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 52px; font-weight: 900; line-height: 1; margin-bottom: 4px;
+  }
+  .price-amount small { font-size: 16px; font-weight: 400; opacity: 0.6; }
+  .price-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+  .price-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+  .price-features li { font-size: 14px; display: flex; gap: 10px; align-items: flex-start; }
+  .price-features li::before { content: '🎯'; font-size: 14px; flex-shrink: 0; }
+  .price-card.featured .price-features li::before { content: '✓'; color: var(--yellow); font-size: 14px; font-weight: 700; }
+  .btn-price {
+    width: 100%; padding: 14px; border-radius: 9999px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-price-coral { background: var(--coral); border: none; color: var(--white); box-shadow: 0 4px 12px rgba(255,107,53,0.3); }
+  .btn-price-coral:hover { background: var(--coral-deep); }
+  .btn-price-white { background: var(--white); border: 2px solid var(--white); color: var(--coral); }
+  .btn-price-white:hover { background: var(--cream); }
+  .btn-price-outline { background: transparent; border: 2px solid var(--border); color: var(--text); }
+  .btn-price-outline:hover { border-color: var(--coral); color: var(--coral); }
+
+  /* ── TESTIMONIALS ── */
+  .testimonials { background: var(--white); }
+  .testimonials-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; margin-top: 56px;
+  }
+  .testimonial-card {
+    background: var(--cream);
+    border: 2px solid var(--border);
+    border-radius: 20px; padding: 28px;
+    transition: transform .2s;
+  }
+  .testimonial-card:hover { transform: translateY(-4px) rotate(-0.5deg); }
+  .t-stars { margin-bottom: 12px; font-size: 18px; }
+  .t-text {
+    font-size: 14px; line-height: 1.9; color: var(--text);
+    margin-bottom: 20px;
+    position: relative; padding-left: 20px;
+  }
+  .t-text::before {
+    content: '"'; position: absolute; left: 0; top: -4px;
+    font-size: 32px; color: var(--coral-pale);
+    font-family: Georgia, serif; line-height: 1;
+  }
+  .t-user { display: flex; align-items: center; gap: 12px; }
+  .t-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--coral-pale); border: 2px solid var(--coral);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; color: var(--coral);
+    flex-shrink: 0;
+  }
+  .t-name { font-size: 14px; font-weight: 700; }
+  .t-meta { font-size: 12px; color: var(--muted); }
+
+  /* ── FAQ ── */
+  .faq { background: var(--cream); }
+  .faq-list { margin-top: 56px; display: flex; flex-direction: column; gap: 12px; max-width: 800px; }
+  .faq-item {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    transition: border-color .2s;
+  }
+  .faq-item:hover { border-color: var(--coral-pale); }
+  .faq-q {
+    padding: 20px 24px; font-size: 15px; font-weight: 700;
+    cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    gap: 16px;
+  }
+  .faq-q::after {
+    content: '+'; color: var(--coral);
+    font-size: 22px; font-weight: 300; flex-shrink: 0;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--coral-pale);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700;
+  }
+  .faq-a {
+    padding: 0 24px 20px;
+    color: var(--muted); font-size: 14px; line-height: 1.8;
+  }
+
+  /* ── FOOTER CTA ── */
+  .footer-cta {
+    background: var(--coral);
+    color: var(--white);
+    text-align: center;
+    padding: 100px 40px;
+    position: relative; overflow: hidden;
+  }
+  .footer-cta::before {
+    content: '🍜🍣🍕🍱🥗🍔';
+    position: absolute; top: 20px; left: 0; right: 0;
+    font-size: 32px; opacity: 0.15;
+    letter-spacing: 20px;
+    white-space: nowrap;
+  }
+  .footer-cta::after {
+    content: '🍦🎂🍰🍩🍪🧁';
+    position: absolute; bottom: 20px; left: 0; right: 0;
+    font-size: 32px; opacity: 0.15;
+    letter-spacing: 20px;
+    white-space: nowrap;
+  }
+  .footer-cta-inner { position: relative; z-index: 1; }
+  .footer-cta-emoji { font-size: 56px; margin-bottom: 20px; display: block; }
+  .footer-cta-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 900; line-height: 1.2;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+  }
+  .footer-cta-sub { font-size: 16px; opacity: 0.85; margin-bottom: 40px; }
+  .footer-cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn-cta-white {
+    background: var(--white); color: var(--coral);
+    border: none; padding: 18px 48px;
+    border-radius: 9999px; font-weight: 900; font-size: 18px;
+    cursor: pointer; transition: all .2s;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  }
+  .btn-cta-white:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+  .btn-cta-outline {
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.5);
+    color: var(--white); padding: 18px 48px;
+    border-radius: 9999px; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: border-color .2s;
+  }
+  .btn-cta-outline:hover { border-color: var(--white); }
+
+  footer {
+    background: var(--text);
+    padding: 36px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .footer-logo { font-family: 'DM Sans', sans-serif; font-weight: 900; font-size: 20px; color: var(--coral); }
+  .footer-links { display: flex; gap: 24px; list-style: none; }
+  .footer-links a { color: rgba(255,255,255,0.4); font-size: 13px; text-decoration: none; }
+  .footer-links a:hover { color: var(--coral); }
+  .footer-copy { color: rgba(255,255,255,0.25); font-size: 12px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 14px 20px; }
+    nav ul { display: none; }
+    .hero-section { padding: 100px 20px 60px; }
+    .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+    .phone-area { order: -1; }
+    .phone { width: 200px; height: 400px; }
+    .problem-cards { grid-template-columns: 1fr; }
+    .solution-inner { grid-template-columns: 1fr; gap: 40px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .feature-card:nth-child(2), .feature-card:nth-child(3) { transform: none; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    section { padding: 60px 20px; }
+    .footer-cta { padding: 80px 20px; }
+    footer { padding: 28px 20px; flex-direction: column; text-align: center; }
+    .deco-circle1 { display: none; }
+    .deco-circle2 { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Food<span class="logo-wave">🍽</span>Sense</div>
+  <ul>
+    <li><a href="#problem">課題</a></li>
+    <li><a href="#features">機能</a></li>
+    <li><a href="#pricing">料金</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <button class="nav-cta">無料で始める 🎉</button>
+</nav>
+
+<!-- HERO -->
+<div class="hero-section">
+  <div class="hero-bg-deco deco-circle1"></div>
+  <div class="hero-bg-deco deco-circle2"></div>
+  <div class="hero-bg-deco deco-dots">
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-tag">
+        <span class="hero-tag-icon">✨</span>
+        AI グルメナビ、新登場！
+      </div>
+      <h1 class="hero-title">
+        あなたの舌に、<br>
+        <span class="line2">AIが寄り添う。</span>
+      </h1>
+      <p class="hero-title-sub">食べたいが、もっと見つかる。</p>
+      <p class="hero-sub">
+        気分・シーン・同行者まで読んで最高のレストランを即提案。
+        友達とのリアルタイム共有やAIレビュー要約で、もうお店選びに悩まない！
+      </p>
+      <div class="hero-btns">
+        <button class="btn-coral">無料で試す 🚀</button>
+        <button class="btn-soft">詳しく見る</button>
+      </div>
+      <div class="hero-badges">
+        <div class="badge">🍽 <span class="badge-num">100万+</span> 店掲載</div>
+        <div class="badge">🎯 推薦精度 <span class="badge-num">98%</span></div>
+        <div class="badge">👥 <span class="badge-num">30万人</span> 利用中</div>
+      </div>
+    </div>
+    <div class="phone-area">
+      <div class="sticker1">✨ AIがお勧め！</div>
+      <div class="sticker2">🎯 98% 一致</div>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-header">
+            <div class="ph-logo">FoodSense</div>
+            <div class="ph-avatar">😊</div>
+          </div>
+          <div class="ph-search">
+            <span>🔍</span>
+            <span>今夜の気分は？</span>
+          </div>
+          <div class="ph-chips">
+            <div class="ph-chip active">#イタリアン</div>
+            <div class="ph-chip">#焼き肉</div>
+            <div class="ph-chip">#寿司</div>
+          </div>
+          <div class="ph-card">
+            <div class="ph-card-img ph-img1">🍝</div>
+            <div class="ph-card-body">
+              <div class="ph-card-name">Ristorante NOMA 表参道</div>
+              <div class="ph-card-tag">#イタリアン #表参道 #記念日</div>
+              <div class="ph-card-row">
+                <span class="ph-card-stars">★★★★★</span>
+                <span class="ph-card-match">97% マッチ</span>
+              </div>
+            </div>
+          </div>
+          <div class="ph-card">
+            <div class="ph-card-img ph-img2">🥗</div>
+            <div class="ph-card-body">
+              <div class="ph-card-name">Café Verde 代官山</div>
+              <div class="ph-card-tag">#カフェ #代官山 #ヘルシー</div>
+              <div class="ph-card-row">
+                <span class="ph-card-stars">★★★★☆</span>
+                <span class="ph-card-match">93% マッチ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="container">
+    <div class="section-badge">🤔 こんな悩みありませんか？</div>
+    <h2 class="section-title">グルメ探しの<br>あるある3大ストレス</h2>
+    <p class="section-sub">口コミサイトを1時間眺めても決まらない——そんな経験、毎週してませんか？</p>
+    <div class="problem-cards">
+      <div class="problem-card">
+        <div class="problem-card-num">01</div>
+        <div class="problem-card-icon">😩</div>
+        <h3 class="problem-card-title">情報多すぎて選べない</h3>
+        <p class="problem-card-desc">ランキングもレビューも多すぎて、結局どれが「今の自分」に合うかわからない。選択肢が100件あっても、決断できないまま時間だけが過ぎていく。</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card-num">02</div>
+        <div class="problem-card-icon">🤨</div>
+        <h3 class="problem-card-title">レビューが当てにならない</h3>
+        <p class="problem-card-desc">古い情報や信憑性の低いレビューが混在。「行ってみたら閉店していた」「写真と全然違うクオリティだった」という残念な体験がなくならない。</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card-num">03</div>
+        <div class="problem-card-icon">😅</div>
+        <h3 class="problem-card-title">グループで絶対に揉める</h3>
+        <p class="problem-card-desc">「何でもいいよ」と言いながら実は好みがある。複数人でのお店選びは毎回難航。幹事さんは毎回ストレスを抱えながら調整している。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="solution" id="solution">
+  <div class="container">
+    <div class="section-badge">🎉 FoodSenseなら解決！</div>
+    <h2 class="section-title">AIがあなた専属の<br>グルメ相談役に</h2>
+    <p class="section-sub">好み・シーン・気分を学習したAIが、最高の一皿を瞬時に提案します。</p>
+    <div class="solution-inner">
+      <div class="solution-card-stack">
+        <div class="solution-card">
+          <div class="sc-icon sci1">🧠</div>
+          <div class="sc-body">
+            <div class="sc-title">AIが味覚DNA を自動生成</div>
+            <div class="sc-desc">過去の食体験・好み・評価をAIが学習。あなただけの「味覚プロファイル」を作り上げ、使うほど精度が高まります。</div>
+          </div>
+        </div>
+        <div class="solution-card">
+          <div class="sc-icon sci2">💬</div>
+          <div class="sc-body">
+            <div class="sc-title">気分を言葉で伝えるだけ</div>
+            <div class="sc-desc">「疲れたから温かいラーメン」「記念日にちょっといいお店」——普段の言葉で検索するだけでOK。難しい操作は一切不要！</div>
+          </div>
+        </div>
+        <div class="solution-card">
+          <div class="sc-icon sci3">👫</div>
+          <div class="sc-body">
+            <div class="sc-title">グループ全員が満足できる一軒を即決定</div>
+            <div class="sc-desc">メンバー全員の好みをAIが統合計算。「全員納得」のお店を自動で提案。幹事ストレスを90%カット。</div>
+          </div>
+        </div>
+      </div>
+      <div class="solution-right">
+        <div class="solution-big-card">
+          <div class="solution-big-card-title">🤖 AIが30秒で解決</div>
+          <div class="solution-big-card-desc">「今夜は彼女と焼き肉、予算は1万円以内、渋谷周辺で個室がいい」——こんな複雑な条件も、AIが瞬時に最適解を見つけます。もう長時間の検索は不要！</div>
+        </div>
+        <div class="solution-mini-cards">
+          <div class="solution-mini">
+            <div class="solution-mini-num">98%</div>
+            <div class="solution-mini-label">推薦満足度</div>
+          </div>
+          <div class="solution-mini">
+            <div class="solution-mini-num">30秒</div>
+            <div class="solution-mini-label">平均決定時間</div>
+          </div>
+          <div class="solution-mini">
+            <div class="solution-mini-num">5回</div>
+            <div class="solution-mini-label">で高精度に</div>
+          </div>
+          <div class="solution-mini">
+            <div class="solution-mini-num">100万+</div>
+            <div class="solution-mini-label">掲載店舗</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-badge">⭐ 主な機能</div>
+    <h2 class="section-title">FoodSenseが選ばれる<br>3つの理由</h2>
+    <p class="section-sub">他のグルメアプリとはここが違う。あなたの食体験を根本から変える機能を詰め込みました。</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-num-tag">No.1</div>
+        <div class="feature-icon-wrap fi1">🤖</div>
+        <h3 class="feature-title">AIレビュー要約</h3>
+        <p class="feature-desc">数百件のレビューを10秒でまとめ読み。「ランチは激混み」「パスタより肉料理が絶品」——知りたいことだけをAIが抽出。長文レビューを読む手間がゼロに。</p>
+        <span class="feature-tag">✨ 業界初</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num-tag">No.2</div>
+        <div class="feature-icon-wrap fi2">👫</div>
+        <h3 class="feature-title">グループ最適化</h3>
+        <p class="feature-desc">友達・家族それぞれが好みを入力するだけ。AIが全員の嗜好・予算・場所を計算して「みんなが満足できる一軒」を即提案。幹事さんの悩みを解消します。</p>
+        <span class="feature-tag">👥 グループ向け</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num-tag">No.3</div>
+        <div class="feature-icon-wrap fi3">📊</div>
+        <h3 class="feature-title">食体験ログ分析</h3>
+        <p class="feature-desc">食べた全お店を自動記録。月ごとの食費・お気に入りジャンル・行ったエリアを可視化。あなたの「食の個性」を発見する、ちょっと楽しい新機能。</p>
+        <span class="feature-tag">📈 食体験の見える化</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-badge">💰 料金プラン</div>
+    <h2 class="section-title">まずは無料から！<br>いつでもアップグレード</h2>
+    <p class="section-sub">全プランでいつでもキャンセル可能。難しい契約は一切なし。</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-plan">FREE</div>
+        <div class="price-amount">¥0 <small>/ 月</small></div>
+        <div class="price-sub">クレジットカード不要 🎉</div>
+        <ul class="price-features">
+          <li>AIレコメンド 月20回</li>
+          <li>基本の味覚プロファイル</li>
+          <li>お気に入り 50件保存</li>
+          <li>AIレビュー要約 月5回</li>
+        </ul>
+        <button class="btn-price btn-price-outline">無料で始める</button>
+      </div>
+      <div class="price-card featured">
+        <div class="price-popular">🌟 人気No.1</div>
+        <div class="price-plan">PRO</div>
+        <div class="price-amount">¥980 <small>/ 月</small></div>
+        <div class="price-sub">年払いで¥780/月（お得！）</div>
+        <ul class="price-features">
+          <li>AIレコメンド 無制限</li>
+          <li>詳細な味覚プロファイル</li>
+          <li>グループ最適化機能</li>
+          <li>AIレビュー要約 無制限</li>
+          <li>食体験ログ分析</li>
+          <li>広告なし</li>
+        </ul>
+        <button class="btn-price btn-price-white">30日間無料で試す 🚀</button>
+      </div>
+      <div class="price-card">
+        <div class="price-plan">FAMILY</div>
+        <div class="price-amount">¥1,480 <small>/ 月</small></div>
+        <div class="price-sub">最大5アカウント 👨‍👩‍👧‍👦</div>
+        <ul class="price-features">
+          <li>PROプランのすべて</li>
+          <li>5アカウント共有</li>
+          <li>家族共有リスト</li>
+          <li>記念日リマインダー</li>
+          <li>専用サポート</li>
+        </ul>
+        <button class="btn-price btn-price-outline">ファミリーで始める</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="testimonials">
+  <div class="container">
+    <div class="section-badge">💬 みんなの声</div>
+    <h2 class="section-title">使ってみたら<br>もう手放せない！</h2>
+    <p class="section-sub">FoodSenseを使い始めたユーザーのリアルな声をご紹介。</p>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="t-stars">⭐⭐⭐⭐⭐</div>
+        <p class="t-text">毎回悩んでいたお店選びが本当に楽になりました！AIの提案がドンピシャで、「なんで私の好みわかるの？」ってびっくりしました。もう他のアプリ使えません（笑）</p>
+        <div class="t-user">
+          <div class="t-avatar">M</div>
+          <div>
+            <div class="t-name">松本 陽奈さん</div>
+            <div class="t-meta">28歳・マーケター・東京</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="t-stars">⭐⭐⭐⭐⭐</div>
+        <p class="t-text">グループでのお店選びで幹事をやっていつも大変でしたが、FoodSenseのグループ機能を使ったら全員が「ここいい！」って即決しました。もう幹事も怖くない！</p>
+        <div class="t-user">
+          <div class="t-avatar">K</div>
+          <div>
+            <div class="t-name">木村 大樹さん</div>
+            <div class="t-meta">34歳・エンジニア・大阪</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="t-stars">⭐⭐⭐⭐☆</div>
+        <p class="t-text">AIレビュー要約のおかげでお店調べが超効率化されました！長いレビューを読まなくてもポイントだけわかるので、ランチ探しが5分で終わるようになりました。</p>
+        <div class="t-user">
+          <div class="t-avatar">S</div>
+          <div>
+            <div class="t-name">鈴木 彩花さん</div>
+            <div class="t-meta">25歳・栄養士・名古屋</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="section-badge">❓ よくある質問</div>
+    <h2 class="section-title">気になること、<br>全部答えます！</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">AIの精度ってほんとに高いの？</div>
+        <div class="faq-a">使い始めから高精度です！一般的な嗜好モデルをベースに、使うごとにどんどん「あなた専用」になります。平均5〜10回の利用後に98%のユーザーが「自分の好みをわかってくれてる」と感じています。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">食べログやGoogleマップと何が違うの？</div>
+        <div class="faq-a">既存サービスは「みんなの評価」を見せますが、FoodSenseは「今のあなたへの最適解」を提案します。同じお店でも、あなたの好み・シーン・一緒にいる人によってスコアが変わります。まるで専属コンシェルジュ！</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">個人情報やデータは安全ですか？</div>
+        <div class="faq-a">食体験データは国内サーバーで暗号化して保管します。第三者への提供・販売は一切しません。アカウント削除時はすべてのデータを完全消去します。安心してご利用ください。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">どのエリアで使えますか？</div>
+        <div class="faq-a">東京・大阪・名古屋・福岡・札幌・仙台・京都・神戸を中心に100万件以上掲載中！2026年末には全国47都道府県に展開予定です。地方のお店もどんどん増えていきますよ。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">無料プランでもちゃんと使えますか？</div>
+        <div class="faq-a">もちろん！月20回のAIレコメンド・基本の味覚プロファイル・50件お気に入り・月5回のAIレビュー要約が永続無料。まずは無料でたっぷり試してから、必要なときにアップグレードしてください。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER CTA -->
+<section class="footer-cta">
+  <div class="footer-cta-inner">
+    <span class="footer-cta-emoji">🍽✨</span>
+    <h2 class="footer-cta-title">
+      今夜の最高の一皿、<br>
+      AIと一緒に見つけよう！
+    </h2>
+    <p class="footer-cta-sub">30秒で登録完了 · カード不要 · いつでも解約OK</p>
+    <div class="footer-cta-btns">
+      <button class="btn-cta-white">無料で始める 🚀</button>
+      <button class="btn-cta-outline">デモを見る</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">FoodSense 🍽</div>
+  <ul class="footer-links">
+    <li><a href="#">利用規約</a></li>
+    <li><a href="#">プライバシーポリシー</a></li>
+    <li><a href="#">お問い合わせ</a></li>
+    <li><a href="#">運営会社</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 FoodSense Inc.</div>
+</footer>
+
+</body>
+</html>
