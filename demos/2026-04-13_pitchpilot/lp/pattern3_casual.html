@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PitchPilot — もう、資料で悩まなくていい。</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #F5F0FF;
+      --accent:    #7B2FBE;
+      --accent-lt: #9B59D6;
+      --accent-dk: #5A1E9A;
+      --silver:    #C0C8D8;
+      --silver-lt: #E8ECF4;
+      --silver-dk: #8A96B0;
+      --white:     #FFFFFF;
+      --text:      #1E1033;
+      --text-mid:  #4A3A6E;
+      --text-muted:#8A7AAA;
+      --card-shadow: 0 8px 32px rgba(123,47,190,0.12);
+      --card-shadow-lg: 0 20px 60px rgba(123,47,190,0.18);
+      --radius:    16px;
+      --radius-lg: 24px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans JP', 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 40px;
+      background: rgba(245,240,255,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(123,47,190,0.10);
+    }
+    .nav-logo {
+      font-size: 22px; font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--silver-dk));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--text-mid); transition: color .2s; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      background: var(--accent);
+      color: var(--white);
+      padding: 10px 24px;
+      border-radius: 50px;
+      font-size: 14px; font-weight: 700;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(123,47,190,0.35); }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      padding: 120px 40px 80px;
+      display: flex; align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 70% 50%, rgba(123,47,190,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 20% 80%, rgba(192,200,216,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    /* Decorative floating shapes */
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      border: 2px dashed rgba(123,47,190,0.12);
+      top: 10%; right: 5%;
+      animation: spin 20s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .hero-inner {
+      max-width: 1160px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+      position: relative; z-index: 1;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(123,47,190,0.10);
+      border: 1px solid rgba(123,47,190,0.20);
+      padding: 6px 16px; border-radius: 50px;
+      font-size: 13px; font-weight: 600; color: var(--accent);
+      margin-bottom: 24px;
+    }
+    .hero-badge span { font-size: 16px; }
+    .hero-h1 {
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 900;
+      line-height: 1.2;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+    .hero-h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent), #B06AE8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      font-size: 18px; color: var(--text-mid);
+      margin-bottom: 36px; line-height: 1.8;
+    }
+
+    /* ===== FORM MOCK ===== */
+    .hero-form {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 28px 28px 20px;
+      box-shadow: var(--card-shadow-lg);
+      border: 1px solid rgba(123,47,190,0.08);
+    }
+    .hero-form label {
+      display: block; font-size: 13px; font-weight: 700;
+      color: var(--text-mid); margin-bottom: 8px;
+    }
+    .hero-form input {
+      width: 100%; padding: 14px 18px;
+      border: 2px solid var(--silver-lt);
+      border-radius: 12px;
+      font-size: 16px; font-family: inherit;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color .2s;
+      outline: none;
+    }
+    .hero-form input:focus { border-color: var(--accent); }
+    .hero-form input::placeholder { color: var(--text-muted); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .form-cta-btn {
+      width: 100%; margin-top: 16px;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-lt));
+      color: var(--white); border: none;
+      border-radius: 12px; font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: transform .2s, box-shadow .2s;
+      font-family: inherit;
+    }
+    .form-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(123,47,190,0.40); }
+    .form-note {
+      text-align: center; font-size: 12px; color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    /* ===== PHONE MOCK ===== */
+    .phone-wrap {
+      position: relative; display: flex; justify-content: center;
+      padding: 40px 0;
+    }
+    /* Stacked card effect behind phone */
+    .card-stack {
+      position: absolute;
+      width: 240px; height: 480px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .card-stack .cs-card {
+      position: absolute;
+      width: 220px; height: 140px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+    .cs-card:nth-child(1) {
+      background: linear-gradient(135deg, #C0C8D8 0%, #E8ECF4 100%);
+      top: 20px; left: 10px;
+      transform: rotate(-8deg);
+      box-shadow: 0 4px 20px rgba(123,47,190,0.10);
+    }
+    .cs-card:nth-child(2) {
+      background: linear-gradient(135deg, #9B59D6 0%, #B06AE8 100%);
+      top: 80px; left: -10px;
+      transform: rotate(-3deg);
+      box-shadow: 0 8px 30px rgba(123,47,190,0.20);
+    }
+    .cs-card:nth-child(3) {
+      background: linear-gradient(135deg, #7B2FBE 0%, #9B59D6 100%);
+      top: 140px; left: 20px;
+      transform: rotate(5deg);
+      box-shadow: 0 12px 40px rgba(123,47,190,0.30);
+    }
+    /* Phone frame */
+    .phone {
+      position: relative; z-index: 10;
+      width: 220px;
+      background: var(--text);
+      border-radius: 36px;
+      padding: 12px 8px;
+      box-shadow:
+        0 30px 80px rgba(30,16,51,0.35),
+        inset 0 0 0 1px rgba(255,255,255,0.06);
+    }
+    .phone-notch {
+      width: 80px; height: 24px;
+      background: var(--text);
+      border-radius: 0 0 16px 16px;
+      margin: 0 auto 8px;
+    }
+    .phone-screen {
+      background: linear-gradient(160deg, var(--bg) 0%, var(--white) 100%);
+      border-radius: 24px;
+      overflow: hidden;
+      min-height: 420px;
+      padding: 16px;
+    }
+    .phone-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 12px;
+    }
+    .phone-logo {
+      font-size: 12px; font-weight: 900;
+      color: var(--accent); letter-spacing: -0.3px;
+    }
+    .phone-dot {
+      width: 6px; height: 6px;
+      background: var(--accent-lt);
+      border-radius: 50%; margin-left: auto;
+    }
+    .phone-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 4px 16px rgba(123,47,190,0.10);
+      margin-bottom: 10px;
+    }
+    .phone-card-label {
+      font-size: 9px; font-weight: 700;
+      color: var(--text-muted); margin-bottom: 4px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .phone-card-title {
+      font-size: 11px; font-weight: 700; color: var(--text);
+      margin-bottom: 6px;
+    }
+    .phone-card-bar {
+      height: 4px; border-radius: 4px;
+      background: var(--silver-lt); overflow: hidden;
+    }
+    .phone-card-bar-fill {
+      height: 100%; border-radius: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-lt));
+    }
+    .phone-card-mini {
+      display: flex; gap: 6px; margin-top: 8px;
+    }
+    .phone-mini-pill {
+      font-size: 8px; font-weight: 600;
+      padding: 3px 8px; border-radius: 20px;
+      background: rgba(123,47,190,0.10);
+      color: var(--accent);
+    }
+    .phone-generate-btn {
+      width: 100%; padding: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-lt));
+      color: var(--white); border-radius: 10px;
+      font-size: 10px; font-weight: 700; text-align: center;
+      margin-top: 6px;
+    }
+    .phone-home-bar {
+      width: 80px; height: 4px;
+      background: rgba(30,16,51,0.3);
+      border-radius: 4px;
+      margin: 12px auto 0;
+    }
+
+    /* ===== SECTION COMMON ===== */
+    section { padding: 100px 40px; }
+    .section-inner { max-width: 1160px; margin: 0 auto; }
+    .section-tag {
+      display: inline-block;
+      font-size: 12px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent);
+      background: rgba(123,47,190,0.08);
+      padding: 6px 14px; border-radius: 50px;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 900; line-height: 1.25;
+      letter-spacing: -0.5px; margin-bottom: 16px;
+    }
+    .section-lead {
+      font-size: 18px; color: var(--text-mid);
+      max-width: 600px; line-height: 1.8;
+    }
+
+    /* ===== PROBLEM ===== */
+    .problem { background: var(--white); }
+    .problem-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px; margin-top: 60px;
+    }
+    .problem-card {
+      position: relative;
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      border: 1px solid rgba(123,47,190,0.08);
+      overflow: hidden;
+      transition: transform .3s, box-shadow .3s;
+    }
+    .problem-card:hover { transform: translateY(-6px); box-shadow: var(--card-shadow-lg); }
+    .problem-card::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: rgba(123,47,190,0.06);
+    }
+    .problem-num {
+      font-size: 48px; font-weight: 900;
+      color: var(--silver); line-height: 1;
+      margin-bottom: 12px;
+    }
+    .problem-title {
+      font-size: 18px; font-weight: 700; margin-bottom: 10px;
+    }
+    .problem-desc { font-size: 15px; color: var(--text-mid); line-height: 1.7; }
+
+    /* ===== SOLUTION ===== */
+    .solution-flow {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0; margin-top: 60px;
+      position: relative;
+    }
+    .solution-flow::before {
+      content: '';
+      position: absolute;
+      top: 44px; left: calc(12.5% + 16px); right: calc(12.5% + 16px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--silver));
+    }
+    .sol-step {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; padding: 0 16px;
+      position: relative;
+    }
+    .sol-icon {
+      width: 88px; height: 88px;
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      margin-bottom: 20px;
+      position: relative; z-index: 1;
+      box-shadow: var(--card-shadow);
+      transition: transform .3s;
+    }
+    .sol-step:hover .sol-icon { transform: translateY(-6px) rotate(-3deg); }
+    .sol-icon.i1 { background: linear-gradient(135deg, #E8ECF4, #C0C8D8); }
+    .sol-icon.i2 { background: linear-gradient(135deg, var(--accent-lt), var(--accent)); }
+    .sol-icon.i3 { background: linear-gradient(135deg, var(--silver-dk), var(--silver)); }
+    .sol-icon.i4 { background: linear-gradient(135deg, var(--accent-dk), var(--accent-lt)); }
+    .sol-label {
+      font-size: 13px; font-weight: 700;
+      color: var(--accent); margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .sol-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .sol-desc { font-size: 14px; color: var(--text-mid); }
+
+    /* ===== FEATURES ===== */
+    .features { background: var(--white); }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 28px; margin-top: 60px;
+    }
+    .feat-card {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(123,47,190,0.08);
+      transition: transform .3s, box-shadow .3s;
+    }
+    .feat-card:hover { transform: translateY(-8px); box-shadow: var(--card-shadow-lg); }
+    /* Stacked card shadows */
+    .feat-card::before {
+      content: '';
+      position: absolute;
+      bottom: -8px; left: 12px; right: 12px; height: 100%;
+      background: rgba(123,47,190,0.06);
+      border-radius: var(--radius-lg);
+      z-index: -1;
+    }
+    .feat-card::after {
+      content: '';
+      position: absolute;
+      bottom: -16px; left: 24px; right: 24px; height: 100%;
+      background: rgba(123,47,190,0.03);
+      border-radius: var(--radius-lg);
+      z-index: -2;
+    }
+    .feat-icon {
+      width: 60px; height: 60px;
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+    .feat-icon.fi1 { background: linear-gradient(135deg, var(--accent), var(--accent-lt)); }
+    .feat-icon.fi2 { background: linear-gradient(135deg, var(--silver-dk), var(--silver)); }
+    .feat-icon.fi3 { background: linear-gradient(135deg, var(--accent-dk), var(--accent)); }
+    .feat-title { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+    .feat-desc { font-size: 15px; color: var(--text-mid); line-height: 1.7; }
+    .feat-tag {
+      display: inline-block; margin-top: 16px;
+      font-size: 12px; font-weight: 700;
+      padding: 4px 12px; border-radius: 20px;
+      background: rgba(123,47,190,0.10); color: var(--accent);
+    }
+
+    /* ===== PRICING ===== */
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px; margin-top: 60px; align-items: start;
+    }
+    .price-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      border: 2px solid rgba(123,47,190,0.10);
+      position: relative; overflow: hidden;
+      transition: transform .3s, box-shadow .3s;
+    }
+    .price-card:hover { transform: translateY(-6px); box-shadow: var(--card-shadow-lg); }
+    .price-card.popular {
+      background: linear-gradient(160deg, var(--accent-dk) 0%, var(--accent) 100%);
+      border-color: var(--accent);
+      color: var(--white);
+    }
+    .popular-badge {
+      position: absolute; top: 20px; right: 20px;
+      background: var(--white);
+      color: var(--accent);
+      font-size: 11px; font-weight: 700;
+      padding: 4px 12px; border-radius: 20px;
+    }
+    .price-plan {
+      font-size: 13px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .price-card.popular .price-plan { color: rgba(255,255,255,0.7); }
+    .price-amount {
+      font-size: 48px; font-weight: 900; line-height: 1;
+      margin-bottom: 4px;
+    }
+    .price-amount span { font-size: 18px; font-weight: 500; }
+    .price-period { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+    .price-card.popular .price-period { color: rgba(255,255,255,0.7); }
+    .price-divider {
+      height: 1px; background: var(--silver-lt);
+      margin-bottom: 24px;
+    }
+    .price-card.popular .price-divider { background: rgba(255,255,255,0.20); }
+    .price-features { list-style: none; margin-bottom: 28px; }
+    .price-features li {
+      font-size: 14px; padding: 8px 0;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid rgba(123,47,190,0.06);
+    }
+    .price-card.popular .price-features li { border-color: rgba(255,255,255,0.10); }
+    .price-features li::before {
+      content: '✓';
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(123,47,190,0.10);
+      color: var(--accent); font-size: 12px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .price-card.popular .price-features li::before {
+      background: rgba(255,255,255,0.20); color: var(--white);
+    }
+    .price-btn {
+      display: block; width: 100%;
+      padding: 14px 0; border-radius: 12px;
+      text-align: center; font-size: 15px; font-weight: 700;
+      background: var(--accent); color: var(--white);
+      transition: transform .2s, box-shadow .2s;
+      border: none; cursor: pointer; font-family: inherit;
+    }
+    .price-card.popular .price-btn {
+      background: var(--white); color: var(--accent);
+    }
+    .price-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.20); }
+
+    /* ===== TESTIMONIALS ===== */
+    .testimonials { background: var(--white); }
+    .testi-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px; margin-top: 60px;
+    }
+    .testi-card {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      position: relative; overflow: visible;
+      border: 1px solid rgba(123,47,190,0.08);
+      transition: transform .3s, box-shadow .3s;
+    }
+    .testi-card:hover { transform: translateY(-6px); box-shadow: var(--card-shadow-lg); }
+    /* Stacked card decorations */
+    .testi-card::before {
+      content: '';
+      position: absolute;
+      bottom: -6px; left: 10px; right: 10px; height: 100%;
+      background: rgba(123,47,190,0.05);
+      border-radius: var(--radius-lg);
+      z-index: -1;
+    }
+    .testi-quote {
+      font-size: 48px; line-height: 1;
+      color: var(--accent); opacity: 0.25;
+      font-family: serif; margin-bottom: -8px;
+    }
+    .testi-text {
+      font-size: 15px; line-height: 1.8;
+      color: var(--text); margin-bottom: 20px;
+    }
+    .testi-stars { color: #F5A623; font-size: 14px; margin-bottom: 16px; }
+    .testi-person { display: flex; align-items: center; gap: 12px; }
+    .testi-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .av1 { background: linear-gradient(135deg, var(--accent-lt), var(--accent)); }
+    .av2 { background: linear-gradient(135deg, var(--silver-dk), var(--silver)); }
+    .av3 { background: linear-gradient(135deg, var(--accent-dk), var(--accent-lt)); }
+    .testi-name { font-size: 14px; font-weight: 700; }
+    .testi-role { font-size: 12px; color: var(--text-muted); }
+
+    /* ===== FAQ ===== */
+    .faq { background: var(--bg); }
+    .faq-list { margin-top: 60px; max-width: 780px; }
+    .faq-item {
+      background: var(--white);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      border: 1px solid rgba(123,47,190,0.08);
+      overflow: hidden;
+      transition: box-shadow .2s;
+    }
+    .faq-item:hover { box-shadow: var(--card-shadow); }
+    .faq-q {
+      padding: 22px 24px;
+      font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; gap: 16px;
+    }
+    .faq-q-text { flex: 1; }
+    .faq-icon {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(123,47,190,0.10);
+      color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .faq-a {
+      padding: 0 24px 22px;
+      font-size: 15px; color: var(--text-mid);
+      line-height: 1.8;
+    }
+
+    /* ===== FOOTER / CTA ===== */
+    .footer-cta {
+      background: linear-gradient(135deg, var(--accent-dk) 0%, var(--accent) 50%, var(--accent-lt) 100%);
+      padding: 100px 40px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .footer-cta::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 20% 50%, rgba(192,200,216,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 60% at 80% 50%, rgba(255,255,255,0.05) 0%, transparent 50%);
+    }
+    /* Decorative floating cards */
+    .footer-decor {
+      position: absolute;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .fd1 {
+      width: 120px; height: 80px;
+      background: rgba(255,255,255,0.07);
+      top: 15%; left: 5%;
+      transform: rotate(-12deg);
+    }
+    .fd2 {
+      width: 80px; height: 60px;
+      background: rgba(192,200,216,0.10);
+      top: 50%; left: 8%;
+      transform: rotate(8deg);
+    }
+    .fd3 {
+      width: 100px; height: 70px;
+      background: rgba(255,255,255,0.06);
+      top: 20%; right: 6%;
+      transform: rotate(10deg);
+    }
+    .fd4 {
+      width: 70px; height: 50px;
+      background: rgba(192,200,216,0.08);
+      bottom: 20%; right: 4%;
+      transform: rotate(-6deg);
+    }
+    .footer-cta-inner { position: relative; z-index: 1; }
+    .footer-cta h2 {
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 900; color: var(--white);
+      letter-spacing: -1px; margin-bottom: 16px;
+    }
+    .footer-cta p {
+      font-size: 18px; color: rgba(255,255,255,0.80);
+      margin-bottom: 40px; max-width: 520px; margin-left: auto; margin-right: auto;
+    }
+    .footer-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-white {
+      padding: 18px 40px;
+      background: var(--white); color: var(--accent);
+      border-radius: 50px; font-size: 16px; font-weight: 700;
+      transition: transform .2s, box-shadow .2s;
+      display: inline-block;
+    }
+    .btn-white:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(0,0,0,0.20); }
+    .btn-outline-white {
+      padding: 18px 40px;
+      background: transparent; color: var(--white);
+      border: 2px solid rgba(255,255,255,0.50);
+      border-radius: 50px; font-size: 16px; font-weight: 700;
+      transition: border-color .2s, transform .2s;
+      display: inline-block;
+    }
+    .btn-outline-white:hover { border-color: var(--white); transform: translateY(-3px); }
+    .footer-bottom {
+      background: var(--text);
+      padding: 28px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-logo {
+      font-size: 20px; font-weight: 900;
+      background: linear-gradient(135deg, var(--accent-lt), var(--silver));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 13px; color: var(--silver-dk); transition: color .2s; }
+    .footer-links a:hover { color: var(--silver); }
+    .footer-copy { font-size: 12px; color: var(--silver-dk); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+      .phone-wrap { order: -1; }
+      .problem-grid,
+      .features-grid,
+      .pricing-grid,
+      .testi-grid { grid-template-columns: 1fr; }
+      .solution-flow { grid-template-columns: repeat(2, 1fr); }
+      .solution-flow::before { display: none; }
+      section { padding: 60px 20px; }
+      .hero { padding: 100px 20px 60px; }
+      .footer-cta { padding: 60px 20px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+    /* ===== SUBTLE ANIMATIONS ===== */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .phone-wrap .phone { animation: float 4s ease-in-out infinite; }
+    .cs-card:nth-child(1) { animation: float 5s ease-in-out infinite; }
+    .cs-card:nth-child(2) { animation: float 6s ease-in-out infinite 0.5s; }
+    .cs-card:nth-child(3) { animation: float 4.5s ease-in-out infinite 1s; }
+
+    /* ===== SCROLL FADE ===== */
+    .fade-in {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">PitchPilot ✦</div>
+    <div class="nav-links">
+      <a href="#problem">課題</a>
+      <a href="#solution">仕組み</a>
+      <a href="#features">機能</a>
+      <a href="#pricing">料金</a>
+      <a href="#faq">FAQ</a>
+      <a href="#cta" class="nav-cta">無料で試す →</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="hero-inner">
+      <div class="hero-content fade-in">
+        <div class="hero-badge"><span>🚀</span> AIが資料を自動生成</div>
+        <h1 class="hero-h1">もう、<em>資料で<br />悩まなく</em>ていい。</h1>
+        <p class="hero-sub">
+          企業名を入れるだけで、AI がその会社に<br />
+          ピッタリの営業資料を自動で作ってくれる。<br />
+          難しくない、楽しいAIの使い方。
+        </p>
+
+        <div class="hero-form">
+          <label>どの会社に提案しますか？</label>
+          <input type="text" placeholder="例）株式会社テクイオン" />
+          <div class="form-row">
+            <input type="text" placeholder="業種（例：IT・SaaS）" />
+            <input type="text" placeholder="規模（例：50名）" />
+          </div>
+          <button class="form-cta-btn">✦ AIに資料を作ってもらう</button>
+          <p class="form-note">クレジットカード不要 ・ 30秒で完成 ・ 無料プランあり</p>
+        </div>
+      </div>
+
+      <!-- PHONE MOCK -->
+      <div class="phone-wrap fade-in">
+        <div class="card-stack">
+          <div class="cs-card"></div>
+          <div class="cs-card"></div>
+          <div class="cs-card"></div>
+        </div>
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-header">
+              <div class="phone-logo">PitchPilot ✦</div>
+              <div class="phone-dot"></div>
+            </div>
+            <div class="phone-card">
+              <div class="phone-card-label">生成中... 68%</div>
+              <div class="phone-card-title">株式会社テクイオン向け提案書</div>
+              <div class="phone-card-bar">
+                <div class="phone-card-bar-fill" style="width:68%"></div>
+              </div>
+              <div class="phone-card-mini">
+                <div class="phone-mini-pill">IT・SaaS</div>
+                <div class="phone-mini-pill">50名規模</div>
+              </div>
+            </div>
+            <div class="phone-card">
+              <div class="phone-card-label">完成済み</div>
+              <div class="phone-card-title">山田製作所 — 製造業提案書 ✓</div>
+              <div class="phone-card-bar">
+                <div class="phone-card-bar-fill" style="width:100%"></div>
+              </div>
+            </div>
+            <div class="phone-generate-btn">＋ 新しい提案書を作る</div>
+          </div>
+          <div class="phone-home-bar"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="problem" id="problem">
+    <div class="section-inner">
+      <div class="fade-in">
+        <div class="section-tag">😤 あるある</div>
+        <h2 class="section-title">営業資料って、<br />もっとラクに作れるはず</h2>
+        <p class="section-lead">
+          商談のたびに同じような資料を一から作り直してる——<br />
+          それって本当に仕方ないこと？
+        </p>
+      </div>
+      <div class="problem-grid">
+        <div class="problem-card fade-in">
+          <div class="problem-num">01</div>
+          <div class="problem-title">毎回イチから作るムダ</div>
+          <p class="problem-desc">
+            企業情報を調べて、ストーリーを考えて、スライドを組み立てて……
+            1枚の提案書に3〜4時間かかってしまう。
+          </p>
+        </div>
+        <div class="problem-card fade-in">
+          <div class="problem-num">02</div>
+          <div class="problem-title">「刺さる」コピーが書けない</div>
+          <p class="problem-desc">
+            どんな言葉を使えばお客さんの心に響くのか。
+            センスが問われる部分ほど時間がかかる。
+          </p>
+        </div>
+        <div class="problem-card fade-in">
+          <div class="problem-num">03</div>
+          <div class="problem-title">デザインで手が止まる</div>
+          <p class="problem-desc">
+            中身がよくてもビジュアルがダサければ印象が悪い。
+            でもデザイナーに頼む余裕もない。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section id="solution">
+    <div class="section-inner">
+      <div class="fade-in">
+        <div class="section-tag">💡 解決策</div>
+        <h2 class="section-title">PitchPilot の仕組みは<br />シンプルすぎるくらいシンプル</h2>
+        <p class="section-lead">
+          AI が面倒な部分を全部やってくれる。あなたは結果だけ受け取ればいい。
+        </p>
+      </div>
+      <div class="solution-flow">
+        <div class="sol-step fade-in">
+          <div class="sol-icon i1">🏢</div>
+          <div class="sol-label">Step 1</div>
+          <div class="sol-title">企業名を入力</div>
+          <p class="sol-desc">提案したい会社名を入れるだけ。難しい設定は何もなし。</p>
+        </div>
+        <div class="sol-step fade-in">
+          <div class="sol-icon i2">🤖</div>
+          <div class="sol-label">Step 2</div>
+          <div class="sol-title">AI が企業を分析</div>
+          <p class="sol-desc">業種・規模・課題をAIが自動でリサーチ。</p>
+        </div>
+        <div class="sol-step fade-in">
+          <div class="sol-icon i3">✍️</div>
+          <div class="sol-label">Step 3</div>
+          <div class="sol-title">資料を自動生成</div>
+          <p class="sol-desc">その会社に合ったコピー・構成・デザインで完成。</p>
+        </div>
+        <div class="sol-step fade-in">
+          <div class="sol-icon i4">🎉</div>
+          <div class="sol-label">Step 4</div>
+          <div class="sol-title">ダウンロードして使う</div>
+          <p class="sol-desc">PDF・PowerPoint形式で即ダウンロード。そのまま商談へ。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="section-inner">
+      <div class="fade-in">
+        <div class="section-tag">⚡ 主要機能</div>
+        <h2 class="section-title">3つの機能で<br />資料作成を変える</h2>
+        <p class="section-lead">
+          使い始めた瞬間から「これ、なんで今までなかったの？」ってなる。
+        </p>
+      </div>
+      <div class="features-grid">
+        <div class="feat-card fade-in">
+          <div class="feat-icon fi1">🎯</div>
+          <h3 class="feat-title">ターゲット最適化コピー</h3>
+          <p class="feat-desc">
+            相手企業の業界・フェーズ・課題に合わせて、
+            「刺さる」言葉をAIが自動生成。
+            人間より人間らしい文章を書いてくれる（ちょっと悔しい）。
+          </p>
+          <span class="feat-tag">AI ライティング</span>
+        </div>
+        <div class="feat-card fade-in">
+          <div class="feat-icon fi2">🎨</div>
+          <h3 class="feat-title">プロ品質のデザイン</h3>
+          <p class="feat-desc">
+            デザイナー不要。相手企業のブランドカラーや
+            業界トレンドを参考に、見栄えのするスライドを自動で仕上げる。
+            「え、これAIが作ったの？」と言われること保証。
+          </p>
+          <span class="feat-tag">オートデザイン</span>
+        </div>
+        <div class="feat-card fade-in">
+          <div class="feat-icon fi3">📊</div>
+          <h3 class="feat-title">提案効果アナリティクス</h3>
+          <p class="feat-desc">
+            「どのページで相手が止まったか」まで追跡。
+            開封率・閲覧時間・次の商談確率をスコア化して、
+            次の提案をどんどん改善できる。
+          </p>
+          <span class="feat-tag">リアルタイム分析</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="section-inner">
+      <div class="fade-in">
+        <div class="section-tag">💳 料金プラン</div>
+        <h2 class="section-title">チームの規模に合った<br />プランを選んで</h2>
+        <p class="section-lead">
+          まずは無料で試して、気に入ったらアップグレード。縛りなし。
+        </p>
+      </div>
+      <div class="pricing-grid">
+        <div class="price-card fade-in">
+          <div class="price-plan">Free</div>
+          <div class="price-amount">¥<span>0</span></div>
+          <div class="price-period">ずっと無料</div>
+          <div class="price-divider"></div>
+          <ul class="price-features">
+            <li>月5件まで資料生成</li>
+            <li>基本テンプレート3種</li>
+            <li>PDFダウンロード</li>
+            <li>メールサポート</li>
+          </ul>
+          <button class="price-btn">無料で始める</button>
+        </div>
+        <div class="price-card popular fade-in">
+          <div class="popular-badge">人気 No.1</div>
+          <div class="price-plan">Pro</div>
+          <div class="price-amount">¥<span>4,980</span></div>
+          <div class="price-period">/ 月（税込）</div>
+          <div class="price-divider"></div>
+          <ul class="price-features">
+            <li>月50件まで資料生成</li>
+            <li>全テンプレート使い放題</li>
+            <li>PDF・PPTX両対応</li>
+            <li>提案効果アナリティクス</li>
+            <li>チャットサポート</li>
+          </ul>
+          <button class="price-btn">14日間無料で試す</button>
+        </div>
+        <div class="price-card fade-in">
+          <div class="price-plan">Team</div>
+          <div class="price-amount">¥<span>14,800</span></div>
+          <div class="price-period">/ 月（税込・5名まで）</div>
+          <div class="price-divider"></div>
+          <ul class="price-features">
+            <li>生成件数無制限</li>
+            <li>チーム共有・共同編集</li>
+            <li>カスタムテンプレート作成</li>
+            <li>CRM連携（Salesforce等）</li>
+            <li>専任サクセスマネージャー</li>
+          </ul>
+          <button class="price-btn">営業に相談する</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials" id="testimonials">
+    <div class="section-inner">
+      <div class="fade-in">
+        <div class="section-tag">💬 ユーザーの声</div>
+        <h2 class="section-title">使った人たちが<br />語ってくれた</h2>
+        <p class="section-lead">
+          「本当に？」って思うかもしれないけど、全部リアルな声です。
+        </p>
+      </div>
+      <div class="testi-grid">
+        <div class="testi-card fade-in">
+          <div class="testi-quote">&ldquo;</div>
+          <p class="testi-text">
+            資料作成に4時間かかってたのが、PitchPilotを使い始めてから
+            30分になりました。残りの時間を商談準備に使えるようになって、
+            成約率が1.4倍に。もう手放せない。
+          </p>
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-person">
+            <div class="testi-avatar av1">👩</div>
+            <div>
+              <div class="testi-name">田中 美咲</div>
+              <div class="testi-role">SaaS企業 営業マネージャー</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card fade-in">
+          <div class="testi-quote">&ldquo;</div>
+          <p class="testi-text">
+            デザインが全然得意じゃないのに、毎回「この資料、誰が作ったの？」
+            って聞かれます。AIですって言ったら引かれるかなと思ってたけど、
+            むしろすごいと言われた（笑）
+          </p>
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-person">
+            <div class="testi-avatar av2">👨</div>
+            <div>
+              <div class="testi-name">鈴木 健太</div>
+              <div class="testi-role">スタートアップ 代表取締役</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card fade-in">
+          <div class="testi-quote">&ldquo;</div>
+          <p class="testi-text">
+            アナリティクスが特にすごい。「3ページ目で離脱が多い」ってわかって
+            そこを改善したら、次の商談からガラッと反応が変わりました。
+            データで改善できるのが他と違う。
+          </p>
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-person">
+            <div class="testi-avatar av3">👩</div>
+            <div>
+              <div class="testi-name">山田 彩香</div>
+              <div class="testi-role">コンサルティング会社 シニアコンサルタント</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq" id="faq">
+    <div class="section-inner">
+      <div class="fade-in">
+        <div class="section-tag">❓ よくある質問</div>
+        <h2 class="section-title">気になること、<br />なんでも答えます</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item fade-in">
+          <div class="faq-q">
+            <span class="faq-q-text">本当に企業名だけで資料が作れるんですか？</span>
+            <div class="faq-icon">+</div>
+          </div>
+          <p class="faq-a">
+            はい、本当に企業名だけで大丈夫です。AIが公開情報をもとに
+            その企業の業種・規模・課題を推定して資料を生成します。
+            もちろん「製造業向け」「50名規模」などの補足情報を入れると
+            さらに精度が上がります。
+          </p>
+        </div>
+        <div class="faq-item fade-in">
+          <div class="faq-q">
+            <span class="faq-q-text">生成した資料は自由に編集できますか？</span>
+            <div class="faq-icon">+</div>
+          </div>
+          <p class="faq-a">
+            もちろんです。生成された資料はPowerPoint形式でダウンロードすれば
+            自由に編集できます。AIが作ったベースを自分でカスタマイズするのが
+            一番効率的な使い方です。
+          </p>
+        </div>
+        <div class="faq-item fade-in">
+          <div class="faq-q">
+            <span class="faq-q-text">入力した企業情報は他のユーザーに見られますか？</span>
+            <div class="faq-icon">+</div>
+          </div>
+          <p class="faq-a">
+            絶対に見られません。入力した情報は暗号化されてあなたのアカウントにのみ
+            紐づきます。他のユーザーのAI学習にも使用しません。
+            機密情報を扱う場合でも安心してご利用ください。
+          </p>
+        </div>
+        <div class="faq-item fade-in">
+          <div class="faq-q">
+            <span class="faq-q-text">無料プランからProにいつでも切り替えられますか？</span>
+            <div class="faq-icon">+</div>
+          </div>
+          <p class="faq-a">
+            はい、いつでもアップグレード・ダウングレード・解約が可能です。
+            年縛りなどは一切ありません。使ってみて合わなければ
+            翌月からやめるだけ。気軽に試してみてください。
+          </p>
+        </div>
+        <div class="faq-item fade-in">
+          <div class="faq-q">
+            <span class="faq-q-text">Salesforce・HubSpotとの連携はできますか？</span>
+            <div class="faq-icon">+</div>
+          </div>
+          <p class="faq-a">
+            Teamプランでご利用いただけます。Salesforce・HubSpot・kintoneなど
+            主要なCRMに対応しています。CRMの顧客データをもとに
+            自動で資料を生成するワークフローを作ることもできます。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER CTA -->
+  <section class="footer-cta" id="cta">
+    <div class="fd1 footer-decor"></div>
+    <div class="fd2 footer-decor"></div>
+    <div class="fd3 footer-decor"></div>
+    <div class="fd4 footer-decor"></div>
+    <div class="footer-cta-inner fade-in">
+      <h2>さあ、資料作りを<br />楽しくしよう。</h2>
+      <p>
+        最初の1枚は無料。クレジットカード不要。<br />
+        30秒でアカウント作成できます。
+      </p>
+      <div class="footer-btns">
+        <a href="#top" class="btn-white">✦ 無料で試してみる</a>
+        <a href="#features" class="btn-outline-white">機能をもっと見る</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER BOTTOM -->
+  <footer class="footer-bottom">
+    <div class="footer-logo">PitchPilot ✦</div>
+    <div class="footer-links">
+      <a href="#">利用規約</a>
+      <a href="#">プライバシーポリシー</a>
+      <a href="#">お問い合わせ</a>
+      <a href="#">ブログ</a>
+    </div>
+    <div class="footer-copy">© 2026 PitchPilot, Inc. All rights reserved.</div>
+  </footer>
+
+  <script>
+    // Scroll fade-in
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // FAQ toggle
+    document.querySelectorAll('.faq-q').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.parentElement;
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => {
+          i.classList.remove('open');
+          i.querySelector('.faq-icon').textContent = '+';
+        });
+        if (!isOpen) {
+          item.classList.add('open');
+          q.querySelector('.faq-icon').textContent = '−';
+        }
+      });
+    });
+  </script>
+  <style>
+    .faq-a { display: none; }
+    .faq-item.open .faq-a { display: block; }
+    .faq-item.open { box-shadow: var(--card-shadow); }
+    .faq-item.open .faq-q { color: var(--accent); }
+  </style>
+</body>
+</html>
