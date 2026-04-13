@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeScan AI - 不動産AIスクリーナー | プレミアム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FFFFFF;--bg2:#F8F9FB;--bg3:#F0F4F8;
+  --navy:#0D1B2A;--navy2:#1a2d40;
+  --gold:#D4A84B;--gold2:#b8913f;
+  --text:#0D1B2A;--text2:#4a5568;--text3:#8a9ab0;
+  --green:#2ECC71;--line:#E2E8F0;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP','Inter',sans-serif;line-height:1.7;overflow-x:hidden}
+
+/* --- Nav --- */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;height:72px;display:flex;align-items:center;gap:40px}
+.logo{font-family:'Inter',sans-serif;font-weight:800;font-size:1.25rem;color:var(--navy);letter-spacing:-0.5px}
+.logo span{color:var(--gold)}
+.nav-links{display:flex;gap:32px;list-style:none;margin-left:auto}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:.9rem;transition:color .2s}
+.nav-links a:hover{color:var(--navy)}
+.btn-nav{background:var(--navy);color:#fff;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:700;font-size:.85rem;font-family:'Inter',sans-serif;transition:background .2s}
+.btn-nav:hover{background:var(--navy2)}
+
+/* --- Hero --- */
+.hero{min-height:100vh;padding:140px 32px 100px;background:linear-gradient(180deg,#fff 0%,var(--bg2) 100%);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;right:0;width:50%;height:100%;background:linear-gradient(135deg,rgba(212,168,75,0.04) 0%,rgba(13,27,42,0.03) 100%);pointer-events:none}
+.hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.eyebrow{font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.eyebrow-line{width:32px;height:1px;background:var(--gold)}
+h1{font-size:clamp(2rem,3.5vw,3.4rem);font-weight:700;line-height:1.15;letter-spacing:-1.5px;margin-bottom:24px;color:var(--navy)}
+h1 em{font-style:normal;position:relative;display:inline-block}
+h1 em::after{content:'';position:absolute;bottom:2px;left:0;right:0;height:3px;background:var(--gold);border-radius:2px}
+.hero-sub{color:var(--text2);font-size:1.05rem;line-height:1.85;margin-bottom:40px;max-width:480px}
+.hero-cta{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:48px}
+.btn-primary{background:var(--navy);color:#fff;padding:16px 36px;border-radius:8px;text-decoration:none;font-weight:700;font-family:'Inter',sans-serif;font-size:.95rem;transition:all .2s}
+.btn-primary:hover{background:var(--navy2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(13,27,42,0.2)}
+.btn-outline{border:2px solid var(--navy);color:var(--navy);padding:15px 36px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.95rem;transition:all .2s}
+.btn-outline:hover{background:var(--navy);color:#fff}
+.trust-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text3)}
+.trust-check{width:18px;height:18px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff;flex-shrink:0}
+.hero-divider{width:1px;height:20px;background:var(--line)}
+
+/* --- Dashboard Mock --- */
+.hero-visual{position:relative}
+.mock-window{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 80px rgba(13,27,42,0.12),0 4px 16px rgba(0,0,0,0.04);overflow:hidden}
+.mock-titlebar{background:var(--bg2);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:8px}
+.wdot{width:10px;height:10px;border-radius:50%}
+.wdot.r{background:#FF5F57}
+.wdot.y{background:#FEBC2E}
+.wdot.g{background:#28C840}
+.mock-url{background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 12px;font-size:.72rem;color:var(--text3);font-family:'Inter',sans-serif;margin-left:12px;flex:1}
+.mock-body{padding:20px}
+.mock-search-bar{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.search-icon{width:16px;height:16px;border-radius:50%;border:2px solid var(--text3)}
+.search-text{font-size:.78rem;color:var(--text3);flex:1}
+.search-btn{background:var(--gold);color:#fff;padding:4px 14px;border-radius:6px;font-size:.72rem;font-weight:700}
+.mock-tabs{display:flex;gap:0;border-bottom:2px solid var(--line);margin-bottom:16px}
+.mock-tab{padding:8px 16px;font-size:.78rem;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer}
+.mock-tab.active{color:var(--navy);border-bottom-color:var(--gold);font-weight:700}
+.mock-result-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.mock-count{font-size:.78rem;color:var(--text2)}<span class="gold-text">strong{color:var(--gold)}</span>
+.mock-sort{font-size:.72rem;color:var(--text3);border:1px solid var(--line);padding:4px 10px;border-radius:6px}
+
+/* Property Cards */
+.prop-card{display:flex;gap:14px;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px;transition:all .2s;cursor:pointer}
+.prop-card:hover{border-color:var(--gold);box-shadow:0 4px 20px rgba(212,168,75,0.1)}
+.prop-card.top-pick{border-color:var(--gold);background:linear-gradient(135deg,rgba(212,168,75,0.03),rgba(255,255,255,1))}
+.prop-img{width:80px;height:64px;border-radius:8px;flex-shrink:0;position:relative;overflow:hidden}
+.src-badge{position:absolute;bottom:4px;left:4px;font-size:.58rem;font-weight:700;padding:2px 5px;border-radius:3px}
+.src-s{background:#FF6B35;color:#fff}
+.src-a{background:#0077CC;color:#fff}
+.src-h{background:#7B2D8B;color:#fff}
+.prop-info{flex:1;min-width:0}
+.prop-label{font-size:.65rem;font-weight:600;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
+.prop-name{font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prop-price-row{display:flex;align-items:baseline;gap:4px}
+.prop-price{font-family:'Inter',sans-serif;font-size:1.05rem;font-weight:800;color:var(--navy)}
+.prop-price sub{font-size:.7rem;font-weight:400;color:var(--text3)}
+.prop-meta-row{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+.meta-chip{font-size:.65rem;color:var(--text3);display:flex;align-items:center;gap:3px}
+.score-col{text-align:center;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-ring{width:48px;height:48px;position:relative}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .bg{fill:none;stroke:var(--bg3);stroke-width:4}
+.score-ring .fill{fill:none;stroke-width:4;stroke-linecap:round}
+.score-ring .fill.s95{stroke:var(--green);stroke-dasharray:113.1;stroke-dashoffset:5.7}
+.score-ring .fill.s88{stroke:var(--gold);stroke-dasharray:113.1;stroke-dashoffset:13.6}
+.score-ring .fill.s82{stroke:var(--gold);stroke-dasharray:113.1;stroke-dashoffset:20.4}
+.score-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Inter',sans-serif;font-size:.8rem;font-weight:800;color:var(--navy)}
+.score-label{font-size:.58rem;color:var(--text3);margin-top:2px}
+.val-down{display:inline-flex;align-items:center;gap:3px;font-size:.65rem;font-weight:700;color:#E74C3C;background:rgba(231,76,60,0.08);padding:2px 7px;border-radius:10px}
+
+/* --- Section Common --- */
+section{padding:100px 32px}
+.section-inner{max-width:1200px;margin:0 auto}
+.section-eyebrow{font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+h2{font-size:clamp(1.8rem,3vw,2.6rem);font-weight:700;color:var(--navy);letter-spacing:-1px;margin-bottom:16px}
+.section-desc{color:var(--text2);font-size:1rem;line-height:1.85;max-width:540px}
+.divider{width:48px;height:2px;background:var(--gold);margin:20px 0}
+
+/* --- Problem --- */
+.problem{background:var(--bg2)}
+.problem-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-top:64px}
+.problem-text h3{font-size:1.5rem;font-weight:700;color:var(--navy);margin-bottom:20px;line-height:1.4}
+.problem-text p{color:var(--text2);font-size:.95rem;line-height:1.85;margin-bottom:16px}
+.stat-highlight{background:var(--navy);color:#fff;padding:24px 28px;border-radius:12px;margin-top:24px}
+.stat-highlight .big{font-family:'Inter',sans-serif;font-size:2.8rem;font-weight:800;color:var(--gold);display:block;line-height:1}
+.stat-highlight .desc{font-size:.85rem;color:rgba(255,255,255,0.7);margin-top:4px}
+.problem-list{display:flex;flex-direction:column;gap:20px}
+.problem-item{display:flex;gap:16px;padding:20px;background:#fff;border:1px solid var(--line);border-radius:10px;transition:border-color .2s}
+.problem-item:hover{border-color:var(--gold)}
+.problem-item-num{font-family:'Inter',sans-serif;font-size:1.4rem;font-weight:800;color:var(--gold);flex-shrink:0;line-height:1;margin-top:2px}
+.problem-item h4{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.problem-item p{font-size:.85rem;color:var(--text2);line-height:1.7}
+
+/* --- Solution --- */
+.solution{background:#fff}
+.solution-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-top:64px}
+.solution-steps{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:20px;position:relative}
+.step:not(:last-child)::after{content:'';position:absolute;left:19px;top:44px;width:1px;height:calc(100% - 20px);background:var(--line)}
+.step-circle{width:40px;height:40px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:800;flex-shrink:0;z-index:1}
+.step-content{padding:4px 0 32px}
+.step-content h4{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.step-content p{font-size:.85rem;color:var(--text2);line-height:1.7}
+.solution-visual{background:var(--bg2);border-radius:16px;padding:32px}
+.sources-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+.source-box{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center;transition:border-color .2s}
+.source-box:hover{border-color:var(--gold)}
+.source-box .name{font-size:.85rem;font-weight:700;color:var(--navy)}
+.source-box .count{font-size:.72rem;color:var(--text3);margin-top:2px}
+.arrow-down{text-align:center;color:var(--gold);font-size:1.2rem;margin:8px 0}
+.ai-center-box{background:var(--navy);border-radius:12px;padding:20px;text-align:center;color:#fff}
+.ai-center-box h4{font-family:'Inter',sans-serif;font-size:1rem;font-weight:800;color:var(--gold);margin-bottom:4px}
+.ai-center-box p{font-size:.8rem;color:rgba(255,255,255,0.7)}
+.result-nums{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:16px}
+.rnum{background:rgba(255,255,255,0.08);border-radius:8px;padding:12px;text-align:center}
+.rnum .big{font-family:'Inter',sans-serif;font-size:1.4rem;font-weight:800;color:var(--gold)}
+.rnum .lbl{font-size:.65rem;color:rgba(255,255,255,0.6);margin-top:2px}
+
+/* --- Features --- */
+.features{background:var(--bg2)}
+.features-layout{margin-top:64px}
+.feat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);border-radius:16px;overflow:hidden}
+.feat-cell{background:#fff;padding:36px 32px;transition:background .2s}
+.feat-cell:hover{background:rgba(212,168,75,0.03)}
+.feat-tag{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:var(--gold);font-size:.7rem;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:20px;font-family:'Inter',sans-serif;letter-spacing:.5px}
+.feat-cell h3{font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:12px;line-height:1.4}
+.feat-cell p{font-size:.875rem;color:var(--text2);line-height:1.75}
+.feat-list{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+.feat-list li{font-size:.8rem;color:var(--text2);display:flex;align-items:flex-start;gap:8px;list-style:none}
+.feat-list li::before{content:'—';color:var(--gold);flex-shrink:0}
+
+/* --- Pricing --- */
+.pricing{background:#fff}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:64px;align-items:start}
+.price-card{border:1px solid var(--line);border-radius:16px;padding:36px 28px;transition:all .2s}
+.price-card:hover{box-shadow:0 12px 40px rgba(13,27,42,0.08)}
+.price-card.featured{border:2px solid var(--navy);background:var(--navy);color:#fff;position:relative}
+.featured-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--navy);font-size:.7rem;font-weight:700;padding:4px 18px;border-radius:20px;white-space:nowrap}
+.price-tier{font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.price-card.featured .price-tier{color:rgba(255,255,255,0.6)}
+.price-num{font-family:'Inter',sans-serif;font-size:3rem;font-weight:800;color:var(--navy);line-height:1;margin-bottom:4px}
+.price-card.featured .price-num{color:var(--gold)}
+.price-num span{font-size:1rem;font-weight:400;color:var(--text3)}
+.price-card.featured .price-num span{color:rgba(255,255,255,0.5)}
+.price-note{font-size:.8rem;color:var(--text3);margin-bottom:28px}
+.price-card.featured .price-note{color:rgba(255,255,255,0.5)}
+.price-feats{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px}
+.price-feats li{font-size:.875rem;display:flex;align-items:flex-start;gap:10px}
+.price-feats li .check{width:18px;height:18px;border-radius:50%;background:rgba(46,204,113,0.15);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--green);flex-shrink:0;margin-top:2px}
+.price-card.featured .price-feats li .check{background:rgba(46,204,113,0.2)}
+.price-feats li.muted{opacity:.45}
+.price-feats li.muted .check{background:var(--bg3)}
+.btn-cta{display:block;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.9rem;transition:all .2s}
+.btn-cta.dark{background:var(--navy);color:#fff}
+.btn-cta.dark:hover{background:var(--navy2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(13,27,42,0.2)}
+.btn-cta.gold{background:var(--gold);color:var(--navy)}
+.btn-cta.gold:hover{background:var(--gold2);transform:translateY(-1px)}
+.btn-cta.outline{border:2px solid var(--line);color:var(--navy)}
+.btn-cta.outline:hover{border-color:var(--navy)}
+
+/* --- Testimonials --- */
+.testimonials{background:var(--bg2)}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:64px}
+.testi-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:32px;position:relative;transition:box-shadow .2s}
+.testi-card:hover{box-shadow:0 12px 40px rgba(13,27,42,0.07)}
+.testi-accent{width:32px;height:3px;background:var(--gold);margin-bottom:20px;border-radius:2px}
+.testi-body{font-size:.9rem;line-height:1.85;color:var(--text);margin-bottom:24px}
+.testi-footer{display:flex;align-items:center;gap:14px;border-top:1px solid var(--line);padding-top:20px}
+.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0}
+.author-name{font-weight:700;font-size:.88rem;color:var(--navy)}
+.author-role{font-size:.75rem;color:var(--text3);margin-top:2px}
+.rating{display:flex;gap:2px;margin-bottom:16px}
+.star{color:var(--gold);font-size:.85rem}
+
+/* --- FAQ --- */
+.faq{background:#fff}
+.faq-cols{display:grid;grid-template-columns:1fr 2fr;gap:80px;margin-top:64px;align-items:start}
+.faq-intro h3{font-size:1.2rem;font-weight:700;color:var(--navy);margin-bottom:12px}
+.faq-intro p{font-size:.88rem;color:var(--text2);line-height:1.75}
+.faq-intro .contact-link{display:inline-flex;align-items:center;gap:6px;color:var(--gold);text-decoration:none;font-size:.85rem;font-weight:700;margin-top:20px}
+.faq-list{display:flex;flex-direction:column;gap:2px;background:var(--line);border-radius:12px;overflow:hidden}
+.faq-item{background:#fff}
+.faq-q{padding:20px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.92rem;transition:all .2s;user-select:none;color:var(--navy)}
+.faq-q:hover{color:var(--gold)}
+.faq-chevron{color:var(--gold);transition:transform .3s;flex-shrink:0;font-size:.85rem}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.faq-a-inner{padding:0 24px;font-size:.875rem;color:var(--text2);line-height:1.8}
+.faq-item.open .faq-a{max-height:180px;padding:0 0 16px}
+.faq-item.open .faq-a-inner{padding-bottom:4px}
+.faq-item.open .faq-chevron{transform:rotate(180deg)}
+
+/* --- Footer CTA --- */
+.footer-cta{background:var(--navy);padding:100px 32px;text-align:center;position:relative;overflow:hidden}
+.footer-cta::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(circle,rgba(212,168,75,0.1) 0%,transparent 70%);pointer-events:none}
+.footer-cta .eyebrow{color:var(--gold);justify-content:center}
+.footer-cta .eyebrow-line{background:var(--gold)}
+.footer-cta h2{color:#fff;margin-bottom:16px}
+.footer-cta p{color:rgba(255,255,255,0.65);margin-bottom:40px;font-size:1rem;line-height:1.8}
+.cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.cta-gold-btn{background:var(--gold);color:var(--navy);padding:18px 48px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1rem;transition:all .2s}
+.cta-gold-btn:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 12px 32px rgba(212,168,75,0.3)}
+.cta-ghost-btn{border:2px solid rgba(255,255,255,0.3);color:#fff;padding:17px 48px;border-radius:8px;text-decoration:none;font-size:1rem;transition:all .2s}
+.cta-ghost-btn:hover{border-color:#fff}
+.cta-trust{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+.trust-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:rgba(255,255,255,0.5)}
+.trust-item::before{content:'✓';color:var(--gold)}
+
+/* --- Footer --- */
+footer{background:var(--navy2);padding:60px 32px 40px}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:32px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.footer-brand .logo{color:#fff;margin-bottom:8px}
+.footer-brand p{font-size:.82rem;color:rgba(255,255,255,0.45);max-width:240px;line-height:1.6}
+.footer-links-group{display:flex;gap:48px;flex-wrap:wrap}
+.footer-col h4{font-size:.8rem;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
+.footer-col a{display:block;color:rgba(255,255,255,0.55);text-decoration:none;font-size:.85rem;margin-bottom:8px;transition:color .2s}
+.footer-col a:hover{color:var(--gold)}
+.footer-bottom{text-align:center;padding-top:28px;font-size:.78rem;color:rgba(255,255,255,0.3)}
+
+/* --- Responsive --- */
+@media(max-width:960px){
+  .hero-inner,.problem-layout,.solution-grid,.faq-cols{grid-template-columns:1fr}
+  .feat-row{grid-template-columns:1fr}
+  .feat-row{gap:2px}
+  .testi-grid,.pricing-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .footer-links-group{gap:28px}
+}
+@media(max-width:480px){
+  section{padding:72px 16px}
+  .hero{padding:120px 16px 80px}
+  nav .nav-inner{padding:0 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">HomeScan <span>AI</span></div>
+    <ul class="nav-links">
+      <li><a href="#features">機能</a></li>
+      <li><a href="#pricing">料金</a></li>
+      <li><a href="#testimonials">事例</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a href="#cta" class="btn-nav">無料で始める</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="eyebrow"><span class="eyebrow-line"></span>AI × 不動産スクリーニング</div>
+      <h1>本当に良い物件を、<br><em>AIが探してくる。</em></h1>
+      <p class="hero-sub">SUUMO・アットホーム・ホームズを横断スキャン。AIが価格妥当性・立地・周辺環境・口コミを統合評価し、条件に合った優良物件だけを自動抽出してランキング表示します。</p>
+      <div class="hero-cta">
+        <a href="#cta" class="btn-primary">無料で試す</a>
+        <a href="#features" class="btn-outline">機能を見る</a>
+      </div>
+      <div class="trust-row">
+        <div class="trust-item"><div class="trust-check">✓</div>14日間無料</div>
+        <div class="hero-divider"></div>
+        <div class="trust-item"><div class="trust-check">✓</div>カード不要</div>
+        <div class="hero-divider"></div>
+        <div class="trust-item"><div class="trust-check">✓</div>いつでも解約</div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="mock-window">
+        <div class="mock-titlebar">
+          <div class="wdot r"></div><div class="wdot y"></div><div class="wdot g"></div>
+          <div class="mock-url">app.homescan.ai — ダッシュボード</div>
+        </div>
+        <div class="mock-body">
+          <div class="mock-search-bar">
+            <div class="search-icon"></div>
+            <div class="search-text">渋谷区・目黒区・世田谷区 / 1LDK〜3LDK / 〜12万円</div>
+            <div class="search-btn">スキャン中</div>
+          </div>
+          <div class="mock-tabs">
+            <div class="mock-tab active">AI選定 (23件)</div>
+            <div class="mock-tab">全件 (847件)</div>
+            <div class="mock-tab">地図</div>
+          </div>
+          <div class="mock-result-bar">
+            <div class="mock-count">AIスコア順に表示 · 最終更新: <strong>2分前</strong></div>
+            <div class="mock-sort">並び替え ▾</div>
+          </div>
+
+          <div class="prop-card top-pick">
+            <div class="prop-img" style="background:linear-gradient(135deg,#1a3a5c,#2a5a8c)">
+              <span class="src-badge src-h">HOMES</span>
+              <span class="val-down" style="position:absolute;top:4px;right:4px;font-size:.55rem">↓3万</span>
+            </div>
+            <div class="prop-info">
+              <div class="prop-label">Top Pick</div>
+              <div class="prop-name">世田谷区三軒茶屋 3LDK</div>
+              <div class="prop-price-row">
+                <span class="prop-price">¥115,000</span><sub class="prop-price" style="font-size:.72rem;font-weight:400;color:var(--text3)">/月</sub>
+              </div>
+              <div class="prop-meta-row">
+                <span class="meta-chip">築12年</span>
+                <span class="meta-chip">渋谷15分</span>
+                <span class="meta-chip">78㎡</span>
+              </div>
+            </div>
+            <div class="score-col">
+              <div class="score-ring">
+                <svg viewBox="0 0 40 40" width="48" height="48">
+                  <circle class="bg" cx="20" cy="20" r="18"/>
+                  <circle class="fill s95" cx="20" cy="20" r="18"/>
+                </svg>
+                <div class="score-num">95</div>
+              </div>
+              <div class="score-label">AIスコア</div>
+            </div>
+          </div>
+
+          <div class="prop-card">
+            <div class="prop-img" style="background:linear-gradient(135deg,#0a2a1a,#1a5a3a)">
+              <span class="src-badge src-s">SUUMO</span>
+            </div>
+            <div class="prop-info">
+              <div class="prop-name">品川区大崎 2LDK</div>
+              <div class="prop-price-row">
+                <span class="prop-price">¥78,000</span><sub class="prop-price" style="font-size:.72rem;font-weight:400;color:var(--text3)">/月</sub>
+              </div>
+              <div class="prop-meta-row">
+                <span class="meta-chip">築8年</span>
+                <span class="meta-chip">渋谷12分</span>
+                <span class="meta-chip">62㎡</span>
+              </div>
+            </div>
+            <div class="score-col">
+              <div class="score-ring">
+                <svg viewBox="0 0 40 40" width="48" height="48">
+                  <circle class="bg" cx="20" cy="20" r="18"/>
+                  <circle class="fill s88" cx="20" cy="20" r="18"/>
+                </svg>
+                <div class="score-num">88</div>
+              </div>
+              <div class="score-label">AIスコア</div>
+            </div>
+          </div>
+
+          <div class="prop-card">
+            <div class="prop-img" style="background:linear-gradient(135deg,#2a1a3c,#4a2a6c)">
+              <span class="src-badge src-a">アットホーム</span>
+            </div>
+            <div class="prop-info">
+              <div class="prop-name">目黒区中目黒 1LDK</div>
+              <div class="prop-price-row">
+                <span class="prop-price">¥95,000</span><sub class="prop-price" style="font-size:.72rem;font-weight:400;color:var(--text3)">/月</sub>
+              </div>
+              <div class="prop-meta-row">
+                <span class="meta-chip">築3年</span>
+                <span class="meta-chip">渋谷8分</span>
+                <span class="meta-chip">45㎡</span>
+              </div>
+            </div>
+            <div class="score-col">
+              <div class="score-ring">
+                <svg viewBox="0 0 40 40" width="48" height="48">
+                  <circle class="bg" cx="20" cy="20" r="18"/>
+                  <circle class="fill s82" cx="20" cy="20" r="18"/>
+                </svg>
+                <div class="score-num">82</div>
+              </div>
+              <div class="score-label">AIスコア</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="section-inner">
+    <div class="section-eyebrow">課題</div>
+    <h2>物件探しに、なぜ月12時間<br>費やさなければならないのか</h2>
+    <div class="divider"></div>
+    <div class="problem-layout">
+      <div class="problem-text">
+        <h3>50のサイトを毎日チェックする人生、もう終わりにしよう</h3>
+        <p>転勤・引越しを検討するすべての人が、同じ問題を抱えています。複数の不動産情報サイトを行ったり来たりしながら、気になる物件の価格が相場に対して妥当なのかも判断できずにいます。</p>
+        <p>一生に何度もない買い物だから、見落としたくない。その思いが、さらに時間を奪っていきます。</p>
+        <div class="stat-highlight">
+          <span class="big">月12時間</span>
+          <span class="desc">平均的な引越し検討者が物件調査に費やす時間</span>
+        </div>
+      </div>
+      <div class="problem-list">
+        <div class="problem-item">
+          <div class="problem-item-num">01</div>
+          <div>
+            <h4>サイトをまたいだ重複確認が苦痛</h4>
+            <p>SUUMO・アットホーム・ホームズに同じ物件が掲載されているのに、それぞれ確認しなければならない。効率が悪く、情報が混在する。</p>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-item-num">02</div>
+          <div>
+            <h4>価格が相場比で妥当かどうかわからない</h4>
+            <p>掲載価格が高いのか安いのか、素人では判断できない。良い物件を高値づかみしたり、割安な物件を見逃したりしてしまう。</p>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-item-num">03</div>
+          <div>
+            <h4>値下がりのタイミングを逃し続ける</h4>
+            <p>気になっていた物件が値下がりしていたのに気づかなかった。タイミングよくチェックできなければ、最良の条件での契約機会を失う。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="solution" id="solution">
+  <div class="section-inner">
+    <div class="section-eyebrow">ソリューション</div>
+    <h2>条件を設定したら、<br>あとはAIが全部やってくれる</h2>
+    <div class="divider"></div>
+    <div class="solution-grid">
+      <div class="solution-steps">
+        <div class="step">
+          <div class="step-circle">1</div>
+          <div class="step-content">
+            <h4>検索条件を設定する（5分）</h4>
+            <p>エリア・家賃・間取り・駅徒歩などの基本条件に加え、「ペット可」「事故物件除外」などの詳細フィルターも設定可能。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-circle">2</div>
+          <div class="step-content">
+            <h4>AIが全サイトを24時間スキャン</h4>
+            <p>SUUMO・アットホーム・ホームズなど主要サイトをリアルタイム監視。800万件以上のデータベースから条件に合う物件を自動抽出。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-circle">3</div>
+          <div class="step-content">
+            <h4>スコア付きランキングで届く</h4>
+            <p>価格妥当性・立地・周辺環境・口コミを100点満点でスコア化。上位物件だけをランキング表示し、最適な選択をサポートします。</p>
+          </div>
+        </div>
+      </div>
+      <div class="solution-visual">
+        <div class="sources-grid">
+          <div class="source-box"><div class="name">SUUMO</div><div class="count">300万件+</div></div>
+          <div class="source-box"><div class="name">アットホーム</div><div class="count">250万件+</div></div>
+          <div class="source-box"><div class="name">HOMES</div><div class="count">200万件+</div></div>
+          <div class="source-box"><div class="name">その他</div><div class="count">複数サイト</div></div>
+        </div>
+        <div class="arrow-down">↓</div>
+        <div class="ai-center-box">
+          <h4>HomeScan AI エンジン</h4>
+          <p>24時間365日 · 自動スキャン · AIスコアリング</p>
+          <div class="result-nums">
+            <div class="rnum"><div class="big">−97%</div><div class="lbl">確認作業削減</div></div>
+            <div class="rnum"><div class="big">100点</div><div class="lbl">スコアリング</div></div>
+            <div class="rnum"><div class="big">即時</div><div class="lbl">アラート通知</div></div>
+            <div class="rnum"><div class="big">全サイト</div><div class="lbl">横断対応</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="section-eyebrow">主要機能</div>
+    <h2>3つの核心機能</h2>
+    <div class="divider"></div>
+    <div class="features-layout">
+      <div class="feat-row">
+        <div class="feat-cell">
+          <div class="feat-tag">Feature 01</div>
+          <h3>マルチサイト横断スキャン</h3>
+          <p>主要不動産サイトを一括スキャンし、バラバラだった情報を1つのダッシュボードに統合。毎日の巡回作業を完全自動化します。</p>
+          <ul class="feat-list">
+            <li>SUUMO・アットホーム・ホームズ対応</li>
+            <li>800万件以上のリアルタイム監視</li>
+            <li>重複物件の自動名寄せ</li>
+          </ul>
+        </div>
+        <div class="feat-cell">
+          <div class="feat-tag">Feature 02</div>
+          <h3>AIスコアリング &amp; 自動ランキング</h3>
+          <p>5つの評価軸（価格妥当性・立地・周辺施設・交通・口コミ）を統合し、100点満点でスコア化。最良の物件を一目で判断できます。</p>
+          <ul class="feat-list">
+            <li>周辺相場との価格妥当性分析</li>
+            <li>スコア順自動ランキング</li>
+            <li>AI比較レポート（1クリック）</li>
+          </ul>
+        </div>
+        <div class="feat-cell">
+          <div class="feat-tag">Feature 03</div>
+          <h3>値下がり・新着リアルタイムアラート</h3>
+          <p>気になる物件の価格変動・新着情報を即時通知。見逃しゼロで、最良のタイミングで申し込みできます。</p>
+          <ul class="feat-list">
+            <li>値下がり即時アラート</li>
+            <li>新着物件の優先通知</li>
+            <li>前日比価格変動レポート</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-inner">
+    <div class="section-eyebrow">料金プラン</div>
+    <h2>シンプルで透明な料金</h2>
+    <div class="divider"></div>
+    <p class="section-desc">まず無料でお試しいただき、使い心地を確認してからご検討ください。14日間無料トライアル付き。</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tier">Free</div>
+        <div class="price-num">¥0<span>/月</span></div>
+        <div class="price-note">クレジットカード不要</div>
+        <ul class="price-feats">
+          <li><div class="check">✓</div>月10件まで物件表示</li>
+          <li><div class="check">✓</div>SUUMO 1サイト対応</li>
+          <li><div class="check">✓</div>基本AIスコア表示</li>
+          <li class="muted"><div class="check">–</div>全サイト横断スキャン</li>
+          <li class="muted"><div class="check">–</div>アラート通知</li>
+          <li class="muted"><div class="check">–</div>比較レポート</li>
+        </ul>
+        <a href="#" class="btn-cta outline">無料で始める</a>
+      </div>
+      <div class="price-card featured">
+        <div class="featured-badge">人気 No.1</div>
+        <div class="price-tier">Standard</div>
+        <div class="price-num">¥980<span>/月</span></div>
+        <div class="price-note">月払い · いつでも解約可</div>
+        <ul class="price-feats">
+          <li><div class="check">✓</div>無制限の物件表示</li>
+          <li><div class="check">✓</div>全サイト横断スキャン</li>
+          <li><div class="check">✓</div>詳細AIスコアリング</li>
+          <li><div class="check">✓</div>値下がり・新着アラート</li>
+          <li><div class="check">✓</div>物件比較レポート</li>
+          <li class="muted"><div class="check">–</div>API連携・投資分析</li>
+        </ul>
+        <a href="#" class="btn-cta gold">14日間無料で試す</a>
+      </div>
+      <div class="price-card">
+        <div class="price-tier">Pro</div>
+        <div class="price-num">¥2,980<span>/月</span></div>
+        <div class="price-note">投資家・法人向け</div>
+        <ul class="price-feats">
+          <li><div class="check">✓</div>スタンダード全機能</li>
+          <li><div class="check">✓</div>API連携</li>
+          <li><div class="check">✓</div>投資収益シミュレーション</li>
+          <li><div class="check">✓</div>複数アカウント管理</li>
+          <li><div class="check">✓</div>除外フィルター（事故物件等）</li>
+          <li><div class="check">✓</div>専任サポート</li>
+        </ul>
+        <a href="#" class="btn-cta dark">お問い合わせ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="testimonials">
+  <div class="section-inner">
+    <div class="section-eyebrow">ユーザーの声</div>
+    <h2>使った人たちの正直な評価</h2>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="rating"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <div class="testi-accent"></div>
+        <p class="testi-body">転勤が決まって2週間しか猶予がなかったのに、翌日には条件ぴったりのスコア92物件が見つかりました。以前の引越しで3ヶ月かかったことを思うと、別世界のような体験です。</p>
+        <div class="testi-footer">
+          <div class="avatar">田</div>
+          <div><div class="author-name">田中 雄介さん</div><div class="author-role">IT企業勤務・30代・東京→大阪転勤</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="rating"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <div class="testi-accent"></div>
+        <p class="testi-body">価格妥当性スコアがとても信頼できます。「この物件は相場比15%割安」という判定で購入を決断しましたが、後から不動産鑑定士にも「良い買い物」と言われました。投資家としては必須ツールです。</p>
+        <div class="testi-footer">
+          <div class="avatar">佐</div>
+          <div><div class="author-name">佐藤 麻衣さん</div><div class="author-role">個人投資家・40代・神奈川</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="rating"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <div class="testi-accent"></div>
+        <p class="testi-body">値下がりアラートで気になっていた物件の値下がりを即座にキャッチ。以前は「もっと早く申し込めば良かった」という後悔ばかりでしたが、HomeScan AIを使ってからは見逃しがなくなりました。</p>
+        <div class="testi-footer">
+          <div class="avatar">鈴</div>
+          <div><div class="author-name">鈴木 健太さん</div><div class="author-role">会社員・28歳・引越し経験3回</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="section-inner">
+    <div class="section-eyebrow">よくある質問</div>
+    <h2>FAQ</h2>
+    <div class="faq-cols">
+      <div class="faq-intro">
+        <h3>ご不明な点は<br>お気軽にどうぞ</h3>
+        <p>よくいただくご質問をまとめました。その他のご質問はお問い合わせフォームよりどうぞ。</p>
+        <a href="#" class="contact-link">お問い合わせ →</a>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">対応している不動産情報サイトは？<span class="faq-chevron">▼</span></div>
+          <div class="faq-a"><div class="faq-a-inner">SUUMO・アットホーム・HOMES（ホームズ）・マンションコミュニティに対応しています。スタンダードプラン以上で全サイト横断スキャンが可能。対応サイトは順次追加予定です。</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">AIスコアはどのように算出されますか？<span class="faq-chevron">▼</span></div>
+          <div class="faq-a"><div class="faq-a-inner">価格妥当性（周辺相場比較）・立地スコア・周辺施設・交通アクセス・口コミ評価の5軸を独自アルゴリズムで統合し100点満点でスコア化。物件ごとに詳細な評価内訳も確認できます。</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">無料プランでどこまで使えますか？<span class="faq-chevron">▼</span></div>
+          <div class="faq-a"><div class="faq-a-inner">無料プランはSUUMO1サイト・月10件までの物件表示と基本AIスコア確認が可能です。まずは使い心地をお試しいただき、本格活用はスタンダードプラン（¥980/月）をご検討ください。</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">いつでも解約できますか？<span class="faq-chevron">▼</span></div>
+          <div class="faq-a"><div class="faq-a-inner">はい、いつでも解約可能です。解約後も当月末まではご利用いただけます。契約期間の縛りや違約金は一切ありません。</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">事故物件などのネガティブ条件で絞り込めますか？<span class="faq-chevron">▼</span></div>
+          <div class="faq-a"><div class="faq-a-inner">プロプランで「事故物件除外」「旗竿地除外」「築年数フィルター」などのネガティブ条件絞り込みが可能です。スタンダードプランでも基本フィルターはご利用いただけます。</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER CTA -->
+<section class="footer-cta" id="cta">
+  <div class="section-inner">
+    <div class="eyebrow" style="justify-content:center"><span class="eyebrow-line"></span>今すぐ始める</div>
+    <h2 style="color:#fff">一生に何度もない買い物だから、<br>見落としたくない。</h2>
+    <p>まず無料でお試しください。14日間のトライアル付き。クレジットカード不要。</p>
+    <div class="cta-buttons">
+      <a href="#" class="cta-gold-btn">無料でHomeScan AIを試す</a>
+      <a href="#features" class="cta-ghost-btn">機能詳細を見る</a>
+    </div>
+    <div class="cta-trust">
+      <span class="trust-item">14日間無料トライアル</span>
+      <span class="trust-item">クレジットカード不要</span>
+      <span class="trust-item">いつでも解約可</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">HomeScan <span>AI</span></div>
+        <p>本当に良い物件を、AIが探してくる。SUUMO・アットホーム・ホームズを横断スキャン。</p>
+      </div>
+      <div class="footer-links-group">
+        <div class="footer-col">
+          <h4>サービス</h4>
+          <a href="#">機能</a>
+          <a href="#">料金プラン</a>
+          <a href="#">ユーザー事例</a>
+        </div>
+        <div class="footer-col">
+          <h4>サポート</h4>
+          <a href="#">よくある質問</a>
+          <a href="#">お問い合わせ</a>
+          <a href="#">ヘルプセンター</a>
+        </div>
+        <div class="footer-col">
+          <h4>会社情報</h4>
+          <a href="#">運営会社</a>
+          <a href="#">プライバシーポリシー</a>
+          <a href="#">利用規約</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 HomeScan AI. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(el){
+  const item=el.parentElement;
+  const wasOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+  if(!wasOpen)item.classList.add('open');
+}
+</script>
+</body>
+</html>

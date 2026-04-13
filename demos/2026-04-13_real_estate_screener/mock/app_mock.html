@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeScan AI — 不動産AIスクリーナー</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #060e18;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 40px 20px;
+    gap: 16px;
+  }
+
+  .brand-header {
+    text-align: center;
+    color: #FAFAFA;
+    margin-bottom: 8px;
+  }
+  .brand-header .logo-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: #F5A623;
+    letter-spacing: -0.5px;
+  }
+  .brand-header .tagline {
+    font-size: 12px;
+    color: #8aa0b8;
+    margin-top: 4px;
+  }
+
+  /* iPhone frame */
+  .phone-frame {
+    width: 390px;
+    height: 844px;
+    background: #0D1B2A;
+    border-radius: 52px;
+    border: 10px solid #1a2a3a;
+    box-shadow:
+      0 0 0 2px #0a1520,
+      inset 0 0 0 1px #243550,
+      0 40px 80px rgba(0,0,0,0.7),
+      0 0 60px rgba(245,166,35,0.08);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Notch */
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 30px;
+    background: #0a1520;
+    border-radius: 0 0 20px 20px;
+    z-index: 100;
+  }
+
+  /* Side buttons */
+  .phone-frame::after {
+    content: '';
+    position: absolute;
+    right: -12px;
+    top: 140px;
+    width: 4px;
+    height: 60px;
+    background: #1a2a3a;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 80px 0 #1a2a3a;
+  }
+
+  /* Status bar */
+  .status-bar {
+    height: 44px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 4px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+  .status-bar .time {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #FAFAFA;
+  }
+  .status-bar .icons {
+    font-size: 11px;
+    color: #FAFAFA;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .battery {
+    width: 22px;
+    height: 11px;
+    border: 1.5px solid #FAFAFA;
+    border-radius: 3px;
+    position: relative;
+  }
+  .battery::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 5px;
+    background: #FAFAFA;
+    border-radius: 0 1px 1px 0;
+  }
+  .battery-fill {
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    bottom: 2px;
+    width: 70%;
+    background: #2ECC71;
+    border-radius: 1px;
+  }
+
+  /* Screen container */
+  .screen-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Individual screens */
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .screen.active {
+    display: flex;
+  }
+
+  /* Screen content area */
+  .screen-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 8px;
+  }
+  .screen-content::-webkit-scrollbar { width: 0; }
+
+  /* Tab bar */
+  .tab-bar {
+    height: 80px;
+    background: #0a1520;
+    border-top: 1px solid #1e3050;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 8px;
+    flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: opacity 0.2s;
+    border: none;
+    background: none;
+  }
+  .tab-item:active { opacity: 0.7; }
+  .tab-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+  .tab-label {
+    font-size: 10px;
+    color: #4a6480;
+    font-family: 'Noto Sans JP', sans-serif;
+    white-space: nowrap;
+  }
+  .tab-item.active .tab-label { color: #F5A623; }
+  .tab-item.active .tab-icon { filter: brightness(10) sepia(1) hue-rotate(0deg) saturate(4); }
+
+  /* App header */
+  .app-header {
+    background: linear-gradient(180deg, #0D1B2A 0%, #0f1f30 100%);
+    padding: 16px 20px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #1e3050;
+    flex-shrink: 0;
+  }
+  .app-header .title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: #F5A623;
+  }
+  .app-header .subtitle {
+    font-size: 10px;
+    color: #8aa0b8;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .header-badge {
+    background: #F5A623;
+    color: #0D1B2A;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 12px;
+  }
+
+  /* ========================
+     SCREEN 1: HOME / SEARCH
+     ======================== */
+  .hero-banner {
+    background: linear-gradient(135deg, #0D1B2A 0%, #162840 50%, #0D1B2A 100%);
+    padding: 20px 20px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-banner::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(245,166,35,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-tagline {
+    font-size: 20px;
+    font-weight: 700;
+    color: #FAFAFA;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+  .hero-tagline span { color: #F5A623; }
+  .hero-sub {
+    font-size: 12px;
+    color: #8aa0b8;
+    line-height: 1.6;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .hero-stat {
+    text-align: center;
+  }
+  .hero-stat .num {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: #F5A623;
+    display: block;
+  }
+  .hero-stat .lbl {
+    font-size: 10px;
+    color: #8aa0b8;
+  }
+  .hero-divider {
+    width: 1px;
+    background: #1e3050;
+    align-self: stretch;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #F5A623;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 16px 20px 8px;
+  }
+
+  .search-card {
+    background: #111f30;
+    border-radius: 16px;
+    padding: 16px;
+    margin: 0 16px 12px;
+    border: 1px solid #1e3050;
+  }
+  .search-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .search-row:last-child { margin-bottom: 0; }
+  .search-icon { font-size: 16px; flex-shrink: 0; }
+  .search-field {
+    flex: 1;
+    background: #0D1B2A;
+    border: 1px solid #1e3050;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #FAFAFA;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+  }
+  .search-field::placeholder { color: #4a6480; }
+
+  .pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 16px 4px;
+  }
+  .pill {
+    background: #111f30;
+    border: 1px solid #1e3050;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: #8aa0b8;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .pill.selected {
+    background: #F5A623;
+    border-color: #F5A623;
+    color: #0D1B2A;
+    font-weight: 700;
+  }
+
+  .range-slider {
+    padding: 0 20px;
+    margin-bottom: 4px;
+  }
+  .range-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #8aa0b8;
+    margin-bottom: 6px;
+  }
+  .range-label span:last-child {
+    color: #F5A623;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+  }
+  .slider-track {
+    height: 4px;
+    background: #1e3050;
+    border-radius: 2px;
+    position: relative;
+  }
+  .slider-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 65%;
+    background: linear-gradient(90deg, #2C4A6E, #F5A623);
+    border-radius: 2px;
+  }
+  .slider-thumb {
+    position: absolute;
+    top: 50%;
+    left: 65%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    background: #F5A623;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(245,166,35,0.6);
+  }
+
+  .source-badges {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px 12px;
+    flex-wrap: wrap;
+  }
+  .source-badge {
+    background: #111f30;
+    border: 1px solid #1e3050;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    color: #8aa0b8;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .source-badge.on {
+    border-color: #2ECC71;
+    color: #2ECC71;
+  }
+  .source-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .cta-button {
+    margin: 8px 16px 16px;
+    background: linear-gradient(135deg, #F5A623, #D4A84B);
+    color: #0D1B2A;
+    border: none;
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(245,166,35,0.3);
+    transition: transform 0.1s;
+    width: calc(100% - 32px);
+  }
+  .cta-button:active { transform: scale(0.98); }
+
+  /* ========================
+     SCREEN 2: PROPERTY LIST
+     ======================== */
+  .filter-bar {
+    background: #0D1B2A;
+    border-bottom: 1px solid #1e3050;
+    padding: 10px 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    background: #111f30;
+    border: 1px solid #1e3050;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11px;
+    color: #8aa0b8;
+    white-space: nowrap;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+  }
+  .filter-chip.active {
+    background: rgba(245,166,35,0.15);
+    border-color: #F5A623;
+    color: #F5A623;
+  }
+
+  .result-summary {
+    padding: 10px 16px 4px;
+    font-size: 12px;
+    color: #8aa0b8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .result-summary strong { color: #FAFAFA; }
+  .sort-btn {
+    background: none;
+    border: 1px solid #1e3050;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: #F5A623;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+  }
+
+  .property-card {
+    background: #111f30;
+    border-radius: 16px;
+    margin: 8px 12px;
+    border: 1px solid #1e3050;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .property-card:active { border-color: #F5A623; }
+  .property-card.top-pick {
+    border-color: #F5A623;
+    box-shadow: 0 0 16px rgba(245,166,35,0.15);
+  }
+
+  .card-image {
+    height: 120px;
+    background: linear-gradient(135deg, #162840 0%, #1e3a5a 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .card-image-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    opacity: 0.4;
+  }
+  .card-overlay-top {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .source-tag {
+    background: rgba(13,27,42,0.9);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 10px;
+    color: #8aa0b8;
+    backdrop-filter: blur(4px);
+  }
+
+  .ai-score-badge {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .ai-score-badge.high {
+    background: conic-gradient(#2ECC71 0% 87%, #1e3050 87% 100%);
+    box-shadow: 0 0 12px rgba(46,204,113,0.4);
+  }
+  .ai-score-badge.mid {
+    background: conic-gradient(#F5A623 0% 74%, #1e3050 74% 100%);
+    box-shadow: 0 0 12px rgba(245,166,35,0.4);
+  }
+  .ai-score-badge.low {
+    background: conic-gradient(#E74C3C 0% 61%, #1e3050 61% 100%);
+    box-shadow: 0 0 12px rgba(231,76,60,0.3);
+  }
+  .ai-score-badge::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: #111f30;
+    border-radius: 50%;
+  }
+  .ai-score-num {
+    position: relative;
+    z-index: 1;
+    font-weight: 800;
+    font-size: 15px;
+    line-height: 1;
+    color: #FAFAFA;
+  }
+  .ai-score-label {
+    position: relative;
+    z-index: 1;
+    font-size: 8px;
+    color: #8aa0b8;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  .card-body {
+    padding: 12px 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .card-info { flex: 1; min-width: 0; }
+  .card-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #FAFAFA;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-address {
+    font-size: 11px;
+    color: #8aa0b8;
+    margin-bottom: 6px;
+  }
+  .card-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .card-tag {
+    background: #0D1B2A;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 10px;
+    color: #8aa0b8;
+  }
+  .card-tag.green { color: #2ECC71; }
+  .card-price {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: #F5A623;
+  }
+  .card-price .unit {
+    font-size: 11px;
+    font-weight: 400;
+    color: #8aa0b8;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .top-pick-ribbon {
+    background: linear-gradient(90deg, #F5A623, #D4A84B);
+    color: #0D1B2A;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 12px;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .ai-reason {
+    background: rgba(245,166,35,0.08);
+    border-left: 3px solid #F5A623;
+    padding: 8px 12px;
+    margin: 0 12px 10px;
+    border-radius: 0 8px 8px 0;
+    font-size: 11px;
+    color: #c8a84b;
+    line-height: 1.5;
+  }
+  .ai-reason::before {
+    content: '🤖 ';
+  }
+
+  /* ========================
+     SCREEN 3: DETAIL
+     ======================== */
+  .detail-hero {
+    height: 180px;
+    background: linear-gradient(135deg, #162840, #1e3a5a);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    flex-shrink: 0;
+  }
+  .detail-hero-back {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    background: rgba(13,27,42,0.8);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+  }
+  .detail-hero-score {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+  }
+
+  .detail-body {
+    padding: 16px 16px 0;
+  }
+  .detail-name {
+    font-weight: 700;
+    font-size: 18px;
+    color: #FAFAFA;
+    margin-bottom: 4px;
+  }
+  .detail-address {
+    font-size: 12px;
+    color: #8aa0b8;
+    margin-bottom: 12px;
+  }
+  .detail-price-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .detail-price {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    color: #F5A623;
+  }
+  .detail-price .unit { font-size: 14px; color: #8aa0b8; font-weight: 400; }
+  .price-drop {
+    background: rgba(46,204,113,0.15);
+    border: 1px solid #2ECC71;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: #2ECC71;
+    font-weight: 700;
+  }
+
+  .spec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .spec-item {
+    background: #111f30;
+    border-radius: 10px;
+    padding: 10px 12px;
+    border: 1px solid #1e3050;
+  }
+  .spec-label {
+    font-size: 10px;
+    color: #8aa0b8;
+    margin-bottom: 4px;
+  }
+  .spec-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #FAFAFA;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .ai-analysis-card {
+    background: linear-gradient(135deg, #0f1f30, #162840);
+    border: 1px solid #F5A623;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .ai-analysis-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .ai-analysis-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #F5A623;
+  }
+  .ai-analysis-body {
+    font-size: 12px;
+    color: #c8b88a;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  .score-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .score-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .score-item-label {
+    font-size: 11px;
+    color: #8aa0b8;
+    width: 70px;
+    flex-shrink: 0;
+  }
+  .score-bar-track {
+    flex: 1;
+    height: 6px;
+    background: #1e3050;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .score-bar-fill.high { background: #2ECC71; }
+  .score-bar-fill.mid { background: #F5A623; }
+  .score-bar-fill.low { background: #E74C3C; }
+  .score-item-num {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    color: #FAFAFA;
+    width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .map-placeholder {
+    height: 120px;
+    background: linear-gradient(135deg, #0a2040, #0f2a50);
+    border-radius: 14px;
+    border: 1px solid #1e3050;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .map-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.15;
+    background-image:
+      linear-gradient(#F5A623 1px, transparent 1px),
+      linear-gradient(90deg, #F5A623 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .map-pin {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .map-pin-dot {
+    width: 20px;
+    height: 20px;
+    background: #F5A623;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 0 16px rgba(245,166,35,0.6);
+  }
+  .map-label {
+    margin-top: 4px;
+    font-size: 10px;
+    color: #F5A623;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .facility-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .facility-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #111f30;
+    border-radius: 10px;
+    border: 1px solid #1e3050;
+  }
+  .facility-icon { font-size: 14px; }
+  .facility-name { font-size: 12px; color: #FAFAFA; flex: 1; }
+  .facility-dist { font-size: 11px; color: #8aa0b8; font-family: 'Inter', sans-serif; }
+
+  /* ========================
+     SCREEN 4: ALERTS
+     ======================== */
+  .alert-hero {
+    background: linear-gradient(135deg, #111f30, #162840);
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid #1e3050;
+  }
+  .alert-hero-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #FAFAFA;
+    margin-bottom: 4px;
+  }
+  .alert-hero-sub {
+    font-size: 12px;
+    color: #8aa0b8;
+  }
+  .alert-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245,166,35,0.15);
+    border: 1px solid #F5A623;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #F5A623;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+
+  .toggle-section {
+    margin: 0 16px 12px;
+    background: #111f30;
+    border-radius: 16px;
+    border: 1px solid #1e3050;
+    overflow: hidden;
+  }
+  .toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #1e3050;
+  }
+  .toggle-item:last-child { border-bottom: none; }
+  .toggle-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .toggle-icon-wrap.blue { background: rgba(44,74,110,0.5); }
+  .toggle-icon-wrap.amber { background: rgba(245,166,35,0.15); }
+  .toggle-icon-wrap.green { background: rgba(46,204,113,0.15); }
+  .toggle-icon-wrap.red { background: rgba(231,76,60,0.15); }
+  .toggle-text { flex: 1; }
+  .toggle-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #FAFAFA;
+    margin-bottom: 2px;
+  }
+  .toggle-desc { font-size: 11px; color: #8aa0b8; }
+  .toggle-switch {
+    width: 44px;
+    height: 26px;
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.3s;
+    border: none;
+  }
+  .toggle-switch.on { background: #F5A623; }
+  .toggle-switch.off { background: #1e3050; }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    width: 20px;
+    height: 20px;
+    background: #FAFAFA;
+    border-radius: 50%;
+    transition: left 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  .toggle-switch.on::after { left: 21px; }
+  .toggle-switch.off::after { left: 3px; }
+
+  .alert-feed-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #1e3050;
+  }
+  .alert-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .alert-dot.new { background: #2ECC71; }
+  .alert-dot.drop { background: #F5A623; }
+  .alert-dot.hot { background: #E74C3C; }
+  .alert-feed-content { flex: 1; min-width: 0; }
+  .alert-feed-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #FAFAFA;
+    margin-bottom: 2px;
+  }
+  .alert-feed-body { font-size: 11px; color: #8aa0b8; }
+  .alert-feed-time { font-size: 10px; color: #4a6480; margin-top: 2px; }
+  .alert-badge {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 9px;
+    font-weight: 700;
+    flex-shrink: 0;
+    height: fit-content;
+  }
+  .alert-badge.new { background: rgba(46,204,113,0.2); color: #2ECC71; }
+  .alert-badge.drop { background: rgba(245,166,35,0.2); color: #F5A623; }
+  .alert-badge.hot { background: rgba(231,76,60,0.2); color: #E74C3C; }
+
+  .condition-card {
+    background: #111f30;
+    border-radius: 14px;
+    border: 1px solid #1e3050;
+    padding: 14px;
+    margin: 0 16px 10px;
+  }
+  .condition-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .condition-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #FAFAFA;
+  }
+  .condition-edit {
+    font-size: 11px;
+    color: #F5A623;
+  }
+  .condition-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .condition-tag {
+    background: #0D1B2A;
+    border: 1px solid #1e3050;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 10px;
+    color: #8aa0b8;
+  }
+
+  /* ========================
+     SCREEN 5: MY LIST
+     ======================== */
+  .mylist-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #111f30;
+    border-bottom: 1px solid #1e3050;
+  }
+  .mylist-stat {
+    text-align: center;
+  }
+  .mylist-stat-num {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: #F5A623;
+    display: block;
+  }
+  .mylist-stat-label {
+    font-size: 10px;
+    color: #8aa0b8;
+  }
+  .stat-divider {
+    width: 1px;
+    background: #1e3050;
+    align-self: stretch;
+    margin: 4px 0;
+  }
+
+  .mylist-tabs {
+    display: flex;
+    border-bottom: 1px solid #1e3050;
+    padding: 0 16px;
+    background: #0D1B2A;
+    flex-shrink: 0;
+  }
+  .mylist-tab {
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #8aa0b8;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    font-family: 'Noto Sans JP', sans-serif;
+    white-space: nowrap;
+  }
+  .mylist-tab.active {
+    color: #F5A623;
+    border-bottom-color: #F5A623;
+    font-weight: 700;
+  }
+
+  .compare-cta {
+    margin: 8px 16px;
+    background: linear-gradient(135deg, rgba(44,74,110,0.3), rgba(245,166,35,0.1));
+    border: 1px dashed #F5A623;
+    border-radius: 14px;
+    padding: 12px;
+    text-align: center;
+    font-size: 12px;
+    color: #F5A623;
+    cursor: pointer;
+  }
+  .compare-cta-sub {
+    font-size: 10px;
+    color: #8aa0b8;
+    margin-top: 2px;
+  }
+
+  .mylist-card {
+    background: #111f30;
+    border-radius: 14px;
+    margin: 6px 12px;
+    border: 1px solid #1e3050;
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    cursor: pointer;
+  }
+  .mylist-card-thumb {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #162840, #1e3a5a);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .mylist-card-info { flex: 1; min-width: 0; }
+  .mylist-card-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #FAFAFA;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mylist-card-address {
+    font-size: 11px;
+    color: #8aa0b8;
+    margin-bottom: 6px;
+  }
+  .mylist-card-bottom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mylist-card-price {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #F5A623;
+  }
+  .mylist-card-score-small {
+    background: rgba(46,204,113,0.15);
+    border: 1px solid #2ECC71;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 10px;
+    color: #2ECC71;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+  }
+  .mylist-card-change {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+  .mylist-card-change.drop {
+    background: rgba(46,204,113,0.15);
+    color: #2ECC71;
+  }
+  .mylist-card-change.up {
+    background: rgba(231,76,60,0.15);
+    color: #E74C3C;
+  }
+  .mylist-card-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .upgrade-banner {
+    background: linear-gradient(135deg, #162840, #1e3050);
+    border: 1px solid #2C4A6E;
+    border-radius: 14px;
+    margin: 8px 12px;
+    padding: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .upgrade-icon { font-size: 28px; flex-shrink: 0; }
+  .upgrade-text { flex: 1; }
+  .upgrade-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #FAFAFA;
+    margin-bottom: 2px;
+  }
+  .upgrade-sub { font-size: 11px; color: #8aa0b8; }
+  .upgrade-btn {
+    background: #F5A623;
+    color: #0D1B2A;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<div class="brand-header">
+  <div class="logo-text">HomeScan AI</div>
+  <div class="tagline">本当に良い物件を、AIが探してくる。</div>
+</div>
+
+<!-- iPhone Frame -->
+<div class="phone-frame">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <span>▮▮▮</span>
+      <span>WiFi</span>
+      <div class="battery"><div class="battery-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- Screen Container -->
+  <div class="screen-container">
+
+    <!-- ===== SCREEN 1: HOME ===== -->
+    <div class="screen active" id="screen-home">
+      <div class="screen-content">
+        <!-- Hero -->
+        <div class="hero-banner">
+          <div class="hero-tagline">本当に良い物件を、<br><span>AIが探してくる。</span></div>
+          <div class="hero-sub">SUUMO・アットホーム・ホームズを一括スキャン。<br>AIが優良物件だけをランキング表示します。</div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <span class="num">800万+</span>
+              <span class="lbl">物件数</span>
+            </div>
+            <div class="hero-divider"></div>
+            <div class="hero-stat">
+              <span class="num">3サイト</span>
+              <span class="lbl">同時スキャン</span>
+            </div>
+            <div class="hero-divider"></div>
+            <div class="hero-stat">
+              <span class="num">-12h</span>
+              <span class="lbl">月間削減時間</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search Sources -->
+        <div class="section-label">スキャン対象サイト</div>
+        <div class="source-badges">
+          <div class="source-badge on"><span class="source-dot"></span>SUUMO</div>
+          <div class="source-badge on"><span class="source-dot"></span>アットホーム</div>
+          <div class="source-badge on"><span class="source-dot"></span>ホームズ</div>
+          <div class="source-badge"><span class="source-dot"></span>楽天不動産</div>
+        </div>
+
+        <!-- Search Fields -->
+        <div class="section-label">エリア・条件</div>
+        <div class="search-card">
+          <div class="search-row">
+            <span class="search-icon">📍</span>
+            <input class="search-field" type="text" placeholder="エリア・駅名を入力（例：渋谷区、代々木上原）" value="渋谷区・世田谷区">
+          </div>
+          <div class="search-row">
+            <span class="search-icon">🚉</span>
+            <input class="search-field" type="text" placeholder="最寄り駅（例：新宿駅 徒歩10分以内）" value="渋谷駅 徒歩15分以内">
+          </div>
+        </div>
+
+        <!-- Room Type -->
+        <div class="section-label">間取り</div>
+        <div class="pill-group">
+          <div class="pill">1R</div>
+          <div class="pill">1K</div>
+          <div class="pill selected">1LDK</div>
+          <div class="pill selected">2LDK</div>
+          <div class="pill">3LDK</div>
+          <div class="pill">4LDK+</div>
+        </div>
+
+        <!-- Price Range -->
+        <div class="section-label">家賃上限</div>
+        <div class="range-slider">
+          <div class="range-label">
+            <span>〜¥200,000/月</span>
+            <span>¥130,000</span>
+          </div>
+          <div class="slider-track">
+            <div class="slider-fill"></div>
+            <div class="slider-thumb"></div>
+          </div>
+        </div>
+
+        <!-- Exclude Filters -->
+        <div class="section-label">除外フィルター</div>
+        <div class="pill-group">
+          <div class="pill selected">事故物件除外</div>
+          <div class="pill selected">旗竿地除外</div>
+          <div class="pill selected">築30年超除外</div>
+          <div class="pill">ペット不可除外</div>
+        </div>
+
+        <!-- CTA -->
+        <button class="cta-button" onclick="switchTab('list')">
+          🔍 AIスキャン開始
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 2: LIST ===== -->
+    <div class="screen" id="screen-list">
+      <div class="app-header">
+        <div>
+          <div class="title">検索結果</div>
+          <div class="subtitle">渋谷区・世田谷区 / 1LDK〜2LDK</div>
+        </div>
+        <div class="header-badge">AIスコア順</div>
+      </div>
+      <div class="filter-bar">
+        <div class="filter-chip active">全て (24)</div>
+        <div class="filter-chip">高スコア (8)</div>
+        <div class="filter-chip">値下がり (3)</div>
+        <div class="filter-chip">新着 (5)</div>
+        <div class="filter-chip">地図</div>
+      </div>
+      <div class="screen-content">
+        <div class="result-summary">
+          <span><strong>24件</strong> / 3サイトから抽出</span>
+          <button class="sort-btn">↕ 並び替え</button>
+        </div>
+
+        <!-- Card 1: Top Pick -->
+        <div class="property-card top-pick" onclick="switchTab('detail')">
+          <div class="card-image">
+            <div class="card-image-inner">🏠</div>
+            <div class="top-pick-ribbon">TOP PICK</div>
+            <div class="card-overlay-top">
+              <div class="source-tag">📱 SUUMO</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-info">
+              <div class="card-name">グランドヒルズ代々木公園</div>
+              <div class="card-address">渋谷区代々木5丁目 / 代々木公園駅 徒歩7分</div>
+              <div class="card-tags">
+                <span class="card-tag">2LDK</span>
+                <span class="card-tag">築8年</span>
+                <span class="card-tag green">🔽 値下がり</span>
+              </div>
+              <div class="card-price">¥128,000<span class="unit">/月</span></div>
+            </div>
+            <div class="ai-score-badge high">
+              <span class="ai-score-num">87</span>
+              <span class="ai-score-label">AI点</span>
+            </div>
+          </div>
+          <div class="ai-reason">代々木公園まで徒歩3分。静環境かつ価格対比で周辺相場比−12%。口コミ評価も高水準です。</div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="property-card">
+          <div class="card-image">
+            <div class="card-image-inner">🏢</div>
+            <div class="card-overlay-top">
+              <div class="source-tag">🏡 アットホーム</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-info">
+              <div class="card-name">ライオンズ三軒茶屋</div>
+              <div class="card-address">世田谷区三軒茶屋1丁目 / 三軒茶屋駅 徒歩4分</div>
+              <div class="card-tags">
+                <span class="card-tag">1LDK</span>
+                <span class="card-tag">築12年</span>
+              </div>
+              <div class="card-price">¥112,000<span class="unit">/月</span></div>
+            </div>
+            <div class="ai-score-badge mid">
+              <span class="ai-score-num">74</span>
+              <span class="ai-score-label">AI点</span>
+            </div>
+          </div>
+          <div class="ai-reason">駅近・スーパー徒歩1分。ただし南向き窓なし・騒音リスクあり。</div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="property-card">
+          <div class="card-image">
+            <div class="card-image-inner">🏗️</div>
+            <div class="card-overlay-top">
+              <div class="source-tag">🔍 ホームズ</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-info">
+              <div class="card-name">パークアクシス幡ヶ谷</div>
+              <div class="card-address">渋谷区幡ヶ谷2丁目 / 幡ヶ谷駅 徒歩6分</div>
+              <div class="card-tags">
+                <span class="card-tag">2LDK</span>
+                <span class="card-tag">築5年</span>
+                <span class="card-tag green">🔥 人気急上昇</span>
+              </div>
+              <div class="card-price">¥135,000<span class="unit">/月</span></div>
+            </div>
+            <div class="ai-score-badge mid">
+              <span class="ai-score-num">71</span>
+              <span class="ai-score-label">AI点</span>
+            </div>
+          </div>
+          <div class="ai-reason">新築5年・セキュリティ充実。過去7日で閲覧数+42%。早期検討を推奨。</div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="property-card">
+          <div class="card-image">
+            <div class="card-image-inner">🏠</div>
+            <div class="card-overlay-top">
+              <div class="source-tag">📱 SUUMO</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-info">
+              <div class="card-name">コスモ下北沢レジデンス</div>
+              <div class="card-address">世田谷区北沢2丁目 / 下北沢駅 徒歩9分</div>
+              <div class="card-tags">
+                <span class="card-tag">1LDK</span>
+                <span class="card-tag">築18年</span>
+              </div>
+              <div class="card-price">¥98,000<span class="unit">/月</span></div>
+            </div>
+            <div class="ai-score-badge low">
+              <span class="ai-score-num">61</span>
+              <span class="ai-score-label">AI点</span>
+            </div>
+          </div>
+          <div class="ai-reason">コスパ重視なら選択肢。築年数・設備老朽化リスクあり。要内見確認。</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 3: DETAIL ===== -->
+    <div class="screen" id="screen-detail">
+      <div class="detail-hero">
+        🏠
+        <div class="detail-hero-back" onclick="switchTab('list')">←</div>
+        <div class="detail-hero-score">
+          <div class="ai-score-badge high" style="width:60px;height:60px;">
+            <span class="ai-score-num" style="font-size:18px;">87</span>
+            <span class="ai-score-label">AIスコア</span>
+          </div>
+        </div>
+      </div>
+      <div class="screen-content">
+        <div class="detail-body">
+          <div class="detail-name">グランドヒルズ代々木公園</div>
+          <div class="detail-address">渋谷区代々木5丁目3-12 / 代々木公園駅 徒歩7分</div>
+          <div class="detail-price-row">
+            <div class="detail-price">¥128,000<span class="unit">/月</span></div>
+            <div class="price-drop">▼ ¥7,000 値下がり</div>
+          </div>
+
+          <div class="spec-grid">
+            <div class="spec-item">
+              <div class="spec-label">間取り</div>
+              <div class="spec-value">2LDK</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">専有面積</div>
+              <div class="spec-value">58.2 m²</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">築年数</div>
+              <div class="spec-value">8年</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">階数</div>
+              <div class="spec-value">6F / 12F</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">向き</div>
+              <div class="spec-value">南東向き</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">管理費</div>
+              <div class="spec-value">¥8,500</div>
+            </div>
+          </div>
+
+          <!-- AI Analysis -->
+          <div class="ai-analysis-card">
+            <div class="ai-analysis-header">
+              <span style="font-size:20px;">🤖</span>
+              <div class="ai-analysis-title">AI分析レポート</div>
+              <div style="margin-left:auto;font-size:10px;color:#8aa0b8;">総合 87/100</div>
+            </div>
+            <div class="ai-analysis-body">
+              周辺相場（同エリア2LDK平均¥145,800）に対して<strong style="color:#2ECC71;">−12.2%</strong>と割安水準。代々木公園まで徒歩3分で自然環境が優れ、マンションコミュニティの口コミも4.2/5.0と高評価。先月の値下がりは室内リフォーム後の再掲載による一時的要因と推定。投資・居住いずれも推奨。
+            </div>
+            <div class="score-breakdown">
+              <div class="score-item">
+                <div class="score-item-label">価格妥当性</div>
+                <div class="score-bar-track"><div class="score-bar-fill high" style="width:92%"></div></div>
+                <div class="score-item-num">92</div>
+              </div>
+              <div class="score-item">
+                <div class="score-item-label">立地スコア</div>
+                <div class="score-bar-track"><div class="score-bar-fill high" style="width:88%"></div></div>
+                <div class="score-item-num">88</div>
+              </div>
+              <div class="score-item">
+                <div class="score-item-label">周辺施設</div>
+                <div class="score-bar-track"><div class="score-bar-fill high" style="width:85%"></div></div>
+                <div class="score-item-num">85</div>
+              </div>
+              <div class="score-item">
+                <div class="score-item-label">交通アクセス</div>
+                <div class="score-bar-track"><div class="score-bar-fill mid" style="width:79%"></div></div>
+                <div class="score-item-num">79</div>
+              </div>
+              <div class="score-item">
+                <div class="score-item-label">口コミ評価</div>
+                <div class="score-bar-track"><div class="score-bar-fill high" style="width:84%"></div></div>
+                <div class="score-item-num">84</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Map -->
+          <div class="map-placeholder">
+            <div class="map-grid"></div>
+            <div class="map-pin">
+              <div class="map-pin-dot"></div>
+              <div class="map-label">グランドヒルズ代々木公園</div>
+            </div>
+          </div>
+
+          <!-- Facilities -->
+          <div class="section-label" style="padding-left:0;padding-top:4px;">周辺施設</div>
+          <div class="facility-list">
+            <div class="facility-item">
+              <span class="facility-icon">🌳</span>
+              <span class="facility-name">代々木公園</span>
+              <span class="facility-dist">徒歩 3分</span>
+            </div>
+            <div class="facility-item">
+              <span class="facility-icon">🛒</span>
+              <span class="facility-name">ライフ代々木上原店</span>
+              <span class="facility-dist">徒歩 5分</span>
+            </div>
+            <div class="facility-item">
+              <span class="facility-icon">🏫</span>
+              <span class="facility-name">渋谷区立代々木山谷小学校</span>
+              <span class="facility-dist">徒歩 8分</span>
+            </div>
+            <div class="facility-item">
+              <span class="facility-icon">🏥</span>
+              <span class="facility-name">代々木上原クリニック</span>
+              <span class="facility-dist">徒歩 6分</span>
+            </div>
+          </div>
+
+          <button class="cta-button" onclick="switchTab('mylist')" style="margin:8px 0 16px;">
+            ♥ マイリストに追加
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 4: ALERTS ===== -->
+    <div class="screen" id="screen-alerts">
+      <div class="app-header">
+        <div>
+          <div class="title">アラート設定</div>
+          <div class="subtitle">自動通知で見逃しゼロ</div>
+        </div>
+      </div>
+      <div class="screen-content">
+        <div class="alert-hero">
+          <div class="alert-hero-title">通知設定</div>
+          <div class="alert-hero-sub">条件に合う変動をリアルタイム検知</div>
+          <div class="alert-count">🔔 今日の通知 <strong>5件</strong></div>
+        </div>
+
+        <!-- Toggle switches -->
+        <div class="section-label">アラートタイプ</div>
+        <div class="toggle-section">
+          <div class="toggle-item">
+            <div class="toggle-icon-wrap green">🆕</div>
+            <div class="toggle-text">
+              <div class="toggle-name">新着通知</div>
+              <div class="toggle-desc">条件一致の新規掲載を即時通知</div>
+            </div>
+            <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-icon-wrap amber">📉</div>
+            <div class="toggle-text">
+              <div class="toggle-name">値下がりアラート</div>
+              <div class="toggle-desc">前日比で家賃が下落した物件を通知</div>
+            </div>
+            <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-icon-wrap red">🔥</div>
+            <div class="toggle-text">
+              <div class="toggle-name">人気急上昇</div>
+              <div class="toggle-desc">閲覧数が急増した物件を先行通知</div>
+            </div>
+            <button class="toggle-switch on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-icon-wrap blue">📊</div>
+            <div class="toggle-text">
+              <div class="toggle-name">週次レポート</div>
+              <div class="toggle-desc">市況サマリー・相場動向を週1配信</div>
+            </div>
+            <button class="toggle-switch off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+          </div>
+        </div>
+
+        <!-- Active conditions -->
+        <div class="section-label">監視中の条件</div>
+        <div class="condition-card">
+          <div class="condition-header">
+            <div class="condition-name">渋谷・世田谷 メイン条件</div>
+            <div class="condition-edit">編集</div>
+          </div>
+          <div class="condition-tags">
+            <div class="condition-tag">渋谷区・世田谷区</div>
+            <div class="condition-tag">1LDK〜2LDK</div>
+            <div class="condition-tag">〜¥130,000</div>
+            <div class="condition-tag">AIスコア70+</div>
+          </div>
+        </div>
+
+        <!-- Recent alerts -->
+        <div class="section-label">直近のアラート</div>
+        <div class="toggle-section" style="margin-bottom:16px;">
+          <div class="alert-feed-item">
+            <div class="alert-dot new"></div>
+            <div class="alert-feed-content">
+              <div class="alert-feed-title">新着: ライオンズ新代田ガーデン</div>
+              <div class="alert-feed-body">世田谷区 / 1LDK / ¥105,000 / AIスコア 79</div>
+              <div class="alert-feed-time">9分前</div>
+            </div>
+            <div class="alert-badge new">新着</div>
+          </div>
+          <div class="alert-feed-item">
+            <div class="alert-dot drop"></div>
+            <div class="alert-feed-content">
+              <div class="alert-feed-title">値下がり: グランドヒルズ代々木</div>
+              <div class="alert-feed-body">¥135,000 → ¥128,000（▼¥7,000）</div>
+              <div class="alert-feed-time">2時間前</div>
+            </div>
+            <div class="alert-badge drop">値下がり</div>
+          </div>
+          <div class="alert-feed-item">
+            <div class="alert-dot hot"></div>
+            <div class="alert-feed-content">
+              <div class="alert-feed-title">急上昇: パークアクシス幡ヶ谷</div>
+              <div class="alert-feed-body">閲覧数 +42% / 残り申し込み2枠</div>
+              <div class="alert-feed-time">5時間前</div>
+            </div>
+            <div class="alert-badge hot">急上昇</div>
+          </div>
+          <div class="alert-feed-item">
+            <div class="alert-dot new"></div>
+            <div class="alert-feed-content">
+              <div class="alert-feed-title">新着: コート代々木上原</div>
+              <div class="alert-feed-body">渋谷区 / 2LDK / ¥142,000 / AIスコア 68</div>
+              <div class="alert-feed-time">昨日 21:30</div>
+            </div>
+            <div class="alert-badge new">新着</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 5: MY LIST ===== -->
+    <div class="screen" id="screen-mylist">
+      <div class="app-header">
+        <div>
+          <div class="title">マイリスト</div>
+          <div class="subtitle">保存中の候補物件</div>
+        </div>
+        <div class="header-badge">5件</div>
+      </div>
+      <div class="mylist-stats">
+        <div class="mylist-stat">
+          <span class="mylist-stat-num">5</span>
+          <span class="mylist-stat-label">保存物件</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="mylist-stat">
+          <span class="mylist-stat-num">2</span>
+          <span class="mylist-stat-label">値下がり</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="mylist-stat">
+          <span class="mylist-stat-num">79</span>
+          <span class="mylist-stat-label">平均スコア</span>
+        </div>
+      </div>
+      <div class="mylist-tabs">
+        <div class="mylist-tab active">すべて</div>
+        <div class="mylist-tab">高スコア順</div>
+        <div class="mylist-tab">値下がり</div>
+        <div class="mylist-tab">比較</div>
+      </div>
+      <div class="screen-content">
+        <div class="compare-cta">
+          ⚖️ 複数選択してAI比較レポートを生成
+          <div class="compare-cta-sub">最大4件まで選択して一括比較</div>
+        </div>
+
+        <!-- Saved properties -->
+        <div class="mylist-card" onclick="switchTab('detail')">
+          <div class="mylist-card-thumb">🏠</div>
+          <div class="mylist-card-info">
+            <div class="mylist-card-name">グランドヒルズ代々木公園</div>
+            <div class="mylist-card-address">渋谷区 / 代々木公園駅7分</div>
+            <div class="mylist-card-bottom">
+              <div class="mylist-card-price">¥128,000</div>
+              <div class="mylist-card-score-small">87点</div>
+              <div class="mylist-card-change drop">▼¥7,000</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mylist-card">
+          <div class="mylist-card-thumb">🏢</div>
+          <div class="mylist-card-info">
+            <div class="mylist-card-name">ライオンズ三軒茶屋</div>
+            <div class="mylist-card-address">世田谷区 / 三軒茶屋駅4分</div>
+            <div class="mylist-card-bottom">
+              <div class="mylist-card-price">¥112,000</div>
+              <div class="mylist-card-score-small" style="border-color:#F5A623;color:#F5A623;">74点</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mylist-card">
+          <div class="mylist-card-thumb">🏗️</div>
+          <div class="mylist-card-info">
+            <div class="mylist-card-name">パークアクシス幡ヶ谷</div>
+            <div class="mylist-card-address">渋谷区 / 幡ヶ谷駅6分</div>
+            <div class="mylist-card-bottom">
+              <div class="mylist-card-price">¥135,000</div>
+              <div class="mylist-card-score-small" style="border-color:#F5A623;color:#F5A623;">71点</div>
+              <div class="mylist-card-change hot" style="background:rgba(231,76,60,0.15);color:#E74C3C;">🔥 急上昇</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mylist-card">
+          <div class="mylist-card-thumb">🏠</div>
+          <div class="mylist-card-info">
+            <div class="mylist-card-name">コスモ下北沢レジデンス</div>
+            <div class="mylist-card-address">世田谷区 / 下北沢駅9分</div>
+            <div class="mylist-card-bottom">
+              <div class="mylist-card-price">¥98,000</div>
+              <div class="mylist-card-score-small" style="border-color:#8aa0b8;color:#8aa0b8;">61点</div>
+              <div class="mylist-card-change drop">▼¥3,000</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mylist-card">
+          <div class="mylist-card-thumb">🏢</div>
+          <div class="mylist-card-info">
+            <div class="mylist-card-name">ライオンズ新代田ガーデン</div>
+            <div class="mylist-card-address">世田谷区 / 新代田駅5分</div>
+            <div class="mylist-card-bottom">
+              <div class="mylist-card-price">¥105,000</div>
+              <div class="mylist-card-score-small">79点</div>
+              <div class="mylist-card-change" style="background:rgba(46,204,113,0.15);color:#2ECC71;">🆕 新着</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upgrade banner -->
+        <div class="upgrade-banner">
+          <div class="upgrade-icon">⭐</div>
+          <div class="upgrade-text">
+            <div class="upgrade-title">プロプランにアップグレード</div>
+            <div class="upgrade-sub">投資分析・API連携・マルチアカウント対応 ¥2,980/月〜</div>
+          </div>
+          <button class="upgrade-btn">詳細</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /screen-container -->
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-item active" id="tab-home" onclick="switchTab('home')">
+      <span class="tab-icon">🏠</span>
+      <span class="tab-label">ホーム</span>
+    </button>
+    <button class="tab-item" id="tab-list" onclick="switchTab('list')">
+      <span class="tab-icon">🔍</span>
+      <span class="tab-label">物件一覧</span>
+    </button>
+    <button class="tab-item" id="tab-detail" onclick="switchTab('detail')">
+      <span class="tab-icon">📋</span>
+      <span class="tab-label">詳細</span>
+    </button>
+    <button class="tab-item" id="tab-alerts" onclick="switchTab('alerts')">
+      <span class="tab-icon">🔔</span>
+      <span class="tab-label">アラート</span>
+    </button>
+    <button class="tab-item" id="tab-mylist" onclick="switchTab('mylist')">
+      <span class="tab-icon">♥</span>
+      <span class="tab-label">マイリスト</span>
+    </button>
+  </div>
+
+</div><!-- /phone-frame -->
+
+<script>
+function switchTab(name) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+
+  // Show target
+  const screen = document.getElementById('screen-' + name);
+  const tab = document.getElementById('tab-' + name);
+  if (screen) screen.classList.add('active');
+  if (tab) tab.classList.add('active');
+
+  // Scroll to top
+  const content = screen && screen.querySelector('.screen-content');
+  if (content) content.scrollTop = 0;
+}
+</script>
+
+</body>
+</html>
