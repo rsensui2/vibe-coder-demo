@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>領収ブリッジ | 領収書のやりとりを、QRひとつで。</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FFFFFF;--bg2:#F8F8F6;--bg3:#F2F0EC;
+  --gold:#B8860B;--gold-lt:#D4A72C;--gold-pale:rgba(184,134,11,.08);
+  --navy:#1A2240;--navy2:#2C3E6B;
+  --text:#1A1A1A;--muted:#6B6B6B;--muted2:#999;
+  --border:#E8E4DA;--border-g:rgba(184,134,11,.2);
+  --card:#FAFAF8;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Hiragino Mincho ProN','Hiragino Mincho Pro','Yu Mincho','游明朝',Georgia,serif;
+  background:var(--bg);color:var(--text);line-height:1.8;overflow-x:hidden;
+}
+/* sans for UI elements */
+.sans{font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 60px;
+  background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+.logo{
+  font-family:'Hiragino Mincho ProN','Yu Mincho',Georgia,serif;
+  font-size:1.1rem;font-weight:600;color:var(--navy);letter-spacing:.12em;
+}
+.logo-sub{font-size:.55rem;display:block;letter-spacing:.3em;color:var(--gold);font-family:'Hiragino Sans',sans-serif;margin-top:1px}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{
+  font-family:'Hiragino Sans',sans-serif;
+  color:var(--muted);text-decoration:none;font-size:.78rem;letter-spacing:.06em;transition:color .2s;
+}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{
+  font-family:'Hiragino Sans',sans-serif;
+  background:var(--navy);color:#fff;padding:9px 24px;
+  text-decoration:none;font-size:.78rem;font-weight:600;letter-spacing:.06em;
+  border:1px solid var(--navy);transition:background .2s,color .2s;
+}
+.nav-cta:hover{background:transparent;color:var(--navy)}
+
+/* HERO */
+.hero{
+  min-height:100vh;display:flex;align-items:center;
+  padding:120px 60px 90px;
+  background:linear-gradient(160deg,#fff 55%,#F7F5F0 100%);
+  position:relative;overflow:hidden;
+}
+/* gold accent lines */
+.hero::before{
+  content:'';position:absolute;
+  top:0;right:0;width:45%;height:100%;
+  border-left:1px solid var(--border-g);
+  background:linear-gradient(160deg,var(--gold-pale) 0%,transparent 60%);
+}
+.hero-inner{
+  max-width:1200px;margin:0 auto;
+  display:grid;grid-template-columns:1fr auto;gap:80px;align-items:center;
+  position:relative;z-index:1;width:100%;
+}
+.hero-eyebrow{
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.68rem;letter-spacing:.3em;color:var(--gold);
+  margin-bottom:20px;text-transform:uppercase;
+}
+.hero-title{
+  font-size:clamp(2rem,3.5vw,3.2rem);font-weight:500;line-height:1.2;
+  margin-bottom:14px;letter-spacing:.02em;color:var(--navy);
+}
+.hero-title em{
+  display:block;font-style:normal;
+  font-size:clamp(1rem,1.5vw,1.2rem);font-weight:400;
+  color:var(--gold);letter-spacing:.12em;margin-top:8px;
+}
+.hero-rule{
+  width:40px;height:1px;background:var(--gold);margin:22px 0;
+}
+.hero-desc{
+  font-family:'Hiragino Sans',sans-serif;
+  color:var(--muted);font-size:.92rem;max-width:420px;line-height:1.9;margin-bottom:36px;
+}
+.hero-btns{display:flex;gap:16px;flex-wrap:wrap}
+.btn-navy{
+  background:var(--navy);color:#fff;padding:13px 32px;
+  text-decoration:none;font-family:'Hiragino Sans',sans-serif;
+  font-size:.82rem;font-weight:600;letter-spacing:.06em;
+  transition:background .2s;
+}
+.btn-navy:hover{background:var(--navy2)}
+.btn-outline{
+  background:transparent;color:var(--navy);padding:13px 32px;
+  border:1px solid var(--navy);text-decoration:none;
+  font-family:'Hiragino Sans',sans-serif;font-size:.82rem;letter-spacing:.06em;
+  transition:background .2s,color .2s;
+}
+.btn-outline:hover{background:var(--navy);color:#fff}
+
+/* PHONE - Premium Silver */
+.phone-wrap{
+  position:relative;display:flex;justify-content:center;
+  align-items:center;flex-shrink:0;
+}
+.phone-wrap::before{
+  content:'';position:absolute;
+  width:200px;height:200px;
+  background:radial-gradient(circle,rgba(184,134,11,.06) 0%,transparent 70%);
+  border-radius:50%;
+}
+.phone{
+  width:200px;height:420px;
+  background:linear-gradient(145deg,#f0ede8,#e8e5df,#f5f3ef);
+  border-radius:36px;
+  border:1.5px solid #C8C4BC;
+  box-shadow:
+    2px 2px 0 #d5d1c8,
+    0 20px 50px rgba(0,0,0,.14),
+    0 0 0 4px rgba(255,255,255,.5) inset,
+    inset 0 1px 0 rgba(255,255,255,.9);
+  position:relative;overflow:hidden;
+}
+/* camera island */
+.phone-notch{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:72px;height:22px;
+  background:linear-gradient(180deg,#c8c4bc,#d5d1c8);
+  border-radius:0 0 14px 14px;z-index:10;
+}
+.phone-screen{
+  position:absolute;top:22px;left:0;right:0;bottom:16px;
+  background:#fff;
+  display:flex;flex-direction:column;align-items:center;padding:10px 10px 8px;gap:7px;
+}
+.s-bar{
+  width:100%;display:flex;justify-content:space-between;
+  font-family:'Hiragino Sans',sans-serif;font-size:.5rem;color:#999;
+}
+.s-head{
+  width:100%;text-align:center;
+  font-family:'Hiragino Mincho ProN','Yu Mincho',serif;
+  font-size:.58rem;color:var(--navy);letter-spacing:.1em;
+  padding-bottom:6px;border-bottom:1px solid rgba(184,134,11,.3);
+}
+.s-sub{
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.47rem;color:var(--muted2);letter-spacing:.08em;
+}
+
+/* CSS QR */
+.qr-box{
+  position:relative;width:106px;height:106px;
+  background:#fff;border:1px solid #e8e4da;
+  border-radius:4px;flex-shrink:0;
+}
+.qr-f{
+  position:absolute;width:24px;height:24px;
+  border:3px solid #1A2240;border-radius:2px;
+}
+.qr-f::after{
+  content:'';position:absolute;
+  width:10px;height:10px;background:#1A2240;border-radius:1px;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+}
+.qr-f.tl{top:8px;left:8px}
+.qr-f.tr{top:8px;right:8px}
+.qr-f.bl{bottom:8px;left:8px}
+.qr-d{
+  position:absolute;top:39px;left:39px;
+  width:4px;height:4px;background:#1A2240;border-radius:.5px;
+  box-shadow:
+    7px 0 0 #1A2240,14px 0 0 #1A2240,21px 0 0 #1A2240,
+    0 7px 0 #1A2240,14px 7px 0 #1A2240,
+    7px 14px 0 #1A2240,21px 14px 0 #1A2240,
+    0 21px 0 #1A2240,14px 21px 0 #1A2240,
+    7px 28px 0 #1A2240,21px 28px 0 #1A2240;
+}
+.s-name{
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.52rem;color:var(--navy);text-align:center;line-height:1.5;
+}
+.s-name strong{display:block;font-size:.6rem;color:var(--gold);margin-bottom:1px}
+.phone-bar{
+  position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
+  width:44px;height:3px;background:#d5d1c8;border-radius:2px;
+}
+
+/* SECTION COMMON */
+section{padding:96px 60px}
+.si{max-width:1100px;margin:0 auto}
+.stag{
+  font-family:'Hiragino Sans',sans-serif;
+  display:inline-block;color:var(--gold);font-size:.65rem;
+  letter-spacing:.3em;font-weight:600;text-transform:uppercase;margin-bottom:10px;
+}
+.stitle{
+  font-size:clamp(1.55rem,2.5vw,2.2rem);font-weight:500;line-height:1.35;
+  margin-bottom:12px;color:var(--navy);letter-spacing:.02em;
+}
+.sdesc{
+  font-family:'Hiragino Sans',sans-serif;
+  color:var(--muted);max-width:520px;line-height:1.9;
+  margin-bottom:56px;font-size:.9rem;
+}
+.gold-rule{width:32px;height:1px;background:var(--gold);margin:16px 0 48px}
+
+/* PROBLEM */
+.problem{background:var(--bg2)}
+.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.prob-card{
+  background:#fff;border:1px solid var(--border);
+  padding:36px 28px;position:relative;
+  transition:border-color .2s,box-shadow .2s;
+}
+.prob-card:hover{border-color:var(--gold);box-shadow:4px 4px 0 var(--gold-pale)}
+.prob-num{
+  font-size:2.5rem;font-weight:500;color:var(--gold-pale);
+  margin-bottom:8px;line-height:1;
+  font-style:italic;
+  color:rgba(184,134,11,.2);
+}
+.prob-h{
+  font-size:.95rem;font-weight:600;color:var(--navy);margin-bottom:10px;
+  font-family:'Hiragino Sans',sans-serif;
+}
+.prob-b{font-family:'Hiragino Sans',sans-serif;font-size:.82rem;color:var(--muted);line-height:1.8}
+
+/* SOLUTION */
+.solution{background:#fff}
+.sol-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.sol-step{
+  background:#fff;padding:44px 32px;position:relative;
+  transition:background .2s;
+}
+.sol-step:hover{background:var(--gold-pale)}
+.sol-n{
+  font-size:3rem;font-weight:300;color:rgba(184,134,11,.25);
+  margin-bottom:16px;line-height:1;font-style:italic;
+}
+.sol-icon{font-size:1.6rem;margin-bottom:14px}
+.sol-h{
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.92rem;font-weight:700;color:var(--navy);margin-bottom:10px;
+}
+.sol-b{font-family:'Hiragino Sans',sans-serif;font-size:.8rem;color:var(--muted);line-height:1.8}
+
+/* FEATURES */
+.features{background:var(--bg3)}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.feat-card{
+  background:#fff;border:1px solid var(--border);
+  padding:36px 28px;
+  transition:border-color .2s,transform .2s;
+}
+.feat-card:hover{border-color:var(--gold);transform:translateY(-3px)}
+.feat-accent{
+  width:4px;height:36px;background:var(--gold);
+  margin-bottom:20px;
+}
+.feat-t{
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.95rem;font-weight:700;margin-bottom:12px;color:var(--navy);
+}
+.feat-b{font-family:'Hiragino Sans',sans-serif;font-size:.82rem;color:var(--muted);line-height:1.8}
+
+/* PRICING */
+.pricing{background:var(--bg2)}
+.price-wrap{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  border:1px solid var(--border);
+}
+.price-card{
+  padding:40px 32px;
+  border-right:1px solid var(--border);
+  text-align:center;position:relative;
+  background:#fff;
+  transition:background .2s;
+}
+.price-card:last-child{border-right:none}
+.price-card.feat{
+  background:var(--navy);color:#fff;
+}
+.price-badge{
+  position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  background:var(--gold);color:#fff;
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.62rem;font-weight:700;padding:4px 18px;
+  letter-spacing:.06em;white-space:nowrap;
+}
+.price-plan{
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.65rem;letter-spacing:.2em;color:var(--muted);margin-bottom:14px;
+}
+.price-card.feat .price-plan{color:rgba(255,255,255,.6)}
+.price-amt{
+  font-size:2.4rem;font-weight:500;color:var(--navy);
+  margin-bottom:2px;letter-spacing:-.01em;
+}
+.price-card.feat .price-amt{color:#fff}
+.price-amt small{font-size:.9rem;color:var(--muted)}
+.price-card.feat .price-amt small{color:rgba(255,255,255,.6)}
+.price-period{
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.7rem;color:var(--muted);margin-bottom:28px;
+}
+.price-card.feat .price-period{color:rgba(255,255,255,.6)}
+.price-list{
+  list-style:none;text-align:left;margin-bottom:28px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.price-list li{
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.8rem;color:var(--muted);display:flex;gap:8px;align-items:flex-start;
+}
+.price-card.feat .price-list li{color:rgba(255,255,255,.75)}
+.price-list li::before{
+  content:'—';color:var(--gold);font-weight:700;flex-shrink:0;margin-top:.1em;
+}
+.btn-price{
+  display:block;padding:11px;
+  font-family:'Hiragino Sans',sans-serif;
+  text-decoration:none;font-size:.8rem;font-weight:600;
+  letter-spacing:.06em;transition:.2s;
+}
+.btn-price.out{border:1px solid var(--navy);color:var(--navy)}
+.btn-price.out:hover{background:var(--navy);color:#fff}
+.btn-price.gold{background:var(--gold);color:#fff}
+.btn-price.gold:hover{background:var(--gold-lt)}
+
+/* TESTIMONIALS */
+.testim{background:#fff}
+.testim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.testim-card{
+  padding:32px;border:1px solid var(--border);
+  position:relative;transition:border-color .2s;
+}
+.testim-card:hover{border-color:var(--gold)}
+.testim-card::before{
+  content:'"';
+  font-size:4rem;font-style:italic;color:var(--gold);opacity:.3;
+  line-height:1;display:block;margin-bottom:8px;
+}
+.testim-q{
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.82rem;color:var(--text);line-height:1.85;margin-bottom:20px;
+}
+.auth{display:flex;align-items:center;gap:12px}
+.avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--navy),var(--navy2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Hiragino Sans',sans-serif;
+  font-weight:700;font-size:.82rem;color:#fff;flex-shrink:0;
+}
+.auth-info strong{
+  display:block;font-family:'Hiragino Sans',sans-serif;
+  font-size:.8rem;color:var(--navy);
+}
+.auth-info span{
+  font-family:'Hiragino Sans',sans-serif;font-size:.7rem;color:var(--muted);
+}
+
+/* FAQ */
+.faq{background:var(--bg2)}
+.faq-list{display:flex;flex-direction:column;gap:0;max-width:760px;border:1px solid var(--border)}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-item:last-child{border-bottom:none}
+.faq-q{
+  padding:20px 26px;display:flex;justify-content:space-between;align-items:center;
+  cursor:pointer;
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.88rem;font-weight:600;color:var(--navy);
+  background:#fff;gap:14px;user-select:none;transition:background .2s;
+}
+.faq-q:hover{background:var(--gold-pale)}
+.faq-icon{color:var(--gold);font-size:1rem;flex-shrink:0;font-weight:300;line-height:1}
+.faq-a{
+  max-height:0;overflow:hidden;
+  transition:max-height .35s ease,padding .3s;
+  background:#fff;
+}
+.faq-a.open{max-height:200px;padding:14px 26px 20px}
+.faq-a p{
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.82rem;color:var(--muted);line-height:1.85;
+}
+
+/* CTA */
+.cta{
+  background:var(--navy);
+  text-align:center;padding:100px 60px;position:relative;overflow:hidden;
+}
+.cta::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 70% at 50% 0%,rgba(184,134,11,.1) 0%,transparent 60%);
+}
+.cta-label{
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.65rem;letter-spacing:.3em;color:rgba(184,134,11,.8);
+  margin-bottom:18px;position:relative;z-index:1;text-transform:uppercase;
+}
+.cta h2{
+  font-size:clamp(1.7rem,2.6vw,2.4rem);font-weight:500;
+  color:#fff;margin-bottom:14px;position:relative;z-index:1;
+  letter-spacing:.04em;
+}
+.cta h2 em{color:var(--gold);font-style:normal}
+.cta p{
+  font-family:'Hiragino Sans',sans-serif;
+  color:rgba(255,255,255,.6);font-size:.9rem;
+  margin-bottom:36px;position:relative;z-index:1;
+}
+.cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.btn-gold{
+  background:var(--gold);color:#fff;padding:13px 36px;
+  text-decoration:none;
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.82rem;font-weight:600;letter-spacing:.06em;transition:background .2s;
+}
+.btn-gold:hover{background:var(--gold-lt)}
+.btn-wout{
+  background:transparent;color:rgba(255,255,255,.8);padding:13px 36px;
+  border:1px solid rgba(255,255,255,.3);text-decoration:none;
+  font-family:'Hiragino Sans',sans-serif;font-size:.82rem;letter-spacing:.06em;
+  transition:border-color .2s,color .2s;
+}
+.btn-wout:hover{border-color:rgba(255,255,255,.7);color:#fff}
+
+/* FOOTER */
+footer{
+  background:#0f1527;border-top:1px solid rgba(255,255,255,.06);
+  padding:36px 60px;
+}
+.foot-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-logo{
+  font-family:'Hiragino Mincho ProN','Yu Mincho',serif;
+  color:rgba(255,255,255,.7);font-size:.9rem;letter-spacing:.1em;
+}
+.foot-links{display:flex;gap:20px;list-style:none;flex-wrap:wrap}
+.foot-links a{
+  font-family:'Hiragino Sans',sans-serif;
+  color:rgba(255,255,255,.4);text-decoration:none;font-size:.72rem;transition:color .2s;
+}
+.foot-links a:hover{color:rgba(255,255,255,.8)}
+.foot-copy{
+  font-family:'Hiragino Sans',sans-serif;
+  font-size:.7rem;color:rgba(255,255,255,.3);
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:14px 20px}
+  .nav-links{display:none}
+  .hero{padding:100px 20px 70px}
+  .hero-inner{grid-template-columns:1fr;gap:40px}
+  .phone-wrap{order:-1}
+  section{padding:70px 20px}
+  .prob-grid,.feat-grid,.testim-grid{grid-template-columns:1fr}
+  .sol-grid{grid-template-columns:1fr;gap:0}
+  .sol-step{border-bottom:1px solid var(--border)}
+  .price-wrap{grid-template-columns:1fr}
+  .price-card{border-right:none;border-bottom:1px solid var(--border)}
+  .price-card:last-child{border-bottom:none}
+  .cta{padding:70px 20px}
+  footer{padding:28px 20px}
+  .foot-inner{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo sans">
+    領収ブリッジ
+    <span class="logo-sub">RYOSHU BRIDGE</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#problem">課題</a></li>
+    <li><a href="#solution">仕組み</a></li>
+    <li><a href="#features">機能</a></li>
+    <li><a href="#pricing">料金</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#cta" class="nav-cta">無料で試す</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow sans">Digital Receipt Platform</div>
+      <h1 class="hero-title">
+        領収書のやりとりを、<br>QRひとつで。
+        <em>— 宛名伝達の手間と、再発行の手戻りをなくす</em>
+      </h1>
+      <div class="hero-rule"></div>
+      <p class="hero-desc">
+        利用者が事前登録した宛先情報をQRで店舗に渡す。<br>
+        店舗は金額を入力するだけ。<br>
+        正確な電子領収書が即時に発行されます。
+      </p>
+      <div class="hero-btns">
+        <a href="#cta" class="btn-navy">無料で始める</a>
+        <a href="#solution" class="btn-outline">仕組みを見る</a>
+      </div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="s-bar sans"><span>9:41</span><span>●●●</span></div>
+          <div class="s-head">領収ブリッジ</div>
+          <div class="s-sub sans">宛先QRコードを提示</div>
+          <div class="qr-box">
+            <div class="qr-f tl"></div>
+            <div class="qr-f tr"></div>
+            <div class="qr-f bl"></div>
+            <div class="qr-d"></div>
+          </div>
+          <div class="s-name sans">
+            <strong>株式会社ライトウェイ</strong>
+            総務部 経費精算用
+          </div>
+        </div>
+        <div class="phone-bar"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="si">
+    <div class="stag">Problem</div>
+    <h2 class="stitle">現場で繰り返される、<br>小さなミスと手戻り</h2>
+    <div class="gold-rule"></div>
+    <div class="prob-grid">
+      <div class="prob-card">
+        <div class="prob-num">01</div>
+        <div class="prob-h">口頭伝達による宛名ミス</div>
+        <p class="prob-b">会計時に口頭で伝えた法人名・部署名が、書き間違われる。略称と正式名称の混在も多く、後の経理処理で差し戻しが発生します。</p>
+      </div>
+      <div class="prob-card">
+        <div class="prob-num">02</div>
+        <div class="prob-h">手書き領収書の曖昧さ</div>
+        <p class="prob-b">手書き文字の判読困難、宛名省略、金額の訂正印など、手書き領収書は後々の処理で確認作業を増やします。スキャン保存しても文字認識の精度が落ちます。</p>
+      </div>
+      <div class="prob-card">
+        <div class="prob-num">03</div>
+        <div class="prob-h">再発行依頼のコスト</div>
+        <p class="prob-b">宛名や日付の誤りで後日再発行を依頼するケースは少なくありません。店舗・利用者・経理、三者にそれぞれ余計な工数が発生します。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="solution" id="solution">
+  <div class="si">
+    <div class="stag">How It Works</div>
+    <h2 class="stitle">3つのステップで<br>領収書をシンプルに</h2>
+    <div class="gold-rule"></div>
+    <div class="sol-grid">
+      <div class="sol-step">
+        <div class="sol-n">01</div>
+        <div class="sol-icon">📱</div>
+        <div class="sol-h">宛先情報を登録・QR化</div>
+        <p class="sol-b">法人名・部署名・個人事業主名など、領収書に必要な宛先情報をアプリに一度登録。QRコードが自動生成されます。複数宛先の使い分けも可能です。</p>
+      </div>
+      <div class="sol-step">
+        <div class="sol-n">02</div>
+        <div class="sol-icon">📲</div>
+        <div class="sol-h">会計時にQRを提示</div>
+        <p class="sol-b">会計時にスマートフォンのQRを店舗に提示するだけ。口頭での宛名伝達が不要になります。スキャンした店舗側に宛先が自動入力されます。</p>
+      </div>
+      <div class="sol-step">
+        <div class="sol-n">03</div>
+        <div class="sol-icon">📄</div>
+        <div class="sol-h">電子領収書を受け取る</div>
+        <p class="sol-b">店舗が金額・日付を入力すると電子領収書が発行されます。利用者のアプリにも即時に届き、PDF保存が可能です。電子帳簿保存法への対応を前提に設計しています。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="si">
+    <div class="stag">Features</div>
+    <h2 class="stitle">主要機能</h2>
+    <div class="gold-rule"></div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-accent"></div>
+        <div class="feat-t">宛先QRコード管理</div>
+        <p class="feat-b">法人・部署・個人事業主名など複数の宛先をアプリで一元管理。シーンに応じてQRを切り替えられます。インボイス登録番号の紐付けにも対応する設計を進めています。</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-accent"></div>
+        <div class="feat-t">店舗向けシンプル入力</div>
+        <p class="feat-b">スマートフォンやタブレットから金額・日付・品目名を入力するだけ。宛先はQRスキャンで自動入力されるため、聞き違いや手打ちミスを構造的に減らせます。</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-accent"></div>
+        <div class="feat-t">電子領収書の発行・保存</div>
+        <p class="feat-b">発行した領収書はPDFでダウンロード可能。電子帳簿保存法への対応を検討した設計で、バックオフィスのデジタル化を支援します。※詳細は個別にご確認ください</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="si">
+    <div class="stag">Pricing</div>
+    <h2 class="stitle">シンプルな料金プラン</h2>
+    <div class="gold-rule"></div>
+    <div class="price-wrap">
+      <div class="price-card">
+        <div class="price-plan sans">LITE</div>
+        <div class="price-amt">¥0</div>
+        <div class="price-period sans">ずっと無料</div>
+        <ul class="price-list">
+          <li>月10回まで領収書受け取り</li>
+          <li>宛先1件登録</li>
+          <li>PDF保存（7日間）</li>
+          <li>個人・お試し向け</li>
+        </ul>
+        <a href="#" class="btn-price out">無料で始める</a>
+      </div>
+      <div class="price-card feat">
+        <div class="price-badge">おすすめ</div>
+        <div class="price-plan sans">STANDARD</div>
+        <div class="price-amt">¥3,000<small>/月</small></div>
+        <div class="price-period sans">利用者・個人事業主向け</div>
+        <ul class="price-list">
+          <li>月間受け取り無制限</li>
+          <li>宛先5件まで登録</li>
+          <li>PDF保存（永続）</li>
+          <li>メールサポート</li>
+          <li>チームメンバー追加（有料オプション）</li>
+        </ul>
+        <a href="#" class="btn-price gold">30日間無料で試す</a>
+      </div>
+      <div class="price-card">
+        <div class="price-plan sans">BUSINESS</div>
+        <div class="price-amt">¥10,000<small>/月</small></div>
+        <div class="price-period sans">店舗・法人向け</div>
+        <ul class="price-list">
+          <li>スタッフアカウント複数</li>
+          <li>領収書発行履歴管理</li>
+          <li>CSV出力・API連携（β）</li>
+          <li>優先サポート</li>
+          <li>インボイス設計対応（予定）</li>
+        </ul>
+        <a href="#" class="btn-price out">お問い合わせ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testim" id="voice">
+  <div class="si">
+    <div class="stag">Voices</div>
+    <h2 class="stitle">ユーザーの声</h2>
+    <div class="gold-rule"></div>
+    <div class="testim-grid">
+      <div class="testim-card">
+        <p class="testim-q">出張が多く、毎回宛名を口頭で伝えていました。QRを見せるだけで正確に入力してもらえるので、経費精算の手間が明らかに減りました。経理からの差し戻しがなくなったのが一番大きいです。</p>
+        <div class="auth">
+          <div class="avatar sans">田</div>
+          <div class="auth-info">
+            <strong>田村 光一さん</strong>
+            <span>IT商社 営業職・30代</span>
+          </div>
+        </div>
+      </div>
+      <div class="testim-card">
+        <p class="testim-q">フリーランスなので屋号の書き間違いが怖かったです。アプリに登録しておけばQRひとつで済む。再発行を依頼することがほぼなくなりました。接待費の精算がずっと楽になっています。</p>
+        <div class="auth">
+          <div class="avatar sans">山</div>
+          <div class="auth-info">
+            <strong>山崎 美穂さん</strong>
+            <span>フリーランスデザイナー・30代</span>
+          </div>
+        </div>
+      </div>
+      <div class="testim-card">
+        <p class="testim-q">店舗側として導入しています。スキャンすれば宛名が自動入力されるので、長い法人名を聞き間違えることがなくなりました。再発行依頼もほぼゼロになっています。</p>
+        <div class="auth">
+          <div class="avatar sans">中</div>
+          <div class="auth-info">
+            <strong>中島 浩二さん</strong>
+            <span>飲食店オーナー・40代</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="si">
+    <div class="stag">FAQ</div>
+    <h2 class="stitle">よくあるご質問</h2>
+    <div class="gold-rule"></div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q sans" onclick="var a=this.nextElementSibling;a.classList.toggle('open');this.querySelector('.faq-icon').textContent=a.classList.contains('open')?'−':'+'">
+          <span>インボイス（適格請求書）に対応していますか？</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <p>インボイス制度への対応を前提に設計を進めています。現時点での対応範囲については個別にお問い合わせください。法令準拠の最終確認は、必ずご自身でも行っていただくようお願いしています。</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q sans" onclick="var a=this.nextElementSibling;a.classList.toggle('open');this.querySelector('.faq-icon').textContent=a.classList.contains('open')?'−':'+'">
+          <span>紙の領収書も発行できますか？</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <p>QRでの宛先共有後にプリンター出力できる機能の提供も検討しています。現状は電子発行が主体ですが、印刷対応の拡充も予定しています。</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q sans" onclick="var a=this.nextElementSibling;a.classList.toggle('open');this.querySelector('.faq-icon').textContent=a.classList.contains('open')?'−':'+'">
+          <span>店舗側の初期費用・専用端末は必要ですか？</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <p>既存のスマートフォンやタブレットがあれば導入できます。専用端末は不要です。Businessプラン（月額¥10,000〜）でご利用いただけます。導入相談は無料で承っています。</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q sans" onclick="var a=this.nextElementSibling;a.classList.toggle('open');this.querySelector('.faq-icon').textContent=a.classList.contains('open')?'−':'+'">
+          <span>QRコードに個人情報が含まれますか？</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <p>QRコードには直接個人情報を埋め込まず、サーバー側で紐づける設計を採用しています。スキャンした店舗アカウントにのみ情報が開示される仕組みです。</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q sans" onclick="var a=this.nextElementSibling;a.classList.toggle('open');this.querySelector('.faq-icon').textContent=a.classList.contains('open')?'−':'+'">
+          <span>無料プランからの移行はスムーズですか？</span>
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          <p>登録情報やQRコードはプラン変更後もそのまま引き継がれます。支払い情報を登録するだけでアップグレードが完了します。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+  <div class="cta-label">Get Started</div>
+  <h2>今すぐ、<em>領収書の手戻り</em>をなくそう。</h2>
+  <p>まずは無料プランで体験。クレジットカード登録不要です。</p>
+  <div class="cta-btns">
+    <a href="#" class="btn-gold">無料で始める（登録1分）</a>
+    <a href="#" class="btn-wout">資料をダウンロード</a>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-inner">
+    <div class="foot-logo">領収ブリッジ</div>
+    <ul class="foot-links">
+      <li><a href="#">サービス概要</a></li>
+      <li><a href="#">利用規約</a></li>
+      <li><a href="#">プライバシーポリシー</a></li>
+      <li><a href="#">お問い合わせ</a></li>
+      <li><a href="#">特定商取引法に基づく表記</a></li>
+    </ul>
+    <p class="foot-copy">© 2026 領収ブリッジ. All rights reserved.</p>
+  </div>
+</footer>
+
+</body>
+</html>

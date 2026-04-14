@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>領収ブリッジ - App Mock</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: radial-gradient(ellipse at 30% 20%, #0D1830 0%, #050810 60%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      padding: 40px 20px;
+    }
+
+    /* iPhone Frame */
+    .iphone-frame {
+      width: 393px;
+      height: 852px;
+      background: #0A0F1C;
+      border-radius: 54px;
+      box-shadow:
+        0 0 0 2px #1E2640,
+        0 0 0 5px #0A0E18,
+        0 40px 100px rgba(0,0,0,0.85),
+        0 0 60px rgba(0,229,255,0.04),
+        inset 0 0 0 1px rgba(255,255,255,0.06);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 200;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      height: 56px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 28px 10px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .status-time { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.01em; }
+    .status-icons { display: flex; gap: 5px; align-items: center; }
+    .status-icons svg { fill: #fff; }
+
+    /* Screen Content */
+    .screen-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .screen-content::-webkit-scrollbar { display: none; }
+
+    .screen { display: none; padding: 0 20px 100px; }
+    .screen.active { display: block; }
+
+    /* Tab Bar */
+    .tab-bar {
+      height: 83px;
+      background: rgba(8,12,24,0.96);
+      backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-around;
+      padding-top: 10px;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 4px 10px;
+      background: none;
+      border: none;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab-icon {
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .tab-label { font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: 0.01em; }
+    .tab-item.active .tab-label { color: #00E5FF; }
+
+    /* App Header */
+    .app-header {
+      padding: 8px 0 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .app-logo { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.03em; }
+    .app-logo em { color: #00E5FF; font-style: normal; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .icon-btn {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; cursor: pointer; position: relative;
+    }
+    .notif-badge {
+      position: absolute; top: -4px; right: -4px;
+      width: 16px; height: 16px;
+      background: #FF3D71; border-radius: 50%;
+      font-size: 9px; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; border: 2px solid #0A0F1C;
+    }
+
+    /* Cards */
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px; padding: 16px; margin-bottom: 12px;
+    }
+    .card-cyan {
+      background: linear-gradient(135deg, rgba(0,229,255,0.09) 0%, rgba(0,229,255,0.02) 100%);
+      border-color: rgba(0,229,255,0.22);
+    }
+    .card-red {
+      background: rgba(255,61,113,0.07);
+      border-color: rgba(255,61,113,0.22);
+    }
+
+    /* QR Container */
+    .qr-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      background: linear-gradient(170deg, rgba(0,229,255,0.08) 0%, rgba(10,15,28,0) 70%);
+      border: 1px solid rgba(0,229,255,0.18);
+      border-radius: 20px; padding: 24px 20px 20px; margin-bottom: 20px;
+    }
+    .qr-box {
+      width: 148px; height: 148px;
+      background: #fff; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 20px rgba(0,229,255,0.15);
+    }
+    .qr-id {
+      font-size: 16px; font-weight: 700; color: #00E5FF;
+      letter-spacing: 0.08em; font-variant-numeric: tabular-nums;
+      margin-bottom: 4px;
+    }
+    .qr-sub { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 20px;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px; padding: 14px;
+    }
+    .stat-val { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.03em; }
+    .stat-lbl { font-size: 11px; color: rgba(255,255,255,0.38); margin-top: 3px; }
+
+    /* Typography helpers */
+    .t-white { color: #fff; }
+    .t-dim { color: rgba(255,255,255,0.45); }
+    .t-cyan { color: #00E5FF; }
+    .t-red { color: #FF3D71; }
+    .t-yellow { color: #FFC400; }
+    .fw7 { font-weight: 700; }
+    .fw8 { font-weight: 800; }
+    .fs11 { font-size: 11px; }
+    .fs12 { font-size: 12px; }
+    .fs13 { font-size: 13px; }
+    .fs14 { font-size: 14px; }
+    .fs15 { font-size: 15px; }
+    .fs18 { font-size: 18px; font-weight: 700; }
+    .fs22 { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+    .mb4 { margin-bottom: 4px; }
+    .mb8 { margin-bottom: 8px; }
+    .mb12 { margin-bottom: 12px; }
+    .mb16 { margin-bottom: 16px; }
+    .mb20 { margin-bottom: 20px; }
+    .mb24 { margin-bottom: 24px; }
+
+    /* Badge */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 9px; border-radius: 20px;
+      font-size: 11px; font-weight: 600; white-space: nowrap;
+    }
+    .bg-ok  { background: rgba(0,229,255,0.14); color: #00E5FF; }
+    .bg-wait { background: rgba(255,196,0,0.14); color: #FFC400; }
+    .bg-err  { background: rgba(255,61,113,0.14); color: #FF3D71; }
+
+    /* Row util */
+    .row { display: flex; justify-content: space-between; align-items: center; }
+    .row-s { display: flex; align-items: center; gap: 12px; }
+    .divider { height: 1px; background: rgba(255,255,255,0.06); margin: 12px 0; }
+
+    /* Icon circle */
+    .ic {
+      width: 44px; height: 44px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .ic-cy { background: rgba(0,229,255,0.11); }
+    .ic-yw { background: rgba(255,196,0,0.11); }
+    .ic-gn { background: rgba(0,230,153,0.11); }
+    .ic-rd { background: rgba(255,61,113,0.11); }
+    .ic-bl { background: rgba(100,150,255,0.11); }
+
+    /* Buttons */
+    .btn {
+      width: 100%; padding: 14px; border-radius: 14px;
+      border: none; font-size: 15px; font-weight: 700;
+      cursor: pointer; outline: none; font-family: inherit;
+    }
+    .btn-p { background: linear-gradient(135deg, #00E5FF, #0096C7); color: #030810; }
+    .btn-s {
+      background: rgba(255,255,255,0.05); color: #fff;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Form */
+    .flabel {
+      font-size: 12px; color: rgba(255,255,255,0.45);
+      margin-bottom: 6px; letter-spacing: 0.05em;
+    }
+    .finput {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 12px 14px;
+      color: #fff; font-size: 15px;
+      margin-bottom: 14px; outline: none;
+      font-family: inherit;
+    }
+    .finput:focus { border-color: #00E5FF; background: rgba(0,229,255,0.04); }
+    .finput::placeholder { color: rgba(255,255,255,0.2); }
+
+    /* Steps */
+    .steps { display: flex; align-items: center; margin-bottom: 20px; }
+    .step {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,0.09);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.35);
+    }
+    .step.done { background: rgba(0,229,255,0.18); color: #00E5FF; }
+    .step.now  { background: #00E5FF; color: #030810; }
+    .sline { flex: 1; height: 2px; background: rgba(255,255,255,0.07); }
+    .sline.done { background: rgba(0,229,255,0.35); }
+
+    /* Progress bar */
+    .pbar { height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; margin-top: 8px; }
+    .pfill { height: 100%; background: linear-gradient(90deg,#00E5FF,#0096C7); border-radius: 2px; }
+
+    /* Toggle */
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+    .tog {
+      width: 46px; height: 27px;
+      background: rgba(255,255,255,0.1); border-radius: 14px;
+      position: relative; cursor: pointer; flex-shrink: 0;
+    }
+    .tog.on { background: #00E5FF; }
+    .tog::after {
+      content: ''; position: absolute;
+      top: 3px; left: 3px;
+      width: 21px; height: 21px;
+      background: #fff; border-radius: 50%;
+      transition: transform .2s;
+    }
+    .tog.on::after { transform: translateX(19px); }
+
+    /* Timeline dot */
+    .tldot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #00E5FF;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: #030810; font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Msg item */
+    .msg-item { display: flex; gap: 12px; padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .unread { width: 8px; height: 8px; background: #FF3D71; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+
+    /* Menu rows */
+    .menu-row {
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.03);
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer;
+    }
+    .menu-row + .menu-row { border-top: 1px solid rgba(255,255,255,0.05); }
+    .menu-wrap { border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); margin-bottom: 16px; }
+
+    /* Section title */
+    .sec-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .sec-ttl { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+    .sec-lnk { font-size: 13px; color: #00E5FF; cursor: pointer; }
+
+    /* Page title */
+    .pg-ttl { padding: 6px 0 18px; }
+    .pg-ttl h2 { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.03em; }
+    .pg-ttl p  { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+
+    /* Back row */
+    .back-row { display: flex; align-items: center; gap: 10px; padding: 6px 0 18px; cursor: pointer; }
+    .back-row span { font-size: 18px; color: #00E5FF; }
+    .back-row h2  { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+
+    /* FAB center tab */
+    .tab-fab {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg,#00E5FF,#0096C7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: #030810; font-weight: 700;
+      margin-top: -18px;
+      box-shadow: 0 4px 24px rgba(0,229,255,0.45);
+    }
+  </style>
+</head>
+<body>
+
+<div class="iphone-frame">
+  <div class="dynamic-island"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg width="17" height="12" viewBox="0 0 17 12"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0.5" width="3" height="11.5" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity=".3"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.5C10.5 2.5 12.7 3.5 14.2 5.2L15.5 3.9C13.6 1.8 10.9.5 8 .5S2.4 1.8.5 3.9L1.8 5.2C3.3 3.5 5.5 2.5 8 2.5ZM8 6C9.7 6 11.2 6.7 12.3 7.8L13.6 6.5C12.1 5 10.2 4 8 4S3.9 5 2.4 6.5L3.7 7.8C4.8 6.7 6.3 6 8 6ZM8 9.5C8.8 9.5 9.6 9.8 10.1 10.4L8 12.5 5.9 10.4C6.4 9.8 7.2 9.5 8 9.5Z"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="22" height="10" rx="3" stroke="rgba(255,255,255,0.35)" stroke-width="1" fill="none"/><rect x="22.5" y="4" width="2" height="4" rx="1" fill="rgba(255,255,255,0.4)"/><rect x="1" y="2" width="17" height="8" rx="2" fill="white"/></svg>
+    </div>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div class="screen-content">
+
+    <!-- ===== SCREEN 1: ホーム ===== -->
+    <div class="screen active" id="screen-home">
+      <div class="app-header">
+        <div class="app-logo">領収<em>ブリッジ</em></div>
+        <div class="header-actions">
+          <div class="icon-btn">🔔<div class="notif-badge">2</div></div>
+        </div>
+      </div>
+
+      <!-- My QR -->
+      <div class="qr-wrap">
+        <div class="fs12 t-dim mb8">マイQRコード（宛先情報）</div>
+        <div class="qr-box">
+          <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <!-- TL corner -->
+            <rect x="4" y="4" width="30" height="30" rx="4" fill="#0A0F1C"/>
+            <rect x="8" y="8" width="22" height="22" rx="2" fill="#fff"/>
+            <rect x="13" y="13" width="12" height="12" rx="1" fill="#0A0F1C"/>
+            <!-- TR corner -->
+            <rect x="86" y="4" width="30" height="30" rx="4" fill="#0A0F1C"/>
+            <rect x="90" y="8" width="22" height="22" rx="2" fill="#fff"/>
+            <rect x="95" y="13" width="12" height="12" rx="1" fill="#0A0F1C"/>
+            <!-- BL corner -->
+            <rect x="4" y="86" width="30" height="30" rx="4" fill="#0A0F1C"/>
+            <rect x="8" y="90" width="22" height="22" rx="2" fill="#fff"/>
+            <rect x="13" y="95" width="12" height="12" rx="1" fill="#0A0F1C"/>
+            <!-- Data bits row 1 -->
+            <rect x="40" y="4"  width="8" height="8" fill="#0A0F1C"/><rect x="50" y="4"  width="8" height="8" fill="#fff"/>
+            <rect x="60" y="4"  width="8" height="8" fill="#0A0F1C"/><rect x="70" y="4"  width="8" height="8" fill="#fff"/>
+            <rect x="40" y="14" width="8" height="8" fill="#fff"/>    <rect x="50" y="14" width="8" height="8" fill="#0A0F1C"/>
+            <rect x="60" y="14" width="8" height="8" fill="#fff"/>    <rect x="70" y="14" width="8" height="8" fill="#0A0F1C"/>
+            <!-- Data bits col -->
+            <rect x="4"  y="40" width="8" height="8" fill="#0A0F1C"/><rect x="4"  y="50" width="8" height="8" fill="#fff"/>
+            <rect x="4"  y="60" width="8" height="8" fill="#0A0F1C"/><rect x="4"  y="70" width="8" height="8" fill="#fff"/>
+            <rect x="14" y="40" width="8" height="8" fill="#fff"/>    <rect x="14" y="50" width="8" height="8" fill="#0A0F1C"/>
+            <rect x="108" y="40" width="8" height="8" fill="#0A0F1C"/><rect x="108" y="50" width="8" height="8" fill="#fff"/>
+            <rect x="108" y="60" width="8" height="8" fill="#0A0F1C"/><rect x="108" y="70" width="8" height="8" fill="#fff"/>
+            <!-- Center data -->
+            <rect x="40" y="40" width="10" height="10" fill="#0A0F1C"/><rect x="52" y="40" width="8" height="8" fill="#fff"/>
+            <rect x="62" y="40" width="10" height="10" fill="#0A0F1C"/><rect x="74" y="40" width="8" height="8" fill="#fff"/>
+            <rect x="40" y="52" width="8" height="8" fill="#fff"/>    <rect x="50" y="52" width="10" height="10" fill="#0A0F1C"/>
+            <rect x="40" y="64" width="10" height="10" fill="#0A0F1C"/><rect x="52" y="64" width="8" height="8" fill="#fff"/>
+            <rect x="64" y="64" width="10" height="10" fill="#0A0F1C"/><rect x="76" y="64" width="8" height="8" fill="#fff"/>
+            <rect x="74" y="52" width="8" height="8" fill="#0A0F1C"/>
+            <!-- Center accent -->
+            <rect x="54" y="54" width="12" height="12" rx="2" fill="#00E5FF"/>
+          </svg>
+        </div>
+        <div class="qr-id">RB-2026-04847</div>
+        <div class="qr-sub">株式会社フューチャーテック / 田中 誠 様</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val t-cyan">47</div>
+          <div class="stat-lbl">今月の領収件数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">¥284,500</div>
+          <div class="stat-lbl">今月の合計金額</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val t-cyan">23</div>
+          <div class="stat-lbl">利用店舗数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val t-yellow">2</div>
+          <div class="stat-lbl">未確認あり</div>
+        </div>
+      </div>
+
+      <!-- Recent receipts -->
+      <div class="sec-hdr">
+        <div class="sec-ttl">最近の領収書</div>
+        <div class="sec-lnk">すべて表示</div>
+      </div>
+
+      <div class="card">
+        <div class="row mb8">
+          <div class="row-s">
+            <div class="ic ic-cy">🍽️</div>
+            <div>
+              <div class="fs14 t-white fw7 mb4">銀座 Brasserie KOTO</div>
+              <div class="fs12 t-dim">接待・飲食費</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="fs15 t-white fw7 mb4">¥38,500</div>
+            <div class="badge bg-ok">発行済み</div>
+          </div>
+        </div>
+        <div class="fs11 t-dim">2026年4月14日 19:32 · インボイス対応</div>
+      </div>
+
+      <div class="card">
+        <div class="row mb8">
+          <div class="row-s">
+            <div class="ic ic-yw">🚕</div>
+            <div>
+              <div class="fs14 t-white fw7 mb4">国際交通タクシー</div>
+              <div class="fs12 t-dim">交通費</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="fs15 t-white fw7 mb4">¥2,340</div>
+            <div class="badge bg-wait">処理中</div>
+          </div>
+        </div>
+        <div class="fs11 t-dim">2026年4月14日 15:10</div>
+      </div>
+
+      <div class="card">
+        <div class="row mb8">
+          <div class="row-s">
+            <div class="ic ic-gn">🏨</div>
+            <div>
+              <div class="fs14 t-white fw7 mb4">渋谷マークホテル</div>
+              <div class="fs12 t-dim">宿泊費</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="fs15 t-white fw7 mb4">¥24,000</div>
+            <div class="badge bg-ok">発行済み</div>
+          </div>
+        </div>
+        <div class="fs11 t-dim">2026年4月13日 11:00 · インボイス対応</div>
+      </div>
+    </div><!-- /screen-home -->
+
+    <!-- ===== SCREEN 2: エージェント詳細 ===== -->
+    <div class="screen" id="screen-detail">
+      <div class="back-row">
+        <span>‹</span>
+        <h2>エージェント詳細</h2>
+      </div>
+
+      <div class="card card-cyan mb16">
+        <div class="row mb12">
+          <div>
+            <div class="fs12 t-dim mb4">発行店舗</div>
+            <div class="fs18">銀座 Brasserie KOTO</div>
+          </div>
+          <div class="badge bg-ok">発行済み</div>
+        </div>
+        <div class="divider"></div>
+        <div class="row" style="margin-top:12px;">
+          <div>
+            <div class="fs12 t-dim mb4">領収金額（税込）</div>
+            <div>
+              <span style="font-size:30px;font-weight:800;color:#fff;letter-spacing:-0.03em;">¥38,500</span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="fs12 t-dim mb4">うち消費税(10%)</div>
+            <div class="fs15 t-white fw7">¥3,500</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail info -->
+      <div class="card mb16">
+        <div class="fs12 t-dim fw7 mb12" style="letter-spacing:.06em;">発行情報</div>
+        <div class="row mb8"><div class="fs12 t-dim">発行日時</div><div class="fs13 t-white">2026年4月14日 19:32</div></div>
+        <div class="divider"></div>
+        <div class="row" style="margin:10px 0;"><div class="fs12 t-dim">宛名</div><div class="fs13 t-white">株式会社フューチャーテック</div></div>
+        <div class="divider"></div>
+        <div class="row" style="margin:10px 0;"><div class="fs12 t-dim">担当者</div><div class="fs13 t-white">田中 誠 様</div></div>
+        <div class="divider"></div>
+        <div class="row" style="margin:10px 0;"><div class="fs12 t-dim">費目</div><div class="fs13 t-white">接待・飲食費</div></div>
+        <div class="divider"></div>
+        <div class="row" style="margin:10px 0 0;"><div class="fs12 t-dim">インボイス番号</div><div class="fs13 t-cyan fw7">T8012345678901</div></div>
+      </div>
+
+      <!-- Flow timeline -->
+      <div class="card mb16">
+        <div class="fs12 t-dim fw7 mb16" style="letter-spacing:.06em;">処理フロー（QR→発行）</div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="row-s" style="align-items:flex-start;">
+            <div class="tldot">✓</div>
+            <div>
+              <div class="fs14 t-white fw7 mb4">QRコード提示</div>
+              <div class="fs12 t-dim">19:28 · 田中様がQRを店舗スタッフに提示</div>
+            </div>
+          </div>
+          <div class="row-s" style="align-items:flex-start;">
+            <div class="tldot">✓</div>
+            <div>
+              <div class="fs14 t-white fw7 mb4">宛先情報を自動取得</div>
+              <div class="fs12 t-dim">19:29 · スキャン後、会社名・担当者名をエラーなく受信</div>
+            </div>
+          </div>
+          <div class="row-s" style="align-items:flex-start;">
+            <div class="tldot">✓</div>
+            <div>
+              <div class="fs14 t-white fw7 mb4">店舗が金額を入力・発行</div>
+              <div class="fs12 t-dim">19:31 · ¥38,500 を入力 → 電子発行完了</div>
+            </div>
+          </div>
+          <div class="row-s" style="align-items:flex-start;">
+            <div class="tldot" style="background:#00E5FF;">✓</div>
+            <div>
+              <div class="fs14 t-cyan fw7 mb4">アプリにPDF着信</div>
+              <div class="fs12 t-dim">19:32 · 領収書PDFをプッシュ通知で受信</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-p mb8">PDFをダウンロード</button>
+      <button class="btn btn-s">経費精算ソフトに連携（マネーフォワード）</button>
+    </div><!-- /screen-detail -->
+
+    <!-- ===== SCREEN 3: 新規派遣 ===== -->
+    <div class="screen" id="screen-new">
+      <div class="pg-ttl">
+        <h2>新規派遣</h2>
+        <p>店舗に渡すQRコード（宛先情報）を発行します</p>
+      </div>
+
+      <!-- Steps -->
+      <div class="steps">
+        <div class="step done">1</div>
+        <div class="sline done"></div>
+        <div class="step now">2</div>
+        <div class="sline"></div>
+        <div class="step">3</div>
+      </div>
+      <div class="row fs11 t-dim mb20" style="padding:0 4px;">
+        <span>宛先選択</span>
+        <span class="t-cyan">内容入力</span>
+        <span>QR発行</span>
+      </div>
+
+      <!-- Profile select -->
+      <div class="card card-cyan mb16">
+        <div class="fs12 t-dim mb12">登録済みプロフィールから選択</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 13px;border-radius:10px;background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.3);">
+            <div>
+              <div class="fs14 t-white fw7 mb4">株式会社フューチャーテック</div>
+              <div class="fs12 t-dim">田中 誠 / 営業部</div>
+            </div>
+            <div style="width:20px;height:20px;border-radius:50%;background:#00E5FF;display:flex;align-items:center;justify-content:center;font-size:11px;color:#030810;font-weight:700;">✓</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 13px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
+            <div>
+              <div class="fs14 t-white mb4">田中 誠（個人）</div>
+              <div class="fs12 t-dim">フリーランス / 個人事業主</div>
+            </div>
+            <div style="width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="mb16">
+        <div class="flabel">費目（任意）</div>
+        <input class="finput" type="text" placeholder="例：接待費、交通費、備品購入..." value="接待・飲食費">
+        <div class="flabel">メモ（任意）</div>
+        <input class="finput" type="text" placeholder="例：◯月◯日 ◯◯様との会食">
+        <div class="flabel">上限金額（任意）</div>
+        <input class="finput" type="text" placeholder="例：50,000（円）">
+        <div class="flabel">有効期限</div>
+        <input class="finput" type="text" value="本日のみ（2026/04/14）">
+      </div>
+
+      <!-- QR Preview -->
+      <div class="card card-cyan mb16" style="text-align:center;">
+        <div class="fs11 t-dim mb12">プレビュー（発行前）</div>
+        <div style="display:inline-flex;align-items:center;gap:10px;background:#fff;border-radius:10px;padding:10px 16px;">
+          <svg width="48" height="48" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="20" height="20" rx="3" fill="#0A0F1C"/>
+            <rect x="6" y="6" width="12" height="12" rx="1" fill="white"/>
+            <rect x="9" y="9" width="6" height="6" rx=".5" fill="#0A0F1C"/>
+            <rect x="58" y="2" width="20" height="20" rx="3" fill="#0A0F1C"/>
+            <rect x="62" y="6" width="12" height="12" rx="1" fill="white"/>
+            <rect x="65" y="9" width="6" height="6" rx=".5" fill="#0A0F1C"/>
+            <rect x="2" y="58" width="20" height="20" rx="3" fill="#0A0F1C"/>
+            <rect x="6" y="62" width="12" height="12" rx="1" fill="white"/>
+            <rect x="9" y="65" width="6" height="6" rx=".5" fill="#0A0F1C"/>
+            <rect x="26" y="2" width="6" height="6" fill="#0A0F1C"/>
+            <rect x="34" y="2" width="6" height="6" fill="white"/>
+            <rect x="42" y="2" width="6" height="6" fill="#0A0F1C"/>
+            <rect x="50" y="2" width="6" height="6" fill="white"/>
+            <rect x="26" y="26" width="28" height="28" rx="3" fill="#0A0F1C"/>
+            <rect x="30" y="30" width="20" height="20" rx="2" fill="white"/>
+            <rect x="33" y="33" width="14" height="14" rx="1" fill="#00E5FF"/>
+          </svg>
+          <div style="text-align:left;">
+            <div style="font-size:11px;color:#333;font-weight:700;">RB-2026-04848</div>
+            <div style="font-size:10px;color:#888;">接待・飲食費 | 本日限り</div>
+          </div>
+        </div>
+        <div class="fs11 t-dim" style="margin-top:10px;">このQRを店舗スタッフに見せるだけで宛先が伝わります</div>
+      </div>
+
+      <button class="btn btn-p">このQRを発行する</button>
+    </div><!-- /screen-new -->
+
+    <!-- ===== SCREEN 4: メッセージ ===== -->
+    <div class="screen" id="screen-msg">
+      <div class="app-header">
+        <div class="fs18" style="font-size:20px;">メッセージ</div>
+        <div class="sec-lnk fs12">すべて既読</div>
+      </div>
+
+      <!-- Urgent card -->
+      <div class="card card-red mb16">
+        <div class="row">
+          <div class="row-s" style="align-items:flex-start;">
+            <div class="ic ic-rd">⚠️</div>
+            <div style="flex:1;">
+              <div class="fs14 t-white fw7 mb4">宛名の確認をお願いします</div>
+              <div class="fs12 t-dim" style="line-height:1.5;">国際交通タクシーからの領収書で「株式会社」表記が欠けています。店舗に再発行を依頼してください。</div>
+              <div class="fs11 t-dim" style="margin-top:5px;">2分前</div>
+            </div>
+          </div>
+          <div class="unread" style="flex-shrink:0;margin-left:8px;"></div>
+        </div>
+      </div>
+
+      <!-- Message list -->
+      <div class="msg-item">
+        <div class="ic ic-cy" style="border-radius:12px;flex-shrink:0;">🍽️</div>
+        <div style="flex:1;">
+          <div class="fs14 t-white fw7 mb4">領収書が発行されました</div>
+          <div class="fs12 t-dim" style="line-height:1.4;">銀座 Brasserie KOTO より ¥38,500 の領収書（インボイス付き）</div>
+          <div class="fs11 t-dim" style="margin-top:4px;">本日 19:32</div>
+        </div>
+        <div class="unread"></div>
+      </div>
+
+      <div class="msg-item">
+        <div class="ic ic-gn" style="border-radius:12px;flex-shrink:0;">🏨</div>
+        <div style="flex:1;">
+          <div class="fs14 t-white fw7 mb4">領収書が発行されました</div>
+          <div class="fs12 t-dim" style="line-height:1.4;">渋谷マークホテル より ¥24,000 の領収書</div>
+          <div class="fs11 t-dim" style="margin-top:4px;">昨日 11:02</div>
+        </div>
+      </div>
+
+      <div class="msg-item">
+        <div class="ic ic-bl" style="border-radius:12px;flex-shrink:0;">📋</div>
+        <div style="flex:1;">
+          <div class="fs14 t-white fw7 mb4">月次レポートが作成されました</div>
+          <div class="fs12 t-dim" style="line-height:1.4;">4月度 領収47件 合計 ¥284,500 · PDF出力可能</div>
+          <div class="fs11 t-dim" style="margin-top:4px;">4月1日</div>
+        </div>
+      </div>
+
+      <div class="msg-item">
+        <div class="ic ic-cy" style="border-radius:12px;flex-shrink:0;">🔗</div>
+        <div style="flex:1;">
+          <div class="fs14 t-white fw7 mb4">外部連携が完了しました</div>
+          <div class="fs12 t-dim" style="line-height:1.4;">マネーフォワード経費への自動連携を開始しました</div>
+          <div class="fs11 t-dim" style="margin-top:4px;">3月25日</div>
+        </div>
+      </div>
+
+      <div class="msg-item">
+        <div class="ic ic-rd" style="border-radius:12px;flex-shrink:0;">📢</div>
+        <div style="flex:1;">
+          <div class="fs14 t-white fw7 mb4">インボイス対応 機能更新</div>
+          <div class="fs12 t-dim" style="line-height:1.4;">適格請求書発行事業者番号の自動検証機能を追加しました</div>
+          <div class="fs11 t-dim" style="margin-top:4px;">3月15日</div>
+        </div>
+      </div>
+    </div><!-- /screen-msg -->
+
+    <!-- ===== SCREEN 5: 設定 ===== -->
+    <div class="screen" id="screen-settings">
+      <div class="pg-ttl">
+        <h2>設定</h2>
+      </div>
+
+      <!-- Profile -->
+      <div class="card mb20">
+        <div style="display:flex;gap:14px;align-items:center;">
+          <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#00E5FF,#0066AA);display:flex;align-items:center;justify-content:center;font-size:26px;">👤</div>
+          <div style="flex:1;">
+            <div class="fs18 mb4">田中 誠</div>
+            <div class="fs12 t-dim">tanaka@futuretech.co.jp</div>
+            <div class="fs12 t-cyan" style="margin-top:4px;">Proプラン · 月500件まで</div>
+          </div>
+          <div class="fs12 t-dim" style="cursor:pointer;">編集 ›</div>
+        </div>
+      </div>
+
+      <!-- Addresses -->
+      <div class="sec-hdr">
+        <div style="font-size:15px;font-weight:700;color:#fff;">宛先情報（登録済み）</div>
+        <div class="sec-lnk fs12">＋追加</div>
+      </div>
+
+      <div class="card mb20">
+        <div class="row mb12">
+          <div>
+            <div class="fs14 t-white fw7 mb4">株式会社フューチャーテック</div>
+            <div class="fs12 t-dim">〒100-0001 東京都千代田区丸の内1-1-1</div>
+            <div class="fs12 t-cyan" style="margin-top:4px;">インボイス: T8012345678901</div>
+          </div>
+          <div class="badge bg-ok">メイン</div>
+        </div>
+        <div class="divider"></div>
+        <div style="margin-top:8px;">
+          <div class="fs14 t-white mb4">田中 誠（個人）</div>
+          <div class="fs12 t-dim">freee 請求書 連携済み</div>
+        </div>
+      </div>
+
+      <!-- Toggles -->
+      <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:12px;">通知・外部連携</div>
+      <div class="card mb20">
+        <div class="toggle-row" style="padding:0 0 10px;">
+          <div>
+            <div class="fs14 t-white">領収書発行をプッシュ通知</div>
+            <div class="fs11 t-dim">届いた瞬間に通知</div>
+          </div>
+          <div class="tog on"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="toggle-row" style="padding:10px 0;">
+          <div>
+            <div class="fs14 t-white">マネーフォワード経費</div>
+            <div class="fs12 t-cyan">自動連携: ON</div>
+          </div>
+          <div class="tog on"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="toggle-row" style="padding:10px 0 0;">
+          <div>
+            <div class="fs14 t-white">freee 会計</div>
+            <div class="fs12 t-dim">自動連携: OFF</div>
+          </div>
+          <div class="tog"></div>
+        </div>
+      </div>
+
+      <!-- Plan -->
+      <div class="card card-cyan mb20">
+        <div class="row mb8">
+          <div class="fs15 t-white fw7">Proプラン</div>
+          <div class="fs15 t-cyan fw7">¥980/月</div>
+        </div>
+        <div class="fs12 t-dim mb8">月500件 · QR無制限発行 · インボイス自動検証 · 外部連携3サービス</div>
+        <div class="pbar"><div class="pfill" style="width:9.4%;"></div></div>
+        <div class="fs11 t-dim" style="margin-top:6px;">今月 47 / 500 件使用（9.4%）</div>
+      </div>
+
+      <!-- Menu -->
+      <div class="menu-wrap">
+        <div class="menu-row"><span class="fs14 t-white">利用規約</span><span class="fs12 t-dim">›</span></div>
+        <div class="menu-row"><span class="fs14 t-white">プライバシーポリシー</span><span class="fs12 t-dim">›</span></div>
+        <div class="menu-row"><span class="fs14 t-white">ヘルプ・サポート</span><span class="fs12 t-dim">›</span></div>
+        <div class="menu-row"><span class="fs14 t-white">バージョン情報</span><span class="fs12 t-dim">1.4.2</span></div>
+        <div class="menu-row"><span class="fs14 t-red">ログアウト</span><span class="fs12 t-dim">›</span></div>
+      </div>
+    </div><!-- /screen-settings -->
+
+  </div><!-- /screen-content -->
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-item active" onclick="showTab('home',this)">
+      <div class="tab-icon">🏠</div>
+      <div class="tab-label">ホーム</div>
+    </button>
+    <button class="tab-item" onclick="showTab('detail',this)">
+      <div class="tab-icon">📄</div>
+      <div class="tab-label">エージェント詳細</div>
+    </button>
+    <button class="tab-item" onclick="showTab('new',this)">
+      <div class="tab-fab">＋</div>
+      <div class="tab-label">新規派遣</div>
+    </button>
+    <button class="tab-item" onclick="showTab('msg',this)" style="position:relative;">
+      <div class="tab-icon" style="position:relative;">
+        💬
+        <div style="position:absolute;top:-5px;right:-6px;width:15px;height:15px;background:#FF3D71;border-radius:50%;font-size:8px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;border:2px solid #0A0F1C;">2</div>
+      </div>
+      <div class="tab-label">メッセージ</div>
+    </button>
+    <button class="tab-item" onclick="showTab('settings',this)">
+      <div class="tab-icon">⚙️</div>
+      <div class="tab-label">設定</div>
+    </button>
+  </div>
+
+</div><!-- /iphone-frame -->
+
+<script>
+  function showTab(name, el) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    el.classList.add('active');
+    document.querySelector('.screen-content').scrollTop = 0;
+  }
+</script>
+</body>
+</html>
