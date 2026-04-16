@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Claude Code の Agent Skills は設定したほうがいい</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#fcfcfe;color:#222}
+    main{max-width:860px;margin:0 auto;padding:24px 16px 80px}
+    a{color:#0b57d0;text-decoration:none}
+    .nav{margin-bottom:20px;font-size:14px}
+    h1{font-size:32px;line-height:1.35;margin:0 0 12px}
+    .meta{color:#666;font-size:14px;margin-bottom:24px}
+    article{background:#fff;border:1px solid #e7e7ef;border-radius:16px;padding:24px;line-height:1.85;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+    article h2, article h3{margin-top:28px}
+    article pre{white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:12px;overflow:auto}
+    article code{background:#f3f4f6;padding:2px 4px;border-radius:6px}
+    article blockquote{border-left:4px solid #d6d9e6;margin:16px 0;padding:0 0 0 14px;color:#555}
+    article ul{padding-left:20px}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="nav"><a href="./index.html">← 一覧へ戻る</a> ・ <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/06_agent_skills_guide.md">GitHubで開く</a> ・ <a href="https://x.com/_kuroneko_jp/status/2011490663284818268">元ポスト</a></div>
+    <h1>Claude Code の Agent Skills は設定したほうがいい</h1>
+    <div class="meta">2026-04-16 ・ kuroneko (@_kuroneko_jp) ・ 💻 AI/開発</div>
+    <article><h1>Claude Code の Agent Skills は設定したほうがいい</h1><p>**投稿者:** kuroneko (@_kuroneko_jp)  </p><p>**元記事著者:** syu-m-5151 (nwiizo)  </p><p>**投稿日時:** 2025年1月15日  </p><p>**URL:** https://x.com/_kuroneko_jp/status/2011490663284818268  </p><p>**記事URL:** https://syu-m-5151.hatenablog.com/entry/2025/12/19/173309  </p><p>**エンゲージメント:** 116リポスト / 1,153いいね / 1,391ブックマーク / 31万表示</p><p>---</p><h2>概要</h2><p>Claude Codeの「Agent Skills」について詳細に解説した記事。「このプロジェクトではpython-pptxを使ってスライドを作って」「SQLは必ずこのフォーマットで」といった説明を毎回繰り返す問題を解決する機能。</p><p>---</p><h2>なぜSkillsが必要か</h2><p>LLMはステートレスで、セッション間で記憶を保持しない。トークン制約とコスト制約があるため、すべての知識を常に保持できない。**Agent Skillsは、必要な時に必要な知識だけを読み込む仕組み**。</p><blockquote>「エージェントにSkillを作ることは、新入社員向けのオンボーディングガイドを作るようなもの」 — Anthropic公式ブログ</blockquote><p>---</p><h2>他の設定との違い</h2><p>| 機能 | 役割 | 例 |</p><p>|-----|------|-----|</p><p>| CLAUDE.md | プロジェクトの文脈を伝える | 「うちはTypeScriptで、こういうアーキテクチャ」 |</p><p>| commands | 手動で呼び出すショートカット | /test-and-commit で一連の作業を実行 |</p><p>| Hooks | 特定のイベントで自動実行 | ファイル保存後に自動フォーマット |</p><p>| Subagents | 専門家を自動で呼び出す | デバッグ時にdebugger subagentが起動 |</p><p>| Rules | パス単位でルールを適用 | src/api/**/*.tsにセキュリティルール |</p><p>| **Agent Skills** | 専門知識をオンボーディング | PDF操作、Excel分析、独自ワークフロー |</p><p>**Skillsのポイント**: 「Claudeができること自体を拡張する」。他の設定がClaudeの「使い方」を定義するのに対し、SkillsはClaudeの「専門知識」を拡張する。</p><p>---</p><h2>Tool、Skills、MCPの違い</h2><p>| 概念 | 役割 | たとえ |</p><p>|-----|------|--------|</p><p>| Tool | 何ができるか（Capability） | 店にある道具そのもの |</p><p>| MCP | 道具へのアクセス（Connectivity） | 店の通路に入ること |</p><p>| Skills | どう振る舞うか（Behavior） | 道具の使い方を教える店員 |</p><p>---</p><h2>Progressive Disclosure（段階的開示）</h2><p>すべての情報を最初から渡すのではなく、必要になったタイミングで必要な情報だけを渡す設計原則。</p><h3>3段階での情報開示</h3><p>1. **Level 1: メタデータ（常にロード）** - 約100トークン/Skill</p><p>   - name/descriptionだけ読み込み</p><p>2. **Level 2: 指示（トリガー時にロード）** - 5000トークン以下が目安</p><p>   - SKILL.mdの本文</p><p>3. **Level 3: リソース（必要時にロード）**</p><p>   - 追加のファイル、スクリプト、リファレンス</p><p>---</p><h2>SkillsとSubagentsの使い分け</h2><p>| 観点 | Skills | Subagents |</p><p>|-----|--------|-----------|</p><p>| コンテキスト | 親と共有 | 独立 |</p><p>| 向いているタスク | 継続的な作業、TDDなど | 試行錯誤、調査タスク |</p><p>| 状態の引き継ぎ | あり | なし（結果のみ返す） |</p><p>**判断基準:**</p><ul><li>コンテキストを共有したい → Skills</li><li>コンテキストを独立させたい → Subagents</li><li>タスクの結果が「要約」で十分ならSubagent、「過程」も重要ならSkills</li></ul><p>---</p><h2>カスタムSkillの作成</h2><h3>基本構造</h3><pre><code>---
+name: my-custom-skill
+description: このSkillが何をするか、いつ使うべきかを説明。
+---
+
+# My Custom Skill
+
+## 指示
+[具体的な手順をここに書く]
+
+## 例
+[実際の使用例]</code></pre><h3>配置場所</h3><p>| タイプ | パス | スコープ |</p><p>|-------|------|---------|</p><p>| 個人 | ~/.claude/skills/ | 全プロジェクト共通 |</p><p>| プロジェクト | .claude/skills/ | 現在のプロジェクトのみ |</p><p>---</p><h2>ベストプラクティス</h2><h3>1. 簡潔に書く</h3><p>Claudeが既に知っていることは書かない。冗長なSkillはトークン消費とノイズを増やす。</p><h3>2. 自由度を適切に設定</h3><ul><li>高自由度（テキスト指示）: 複数のアプローチが有効な場合</li><li>低自由度（具体的スクリプト）: 操作がデリケートな場合</li></ul><h3>3. フィードバックループを入れる</h3><p>複雑なワークフローでは検証ステップを入れる。</p><h3>4. ネストを深くしない</h3><p>参照ファイルはSKILL.mdから1階層までに留める。</p><p>---</p><h2>よくある失敗と対策</h2><p>| 問題 | 原因 | 対策 |</p><p>|-----|------|------|</p><p>| Skillがトリガーされない | descriptionが曖昧 | 「何をするか」と「いつ使うか」を明記 |</p><p>| コンテキスト不足 | SKILL.mdに情報が足りない | 参照ファイルを追加 |</p><p>| トークン消費が多すぎる | Progressive Disclosureしてない | 情報を複数ファイルに分割 |</p><p>| 出力が不安定 | 自由度が高すぎる | 具体的なテンプレートや例を追加 |</p><p>---</p><h2>参考資料</h2><ul><li>[awesome-claude-skills](https://github.com/ComposioHQ/awesome-claude-skills) - 100+の実戦投入可能なSkills</li><li>[Agent Skills - Anthropic Engineering Blog](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)</li><li>[Agent Skills Overview - Claude Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)</li></ul><p>---</p><p>*保存日: 2026-01-30*</p></article>
+  </main>
+</body>
+</html>

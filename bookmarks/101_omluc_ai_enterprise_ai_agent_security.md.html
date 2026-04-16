@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Agentを企業で安全に使う方法</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#fcfcfe;color:#222}
+    main{max-width:860px;margin:0 auto;padding:24px 16px 80px}
+    a{color:#0b57d0;text-decoration:none}
+    .nav{margin-bottom:20px;font-size:14px}
+    h1{font-size:32px;line-height:1.35;margin:0 0 12px}
+    .meta{color:#666;font-size:14px;margin-bottom:24px}
+    article{background:#fff;border:1px solid #e7e7ef;border-radius:16px;padding:24px;line-height:1.85;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+    article h2, article h3{margin-top:28px}
+    article pre{white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:12px;overflow:auto}
+    article code{background:#f3f4f6;padding:2px 4px;border-radius:6px}
+    article blockquote{border-left:4px solid #d6d9e6;margin:16px 0;padding:0 0 0 14px;color:#555}
+    article ul{padding-left:20px}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="nav"><a href="./index.html">← 一覧へ戻る</a> ・ <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/101_omluc_ai_enterprise_ai_agent_security.md">GitHubで開く</a></div>
+    <h1>AI Agentを企業で安全に使う方法</h1>
+    <div class="meta">2026-02-27 ・ 岸田崇史 | Omluc (@omluc_ai) ・ 💻 AI/エンタープライズ</div>
+    <article><h1>AI Agentを企業で安全に使う方法</h1><p>**投稿者:** 岸田崇史 | Omluc (@omluc_ai)</p><p>**投稿日時:** 2026-02-27</p><p>**カテゴリ:** 💻 AI/エンタープライズ</p><p>**有益度:** ⭐⭐⭐⭐ (ブックマーク427件, いいね230件)</p><p>**元URL:** https://x.com/omluc_ai/status/2027325907434906050</p><p>---</p><h2>概要</h2><p>AI Agentの企業導入における3つの課題（アクセス範囲の制御・攻撃時の被害抑制・行動の監査）に対して、IT運用の実績ある原則を適用する方法論。</p><h2>4つの対策</h2><h3>① 権限を、業務に必要な最小限に絞る</h3><ul><li>読めるファイルを指定、認証情報（.env等）や機密フォルダはブロック</li><li>実行できるコマンドを限定（例：`git commit`は許可、`git push`は確認制）</li><li>通信先を業務に必要なドメインだけに制限</li><li>**Claude Code:** `managed-settings.json` でIT部門が全社に共通ルールを強制配布可能</li><li>「人が守る」前提ではなく「システムが強制する」前提で設計</li></ul><h3>② 実行環境を、本番システムから隔離する</h3><ul><li>Docker等のコンテナでファイルシステムとネットワークを隔離</li><li>主要クラウドのAgent向け隔離環境:</li><p>  - **AWS** Bedrock AgentCore（セッション単位）</p><p>  - **Azure** Foundry Agent Service（VNet委任）</p><p>  - **GCP** Agent Sandbox（Kubernetes Pod単位）</p><li>本番データが必要な場合は**読み取り専用レプリカ**をAgentに参照させる</li></ul><h3>③ リスクの高い操作の前に、人間の確認を挟む</h3><p>操作を3段階に分類：</p><p>1. **自動実行** — ファイル読み取りなど</p><p>2. **人間の承認後に実行** — 外部へのデータ送信、本番反映など</p><p>3. **常にブロック**</p><p>Agent実行を一時停止 → Teams/Slackに承認リクエスト → 承認後に再開</p><h3>④ Agentの行動を記録し、あとから検証できるようにする</h3><p>記録すべき内容：</p><ul><li>アクセスしたファイル、実行したコマンド、指示元、外部通信</li><li>**「なぜその行動を取ったか」** — 入力コンテキスト・ツール呼び出し順序・推論過程</li></ul><p>**Claude Code:** Compliance APIで利用データ、OpenTelemetryでトレース取得</p><h2>多層防御の考え方</h2><pre><code>①権限制限 → 突破されても ②環境隔離 → それでも ③承認ゲート → 問題発生時 ④監査記録</code></pre><p>各レイヤーが独立して機能するため、一つが突破されても次が守る。</p><h2>まとめ</h2><p>AI Agentのセキュリティはまだ発展途上だが、**完璧を待つ必要はない**。  </p><p>「権限を絞る・環境を隔離する・承認を挟む・記録を残す」の4つを今の自社でできる範囲から始める。</p></article>
+  </main>
+</body>
+</html>
