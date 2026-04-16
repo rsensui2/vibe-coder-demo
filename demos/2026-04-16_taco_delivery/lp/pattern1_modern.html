@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TacoDelivery — 本物のメキシカンタコスを、あなたの元へ</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    background: #0D0D0D;
+    color: #FFF8F0;
+    overflow-x: hidden;
+    line-height: 1.7;
+  }
+  a { color: inherit; text-decoration: none; }
+  ul { list-style: none; }
+  img { max-width: 100%; }
+
+  /* ===== CYBERPUNK UTILITY ===== */
+  .glow-text {
+    text-shadow: 0 0 8px rgba(200, 75, 49, 0.6), 0 0 30px rgba(200, 75, 49, 0.3);
+  }
+  .glow-green {
+    text-shadow: 0 0 8px rgba(45, 106, 79, 0.8), 0 0 30px rgba(45, 106, 79, 0.4);
+  }
+  .neon-border {
+    border: 1px solid rgba(200, 75, 49, 0.4);
+    box-shadow: 0 0 15px rgba(200, 75, 49, 0.15), inset 0 0 15px rgba(200, 75, 49, 0.05);
+  }
+  .accent { color: #C84B31; }
+  .green { color: #2D6A4F; }
+  .highlight { color: #E9C46A; }
+  .bg-dark { background: #111111; }
+  .bg-darker { background: #0A0A0A; }
+
+  /* ===== GRID NOISE OVERLAY ===== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(200,75,49,0.015) 2px, rgba(200,75,49,0.015) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(45,106,79,0.01) 2px, rgba(45,106,79,0.01) 4px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== NAVBAR ===== */
+  .navbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 3rem;
+    background: rgba(13,13,13,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(200,75,49,0.2);
+  }
+  .navbar .logo {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+  }
+  .navbar .logo span { color: #C84B31; }
+  .navbar nav { display: flex; gap: 2rem; }
+  .navbar nav a {
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    transition: opacity 0.3s, color 0.3s;
+  }
+  .navbar nav a:hover { opacity: 1; color: #C84B31; }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 8rem 4rem 4rem;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -20%; right: -10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(200,75,49,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: 0;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -10%; left: -15%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(45,106,79,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: 0;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    max-width: 600px;
+  }
+  .hero-tag {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    background: rgba(200,75,49,0.15);
+    border: 1px solid rgba(200,75,49,0.4);
+    border-radius: 2px;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #C84B31;
+    margin-bottom: 1.5rem;
+    transform: rotate(-1deg);
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+    transform: skewY(-1deg);
+  }
+  .hero h1 .line2 {
+    display: block;
+    color: #E9C46A;
+    font-size: 0.6em;
+    transform: translateX(2rem);
+  }
+  .hero p {
+    font-size: 1.1rem;
+    opacity: 0.8;
+    max-width: 480px;
+    margin-bottom: 2.5rem;
+    line-height: 1.8;
+  }
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2.5rem;
+    background: #C84B31;
+    color: #FFF8F0;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(0 0, 100% 0, 96% 100%, 4% 100%);
+    transition: background 0.3s, transform 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .btn-primary:hover { background: #d95e3f; transform: scale(1.03); }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2.5rem;
+    background: transparent;
+    color: #FFF8F0;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 1px solid rgba(255,248,240,0.3);
+    cursor: pointer;
+    clip-path: polygon(4% 0, 96% 0, 100% 100%, 0 100%);
+    transition: border-color 0.3s, color 0.3s;
+    letter-spacing: 0.08em;
+  }
+  .btn-secondary:hover { border-color: #E9C46A; color: #E9C46A; }
+
+  /* ===== PHONE MOCK ===== */
+  .hero-phone {
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+    margin-left: 4rem;
+    transform: rotate(3deg) translateY(-1rem);
+  }
+  .phone-frame {
+    width: 260px;
+    height: 520px;
+    background: #1A1A1A;
+    border-radius: 36px;
+    border: 3px solid #333;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 0 40px rgba(200,75,49,0.2),
+      0 20px 60px rgba(0,0,0,0.6),
+      inset 0 0 20px rgba(0,0,0,0.3);
+  }
+  .phone-notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 28px;
+    background: #1A1A1A;
+    border-radius: 0 0 18px 18px;
+    z-index: 10;
+  }
+  .phone-screen {
+    position: absolute;
+    inset: 8px;
+    border-radius: 28px;
+    overflow: hidden;
+    background: linear-gradient(160deg, #0D0D0D 0%, #1a0f0a 100%);
+  }
+  .phone-header {
+    padding: 2.5rem 1.2rem 0.8rem;
+    text-align: center;
+  }
+  .phone-header .ph-logo {
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: #C84B31;
+    margin-bottom: 0.5rem;
+  }
+  .phone-header .ph-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #FFF8F0;
+    line-height: 1.3;
+  }
+  .phone-card-list {
+    padding: 0.6rem 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .phone-card {
+    background: rgba(255,248,240,0.05);
+    border: 1px solid rgba(200,75,49,0.2);
+    border-radius: 10px;
+    padding: 0.6rem 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .phone-card-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .phone-card-icon.red { background: rgba(200,75,49,0.2); }
+  .phone-card-icon.green { background: rgba(45,106,79,0.2); }
+  .phone-card-icon.gold { background: rgba(233,196,106,0.2); }
+  .phone-card-text { font-size: 0.6rem; color: #ccc; line-height: 1.4; }
+  .phone-card-text strong { color: #FFF8F0; font-size: 0.65rem; display: block; margin-bottom: 2px; }
+  .phone-bottom-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 50px; background: rgba(13,13,13,0.9); border-top: 1px solid rgba(200,75,49,0.2); display: flex; align-items: center; justify-content: center; gap: 2rem; font-size: 0.6rem; color: #666; }
+  .phone-bottom-bar span.active { color: #C84B31; }
+
+  /* ===== SECTION COMMON ===== */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 6rem 4rem;
+  }
+  .section-label {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #C84B31;
+    border-left: 3px solid #C84B31;
+    padding-left: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+  .section-title {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+  }
+  .section-desc {
+    font-size: 1.05rem;
+    opacity: 0.75;
+    max-width: 640px;
+    line-height: 1.8;
+  }
+
+  /* ===== PROBLEM SECTION ===== */
+  .problem {
+    background: #0A0A0A;
+    overflow: hidden;
+  }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-top: 3rem;
+    align-items: start;
+  }
+  .problem-card {
+    padding: 2.5rem;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+  }
+  .problem-card.texmex {
+    background: rgba(200,75,49,0.06);
+    border: 1px solid rgba(200,75,49,0.15);
+    transform: rotate(-0.5deg);
+  }
+  .problem-card.texmex::before { background: #C84B31; }
+  .problem-card.authentic {
+    background: rgba(45,106,79,0.06);
+    border: 1px solid rgba(45,106,79,0.15);
+    transform: rotate(0.5deg) translateY(1rem);
+  }
+  .problem-card.authentic::before { background: #2D6A4F; }
+  .problem-card h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 1rem; }
+  .problem-card p { font-size: 0.95rem; opacity: 0.75; line-height: 1.8; margin-bottom: 1rem; }
+  .problem-list { display: flex; flex-direction: column; gap: 0.6rem; }
+  .problem-list li { display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; opacity: 0.85; }
+  .problem-list li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .texmex .problem-list li::before { background: #C84B31; box-shadow: 0 0 6px rgba(200,75,49,0.5); }
+  .authentic .problem-list li::before { background: #2D6A4F; box-shadow: 0 0 6px rgba(45,106,79,0.5); }
+
+  .problem-vs {
+    text-align: center;
+    margin-top: 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #E9C46A;
+    position: relative;
+  }
+  .problem-vs::before, .problem-vs::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(233,196,106,0.3), transparent);
+  }
+  .problem-vs::before { left: 5%; }
+  .problem-vs::after { right: 5%; }
+
+  /* ===== SOLUTION SECTION ===== */
+  .solution {
+    position: relative;
+    overflow: hidden;
+  }
+  .solution::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 40%; height: 100%;
+    background: linear-gradient(135deg, rgba(200,75,49,0.04) 0%, transparent 60%);
+    z-index: 0;
+  }
+  .solution-inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .solution-text { max-width: 520px; }
+  .solution-text .section-title span {
+    display: inline;
+    background: linear-gradient(90deg, #C84B31, #E9C46A);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .solution-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+  .stat-box {
+    padding: 1.5rem;
+    background: rgba(255,248,240,0.03);
+    border: 1px solid rgba(200,75,49,0.15);
+    border-radius: 4px;
+    transform: skewX(-1deg);
+  }
+  .stat-box .stat-num { font-size: 2rem; font-weight: 900; color: #C84B31; line-height: 1; }
+  .stat-box .stat-label { font-size: 0.8rem; opacity: 0.6; margin-top: 0.4rem; }
+  .solution-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .solution-diagram {
+    width: 320px;
+    height: 320px;
+    position: relative;
+    border-radius: 50%;
+    border: 2px dashed rgba(200,75,49,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(2deg);
+  }
+  .solution-diagram-center {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(200,75,49,0.1);
+    border: 2px solid rgba(200,75,49,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    box-shadow: 0 0 30px rgba(200,75,49,0.2);
+  }
+  .solution-orbit {
+    position: absolute;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    border: 1px solid rgba(255,248,240,0.1);
+    background: rgba(13,13,13,0.8);
+  }
+  .solution-orbit:nth-child(2) { top: 10px; left: 50%; transform: translateX(-50%); background: rgba(200,75,49,0.1); border-color: rgba(200,75,49,0.3); }
+  .solution-orbit:nth-child(3) { bottom: 40px; left: 10px; background: rgba(45,106,79,0.1); border-color: rgba(45,106,79,0.3); }
+  .solution-orbit:nth-child(4) { bottom: 40px; right: 10px; background: rgba(233,196,106,0.1); border-color: rgba(233,196,106,0.3); }
+  .solution-orbit:nth-child(5) { top: 50%; left: -10px; transform: translateY(-50%); background: rgba(200,75,49,0.08); border-color: rgba(200,75,49,0.2); }
+  .solution-orbit:nth-child(6) { top: 50%; right: -10px; transform: translateY(-50%); background: rgba(45,106,79,0.08); border-color: rgba(45,106,79,0.2); }
+  /* ===== FEATURES SECTION ===== */
+  .features { background: #0A0A0A; }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  .feature-card {
+    padding: 2.5rem 2rem;
+    background: rgba(255,248,240,0.02);
+    border: 1px solid rgba(255,248,240,0.06);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .feature-card:hover {
+    transform: translateY(-4px) rotate(-0.5deg);
+    border-color: rgba(200,75,49,0.3);
+  }
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--card-accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .feature-card:hover::after { opacity: 1; }
+  .feature-card:nth-child(1) { --card-accent: #C84B31; transform: rotate(-0.8deg); }
+  .feature-card:nth-child(2) { --card-accent: #2D6A4F; transform: translateY(-1rem) rotate(0.3deg); }
+  .feature-card:nth-child(3) { --card-accent: #E9C46A; transform: rotate(0.6deg); }
+  .feature-icon {
+    width: 56px; height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .feature-card:nth-child(1) .feature-icon { background: rgba(200,75,49,0.12); border: 1px solid rgba(200,75,49,0.25); box-shadow: 0 0 20px rgba(200,75,49,0.1); }
+  .feature-card:nth-child(2) .feature-icon { background: rgba(45,106,79,0.12); border: 1px solid rgba(45,106,79,0.25); box-shadow: 0 0 20px rgba(45,106,79,0.1); }
+  .feature-card:nth-child(3) .feature-icon { background: rgba(233,196,106,0.12); border: 1px solid rgba(233,196,106,0.25); box-shadow: 0 0 20px rgba(233,196,106,0.1); }
+  .feature-card h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.8rem; }
+  .feature-card p { font-size: 0.9rem; opacity: 0.7; line-height: 1.7; }
+  .feature-tag { display: inline-block; margin-top: 1.2rem; padding: 0.25rem 0.8rem; font-size: 0.7rem; letter-spacing: 0.1em; border-radius: 2px; text-transform: uppercase; }
+  .feature-card:nth-child(1) .feature-tag { background: rgba(200,75,49,0.15); color: #C84B31; }
+  .feature-card:nth-child(2) .feature-tag { background: rgba(45,106,79,0.15); color: #2D6A4F; }
+  .feature-card:nth-child(3) .feature-tag { background: rgba(233,196,106,0.15); color: #E9C46A; }
+
+  /* ===== PRICING SECTION ===== */
+  .pricing {
+    text-align: center;
+    overflow: hidden;
+  }
+  .pricing .section-label, .pricing .section-title, .pricing .section-desc {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .pricing-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .pricing-card {
+    padding: 2.5rem 2rem;
+    background: rgba(255,248,240,0.02);
+    border: 1px solid rgba(255,248,240,0.08);
+    border-radius: 4px;
+    text-align: left;
+    position: relative;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .pricing-card:hover {
+    transform: translateY(-4px);
+  }
+  .pricing-card.featured {
+    border-color: rgba(200,75,49,0.5);
+    background: rgba(200,75,49,0.04);
+    transform: scale(1.05) rotate(-0.5deg);
+    box-shadow: 0 0 40px rgba(200,75,49,0.1);
+  }
+  .pricing-card.featured:hover {
+    transform: scale(1.07) rotate(-0.5deg) translateY(-4px);
+  }
+  .pricing-badge {
+    position: absolute;
+    top: -12px; right: 1.5rem;
+    background: #C84B31;
+    color: #FFF8F0;
+    padding: 0.25rem 1rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);
+  }
+  .pricing-card .plan-name { font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.6; margin-bottom: 0.5rem; }
+  .pricing-card .plan-price { font-size: 2.2rem; font-weight: 900; margin-bottom: 0.3rem; }
+  .pricing-card .plan-price .yen { font-size: 1rem; vertical-align: top; opacity: 0.6; }
+  .pricing-card .plan-price .period { font-size: 0.8rem; font-weight: 400; opacity: 0.5; }
+  .pricing-card .plan-desc { font-size: 0.85rem; opacity: 0.6; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,248,240,0.08); }
+  .pricing-features { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 2rem; }
+  .pricing-features li { display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; opacity: 0.8; }
+  .pricing-features li::before { content: '//'; color: #C84B31; font-weight: 700; font-size: 0.7rem; }
+  .pricing-btn { display: block; width: 100%; padding: 0.9rem; text-align: center; font-weight: 700; font-size: 0.85rem; border: 1px solid rgba(255,248,240,0.15); background: transparent; color: #FFF8F0; cursor: pointer; transition: all 0.3s; letter-spacing: 0.08em; }
+  .pricing-btn:hover { border-color: #C84B31; color: #C84B31; }
+  .pricing-card.featured .pricing-btn { background: #C84B31; border-color: #C84B31; }
+  .pricing-card.featured .pricing-btn:hover { background: #d95e3f; }
+
+  /* ===== TESTIMONIALS ===== */
+  .testimonials { background: #0A0A0A; }
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  .testimonial-card {
+    padding: 2rem;
+    background: rgba(255,248,240,0.02);
+    border: 1px solid rgba(255,248,240,0.06);
+    border-radius: 4px;
+    position: relative;
+  }
+  .testimonial-card:nth-child(1) { transform: rotate(-0.5deg); }
+  .testimonial-card:nth-child(2) { transform: translateY(-0.5rem) rotate(0.3deg); }
+  .testimonial-card:nth-child(3) { transform: rotate(0.5deg); }
+  .testimonial-quote {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    opacity: 0.85;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-left: 1rem;
+    border-left: 2px solid rgba(200,75,49,0.3);
+  }
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .testimonial-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .testimonial-card:nth-child(1) .testimonial-avatar { background: rgba(200,75,49,0.15); color: #C84B31; }
+  .testimonial-card:nth-child(2) .testimonial-avatar { background: rgba(45,106,79,0.15); color: #2D6A4F; }
+  .testimonial-card:nth-child(3) .testimonial-avatar { background: rgba(233,196,106,0.15); color: #E9C46A; }
+  .testimonial-name { font-size: 0.85rem; font-weight: 700; }
+  .testimonial-role { font-size: 0.75rem; opacity: 0.5; }
+  .testimonial-stars { margin-top: 0.4rem; font-size: 0.7rem; color: #E9C46A; letter-spacing: 0.1em; }
+
+  /* ===== FAQ ===== */
+  .faq { overflow: hidden; }
+  .faq-list {
+    max-width: 720px;
+    margin: 3rem auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .faq-item {
+    border: 1px solid rgba(255,248,240,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .faq-item:hover { border-color: rgba(200,75,49,0.25); }
+  .faq-question {
+    padding: 1.2rem 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    background: rgba(255,248,240,0.02);
+    user-select: none;
+  }
+  .faq-question::after { content: '+'; font-size: 1.2rem; color: #C84B31; transition: transform 0.3s; font-weight: 300; }
+  .faq-item.active .faq-question::after { transform: rotate(45deg); }
+  .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.3s ease; }
+  .faq-item.active .faq-answer { max-height: 300px; }
+  .faq-answer-inner { padding: 0 1.5rem 1.2rem; font-size: 0.9rem; opacity: 0.7; line-height: 1.8; }
+
+  /* ===== FOOTER CTA ===== */
+  .footer-cta {
+    background: #0A0A0A;
+    text-align: center;
+    padding: 5rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .footer-cta::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(200,75,49,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(60px);
+  }
+  .footer-cta .section-title {
+    position: relative;
+    z-index: 1;
+  }
+  .footer-cta p {
+    position: relative;
+    z-index: 1;
+    font-size: 1.05rem;
+    opacity: 0.7;
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .footer-cta .btn-primary {
+    position: relative;
+    z-index: 1;
+    font-size: 1.1rem;
+    padding: 1.2rem 3rem;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    border-top: 1px solid rgba(255,248,240,0.06);
+    padding: 2rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    opacity: 0.4;
+  }
+  footer .footer-links { display: flex; gap: 1.5rem; }
+  footer a:hover { color: #C84B31; opacity: 1; }
+
+  /* ===== SCROLL ANIMATIONS ===== */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-left { opacity: 0; transform: translateX(-40px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal-left.visible { opacity: 1; transform: translateX(0); }
+  .reveal-right { opacity: 0; transform: translateX(40px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+  /* ===== DECORATIVE GLITCH LINE ===== */
+  .glitch-line {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(200,75,49,0.3) 20%,
+      rgba(233,196,106,0.2) 40%,
+      rgba(45,106,79,0.3) 60%,
+      rgba(200,75,49,0.2) 80%,
+      transparent 100%
+    );
+    position: relative;
+  }
+  .glitch-line::after { content: ''; position: absolute; top: -1px; left: 30%; width: 40%; height: 3px; background: rgba(200,75,49,0.3); filter: blur(2px); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .hero {
+      flex-direction: column;
+      padding: 7rem 2rem 3rem;
+      text-align: center;
+    }
+    .hero-content { max-width: 100%; }
+    .hero h1 .line2 { transform: none; }
+    .hero-buttons { justify-content: center; }
+    .hero-phone {
+      margin: 3rem 0 0;
+      transform: rotate(2deg);
+    }
+    .phone-frame { width: 220px; height: 440px; }
+    section { padding: 4rem 2rem; }
+    .problem-grid { grid-template-columns: 1fr; }
+    .solution-inner { grid-template-columns: 1fr; }
+    .solution-visual { margin-top: 2rem; }
+    .features-grid { grid-template-columns: 1fr; }
+    .feature-card:nth-child(1),
+    .feature-card:nth-child(2),
+    .feature-card:nth-child(3) { transform: none; }
+    .pricing-cards { grid-template-columns: 1fr; max-width: 400px; }
+    .pricing-card.featured { transform: none; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .testimonial-card:nth-child(1),
+    .testimonial-card:nth-child(2),
+    .testimonial-card:nth-child(3) { transform: none; }
+    .navbar { padding: 0.8rem 1.5rem; }
+    .navbar nav { gap: 1rem; }
+    .navbar nav a { font-size: 0.7rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 2rem; }
+    .section-title { font-size: 1.6rem; }
+    .solution-stats { grid-template-columns: 1fr; }
+    .navbar nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="logo"><span>Taco</span>Delivery</div>
+  <nav>
+    <a href="#problem">課題</a>
+    <a href="#solution">ソリューション</a>
+    <a href="#features">機能</a>
+    <a href="#pricing">料金</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">// AUTHENTIC MEXICAN TACOS</div>
+    <h1 class="glow-text">
+      本物のタコスを、<br>知ってますか?
+      <span class="line2">テクス・メクスじゃない、本場の味</span>
+    </h1>
+    <p>日本で「タコス」と呼ばれるものの大半はテクス・メクス。TacoDeliveryは、AIとテクノロジーの力で本場メキシカンタコスの味と文化をあなたの食卓に届けます。</p>
+    <div class="hero-buttons">
+      <button class="btn-primary" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">今すぐ注文する</button>
+      <button class="btn-secondary" onclick="document.getElementById('problem').scrollIntoView({behavior:'smooth'})">違いを知る</button>
+    </div>
+  </div>
+  <div class="hero-phone">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="phone-header">
+          <div class="ph-logo">TACO DELIVERY</div>
+          <div class="ph-title">今日のおすすめ<br>タコス</div>
+        </div>
+        <div class="phone-card-list">
+          <div class="phone-card">
+            <div class="phone-card-icon red">&#x1F33D;</div>
+            <div class="phone-card-text">
+              <strong>カルニタス</strong>
+              豚肩ロースの低温調理 / コーントルティーヤ
+            </div>
+          </div>
+          <div class="phone-card">
+            <div class="phone-card-icon green">&#x1F952;</div>
+            <div class="phone-card-text">
+              <strong>バルバコア</strong>
+              牛頬肉のスパイス煮込み / ライム&シラントロ
+            </div>
+          </div>
+          <div class="phone-card">
+            <div class="phone-card-icon gold">&#x1F336;</div>
+            <div class="phone-card-text">
+              <strong>アル・パストール</strong>
+              マリネ豚肉 / パイナップル / サルサヴェルデ
+            </div>
+          </div>
+        </div>
+        <div class="phone-bottom-bar">
+          <span class="active">&#x1F3E0;</span>
+          <span>&#x1F50D;</span>
+          <span>&#x1F6D2;</span>
+          <span>&#x1F464;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glitch-line"></div>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="reveal">
+    <div class="section-label">PROBLEM</div>
+    <div class="section-title">あなたが食べている<span class="accent">「タコス」</span>は、<br>本当にタコスですか?</div>
+    <p class="section-desc">日本のタコス市場の約85%はテクス・メクス（アメリカ式）。本場メキシコのタコスとは、トルティーヤも具材もサルサも全く別物です。</p>
+  </div>
+
+  <div class="problem-grid">
+    <div class="problem-card texmex reveal-left">
+      <h3 class="accent">テクス・メクス</h3>
+      <p>アメリカ南部で発展した「メキシコ風」料理。おいしいけれど、メキシコ料理とは別ジャンル。</p>
+      <ul class="problem-list">
+        <li>パリパリのハードシェル（U字型）</li>
+        <li>たっぷりのチェダーチーズ</li>
+        <li>サワークリーム&レタス</li>
+        <li>挽肉のシーズニング</li>
+      </ul>
+    </div>
+    <div class="problem-card authentic reveal-right">
+      <h3 class="green">本場メキシカン</h3>
+      <p>メキシコの屋台で毎日食べられている、シンプルで力強い本物の味。</p>
+      <ul class="problem-list">
+        <li>柔らかいコーントルティーヤ（2枚重ね）</li>
+        <li>低温調理した塊肉（カルニタス、バルバコア）</li>
+        <li>シラントロ&オニオン</li>
+        <li>ライムとサルサで仕上げ</li>
+      </ul>
+    </div>
+  </div>
+  <div class="problem-vs reveal">この違い、知らずに選んでいませんか?</div>
+</section>
+
+<div class="glitch-line"></div>
+
+<!-- SOLUTION -->
+<section class="solution" id="solution">
+  <div class="solution-inner">
+    <div class="solution-text reveal-left">
+      <div class="section-label">SOLUTION</div>
+      <div class="section-title"><span>TacoDelivery</span>が、<br>タコスの常識を変える</div>
+      <p class="section-desc">テクノロジーと本場の味覚を融合。メキシコ各地域の伝統レシピをAIで分析し、日本の食材で再現可能なオーセンティックレシピを開発。産地から食卓まで、透明性のあるタコス体験を提供します。</p>
+      <div class="solution-stats">
+        <div class="stat-box">
+          <div class="stat-num glow-text">32</div>
+          <div class="stat-label">州の伝統レシピを収集</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num glow-text">98%</div>
+          <div class="stat-label">味の再現率（AI分析）</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num glow-text">45分</div>
+          <div class="stat-label">最短配達時間</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num glow-text">4.9</div>
+          <div class="stat-label">ユーザー満足度</div>
+        </div>
+      </div>
+    </div>
+    <div class="solution-visual reveal-right">
+      <div class="solution-diagram">
+        <div class="solution-diagram-center">&#x1F32E;</div>
+        <div class="solution-orbit">&#x1F916;</div>
+        <div class="solution-orbit">&#x1F33F;</div>
+        <div class="solution-orbit">&#x1F4F9;</div>
+        <div class="solution-orbit">&#x1F4CD;</div>
+        <div class="solution-orbit">&#x2B50;</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glitch-line"></div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="reveal">
+    <div class="section-label">FEATURES</div>
+    <div class="section-title">3つの<span class="highlight">コア機能</span></div>
+    <p class="section-desc">テクノロジーの力で、タコスの概念を再定義します。</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon">&#x1F916;</div>
+      <h3>AI タコス診断</h3>
+      <p>写真を撮るだけで、それがテクス・メクスか本場メキシカンかをAIが即座に判定。原材料の産地推定や、オーセンティシティスコアも表示。あなたのタコスリテラシーを高めます。</p>
+      <span class="feature-tag">AI Powered</span>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">&#x1F4F9;</div>
+      <h3>ライブキッチン</h3>
+      <p>注文したタコスの調理工程をリアルタイムで視聴可能。トルティーヤを焼く瞬間、肉をほぐす瞬間。画面越しに立ち上る湯気を感じてください。</p>
+      <span class="feature-tag">Live Streaming</span>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">&#x1F33F;</div>
+      <h3>食材トレーサビリティ</h3>
+      <p>トルティーヤのトウモロコシはどこの農場か、チリペッパーの品種は何か。全食材の産地・生産者情報をブロックチェーンで管理し、アプリで完全に可視化します。</p>
+      <span class="feature-tag">Blockchain</span>
+    </div>
+  </div>
+</section>
+
+<div class="glitch-line"></div>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="reveal">
+    <div class="section-label">PRICING</div>
+    <div class="section-title">タコスパス<span class="accent"> 料金プラン</span></div>
+    <p class="section-desc">毎月届く本場のタコス。定額で、いつでもオーセンティックな味を。</p>
+  </div>
+
+  <div class="pricing-cards">
+    <div class="pricing-card reveal">
+      <div class="plan-name">Lite</div>
+      <div class="plan-price"><span class="yen">&yen;</span>980<span class="period"> /月</span></div>
+      <p class="plan-desc">まずは気軽に本場の味を体験したい方に</p>
+      <ul class="pricing-features">
+        <li>月4食分のタコスセット</li>
+        <li>AI診断 月10回</li>
+        <li>食材トレーサビリティ</li>
+        <li>レシピカード付き</li>
+      </ul>
+      <button class="pricing-btn" onclick="alert('準備中です')">始める</button>
+    </div>
+    <div class="pricing-card featured reveal">
+      <div class="pricing-badge">POPULAR</div>
+      <div class="plan-name">Standard</div>
+      <div class="plan-price"><span class="yen">&yen;</span>1,980<span class="period"> /月</span></div>
+      <p class="plan-desc">タコスラバーの定番プラン。毎週届く本場の味</p>
+      <ul class="pricing-features">
+        <li>月8食分のタコスセット</li>
+        <li>AI診断 無制限</li>
+        <li>ライブキッチン視聴</li>
+        <li>食材トレーサビリティ</li>
+        <li>限定サルサ毎月1種</li>
+      </ul>
+      <button class="pricing-btn" onclick="alert('準備中です')">今すぐ注文する</button>
+    </div>
+    <div class="pricing-card reveal">
+      <div class="plan-name">Premium</div>
+      <div class="plan-price"><span class="yen">&yen;</span>3,980<span class="period"> /月</span></div>
+      <p class="plan-desc">究極のタコス体験。パーティーやギフトにも</p>
+      <ul class="pricing-features">
+        <li>月16食分のタコスセット</li>
+        <li>全機能アクセス</li>
+        <li>シェフとの1on1セッション</li>
+        <li>メキシコ直送スペシャル食材</li>
+        <li>優先配達</li>
+      </ul>
+      <button class="pricing-btn" onclick="alert('準備中です')">始める</button>
+    </div>
+  </div>
+</section>
+
+<div class="glitch-line"></div>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="testimonials">
+  <div class="reveal">
+    <div class="section-label">VOICE</div>
+    <div class="section-title">ユーザーの<span class="highlight">声</span></div>
+  </div>
+
+  <div class="testimonials-grid">
+    <div class="testimonial-card reveal">
+      <div class="testimonial-quote">「今まで食べてたタコスが全部テクス・メクスだったと知って衝撃を受けました。カルニタスのコーントルティーヤを食べた瞬間、これが本物かと。もう戻れません。」</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">T</div>
+        <div>
+          <div class="testimonial-name">田中 雄一</div>
+          <div class="testimonial-role">飲食店経営 / 東京</div>
+          <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="testimonial-quote">「ライブキッチンが最高。トルティーヤを焼いてるところを見ながら待つのが楽しい。子どもたちも食育として興味を持ってくれて、家族全員でハマっています。」</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">S</div>
+        <div>
+          <div class="testimonial-name">鈴木 美咲</div>
+          <div class="testimonial-role">二児の母 / 横浜</div>
+          <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="testimonial-quote">「食材のトレーサビリティが透明で信頼できる。どこの農場のトウモロコシか分かるのは安心感が違う。AI診断も面白くて、飲み会のネタになります。」</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">K</div>
+        <div>
+          <div class="testimonial-name">木村 健太</div>
+          <div class="testimonial-role">ITエンジニア / 大阪</div>
+          <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glitch-line"></div>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="reveal">
+    <div class="section-label">FAQ</div>
+    <div class="section-title">よくある<span class="accent">質問</span></div>
+  </div>
+
+  <div class="faq-list">
+    <div class="faq-item reveal">
+      <div class="faq-question">テクス・メクスとメキシカンタコスの一番の違いは?</div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">最大の違いはトルティーヤです。テクス・メクスは小麦粉ベースのハードシェル（パリパリ）が主流ですが、本場メキシカンはマサ（トウモロコシ粉）から作る柔らかいコーントルティーヤを2枚重ねで使います。具材も、テクス・メクスがチェダーチーズや挽肉中心なのに対し、メキシカンは塊肉の低温調理にシラントロとライムで仕上げるシンプルなスタイルです。</div>
+      </div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-question">配達エリアはどこですか?</div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">現在は東京23区、横浜市、川崎市に対応しています。2026年中に大阪・名古屋・福岡への拡大を予定しています。冷凍便での全国配送（月1回）もStandard以上のプランで利用可能です。</div>
+      </div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-question">アレルギー対応はしていますか?</div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">はい。注文時にアレルギー情報を登録いただくと、該当する食材を含むメニューを自動で除外します。グルテンフリー（コーントルティーヤ使用）のオプションも標準で用意しています。食材トレーサビリティ機能で全原材料を確認いただけます。</div>
+      </div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-question">AI診断はどのように使いますか?</div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">アプリのカメラ機能でタコスの写真を撮影するだけ。AIが画像を解析し、テクス・メクス度/メキシカン度をスコアリング。使われている食材の推定、オーセンティシティ評価、さらにはおすすめの本場レシピ提案まで行います。</div>
+      </div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-question">解約はいつでもできますか?</div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">はい、いつでも解約可能です。縛り期間はありません。次回配達日の3日前までにアプリから手続きいただければ、翌月から停止されます。再開もワンタップで可能です。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glitch-line"></div>
+
+<!-- FOOTER CTA -->
+<section class="footer-cta">
+  <div class="section-title reveal glow-text">本物のタコスを、<br><span class="highlight">今すぐ体験しよう</span></div>
+  <p class="reveal">初回限定50%OFF。テクス・メクスとの違いを、あなたの舌で確かめてください。</p>
+  <button class="btn-primary reveal" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">今すぐ注文する</button>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>&copy; 2026 TacoDelivery Inc. All rights reserved.</div>
+  <div class="footer-links">
+    <a href="#">利用規約</a>
+    <a href="#">プライバシーポリシー</a>
+    <a href="#">特定商取引法に基づく表記</a>
+    <a href="#">お問い合わせ</a>
+  </div>
+</footer>
+
+<!-- JS: FAQ accordion + scroll reveal -->
+<script>
+(function() {
+  // FAQ accordion
+  document.querySelectorAll('.faq-question').forEach(function(q) {
+    q.addEventListener('click', function() {
+      var item = this.parentElement;
+      var wasActive = item.classList.contains('active');
+      document.querySelectorAll('.faq-item').forEach(function(i) { i.classList.remove('active'); });
+      if (!wasActive) item.classList.add('active');
+    });
+  });
+
+  // Scroll reveal
+  var reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  reveals.forEach(function(el) { observer.observe(el); });
+
+  // Navbar scroll effect
+  var navbar = document.querySelector('.navbar');
+  window.addEventListener('scroll', function() {
+    if (window.scrollY > 60) {
+      navbar.style.borderBottomColor = 'rgba(200,75,49,0.4)';
+    } else {
+      navbar.style.borderBottomColor = 'rgba(200,75,49,0.2)';
+    }
+  });
+})();
+</script>
+</body>
+</html>

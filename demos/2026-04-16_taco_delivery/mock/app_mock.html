@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TacoDelivery - タコスデリバリー</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --primary: #C84B31; --secondary: #2D6A4F; --accent: #E9C46A;
+    --bg: #FFF8F0; --text: #2B2B2B; --card-bg: #FFFFFF;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --card-shadow-hover: 0 4px 20px rgba(0,0,0,0.14);
+    --border-light: #F0E6D8; --gray-light: #F5F0EB;
+    --gray-mid: #A89F95; --gray-dark: #6B6360;
+    --radius-sm: 8px; --radius-md: 14px; --radius-lg: 20px;
+    --font: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  }
+  body {
+    font-family: var(--font); background: #1A1A2E;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; color: var(--text); -webkit-font-smoothing: antialiased;
+  }
+
+  /* iPhone Frame */
+  .iphone-frame {
+    position: relative; width: 393px; height: 852px;
+    background: var(--bg); border-radius: 55px; overflow: hidden;
+    box-shadow: 0 0 0 3px #1A1A1A, 0 0 0 6px #3A3A3A, 0 0 0 8px #1A1A1A, 0 30px 80px rgba(0,0,0,0.5);
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+    width: 126px; height: 37px; background: #000; border-radius: 20px;
+    z-index: 1000; display: flex; align-items: center; justify-content: center;
+  }
+  .dynamic-island::before {
+    content: ''; position: absolute; left: 26px; top: 50%; transform: translateY(-50%);
+    width: 11px; height: 11px; background: #0C1117; border-radius: 50%;
+    box-shadow: inset 0 0 2px rgba(40,60,100,0.3);
+  }
+  .dynamic-island-content {
+    font-size: 10px; color: #FFF; opacity: 0; transition: opacity 0.3s; padding-left: 18px;
+  }
+  .dynamic-island:hover .dynamic-island-content { opacity: 1; }
+
+  /* Status Bar */
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 59px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    padding: 0 30px 8px; z-index: 999; font-size: 14px; font-weight: 600;
+  }
+  .status-bar-time { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+  .status-bar-icons { display: flex; gap: 6px; align-items: center; font-size: 12px; }
+  .status-bar-icons .signal { display: flex; gap: 1.5px; align-items: flex-end; }
+  .status-bar-icons .signal span { display: block; width: 3px; background: var(--text); border-radius: 1px; }
+  .status-bar-icons .signal span:nth-child(1) { height: 4px; }
+  .status-bar-icons .signal span:nth-child(2) { height: 6px; }
+  .status-bar-icons .signal span:nth-child(3) { height: 9px; }
+  .status-bar-icons .signal span:nth-child(4) { height: 12px; }
+  .status-bar-icons .wifi { width: 16px; height: 12px; position: relative; }
+  .status-bar-icons .wifi::before, .status-bar-icons .wifi::after {
+    content: ''; position: absolute; border: 2px solid var(--text); border-bottom: none; border-radius: 50% 50% 0 0;
+  }
+  .status-bar-icons .wifi::before { width: 16px; height: 10px; top: 0; left: 0; }
+  .status-bar-icons .wifi::after { width: 10px; height: 6px; top: 4px; left: 3px; }
+  .battery {
+    width: 27px; height: 12px; border: 1.5px solid var(--text); border-radius: 3px;
+    position: relative; display: flex; align-items: center; padding: 1.5px;
+  }
+  .battery::after {
+    content: ''; position: absolute; right: -4px; top: 3px;
+    width: 2px; height: 5px; background: var(--text); border-radius: 0 1px 1px 0;
+  }
+  .battery-fill { width: 80%; height: 100%; background: var(--secondary); border-radius: 1.5px; }
+
+  /* Screen Container */
+  .screen-container {
+    position: absolute; top: 59px; left: 0; right: 0; bottom: 90px;
+    overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .screen-container::-webkit-scrollbar { display: none; }
+
+  /* Screens */
+  .screen { display: none; padding: 16px 20px 24px; min-height: 100%; animation: fadeIn 0.25s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Tab Bar */
+  .tab-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 90px;
+    background: var(--card-bg); border-top: 1px solid var(--border-light);
+    display: flex; justify-content: space-around; align-items: flex-start;
+    padding-top: 10px; padding-bottom: 30px; z-index: 100;
+  }
+  .tab-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; border: none; background: none; font-family: var(--font);
+    transition: transform 0.15s; -webkit-tap-highlight-color: transparent;
+  }
+  .tab-item:active { transform: scale(0.9); }
+  .tab-icon {
+    width: 28px; height: 28px; display: flex; align-items: center;
+    justify-content: center; font-size: 22px; color: var(--gray-mid); transition: color 0.2s;
+  }
+  .tab-label { font-size: 10px; font-weight: 500; color: var(--gray-mid); transition: color 0.2s; }
+  .tab-item.active .tab-icon { color: var(--primary); }
+  .tab-item.active .tab-label { color: var(--primary); font-weight: 700; }
+
+  /* Shared */
+  .section-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 4px; letter-spacing: -0.5px; }
+  .section-subtitle { font-size: 13px; color: var(--gray-dark); margin-bottom: 16px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-texmex { background: rgba(200,75,49,0.12); color: var(--primary); }
+  .badge-mexican { background: rgba(45,106,79,0.12); color: var(--secondary); }
+
+  /* HOME */
+  .home-header { padding-top: 8px; margin-bottom: 20px; }
+  .home-greeting { font-size: 14px; color: var(--gray-dark); margin-bottom: 2px; }
+  .home-title { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+  .home-title span { color: var(--primary); }
+  .promo-banner {
+    background: linear-gradient(135deg, var(--primary), #E05A3A); border-radius: var(--radius-lg);
+    padding: 20px 22px; margin-bottom: 22px; position: relative; overflow: hidden; color: #FFF;
+  }
+  .promo-banner::after {
+    content: ''; position: absolute; right: -20px; bottom: -20px;
+    width: 120px; height: 120px; background: rgba(255,255,255,0.08); border-radius: 50%;
+  }
+  .promo-banner::before {
+    content: ''; position: absolute; right: 30px; top: -10px;
+    width: 60px; height: 60px; background: rgba(255,255,255,0.06); border-radius: 50%;
+  }
+  .promo-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; margin-bottom: 6px; }
+  .promo-title { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .promo-desc { font-size: 13px; opacity: 0.9; margin-bottom: 14px; }
+  .promo-btn {
+    display: inline-block; background: #FFF; color: var(--primary);
+    padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: transform 0.15s;
+  }
+  .promo-btn:active { transform: scale(0.95); }
+  .category-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .category-tab {
+    padding: 8px 18px; border-radius: 24px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none; font-family: var(--font); transition: all 0.2s;
+    background: var(--gray-light); color: var(--gray-dark); -webkit-tap-highlight-color: transparent;
+  }
+  .category-tab.active { background: var(--primary); color: #FFF; box-shadow: 0 3px 12px rgba(200,75,49,0.3); }
+  .category-tab:active { transform: scale(0.95); }
+  .menu-grid { display: flex; flex-direction: column; gap: 12px; }
+  .menu-card {
+    display: flex; align-items: center; background: var(--card-bg); border-radius: var(--radius-md);
+    padding: 14px 16px; box-shadow: var(--card-shadow); transition: box-shadow 0.2s, transform 0.15s; cursor: pointer;
+  }
+  .menu-card:active { transform: scale(0.98); box-shadow: var(--card-shadow-hover); }
+  .menu-card-emoji {
+    width: 52px; height: 52px; background: var(--gray-light); border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; margin-right: 14px;
+  }
+  .menu-card-info { flex: 1; min-width: 0; }
+  .menu-card-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .menu-card-desc { font-size: 12px; color: var(--gray-dark); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .menu-card-bottom { display: flex; align-items: center; gap: 8px; }
+  .menu-card-price { font-size: 16px; font-weight: 800; color: var(--primary); margin-left: auto; white-space: nowrap; }
+  .menu-card-add {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #FFF;
+    border: none; font-size: 18px; font-weight: 700; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; margin-left: 10px; flex-shrink: 0;
+    transition: transform 0.15s, background 0.2s;
+  }
+  .menu-card-add:active { transform: scale(0.85); background: #A83D28; }
+
+  /* QUIZ */
+  .quiz-header { text-align: center; padding-top: 8px; margin-bottom: 20px; }
+  .quiz-header-emoji { font-size: 48px; margin-bottom: 8px; }
+  .quiz-progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+  .quiz-progress-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-light); transition: all 0.3s; }
+  .quiz-progress-dot.active { background: var(--primary); width: 28px; border-radius: 5px; }
+  .quiz-progress-dot.done { background: var(--secondary); }
+  .quiz-question-card {
+    background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px 20px;
+    box-shadow: var(--card-shadow); margin-bottom: 16px; text-align: center;
+  }
+  .quiz-question-num { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .quiz-question-text { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.5; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option {
+    background: var(--card-bg); border: 2px solid var(--border-light); border-radius: var(--radius-md);
+    padding: 16px 18px; font-size: 15px; font-weight: 600; color: var(--text); cursor: pointer;
+    text-align: left; font-family: var(--font); transition: all 0.2s;
+    display: flex; align-items: center; gap: 12px; -webkit-tap-highlight-color: transparent;
+  }
+  .quiz-option:active, .quiz-option.selected {
+    border-color: var(--primary); background: rgba(200,75,49,0.06); transform: scale(0.98);
+  }
+  .quiz-option-letter {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--gray-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; color: var(--gray-dark); flex-shrink: 0; transition: all 0.2s;
+  }
+  .quiz-option.selected .quiz-option-letter { background: var(--primary); color: #FFF; }
+  .quiz-result { display: none; text-align: center; padding: 20px 0; animation: fadeIn 0.4s; }
+  .quiz-result.active { display: block; }
+  .quiz-result-emoji { font-size: 72px; margin-bottom: 16px; animation: bounceIn 0.5s; }
+  @keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+  .quiz-result-title { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  .quiz-result-type {
+    display: inline-block; background: var(--primary); color: #FFF;
+    padding: 6px 20px; border-radius: 20px; font-size: 15px; font-weight: 700; margin-bottom: 16px;
+  }
+  .quiz-result-desc { font-size: 14px; color: var(--gray-dark); line-height: 1.7; margin-bottom: 24px; padding: 0 10px; }
+  .quiz-result-card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--card-shadow); margin-bottom: 16px; }
+  .quiz-result-recommend-title { font-size: 13px; font-weight: 700; color: var(--gray-dark); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .quiz-result-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+  .quiz-result-item:last-child { border-bottom: none; }
+  .quiz-result-item-emoji { font-size: 28px; }
+  .quiz-result-item-name { font-size: 14px; font-weight: 600; }
+  .quiz-restart-btn {
+    display: inline-block; background: var(--secondary); color: #FFF;
+    padding: 12px 32px; border-radius: 24px; font-size: 15px; font-weight: 700;
+    border: none; cursor: pointer; font-family: var(--font); transition: transform 0.15s;
+  }
+  .quiz-restart-btn:active { transform: scale(0.95); }
+
+  /* TRACKING */
+  .tracking-header { padding-top: 8px; margin-bottom: 20px; }
+  .tracking-order-id { font-size: 13px; color: var(--gray-dark); margin-bottom: 2px; }
+  .tracking-eta-card {
+    background: linear-gradient(135deg, var(--secondary), #3D8B6A); border-radius: var(--radius-lg);
+    padding: 22px; color: #FFF; margin-bottom: 24px; position: relative; overflow: hidden;
+  }
+  .tracking-eta-card::after {
+    content: ''; position: absolute; right: -30px; bottom: -30px;
+    width: 100px; height: 100px; background: rgba(255,255,255,0.07); border-radius: 50%;
+  }
+  .tracking-eta-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 6px; }
+  .tracking-eta-time { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
+  .tracking-eta-unit { font-size: 14px; font-weight: 400; opacity: 0.85; margin-left: 4px; }
+  .tracking-steps { background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px 20px; box-shadow: var(--card-shadow); margin-bottom: 20px; }
+  .tracking-step { display: flex; gap: 16px; position: relative; padding-bottom: 24px; }
+  .tracking-step:last-child { padding-bottom: 0; }
+  .tracking-step-indicator { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .tracking-step-dot {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--gray-light);
+    display: flex; align-items: center; justify-content: center; font-size: 14px; z-index: 1; transition: all 0.3s;
+  }
+  .tracking-step.completed .tracking-step-dot { background: var(--secondary); color: #FFF; }
+  .tracking-step.current .tracking-step-dot {
+    background: var(--primary); color: #FFF;
+    box-shadow: 0 0 0 4px rgba(200,75,49,0.2); animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(200,75,49,0.2); }
+    50% { box-shadow: 0 0 0 8px rgba(200,75,49,0.1); }
+  }
+  .tracking-step-line { width: 2px; flex: 1; background: var(--border-light); margin-top: 4px; }
+  .tracking-step.completed .tracking-step-line { background: var(--secondary); }
+  .tracking-step-content { flex: 1; padding-top: 2px; }
+  .tracking-step-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .tracking-step.future .tracking-step-title { color: var(--gray-mid); }
+  .tracking-step-time { font-size: 12px; color: var(--gray-dark); }
+
+  /* Live Kitchen */
+  .live-kitchen-card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--card-shadow); margin-bottom: 20px; }
+  .live-kitchen-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .live-kitchen-desc { font-size: 12px; color: var(--gray-dark); margin-bottom: 14px; }
+  .live-kitchen-player {
+    width: 100%; height: 160px; background: #1A1A1A; border-radius: var(--radius-md);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .live-kitchen-player::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 30% 40%, rgba(200,75,49,0.15), transparent 60%),
+                radial-gradient(circle at 70% 60%, rgba(45,106,79,0.1), transparent 50%);
+  }
+  .live-play-btn {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+    border: 2px solid rgba(255,255,255,0.3); display: flex; align-items: center;
+    justify-content: center; cursor: pointer; transition: transform 0.2s, background 0.2s; z-index: 1;
+  }
+  .live-play-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.25); }
+  .live-play-btn::after {
+    content: ''; width: 0; height: 0; border-style: solid;
+    border-width: 10px 0 10px 18px; border-color: transparent transparent transparent #FFF; margin-left: 3px;
+  }
+  .live-badge {
+    position: absolute; top: 12px; left: 12px; background: #E53935; color: #FFF;
+    font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 10px;
+    letter-spacing: 0.5px; z-index: 1; animation: livePulse 1.5s infinite;
+  }
+  @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .live-kitchen-label { color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 10px; z-index: 1; }
+
+  /* Tracking Items */
+  .tracking-items-card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--card-shadow); }
+  .tracking-items-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+  .tracking-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-light); }
+  .tracking-item:last-child { border-bottom: none; }
+  .tracking-item-left { display: flex; align-items: center; gap: 10px; }
+  .tracking-item-qty {
+    width: 26px; height: 26px; background: var(--gray-light); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--gray-dark);
+  }
+  .tracking-item-name { font-size: 14px; font-weight: 600; }
+  .tracking-item-price { font-size: 14px; font-weight: 700; color: var(--primary); }
+
+  /* MYPAGE */
+  .mypage-header { text-align: center; padding-top: 8px; margin-bottom: 24px; }
+  .mypage-avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 36px; color: #FFF; box-shadow: 0 4px 20px rgba(200,75,49,0.25);
+  }
+  .mypage-name { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
+  .mypage-rank { font-size: 13px; color: var(--gray-dark); }
+  .mypage-rank span { color: var(--accent); font-weight: 700; }
+
+  /* Taco Pass */
+  .tacopass-card {
+    background: linear-gradient(135deg, #2B2B2B, #3D3D3D); border-radius: var(--radius-lg);
+    padding: 22px; color: #FFF; margin-bottom: 20px; position: relative; overflow: hidden;
+  }
+  .tacopass-card::before {
+    content: ''; position: absolute; top: -20px; right: -20px;
+    width: 100px; height: 100px; background: rgba(233,196,106,0.1); border-radius: 50%;
+  }
+  .tacopass-card::after {
+    content: ''; position: absolute; bottom: -30px; left: 40%;
+    width: 140px; height: 140px; background: rgba(200,75,49,0.08); border-radius: 50%;
+  }
+  .tacopass-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); font-weight: 700; margin-bottom: 8px; }
+  .tacopass-plan { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .tacopass-price { font-size: 14px; opacity: 0.7; margin-bottom: 16px; }
+  .tacopass-benefits { display: flex; gap: 16px; }
+  .tacopass-benefit { text-align: center; flex: 1; z-index: 1; }
+  .tacopass-benefit-value { font-size: 22px; font-weight: 800; color: var(--accent); }
+  .tacopass-benefit-label { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+
+  /* Stats */
+  .stats-row { display: flex; gap: 10px; margin-bottom: 20px; }
+  .stat-card { flex: 1; background: var(--card-bg); border-radius: var(--radius-md); padding: 16px 14px; text-align: center; box-shadow: var(--card-shadow); }
+  .stat-value { font-size: 22px; font-weight: 800; color: var(--primary); }
+  .stat-label { font-size: 11px; color: var(--gray-dark); margin-top: 4px; }
+
+  /* Order History */
+  .order-history-card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--card-shadow); margin-bottom: 20px; }
+  .order-history-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 14px; }
+  .order-history-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-light); }
+  .order-history-item:last-child { border-bottom: none; }
+  .order-history-icon {
+    width: 42px; height: 42px; background: var(--gray-light); border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+  }
+  .order-history-info { flex: 1; }
+  .order-history-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .order-history-date { font-size: 12px; color: var(--gray-dark); }
+  .order-history-price { font-size: 14px; font-weight: 700; color: var(--text); }
+  .order-history-status { font-size: 11px; color: var(--secondary); font-weight: 600; }
+
+  /* Mypage Menu */
+  .mypage-menu { background: var(--card-bg); border-radius: var(--radius-lg); box-shadow: var(--card-shadow); overflow: hidden; }
+  .mypage-menu-item {
+    display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light); cursor: pointer; transition: background 0.15s;
+  }
+  .mypage-menu-item:last-child { border-bottom: none; }
+  .mypage-menu-item:active { background: var(--gray-light); }
+  .mypage-menu-icon { font-size: 20px; width: 24px; text-align: center; }
+  .mypage-menu-label { flex: 1; font-size: 15px; font-weight: 600; color: var(--text); }
+  .mypage-menu-arrow { font-size: 14px; color: var(--gray-mid); }
+
+  /* Misc */
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; background: rgba(0,0,0,0.15); border-radius: 3px; z-index: 1000;
+  }
+  .cart-badge {
+    position: absolute; top: -4px; right: -6px; width: 16px; height: 16px;
+    background: var(--primary); border-radius: 50%; font-size: 9px; font-weight: 700;
+    color: #FFF; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-bg);
+  }
+  .toast {
+    position: absolute; top: 70px; left: 20px; right: 20px; background: var(--secondary);
+    color: #FFF; padding: 14px 18px; border-radius: var(--radius-md); font-size: 14px;
+    font-weight: 600; text-align: center; z-index: 2000; transform: translateY(-120%);
+    opacity: 0; transition: all 0.35s cubic-bezier(0.22,1,0.36,1); box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="iphone-frame">
+  <!-- Dynamic Island -->
+  <div class="dynamic-island">
+    <span class="dynamic-island-content">配達中...</span>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-bar-time">12:34</span>
+    <div class="status-bar-icons">
+      <div class="signal"><span></span><span></span><span></span><span></span></div>
+      <div class="wifi"></div>
+      <div class="battery"><div class="battery-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Screen Container -->
+  <div class="screen-container">
+
+    <!-- HOME -->
+    <div class="screen active" id="screen-home">
+      <div class="home-header">
+        <div class="home-greeting">こんにちは、亮介さん</div>
+        <div class="home-title">今日の<span>タコス</span>は？</div>
+      </div>
+
+      <div class="promo-banner">
+        <div class="promo-label">期間限定</div>
+        <div class="promo-title">春のアボカドフェア</div>
+        <div class="promo-desc">全メニューにアボカド無料トッピング</div>
+        <div class="promo-btn">詳しく見る</div>
+      </div>
+
+      <div class="category-tabs">
+        <button class="category-tab active" data-category="all">すべて</button>
+        <button class="category-tab" data-category="texmex">テクス・メクス</button>
+        <button class="category-tab" data-category="mexican">メキシカン</button>
+      </div>
+
+      <div class="menu-grid" id="menu-grid"></div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="screen" id="screen-quiz">
+      <div class="quiz-header">
+        <div class="quiz-header-emoji">🌮</div>
+        <div class="section-title">タコス診断</div>
+        <div class="section-subtitle">5つの質問であなたのタコスタイプを診断！</div>
+      </div>
+
+      <div class="quiz-progress" id="quiz-progress">
+        <div class="quiz-progress-dot active"></div>
+        <div class="quiz-progress-dot"></div>
+        <div class="quiz-progress-dot"></div>
+        <div class="quiz-progress-dot"></div>
+        <div class="quiz-progress-dot"></div>
+      </div>
+
+      <div id="quiz-body"></div>
+
+      <div class="quiz-result" id="quiz-result">
+        <div class="quiz-result-emoji">🎉</div>
+        <div class="quiz-result-title">あなたは...</div>
+        <div class="quiz-result-type" id="quiz-result-type"></div>
+        <div class="quiz-result-desc" id="quiz-result-desc"></div>
+        <div class="quiz-result-card">
+          <div class="quiz-result-recommend-title">おすすめタコス</div>
+          <div id="quiz-result-items"></div>
+        </div>
+        <button class="quiz-restart-btn" onclick="restartQuiz()">もう一度診断する</button>
+      </div>
+    </div>
+
+    <!-- TRACKING -->
+    <div class="screen" id="screen-tracking">
+      <div class="tracking-header">
+        <div class="section-title">注文トラッキング</div>
+        <div class="tracking-order-id">注文番号: #TD-20260416-0042</div>
+      </div>
+
+      <div class="tracking-eta-card">
+        <div class="tracking-eta-label">到着予定</div>
+        <div class="tracking-eta-time">12<span class="tracking-eta-unit">分</span></div>
+      </div>
+
+      <div class="tracking-steps">
+        <div class="tracking-step completed">
+          <div class="tracking-step-indicator">
+            <div class="tracking-step-dot">&#10003;</div>
+            <div class="tracking-step-line"></div>
+          </div>
+          <div class="tracking-step-content">
+            <div class="tracking-step-title">注文確認</div>
+            <div class="tracking-step-time">12:20</div>
+          </div>
+        </div>
+        <div class="tracking-step completed">
+          <div class="tracking-step-indicator">
+            <div class="tracking-step-dot">&#10003;</div>
+            <div class="tracking-step-line"></div>
+          </div>
+          <div class="tracking-step-content">
+            <div class="tracking-step-title">調理開始</div>
+            <div class="tracking-step-time">12:22</div>
+          </div>
+        </div>
+        <div class="tracking-step current">
+          <div class="tracking-step-indicator">
+            <div class="tracking-step-dot">🔥</div>
+            <div class="tracking-step-line"></div>
+          </div>
+          <div class="tracking-step-content">
+            <div class="tracking-step-title">調理中</div>
+            <div class="tracking-step-time">12:28 〜</div>
+          </div>
+        </div>
+        <div class="tracking-step future">
+          <div class="tracking-step-indicator">
+            <div class="tracking-step-dot">🛵</div>
+            <div class="tracking-step-line"></div>
+          </div>
+          <div class="tracking-step-content">
+            <div class="tracking-step-title">配達中</div>
+            <div class="tracking-step-time">—</div>
+          </div>
+        </div>
+        <div class="tracking-step future">
+          <div class="tracking-step-indicator">
+            <div class="tracking-step-dot">📍</div>
+          </div>
+          <div class="tracking-step-content">
+            <div class="tracking-step-title">お届け完了</div>
+            <div class="tracking-step-time">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="live-kitchen-card">
+        <div class="live-kitchen-title">ライブキッチン</div>
+        <div class="live-kitchen-desc">シェフがあなたのタコスを作っている様子をライブで</div>
+        <div class="live-kitchen-player">
+          <div class="live-badge">● LIVE</div>
+          <div class="live-play-btn"></div>
+          <div class="live-kitchen-label">タップして視聴開始</div>
+        </div>
+      </div>
+
+      <div class="tracking-items-card">
+        <div class="tracking-items-title">注文内容</div>
+        <div class="tracking-item">
+          <div class="tracking-item-left">
+            <div class="tracking-item-qty">2</div>
+            <div class="tracking-item-name">カルネ・アサダ・タコス</div>
+          </div>
+          <div class="tracking-item-price">¥1,360</div>
+        </div>
+        <div class="tracking-item">
+          <div class="tracking-item-left">
+            <div class="tracking-item-qty">1</div>
+            <div class="tracking-item-name">チキン・ティンガ・タコス</div>
+          </div>
+          <div class="tracking-item-price">¥580</div>
+        </div>
+        <div class="tracking-item">
+          <div class="tracking-item-left">
+            <div class="tracking-item-qty">1</div>
+            <div class="tracking-item-name">ワカモレ</div>
+          </div>
+          <div class="tracking-item-price">¥420</div>
+        </div>
+        <div class="tracking-item" style="border-bottom:none;padding-top:14px">
+          <div class="tracking-item-left">
+            <div class="tracking-item-name" style="font-weight:800">合計</div>
+          </div>
+          <div class="tracking-item-price" style="font-size:16px;font-weight:800">¥2,360</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MYPAGE -->
+    <div class="screen" id="screen-mypage">
+      <div class="mypage-header">
+        <div class="mypage-avatar">亮</div>
+        <div class="mypage-name">亮介</div>
+        <div class="mypage-rank">ランク: <span>⭐ ゴールド会員</span></div>
+      </div>
+
+      <div class="tacopass-card">
+        <div class="tacopass-label">🌮 Taco Pass</div>
+        <div class="tacopass-plan">プレミアムプラン</div>
+        <div class="tacopass-price">月額 ¥2,980（税込）</div>
+        <div class="tacopass-benefits">
+          <div class="tacopass-benefit">
+            <div class="tacopass-benefit-value">18</div>
+            <div class="tacopass-benefit-label">今月の注文</div>
+          </div>
+          <div class="tacopass-benefit">
+            <div class="tacopass-benefit-value">¥0</div>
+            <div class="tacopass-benefit-label">配達料</div>
+          </div>
+          <div class="tacopass-benefit">
+            <div class="tacopass-benefit-value">10%</div>
+            <div class="tacopass-benefit-label">割引</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value">142</div>
+          <div class="stat-label">累計注文数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">4.9</div>
+          <div class="stat-label">平均評価</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">2,840</div>
+          <div class="stat-label">ポイント</div>
+        </div>
+      </div>
+
+      <div class="order-history-card">
+        <div class="order-history-title">注文履歴</div>
+        <div class="order-history-item">
+          <div class="order-history-icon">🌮</div>
+          <div class="order-history-info">
+            <div class="order-history-name">カルネ・アサダ x2, チキンティンガ x1</div>
+            <div class="order-history-date">2026/04/16 12:20</div>
+          </div>
+          <div>
+            <div class="order-history-price">¥2,360</div>
+            <div class="order-history-status">配達中</div>
+          </div>
+        </div>
+        <div class="order-history-item">
+          <div class="order-history-icon">🫔</div>
+          <div class="order-history-info">
+            <div class="order-history-name">ブリトー・デ・ポジョ x1</div>
+            <div class="order-history-date">2026/04/15 19:45</div>
+          </div>
+          <div>
+            <div class="order-history-price">¥980</div>
+            <div class="order-history-status">完了</div>
+          </div>
+        </div>
+        <div class="order-history-item">
+          <div class="order-history-icon">🥑</div>
+          <div class="order-history-info">
+            <div class="order-history-name">タコスセット（3種）+ ワカモレ</div>
+            <div class="order-history-date">2026/04/14 12:30</div>
+          </div>
+          <div>
+            <div class="order-history-price">¥2,180</div>
+            <div class="order-history-status">完了</div>
+          </div>
+        </div>
+        <div class="order-history-item">
+          <div class="order-history-icon">🌶️</div>
+          <div class="order-history-info">
+            <div class="order-history-name">激辛チョリソ・タコス x3</div>
+            <div class="order-history-date">2026/04/13 20:10</div>
+          </div>
+          <div>
+            <div class="order-history-price">¥2,340</div>
+            <div class="order-history-status">完了</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mypage-menu">
+        <div class="mypage-menu-item">
+          <div class="mypage-menu-icon">📍</div>
+          <div class="mypage-menu-label">お届け先住所</div>
+          <div class="mypage-menu-arrow">›</div>
+        </div>
+        <div class="mypage-menu-item">
+          <div class="mypage-menu-icon">💳</div>
+          <div class="mypage-menu-label">お支払い方法</div>
+          <div class="mypage-menu-arrow">›</div>
+        </div>
+        <div class="mypage-menu-item">
+          <div class="mypage-menu-icon">🎟️</div>
+          <div class="mypage-menu-label">クーポン</div>
+          <div class="mypage-menu-arrow">›</div>
+        </div>
+        <div class="mypage-menu-item">
+          <div class="mypage-menu-icon">🔔</div>
+          <div class="mypage-menu-label">通知設定</div>
+          <div class="mypage-menu-arrow">›</div>
+        </div>
+        <div class="mypage-menu-item">
+          <div class="mypage-menu-icon">❓</div>
+          <div class="mypage-menu-label">ヘルプ・お問い合わせ</div>
+          <div class="mypage-menu-arrow">›</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-item active" data-screen="home">
+      <div class="tab-icon">🏠</div>
+      <div class="tab-label">ホーム</div>
+    </button>
+    <button class="tab-item" data-screen="quiz">
+      <div class="tab-icon">🔮</div>
+      <div class="tab-label">診断</div>
+    </button>
+    <button class="tab-item" data-screen="tracking">
+      <div class="tab-icon" style="position:relative">🛵<span class="cart-badge">1</span></div>
+      <div class="tab-label">配達状況</div>
+    </button>
+    <button class="tab-item" data-screen="mypage">
+      <div class="tab-icon">👤</div>
+      <div class="tab-label">マイページ</div>
+    </button>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  // Menu Data
+  const menuItems = [
+    { name: 'カルネ・アサダ・タコス', desc: '炭火焼きビーフ、シラントロ、オニオン', price: 680, emoji: '🥩', category: 'mexican' },
+    { name: 'チキン・ティンガ・タコス', desc: 'チポトレソースのプルドチキン', price: 580, emoji: '🍗', category: 'mexican' },
+    { name: 'アル・パストール・タコス', desc: 'パイナップルマリネの豚肉', price: 620, emoji: '🍍', category: 'mexican' },
+    { name: 'バハ・フィッシュ・タコス', desc: 'ビール衣の白身魚、キャベツスロー', price: 720, emoji: '🐟', category: 'texmex' },
+    { name: 'BBQプルドポーク・タコス', desc: 'スモーキーBBQソース、コールスロー', price: 650, emoji: '🐷', category: 'texmex' },
+    { name: 'シュリンプ・ファヒータ・タコス', desc: 'グリルエビ、ペッパー、サワークリーム', price: 780, emoji: '🦐', category: 'texmex' },
+    { name: 'カルニタス・タコス', desc: 'じっくり煮込んだ豚肉、ライム', price: 600, emoji: '🌮', category: 'mexican' },
+    { name: 'チーズ・ケサディーヤ', desc: 'とろけるチーズ、ハラペーニョ', price: 520, emoji: '🧀', category: 'texmex' },
+    { name: 'ワカモレ＆チップス', desc: '自家製アボカドディップ', price: 420, emoji: '🥑', category: 'mexican' },
+    { name: '激辛チョリソ・タコス', desc: 'スパイシーチョリソ、ハバネロサルサ', price: 780, emoji: '🌶️', category: 'mexican' },
+    { name: 'ナチョス・スプリーム', desc: 'チーズソース、ハラペーニョ、サルサ', price: 880, emoji: '🫕', category: 'texmex' },
+    { name: 'チュロス', desc: 'シナモンシュガー、チョコディップ', price: 380, emoji: '🍩', category: 'texmex' },
+  ];
+
+  // Render Menu
+  function renderMenu(filter) {
+    const grid = document.getElementById('menu-grid');
+    const filtered = filter === 'all' ? menuItems : menuItems.filter(i => i.category === filter);
+    grid.innerHTML = filtered.map(item => `
+      <div class="menu-card" onclick="addToCart('${item.name}')">
+        <div class="menu-card-emoji">${item.emoji}</div>
+        <div class="menu-card-info">
+          <div class="menu-card-name">${item.name}</div>
+          <div class="menu-card-desc">${item.desc}</div>
+          <div class="menu-card-bottom">
+            <span class="badge ${item.category === 'texmex' ? 'badge-texmex' : 'badge-mexican'}">
+              ${item.category === 'texmex' ? 'テクス・メクス' : 'メキシカン'}
+            </span>
+          </div>
+        </div>
+        <div class="menu-card-price">&yen;${item.price.toLocaleString()}</div>
+        <button class="menu-card-add" onclick="event.stopPropagation(); addToCart('${item.name}')">+</button>
+      </div>
+    `).join('');
+  }
+
+  // Toast
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  let cartCount = 0;
+  function addToCart(name) {
+    cartCount++;
+    showToast(`${name} をカートに追加しました`);
+  }
+
+  // Category Tabs
+  document.querySelectorAll('.category-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderMenu(tab.dataset.category);
+    });
+  });
+
+  // Tab Navigation
+  document.querySelectorAll('.tab-item').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const screenId = 'screen-' + tab.dataset.screen;
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      document.querySelector('.screen-container').scrollTop = 0;
+    });
+  });
+
+  // Quiz Data
+  const quizQuestions = [
+    {
+      question: '金曜の夜、あなたは何をしている？',
+      options: [
+        { text: '友達とワイワイ飲み会', type: 'texmex' },
+        { text: '一人でじっくり映画鑑賞', type: 'mexican' },
+        { text: '新しいレストラン開拓', type: 'texmex' },
+        { text: '自宅で料理を楽しむ', type: 'mexican' }
+      ]
+    },
+    {
+      question: '旅行するなら？',
+      options: [
+        { text: 'テキサス — BBQとカウボーイ', type: 'texmex' },
+        { text: 'オアハカ — 伝統と市場巡り', type: 'mexican' },
+        { text: 'LA — ストリートフード巡り', type: 'texmex' },
+        { text: 'メキシコシティ — 本場のタコス', type: 'mexican' }
+      ]
+    },
+    {
+      question: '辛さの好みは？',
+      options: [
+        { text: 'マイルドで安心', type: 'texmex' },
+        { text: 'ほどよいスパイス', type: 'texmex' },
+        { text: 'しっかり辛い', type: 'mexican' },
+        { text: '激辛こそ正義', type: 'mexican' }
+      ]
+    },
+    {
+      question: 'トッピングに欠かせないのは？',
+      options: [
+        { text: 'たっぷりチーズ', type: 'texmex' },
+        { text: 'フレッシュサルサ', type: 'mexican' },
+        { text: 'サワークリーム', type: 'texmex' },
+        { text: 'シラントロ＆ライム', type: 'mexican' }
+      ]
+    },
+    {
+      question: '好きな音楽は？',
+      options: [
+        { text: 'カントリー・ロック', type: 'texmex' },
+        { text: 'マリアッチ', type: 'mexican' },
+        { text: 'ポップ・ヒップホップ', type: 'texmex' },
+        { text: 'ラテン・ジャズ', type: 'mexican' }
+      ]
+    }
+  ];
+
+  let currentQuestion = 0;
+  let quizScores = { texmex: 0, mexican: 0 };
+  const letters = ['A', 'B', 'C', 'D'];
+
+  function renderQuizQuestion() {
+    const body = document.getElementById('quiz-body');
+    if (currentQuestion >= quizQuestions.length) { showQuizResult(); return; }
+    const q = quizQuestions[currentQuestion];
+    body.innerHTML = `
+      <div class="quiz-question-card">
+        <div class="quiz-question-num">質問 ${currentQuestion + 1} / ${quizQuestions.length}</div>
+        <div class="quiz-question-text">${q.question}</div>
+      </div>
+      <div class="quiz-options">
+        ${q.options.map((opt, i) => `
+          <button class="quiz-option" onclick="selectQuizOption(this, '${opt.type}')">
+            <span class="quiz-option-letter">${letters[i]}</span>
+            <span>${opt.text}</span>
+          </button>
+        `).join('')}
+      </div>
+    `;
+    updateProgress();
+  }
+
+  function selectQuizOption(el, type) {
+    document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    quizScores[type]++;
+    setTimeout(() => { currentQuestion++; renderQuizQuestion(); }, 400);
+  }
+
+  function updateProgress() {
+    const dots = document.querySelectorAll('.quiz-progress-dot');
+    dots.forEach((dot, i) => {
+      dot.classList.remove('active', 'done');
+      if (i < currentQuestion) dot.classList.add('done');
+      else if (i === currentQuestion) dot.classList.add('active');
+    });
+  }
+
+  function showQuizResult() {
+    document.getElementById('quiz-body').style.display = 'none';
+    document.querySelector('.quiz-progress').style.display = 'none';
+    const result = document.getElementById('quiz-result');
+    result.classList.add('active');
+    const isTexMex = quizScores.texmex >= quizScores.mexican;
+    const typeName = isTexMex ? 'テクス・メクス派！' : 'メキシカン派！';
+    const desc = isTexMex
+      ? 'あなたはボリューム満点でチーズたっぷりのテクス・メクスが大好き！フュージョン料理が得意で、友達とシェアするのが楽しみ。'
+      : 'あなたは本場の味を追求するメキシカン通！新鮮な食材とシンプルな調理法を愛する、通好みのタコスラバー。';
+    const items = isTexMex
+      ? [{ emoji: '🐟', name: 'バハ・フィッシュ・タコス' }, { emoji: '🦐', name: 'シュリンプ・ファヒータ・タコス' }, { emoji: '🫕', name: 'ナチョス・スプリーム' }]
+      : [{ emoji: '🥩', name: 'カルネ・アサダ・タコス' }, { emoji: '🍍', name: 'アル・パストール・タコス' }, { emoji: '🌶️', name: '激辛チョリソ・タコス' }];
+    document.getElementById('quiz-result-type').textContent = typeName;
+    document.getElementById('quiz-result-desc').textContent = desc;
+    document.getElementById('quiz-result-items').innerHTML = items.map(i => `
+      <div class="quiz-result-item">
+        <span class="quiz-result-item-emoji">${i.emoji}</span>
+        <span class="quiz-result-item-name">${i.name}</span>
+      </div>
+    `).join('');
+  }
+
+  function restartQuiz() {
+    currentQuestion = 0;
+    quizScores = { texmex: 0, mexican: 0 };
+    document.getElementById('quiz-result').classList.remove('active');
+    document.getElementById('quiz-body').style.display = '';
+    document.querySelector('.quiz-progress').style.display = '';
+    renderQuizQuestion();
+  }
+
+  // Init
+  renderMenu('all');
+  renderQuizQuestion();
+</script>
+</body>
+</html>

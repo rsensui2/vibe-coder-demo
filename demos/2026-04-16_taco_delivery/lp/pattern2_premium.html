@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TacoDelivery — 本物のメキシカンタコスを、あなたの元へ</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    background: #1A1A2E;
+    color: #F5F0E8;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  ul { list-style: none; }
+  .t-gold { color: #D4AF37; }
+  h1, h2, h3 {
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+  .section-spacer { padding: 120px 0; }
+  .divider { width: 60px; height: 1px; background: #D4AF37; margin: 32px 0; }
+  .divider-center { width: 60px; height: 1px; background: #D4AF37; margin: 32px auto; }
+  .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #D4AF37;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .section-title { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 200; margin-bottom: 20px; }
+  .section-lead { font-size: 0.95rem; color: rgba(245,240,232,0.65); max-width: 560px; }
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 24px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.4s, padding 0.4s;
+  }
+  .nav.scrolled {
+    background: rgba(26,26,46,0.95);
+    backdrop-filter: blur(12px);
+    padding: 16px 40px;
+    border-bottom: 1px solid rgba(212,175,55,0.1);
+  }
+  .nav-logo { font-size: 1.1rem; font-weight: 300; letter-spacing: 0.15em; color: #D4AF37; }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a { font-size: 0.75rem; letter-spacing: 0.15em; color: rgba(245,240,232,0.5); transition: color 0.3s; }
+  .nav-links a:hover { color: #D4AF37; }
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+  }
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 60px 80px 80px;
+    position: relative;
+  }
+  .hero-left::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 15%;
+    height: 70%;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(212,175,55,0.3), transparent);
+  }
+  .hero-eyebrow { font-size: 0.65rem; letter-spacing: 0.4em; color: #D4AF37; margin-bottom: 32px; }
+  .hero-title { font-size: clamp(2rem, 4.5vw, 3.6rem); font-weight: 100; line-height: 1.3; margin-bottom: 28px; }
+  .hero-title em { font-style: normal; color: #D4AF37; font-weight: 300; }
+  .hero-sub { font-size: 0.9rem; color: rgba(245,240,232,0.55); max-width: 420px; margin-bottom: 48px; line-height: 2; }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 40px;
+    border: 1px solid #D4AF37;
+    color: #D4AF37;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    transition: all 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #D4AF37;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .hero-cta:hover::before { transform: scaleX(1); }
+  .hero-cta:hover { color: #1A1A2E; }
+  .hero-cta span { position: relative; z-index: 1; }
+  .hero-cta .arrow { position: relative; z-index: 1; width: 24px; height: 1px; background: currentColor; display: inline-block; transition: width 0.3s; }
+  .hero-cta .arrow::after { content: ''; position: absolute; right: 0; top: -3px; width: 8px; height: 8px; border-right: 1px solid currentColor; border-top: 1px solid currentColor; transform: rotate(45deg); }
+  .hero-cta:hover .arrow { width: 32px; }
+  .hero-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: radial-gradient(ellipse at center, rgba(212,175,55,0.04) 0%, transparent 70%);
+  }
+  .phone-wrapper { position: relative; }
+  .phone-glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; height: 320px; background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%); border-radius: 50%; }
+  .phone {
+    position: relative;
+    width: 260px;
+    height: 530px;
+    background: #0D0D1A;
+    border-radius: 40px;
+    border: 2px solid rgba(212,175,55,0.25);
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(212,175,55,0.05),
+      0 40px 80px rgba(0,0,0,0.5),
+      inset 0 1px 0 rgba(255,255,255,0.03);
+  }
+  .phone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 28px; background: #0D0D1A; border-radius: 0 0 18px 18px; z-index: 10; }
+  .phone-screen { padding: 44px 20px 20px; height: 100%; display: flex; flex-direction: column; }
+  .phone-header { text-align: center; margin-bottom: 16px; }
+  .phone-header-title { font-size: 0.65rem; letter-spacing: 0.2em; color: #D4AF37; margin-bottom: 4px; }
+  .phone-header-sub { font-size: 0.5rem; color: rgba(245,240,232,0.35); }
+  .phone-card { background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.12); border-radius: 12px; padding: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+  .phone-card-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #8B0000, #D4AF37); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+  .phone-card-text { flex: 1; }
+  .phone-card-name { font-size: 0.6rem; font-weight: 500; margin-bottom: 2px; }
+  .phone-card-desc { font-size: 0.48rem; color: rgba(245,240,232,0.4); }
+  .phone-card-price { font-size: 0.6rem; color: #D4AF37; font-weight: 500; }
+  .phone-btn { margin-top: auto; padding: 12px; background: #D4AF37; color: #1A1A2E; text-align: center; border-radius: 12px; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; }
+  .problem { background: linear-gradient(180deg, #1A1A2E 0%, #14142A 100%); position: relative; }
+  .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .problem-visual { position: relative; display: flex; justify-content: center; }
+  .comparison-stack { display: flex; flex-direction: column; gap: 24px; width: 100%;
+    max-width: 400px;
+  }
+  .comparison-item {
+    padding: 32px;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .comparison-item.texmex { background: rgba(139,0,0,0.08); border: 1px solid rgba(139,0,0,0.2); }
+  .comparison-item.authentic { background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.2); }
+  .comparison-badge { font-size: 0.6rem; letter-spacing: 0.2em; padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 12px; }
+  .texmex .comparison-badge { background: rgba(139,0,0,0.15); color: #cc4444; }
+  .authentic .comparison-badge { background: rgba(212,175,55,0.12); color: #D4AF37; }
+  .comparison-title { font-size: 1.1rem; font-weight: 400; margin-bottom: 8px; }
+  .comparison-desc { font-size: 0.8rem; color: rgba(245,240,232,0.45); line-height: 1.8; }
+  .problem-content .section-lead { margin-bottom: 32px; }
+  .problem-stats { display: flex; gap: 40px; margin-top: 40px; }
+  .stat-num { font-size: 2.4rem; font-weight: 100; color: #D4AF37; line-height: 1; margin-bottom: 8px; }
+  .stat-label { font-size: 0.7rem; color: rgba(245,240,232,0.4); letter-spacing: 0.05em; }
+  .solution { position: relative; }
+  .solution::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 80px; background: linear-gradient(to bottom, rgba(212,175,55,0.3), transparent); }
+  .solution-inner { text-align: center; max-width: 680px; margin: 0 auto; }
+  .solution-statement { font-size: clamp(1.4rem, 2.8vw, 2rem); font-weight: 100; line-height: 1.8; margin-bottom: 40px; }
+  .solution-statement em { font-style: normal; color: #D4AF37; border-bottom: 1px solid rgba(212,175,55,0.3); padding-bottom: 2px; }
+  .solution-detail { font-size: 0.9rem; color: rgba(245,240,232,0.5); line-height: 2.2; max-width: 520px; margin: 0 auto; }
+  .features { background: linear-gradient(180deg, #1A1A2E 0%, #161630 50%, #1A1A2E 100%); }
+  .features-header { text-align: center; margin-bottom: 80px; }
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .feature-card { padding: 56px 40px; background: rgba(245,240,232,0.015); border: 1px solid rgba(212,175,55,0.06); position: relative; transition: all 0.5s ease; }
+  .feature-card:hover { background: rgba(212,175,55,0.03); border-color: rgba(212,175,55,0.15); }
+  .feature-number { font-size: 3rem; font-weight: 100; color: rgba(212,175,55,0.12); line-height: 1; margin-bottom: 24px; }
+  .feature-card:hover .feature-number { color: rgba(212,175,55,0.3); }
+  .feature-name { font-size: 1.1rem; font-weight: 300; margin-bottom: 16px; letter-spacing: 0.05em; }
+  .feature-desc { font-size: 0.8rem; color: rgba(245,240,232,0.45); line-height: 2; }
+  .feature-tag { display: inline-block; margin-top: 20px; font-size: 0.6rem; letter-spacing: 0.15em; color: #D4AF37; padding: 6px 14px; border: 1px solid rgba(212,175,55,0.2); border-radius: 2px; }
+  .pricing { position: relative; }
+  .pricing-header { text-align: center; margin-bottom: 72px; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 960px; margin: 0 auto; }
+  .price-card { padding: 48px 36px; border: 1px solid rgba(212,175,55,0.1); border-radius: 4px; position: relative; transition: all 0.4s; background: rgba(245,240,232,0.01); }
+  .price-card:hover { border-color: rgba(212,175,55,0.25); transform: translateY(-4px); }
+  .price-card.featured { border-color: rgba(212,175,55,0.35); background: rgba(212,175,55,0.04); }
+  .price-card.featured::before { content: 'POPULAR'; position: absolute; top: -1px; left: 50%; transform: translateX(-50%) translateY(-50%); font-size: 0.55rem; letter-spacing: 0.25em; color: #1A1A2E; background: #D4AF37; padding: 4px 16px; border-radius: 2px; }
+  .price-name { font-size: 0.7rem; letter-spacing: 0.2em; color: #D4AF37; margin-bottom: 20px; }
+  .price-amount { font-size: 2.8rem; font-weight: 100; margin-bottom: 4px; line-height: 1; }
+  .price-amount .yen { font-size: 1.2rem; vertical-align: top; margin-right: 2px; }
+  .price-period { font-size: 0.7rem; color: rgba(245,240,232,0.35); margin-bottom: 32px; }
+  .price-divider { width: 100%; height: 1px; background: rgba(212,175,55,0.1); margin-bottom: 28px; }
+  .price-features { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
+  .price-feature { font-size: 0.8rem; color: rgba(245,240,232,0.55); display: flex; align-items: center; gap: 10px; }
+  .price-feature::before { content: ''; width: 4px; height: 4px; background: #D4AF37; border-radius: 50%; flex-shrink: 0; }
+  .price-btn { display: block; text-align: center; padding: 14px; border: 1px solid rgba(212,175,55,0.3); color: #D4AF37; font-size: 0.7rem; letter-spacing: 0.15em; transition: all 0.3s; cursor: pointer; }
+  .price-btn:hover { background: #D4AF37; color: #1A1A2E; }
+  .price-card.featured .price-btn { background: #D4AF37; color: #1A1A2E; border-color: #D4AF37; }
+  .price-card.featured .price-btn:hover { background: #c5a030; }
+  .testimonials { background: linear-gradient(180deg, #1A1A2E 0%, #14142A 100%); }
+  .testimonials-header { text-align: center; margin-bottom: 72px; }
+  .testimonials-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; max-width: 880px; margin: 0 auto; }
+  .testimonial-card { padding: 40px; border-left: 1px solid rgba(212,175,55,0.2); position: relative; }
+  .testimonial-quote { font-size: 0.85rem; color: rgba(245,240,232,0.6); line-height: 2.2; margin-bottom: 28px; font-style: italic; }
+  .testimonial-quote::before { content: '\201C'; font-size: 2.4rem; color: rgba(212,175,55,0.2); line-height: 1; display: block; margin-bottom: 12px; font-style: normal; }
+  .testimonial-author { display: flex; align-items: center; gap: 14px; }
+  .testimonial-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(139,0,0,0.15)); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #D4AF37; flex-shrink: 0; }
+  .testimonial-name { font-size: 0.8rem; font-weight: 400; margin-bottom: 2px; }
+  .testimonial-role { font-size: 0.65rem; color: rgba(245,240,232,0.35); }
+  .faq-header { text-align: center; margin-bottom: 64px; }
+  .faq-list { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; }
+  .faq-item { border-bottom: 1px solid rgba(212,175,55,0.08); }
+  .faq-question { padding: 28px 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; transition: color 0.3s; }
+  .faq-question:hover { color: #D4AF37; }
+  .faq-question h3 { font-size: 0.95rem; font-weight: 300; letter-spacing: 0.03em; }
+  .faq-toggle { width: 24px; height: 24px; position: relative; flex-shrink: 0; margin-left: 20px; }
+  .faq-toggle::before, .faq-toggle::after { content: ''; position: absolute; top: 50%; left: 50%; background: #D4AF37; transition: transform 0.3s; }
+  .faq-toggle::before { width: 12px; height: 1px; transform: translate(-50%, -50%); }
+  .faq-toggle::after { width: 1px; height: 12px; transform: translate(-50%, -50%); }
+  .faq-item.open .faq-toggle::after { transform: translate(-50%, -50%) rotate(90deg); }
+  .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; }
+  .faq-item.open .faq-answer { max-height: 200px; }
+  .faq-answer p { padding-bottom: 28px; font-size: 0.85rem; color: rgba(245,240,232,0.45); line-height: 2; }
+  .footer-cta { position: relative; text-align: center; padding: 140px 40px; background: linear-gradient(180deg, #1A1A2E 0%, #0D0D1A 100%); }
+  .footer-cta::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 60px; background: linear-gradient(to bottom, rgba(212,175,55,0.25), transparent); }
+  .footer-cta-title { font-size: clamp(1.6rem, 3.2vw, 2.6rem); font-weight: 100; margin-bottom: 20px; letter-spacing: 0.05em; }
+  .footer-cta-sub { font-size: 0.85rem; color: rgba(245,240,232,0.4); margin-bottom: 48px; max-width: 440px; margin-left: auto; margin-right: auto; line-height: 2; }
+  .footer-cta .hero-cta { margin: 0 auto; }
+  .footer-bottom { padding: 40px; text-align: center; border-top: 1px solid rgba(212,175,55,0.06); background: #0D0D1A; }
+  .footer-links { display: flex; justify-content: center; gap: 32px; margin-bottom: 20px; }
+  .footer-links a { font-size: 0.7rem; color: rgba(245,240,232,0.3); letter-spacing: 0.1em; transition: color 0.3s; }
+  .footer-links a:hover { color: #D4AF37; }
+  .footer-copy { font-size: 0.65rem; color: rgba(245,240,232,0.2); letter-spacing: 0.05em; }
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.15s; }
+  .reveal-delay-2 { transition-delay: 0.3s; }
+  .reveal-delay-3 { transition-delay: 0.45s; }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-left { padding: 140px 40px 60px; order: 1; }
+    .hero-left::after { display: none; }
+    .hero-right { order: 2; padding: 40px 40px 80px; }
+    .problem-grid { grid-template-columns: 1fr; gap: 48px; }
+    .problem-visual { order: -1; }
+    .features-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .problem-stats { gap: 24px; }
+    .stat-num { font-size: 1.8rem; }
+  }
+  @media (max-width: 768px) {
+    .process-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+    .social-proof-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 32px !important; }
+  }
+  @media (max-width: 600px) {
+    .hero-left { padding: 120px 24px 40px; }
+    .hero-right { padding: 20px 24px 60px; }
+    .phone { width: 220px; height: 450px; }
+    .container { padding: 0 24px; }
+    .section-spacer { padding: 80px 0; }
+    .feature-card { padding: 40px 28px; }
+  }
+</style>
+</head>
+<body>
+<nav class="nav" id="nav">
+  <div class="nav-logo">TACO DELIVERY</div>
+  <div class="nav-links">
+    <a href="#problem">ストーリー</a>
+    <a href="#features">機能</a>
+    <a href="#pricing">料金</a>
+    <a href="#faq">FAQ</a>
+  </div>
+</nav>
+<section class="hero">
+  <div class="hero-left">
+    <span class="hero-eyebrow">AUTHENTIC MEXICAN TACOS</span>
+    <h1 class="hero-title">
+      Tex-Mexではない。<br>
+      <em>本物</em>のタコスを。
+    </h1>
+    <p class="hero-sub">
+      メキシコの路地裏で受け継がれてきた味。<br>
+      手作りトルティーヤ、炭火焼きの肉、<br>
+      フレッシュなサルサ。あなたの食卓へ。
+    </p>
+    <a href="#pricing" class="hero-cta">
+      <span>はじめる</span>
+      <span class="arrow"></span>
+    </a>
+  </div>
+  <div class="hero-right">
+    <div class="phone-wrapper">
+      <div class="phone-glow"></div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-header">
+            <div class="phone-header-title">TACO DELIVERY</div>
+            <div class="phone-header-sub">本日のおすすめ</div>
+          </div>
+          <div class="phone-card">
+            <div class="phone-card-icon">🌮</div>
+            <div class="phone-card-text">
+              <div class="phone-card-name">カルニタス</div>
+              <div class="phone-card-desc">豚肩ロースの低温調理</div>
+            </div>
+            <div class="phone-card-price">¥580</div>
+          </div>
+          <div class="phone-card">
+            <div class="phone-card-icon">🔥</div>
+            <div class="phone-card-text">
+              <div class="phone-card-name">アル・パストール</div>
+              <div class="phone-card-desc">回転焼き豚 × パイナップル</div>
+            </div>
+            <div class="phone-card-price">¥620</div>
+          </div>
+          <div class="phone-card">
+            <div class="phone-card-icon">🥩</div>
+            <div class="phone-card-text">
+              <div class="phone-card-name">バルバコア</div>
+              <div class="phone-card-desc">牛頬肉のスロークック</div>
+            </div>
+            <div class="phone-card-price">¥680</div>
+          </div>
+          <div class="phone-card">
+            <div class="phone-card-icon">🌿</div>
+            <div class="phone-card-text">
+              <div class="phone-card-name">ノパレス</div>
+              <div class="phone-card-desc">サボテンのグリル ベジタリアン</div>
+            </div>
+            <div class="phone-card-price">¥520</div>
+          </div>
+          <div class="phone-btn">注文する</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="problem section-spacer" id="problem">
+  <div class="container">
+    <div class="problem-grid">
+      <div class="problem-content">
+        <span class="section-label reveal">THE PROBLEM</span>
+        <h2 class="section-title reveal reveal-delay-1">
+          日本の「タコス」は<br>
+          <span class="t-gold">本来の姿</span>を失っている
+        </h2>
+        <div class="divider reveal reveal-delay-2"></div>
+        <p class="section-lead reveal reveal-delay-2">
+          パリパリのハードシェル、レタスにチェダーチーズ。
+          それはアメリカが生んだTex-Mex。美味しいけれど、
+          メキシコの人々が毎日食べるタコスとは別物です。
+        </p>
+        <div class="problem-stats reveal reveal-delay-3">
+          <div class="stat-item">
+            <div class="stat-num">93%</div>
+            <div class="stat-label">日本のタコス店が<br>Tex-Mexスタイル</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">2.1<span style="font-size:1.2rem">倍</span></div>
+            <div class="stat-label">本場体験後の<br>リピート意向率</div>
+          </div>
+        </div>
+      </div>
+      <div class="problem-visual">
+        <div class="comparison-stack">
+          <div class="comparison-item texmex reveal">
+            <span class="comparison-badge">TEX-MEX</span>
+            <h3 class="comparison-title">あなたが知っているタコス</h3>
+            <p class="comparison-desc">
+              ハードシェル・チェダーチーズ・レタス・<br>
+              サワークリーム・加工サルサ
+            </p>
+          </div>
+          <div class="comparison-item authentic reveal reveal-delay-1">
+            <span class="comparison-badge">AUTHENTIC</span>
+            <h3 class="comparison-title">メキシコの本物のタコス</h3>
+            <p class="comparison-desc">
+              手作りコーントルティーヤ・炭火焼きの肉・<br>
+              フレッシュシラントロ・ライム・手作りサルサ
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="solution section-spacer">
+  <div class="container">
+    <div class="solution-inner">
+      <span class="section-label reveal">THE ANSWER</span>
+      <div class="divider-center reveal"></div>
+      <p class="solution-statement reveal reveal-delay-1">
+        メキシコ人シェフが毎朝仕込む<br>
+        <em>手作りトルティーヤ</em>と<em>本場のレシピ</em>を<br>
+        最短30分であなたの元へ届けます
+      </p>
+      <p class="solution-detail reveal reveal-delay-2">
+        TacoDeliveryは、メキシコシティ出身のシェフチームが
+        現地と同じ製法・同じ素材で作る本格タコスの
+        デリバリーサービスです。一口食べれば、違いがわかります。
+      </p>
+    </div>
+  </div>
+</section>
+<!-- Process -->
+<section class="section-spacer" style="padding-top: 0;">
+  <div class="container">
+    <div style="text-align: center; margin-bottom: 64px;">
+      <span class="section-label reveal">HOW IT WORKS</span>
+      <h2 class="section-title reveal reveal-delay-1">3ステップで届く本場の味</h2>
+      <div class="divider-center reveal reveal-delay-2"></div>
+    </div>
+    <div class="process-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px; max-width: 900px; margin: 0 auto;">
+      <div class="reveal" style="text-align: center;">
+        <div style="width: 64px; height: 64px; border: 1px solid rgba(212,175,55,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 1.4rem; color: #D4AF37; font-weight: 100;">1</div>
+        <h3 style="font-size: 0.95rem; font-weight: 300; margin-bottom: 12px; letter-spacing: 0.05em;">メニューを選ぶ</h3>
+        <p style="font-size: 0.8rem; color: rgba(245,240,232,0.45); line-height: 1.9;">
+          アプリまたはWebから<br>
+          お好みのタコスとサルサを<br>
+          自由に組み合わせ
+        </p>
+      </div>
+      <div class="reveal reveal-delay-1" style="text-align: center;">
+        <div style="width: 64px; height: 64px; border: 1px solid rgba(212,175,55,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 1.4rem; color: #D4AF37; font-weight: 100;">2</div>
+        <h3 style="font-size: 0.95rem; font-weight: 300; margin-bottom: 12px; letter-spacing: 0.05em;">シェフが調理</h3>
+        <p style="font-size: 0.8rem; color: rgba(245,240,232,0.45); line-height: 1.9;">
+          注文後にトルティーヤを焼き<br>
+          肉を仕上げ、サルサを盛る<br>
+          作り置きは一切なし
+        </p>
+      </div>
+      <div class="reveal reveal-delay-2" style="text-align: center;">
+        <div style="width: 64px; height: 64px; border: 1px solid rgba(212,175,55,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 1.4rem; color: #D4AF37; font-weight: 100;">3</div>
+        <h3 style="font-size: 0.95rem; font-weight: 300; margin-bottom: 12px; letter-spacing: 0.05em;">最短30分で到着</h3>
+        <p style="font-size: 0.8rem; color: rgba(245,240,232,0.45); line-height: 1.9;">
+          専用保温バッグで<br>
+          出来立ての温度をキープ<br>
+          玄関先でメキシコ体験
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features section-spacer" id="features">
+  <div class="container">
+    <div class="features-header">
+      <span class="section-label reveal">FEATURES</span>
+      <h2 class="section-title reveal reveal-delay-1">三つの約束</h2>
+      <div class="divider-center reveal reveal-delay-2"></div>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-number">01</div>
+        <h3 class="feature-name">毎朝手作りトルティーヤ</h3>
+        <p class="feature-desc">
+          マサ粉から毎朝手作り。メキシコから直輸入した
+          トウモロコシ粉を使い、プレス機で一枚ずつ丁寧に。
+          もちもちの食感と、ほのかなトウモロコシの香り。
+        </p>
+        <span class="feature-tag">HANDMADE DAILY</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-number">02</div>
+        <h3 class="feature-name">本場のシェフと製法</h3>
+        <p class="feature-desc">
+          メキシコシティ、オアハカ、プエブラ出身の
+          シェフが在籍。各地方の伝統レシピを忠実に再現。
+          スパイスの配合から肉の焼き方まで妥協なし。
+        </p>
+        <span class="feature-tag">AUTHENTIC RECIPE</span>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-number">03</div>
+        <h3 class="feature-name">最短30分デリバリー</h3>
+        <p class="feature-desc">
+          注文を受けてから調理開始。作り置きは一切しません。
+          専用保温バッグで、出来立ての温度と食感を
+          そのままお届け。冷めたタコスは出しません。
+        </p>
+        <span class="feature-tag">FRESH & FAST</span>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="pricing section-spacer" id="pricing">
+  <div class="container">
+    <div class="pricing-header">
+      <span class="section-label reveal">PRICING</span>
+      <h2 class="section-title reveal reveal-delay-1">料金プラン</h2>
+      <div class="divider-center reveal reveal-delay-2"></div>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card reveal">
+        <div class="price-name">CASUAL</div>
+        <div class="price-amount"><span class="yen">¥</span>1,980</div>
+        <div class="price-period">3本セット / 1回</div>
+        <div class="price-divider"></div>
+        <div class="price-features">
+          <div class="price-feature">選べるタコス3本</div>
+          <div class="price-feature">手作りサルサ2種</div>
+          <div class="price-feature">ライム＆シラントロ付き</div>
+          <div class="price-feature">都度注文OK</div>
+        </div>
+        <a href="#" class="price-btn">注文する</a>
+      </div>
+      <div class="price-card featured reveal reveal-delay-1">
+        <div class="price-name">REGULAR</div>
+        <div class="price-amount"><span class="yen">¥</span>4,980</div>
+        <div class="price-period">月4回（毎週）/ 各3本</div>
+        <div class="price-divider"></div>
+        <div class="price-features">
+          <div class="price-feature">毎週届く本格タコス</div>
+          <div class="price-feature">サルサ全種（5種）</div>
+          <div class="price-feature">季節限定メニュー優先</div>
+          <div class="price-feature">配送料無料</div>
+          <div class="price-feature">いつでもスキップ可能</div>
+        </div>
+        <a href="#" class="price-btn">申し込む</a>
+      </div>
+      <div class="price-card reveal reveal-delay-2">
+        <div class="price-name">PREMIUM</div>
+        <div class="price-amount"><span class="yen">¥</span>9,800</div>
+        <div class="price-period">月8回（週2回）/ 各5本</div>
+        <div class="price-divider"></div>
+        <div class="price-features">
+          <div class="price-feature">週2回のデリバリー</div>
+          <div class="price-feature">全メニュー＋限定品</div>
+          <div class="price-feature">シェフのペアリング提案</div>
+          <div class="price-feature">ドリンクセット付き</div>
+          <div class="price-feature">優先配送＆時間指定</div>
+        </div>
+        <a href="#" class="price-btn">申し込む</a>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="testimonials section-spacer" id="testimonials">
+  <div class="container">
+    <div class="testimonials-header">
+      <span class="section-label reveal">VOICES</span>
+      <h2 class="section-title reveal reveal-delay-1">お客様の声</h2>
+      <div class="divider-center reveal reveal-delay-2"></div>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal">
+        <div class="testimonial-quote">
+          メキシコ旅行で食べたあの味。日本では無理だと思ってた。
+          初めて届いたタコスを一口食べて、思わず涙が出ました。
+          トルティーヤの香りが全然違う。
+        </div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">Y</div>
+          <div>
+            <div class="testimonial-name">山田 裕子</div>
+            <div class="testimonial-role">フードライター / 渋谷区</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal reveal-delay-1">
+        <div class="testimonial-quote">
+          毎週届くのが楽しみ。サルサの種類が豊富で飽きない。
+          チポトレ・マヨのスモーキーさは本当に癖になる。
+          ホームパーティーで出すと必ず聞かれます。
+        </div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">K</div>
+          <div>
+            <div class="testimonial-name">木村 健太</div>
+            <div class="testimonial-role">IT企業経営 / 目黒区</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal reveal-delay-2">
+        <div class="testimonial-quote">
+          Tex-Mexも好きだけど、別ジャンルだったんだと気づいた。
+          本物のアル・パストールは肉の旨みが圧倒的。
+          パイナップルとの組み合わせが完璧。
+        </div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">S</div>
+          <div>
+            <div class="testimonial-name">佐藤 美咲</div>
+            <div class="testimonial-role">料理研究家 / 世田谷区</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal reveal-delay-3">
+        <div class="testimonial-quote">
+          妻がメキシコ人なんですが「これは本物」と太鼓判。
+          日本にいながらこのクオリティは驚き。
+          週末のランチが家族の楽しみになりました。
+        </div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">T</div>
+          <div>
+            <div class="testimonial-name">田中 雄一</div>
+            <div class="testimonial-role">プロダクトマネージャー / 品川区</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Social Proof Numbers -->
+<section class="section-spacer" style="padding: 80px 0; border-top: 1px solid rgba(212,175,55,0.06); border-bottom: 1px solid rgba(212,175,55,0.06);">
+  <div class="container">
+    <div class="social-proof-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; text-align: center;">
+      <div class="reveal">
+        <div class="stat-num" style="margin-bottom: 12px;">12,000<span style="font-size:1rem">+</span></div>
+        <div class="stat-label">累計注文数</div>
+      </div>
+      <div class="reveal reveal-delay-1">
+        <div class="stat-num" style="margin-bottom: 12px;">4.8</div>
+        <div class="stat-label">平均評価（5段階）</div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="stat-num" style="margin-bottom: 12px;">94<span style="font-size:1rem">%</span></div>
+        <div class="stat-label">リピート率</div>
+      </div>
+      <div class="reveal reveal-delay-3">
+        <div class="stat-num" style="margin-bottom: 12px;">28<span style="font-size:1rem">min</span></div>
+        <div class="stat-label">平均配達時間</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="faq section-spacer" id="faq">
+  <div class="container">
+    <div class="faq-header">
+      <span class="section-label reveal">FAQ</span>
+      <h2 class="section-title reveal reveal-delay-1">よくある質問</h2>
+      <div class="divider-center reveal reveal-delay-2"></div>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>Tex-Mexと本場のメキシカンタコスの違いは何ですか？</h3>
+          <div class="faq-toggle"></div>
+        </div>
+        <div class="faq-answer">
+          <p>
+            最大の違いはトルティーヤです。Tex-Mexは小麦粉ベースやハードシェルが主流ですが、
+            本場メキシコではトウモロコシ粉（マサ）から手作りするソフトトルティーヤを使います。
+            具材もシンプルで、肉・シラントロ・オニオン・ライム・サルサが基本構成です。
+          </p>
+        </div>
+      </div>
+      <div class="faq-item reveal reveal-delay-1">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>配送エリアはどこまでですか？</h3>
+          <div class="faq-toggle"></div>
+        </div>
+        <div class="faq-answer">
+          <p>
+            現在は東京23区内を中心にサービスを展開しています。
+            一部の近郊エリア（武蔵野市、三鷹市、川崎市など）にも対応。
+            エリア拡大は順次進めており、公式LINEで最新情報をお届けしています。
+          </p>
+        </div>
+      </div>
+      <div class="faq-item reveal reveal-delay-2">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>辛さの調整はできますか？</h3>
+          <div class="faq-toggle"></div>
+        </div>
+        <div class="faq-answer">
+          <p>
+            はい。タコス自体はマイルドに仕上げており、辛さはサルサで調整するスタイルです。
+            マイルドからエクストラホットまで5段階のサルサをご用意しています。
+            お子様でも安心してお召し上がりいただけます。
+          </p>
+        </div>
+      </div>
+      <div class="faq-item reveal reveal-delay-3">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>サブスクリプションの解約はいつでもできますか？</h3>
+          <div class="faq-toggle"></div>
+        </div>
+        <div class="faq-answer">
+          <p>
+            はい、いつでも解約可能です。最低契約期間はありません。
+            マイページから次回配送の3日前までにお手続きいただければ、
+            翌週分から停止されます。一時的なスキップも1回から可能です。
+          </p>
+        </div>
+      </div>
+      <div class="faq-item reveal">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>アレルギー対応はしていますか？</h3>
+          <div class="faq-toggle"></div>
+        </div>
+        <div class="faq-answer">
+          <p>
+            グルテンフリー（コーントルティーヤ使用）に標準対応しています。
+            その他のアレルギーについては、注文時の備考欄にてお知らせください。
+            可能な限り代替食材で対応いたします。
+          </p>
+        </div>
+      </div>
+      <div class="faq-item reveal reveal-delay-1">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>法人・ケータリング利用はできますか？</h3>
+          <div class="faq-toggle"></div>
+        </div>
+        <div class="faq-answer">
+          <p>
+            はい、法人向けケータリングプランをご用意しています。
+            会議やイベント、パーティーなど30名様以上から承ります。
+            詳細はお問い合わせフォームよりご連絡ください。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="footer-cta">
+  <div class="container">
+    <span class="section-label reveal">GET STARTED</span>
+    <h2 class="footer-cta-title reveal reveal-delay-1">
+      本物のタコスを<br>体験しませんか
+    </h2>
+    <p class="footer-cta-sub reveal reveal-delay-2">
+      まずは1回、試してみてください。<br>
+      きっと、タコスの概念が変わります。
+    </p>
+    <a href="#pricing" class="hero-cta reveal reveal-delay-3">
+      <span>メニューを見る</span>
+      <span class="arrow"></span>
+    </a>
+  </div>
+</section>
+<footer class="footer-bottom">
+  <div class="footer-links">
+    <a href="#">利用規約</a>
+    <a href="#">プライバシーポリシー</a>
+    <a href="#">特定商取引法に基づく表記</a>
+    <a href="#">お問い合わせ</a>
+  </div>
+  <p class="footer-copy">&copy; 2026 TacoDelivery Inc. All rights reserved.</p>
+</footer>
+<script>
+  // Navigation scroll effect
+  const nav = document.getElementById('nav');
+  let lastScroll = 0;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (y > 60) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+    lastScroll = y;
+  }, { passive: true });
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.15,
+    rootMargin: '0px 0px -40px 0px'
+  });
+  reveals.forEach(el => observer.observe(el));
+  // FAQ accordion
+  function toggleFaq(el) {
+    const item = el.parentElement;
+    const wasOpen = item.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    // Toggle clicked
+    if (!wasOpen) item.classList.add('open');
+  }
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
+</body>
+</html>
