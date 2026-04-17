@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BP Meal Coach — Mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #0E5F76;
+    --primary-dark: #094A5C;
+    --primary-light: #4A8FA3;
+    --accent: #F27E62;
+    --accent-light: #F9A892;
+    --sub: #F4E8D7;
+    --sub-dark: #E8D5B5;
+    --success: #4EAE8A;
+    --success-light: #7CCFB0;
+    --warn: #E8B84A;
+    --danger: #D9534F;
+    --text: #1A2733;
+    --text-mute: #6A7886;
+    --text-soft: #9AA5B1;
+    --bg: #FAFAF7;
+    --white: #FFFFFF;
+    --border: #EAEAE4;
+    --shadow-sm: 0 1px 2px rgba(14,95,118,0.06);
+    --shadow-md: 0 4px 16px rgba(14,95,118,0.08);
+    --shadow-lg: 0 12px 40px rgba(14,95,118,0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #e8eef1 0%, #f0e8dc 100%);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    gap: 24px;
+  }
+  .page-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--primary);
+    letter-spacing: 0.5px;
+  }
+  .page-title span {
+    color: var(--accent);
+  }
+  .subtitle {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    color: var(--text-mute);
+    margin-top: -16px;
+  }
+
+  /* iPhone 15 Pro frame */
+  .iphone-frame {
+    width: 393px;
+    height: 852px;
+    background: #0a0a0a;
+    border-radius: 55px;
+    padding: 12px;
+    box-shadow:
+      0 0 0 2px #1a1a1a,
+      0 0 0 6px #2a2a2a,
+      var(--shadow-lg),
+      0 40px 80px rgba(0,0,0,0.25);
+    position: relative;
+  }
+  .iphone-frame::before, .iphone-frame::after {
+    content: '';
+    position: absolute;
+    background: #1a1a1a;
+    border-radius: 2px;
+  }
+  .iphone-frame::before {
+    left: -3px; top: 120px;
+    width: 3px; height: 32px;
+  }
+  .iphone-frame::after {
+    left: -3px; top: 170px;
+    width: 3px; height: 60px;
+    box-shadow: 0 80px 0 #1a1a1a;
+  }
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Status bar */
+  .status-bar {
+    height: 54px;
+    padding: 18px 32px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text);
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+  .status-bar .time { padding-top: 2px; }
+  .status-bar .icons {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding-top: 4px;
+  }
+  .signal-dots {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+  }
+  .signal-dots span {
+    width: 3px;
+    background: var(--text);
+    border-radius: 1px;
+  }
+  .signal-dots span:nth-child(1) { height: 4px; }
+  .signal-dots span:nth-child(2) { height: 6px; }
+  .signal-dots span:nth-child(3) { height: 8px; }
+  .signal-dots span:nth-child(4) { height: 10px; }
+  .wifi-icon {
+    width: 15px; height: 11px;
+    background: var(--text);
+    -webkit-mask: radial-gradient(circle at 50% 100%, transparent 2px, black 2.5px 4px, transparent 4.5px 5px, black 5.5px 7px, transparent 7.5px 8px, black 8.5px 11px, transparent 11.5px);
+            mask: radial-gradient(circle at 50% 100%, transparent 2px, black 2.5px 4px, transparent 4.5px 5px, black 5.5px 7px, transparent 7.5px 8px, black 8.5px 11px, transparent 11.5px);
+  }
+  .battery {
+    width: 26px; height: 13px;
+    border: 1.5px solid var(--text);
+    border-radius: 4px;
+    position: relative;
+    padding: 1px;
+  }
+  .battery::after {
+    content: '';
+    position: absolute;
+    right: -3px; top: 3px;
+    width: 2px; height: 5px;
+    background: var(--text);
+    border-radius: 0 2px 2px 0;
+  }
+  .battery-fill {
+    width: 80%;
+    height: 100%;
+    background: var(--text);
+    border-radius: 2px;
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 37px;
+    background: #0a0a0a;
+    border-radius: 20px;
+    z-index: 20;
+  }
+  .dynamic-island::before {
+    content: '';
+    position: absolute;
+    right: 9px; top: 50%;
+    transform: translateY(-50%);
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #1a1a3a, #050510);
+    box-shadow: inset 0 0 2px #000;
+  }
+
+  /* Content */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px 100px;
+    scrollbar-width: none;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  .screen-page { display: none; }
+  .screen-page.active { display: block; animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform: none;} }
+
+  /* Header */
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 4px 0 20px;
+  }
+  .greeting {
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .greeting .hello {
+    font-size: 12px;
+    color: var(--text-mute);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  .greeting .name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 2px;
+  }
+  .greeting .name em {
+    font-style: normal;
+    color: var(--primary);
+  }
+  .avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+  .avatar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 11px; height: 11px;
+    background: var(--success);
+    border: 2px solid white;
+    border-radius: 50%;
+  }
+
+  /* BP hero card */
+  .bp-hero {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius: 24px;
+    padding: 20px;
+    color: white;
+    box-shadow: 0 8px 24px rgba(14,95,118,0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .bp-hero::before {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(242,126,98,0.25), transparent 70%);
+  }
+  .bp-hero .label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    opacity: 0.85;
+    text-transform: uppercase;
+  }
+  .bp-hero .time-label {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+  .bp-hero .value {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: 12px;
+    font-family: 'Inter', sans-serif;
+  }
+  .bp-hero .systolic {
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .bp-hero .slash {
+    font-size: 32px;
+    font-weight: 300;
+    opacity: 0.6;
+  }
+  .bp-hero .diastolic {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .bp-hero .unit {
+    font-size: 14px;
+    opacity: 0.7;
+    margin-left: 4px;
+    font-weight: 500;
+  }
+  .bp-hero .compare {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 12px;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .delta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    background: rgba(78,174,138,0.25);
+    border: 1px solid rgba(78,174,138,0.4);
+    border-radius: 10px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+  }
+  .delta-badge.down { color: #a9f0ce; }
+  .delta-badge svg { width: 10px; height: 10px; }
+  .bp-hero .status-tag {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Noto Sans JP', sans-serif;
+    backdrop-filter: blur(10px);
+  }
+  .bp-hero .mini-chart {
+    margin-top: 16px;
+    height: 48px;
+    position: relative;
+  }
+
+  /* Salt progress card */
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: var(--shadow-sm);
+    margin-top: 16px;
+    border: 1px solid rgba(234,234,228,0.6);
+  }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon {
+    width: 28px; height: 28px;
+    border-radius: 9px;
+    background: var(--sub);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+  .card-action {
+    font-size: 11px;
+    color: var(--primary);
+    font-weight: 600;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .salt-nums {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-family: 'Inter', sans-serif;
+  }
+  .salt-current {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .salt-unit {
+    font-size: 14px;
+    color: var(--text-mute);
+    font-weight: 500;
+  }
+  .salt-target {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text-mute);
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .salt-target em {
+    font-style: normal;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .progress-bar {
+    height: 10px;
+    background: var(--sub);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success) 0%, var(--warn) 100%);
+    border-radius: 6px;
+    width: 70%;
+    position: relative;
+    transition: width .6s ease;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: -3px;
+    width: 4px; height: 16px;
+    background: white;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1.5px var(--warn);
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-mute);
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .progress-meta .safe { color: var(--success); font-weight: 600; }
+
+  /* Trend mini chart */
+  .chart-card { margin-top: 16px; }
+  .trend-wrap {
+    height: 100px;
+    position: relative;
+    margin-top: 8px;
+  }
+  .trend-legend {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-soft);
+    margin-top: 6px;
+    font-family: 'Inter', sans-serif;
+  }
+  .trend-summary {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+  }
+  .trend-summary .item {
+    flex: 1;
+  }
+  .trend-summary .item .lbl {
+    font-size: 10px;
+    color: var(--text-mute);
+    font-family: 'Noto Sans JP', sans-serif;
+    margin-bottom: 2px;
+  }
+  .trend-summary .item .val {
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+  }
+  .trend-summary .item .val small {
+    font-size: 10px;
+    color: var(--success);
+    font-weight: 600;
+    margin-left: 3px;
+  }
+
+  /* Action card */
+  .action-card {
+    background: linear-gradient(135deg, var(--accent) 0%, #E86A4E 100%);
+    border-radius: 20px;
+    padding: 18px;
+    color: white;
+    margin-top: 16px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(242,126,98,0.3);
+  }
+  .action-card::before {
+    content: '🍱';
+    position: absolute;
+    right: -10px; bottom: -20px;
+    font-size: 120px;
+    opacity: 0.15;
+  }
+  .action-card .tag {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 1px;
+    background: rgba(255,255,255,0.25);
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-family: 'Inter', sans-serif;
+  }
+  .action-card h3 {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 1;
+  }
+  .action-card p {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    opacity: 0.9;
+    line-height: 1.5;
+    position: relative;
+    z-index: 1;
+  }
+  .action-btn {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: white;
+    color: var(--accent);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 12px;
+    border: none;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+  }
+
+  /* Section title */
+  .section-title {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 24px 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .section-title .sub {
+    font-size: 11px;
+    color: var(--text-mute);
+    font-weight: 500;
+  }
+
+  /* Quick tiles */
+  .tile-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .tile {
+    background: white;
+    border-radius: 16px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  .tile .ic {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .tile.t-heart .ic { background: #FDE8E2; color: var(--accent); }
+  .tile.t-meal .ic { background: #E8F0DC; color: #7BA05B; }
+  .tile.t-walk .ic { background: #E3EEF3; color: var(--primary); }
+  .tile.t-sleep .ic { background: #EDE4F5; color: #8B6DB8; }
+  .tile .lbl {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 10px;
+    color: var(--text-mute);
+    font-weight: 500;
+  }
+  .tile .val {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 2px;
+  }
+  .tile .val small {
+    font-size: 10px;
+    color: var(--text-mute);
+    font-weight: 500;
+  }
+
+  /* Tab bar */
+  .tab-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 86px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding: 10px 8px 24px;
+    z-index: 30;
+    border-radius: 0 0 44px 44px;
+  }
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 4px;
+    color: var(--text-soft);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    transition: color .2s ease;
+    position: relative;
+  }
+  .tab-btn svg {
+    width: 24px; height: 24px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .tab-btn.active {
+    color: var(--primary);
+  }
+  .tab-btn.active svg {
+    stroke-width: 2.2;
+  }
+  .tab-btn.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 20px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+  .tab-btn.center-btn {
+    position: relative;
+  }
+  .tab-btn.center-btn .fab {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #E86A4E);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 6px 16px rgba(242,126,98,0.45);
+    margin-top: -16px;
+    margin-bottom: 2px;
+  }
+  .tab-btn.center-btn .fab svg {
+    stroke: white;
+    stroke-width: 2.2;
+  }
+  .tab-btn.center-btn.active::before { display: none; }
+
+  /* ===== Record screen ===== */
+  .capture-cta {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius: 22px;
+    padding: 22px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(14,95,118,0.25);
+  }
+  .capture-cta::after {
+    content: '';
+    position: absolute;
+    right: -30px; bottom: -30px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+  }
+  .capture-cta .step {
+    font-size: 10px;
+    letter-spacing: 2px;
+    opacity: 0.8;
+    font-weight: 600;
+  }
+  .capture-cta h2 {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+  .capture-cta p {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    opacity: 0.85;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .capture-device {
+    margin-top: 16px;
+    height: 120px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 14px;
+    border: 1px dashed rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+  .capture-device .scanner {
+    position: absolute;
+    left: 15%; right: 15%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scan 2s ease-in-out infinite;
+    box-shadow: 0 0 8px var(--accent);
+  }
+  @keyframes scan {
+    0%, 100% { top: 20%; }
+    50% { top: 80%; }
+  }
+  .capture-device .corners {
+    position: absolute;
+    inset: 16px;
+  }
+  .capture-device .corners::before,
+  .capture-device .corners::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    border: 2px solid var(--accent);
+  }
+  .capture-device .corners::before {
+    top: 0; left: 0;
+    border-right: 0; border-bottom: 0;
+  }
+  .capture-device .corners::after {
+    bottom: 0; right: 0;
+    border-left: 0; border-top: 0;
+  }
+  .capture-device .hint {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    opacity: 0.7;
+  }
+  .capture-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    position: relative;
+    z-index: 1;
+  }
+  .cap-btn {
+    flex: 1;
+    padding: 12px;
+    background: white;
+    color: var(--primary);
+    border: none;
+    border-radius: 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .cap-btn.secondary {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+
+  .records-list {
+    margin-top: 8px;
+  }
+  .record-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+  .record-time {
+    width: 54px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    flex-shrink: 0;
+  }
+  .record-time .when {
+    font-size: 10px;
+    color: var(--text-mute);
+    font-weight: 600;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .record-time .hour {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 2px;
+  }
+  .record-vals {
+    flex: 1;
+  }
+  .record-vals .bp {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .record-vals .bp small {
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--text-mute);
+    margin-left: 3px;
+  }
+  .record-vals .meta {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 10px;
+    color: var(--text-mute);
+    margin-top: 2px;
+  }
+  .record-vals .meta .pulse-tag {
+    display: inline-block;
+    background: #FDE8E2;
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .status-pill {
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .status-pill.normal { background: #DFF3EA; color: var(--success); }
+  .status-pill.warn { background: #FDF2DC; color: #B7891D; }
+  .status-pill.high { background: #FBE2E0; color: var(--danger); }
+
+  .weekly-chart {
+    margin-top: 4px;
+    height: 170px;
+    position: relative;
+    padding: 14px 4px 0;
+  }
+  .chart-y-labels {
+    position: absolute;
+    left: 0; top: 10px; bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--text-soft);
+    font-family: 'Inter', sans-serif;
+  }
+  .chart-x-labels {
+    display: flex;
+    justify-content: space-around;
+    padding: 4px 22px 0;
+    font-size: 10px;
+    color: var(--text-mute);
+    font-family: 'Inter', sans-serif;
+  }
+  .bp-legend {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    font-size: 10px;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--text-mute);
+  }
+  .bp-legend .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+
+  /* ===== Meal screen ===== */
+  .meal-header-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .mini-stat {
+    background: white;
+    border-radius: 14px;
+    padding: 12px 10px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .mini-stat .lbl {
+    font-size: 10px;
+    color: var(--text-mute);
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .mini-stat .val {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 19px;
+    color: var(--text);
+    margin-top: 3px;
+    letter-spacing: -0.5px;
+  }
+  .mini-stat .val small {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-mute);
+    margin-left: 2px;
+  }
+  .mini-stat.salt .val { color: var(--warn); }
+  .mini-stat.cal .val { color: var(--primary); }
+  .mini-stat.score .val { color: var(--success); }
+
+  .meal-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+  .meal-thumb {
+    width: 68px; height: 68px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--sub), var(--sub-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .meal-thumb.breakfast { background: linear-gradient(135deg, #F8E7C8, #F0D0A0); }
+  .meal-thumb.lunch { background: linear-gradient(135deg, #E2EED6, #C8DCB3); }
+  .meal-thumb.dinner { background: linear-gradient(135deg, #E3EEF3, #C4DAE1); }
+  .meal-info { flex: 1; min-width: 0; }
+  .meal-tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+  }
+  .meal-tag.b { background: #F8E7C8; color: #9B6B1F; }
+  .meal-tag.l { background: #E2EED6; color: #5A7B3B; }
+  .meal-tag.d { background: #E3EEF3; color: var(--primary); }
+  .meal-name {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 4px;
+  }
+  .meal-stats {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: var(--text-mute);
+  }
+  .meal-stats span em {
+    font-style: normal;
+    color: var(--text);
+    font-weight: 700;
+  }
+  .meal-score {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .meal-score .ring {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: conic-gradient(var(--success) 0 var(--pct,72%), #EAEAE4 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .meal-score .ring::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: white;
+    border-radius: 50%;
+  }
+  .meal-score .ring span {
+    position: relative;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  /* Radar chart */
+  .radar-wrap {
+    height: 240px;
+    position: relative;
+    margin: 0 auto;
+  }
+  .radar-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+  }
+  .radar-legend .li {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    color: var(--text-mute);
+  }
+  .radar-legend .li em {
+    font-style: normal;
+    color: var(--text);
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ===== Coach screen ===== */
+  .coach-hero {
+    background: linear-gradient(135deg, #E8F0DC 0%, #D9E6C6 100%);
+    border-radius: 22px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .coach-hero::before {
+    content: '';
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(78,174,138,0.25), transparent 70%);
+  }
+  .coach-hero .title {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .coach-hero .title .ai-dot {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--success), #3B9275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .salt-remaining {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  .salt-remaining .big {
+    font-family: 'Inter', sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -1px;
+  }
+  .salt-remaining .big small {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-mute);
+    margin-left: 2px;
+  }
+  .salt-remaining .desc {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    color: var(--text-mute);
+    line-height: 1.5;
+  }
+  .salt-remaining .desc em {
+    color: var(--success);
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  .suggest-card {
+    background: white;
+    border-radius: 16px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+    transition: transform .2s ease;
+  }
+  .suggest-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .suggest-emoji {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: var(--sub);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+  .suggest-main { flex: 1; min-width: 0; }
+  .suggest-name {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .suggest-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    color: var(--text-mute);
+  }
+  .suggest-meta .tag {
+    background: #F0F4F7;
+    color: var(--primary);
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+  .suggest-meta .tag.ok { background: #DFF3EA; color: var(--success); }
+  .suggest-why {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 10px;
+    color: var(--text-mute);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+  .suggest-cta {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  /* Chat bubble */
+  .chat-card {
+    margin-top: 16px;
+    padding: 16px;
+    background: white;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+  .chat-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .chat-row:last-child { margin-bottom: 0; }
+  .chat-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--success), #3B9275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .chat-bubble {
+    background: #F1F5F3;
+    padding: 10px 14px;
+    border-radius: 16px 16px 16px 4px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.6;
+    max-width: 85%;
+  }
+  .chat-bubble.user {
+    background: var(--primary);
+    color: white;
+    border-radius: 16px 16px 4px 16px;
+    margin-left: auto;
+  }
+  .chat-row.right { justify-content: flex-end; }
+  .chat-row.right .chat-avatar {
+    background: linear-gradient(135deg, var(--accent), #E86A4E);
+    order: 2;
+  }
+  .chat-time {
+    font-size: 9px;
+    color: var(--text-soft);
+    margin-top: 4px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .chat-input {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+  }
+  .chat-input input {
+    flex: 1;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    color: var(--text);
+    outline: none;
+  }
+  .chat-input button {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* Weekly report */
+  .report-card {
+    background: linear-gradient(135deg, var(--sub) 0%, var(--sub-dark) 100%);
+    border-radius: 20px;
+    padding: 16px;
+    margin-top: 16px;
+  }
+  .report-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .report-head .title {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .report-head .date {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    color: var(--text-mute);
+  }
+  .report-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .report-stats .stat {
+    background: rgba(255,255,255,0.7);
+    padding: 10px;
+    border-radius: 12px;
+  }
+  .report-stats .stat .lbl {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 10px;
+    color: var(--text-mute);
+  }
+  .report-stats .stat .val {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin-top: 2px;
+  }
+  .report-stats .stat .val small {
+    font-size: 10px;
+    font-weight: 600;
+    margin-left: 3px;
+  }
+  .report-stats .stat .val .up { color: var(--success); }
+  .report-stats .stat .val .down { color: var(--success); }
+
+  /* ===== Settings ===== */
+  .profile-card {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius: 22px;
+    padding: 18px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .profile-avatar-big {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #E86A4E);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    border: 3px solid rgba(255,255,255,0.2);
+  }
+  .profile-info {
+    flex: 1;
+  }
+  .profile-info .nm {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .profile-info .sub {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    opacity: 0.8;
+    margin-top: 2px;
+  }
+  .profile-info .stats {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .profile-info .stats span {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    opacity: 0.9;
+  }
+  .profile-info .stats em {
+    font-style: normal;
+    font-weight: 700;
+    font-size: 13px;
+    margin-right: 2px;
+  }
+
+  .device-card {
+    background: white;
+    border-radius: 16px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--border);
+    margin-top: 12px;
+  }
+  .device-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: #1A2733;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+  }
+  .device-body {
+    flex: 1;
+  }
+  .device-body .nm {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .device-body .st {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    color: var(--text-mute);
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .device-body .st .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 6px rgba(78,174,138,0.6);
+  }
+  .device-body .st.off .dot { background: var(--text-soft); box-shadow: none; }
+
+  .settings-group {
+    margin-top: 16px;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .settings-group .group-title {
+    padding: 12px 16px 6px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    color: var(--text-mute);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .setting-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .settings-group .group-title + .setting-row {
+    border-top: none;
+  }
+  .setting-ic {
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    background: var(--sub);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .setting-lbl {
+    flex: 1;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .setting-lbl small {
+    display: block;
+    font-size: 10px;
+    color: var(--text-mute);
+    margin-top: 2px;
+    font-weight: normal;
+  }
+  .setting-val {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .setting-chev {
+    color: var(--text-soft);
+    font-size: 14px;
+  }
+  .toggle {
+    width: 40px; height: 24px;
+    background: var(--success);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 18px;
+    width: 20px; height: 20px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: left .2s;
+  }
+  .toggle.off {
+    background: #D5D5D0;
+  }
+  .toggle.off::after {
+    left: 2px;
+  }
+
+  .goal-row {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .goal-row .gtop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .goal-row .gtop .gl {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .goal-row .gtop .gv {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--primary);
+    font-weight: 700;
+  }
+  .goal-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .goal-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--success));
+    border-radius: 3px;
+  }
+
+  /* Device info row */
+  .instruction-panel {
+    max-width: 900px;
+    background: white;
+    border-radius: 16px;
+    padding: 18px 22px;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
+  .instruction-panel .item {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    color: var(--text-mute);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .instruction-panel .item strong { color: var(--text); font-weight: 700; }
+  .key {
+    display: inline-block;
+    padding: 3px 8px;
+    background: var(--sub);
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  @media (max-width: 440px) {
+    .iphone-frame {
+      transform: scale(0.88);
+      transform-origin: top center;
+      margin-bottom: -80px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-title">BP <span>Meal</span> Coach — iOS Mock</div>
+<div class="subtitle">高血圧ケア × AI食事コーチ / プロトタイプ</div>
+
+<div class="iphone-frame">
+  <div class="screen">
+    <div class="dynamic-island"></div>
+
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <div class="signal-dots"><span></span><span></span><span></span><span></span></div>
+        <div class="wifi-icon"></div>
+        <div class="battery"><div class="battery-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ================= HOME ================= -->
+      <section class="screen-page active" data-page="home">
+        <div class="app-header">
+          <div class="greeting">
+            <div class="hello">Good morning ☀️</div>
+            <div class="name">おかえり、<em>亮介さん</em></div>
+          </div>
+          <div class="avatar">R</div>
+        </div>
+
+        <div class="bp-hero">
+          <div class="status-tag">良好</div>
+          <div class="label">TODAY'S BLOOD PRESSURE</div>
+          <div class="time-label">朝7:12 測定 · 起床後</div>
+          <div class="value">
+            <span class="systolic">128</span>
+            <span class="slash">/</span>
+            <span class="diastolic">82</span>
+            <span class="unit">mmHg</span>
+          </div>
+          <div class="compare">
+            <span class="delta-badge down">
+              <svg viewBox="0 0 12 12" fill="none"><path d="M3 6l3 3 3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              -4
+            </span>
+            <span style="opacity:0.85;">前日比 / 目標 &lt;130</span>
+          </div>
+          <div class="mini-chart">
+            <svg width="100%" height="48" viewBox="0 0 340 48" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="heroGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#F27E62" stop-opacity="0.6"/>
+                  <stop offset="100%" stop-color="#F27E62" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0,30 L50,26 L100,32 L150,22 L200,28 L250,18 L300,24 L340,20"
+                    fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M0,30 L50,26 L100,32 L150,22 L200,28 L250,18 L300,24 L340,20 L340,48 L0,48 Z"
+                    fill="url(#heroGrad)"/>
+              <circle cx="250" cy="18" r="3.5" fill="#F27E62" stroke="white" stroke-width="2"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="tile-row">
+          <div class="tile t-heart">
+            <div class="ic">♡</div>
+            <div class="lbl">平均心拍</div>
+            <div class="val">68<small> bpm</small></div>
+          </div>
+          <div class="tile t-walk">
+            <div class="ic">👟</div>
+            <div class="lbl">今日の歩数</div>
+            <div class="val">6,842<small> 歩</small></div>
+          </div>
+          <div class="tile t-meal">
+            <div class="ic">🍴</div>
+            <div class="lbl">摂取カロリー</div>
+            <div class="val">1,284<small> kcal</small></div>
+          </div>
+          <div class="tile t-sleep">
+            <div class="ic">☾</div>
+            <div class="lbl">睡眠時間</div>
+            <div class="val">7h 12m</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><div class="icon">🧂</div>塩分バランス</div>
+            <div class="card-action">詳細 ›</div>
+          </div>
+          <div class="salt-nums">
+            <span class="salt-current">4.2</span>
+            <span class="salt-unit">g</span>
+            <span class="salt-target">目標 <em>6.0g</em> / 残り <em>1.8g</em></span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div>
+          <div class="progress-meta">
+            <span><span class="safe">●</span> 順調です</span>
+            <span>夕食での塩分は約1.5g以下が理想</span>
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <div class="card-head">
+            <div class="card-title"><div class="icon">📈</div>血圧推移</div>
+            <div class="card-action">7日間 ›</div>
+          </div>
+          <div class="trend-wrap">
+            <svg width="100%" height="100" viewBox="0 0 320 100" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="trendGrad1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#0E5F76" stop-opacity="0.2"/>
+                  <stop offset="100%" stop-color="#0E5F76" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <line x1="0" y1="30" x2="320" y2="30" stroke="#EAEAE4" stroke-dasharray="3 3"/>
+              <line x1="0" y1="60" x2="320" y2="60" stroke="#EAEAE4" stroke-dasharray="3 3"/>
+              <path d="M10,40 L55,36 L100,48 L145,32 L190,44 L235,26 L280,30 L310,24"
+                    fill="none" stroke="#0E5F76" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10,40 L55,36 L100,48 L145,32 L190,44 L235,26 L280,30 L310,24 L310,100 L10,100 Z"
+                    fill="url(#trendGrad1)"/>
+              <path d="M10,72 L55,74 L100,78 L145,70 L190,76 L235,66 L280,68 L310,62"
+                    fill="none" stroke="#F27E62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="0"/>
+              <circle cx="310" cy="24" r="4" fill="#0E5F76" stroke="white" stroke-width="2"/>
+              <circle cx="310" cy="62" r="4" fill="#F27E62" stroke="white" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="trend-legend">
+            <span>4/11</span><span>4/12</span><span>4/13</span><span>4/14</span><span>4/15</span><span>4/16</span><span>今日</span>
+          </div>
+          <div class="trend-summary">
+            <div class="item">
+              <div class="lbl">週平均 (上)</div>
+              <div class="val">131 <small>▼ 3</small></div>
+            </div>
+            <div class="item">
+              <div class="lbl">週平均 (下)</div>
+              <div class="val">84 <small>▼ 2</small></div>
+            </div>
+            <div class="item">
+              <div class="lbl">目標達成</div>
+              <div class="val">5/7 <small>日</small></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <span class="tag">AI COACH</span>
+          <h3>夕食は和食定食が<br/>おすすめです</h3>
+          <p>今日は昼に塩分をやや多めに摂取。和食定食（焼き魚・小鉢・味噌汁抜き）で残り塩分1.8g以内に収まります。</p>
+          <button class="action-btn">メニューを見る →</button>
+        </div>
+
+        <div style="height: 24px;"></div>
+      </section>
+
+      <!-- ================= RECORD ================= -->
+      <section class="screen-page" data-page="record">
+        <div class="app-header">
+          <div class="greeting">
+            <div class="hello">BLOOD PRESSURE</div>
+            <div class="name">血圧記録</div>
+          </div>
+          <div class="avatar">R</div>
+        </div>
+
+        <div class="capture-cta">
+          <div class="step">QUICK CAPTURE</div>
+          <h2>📷 血圧計を撮るだけ</h2>
+          <p>カメラをかざすと自動で数値を読み取ります。<br/>Apple Watchからの自動取得にも対応。</p>
+          <div class="capture-device">
+            <div class="corners"></div>
+            <div class="scanner"></div>
+            <div class="hint" style="color: white;">🩺 デバイスをここに合わせる</div>
+          </div>
+          <div class="capture-buttons">
+            <button class="cap-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 19V8a2 2 0 00-2-2h-3.17L16 4H8l-1.83 2H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/><circle cx="12" cy="13" r="4"/></svg>
+              撮影して記録
+            </button>
+            <button class="cap-btn secondary">
+              ✏️ 手入力
+            </button>
+          </div>
+        </div>
+
+        <div class="section-title">今日の記録 <span class="sub">4/17 (金)</span></div>
+
+        <div class="records-list">
+          <div class="record-row">
+            <div class="record-time">
+              <div class="when">朝</div>
+              <div class="hour">7:12</div>
+            </div>
+            <div class="record-vals">
+              <div class="bp">128/82 <small>mmHg</small></div>
+              <div class="meta"><span class="pulse-tag">脈 68</span>起床後・食前</div>
+            </div>
+            <div class="status-pill normal">正常</div>
+          </div>
+
+          <div class="record-row">
+            <div class="record-time">
+              <div class="when">昼</div>
+              <div class="hour">13:05</div>
+            </div>
+            <div class="record-vals">
+              <div class="bp">135/88 <small>mmHg</small></div>
+              <div class="meta"><span class="pulse-tag">脈 74</span>昼食後1時間</div>
+            </div>
+            <div class="status-pill warn">やや高</div>
+          </div>
+
+          <div class="record-row">
+            <div class="record-time">
+              <div class="when">夜</div>
+              <div class="hour">--:--</div>
+            </div>
+            <div class="record-vals">
+              <div class="bp" style="color: var(--text-soft);">—— / ——</div>
+              <div class="meta">夜の記録はまだです</div>
+            </div>
+            <div class="status-pill" style="background:#F0F4F7;color:var(--text-mute);">未記録</div>
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <div class="card-head">
+            <div class="card-title"><div class="icon">📊</div>週間グラフ</div>
+            <div class="card-action">月・年 ›</div>
+          </div>
+          <div class="bp-legend">
+            <span><span class="dot" style="background:var(--primary);"></span>収縮期 (上)</span>
+            <span><span class="dot" style="background:var(--accent);"></span>拡張期 (下)</span>
+            <span style="margin-left:auto;"><span class="dot" style="background:var(--sub-dark);"></span>目標範囲</span>
+          </div>
+          <div class="weekly-chart">
+            <div class="chart-y-labels">
+              <span>160</span><span>140</span><span>120</span><span>100</span><span>80</span>
+            </div>
+            <svg width="100%" height="100%" viewBox="0 0 320 140" preserveAspectRatio="none" style="padding-left:22px;">
+              <rect x="0" y="35" width="320" height="40" fill="#F4E8D7" opacity="0.4" rx="4"/>
+              <line x1="0" y1="15" x2="320" y2="15" stroke="#EAEAE4" stroke-dasharray="3 3"/>
+              <line x1="0" y1="75" x2="320" y2="75" stroke="#EAEAE4" stroke-dasharray="3 3"/>
+              <line x1="0" y1="115" x2="320" y2="115" stroke="#EAEAE4" stroke-dasharray="3 3"/>
+              <g>
+                <rect x="14" y="40" width="14" height="80" fill="#0E5F76" opacity="0.85" rx="3"/>
+                <rect x="14" y="88" width="14" height="32" fill="#F27E62" opacity="0.85" rx="3"/>
+              </g>
+              <g>
+                <rect x="58" y="46" width="14" height="74" fill="#0E5F76" opacity="0.85" rx="3"/>
+                <rect x="58" y="92" width="14" height="28" fill="#F27E62" opacity="0.85" rx="3"/>
+              </g>
+              <g>
+                <rect x="102" y="34" width="14" height="86" fill="#0E5F76" rx="3"/>
+                <rect x="102" y="84" width="14" height="36" fill="#F27E62" rx="3"/>
+              </g>
+              <g>
+                <rect x="146" y="52" width="14" height="68" fill="#0E5F76" opacity="0.85" rx="3"/>
+                <rect x="146" y="96" width="14" height="24" fill="#F27E62" opacity="0.85" rx="3"/>
+              </g>
+              <g>
+                <rect x="190" y="42" width="14" height="78" fill="#0E5F76" opacity="0.85" rx="3"/>
+                <rect x="190" y="90" width="14" height="30" fill="#F27E62" opacity="0.85" rx="3"/>
+              </g>
+              <g>
+                <rect x="234" y="56" width="14" height="64" fill="#0E5F76" opacity="0.85" rx="3"/>
+                <rect x="234" y="98" width="14" height="22" fill="#F27E62" opacity="0.85" rx="3"/>
+              </g>
+              <g>
+                <rect x="278" y="50" width="14" height="70" fill="#0E5F76" rx="3"/>
+                <rect x="278" y="94" width="14" height="26" fill="#F27E62" rx="3"/>
+                <circle cx="285" cy="48" r="3" fill="#0E5F76"/>
+              </g>
+            </svg>
+            <div class="chart-x-labels">
+              <span>土</span><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span style="font-weight:700;color:var(--primary);">金</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 24px;"></div>
+      </section>
+
+      <!-- ================= MEAL ================= -->
+      <section class="screen-page" data-page="meal">
+        <div class="app-header">
+          <div class="greeting">
+            <div class="hello">MEAL ANALYSIS</div>
+            <div class="name">食事分析</div>
+          </div>
+          <div class="avatar">R</div>
+        </div>
+
+        <div class="meal-header-stats">
+          <div class="mini-stat salt">
+            <div class="lbl">塩分</div>
+            <div class="val">4.2<small>g</small></div>
+          </div>
+          <div class="mini-stat cal">
+            <div class="lbl">カロリー</div>
+            <div class="val">1,284<small>kcal</small></div>
+          </div>
+          <div class="mini-stat score">
+            <div class="lbl">栄養スコア</div>
+            <div class="val">82<small>/100</small></div>
+          </div>
+        </div>
+
+        <div class="section-title">今日の食事 <span class="sub">3食 · 写真からAI推定</span></div>
+
+        <div class="meal-item">
+          <div class="meal-thumb breakfast">🍞</div>
+          <div class="meal-info">
+            <span class="meal-tag b">BREAKFAST · 7:30</span>
+            <div class="meal-name">全粒粉トースト & ギリシャヨーグルト</div>
+            <div class="meal-stats">
+              <span>🧂 <em>0.8g</em></span>
+              <span>🔥 <em>320</em>kcal</span>
+              <span>🥚 <em>18g</em></span>
+            </div>
+          </div>
+          <div class="meal-score">
+            <div class="ring" style="--pct:85%"><span>85</span></div>
+          </div>
+        </div>
+
+        <div class="meal-item">
+          <div class="meal-thumb lunch">🍜</div>
+          <div class="meal-info">
+            <span class="meal-tag l">LUNCH · 12:45</span>
+            <div class="meal-name">鶏塩ラーメン (スープ半分)</div>
+            <div class="meal-stats">
+              <span>🧂 <em>2.6g</em></span>
+              <span>🔥 <em>620</em>kcal</span>
+              <span>🥬 <em>少</em></span>
+            </div>
+          </div>
+          <div class="meal-score">
+            <div class="ring" style="--pct:58%;background: conic-gradient(var(--warn) 0 58%, #EAEAE4 0);"><span>58</span></div>
+          </div>
+        </div>
+
+        <div class="meal-item">
+          <div class="meal-thumb dinner">🍱</div>
+          <div class="meal-info">
+            <span class="meal-tag d">DINNER · 19:30</span>
+            <div class="meal-name">和食定食 (焼き魚・小鉢)</div>
+            <div class="meal-stats">
+              <span>🧂 <em>0.8g</em></span>
+              <span>🔥 <em>344</em>kcal</span>
+              <span style="color:var(--success);font-weight:600;">推奨 ✓</span>
+            </div>
+          </div>
+          <div class="meal-score">
+            <div class="ring" style="--pct:92%"><span>92</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><div class="icon">🎯</div>栄養バランス</div>
+            <div class="card-action">週平均 ›</div>
+          </div>
+
+          <div class="radar-wrap">
+            <svg width="100%" height="240" viewBox="-110 -120 220 240">
+              <!-- axis grid -->
+              <polygon points="0,-100 95,-31 59,81 -59,81 -95,-31" fill="#F4E8D7" fill-opacity="0.3" stroke="#EAEAE4" stroke-width="1"/>
+              <polygon points="0,-75 71,-23 44,61 -44,61 -71,-23" fill="none" stroke="#EAEAE4" stroke-width="1" stroke-dasharray="2 3"/>
+              <polygon points="0,-50 47,-15 29,41 -29,41 -47,-15" fill="none" stroke="#EAEAE4" stroke-width="1" stroke-dasharray="2 3"/>
+              <polygon points="0,-25 24,-8 15,20 -15,20 -24,-8" fill="none" stroke="#EAEAE4" stroke-width="1" stroke-dasharray="2 3"/>
+              <!-- axes -->
+              <line x1="0" y1="0" x2="0" y2="-100" stroke="#E0E0D9"/>
+              <line x1="0" y1="0" x2="95" y2="-31" stroke="#E0E0D9"/>
+              <line x1="0" y1="0" x2="59" y2="81" stroke="#E0E0D9"/>
+              <line x1="0" y1="0" x2="-59" y2="81" stroke="#E0E0D9"/>
+              <line x1="0" y1="0" x2="-95" y2="-31" stroke="#E0E0D9"/>
+              <!-- data polygon: protein, fiber, vitamin, mineral, lowSalt -->
+              <polygon points="0,-82 76,-25 44,62 -47,64 -78,-25"
+                       fill="#0E5F76" fill-opacity="0.25"
+                       stroke="#0E5F76" stroke-width="2" stroke-linejoin="round"/>
+              <circle cx="0" cy="-82" r="3.5" fill="#0E5F76"/>
+              <circle cx="76" cy="-25" r="3.5" fill="#0E5F76"/>
+              <circle cx="44" cy="62" r="3.5" fill="#0E5F76"/>
+              <circle cx="-47" cy="64" r="3.5" fill="#0E5F76"/>
+              <circle cx="-78" cy="-25" r="3.5" fill="#0E5F76"/>
+              <!-- labels -->
+              <text x="0" y="-108" text-anchor="middle" font-family="Noto Sans JP" font-size="11" font-weight="700" fill="#1A2733">タンパク質</text>
+              <text x="102" y="-34" text-anchor="start" font-family="Noto Sans JP" font-size="11" font-weight="700" fill="#1A2733">食物繊維</text>
+              <text x="64" y="98" text-anchor="middle" font-family="Noto Sans JP" font-size="11" font-weight="700" fill="#1A2733">ビタミン</text>
+              <text x="-64" y="98" text-anchor="middle" font-family="Noto Sans JP" font-size="11" font-weight="700" fill="#1A2733">ミネラル</text>
+              <text x="-102" y="-34" text-anchor="end" font-family="Noto Sans JP" font-size="11" font-weight="700" fill="#1A2733">減塩</text>
+            </svg>
+          </div>
+
+          <div class="radar-legend">
+            <div class="li">タンパク質 <em>82</em></div>
+            <div class="li">食物繊維 <em>80</em></div>
+            <div class="li">ビタミン <em>76</em></div>
+            <div class="li">ミネラル <em>79</em></div>
+            <div class="li">減塩 <em>82</em></div>
+            <div class="li" style="color:var(--success);">総合 <em>82</em></div>
+          </div>
+        </div>
+
+        <div style="height: 24px;"></div>
+      </section>
+
+      <!-- ================= COACH ================= -->
+      <section class="screen-page" data-page="coach">
+        <div class="app-header">
+          <div class="greeting">
+            <div class="hello">AI COACH</div>
+            <div class="name">AIコーチ</div>
+          </div>
+          <div class="avatar">R</div>
+        </div>
+
+        <div class="coach-hero">
+          <div class="title"><div class="ai-dot">AI</div>Hello, 亮介さん 🌿</div>
+          <div class="salt-remaining">
+            <div class="big">1.8<small> g</small></div>
+            <div class="desc">本日の塩分残量<br/><em>あと1食なら和食定食</em>が最適です</div>
+          </div>
+        </div>
+
+        <div class="section-title">夕食のおすすめ <span class="sub">残塩分1.8g内に収まる3案</span></div>
+
+        <div class="suggest-card">
+          <div class="suggest-emoji">🍱</div>
+          <div class="suggest-main">
+            <div class="suggest-name">和食定食 (焼き鮭・小鉢2種)</div>
+            <div class="suggest-meta">
+              <span class="tag ok">塩分 1.2g</span>
+              <span class="tag">380 kcal</span>
+              <span class="tag">タンパク 28g</span>
+            </div>
+            <div class="suggest-why">💡 DASH食に近い構成。カリウムが豊富で降圧効果◎</div>
+          </div>
+          <button class="suggest-cta">›</button>
+        </div>
+
+        <div class="suggest-card">
+          <div class="suggest-emoji">🥗</div>
+          <div class="suggest-main">
+            <div class="suggest-name">グリル野菜と豆腐のサラダボウル</div>
+            <div class="suggest-meta">
+              <span class="tag ok">塩分 0.9g</span>
+              <span class="tag">320 kcal</span>
+              <span class="tag">食物繊維 ↑</span>
+            </div>
+            <div class="suggest-why">💡 食物繊維が不足気味。マグネシウムも補給できます</div>
+          </div>
+          <button class="suggest-cta">›</button>
+        </div>
+
+        <div class="suggest-card">
+          <div class="suggest-emoji">🍲</div>
+          <div class="suggest-main">
+            <div class="suggest-name">鶏胸肉のハーブ蒸し & 玄米</div>
+            <div class="suggest-meta">
+              <span class="tag ok">塩分 1.5g</span>
+              <span class="tag">450 kcal</span>
+              <span class="tag">低GI</span>
+            </div>
+            <div class="suggest-why">💡 高タンパク・低脂質。週の運動日と相性が良いです</div>
+          </div>
+          <button class="suggest-cta">›</button>
+        </div>
+
+        <div class="chat-card">
+          <div class="card-head" style="margin-bottom:14px;">
+            <div class="card-title"><div class="icon">💬</div>本日のアドバイス</div>
+            <div class="card-action">履歴 ›</div>
+          </div>
+
+          <div class="chat-row">
+            <div class="chat-avatar">AI</div>
+            <div>
+              <div class="chat-bubble">
+                おはようございます🌸 今朝の血圧は128/82、前日比で良い傾向です。昼の塩分が2.6gとやや多めだったので、夕食は1.8g以下に抑えましょう。
+              </div>
+              <div class="chat-time">9:45</div>
+            </div>
+          </div>
+
+          <div class="chat-row right">
+            <div class="chat-avatar">亮</div>
+            <div>
+              <div class="chat-bubble user">
+                今日ランチで外食の予定。何がいい?
+              </div>
+              <div class="chat-time" style="text-align:right;">11:20</div>
+            </div>
+          </div>
+
+          <div class="chat-row">
+            <div class="chat-avatar">AI</div>
+            <div>
+              <div class="chat-bubble">
+                定食屋なら「焼き魚定食・味噌汁なし」がベストです。ラーメンならスープは残して、トッピングに野菜を。塩分を抑えつつ満足感も得られます 👍
+              </div>
+              <div class="chat-time">11:21</div>
+            </div>
+          </div>
+
+          <div class="chat-input">
+            <input type="text" placeholder="食事・血圧について聞く..." />
+            <button>➤</button>
+          </div>
+        </div>
+
+        <div class="report-card">
+          <div class="report-head">
+            <div class="title">📊 週次レポート</div>
+            <div class="date">4/11 - 4/17</div>
+          </div>
+          <div class="report-stats">
+            <div class="stat">
+              <div class="lbl">平均血圧</div>
+              <div class="val">131/84 <small class="up">▼ 3</small></div>
+            </div>
+            <div class="stat">
+              <div class="lbl">平均塩分</div>
+              <div class="val">5.6<small>g</small> <small class="down">▼ 0.8</small></div>
+            </div>
+            <div class="stat">
+              <div class="lbl">目標達成日</div>
+              <div class="val">5<small>/ 7日</small></div>
+            </div>
+            <div class="stat">
+              <div class="lbl">栄養スコア</div>
+              <div class="val">82 <small class="up">▲ 4</small></div>
+            </div>
+          </div>
+          <div style="margin-top:12px; font-family:'Noto Sans JP',sans-serif; font-size:11px; color:var(--text-mute); line-height:1.6;">
+            ✨ 先週より血圧が安定し、減塩目標も達成できる日が増えました。カリウム摂取を増やすともう一段上のコントロールが目指せます。
+          </div>
+        </div>
+
+        <div style="height: 24px;"></div>
+      </section>
+
+      <!-- ================= SETTINGS ================= -->
+      <section class="screen-page" data-page="settings">
+        <div class="app-header">
+          <div class="greeting">
+            <div class="hello">SETTINGS</div>
+            <div class="name">設定 / プロフィール</div>
+          </div>
+          <div class="avatar">R</div>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-avatar-big">R</div>
+          <div class="profile-info">
+            <div class="nm">泉水 亮介</div>
+            <div class="sub">42歳 · 男性 · 東京都</div>
+            <div class="stats">
+              <span><em>172</em>cm</span>
+              <span><em>68</em>kg</span>
+              <span><em>117</em>日 継続中 🔥</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="device-card">
+          <div class="device-icon">⌚</div>
+          <div class="device-body">
+            <div class="nm">Apple Watch Series 10</div>
+            <div class="st"><span class="dot"></span>接続中 · 最終同期 2分前</div>
+          </div>
+          <div class="setting-chev">›</div>
+        </div>
+
+        <div class="device-card" style="margin-top:8px;">
+          <div class="device-icon" style="background:var(--accent);">🩺</div>
+          <div class="device-body">
+            <div class="nm">OMRON 血圧計 HEM-7600T</div>
+            <div class="st"><span class="dot"></span>Bluetooth接続中</div>
+          </div>
+          <div class="setting-chev">›</div>
+        </div>
+
+        <div class="device-card" style="margin-top:8px;">
+          <div class="device-icon" style="background:#B5C3CE;">🍎</div>
+          <div class="device-body">
+            <div class="nm">Apple Health / HealthKit</div>
+            <div class="st off"><span class="dot"></span>未連携</div>
+          </div>
+          <div class="setting-chev">›</div>
+        </div>
+
+        <div class="settings-group">
+          <div class="group-title">目標値</div>
+          <div class="goal-row">
+            <div class="gtop">
+              <div class="gl">🩸 収縮期血圧</div>
+              <div class="gv">&lt; 130 mmHg</div>
+            </div>
+            <div class="goal-bar"><div class="goal-bar-fill" style="width:72%"></div></div>
+          </div>
+          <div class="goal-row">
+            <div class="gtop">
+              <div class="gl">💢 拡張期血圧</div>
+              <div class="gv">&lt; 85 mmHg</div>
+            </div>
+            <div class="goal-bar"><div class="goal-bar-fill" style="width:64%"></div></div>
+          </div>
+          <div class="goal-row">
+            <div class="gtop">
+              <div class="gl">🧂 1日の塩分</div>
+              <div class="gv">&lt; 6.0 g</div>
+            </div>
+            <div class="goal-bar"><div class="goal-bar-fill" style="width:70%"></div></div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="group-title">通知</div>
+          <div class="setting-row">
+            <div class="setting-ic">⏰</div>
+            <div class="setting-lbl">朝の血圧リマインダー<small>毎朝 7:00</small></div>
+            <div class="toggle"></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-ic">🍽️</div>
+            <div class="setting-lbl">食事記録の催促<small>食事時間の30分後</small></div>
+            <div class="toggle"></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-ic">📈</div>
+            <div class="setting-lbl">週次レポート<small>毎週日曜 20:00</small></div>
+            <div class="toggle"></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-ic">🔔</div>
+            <div class="setting-lbl">塩分アラート<small>目標達成が難しい時</small></div>
+            <div class="toggle off"></div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="group-title">アカウント & その他</div>
+          <div class="setting-row">
+            <div class="setting-ic">👤</div>
+            <div class="setting-lbl">プロフィール編集</div>
+            <div class="setting-chev">›</div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-ic">🏥</div>
+            <div class="setting-lbl">かかりつけ医と共有<small>PDFレポート月次送信</small></div>
+            <div class="setting-val">ON</div>
+            <div class="setting-chev">›</div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-ic">🔒</div>
+            <div class="setting-lbl">データエクスポート / 削除</div>
+            <div class="setting-chev">›</div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-ic">ℹ️</div>
+            <div class="setting-lbl">バージョン</div>
+            <div class="setting-val">1.2.0</div>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top: 20px; font-family:'Inter',sans-serif; font-size:10px; color:var(--text-soft);">
+          BP Meal Coach · Powered by TEKION
+        </div>
+
+        <div style="height: 24px;"></div>
+      </section>
+
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="home">
+        <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-7h-6v7H4a1 1 0 01-1-1z"/></svg>
+        ホーム
+      </button>
+      <button class="tab-btn" data-tab="record">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        血圧
+      </button>
+      <button class="tab-btn center-btn" data-tab="meal">
+        <div class="fab">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+        食事
+      </button>
+      <button class="tab-btn" data-tab="coach">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        コーチ
+      </button>
+      <button class="tab-btn" data-tab="settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        設定
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div class="instruction-panel">
+  <div class="item">💡 <strong>下部タブ</strong>をクリックして画面切替</div>
+  <div class="item"><span class="key">1</span> ホーム</div>
+  <div class="item"><span class="key">2</span> 血圧</div>
+  <div class="item"><span class="key">3</span> 食事</div>
+  <div class="item"><span class="key">4</span> コーチ</div>
+  <div class="item"><span class="key">5</span> 設定</div>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab-btn');
+  const pages = document.querySelectorAll('.screen-page');
+  const content = document.querySelector('.content');
+
+  function switchTab(name) {
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    pages.forEach(p => p.classList.toggle('active', p.dataset.page === name));
+    if (content) content.scrollTop = 0;
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+  });
+
+  // toggle switches
+  document.querySelectorAll('.toggle').forEach(t => {
+    t.addEventListener('click', () => t.classList.toggle('off'));
+  });
+
+  // keyboard shortcuts 1-5
+  const map = { '1': 'home', '2': 'record', '3': 'meal', '4': 'coach', '5': 'settings' };
+  document.addEventListener('keydown', (e) => {
+    if (map[e.key]) switchTab(map[e.key]);
+  });
+</script>
+
+</body>
+</html>

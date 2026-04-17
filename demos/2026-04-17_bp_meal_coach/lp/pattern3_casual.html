@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BP Meal Coach — 撮るだけ、続けられる血圧ごはん</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFF7EA;
+  --primary:#F27E62;
+  --primary-dark:#E0644A;
+  --accent:#4EAE8A;
+  --accent-dark:#3A8E70;
+  --sub:#FAD6A5;
+  --sub-soft:#FFE9CC;
+  --text:#3A2B24;
+  --text-soft:#7A6258;
+  --white:#FFFFFF;
+  --shadow-soft: 0 10px 30px rgba(242,126,98,.15);
+  --shadow-card: 0 14px 36px rgba(58,43,36,.10);
+  --shadow-pop: 0 18px 40px rgba(242,126,98,.25);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:"Noto Sans JP",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-weight:500;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+
+/* ========== Decorative shapes ========== */
+.blob{position:absolute;border-radius:50%;filter:blur(2px);opacity:.55;pointer-events:none;z-index:0;}
+.dots{
+  position:absolute;width:120px;height:120px;
+  background-image:radial-gradient(circle, var(--primary) 2px, transparent 2.5px);
+  background-size:18px 18px;opacity:.35;pointer-events:none;
+}
+.zig{
+  position:absolute;width:80px;height:20px;pointer-events:none;
+  background:repeating-linear-gradient(135deg,var(--accent) 0 4px,transparent 4px 8px);
+  border-radius:6px;opacity:.5;
+}
+.star{
+  position:absolute;width:28px;height:28px;background:var(--sub);
+  clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  pointer-events:none;
+}
+
+/* ========== Header ========== */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,247,234,.92);
+  backdrop-filter:blur(10px);
+  border-bottom:2px dashed rgba(242,126,98,.15);
+}
+.nav{
+  max-width:1180px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 28px;
+}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px;}
+.logo-mark{
+  width:42px;height:42px;border-radius:14px;
+  background:linear-gradient(135deg,var(--primary),#FF9A82);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;box-shadow:var(--shadow-soft);transform:rotate(-6deg);
+}
+.logo-mark::before{
+  content:"";position:absolute;width:18px;height:18px;border-radius:50%;
+  background:var(--white);top:8px;left:8px;
+}
+.logo-mark::after{
+  content:"";position:absolute;width:8px;height:8px;border-radius:50%;
+  background:var(--primary);top:13px;left:13px;
+}
+.nav-links{display:flex;gap:28px;align-items:center;}
+.nav-links a{font-weight:700;color:var(--text-soft);transition:color .2s;}
+.nav-links a:hover{color:var(--primary);}
+.nav-cta{
+  background:var(--primary);color:var(--white)!important;
+  padding:10px 22px;border-radius:30px;font-weight:700;
+  box-shadow:var(--shadow-soft);transition:transform .2s;
+}
+.nav-cta:hover{transform:translateY(-2px);}
+
+/* ========== Hero ========== */
+.hero{
+  position:relative;padding:80px 28px 120px;overflow:hidden;
+}
+.hero-inner{
+  max-width:1180px;margin:0 auto;
+  display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center;
+  position:relative;z-index:2;
+}
+.hero-bubble{
+  display:inline-block;background:var(--accent);color:var(--white);
+  padding:8px 20px;border-radius:30px;font-weight:700;font-size:14px;
+  margin-bottom:20px;position:relative;
+  box-shadow:var(--shadow-soft);transform:rotate(-2deg);
+}
+.hero-bubble::after{
+  content:"";position:absolute;bottom:-8px;left:30px;
+  width:0;height:0;border:8px solid transparent;border-top-color:var(--accent);
+}
+.hero h1{
+  font-size:64px;font-weight:900;line-height:1.2;margin-bottom:24px;
+  letter-spacing:-.02em;
+}
+.hero h1 .pop{
+  display:inline-block;background:var(--primary);color:var(--white);
+  padding:0 14px;border-radius:18px;transform:rotate(-2deg);
+  box-shadow:var(--shadow-soft);
+}
+.hero h1 .underline{
+  background:linear-gradient(transparent 60%, var(--sub) 60%);
+}
+.hero-sub{
+  font-size:19px;color:var(--text-soft);margin-bottom:36px;font-weight:500;
+}
+.hero-cta-group{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:18px 36px;border-radius:30px;font-weight:700;font-size:16px;
+  cursor:pointer;border:none;transition:all .25s;
+}
+.btn-primary{
+  background:var(--primary);color:var(--white);
+  box-shadow:var(--shadow-pop);
+}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 22px 44px rgba(242,126,98,.32);}
+.btn-secondary{
+  background:var(--white);color:var(--primary);
+  border:3px solid var(--primary);
+}
+.btn-secondary:hover{background:var(--sub-soft);}
+.btn .arrow{
+  width:24px;height:24px;border-radius:50%;background:var(--white);
+  color:var(--primary);display:flex;align-items:center;justify-content:center;
+  font-weight:900;
+}
+.btn-secondary .arrow{background:var(--primary);color:var(--white);}
+
+.hero-meta{
+  display:flex;gap:24px;margin-top:28px;font-size:13px;color:var(--text-soft);
+}
+.hero-meta-item{display:flex;align-items:center;gap:8px;}
+.check{
+  width:20px;height:20px;border-radius:50%;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--white);font-size:12px;font-weight:900;
+}
+
+/* Hero phone mock */
+.hero-visual{position:relative;display:flex;justify-content:center;align-items:center;}
+.phone{
+  width:280px;height:560px;background:var(--text);
+  border-radius:42px;padding:14px;position:relative;
+  box-shadow:0 30px 60px rgba(58,43,36,.25);
+  transform:rotate(4deg) translateY(-10px);
+  animation:float 6s ease-in-out infinite;
+}
+@keyframes float{
+  0%,100%{transform:rotate(4deg) translateY(-10px);}
+  50%{transform:rotate(4deg) translateY(-22px);}
+}
+.phone-screen{
+  width:100%;height:100%;background:var(--bg);border-radius:30px;
+  overflow:hidden;position:relative;display:flex;flex-direction:column;
+}
+.phone-notch{
+  position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  width:80px;height:20px;background:var(--text);border-radius:0 0 12px 12px;z-index:3;
+}
+.phone-header{
+  padding:32px 18px 14px;background:var(--primary);color:var(--white);
+}
+.phone-header-title{font-size:13px;opacity:.85;}
+.phone-header-bp{font-size:28px;font-weight:900;margin-top:4px;}
+.phone-header-bp small{font-size:13px;opacity:.85;font-weight:500;}
+.phone-meal-card{
+  margin:14px;padding:14px;background:var(--white);
+  border-radius:16px;box-shadow:var(--shadow-card);
+}
+.phone-meal-img{
+  height:80px;border-radius:12px;
+  background:linear-gradient(135deg,var(--sub),var(--primary));
+  position:relative;overflow:hidden;
+}
+.phone-meal-img::before{
+  content:"";position:absolute;top:50%;left:50%;
+  width:50px;height:50px;border-radius:50%;
+  background:var(--accent);transform:translate(-50%,-50%);
+}
+.phone-meal-img::after{
+  content:"";position:absolute;top:55%;left:35%;
+  width:24px;height:24px;border-radius:50%;background:var(--white);
+}
+.phone-meal-title{font-weight:700;font-size:14px;margin-top:10px;}
+.phone-meal-tag{
+  display:inline-block;background:var(--accent);color:var(--white);
+  padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-top:6px;
+}
+.phone-tip{
+  margin:0 14px;padding:12px;background:var(--sub-soft);
+  border-radius:14px;font-size:12px;color:var(--text);font-weight:500;
+  position:relative;
+}
+.phone-tip strong{color:var(--primary);}
+
+.hero-sticker{
+  position:absolute;background:var(--white);
+  padding:14px 18px;border-radius:20px;box-shadow:var(--shadow-card);
+  font-weight:700;font-size:14px;display:flex;align-items:center;gap:10px;
+  z-index:3;
+}
+.sticker-1{top:30px;left:-20px;transform:rotate(-8deg);}
+.sticker-2{bottom:60px;right:-20px;transform:rotate(6deg);}
+.sticker-icon{
+  width:36px;height:36px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;color:var(--white);
+}
+.sticker-1 .sticker-icon{background:var(--accent);}
+.sticker-2 .sticker-icon{background:var(--primary);}
+
+/* Hero blobs */
+.hero .blob-1{width:380px;height:380px;background:var(--sub);top:-100px;right:-80px;}
+.hero .blob-2{width:280px;height:280px;background:#FFD9CC;bottom:-100px;left:-60px;}
+.hero .dots-1{top:120px;right:120px;}
+.hero .star-1{top:60px;left:48%;animation:twinkle 3s ease-in-out infinite;}
+.hero .star-2{bottom:120px;left:30%;width:20px;height:20px;background:var(--primary);}
+@keyframes twinkle{0%,100%{transform:scale(1) rotate(0);}50%{transform:scale(1.2) rotate(20deg);}}
+
+/* ========== Worries Section ========== */
+.section{padding:100px 28px;position:relative;}
+.section-inner{max-width:1180px;margin:0 auto;position:relative;z-index:2;}
+.section-eyebrow{
+  display:inline-block;background:var(--white);color:var(--primary);
+  padding:6px 18px;border-radius:20px;font-weight:700;font-size:13px;
+  border:2px dashed var(--primary);margin-bottom:16px;
+}
+.section-title{
+  font-size:42px;font-weight:900;line-height:1.3;margin-bottom:16px;
+  letter-spacing:-.01em;
+}
+.section-title .highlight{
+  background:linear-gradient(transparent 65%, var(--sub) 65%);
+}
+.section-lead{font-size:17px;color:var(--text-soft);max-width:640px;margin-bottom:48px;}
+
+.worries{background:var(--white);position:relative;overflow:hidden;}
+.worries-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:30px;
+  margin-top:60px;
+}
+.worry-card{
+  background:var(--bg);padding:36px 24px;border-radius:24px;
+  box-shadow:var(--shadow-card);position:relative;
+  transition:transform .3s;
+}
+.worry-card:hover{transform:translateY(-6px) rotate(0deg)!important;}
+.worry-card:nth-child(1){transform:rotate(-3deg);}
+.worry-card:nth-child(2){transform:rotate(2deg) translateY(20px);}
+.worry-card:nth-child(3){transform:rotate(-2deg) translateY(10px);}
+.worry-card:nth-child(4){transform:rotate(3deg);}
+.worry-illust{
+  width:80px;height:80px;border-radius:24px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;position:relative;
+}
+.worry-card:nth-child(1) .worry-illust{background:var(--sub);}
+.worry-card:nth-child(2) .worry-illust{background:#FFD9CC;}
+.worry-card:nth-child(3) .worry-illust{background:#D4F0E2;}
+.worry-card:nth-child(4) .worry-illust{background:var(--sub-soft);}
+
+/* CSS illustrations inside worry cards */
+.illust-bp{position:relative;width:50px;height:50px;}
+.illust-bp::before{
+  content:"";position:absolute;width:50px;height:30px;
+  border:5px solid var(--primary);border-radius:25px 25px 0 0;
+  border-bottom:none;top:8px;
+}
+.illust-bp::after{
+  content:"";position:absolute;width:8px;height:20px;background:var(--primary);
+  left:21px;top:30px;border-radius:4px;
+}
+.illust-meal{position:relative;width:50px;height:50px;}
+.illust-meal::before{
+  content:"";position:absolute;width:46px;height:46px;
+  border:5px solid var(--primary);border-radius:50%;top:0;left:0;
+}
+.illust-meal::after{
+  content:"";position:absolute;width:14px;height:14px;background:var(--primary);
+  border-radius:50%;top:18px;left:18px;
+}
+.illust-clock{position:relative;width:50px;height:50px;}
+.illust-clock::before{
+  content:"";position:absolute;width:46px;height:46px;
+  border:5px solid var(--accent);border-radius:50%;top:0;left:0;
+}
+.illust-clock::after{
+  content:"";position:absolute;width:4px;height:18px;background:var(--accent);
+  border-radius:2px;top:7px;left:23px;transform-origin:bottom center;
+}
+.illust-question{position:relative;width:50px;height:50px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;font-weight:900;color:var(--primary);}
+.illust-question::before{content:"?";}
+
+.worry-text{font-weight:700;font-size:16px;line-height:1.5;}
+.worry-tag{
+  display:inline-block;background:var(--white);color:var(--text-soft);
+  padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700;
+  margin-bottom:12px;
+}
+
+.worries .blob-3{width:200px;height:200px;background:var(--sub);top:60px;left:-60px;opacity:.3;}
+.worries .zig-1{top:140px;right:80px;}
+
+/* ========== Solution Section ========== */
+.solution{background:var(--bg);}
+.solution-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:60px;
+}
+.solution-card{
+  background:var(--white);padding:48px 32px;border-radius:32px;
+  box-shadow:var(--shadow-card);position:relative;
+  transition:transform .3s;
+}
+.solution-card:hover{transform:translateY(-8px);}
+.solution-num{
+  position:absolute;top:-24px;right:24px;
+  width:60px;height:60px;border-radius:50%;
+  background:var(--primary);color:var(--white);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:900;
+  box-shadow:var(--shadow-soft);
+  border:5px solid var(--bg);
+}
+.solution-card:nth-child(2) .solution-num{background:var(--accent);}
+.solution-card:nth-child(3) .solution-num{background:var(--sub);color:var(--text);}
+.solution-icon{
+  width:90px;height:90px;border-radius:28px;margin-bottom:24px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--sub-soft);position:relative;
+}
+.solution-card:nth-child(2) .solution-icon{background:#D4F0E2;}
+.solution-card:nth-child(3) .solution-icon{background:#FFE0D6;}
+
+.icon-camera{width:48px;height:36px;background:var(--primary);border-radius:8px;position:relative;}
+.icon-camera::before{
+  content:"";position:absolute;width:18px;height:18px;border-radius:50%;
+  background:var(--white);top:9px;left:15px;
+}
+.icon-camera::after{
+  content:"";position:absolute;width:14px;height:6px;background:var(--primary);
+  top:-4px;left:17px;border-radius:4px 4px 0 0;
+}
+.icon-brain{
+  width:52px;height:52px;border-radius:50%;background:var(--accent);
+  position:relative;
+}
+.icon-brain::before{
+  content:"";position:absolute;width:14px;height:14px;background:var(--white);
+  border-radius:50%;top:12px;left:10px;
+}
+.icon-brain::after{
+  content:"";position:absolute;width:14px;height:14px;background:var(--white);
+  border-radius:50%;top:12px;right:10px;
+}
+.icon-heart{
+  width:50px;height:46px;background:var(--primary);
+  position:relative;transform:rotate(-45deg);
+  border-radius:0 0 0 25px;
+}
+.icon-heart::before,.icon-heart::after{
+  content:"";position:absolute;width:25px;height:25px;background:var(--primary);
+  border-radius:50%;
+}
+.icon-heart::before{top:-12px;left:0;}
+.icon-heart::after{top:0;right:-12px;}
+
+.solution-title{font-size:22px;font-weight:900;margin-bottom:12px;}
+.solution-desc{font-size:15px;color:var(--text-soft);line-height:1.7;}
+.solution-tag{
+  display:inline-block;background:var(--bg);color:var(--primary);
+  padding:6px 14px;border-radius:14px;font-size:12px;font-weight:700;
+  margin-bottom:18px;
+}
+
+/* ========== Features Section (stacked cards) ========== */
+.features{background:var(--white);position:relative;}
+.features-stage{
+  margin-top:80px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;
+}
+.features-stack{position:relative;height:520px;}
+.feature-stack-card{
+  position:absolute;width:340px;padding:28px;border-radius:28px;
+  box-shadow:var(--shadow-card);background:var(--white);
+  transition:transform .3s;
+}
+.feature-stack-card:hover{transform:translateY(-10px) rotate(0)!important;z-index:10;}
+.fsc-1{top:0;left:20px;background:var(--sub-soft);transform:rotate(-6deg);z-index:1;}
+.fsc-2{top:80px;left:80px;background:var(--white);transform:rotate(3deg);z-index:2;}
+.fsc-3{top:180px;left:40px;background:#D4F0E2;transform:rotate(-3deg);z-index:3;}
+.fsc-4{top:280px;left:100px;background:var(--white);transform:rotate(5deg);z-index:4;}
+
+.fsc-icon{
+  width:50px;height:50px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+}
+.fsc-1 .fsc-icon{background:var(--primary);}
+.fsc-2 .fsc-icon{background:var(--accent);}
+.fsc-3 .fsc-icon{background:var(--sub);}
+.fsc-4 .fsc-icon{background:var(--primary);}
+
+.fsc-icon-shape{
+  width:24px;height:24px;background:var(--white);border-radius:6px;
+}
+.fsc-3 .fsc-icon-shape{background:var(--text);}
+.fsc-title{font-size:17px;font-weight:900;margin-bottom:6px;}
+.fsc-desc{font-size:13px;color:var(--text-soft);line-height:1.6;}
+
+.features-text h2{font-size:42px;font-weight:900;line-height:1.3;margin-bottom:20px;}
+.features-text h2 .accent-bg{
+  background:var(--accent);color:var(--white);padding:0 12px;
+  border-radius:14px;display:inline-block;transform:rotate(-2deg);
+}
+.features-list{margin-top:32px;display:flex;flex-direction:column;gap:18px;}
+.features-list-item{
+  display:flex;align-items:flex-start;gap:14px;font-weight:500;
+}
+.features-list-item .dot{
+  width:28px;height:28px;border-radius:50%;background:var(--primary);
+  display:flex;align-items:center;justify-content:center;color:var(--white);
+  font-weight:900;flex-shrink:0;font-size:14px;
+}
+.features-list-item:nth-child(2) .dot{background:var(--accent);}
+.features-list-item:nth-child(3) .dot{background:var(--sub);color:var(--text);}
+.features-list-item:nth-child(4) .dot{background:var(--primary);}
+
+/* ========== Steps Section (manga style) ========== */
+.steps{background:var(--sub-soft);position:relative;overflow:hidden;}
+.steps-comic{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:60px;
+  position:relative;
+}
+.step-panel{
+  background:var(--white);border-radius:28px;padding:32px 24px;
+  border:4px solid var(--text);position:relative;
+  box-shadow:8px 8px 0 var(--text);
+}
+.step-panel-num{
+  position:absolute;top:-20px;left:24px;
+  background:var(--primary);color:var(--white);
+  padding:6px 18px;border-radius:20px;font-weight:900;font-size:14px;
+  border:3px solid var(--text);
+}
+.step-illust{
+  height:160px;background:var(--sub-soft);border-radius:20px;
+  margin-top:20px;margin-bottom:20px;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-illust-1{background:#FFE0D6;}
+.step-illust-2{background:#D4F0E2;}
+.step-illust-3{background:var(--sub-soft);}
+
+/* Step 1: phone with camera */
+.illust-phone-cam{width:80px;height:120px;background:var(--text);border-radius:14px;position:relative;}
+.illust-phone-cam::before{
+  content:"";position:absolute;width:60px;height:80px;background:var(--white);
+  top:20px;left:10px;border-radius:8px;
+}
+.illust-phone-cam::after{
+  content:"";position:absolute;width:24px;height:24px;border-radius:50%;
+  background:var(--primary);top:48px;left:28px;
+}
+.illust-flash{
+  position:absolute;width:30px;height:30px;background:var(--sub);
+  border-radius:50%;top:30px;right:30px;
+  box-shadow:0 0 0 8px rgba(250,214,165,.4);
+  animation:flash 2s ease-in-out infinite;
+}
+@keyframes flash{0%,100%{opacity:.4;transform:scale(1);}50%{opacity:1;transform:scale(1.1);}}
+
+/* Step 2: brain analyzing */
+.illust-analyze{position:relative;width:120px;height:80px;}
+.illust-analyze-bar{
+  position:absolute;bottom:0;width:18px;background:var(--accent);
+  border-radius:6px 6px 0 0;
+}
+.illust-analyze-bar:nth-child(1){left:0;height:40px;}
+.illust-analyze-bar:nth-child(2){left:24px;height:60px;background:var(--primary);}
+.illust-analyze-bar:nth-child(3){left:48px;height:30px;}
+.illust-analyze-bar:nth-child(4){left:72px;height:55px;background:var(--primary);}
+.illust-analyze-bar:nth-child(5){left:96px;height:48px;}
+
+/* Step 3: chat bubble */
+.illust-chat{position:relative;width:120px;height:120px;}
+.illust-chat-bubble{
+  position:absolute;background:var(--white);padding:12px 16px;
+  border-radius:18px;font-size:11px;font-weight:700;color:var(--text);
+  border:3px solid var(--text);
+}
+.illust-chat-bubble:nth-child(1){top:0;left:0;}
+.illust-chat-bubble:nth-child(2){bottom:0;right:0;background:var(--primary);color:var(--white);border-color:var(--text);}
+
+.step-title{font-size:18px;font-weight:900;margin-bottom:8px;}
+.step-desc{font-size:13px;color:var(--text-soft);line-height:1.6;}
+
+/* Connectors between steps */
+.step-arrow{
+  position:absolute;width:40px;height:40px;
+  background:var(--accent);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--white);font-weight:900;font-size:20px;
+  border:3px solid var(--text);z-index:5;
+  top:50%;transform:translateY(-50%);
+}
+.step-arrow-1{left:calc(33.3% - 20px);}
+.step-arrow-2{left:calc(66.6% - 20px);}
+
+/* ========== Pricing ========== */
+.pricing{background:var(--bg);position:relative;}
+.pricing-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:60px;
+  align-items:start;
+}
+.price-card{
+  background:var(--white);padding:40px 32px;border-radius:28px;
+  box-shadow:var(--shadow-card);position:relative;
+  transition:transform .3s;
+}
+.price-card:hover{transform:translateY(-6px);}
+.price-card.popular{
+  background:linear-gradient(180deg, var(--primary) 0%, #FF9A82 100%);
+  color:var(--white);transform:scale(1.05);
+  box-shadow:0 24px 48px rgba(242,126,98,.3);
+}
+.price-card.popular:hover{transform:scale(1.05) translateY(-6px);}
+.price-ribbon{
+  position:absolute;top:-14px;right:24px;
+  background:var(--accent);color:var(--white);
+  padding:8px 22px;border-radius:20px;font-weight:900;font-size:13px;
+  box-shadow:var(--shadow-soft);
+  transform:rotate(8deg);
+}
+.price-ribbon::before{
+  content:"⭐";margin-right:4px;
+}
+.price-name{font-size:18px;font-weight:900;margin-bottom:8px;}
+.price-tag{
+  display:inline-block;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:700;
+  background:var(--sub-soft);color:var(--primary);margin-bottom:20px;
+}
+.popular .price-tag{background:rgba(255,255,255,.25);color:var(--white);}
+.price-amount{font-size:48px;font-weight:900;line-height:1;margin:18px 0 8px;}
+.price-amount small{font-size:16px;font-weight:500;opacity:.8;}
+.price-period{font-size:13px;opacity:.8;margin-bottom:28px;}
+.price-features{list-style:none;margin-bottom:32px;}
+.price-features li{
+  padding:10px 0;display:flex;align-items:center;gap:10px;font-size:14px;
+  border-bottom:1px dashed rgba(122,98,88,.2);
+}
+.popular .price-features li{border-bottom-color:rgba(255,255,255,.3);}
+.price-features li::before{
+  content:"✓";display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:50%;background:var(--accent);
+  color:var(--white);font-weight:900;font-size:12px;flex-shrink:0;
+}
+.popular .price-features li::before{background:var(--white);color:var(--primary);}
+.price-cta{
+  width:100%;padding:16px;border-radius:24px;font-weight:900;font-size:15px;
+  border:none;cursor:pointer;transition:all .25s;
+  background:var(--text);color:var(--white);
+}
+.price-cta:hover{background:var(--primary);}
+.popular .price-cta{background:var(--white);color:var(--primary);}
+.popular .price-cta:hover{background:var(--bg);}
+
+/* ========== Testimonials ========== */
+.testimonials{background:var(--white);position:relative;overflow:hidden;}
+.testi-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:60px;
+}
+.testi-card{
+  background:var(--bg);padding:32px 28px;border-radius:24px;
+  position:relative;box-shadow:var(--shadow-card);
+}
+.testi-card:nth-child(1){transform:rotate(-2deg);}
+.testi-card:nth-child(2){transform:rotate(1deg) translateY(20px);}
+.testi-card:nth-child(3){transform:rotate(-1deg);}
+.testi-quote{
+  font-size:42px;font-weight:900;color:var(--primary);
+  position:absolute;top:-8px;left:24px;
+  background:var(--white);width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-soft);
+}
+.testi-text{font-size:15px;line-height:1.8;margin:24px 0 24px;font-weight:500;}
+.testi-bubble-tail{
+  position:absolute;bottom:60px;left:32px;
+  width:0;height:0;border:14px solid transparent;border-top-color:var(--bg);
+}
+.testi-author{display:flex;align-items:center;gap:14px;}
+.testi-avatar{
+  width:50px;height:50px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;color:var(--white);font-size:18px;
+  border:3px solid var(--white);box-shadow:var(--shadow-soft);
+}
+.testi-card:nth-child(1) .testi-avatar{background:var(--primary);}
+.testi-card:nth-child(2) .testi-avatar{background:var(--accent);}
+.testi-card:nth-child(3) .testi-avatar{background:var(--sub);color:var(--text);}
+.testi-name{font-weight:900;font-size:14px;}
+.testi-meta{font-size:12px;color:var(--text-soft);}
+.testi-stars{color:var(--primary);font-size:16px;margin-bottom:4px;}
+
+/* ========== FAQ ========== */
+.faq{background:var(--bg);}
+.faq-list{margin-top:50px;display:flex;flex-direction:column;gap:16px;max-width:840px;margin-left:auto;margin-right:auto;}
+.faq-item{
+  background:var(--white);border-radius:20px;
+  box-shadow:var(--shadow-card);overflow:hidden;
+  transition:all .25s;
+}
+.faq-item.open{background:var(--sub-soft);}
+.faq-q{
+  padding:24px 28px;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;font-weight:700;font-size:16px;
+}
+.faq-q-text{display:flex;align-items:center;gap:14px;flex:1;}
+.faq-q-mark{
+  width:32px;height:32px;border-radius:50%;background:var(--primary);
+  color:var(--white);display:flex;align-items:center;justify-content:center;
+  font-weight:900;flex-shrink:0;
+}
+.faq-toggle{
+  width:32px;height:32px;border-radius:50%;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;color:var(--primary);font-size:18px;
+  transition:transform .25s;
+}
+.faq-item.open .faq-toggle{transform:rotate(45deg);background:var(--primary);color:var(--white);}
+.faq-a{
+  max-height:0;overflow:hidden;transition:max-height .35s ease;
+  padding:0 28px;
+}
+.faq-item.open .faq-a{max-height:300px;padding:0 28px 24px 74px;}
+.faq-a p{color:var(--text-soft);font-size:15px;line-height:1.8;}
+
+/* ========== Footer CTA ========== */
+.footer-cta{
+  background:linear-gradient(135deg, var(--primary), #FF9A82);
+  color:var(--white);padding:100px 28px;
+  position:relative;overflow:hidden;text-align:center;
+}
+.footer-cta-inner{max-width:780px;margin:0 auto;position:relative;z-index:2;}
+.footer-cta h2{
+  font-size:48px;font-weight:900;line-height:1.3;margin-bottom:20px;
+  letter-spacing:-.01em;
+}
+.footer-cta h2 .yellow{
+  background:var(--sub);color:var(--text);padding:0 14px;border-radius:18px;
+  display:inline-block;transform:rotate(-2deg);
+}
+.footer-cta p{font-size:18px;opacity:.95;margin-bottom:40px;}
+.footer-cta-btn{
+  display:inline-flex;align-items:center;gap:12px;
+  background:var(--white);color:var(--primary);
+  padding:24px 48px;border-radius:40px;font-weight:900;font-size:18px;
+  box-shadow:0 14px 40px rgba(0,0,0,.2);
+  transition:transform .25s;
+}
+.footer-cta-btn:hover{transform:translateY(-4px);}
+.footer-cta-btn .arrow{
+  width:32px;height:32px;border-radius:50%;background:var(--primary);
+  color:var(--white);display:flex;align-items:center;justify-content:center;
+  font-weight:900;
+}
+.footer-cta-meta{
+  display:flex;justify-content:center;gap:32px;margin-top:32px;font-size:14px;opacity:.9;flex-wrap:wrap;
+}
+.footer-cta-meta-item{display:flex;align-items:center;gap:8px;}
+.footer-cta-meta-item .check{background:var(--white);color:var(--primary);}
+
+.footer-cta .blob-4{width:300px;height:300px;background:var(--sub);top:-100px;left:-80px;opacity:.4;}
+.footer-cta .blob-5{width:240px;height:240px;background:var(--accent);bottom:-80px;right:-60px;opacity:.5;}
+
+footer{
+  background:var(--text);color:var(--white);padding:50px 28px 30px;text-align:center;
+}
+.footer-nav{
+  display:flex;justify-content:center;gap:32px;margin-bottom:24px;flex-wrap:wrap;
+}
+.footer-nav a{font-size:14px;opacity:.8;transition:opacity .2s;}
+.footer-nav a:hover{opacity:1;}
+.footer-copy{font-size:13px;opacity:.6;}
+
+/* ========== Responsive ========== */
+@media (max-width: 960px){
+  .hero-inner{grid-template-columns:1fr;gap:40px;}
+  .hero h1{font-size:42px;}
+  .worries-grid,.solution-grid,.testi-grid,.pricing-grid{grid-template-columns:1fr;}
+  .features-stage{grid-template-columns:1fr;}
+  .features-stack{height:auto;display:flex;flex-direction:column;gap:20px;}
+  .feature-stack-card{position:relative;width:100%;left:auto!important;top:auto!important;transform:none!important;}
+  .steps-comic{grid-template-columns:1fr;}
+  .step-arrow{display:none;}
+  .section{padding:70px 20px;}
+  .section-title{font-size:30px;}
+  .price-card.popular{transform:none;}
+  .price-card.popular:hover{transform:translateY(-6px);}
+  .footer-cta h2{font-size:32px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ========== Header ========== -->
+<header>
+  <div class="nav">
+    <div class="logo">
+      <div class="logo-mark"></div>
+      BP Meal Coach
+    </div>
+    <div class="nav-links">
+      <a href="#features">特徴</a>
+      <a href="#steps">使い方</a>
+      <a href="#pricing">料金</a>
+      <a href="#faq">よくある質問</a>
+      <a href="#cta" class="nav-cta">無料で試す</a>
+    </div>
+  </div>
+</header>
+
+<!-- ========== Hero ========== -->
+<section class="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="dots dots-1"></div>
+  <div class="star star-1"></div>
+  <div class="star star-2"></div>
+
+  <div class="hero-inner">
+    <div class="hero-text">
+      <span class="hero-bubble">血圧と仲良くなろう 🌿</span>
+      <h1>
+        <span class="pop">撮るだけ</span>で<br>
+        毎日の<span class="underline">血圧ごはん</span>が<br>
+        ぐんとラクに。
+      </h1>
+      <p class="hero-sub">
+        管理栄養士監修のAIコーチが、写真1枚から塩分量と血圧への影響をやさしく解説。<br>
+        ガマンしない、続けられる、おいしい食事改善をはじめよう。
+      </p>
+      <div class="hero-cta-group">
+        <a href="#cta" class="btn btn-primary">
+          無料ではじめる
+          <span class="arrow">→</span>
+        </a>
+        <a href="#steps" class="btn btn-secondary">
+          つかってみる
+          <span class="arrow">▶</span>
+        </a>
+      </div>
+      <div class="hero-meta">
+        <div class="hero-meta-item"><span class="check">✓</span>クレカ不要</div>
+        <div class="hero-meta-item"><span class="check">✓</span>14日間お試し</div>
+        <div class="hero-meta-item"><span class="check">✓</span>いつでも解約OK</div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-sticker sticker-1">
+        <div class="sticker-icon">★</div>
+        4.8 レビュー
+      </div>
+      <div class="hero-sticker sticker-2">
+        <div class="sticker-icon">+</div>
+        塩分−30%達成
+      </div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-header">
+            <div class="phone-header-title">今朝の血圧</div>
+            <div class="phone-header-bp">128<small>/82 mmHg</small></div>
+          </div>
+          <div class="phone-meal-card">
+            <div class="phone-meal-img"></div>
+            <div class="phone-meal-title">きょうのお昼ごはん</div>
+            <span class="phone-meal-tag">塩分 2.1g</span>
+          </div>
+          <div class="phone-tip">
+            <strong>いいね！</strong> 野菜たっぷりで◎ あと一品、汁物を控えめにしよう
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Worries ========== -->
+<section class="section worries">
+  <div class="blob blob-3"></div>
+  <div class="zig zig-1"></div>
+  <div class="section-inner">
+    <span class="section-eyebrow">こんなお悩み、ありませんか？</span>
+    <h2 class="section-title">血圧が気になるけど、<br><span class="highlight">「何を食べたらいいの？」</span></h2>
+    <p class="section-lead">
+      気をつけたい気持ちはあるけれど、毎日の食事を細かく管理するのは大変。<br>
+      そんなあなたに、もっとやさしい方法があります。
+    </p>
+
+    <div class="worries-grid">
+      <div class="worry-card">
+        <span class="worry-tag">悩み 01</span>
+        <div class="worry-illust"><div class="illust-bp"></div></div>
+        <p class="worry-text">病院で血圧を指摘されたけど、何から始めればいいか分からない</p>
+      </div>
+      <div class="worry-card">
+        <span class="worry-tag">悩み 02</span>
+        <div class="worry-illust"><div class="illust-meal"></div></div>
+        <p class="worry-text">減塩レシピを調べても、毎日続けるのが難しい</p>
+      </div>
+      <div class="worry-card">
+        <span class="worry-tag">悩み 03</span>
+        <div class="worry-illust"><div class="illust-clock"></div></div>
+        <p class="worry-text">外食や中食が多くて、塩分管理が現実的じゃない</p>
+      </div>
+      <div class="worry-card">
+        <span class="worry-tag">悩み 04</span>
+        <div class="worry-illust"><div class="illust-question"></div></div>
+        <p class="worry-text">アプリは色々あるけど、結局どれも続かなかった</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Solution ========== -->
+<section class="section solution">
+  <div class="section-inner">
+    <span class="section-eyebrow">BP Meal Coachができること</span>
+    <h2 class="section-title">むずかしいことは、<br><span class="highlight">ぜんぶAIにおまかせ。</span></h2>
+    <p class="section-lead">
+      食事を撮るだけ。あとはAIが解析して、あなたに合ったやさしいアドバイスをお届けします。
+    </p>
+
+    <div class="solution-grid">
+      <div class="solution-card">
+        <div class="solution-num">1</div>
+        <div class="solution-icon"><div class="icon-camera"></div></div>
+        <span class="solution-tag">撮影 1秒</span>
+        <h3 class="solution-title">写真を撮るだけ</h3>
+        <p class="solution-desc">
+          食事の写真を1枚撮るだけ。記録の手間ゼロ。料理名や量も、AIが自動で認識します。
+        </p>
+      </div>
+      <div class="solution-card">
+        <div class="solution-num">2</div>
+        <div class="solution-icon"><div class="icon-brain"></div></div>
+        <span class="solution-tag">AI解析</span>
+        <h3 class="solution-title">塩分も栄養も自動計算</h3>
+        <p class="solution-desc">
+          管理栄養士監修のAIが、塩分・カロリー・血圧への影響をその場で計算してくれます。
+        </p>
+      </div>
+      <div class="solution-card">
+        <div class="solution-num">3</div>
+        <div class="solution-icon"><div class="icon-heart"></div></div>
+        <span class="solution-tag">やさしい提案</span>
+        <h3 class="solution-title">ガマンしないアドバイス</h3>
+        <p class="solution-desc">
+          「これダメ」じゃなくて「こうすると◎」。あなたの好みに合わせた前向きな提案を届けます。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Features (stacked) ========== -->
+<section id="features" class="section features">
+  <div class="section-inner">
+    <div class="features-stage">
+      <div class="features-stack">
+        <div class="feature-stack-card fsc-1">
+          <div class="fsc-icon"><div class="fsc-icon-shape"></div></div>
+          <h4 class="fsc-title">塩分グラフで一目瞭然</h4>
+          <p class="fsc-desc">1日の塩分摂取量がカラフルなグラフでわかる。目標まであと何g？</p>
+        </div>
+        <div class="feature-stack-card fsc-2">
+          <div class="fsc-icon"><div class="fsc-icon-shape"></div></div>
+          <h4 class="fsc-title">血圧記録もまとめて管理</h4>
+          <p class="fsc-desc">家庭血圧計と連携。食事と血圧の関係を見える化します。</p>
+        </div>
+        <div class="feature-stack-card fsc-3">
+          <div class="fsc-icon"><div class="fsc-icon-shape"></div></div>
+          <h4 class="fsc-title">パーソナルレシピ提案</h4>
+          <p class="fsc-desc">あなたの好みと冷蔵庫の中身に合わせて、減塩レシピをおすすめ。</p>
+        </div>
+        <div class="feature-stack-card fsc-4">
+          <div class="fsc-icon"><div class="fsc-icon-shape"></div></div>
+          <h4 class="fsc-title">家族と共有できる</h4>
+          <p class="fsc-desc">離れて暮らすご家族とも進捗を共有。みんなで見守れる安心感。</p>
+        </div>
+      </div>
+      <div class="features-text">
+        <span class="section-eyebrow">主要機能</span>
+        <h2>ぜんぶ揃ってる、<br><span class="accent-bg">頼れる相棒。</span></h2>
+        <p class="section-lead" style="margin-bottom:24px;">
+          「続けられる」を最優先に設計したシンプルな機能たち。<br>
+          必要なものだけ、ちゃんと揃っています。
+        </p>
+        <div class="features-list">
+          <div class="features-list-item">
+            <div class="dot">✓</div>
+            <div>朝・昼・夜の塩分配分を自動でバランシング</div>
+          </div>
+          <div class="features-list-item">
+            <div class="dot">✓</div>
+            <div>外食メニューも豊富にデータベース化</div>
+          </div>
+          <div class="features-list-item">
+            <div class="dot">✓</div>
+            <div>週1回、管理栄養士からのフィードバック</div>
+          </div>
+          <div class="features-list-item">
+            <div class="dot">✓</div>
+            <div>主治医に見せられる月次レポート出力</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Steps ========== -->
+<section id="steps" class="section steps">
+  <div class="section-inner">
+    <span class="section-eyebrow">使い方はかんたん</span>
+    <h2 class="section-title">撮るだけ、<br><span class="highlight">簡単3ステップ。</span></h2>
+    <p class="section-lead">
+      アプリを開いて、ごはんを撮って、アドバイスを読む。それだけ。
+    </p>
+
+    <div class="steps-comic">
+      <div class="step-panel">
+        <span class="step-panel-num">STEP 01</span>
+        <div class="step-illust step-illust-1">
+          <div class="illust-phone-cam"></div>
+          <div class="illust-flash"></div>
+        </div>
+        <h3 class="step-title">撮る 📸</h3>
+        <p class="step-desc">
+          ごはんの写真を撮るだけ。料理名を入力する必要はありません。
+        </p>
+      </div>
+
+      <div class="step-arrow step-arrow-1">→</div>
+
+      <div class="step-panel">
+        <span class="step-panel-num">STEP 02</span>
+        <div class="step-illust step-illust-2">
+          <div class="illust-analyze">
+            <div class="illust-analyze-bar"></div>
+            <div class="illust-analyze-bar"></div>
+            <div class="illust-analyze-bar"></div>
+            <div class="illust-analyze-bar"></div>
+            <div class="illust-analyze-bar"></div>
+          </div>
+        </div>
+        <h3 class="step-title">解析される 🧠</h3>
+        <p class="step-desc">
+          約3秒でAIが料理を認識し、塩分・栄養・血圧影響を計算します。
+        </p>
+      </div>
+
+      <div class="step-arrow step-arrow-2">→</div>
+
+      <div class="step-panel">
+        <span class="step-panel-num">STEP 03</span>
+        <div class="step-illust step-illust-3">
+          <div class="illust-chat">
+            <div class="illust-chat-bubble">いいね！</div>
+            <div class="illust-chat-bubble">あと汁物を控えめに◎</div>
+          </div>
+        </div>
+        <h3 class="step-title">アドバイスを読む 💬</h3>
+        <p class="step-desc">
+          AIコーチからのやさしい一言をチェック。明日の食事がもっと楽しくなる。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Pricing ========== -->
+<section id="pricing" class="section pricing">
+  <div class="section-inner">
+    <span class="section-eyebrow">料金プラン</span>
+    <h2 class="section-title">あなたにぴったりの、<br><span class="highlight">続けやすい料金。</span></h2>
+    <p class="section-lead">
+      まずは無料で試してから、自分に合ったプランを選べます。いつでも解約OKです。
+    </p>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <span class="price-tag">FREE</span>
+        <h3 class="price-name">Light</h3>
+        <div class="price-amount">¥0</div>
+        <p class="price-period">ずっと無料</p>
+        <ul class="price-features">
+          <li>1日3食まで撮影記録</li>
+          <li>基本の塩分計算</li>
+          <li>週次サマリー</li>
+          <li>血圧の手動記録</li>
+        </ul>
+        <button class="price-cta">無料ではじめる</button>
+      </div>
+
+      <div class="price-card popular">
+        <span class="price-ribbon">人気No.1</span>
+        <span class="price-tag">PRO</span>
+        <h3 class="price-name">Pro</h3>
+        <div class="price-amount">¥980<small>/月</small></div>
+        <p class="price-period">14日間無料トライアル</p>
+        <ul class="price-features">
+          <li>無制限の食事記録</li>
+          <li>パーソナルレシピ提案</li>
+          <li>血圧計との連携</li>
+          <li>管理栄養士の週次FB</li>
+          <li>家族共有(3名まで)</li>
+        </ul>
+        <button class="price-cta">14日無料で試す</button>
+      </div>
+
+      <div class="price-card">
+        <span class="price-tag">FAMILY</span>
+        <h3 class="price-name">Family</h3>
+        <div class="price-amount">¥1,980<small>/月</small></div>
+        <p class="price-period">家族みんなで使える</p>
+        <ul class="price-features">
+          <li>Pro機能すべて</li>
+          <li>最大6名で利用OK</li>
+          <li>主治医レポート出力</li>
+          <li>家族間メッセージ機能</li>
+          <li>優先サポート</li>
+        </ul>
+        <button class="price-cta">家族で使う</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Testimonials ========== -->
+<section class="section testimonials">
+  <div class="section-inner">
+    <span class="section-eyebrow">ユーザーの声</span>
+    <h2 class="section-title">続けられた人の、<br><span class="highlight">リアルな感想。</span></h2>
+    <p class="section-lead">
+      3ヶ月以上ご利用いただいている方々から、たくさんの嬉しい声をいただいています。
+    </p>
+
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">
+          記録が嫌いな私でも続けられました。AIのコメントが「ダメ出し」じゃなくて「いいね！」から始まるのが心地よくて、毎日アプリを開くのが楽しみに。
+        </p>
+        <div class="testi-bubble-tail"></div>
+        <div class="testi-author">
+          <div class="testi-avatar">M</div>
+          <div>
+            <div class="testi-name">三浦さん（52歳）</div>
+            <div class="testi-meta">利用4ヶ月・血圧 -8mmHg</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">
+          外食が多い営業職ですが、撮るだけで塩分が見える化されるのがありがたい。「次の食事で調整しよう」とポジティブに考えられるようになりました。
+        </p>
+        <div class="testi-bubble-tail"></div>
+        <div class="testi-author">
+          <div class="testi-avatar">K</div>
+          <div>
+            <div class="testi-name">河野さん（45歳）</div>
+            <div class="testi-meta">利用6ヶ月・塩分 -30%達成</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">
+          離れて暮らす母にプレゼント。家族共有機能で食事の様子が見えるので、「ちゃんと食べてるかな」という心配が減りました。母も楽しそう。
+        </p>
+        <div class="testi-bubble-tail"></div>
+        <div class="testi-author">
+          <div class="testi-avatar">S</div>
+          <div>
+            <div class="testi-name">佐藤さん（38歳）</div>
+            <div class="testi-meta">家族プラン・3ヶ月</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FAQ ========== -->
+<section id="faq" class="section faq">
+  <div class="section-inner">
+    <span class="section-eyebrow">よくある質問</span>
+    <h2 class="section-title">気になるところ、<br><span class="highlight">お答えします。</span></h2>
+
+    <div class="faq-list">
+      <div class="faq-item open">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <div class="faq-q-text">
+            <span class="faq-q-mark">Q</span>
+            写真の精度はどのくらいですか？
+          </div>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <p>
+            和食・洋食・中華など、約8万種類の料理を学習しています。一般的な家庭料理や外食メニューであれば95%以上の精度で認識できます。認識が難しい場合は手動修正もかんたんです。
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <div class="faq-q-text">
+            <span class="faq-q-mark">Q</span>
+            血圧計を持っていなくても使えますか？
+          </div>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <p>
+            もちろんです。血圧計をお持ちでない方は手動入力で記録できます。Proプラン以上では、おすすめの家庭血圧計のご提案も可能です。
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <div class="faq-q-text">
+            <span class="faq-q-mark">Q</span>
+            高齢の親に使ってもらえますか？
+          </div>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <p>
+            はい。文字サイズが大きく、操作もシンプルに設計しています。70代以上のユーザーも多数ご利用中です。家族共有機能で離れて暮らすご家族の見守りにもおすすめです。
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <div class="faq-q-text">
+            <span class="faq-q-mark">Q</span>
+            医療行為の代わりになりますか？
+          </div>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <p>
+            BP Meal Coachは食事のサポートツールであり、医療行為や診断の代替ではありません。治療中の方は必ず主治医にご相談の上ご利用ください。月次レポートを主治医にお見せいただくのがおすすめです。
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <div class="faq-q-text">
+            <span class="faq-q-mark">Q</span>
+            解約はかんたんですか？
+          </div>
+          <div class="faq-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <p>
+            アプリの設定画面からワンタップで解約できます。引き止めや面倒な手続きは一切ありません。記録データは解約後30日間は保管されますので、再開もスムーズです。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Footer CTA ========== -->
+<section id="cta" class="footer-cta">
+  <div class="blob blob-4"></div>
+  <div class="blob blob-5"></div>
+  <div class="footer-cta-inner">
+    <h2>
+      今日から、<br>
+      <span class="yellow">血圧ごはん</span>はじめよう。
+    </h2>
+    <p>
+      14日間の無料トライアル。クレジットカード登録は不要です。<br>
+      まずは気軽に試してみてください。
+    </p>
+    <a href="#" class="footer-cta-btn">
+      無料ではじめる
+      <span class="arrow">→</span>
+    </a>
+    <div class="footer-cta-meta">
+      <div class="footer-cta-meta-item"><span class="check">✓</span>クレカ登録なし</div>
+      <div class="footer-cta-meta-item"><span class="check">✓</span>14日間すべての機能</div>
+      <div class="footer-cta-meta-item"><span class="check">✓</span>いつでも解約</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-nav">
+    <a href="#">利用規約</a>
+    <a href="#">プライバシーポリシー</a>
+    <a href="#">特定商取引法</a>
+    <a href="#">お問い合わせ</a>
+    <a href="#">運営会社</a>
+  </div>
+  <p class="footer-copy">© 2026 BP Meal Coach. All rights reserved.</p>
+</footer>
+
+<script>
+function toggleFaq(el){
+  const item = el.parentElement;
+  document.querySelectorAll('.faq-item').forEach(i=>{
+    if(i!==item) i.classList.remove('open');
+  });
+  item.classList.toggle('open');
+}
+</script>
+</body>
+</html>
