@@ -3,28 +3,430 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>How I Build Apps That Don't Look Vibecoded</title>
+  <title>How I Build Apps That Don't Look Vibecoded — Bookmarks · Vibe Coder Bootcamp</title>
+  <meta name="description" content="デザイナーのfrederikが、AI（主にClaude Code）で高速にアプリを作りつつ、「Vibe Coded感」を消して本格的なプロダクトに仕上げるための7ステップワークフローを公開。 核心メッセージ: 「AIは速く作れる。それは簡単な部分。難しいのは&quot;誰かが気を配った&quot;よ" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho+B1:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css" />
   <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#fcfcfe;color:#222}
-    main{max-width:860px;margin:0 auto;padding:24px 16px 80px}
-    a{color:#0b57d0;text-decoration:none}
-    .nav{margin-bottom:20px;font-size:14px}
-    h1{font-size:32px;line-height:1.35;margin:0 0 12px}
-    .meta{color:#666;font-size:14px;margin-bottom:24px}
-    article{background:#fff;border:1px solid #e7e7ef;border-radius:16px;padding:24px;line-height:1.85;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-    article h2, article h3{margin-top:28px}
-    article pre{white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:12px;overflow:auto}
-    article code{background:#f3f4f6;padding:2px 4px;border-radius:6px}
-    article blockquote{border-left:4px solid #d6d9e6;margin:16px 0;padding:0 0 0 14px;color:#555}
-    article ul{padding-left:20px}
-  </style>
+  /* Archive page — day sections */
+  .bm-archive { padding: 0 0 40px; background: var(--paper); }
+  .bm-day {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .bm-day:first-of-type { padding-top: 40px; }
+  .bm-day-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .bm-day-head .date {
+    font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+    font-weight: 800;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0;
+  }
+  .bm-day-head .date .sep { color: var(--accent); margin: 0 2px; }
+  .bm-day-head .count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 8px 14px;
+    border: 1px solid var(--accent);
+    white-space: nowrap;
+  }
+  /* active nav underline */
+  .masthead nav a.is-active { border-bottom-color: var(--accent); color: var(--accent); }
+
+  /* Article page — prose */
+  .bm-article-head {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .bm-article-head .breadcrumb {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 18px;
+  }
+  .bm-article-head .breadcrumb a { color: var(--ink); border-bottom: 1px solid var(--hair); padding-bottom: 1px; }
+  .bm-article-head .breadcrumb a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .bm-article-head .cat-line {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .bm-article-head .cat-line .sep { color: var(--mute); }
+  .bm-article-head h1.title {
+    font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+    font-weight: 800;
+    font-size: clamp(32px, 4.4vw, 58px);
+    line-height: 1.12;
+    letter-spacing: -0.005em;
+    margin: 0 0 24px;
+    color: var(--ink);
+  }
+  .bm-article-head .strap {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .bm-article-head .strap span .label { color: var(--accent); margin-right: 6px; }
+  .bm-article-head .strap a { border-bottom: 1px solid var(--hair); padding-bottom: 2px; }
+  .bm-article-head .strap a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .bm-body { padding: 72px 0; border-bottom: 1px solid var(--hair); }
+  .bm-body .container {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr) 300px;
+    gap: 48px;
+  }
+  .bm-body .numeral {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 96px;
+    font-weight: 800;
+    line-height: 0.85;
+    color: var(--ink);
+    position: sticky;
+    top: 40px;
+    align-self: start;
+    letter-spacing: -0.03em;
+  }
+  .bm-body .numeral .ord {
+    display: block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  .bm-body .prose {
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    font-family: "Inter", "Noto Sans JP", sans-serif;
+  }
+  .bm-body .prose > *:first-child { margin-top: 0; }
+  .bm-body .prose h1 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 40px 0 18px;
+    color: var(--ink);
+  }
+  .bm-body .prose h2 {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 40px 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+  }
+  .bm-body .prose h2::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .bm-body .prose h3 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.35;
+    margin: 32px 0 14px;
+    color: var(--ink);
+  }
+  .bm-body .prose p { margin: 0 0 18px; }
+  .bm-body .prose ul, .bm-body .prose ol {
+    border-left: 2px solid var(--ink);
+    padding: 4px 0 4px 24px;
+    margin: 18px 0 24px;
+    list-style: none;
+  }
+  .bm-body .prose ul li, .bm-body .prose ol li {
+    position: relative;
+    padding: 4px 0 4px 18px;
+    font-size: 15px;
+  }
+  .bm-body .prose ul li::before {
+    content: "·";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .bm-body .prose blockquote {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 19px;
+    line-height: 1.6;
+    padding: 18px 0 18px 24px;
+    border-left: 4px solid var(--accent);
+    margin: 28px 0;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .bm-body .prose pre {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 20px 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .bm-body .prose code {
+    background: var(--paper-deep);
+    border: 1px solid var(--hair);
+    padding: 1px 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.9em;
+  }
+  .bm-body .prose pre code { background: transparent; border: 0; padding: 0; color: inherit; font-size: 13px; }
+  .bm-body .prose a { color: var(--accent); border-bottom: 1px solid rgba(200,52,31,0.25); }
+  .bm-body .prose a:hover { border-bottom-color: var(--accent); }
+
+  .bm-body .side {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--mute);
+    border-top: 1px solid var(--hair);
+    padding-top: 24px;
+    position: sticky;
+    top: 40px;
+    align-self: start;
+  }
+  .bm-body .side dl { margin: 0; }
+  .bm-body .side dt {
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-top: 18px;
+    margin-bottom: 6px;
+  }
+  .bm-body .side dt:first-child { margin-top: 0; }
+  .bm-body .side dd {
+    margin: 0 0 4px;
+    color: var(--ink);
+    word-break: break-all;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .bm-body .side dd a { border-bottom: 1px solid var(--hair); padding-bottom: 1px; }
+  .bm-body .side dd a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .bm-body .side .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 18px;
+    margin-top: 8px;
+  }
+  .bm-body .side .stats .stat .num {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 24px;
+    color: var(--ink);
+    line-height: 1;
+    font-weight: 800;
+    display: block;
+  }
+  .bm-body .side .stats .stat .lab {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--mute);
+    margin-top: 4px;
+    display: block;
+    text-transform: uppercase;
+  }
+
+  /* card: stretched-link target must be local nav, not external */
+  .xcard .xcard-main-link { cursor: pointer; }
+
+  @media (max-width: 980px) {
+    .bm-body .container { grid-template-columns: 1fr; gap: 24px; }
+    .bm-body .numeral { position: static; font-size: 64px; }
+    .bm-body .side { position: static; }
+    .bm-day-head .date { font-size: 36px; }
+  }
+</style>
 </head>
 <body>
-  <main>
-    <div class="nav"><a href="./index.html">← 一覧へ戻る</a> ・ <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/119_froessell_apps_dont_look_vibecoded.md">GitHubで開く</a> ・ <a href="https://x.com/froessell/status/2023339023381467556">元ポスト</a></div>
-    <h1>How I Build Apps That Don't Look Vibecoded</h1>
-    <div class="meta">2026-02-16 ・ ✌︎ frederik ✌︎ (@froessell) ・ 🎨 デザイン</div>
-    <article><h1>How I Build Apps That Don't Look Vibecoded</h1><p>**投稿者:** ✌︎ frederik ✌︎ (@froessell)</p><p>**投稿日時:** 2026-02-16 19:09 JST</p><p>**URL:** https://x.com/froessell/status/2023339023381467556</p><p>**エンゲージメント:** 40返信 / 157リポスト / 2,967いいね / 8,009ブックマーク / 249,809表示</p><p>**カテゴリ:** 🎨 デザイン</p><p>**有益度:** ⭐⭐⭐ HIGH</p><p>---</p><h2>概要</h2><blockquote>https://t.co/sDfRGS2KFe</blockquote><p>X Article形式の長文投稿。Vibe Codingで作ったアプリのデザインを改善するワークフローを解説。</p><p>---</p><h2>まとめ</h2><p>デザイナーのfrederikが、AI（主にClaude Code）で高速にアプリを作りつつ、「Vibe Coded感」を消して本格的なプロダクトに仕上げるための7ステップワークフローを公開。</p><p>**核心メッセージ:** 「AIは速く作れる。それは簡単な部分。難しいのは&quot;誰かが気を配った&quot;ように見せること。それにはtaste（審美眼）、反復、そしていつ実験をやめてshipするかを知ることが必要。」</p><p>**7ステップ:**</p><p>1. **Idea to PRD** — Claudeと対話してMVPスコープを絞り込む</p><p>2. **First Prototype** — Claude Code / Vibecodeapp / Rorkでプロトタイプ生成。機能とフローだけ確認</p><p>3. **Screen Inventory** — 全画面とユーザーフローのチェックリスト作成</p><p>4. **Design Exploration** — Variant AI、Aura.build、v0、Superdesignなどで複数スタイルを試す</p><p>5. **Into Figma** — html.to.designプラグインでFigmaにエクスポートし、スペーシング・一貫性を手動調整</p><p>6. **Back to Code** — デザインをアプリビルダーまたはCursorに戻す</p><p>7. **Before Downloading** — RevenueCat、オンボーディング、ペイウォール、バックエンドを統合</p><p>**活用ポイント:**</p><ul><li>Vibe Codingの「見た目がチープ」問題に対する実践的解決策</li><li>デザインツールの選択肢が豊富（Aura.build, Superdesign, Magicpatterns等）</li><li>「デザイン→Figma→コード」の循環がポイント。AIだけで完結させず、Figmaでの微調整が差を生む</li></ul><p>---</p><h2>X Article 本文</h2><p>You can spot a vibecoded app from a mile away.</p><p>I've made a few of those myself. Only launched a few because I keep getting sidetracked by tweaking the design and branding. It's probably the designer in me, but if I publish something I'd like it to look nice otherwise I won't use it myself.</p><p>Taste is subjective and AI tools can build anything in no time, but spend 10 minutes browsing popular apps in the app store and I bet you won't find an app that looks like a MySpace page from the early 00's. Who wants to use a calorie tracking app in a brutalist design style? It's a fun idea, but I doubt it's useable for more than 5 minutes.</p><p>AI can make beautiful designs, but it needs help and proper guidance. I do too. Give me a blank Figma file and tell me to make something awesome and I'd create generic designs too.</p><p>There are many factors to a successful app besides good design, but I'm a designer, so let's focus on that.</p><p>Every time I start a new app project I slowly fine tune my design process and have landed on a workflow that works for me.</p><p>Get your wallets out and pay attention because it involves a few (too many) subscriptions. Just a note: I'm switching between tools all the time, buying and cancelling subscriptions and taking advantage of free tiers whenever possible because I'm still tweaking and testing my process and I sadly don't have an unlimited budget (wife keeps saying no to more subscriptions).</p><p>But TL;DR: Just use Claude Code. It'll get you 90% of the way there.</p><p>**Step 1: Idea to PRD**</p><p>Get an idea, talk to an LLM to narrow the scope to a quick MVP. I use Claude for this. Describe what I want, let it poke holes, cut features until it's something I can actually ship.</p><p>The output is a simple PRD. Nothing fancy. Just enough to keep me focused.</p><p>**Step 2: First Prototype**</p><p>Feed the PRD to Claude Code, Vibecodeapp, or Rork. Depends on the project and my mood.</p><p>After generation, I check functionality and flows. Does it work? Does the navigation make sense? I'm not looking at design yet. Just: does this thing do what it's supposed to do?</p><p>**Step 3: Screen Inventory**</p><p>Once a rough MVP is working, I have the app generate a list of all screens and functionality. This becomes my checklist for the design phase.</p><p>**Step 4: Design Exploration**</p><p>This is where it gets fun. I feed that screen list to Variant AI, Aura.build, v0, Superdesign, and try random styles until something clicks.</p><p>Sometimes that thing that clicks is just a random pin or post on Dribbble that made me go &quot;could be fun to make my app in this style.&quot; and I ask one of these design tools to try out a style.</p><p>When I design for myself I default to simple and minimalistic with a focus on typography. I have a background in editorial design. But I sometimes try to venture into other styles. Mascot-heavy apps with a playful aesthetic. Something bold and experimental.</p><p>These experiments more often than not fail and I pivot back to my default style just to get the project moving again or create something I know works. That's fine. The point is to try.</p><p>**Step 5: Into Figma**</p><p>Export the design to Figma using the html.to.design chrome plugin or native import if available.</p><p>This is where I fiddle. Adjust spacing, fix inconsistencies, make it feel like mine. It's also a lot quicker and cheaper than keep telling AI to &quot;please try another font and make the spacing better&quot; over and over again.</p><p>**Step 6: Back to Code**</p><p>Feed the design back to the app builder, or download the code and open it in Cursor. Cursor is cheaper for experimentation when I'm not 100% sure what I'm looking for.</p><p>**Step 7: Before Downloading**</p><p>Before I pull the code out, I make sure to have the app builder integrate RevenueCat, onboarding flow, paywall, and backend. I don't want to mess with that myself later.</p><p>**The Point**</p><p>AI builds fast. That's the easy part.</p><p>The hard part is making it look like someone cared. That still takes taste, iteration, and knowing when to stop experimenting and just ship.</p><p>I'm still figuring it out. But at least my apps don't look vibecoded anymore.</p><p>---</p><h2>関連リンク</h2><ul><li>[Vibecodeapp](https://www.vibecodeapp.com/)</li><li>[Aura.build](https://aura.build)</li><li>[Rork](https://rork.com/)</li><li>[Superdesign.dev](https://superdesign.dev)</li><li>[Magicpatterns.com](https://magicpatterns.com)</li><li>[Magicpath.ai](https://magicpath.ai)</li><li>[html.to.design](https://html.to.design)</li><li>[Claude Code](https://claude.ai)</li><li>[Figma](https://www.figma.com)</li></ul></article>
-  </main>
+<div class="dispatch">
+  <div class="container row">
+    <span class="tick">BOOKMARK №114</span>
+    <span class="sep">/</span>
+    <span>2026-02-16</span>
+    <span class="sep">/</span>
+    <span>@froessell</span>
+    <span class="sep">/</span>
+    <span>291 ITEMS</span>
+    <span class="sep">/</span>
+    <span>JST 13:11 SAT</span>
+    <span class="sep">/</span>
+    <span class="live">LIVE</span>
+    <span class="sep">/</span>
+    <span>CURATED BY 泉水亮介</span>
+  </div>
+</div>
+<header class="masthead">
+  <div class="container row">
+    <a href="../" class="wordmark"><span class="bar"></span>Vibe Coder Bootcamp</a>
+    <nav>
+      <a href="../">HOME</a>
+      <a href="../news/2026-04-18/">NEWS</a>
+      <a href="./" class="is-active">BOOKMARKS</a>
+      <a href="../#archive">ARCHIVE</a>
+      <a href="../#about">ABOUT</a>
+    </nav>
+    <div class="meta">JST · 13:11 · SAT</div>
+  </div>
+</header>
+
+<section class="bm-article-head">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="./">← BOOKMARKS</a> <span>/</span> 2026-02-16 <span>/</span> №114
+    </div>
+    <div class="cat-line">
+      <span>🎨 デザイン</span>
+      <span class="sep">·</span><span>✌︎ frederik ✌︎ <span style="opacity:.7">@froessell</span></span>
+      <span class="sep">·</span><span>2026-02-16</span>
+    </div>
+    <h1 class="title">How I Build Apps That Don't Look Vibecoded</h1>
+    <div class="strap">
+      <span><span class="label">№</span>114 / 291</span>
+      <span><span class="label">SRC</span><a href="https://x.com/froessell/status/2023339023381467556" target="_blank" rel="noopener noreferrer">x.com/froessell ↗</a></span>
+      <span><span class="label">GH</span><a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/119_froessell_apps_dont_look_vibecoded.md" target="_blank" rel="noopener noreferrer">GitHub ↗</a></span>
+    </div>
+  </div>
+</section>
+
+<section class="bm-body">
+  <div class="container">
+    <aside class="numeral">114<span class="ord">BOOKMARK / 291</span></aside>
+    <article class="prose">
+<p><strong>有益度:</strong> ⭐⭐⭐ HIGH</p><h2>概要</h2><blockquote>https://t.co/sDfRGS2KFe</blockquote><p>X Article形式の長文投稿。Vibe Codingで作ったアプリのデザインを改善するワークフローを解説。</p><h2>まとめ</h2><p>デザイナーのfrederikが、AI（主にClaude Code）で高速にアプリを作りつつ、「Vibe Coded感」を消して本格的なプロダクトに仕上げるための7ステップワークフローを公開。</p><p><strong>核心メッセージ:</strong> 「AIは速く作れる。それは簡単な部分。難しいのは&quot;誰かが気を配った&quot;ように見せること。それにはtaste（審美眼）、反復、そしていつ実験をやめてshipするかを知ることが必要。」</p><p><strong>7ステップ:</strong></p><ol><li><strong>Idea to PRD</strong> — Claudeと対話してMVPスコープを絞り込む</li><li><strong>First Prototype</strong> — Claude Code / Vibecodeapp / Rorkでプロトタイプ生成。機能とフローだけ確認</li><li><strong>Screen Inventory</strong> — 全画面とユーザーフローのチェックリスト作成</li><li><strong>Design Exploration</strong> — Variant AI、Aura.build、v0、Superdesignなどで複数スタイルを試す</li><li><strong>Into Figma</strong> — html.to.designプラグインでFigmaにエクスポートし、スペーシング・一貫性を手動調整</li><li><strong>Back to Code</strong> — デザインをアプリビルダーまたはCursorに戻す</li><li><strong>Before Downloading</strong> — RevenueCat、オンボーディング、ペイウォール、バックエンドを統合</li></ol><p><strong>活用ポイント:</strong></p><ul><li>Vibe Codingの「見た目がチープ」問題に対する実践的解決策</li><li>デザインツールの選択肢が豊富（Aura.build, Superdesign, Magicpatterns等）</li><li>「デザイン→Figma→コード」の循環がポイント。AIだけで完結させず、Figmaでの微調整が差を生む</li></ul><h2>X Article 本文</h2><p>You can spot a vibecoded app from a mile away.</p><p>I've made a few of those myself. Only launched a few because I keep getting sidetracked by tweaking the design and branding. It's probably the designer in me, but if I publish something I'd like it to look nice otherwise I won't use it myself.</p><p>Taste is subjective and AI tools can build anything in no time, but spend 10 minutes browsing popular apps in the app store and I bet you won't find an app that looks like a MySpace page from the early 00's. Who wants to use a calorie tracking app in a brutalist design style? It's a fun idea, but I doubt it's useable for more than 5 minutes.</p><p>AI can make beautiful designs, but it needs help and proper guidance. I do too. Give me a blank Figma file and tell me to make something awesome and I'd create generic designs too.</p><p>There are many factors to a successful app besides good design, but I'm a designer, so let's focus on that.</p><p>Every time I start a new app project I slowly fine tune my design process and have landed on a workflow that works for me.</p><p>Get your wallets out and pay attention because it involves a few (too many) subscriptions. Just a note: I'm switching between tools all the time, buying and cancelling subscriptions and taking advantage of free tiers whenever possible because I'm still tweaking and testing my process and I sadly don't have an unlimited budget (wife keeps saying no to more subscriptions).</p><p>But TL;DR: Just use Claude Code. It'll get you 90% of the way there.</p><p><strong>Step 1: Idea to PRD</strong></p><p>Get an idea, talk to an LLM to narrow the scope to a quick MVP. I use Claude for this. Describe what I want, let it poke holes, cut features until it's something I can actually ship.</p><p>The output is a simple PRD. Nothing fancy. Just enough to keep me focused.</p><p><strong>Step 2: First Prototype</strong></p><p>Feed the PRD to Claude Code, Vibecodeapp, or Rork. Depends on the project and my mood.</p><p>After generation, I check functionality and flows. Does it work? Does the navigation make sense? I'm not looking at design yet. Just: does this thing do what it's supposed to do?</p><p><strong>Step 3: Screen Inventory</strong></p><p>Once a rough MVP is working, I have the app generate a list of all screens and functionality. This becomes my checklist for the design phase.</p><p><strong>Step 4: Design Exploration</strong></p><p>This is where it gets fun. I feed that screen list to Variant AI, Aura.build, v0, Superdesign, and try random styles until something clicks.</p><p>Sometimes that thing that clicks is just a random pin or post on Dribbble that made me go &quot;could be fun to make my app in this style.&quot; and I ask one of these design tools to try out a style.</p><p>When I design for myself I default to simple and minimalistic with a focus on typography. I have a background in editorial design. But I sometimes try to venture into other styles. Mascot-heavy apps with a playful aesthetic. Something bold and experimental.</p><p>These experiments more often than not fail and I pivot back to my default style just to get the project moving again or create something I know works. That's fine. The point is to try.</p><p><strong>Step 5: Into Figma</strong></p><p>Export the design to Figma using the html.to.design chrome plugin or native import if available.</p><p>This is where I fiddle. Adjust spacing, fix inconsistencies, make it feel like mine. It's also a lot quicker and cheaper than keep telling AI to &quot;please try another font and make the spacing better&quot; over and over again.</p><p><strong>Step 6: Back to Code</strong></p><p>Feed the design back to the app builder, or download the code and open it in Cursor. Cursor is cheaper for experimentation when I'm not 100% sure what I'm looking for.</p><p><strong>Step 7: Before Downloading</strong></p><p>Before I pull the code out, I make sure to have the app builder integrate RevenueCat, onboarding flow, paywall, and backend. I don't want to mess with that myself later.</p><p><strong>The Point</strong></p><p>AI builds fast. That's the easy part.</p><p>The hard part is making it look like someone cared. That still takes taste, iteration, and knowing when to stop experimenting and just ship.</p><p>I'm still figuring it out. But at least my apps don't look vibecoded anymore.</p><h2>関連リンク</h2><ul><li><a href="https://www.vibecodeapp.com/" target="_blank" rel="noopener noreferrer">Vibecodeapp</a></li><li><a href="https://aura.build" target="_blank" rel="noopener noreferrer">Aura.build</a></li><li><a href="https://rork.com/" target="_blank" rel="noopener noreferrer">Rork</a></li><li><a href="https://superdesign.dev" target="_blank" rel="noopener noreferrer">Superdesign.dev</a></li><li><a href="https://magicpatterns.com" target="_blank" rel="noopener noreferrer">Magicpatterns.com</a></li><li><a href="https://magicpath.ai" target="_blank" rel="noopener noreferrer">Magicpath.ai</a></li><li><a href="https://html.to.design" target="_blank" rel="noopener noreferrer">html.to.design</a></li><li><a href="https://claude.ai" target="_blank" rel="noopener noreferrer">Claude Code</a></li><li><a href="https://www.figma.com" target="_blank" rel="noopener noreferrer">Figma</a></li></ul>
+    </article>
+    <aside class="side">
+      <dl>
+        <dt>AUTHOR</dt><dd>✌︎ frederik ✌︎</dd>
+        <dt>HANDLE</dt><dd>@froessell</dd>
+        <dt>POSTED</dt><dd>2026-02-16</dd>
+        <dt>CATEGORY</dt><dd>🎨 デザイン</dd>
+        <dt>SOURCE</dt><dd><a href="https://x.com/froessell/status/2023339023381467556" target="_blank" rel="noopener noreferrer">x.com/froessell/status/2023339023381467556…</a></dd>
+        <dt>MARKDOWN</dt><dd><a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/119_froessell_apps_dont_look_vibecoded.md" target="_blank" rel="noopener noreferrer">GitHub で原文を見る</a></dd>
+        
+        <dt>ENGAGEMENT</dt>
+        <dd>
+          <div class="stats">
+            <div class="stat"><span class="num">2,967</span><span class="lab">LIKES</span></div><div class="stat"><span class="num">157</span><span class="lab">RTS</span></div><div class="stat"><span class="num">8,009</span><span class="lab">BMARKS</span></div><div class="stat"><span class="num">250K</span><span class="lab">VIEWS</span></div>
+          </div>
+        </dd>
+      </dl>
+    </aside>
+  </div>
+</section>
+
+<section class="page-nav">
+  <div class="container">
+    <a class="btn prev" href="./107_MatthewBerman_25%E5%84%84%E3%83%88%E3%83%BC%E3%82%AF%E3%83%B3%E3%81%A7%E3%82%8F%E3%81%8B%E3%81%A3%E3%81%9FOpenClaw.md.html">
+      <span>← 新しいブックマーク</span>
+      <span class="big">25億トークンでわかった OpenClaw の21の使い方</span>
+    </a>
+    <a class="btn next" href="./102_robjama_anthropic_style_guide_pdf.md.html">
+      <span>古いブックマーク →</span>
+      <span class="big">Anthropic Internal Style Guide (PDF)</span>
+    </a>
+  </div>
+</section>
+
+<section class="actions">
+  <div class="container">
+    <a href="./">← 一覧へ戻る</a>
+    <a class="primary" href="https://x.com/froessell/status/2023339023381467556" target="_blank" rel="noopener noreferrer">元ポストを X で見る</a>
+    <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/119_froessell_apps_dont_look_vibecoded.md" target="_blank" rel="noopener noreferrer">GitHub で開く</a>
+  </div>
+</section>
+
+<footer class="foot" id="about">
+  <div class="container">
+    <div class="grid">
+      <div>
+        <div class="wordmark">Vibe Coder Bootcamp</div>
+        <p>
+          AI の新しい動きを毎朝整理して、Vibe Coder が今日使える形で届けるフィード。
+          運営は泉水亮介。Slackコミュニティと連動した公開ログです。
+        </p>
+        <p style="margin-top:20px;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;color:#9a9285;">
+          BOOKMARKS ARCHIVE · 291 ITEMS · EN+JP
+        </p>
+      </div>
+      <div>
+        <h5>SECTIONS</h5>
+        <ul>
+          <li><a href="../">HOME</a></li>
+          <li><a href="../news/2026-04-18/">TODAY</a></li>
+          <li><a href="./">BOOKMARKS</a></li>
+          <li><a href="../#archive">ARCHIVE</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>SUBSCRIBE</h5>
+        <ul>
+          <li><a href="#">Slack に参加</a></li>
+          <li><a href="#">RSS</a></li>
+          <li><a href="#">X で購読</a></li>
+          <li><a href="#">メール通知</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>PROJECT</h5>
+        <ul>
+          <li><a href="https://github.com/rsensui2/vibe-coder-demo">GitHub</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Colophon</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>© 2026 Vibe Coder Bootcamp</span>
+      <span>SET IN SHIPPORI MINCHO / INTER / JETBRAINS MONO</span>
+      <span>BUILD 2026-04-18</span>
+    </div>
+  </div>
+</footer>
 </body>
 </html>

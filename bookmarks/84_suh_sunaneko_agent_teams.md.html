@@ -3,50 +3,446 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ClaudeCodeのAgent Teamsを体験できる手順書</title>
+  <title>ClaudeCodeのAgent Teamsを体験できる手順書 — Bookmarks · Vibe Coder Bootcamp</title>
+  <meta name="description" content="### 🎯 Agent Teamsとは 定義: Claude Code 内で複数の Claude セッションを チームとして並列に協調させる仕組み イメージ: 複数の AI インスタンスを分業・並行処理させることで、大規模なタスクや複雑なワークフローを効率的に進める 著者の理解" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho+B1:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css" />
   <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#fcfcfe;color:#222}
-    main{max-width:860px;margin:0 auto;padding:24px 16px 80px}
-    a{color:#0b57d0;text-decoration:none}
-    .nav{margin-bottom:20px;font-size:14px}
-    h1{font-size:32px;line-height:1.35;margin:0 0 12px}
-    .meta{color:#666;font-size:14px;margin-bottom:24px}
-    article{background:#fff;border:1px solid #e7e7ef;border-radius:16px;padding:24px;line-height:1.85;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-    article h2, article h3{margin-top:28px}
-    article pre{white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:12px;overflow:auto}
-    article code{background:#f3f4f6;padding:2px 4px;border-radius:6px}
-    article blockquote{border-left:4px solid #d6d9e6;margin:16px 0;padding:0 0 0 14px;color:#555}
-    article ul{padding-left:20px}
-  </style>
+  /* Archive page — day sections */
+  .bm-archive { padding: 0 0 40px; background: var(--paper); }
+  .bm-day {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .bm-day:first-of-type { padding-top: 40px; }
+  .bm-day-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .bm-day-head .date {
+    font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+    font-weight: 800;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0;
+  }
+  .bm-day-head .date .sep { color: var(--accent); margin: 0 2px; }
+  .bm-day-head .count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 8px 14px;
+    border: 1px solid var(--accent);
+    white-space: nowrap;
+  }
+  /* active nav underline */
+  .masthead nav a.is-active { border-bottom-color: var(--accent); color: var(--accent); }
+
+  /* Article page — prose */
+  .bm-article-head {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .bm-article-head .breadcrumb {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 18px;
+  }
+  .bm-article-head .breadcrumb a { color: var(--ink); border-bottom: 1px solid var(--hair); padding-bottom: 1px; }
+  .bm-article-head .breadcrumb a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .bm-article-head .cat-line {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .bm-article-head .cat-line .sep { color: var(--mute); }
+  .bm-article-head h1.title {
+    font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+    font-weight: 800;
+    font-size: clamp(32px, 4.4vw, 58px);
+    line-height: 1.12;
+    letter-spacing: -0.005em;
+    margin: 0 0 24px;
+    color: var(--ink);
+  }
+  .bm-article-head .strap {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .bm-article-head .strap span .label { color: var(--accent); margin-right: 6px; }
+  .bm-article-head .strap a { border-bottom: 1px solid var(--hair); padding-bottom: 2px; }
+  .bm-article-head .strap a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .bm-body { padding: 72px 0; border-bottom: 1px solid var(--hair); }
+  .bm-body .container {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr) 300px;
+    gap: 48px;
+  }
+  .bm-body .numeral {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 96px;
+    font-weight: 800;
+    line-height: 0.85;
+    color: var(--ink);
+    position: sticky;
+    top: 40px;
+    align-self: start;
+    letter-spacing: -0.03em;
+  }
+  .bm-body .numeral .ord {
+    display: block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  .bm-body .prose {
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    font-family: "Inter", "Noto Sans JP", sans-serif;
+  }
+  .bm-body .prose > *:first-child { margin-top: 0; }
+  .bm-body .prose h1 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 40px 0 18px;
+    color: var(--ink);
+  }
+  .bm-body .prose h2 {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 40px 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+  }
+  .bm-body .prose h2::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .bm-body .prose h3 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.35;
+    margin: 32px 0 14px;
+    color: var(--ink);
+  }
+  .bm-body .prose p { margin: 0 0 18px; }
+  .bm-body .prose ul, .bm-body .prose ol {
+    border-left: 2px solid var(--ink);
+    padding: 4px 0 4px 24px;
+    margin: 18px 0 24px;
+    list-style: none;
+  }
+  .bm-body .prose ul li, .bm-body .prose ol li {
+    position: relative;
+    padding: 4px 0 4px 18px;
+    font-size: 15px;
+  }
+  .bm-body .prose ul li::before {
+    content: "·";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .bm-body .prose blockquote {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 19px;
+    line-height: 1.6;
+    padding: 18px 0 18px 24px;
+    border-left: 4px solid var(--accent);
+    margin: 28px 0;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .bm-body .prose pre {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 20px 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .bm-body .prose code {
+    background: var(--paper-deep);
+    border: 1px solid var(--hair);
+    padding: 1px 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.9em;
+  }
+  .bm-body .prose pre code { background: transparent; border: 0; padding: 0; color: inherit; font-size: 13px; }
+  .bm-body .prose a { color: var(--accent); border-bottom: 1px solid rgba(200,52,31,0.25); }
+  .bm-body .prose a:hover { border-bottom-color: var(--accent); }
+
+  .bm-body .side {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--mute);
+    border-top: 1px solid var(--hair);
+    padding-top: 24px;
+    position: sticky;
+    top: 40px;
+    align-self: start;
+  }
+  .bm-body .side dl { margin: 0; }
+  .bm-body .side dt {
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-top: 18px;
+    margin-bottom: 6px;
+  }
+  .bm-body .side dt:first-child { margin-top: 0; }
+  .bm-body .side dd {
+    margin: 0 0 4px;
+    color: var(--ink);
+    word-break: break-all;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .bm-body .side dd a { border-bottom: 1px solid var(--hair); padding-bottom: 1px; }
+  .bm-body .side dd a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .bm-body .side .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 18px;
+    margin-top: 8px;
+  }
+  .bm-body .side .stats .stat .num {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 24px;
+    color: var(--ink);
+    line-height: 1;
+    font-weight: 800;
+    display: block;
+  }
+  .bm-body .side .stats .stat .lab {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--mute);
+    margin-top: 4px;
+    display: block;
+    text-transform: uppercase;
+  }
+
+  /* card: stretched-link target must be local nav, not external */
+  .xcard .xcard-main-link { cursor: pointer; }
+
+  @media (max-width: 980px) {
+    .bm-body .container { grid-template-columns: 1fr; gap: 24px; }
+    .bm-body .numeral { position: static; font-size: 64px; }
+    .bm-body .side { position: static; }
+    .bm-day-head .date { font-size: 36px; }
+  }
+</style>
 </head>
 <body>
-  <main>
-    <div class="nav"><a href="./index.html">← 一覧へ戻る</a> ・ <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/84_suh_sunaneko_agent_teams.md">GitHubで開く</a> ・ <a href="https://x.com/suh_sunaneko/status/2020129695350878650">元ポスト</a></div>
-    <h1>ClaudeCodeのAgent Teamsを体験できる手順書</h1>
-    <div class="meta">2026-02-07 ・ すぅ| PM &amp; PdM🐈 (@suh_sunaneko) ・ 💻 技術Tips / 📖 学習リソース</div>
-    <article><h1>ClaudeCodeのAgent Teamsを体験できる手順書</h1><p>**投稿者:** すぅ| PM &amp; PdM🐈 (@suh_sunaneko)</p><p>**投稿日時:** 2026-02-07</p><p>**URL:** https://x.com/suh_sunaneko/status/2020129695350878650</p><p>**エンゲージメント:** Article形式の長文投稿</p><p>**カテゴリ:** 💻 技術Tips / 📖 学習リソース</p><p>**有益度:** ⭐⭐⭐ HIGH</p><p>---</p><h2>概要</h2><p>Claude Codeの新機能「Agent Teams」を非エンジニアでも体験できる手順書。「理屈はわかっていても実際どう使うのか全然わからなかった」という課題を解決するために、AIにデモを作ってもらった実例。「自分でSubAgent作らなくてもClaudeCodeが勝手にSubAgentっぽいものを作ってくれて実行してくれる」機能の実体験ガイド。</p><p>---</p><h2>まとめ</h2><h3>🎯 Agent Teamsとは</h3><p>**定義**: Claude Code 内で複数の Claude セッションを チームとして並列に協調させる仕組み</p><p>**イメージ**: 複数の AI インスタンスを分業・並行処理させることで、大規模なタスクや複雑なワークフローを効率的に進める</p><p>**著者の理解**:「自分でSubAgent作らなくてもClaudeCodeが勝手にSubAgentっぽいものを作ってくれて実行してくれる」</p><p>※厳密には違うかもしれないが、体験して理解する方が先</p><h3>📝 デモ手順（そのまま実行可能）</h3><p>#### 1. 目的</p><p>Agent Team を3人起動し、`docs/product-plan.md` に新規プロダクト企画書をまとめる。</p><p>**見れる光景**: 勝手にチーム作って並列作業している様子</p><p>#### 2. 事前準備（1回だけ）</p><p>**2-1. tmux インストール**</p><pre><code>brew install tmux
-tmux -V</code></pre><p>**2-2. グローバル設定（手動編集）**</p><p>対象: `~/.claude/settings.json`（グローバル設定）</p><p>既存内容は消さずに、次の2項目を反映:</p><ul><li>`env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = &quot;1&quot;`</li><li>`teammateMode = &quot;tmux&quot;`</li></ul><p>例:</p><pre><code>{
+<div class="dispatch">
+  <div class="container row">
+    <span class="tick">BOOKMARK №138</span>
+    <span class="sep">/</span>
+    <span>2026-02-07</span>
+    <span class="sep">/</span>
+    <span>@suh_sunaneko</span>
+    <span class="sep">/</span>
+    <span>291 ITEMS</span>
+    <span class="sep">/</span>
+    <span>JST 13:11 SAT</span>
+    <span class="sep">/</span>
+    <span class="live">LIVE</span>
+    <span class="sep">/</span>
+    <span>CURATED BY 泉水亮介</span>
+  </div>
+</div>
+<header class="masthead">
+  <div class="container row">
+    <a href="../" class="wordmark"><span class="bar"></span>Vibe Coder Bootcamp</a>
+    <nav>
+      <a href="../">HOME</a>
+      <a href="../news/2026-04-18/">NEWS</a>
+      <a href="./" class="is-active">BOOKMARKS</a>
+      <a href="../#archive">ARCHIVE</a>
+      <a href="../#about">ABOUT</a>
+    </nav>
+    <div class="meta">JST · 13:11 · SAT</div>
+  </div>
+</header>
+
+<section class="bm-article-head">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="./">← BOOKMARKS</a> <span>/</span> 2026-02-07 <span>/</span> №138
+    </div>
+    <div class="cat-line">
+      <span>💻 技術Tips / 📖 学習リソース</span>
+      <span class="sep">·</span><span>すぅ| PM &amp; PdM🐈 <span style="opacity:.7">@suh_sunaneko</span></span>
+      <span class="sep">·</span><span>2026-02-07</span>
+    </div>
+    <h1 class="title">ClaudeCodeのAgent Teamsを体験できる手順書</h1>
+    <div class="strap">
+      <span><span class="label">№</span>138 / 291</span>
+      <span><span class="label">SRC</span><a href="https://x.com/suh_sunaneko/status/2020129695350878650" target="_blank" rel="noopener noreferrer">x.com/suh_sunaneko ↗</a></span>
+      <span><span class="label">GH</span><a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/84_suh_sunaneko_agent_teams.md" target="_blank" rel="noopener noreferrer">GitHub ↗</a></span>
+    </div>
+  </div>
+</section>
+
+<section class="bm-body">
+  <div class="container">
+    <aside class="numeral">138<span class="ord">BOOKMARK / 291</span></aside>
+    <article class="prose">
+<p><strong>有益度:</strong> ⭐⭐⭐ HIGH</p><h2>概要</h2><p>Claude Codeの新機能「Agent Teams」を非エンジニアでも体験できる手順書。「理屈はわかっていても実際どう使うのか全然わからなかった」という課題を解決するために、AIにデモを作ってもらった実例。「自分でSubAgent作らなくてもClaudeCodeが勝手にSubAgentっぽいものを作ってくれて実行してくれる」機能の実体験ガイド。</p><h2>まとめ</h2><h3>🎯 Agent Teamsとは</h3><p><strong>定義</strong>: Claude Code 内で複数の Claude セッションを チームとして並列に協調させる仕組み</p><p><strong>イメージ</strong>: 複数の AI インスタンスを分業・並行処理させることで、大規模なタスクや複雑なワークフローを効率的に進める</p><p><strong>著者の理解</strong>:「自分でSubAgent作らなくてもClaudeCodeが勝手にSubAgentっぽいものを作ってくれて実行してくれる」</p><p>※厳密には違うかもしれないが、体験して理解する方が先</p><h3>📝 デモ手順（そのまま実行可能）</h3><p>#### 1. 目的</p><p>Agent Team を3人起動し、<code>docs/product-plan.md</code> に新規プロダクト企画書をまとめる。</p><p><strong>見れる光景</strong>: 勝手にチーム作って並列作業している様子</p><p>#### 2. 事前準備（1回だけ）</p><p><strong>2-1. tmux インストール</strong></p><pre><code>brew install tmux
+tmux -V</code></pre><p><strong>2-2. グローバル設定（手動編集）</strong></p><p>対象: <code>~/.claude/settings.json</code>（グローバル設定）</p><p>既存内容は消さずに、次の2項目を反映:</p><ul><li><code>env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = &quot;1&quot;</code></li><li><code>teammateMode = &quot;tmux&quot;</code></li></ul><p>例:</p><pre><code>{
   &quot;env&quot;: {
     &quot;CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS&quot;: &quot;1&quot;
   },
   &quot;teammateMode&quot;: &quot;tmux&quot;
-}</code></pre><p>#### 3. プロジェクト準備（毎回）</p><p>手動で以下を作成:</p><ul><li>フォルダ: `agent-team-demo`</li></ul><p>#### 4. 起動</p><pre><code>cd &lt;対象リポジトリ&gt;
+}</code></pre><p>#### 3. プロジェクト準備（毎回）</p><p>手動で以下を作成:</p><ul><li>フォルダ: <code>agent-team-demo</code></li></ul><p>#### 4. 起動</p><pre><code>cd &lt;対象リポジトリ&gt;
 tmux new -s agent-demo
-claude</code></pre><p>**補足:**</p><ul><li>Cursor統合ターミナルでは分割ペインに見えないことがある（正常）</li><li>1画面のままでも Agent Team は動く</li></ul><p>#### 5. 実行プロンプト（このまま貼る）</p><p>**途中から分割してくる:**</p><pre><code>このリポジトリでエージェントチームを3人作成して開始してください。
+claude</code></pre><p><strong>補足:</strong></p><ul><li>Cursor統合ターミナルでは分割ペインに見えないことがある（正常）</li><li>1画面のままでも Agent Team は動く</li></ul><p>#### 5. 実行プロンプト（このまま貼る）</p><p><strong>途中から分割してくる:</strong></p><pre><code>このリポジトリでエージェントチームを3人作成して開始してください。
 新規プロダクト企画書を docs/product-plan.md に作成してください。
 不足条件は仮定で進め、仮定は先頭に明記してください。
-5分ごとに進捗共有し、30分で1案に統合してください。</code></pre><p>**観察できること**:</p><ul><li>最初は直列（1人）で思考</li><li>途中から並列（複数人）で作業し始める</li></ul><p>#### 6. 成功判定（確認ポイント）</p><p>✅ `docs/product-plan.md` が作成・更新されている</p><p>✅ 先頭に「仮定」が明記されている</p><p>✅ 進捗共有が複数回出ている（5分ごと）</p><p>✅ 最後に1案へ統合されている</p><p>---</p><h2>X Article 本文（原文そのまま）</h2><p>話題のClaudeCodeで新機能「Agent Teams」が登場しました。</p><p>非エンジニアの私は理屈はわかっていても実際どう使うのか全然わからなかったので、AIにデモを作ってもらったのでそのままシェアします。同じ気持ちの方がいれば参考にしてください。</p><p>note版はこちら: https://note.com/suh_sunaneko/n/nfe794eac6a23</p><h3>Agent Teamsとは</h3><p>Claude Code 内で複数の Claude セッションを チームとして並列に協調させる仕組み です。複数の AI インスタンスを分業・並行処理させることで、大規模なタスクや複雑なワークフローを効率的に進められます。</p><p>「自分でSubAgent作らなくてもClaudeCodeが勝手にSubAgentっぽいものを作ってくれて実行してくれる」みたいな理解で一旦いい気がしています。</p><p>※厳密には違うと思いますが。。。悪しからず</p><h3>考えるより体験するべし</h3><p>Agent Teamsを一回体験してみるためのデモ手順になります。この手順通りすれば、勝手にチームを作って並列作業をする様子をみることができました。一回やってみよう。</p><p>以下AIによって作ってもらったデモ手順書をそのまま貼り付けています</p><p>**1. 目的**</p><p>Agent Team を3人起動し、docs/product-plan.md に新規プロダクト企画書をまとめる。</p><p>勝手にチーム作って並列作業している光景を見ることができます。</p><p>**2. 事前準備（1回だけ）**</p><p>2-1. tmux インストール</p><pre><code>brew install tmux
-tmux -V</code></pre><p>2-2. グローバル設定（手動編集）</p><p>対象: `~/.claude/settings.json`　※グローバル設定</p><p>既存内容は消さずに、次の2項目を反映。</p><p>`env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = &quot;1&quot;`</p><p>`teammateMode = &quot;tmux&quot;`</p><p>例:</p><pre><code>{
+5分ごとに進捗共有し、30分で1案に統合してください。</code></pre><p><strong>観察できること</strong>:</p><ul><li>最初は直列（1人）で思考</li><li>途中から並列（複数人）で作業し始める</li></ul><p>#### 6. 成功判定（確認ポイント）</p><p>✅ <code>docs/product-plan.md</code> が作成・更新されている</p><p>✅ 先頭に「仮定」が明記されている</p><p>✅ 進捗共有が複数回出ている（5分ごと）</p><p>✅ 最後に1案へ統合されている</p><h2>X Article 本文（原文そのまま）</h2><p>話題のClaudeCodeで新機能「Agent Teams」が登場しました。</p><p>非エンジニアの私は理屈はわかっていても実際どう使うのか全然わからなかったので、AIにデモを作ってもらったのでそのままシェアします。同じ気持ちの方がいれば参考にしてください。</p><p>note版はこちら: https://note.com/suh_sunaneko/n/nfe794eac6a23</p><h3>Agent Teamsとは</h3><p>Claude Code 内で複数の Claude セッションを チームとして並列に協調させる仕組み です。複数の AI インスタンスを分業・並行処理させることで、大規模なタスクや複雑なワークフローを効率的に進められます。</p><p>「自分でSubAgent作らなくてもClaudeCodeが勝手にSubAgentっぽいものを作ってくれて実行してくれる」みたいな理解で一旦いい気がしています。</p><p>※厳密には違うと思いますが。。。悪しからず</p><h3>考えるより体験するべし</h3><p>Agent Teamsを一回体験してみるためのデモ手順になります。この手順通りすれば、勝手にチームを作って並列作業をする様子をみることができました。一回やってみよう。</p><p>以下AIによって作ってもらったデモ手順書をそのまま貼り付けています</p><p><strong>1. 目的</strong></p><p>Agent Team を3人起動し、docs/product-plan.md に新規プロダクト企画書をまとめる。</p><p>勝手にチーム作って並列作業している光景を見ることができます。</p><p><strong>2. 事前準備（1回だけ）</strong></p><p>2-1. tmux インストール</p><pre><code>brew install tmux
+tmux -V</code></pre><p>2-2. グローバル設定（手動編集）</p><p>対象: <code>~/.claude/settings.json</code>　※グローバル設定</p><p>既存内容は消さずに、次の2項目を反映。</p><p><code>env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = &quot;1&quot;</code></p><p><code>teammateMode = &quot;tmux&quot;</code></p><p>例:</p><pre><code>{
   &quot;env&quot;: {
     &quot;CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS&quot;: &quot;1&quot;
   },
   &quot;teammateMode&quot;: &quot;tmux&quot;
-}</code></pre><p>**3. プロジェクト準備（毎回）**</p><p>手動で以下を作成。</p><p>フォルダ: `agent-team-demo`</p><p>**4. 起動**</p><pre><code>cd &lt;対象リポジトリ&gt;
+}</code></pre><p><strong>3. プロジェクト準備（毎回）</strong></p><p>手動で以下を作成。</p><p>フォルダ: <code>agent-team-demo</code></p><p><strong>4. 起動</strong></p><pre><code>cd &lt;対象リポジトリ&gt;
 tmux new -s agent-demo
-claude</code></pre><p>補足:</p><ul><li>Cursor統合ターミナルでは分割ペインに見えないことがある（正常）</li><li>1画面のままでも Agent Team は動く</li></ul><p>**5. 実行プロンプト（このまま貼る）**</p><p>途中から分割してくるよ。</p><pre><code>このリポジトリでエージェントチームを3人作成して開始してください。
+claude</code></pre><p>補足:</p><ul><li>Cursor統合ターミナルでは分割ペインに見えないことがある（正常）</li><li>1画面のままでも Agent Team は動く</li></ul><p><strong>5. 実行プロンプト（このまま貼る）</strong></p><p>途中から分割してくるよ。</p><pre><code>このリポジトリでエージェントチームを3人作成して開始してください。
 新規プロダクト企画書を docs/product-plan.md に作成してください。
 不足条件は仮定で進め、仮定は先頭に明記してください。
-5分ごとに進捗共有し、30分で1案に統合してください。</code></pre><p>最初は直列（1人）で思考しているが、途中から並列（複数人）で作業し始める光景を見ることができました！</p><p>**6. 成功判定（確認ポイント）**</p><ul><li>`docs/product-plan.md` が作成・更新されている</li><li>先頭に「仮定」が明記されている</li><li>進捗共有が複数回出ている（5分ごと）</li><li>最後に1案へ統合されている</li></ul><p>なんとなく動きがわかったので、ここから先は思っているように動いてもらうようにどうするかそれぞれの研究あるのみです！</p><p>---</p><h2>活用ポイント</h2><h3>🎯 非エンジニア向けの優れた設計</h3><p>**特徴:**</p><ul><li>**理屈より体験優先**: 「厳密には違うかも」と認めつつ、まず動かすことを優先</li><li>**コピペ可能**: プロンプトそのまま貼れば動く</li><li>**成功判定明確**: 何が起きれば成功かを具体的に示す</li></ul><p>**学び:**</p><ul><li>非エンジニアへの技術説明は「完璧な理解」より「最初の一歩」が重要</li><li>AIを使ってデモ手順を作る→シェアする、のループが効率的</li></ul><h3>🚀 Vibe Coder Bootcamp運営者として</h3><p>**カリキュラム設計への示唆:**</p><ul><li>**ハンズオン優先**: 概念説明より「まず動かす」</li><li>**AIにデモ作らせる**: 手順書作成もAIに任せられる（著者が実証）</li><li>**段階的な深掘り**: 「なんとなく動きがわかった」→「ここから先は各自研究」の流れ</li></ul><p>**Workshop設計:**</p><p>1. 全員で同じプロンプト実行（5分）</p><p>2. Agent Teamsが動く様子を観察（10分）</p><p>3. 自分のタスクで試す（20分）</p><p>4. 振り返り・共有（15分）</p><h3>💡 Agent Teamsの実用シーン</h3><p>**適した作業:**</p><ul><li>大規模ドキュメント作成（企画書、設計書）</li><li>複数視点が必要なもの（マーケティング戦略、プロダクトロードマップ）</li><li>並列可能なリサーチ（競合分析、市場調査）</li></ul><p>**不向きな作業:**</p><ul><li>単純・短時間のタスク（オーバーヘッドが大きい）</li><li>高度に統一された文体が必要なもの（複数人で書くと統一感が薄れる）</li></ul><h3>🔧 技術的補足</h3><p>**tmuxの役割:**</p><ul><li>複数Claudeセッションを並列管理</li><li>ターミナル分割で視覚的に作業分担を確認可能</li><li>セッション再接続可能（途中で切断しても復帰できる）</li></ul><p>**EXPERIMENTAL flag:**</p><ul><li>実験的機能なので、今後仕様変更の可能性</li><li>グローバル設定に書くことで、全プロジェクトで有効化</li></ul><p>---</p><h2>関連リンク</h2><ul><li>[note版（詳細）](https://note.com/suh_sunaneko/n/nfe794eac6a23)</li><li>[Agent Teams公式ドキュメント](https://code.claude.com/docs/en/agent-teams)</li></ul></article>
-  </main>
+5分ごとに進捗共有し、30分で1案に統合してください。</code></pre><p>最初は直列（1人）で思考しているが、途中から並列（複数人）で作業し始める光景を見ることができました！</p><p><strong>6. 成功判定（確認ポイント）</strong></p><ul><li><code>docs/product-plan.md</code> が作成・更新されている</li><li>先頭に「仮定」が明記されている</li><li>進捗共有が複数回出ている（5分ごと）</li><li>最後に1案へ統合されている</li></ul><p>なんとなく動きがわかったので、ここから先は思っているように動いてもらうようにどうするかそれぞれの研究あるのみです！</p><h2>活用ポイント</h2><h3>🎯 非エンジニア向けの優れた設計</h3><p><strong>特徴:</strong></p><ul><li><strong>理屈より体験優先</strong>: 「厳密には違うかも」と認めつつ、まず動かすことを優先</li><li><strong>コピペ可能</strong>: プロンプトそのまま貼れば動く</li><li><strong>成功判定明確</strong>: 何が起きれば成功かを具体的に示す</li></ul><p><strong>学び:</strong></p><ul><li>非エンジニアへの技術説明は「完璧な理解」より「最初の一歩」が重要</li><li>AIを使ってデモ手順を作る→シェアする、のループが効率的</li></ul><h3>🚀 Vibe Coder Bootcamp運営者として</h3><p><strong>カリキュラム設計への示唆:</strong></p><ul><li><strong>ハンズオン優先</strong>: 概念説明より「まず動かす」</li><li><strong>AIにデモ作らせる</strong>: 手順書作成もAIに任せられる（著者が実証）</li><li><strong>段階的な深掘り</strong>: 「なんとなく動きがわかった」→「ここから先は各自研究」の流れ</li></ul><p><strong>Workshop設計:</strong></p><ol><li>全員で同じプロンプト実行（5分）</li><li>Agent Teamsが動く様子を観察（10分）</li><li>自分のタスクで試す（20分）</li><li>振り返り・共有（15分）</li></ol><h3>💡 Agent Teamsの実用シーン</h3><p><strong>適した作業:</strong></p><ul><li>大規模ドキュメント作成（企画書、設計書）</li><li>複数視点が必要なもの（マーケティング戦略、プロダクトロードマップ）</li><li>並列可能なリサーチ（競合分析、市場調査）</li></ul><p><strong>不向きな作業:</strong></p><ul><li>単純・短時間のタスク（オーバーヘッドが大きい）</li><li>高度に統一された文体が必要なもの（複数人で書くと統一感が薄れる）</li></ul><h3>🔧 技術的補足</h3><p><strong>tmuxの役割:</strong></p><ul><li>複数Claudeセッションを並列管理</li><li>ターミナル分割で視覚的に作業分担を確認可能</li><li>セッション再接続可能（途中で切断しても復帰できる）</li></ul><p><strong>EXPERIMENTAL flag:</strong></p><ul><li>実験的機能なので、今後仕様変更の可能性</li><li>グローバル設定に書くことで、全プロジェクトで有効化</li></ul><h2>関連リンク</h2><ul><li><a href="https://note.com/suh_sunaneko/n/nfe794eac6a23" target="_blank" rel="noopener noreferrer">note版（詳細）</a></li><li><a href="https://code.claude.com/docs/en/agent-teams" target="_blank" rel="noopener noreferrer">Agent Teams公式ドキュメント</a></li></ul>
+    </article>
+    <aside class="side">
+      <dl>
+        <dt>AUTHOR</dt><dd>すぅ| PM &amp; PdM🐈</dd>
+        <dt>HANDLE</dt><dd>@suh_sunaneko</dd>
+        <dt>POSTED</dt><dd>2026-02-07</dd>
+        <dt>CATEGORY</dt><dd>💻 技術Tips / 📖 学習リソース</dd>
+        <dt>SOURCE</dt><dd><a href="https://x.com/suh_sunaneko/status/2020129695350878650" target="_blank" rel="noopener noreferrer">x.com/suh_sunaneko/status/2020129695350878…</a></dd>
+        <dt>MARKDOWN</dt><dd><a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/84_suh_sunaneko_agent_teams.md" target="_blank" rel="noopener noreferrer">GitHub で原文を見る</a></dd>
+        
+      </dl>
+    </aside>
+  </div>
+</section>
+
+<section class="page-nav">
+  <div class="container">
+    <a class="btn prev" href="./73_rohit4verse_viral_article.md.html">
+      <span>← 新しいブックマーク</span>
+      <span class="big">Rohit — バイラルX Article</span>
+    </a>
+    <a class="btn next" href="./70_suh_sunaneko_pm_pdm_article.md.html">
+      <span>古いブックマーク →</span>
+      <span class="big">PM &amp; PdM向けX Article</span>
+    </a>
+  </div>
+</section>
+
+<section class="actions">
+  <div class="container">
+    <a href="./">← 一覧へ戻る</a>
+    <a class="primary" href="https://x.com/suh_sunaneko/status/2020129695350878650" target="_blank" rel="noopener noreferrer">元ポストを X で見る</a>
+    <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/84_suh_sunaneko_agent_teams.md" target="_blank" rel="noopener noreferrer">GitHub で開く</a>
+  </div>
+</section>
+
+<footer class="foot" id="about">
+  <div class="container">
+    <div class="grid">
+      <div>
+        <div class="wordmark">Vibe Coder Bootcamp</div>
+        <p>
+          AI の新しい動きを毎朝整理して、Vibe Coder が今日使える形で届けるフィード。
+          運営は泉水亮介。Slackコミュニティと連動した公開ログです。
+        </p>
+        <p style="margin-top:20px;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;color:#9a9285;">
+          BOOKMARKS ARCHIVE · 291 ITEMS · EN+JP
+        </p>
+      </div>
+      <div>
+        <h5>SECTIONS</h5>
+        <ul>
+          <li><a href="../">HOME</a></li>
+          <li><a href="../news/2026-04-18/">TODAY</a></li>
+          <li><a href="./">BOOKMARKS</a></li>
+          <li><a href="../#archive">ARCHIVE</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>SUBSCRIBE</h5>
+        <ul>
+          <li><a href="#">Slack に参加</a></li>
+          <li><a href="#">RSS</a></li>
+          <li><a href="#">X で購読</a></li>
+          <li><a href="#">メール通知</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>PROJECT</h5>
+        <ul>
+          <li><a href="https://github.com/rsensui2/vibe-coder-demo">GitHub</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Colophon</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>© 2026 Vibe Coder Bootcamp</span>
+      <span>SET IN SHIPPORI MINCHO / INTER / JETBRAINS MONO</span>
+      <span>BUILD 2026-04-18</span>
+    </div>
+  </div>
+</footer>
 </body>
 </html>

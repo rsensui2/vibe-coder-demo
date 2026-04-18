@@ -3,28 +3,341 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mission Control構築完全ガイド: AIエージェント部隊の作り方</title>
+  <title>Mission Control構築完全ガイド: AIエージェント部隊の作り方 — Bookmarks · Vibe Coder Bootcamp</title>
+  <meta name="description" content="10体のAIエージェントがチームとして協働するシステム「Mission Control」の構築完全ガイド。Clawdbot（現OpenClaw）を基盤に、複数エージェントの連携、共有データベース、通知システム、メモリ管理などを実現した方法をまとめています。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho+B1:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css" />
   <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#fcfcfe;color:#222}
-    main{max-width:860px;margin:0 auto;padding:24px 16px 80px}
-    a{color:#0b57d0;text-decoration:none}
-    .nav{margin-bottom:20px;font-size:14px}
-    h1{font-size:32px;line-height:1.35;margin:0 0 12px}
-    .meta{color:#666;font-size:14px;margin-bottom:24px}
-    article{background:#fff;border:1px solid #e7e7ef;border-radius:16px;padding:24px;line-height:1.85;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-    article h2, article h3{margin-top:28px}
-    article pre{white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:12px;overflow:auto}
-    article code{background:#f3f4f6;padding:2px 4px;border-radius:6px}
-    article blockquote{border-left:4px solid #d6d9e6;margin:16px 0;padding:0 0 0 14px;color:#555}
-    article ul{padding-left:20px}
-  </style>
+  /* Archive page — day sections */
+  .bm-archive { padding: 0 0 40px; background: var(--paper); }
+  .bm-day {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .bm-day:first-of-type { padding-top: 40px; }
+  .bm-day-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .bm-day-head .date {
+    font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+    font-weight: 800;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0;
+  }
+  .bm-day-head .date .sep { color: var(--accent); margin: 0 2px; }
+  .bm-day-head .count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 8px 14px;
+    border: 1px solid var(--accent);
+    white-space: nowrap;
+  }
+  /* active nav underline */
+  .masthead nav a.is-active { border-bottom-color: var(--accent); color: var(--accent); }
+
+  /* Article page — prose */
+  .bm-article-head {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .bm-article-head .breadcrumb {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 18px;
+  }
+  .bm-article-head .breadcrumb a { color: var(--ink); border-bottom: 1px solid var(--hair); padding-bottom: 1px; }
+  .bm-article-head .breadcrumb a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .bm-article-head .cat-line {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .bm-article-head .cat-line .sep { color: var(--mute); }
+  .bm-article-head h1.title {
+    font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+    font-weight: 800;
+    font-size: clamp(32px, 4.4vw, 58px);
+    line-height: 1.12;
+    letter-spacing: -0.005em;
+    margin: 0 0 24px;
+    color: var(--ink);
+  }
+  .bm-article-head .strap {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .bm-article-head .strap span .label { color: var(--accent); margin-right: 6px; }
+  .bm-article-head .strap a { border-bottom: 1px solid var(--hair); padding-bottom: 2px; }
+  .bm-article-head .strap a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .bm-body { padding: 72px 0; border-bottom: 1px solid var(--hair); }
+  .bm-body .container {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr) 300px;
+    gap: 48px;
+  }
+  .bm-body .numeral {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 96px;
+    font-weight: 800;
+    line-height: 0.85;
+    color: var(--ink);
+    position: sticky;
+    top: 40px;
+    align-self: start;
+    letter-spacing: -0.03em;
+  }
+  .bm-body .numeral .ord {
+    display: block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  .bm-body .prose {
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    font-family: "Inter", "Noto Sans JP", sans-serif;
+  }
+  .bm-body .prose > *:first-child { margin-top: 0; }
+  .bm-body .prose h1 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 40px 0 18px;
+    color: var(--ink);
+  }
+  .bm-body .prose h2 {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 40px 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+  }
+  .bm-body .prose h2::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .bm-body .prose h3 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.35;
+    margin: 32px 0 14px;
+    color: var(--ink);
+  }
+  .bm-body .prose p { margin: 0 0 18px; }
+  .bm-body .prose ul, .bm-body .prose ol {
+    border-left: 2px solid var(--ink);
+    padding: 4px 0 4px 24px;
+    margin: 18px 0 24px;
+    list-style: none;
+  }
+  .bm-body .prose ul li, .bm-body .prose ol li {
+    position: relative;
+    padding: 4px 0 4px 18px;
+    font-size: 15px;
+  }
+  .bm-body .prose ul li::before {
+    content: "·";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .bm-body .prose blockquote {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 19px;
+    line-height: 1.6;
+    padding: 18px 0 18px 24px;
+    border-left: 4px solid var(--accent);
+    margin: 28px 0;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .bm-body .prose pre {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 20px 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .bm-body .prose code {
+    background: var(--paper-deep);
+    border: 1px solid var(--hair);
+    padding: 1px 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.9em;
+  }
+  .bm-body .prose pre code { background: transparent; border: 0; padding: 0; color: inherit; font-size: 13px; }
+  .bm-body .prose a { color: var(--accent); border-bottom: 1px solid rgba(200,52,31,0.25); }
+  .bm-body .prose a:hover { border-bottom-color: var(--accent); }
+
+  .bm-body .side {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--mute);
+    border-top: 1px solid var(--hair);
+    padding-top: 24px;
+    position: sticky;
+    top: 40px;
+    align-self: start;
+  }
+  .bm-body .side dl { margin: 0; }
+  .bm-body .side dt {
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-top: 18px;
+    margin-bottom: 6px;
+  }
+  .bm-body .side dt:first-child { margin-top: 0; }
+  .bm-body .side dd {
+    margin: 0 0 4px;
+    color: var(--ink);
+    word-break: break-all;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .bm-body .side dd a { border-bottom: 1px solid var(--hair); padding-bottom: 1px; }
+  .bm-body .side dd a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .bm-body .side .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 18px;
+    margin-top: 8px;
+  }
+  .bm-body .side .stats .stat .num {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 24px;
+    color: var(--ink);
+    line-height: 1;
+    font-weight: 800;
+    display: block;
+  }
+  .bm-body .side .stats .stat .lab {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--mute);
+    margin-top: 4px;
+    display: block;
+    text-transform: uppercase;
+  }
+
+  /* card: stretched-link target must be local nav, not external */
+  .xcard .xcard-main-link { cursor: pointer; }
+
+  @media (max-width: 980px) {
+    .bm-body .container { grid-template-columns: 1fr; gap: 24px; }
+    .bm-body .numeral { position: static; font-size: 64px; }
+    .bm-body .side { position: static; }
+    .bm-day-head .date { font-size: 36px; }
+  }
+</style>
 </head>
 <body>
-  <main>
-    <div class="nav"><a href="./index.html">← 一覧へ戻る</a> ・ <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/15_mission_control_guide.md">GitHubで開く</a> ・ <a href="https://x.com/pbteja1998/status/2017662163540971756">元ポスト</a></div>
-    <h1>Mission Control構築完全ガイド: AIエージェント部隊の作り方</h1>
-    <div class="meta">null ・ Bhanu Teja P (@pbteja1998) ・ 💻 AI/開発</div>
-    <article><h1>Mission Control構築完全ガイド: AIエージェント部隊の作り方</h1><p>**投稿者:** Bhanu Teja P (@pbteja1998)  </p><p>**投稿日時:** 2026年2月1日 午前3:12  </p><p>**URL:** https://x.com/pbteja1998/status/2017662163540971756  </p><p>**エンゲージメント:** 329返信 / 834リポスト / 6,337いいね / 24,775ブックマーク / 256万表示</p><p>---</p><h2>概要</h2><p>10体のAIエージェントがチームとして協働するシステム「Mission Control」の構築完全ガイド。Clawdbot（現OpenClaw）を基盤に、複数エージェントの連携、共有データベース、通知システム、メモリ管理などを実現した方法をまとめています。</p><p>---</p><h2>Part 1: なぜこれを作ったのか</h2><h3>AIアシスタントの問題</h3><p>私はカスタマーサポート向けAIチャットボットの @SiteGPT を運営していて、日常的にAIを使っています。でも、どのAIツールにも共通する問題がありました。それは、継続性がないことです。</p><p>会話は毎回ゼロから始まる。昨日の文脈は消えている。先週頼んだ調査は、もう見つけられないチャットのどこかに埋もれている。</p><p>私が欲しかったのは、こういうものです。</p><ul><li>自分が何に取り組んでいるかを覚えているエージェント</li><li>それぞれ違うスキルを持つ複数のエージェントが協働すること</li><li>すべてのコンテキストが集まる共有ワークスペース</li><li>タスクを割り振って進捗を追跡できる仕組み</li></ul><p>要するに、AIを検索ボックスのように使うのではなく、チームのように働かせたかったんです。</p><h3>出発点は Clawdbot</h3><p>私はもともとClawdbotを使っていました。これは永続的なデーモンとして動くオープンソースのAIエージェントフレームワークです。Claudeなどのモデルに接続し、ファイルシステム、シェルコマンド、Webブラウジングなどのツールにアクセスさせられます。</p><p>Clawdbotのインスタンス1つで、TelegramにつながったAIアシスタント1人, つまりJarvisが動いていました。便利ではあるけれど、まだ制約が多かった。</p><p>そこで思いついたんです。各セッションにそれぞれの人格とコンテキストを持たせて、複数のClawdbotセッションを並行で動かしたらどうなるだろう？</p><p>その瞬間、必要なアーキテクチャはすでに揃っていると気づきました。あとはそれをオーケストレーションするだけでした。</p><p>---</p><h2>Part 2: Clawdbotアーキテクチャを理解する, すべての土台</h2><h3>Clawdbotとは何か</h3><p>Clawdbot（現在のOpenClaw）は、大きく3つの役割を持つAIエージェントフレームワークです。</p><p>1. AIモデルを現実世界につなぐこと。ファイルアクセス、シェルコマンド、Webブラウジング、APIなど。</p><p>2. 永続的なSessionを維持すること。再起動しても会話履歴が残る。</p><p>3. メッセージをルーティングすること。Telegram、Discord、Slackなど、さまざまなチャネルにAIを接続する。</p><p>サーバー上でデーモン, つまりバックグラウンドサービスとして動き、メッセージを待ち受けて応答します。</p><h3>Gateway</h3><p>Gatewayは中核となるプロセスです。</p><ul><li>サーバー上で24時間365日動く</li><li>すべてのアクティブなSessionを管理する</li><li>cronジョブ, つまりスケジュール実行を処理する</li><li>チャネルとSessionの間でメッセージをルーティングする</li><li>制御用のWebSocket APIを提供する</li></ul><p>起動はこうです。</p><pre><code>clawdbot gateway start</code></pre><p>設定はJSONファイルに置きます。どのAIプロバイダとモデルを使うか、どのチャネルに接続するか、エージェントがどのツールにアクセスできるか、デフォルトのシステムプロンプトやワークスペースのパスなどを定義します。</p><h3>Session, いちばん大事な概念</h3><p>Sessionとは、コンテキストを持った永続的な会話単位です。</p><p>各Sessionは次のものを持っています。</p><ul><li>Session key, たとえば `agent:main:main` のような一意な識別子</li><li>会話履歴, JSONLファイルとしてディスクに保存される</li><li>モデル, どのAIを使うか</li><li>ツール, AIが何にアクセスできるか</li></ul><p>ここで重要なのは、Session同士が独立していることです。各Sessionはそれぞれ別の履歴、別のコンテキスト、過去の会話に基づく別の「記憶」を持っています。</p><p>複数のエージェントを動かすということは、実際には複数のSessionを動かしているということです。それぞれが固有のアイデンティティを持っている。</p><h3>Sessionはどう動くのか</h3><pre><code>ユーザーがTelegramにメッセージを送る
+<div class="dispatch">
+  <div class="container row">
+    <span class="tick">BOOKMARK №239</span>
+    <span class="sep">/</span>
+    <span>2026-04-18</span>
+    <span class="sep">/</span>
+    <span>@pbteja1998</span>
+    <span class="sep">/</span>
+    <span>291 ITEMS</span>
+    <span class="sep">/</span>
+    <span>JST 13:11 SAT</span>
+    <span class="sep">/</span>
+    <span class="live">LIVE</span>
+    <span class="sep">/</span>
+    <span>CURATED BY 泉水亮介</span>
+  </div>
+</div>
+<header class="masthead">
+  <div class="container row">
+    <a href="../" class="wordmark"><span class="bar"></span>Vibe Coder Bootcamp</a>
+    <nav>
+      <a href="../">HOME</a>
+      <a href="../news/2026-04-18/">NEWS</a>
+      <a href="./" class="is-active">BOOKMARKS</a>
+      <a href="../#archive">ARCHIVE</a>
+      <a href="../#about">ABOUT</a>
+    </nav>
+    <div class="meta">JST · 13:11 · SAT</div>
+  </div>
+</header>
+
+<section class="bm-article-head">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="./">← BOOKMARKS</a> <span>/</span> 日付不明 <span>/</span> №239
+    </div>
+    <div class="cat-line">
+      <span>💻 AI/開発</span>
+      <span class="sep">·</span><span>Bhanu Teja P <span style="opacity:.7">@pbteja1998</span></span>
+      
+    </div>
+    <h1 class="title">Mission Control構築完全ガイド: AIエージェント部隊の作り方</h1>
+    <div class="strap">
+      <span><span class="label">№</span>239 / 291</span>
+      <span><span class="label">SRC</span><a href="https://x.com/pbteja1998/status/2017662163540971756" target="_blank" rel="noopener noreferrer">x.com/pbteja1998 ↗</a></span>
+      <span><span class="label">GH</span><a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/15_mission_control_guide.md" target="_blank" rel="noopener noreferrer">GitHub ↗</a></span>
+    </div>
+  </div>
+</section>
+
+<section class="bm-body">
+  <div class="container">
+    <aside class="numeral">239<span class="ord">BOOKMARK / 291</span></aside>
+    <article class="prose">
+<h2>概要</h2><p>10体のAIエージェントがチームとして協働するシステム「Mission Control」の構築完全ガイド。Clawdbot（現OpenClaw）を基盤に、複数エージェントの連携、共有データベース、通知システム、メモリ管理などを実現した方法をまとめています。</p><h2>Part 1: なぜこれを作ったのか</h2><h3>AIアシスタントの問題</h3><p>私はカスタマーサポート向けAIチャットボットの @SiteGPT を運営していて、日常的にAIを使っています。でも、どのAIツールにも共通する問題がありました。それは、継続性がないことです。</p><p>会話は毎回ゼロから始まる。昨日の文脈は消えている。先週頼んだ調査は、もう見つけられないチャットのどこかに埋もれている。</p><p>私が欲しかったのは、こういうものです。</p><ul><li>自分が何に取り組んでいるかを覚えているエージェント</li><li>それぞれ違うスキルを持つ複数のエージェントが協働すること</li><li>すべてのコンテキストが集まる共有ワークスペース</li><li>タスクを割り振って進捗を追跡できる仕組み</li></ul><p>要するに、AIを検索ボックスのように使うのではなく、チームのように働かせたかったんです。</p><h3>出発点は Clawdbot</h3><p>私はもともとClawdbotを使っていました。これは永続的なデーモンとして動くオープンソースのAIエージェントフレームワークです。Claudeなどのモデルに接続し、ファイルシステム、シェルコマンド、Webブラウジングなどのツールにアクセスさせられます。</p><p>Clawdbotのインスタンス1つで、TelegramにつながったAIアシスタント1人, つまりJarvisが動いていました。便利ではあるけれど、まだ制約が多かった。</p><p>そこで思いついたんです。各セッションにそれぞれの人格とコンテキストを持たせて、複数のClawdbotセッションを並行で動かしたらどうなるだろう？</p><p>その瞬間、必要なアーキテクチャはすでに揃っていると気づきました。あとはそれをオーケストレーションするだけでした。</p><h2>Part 2: Clawdbotアーキテクチャを理解する, すべての土台</h2><h3>Clawdbotとは何か</h3><p>Clawdbot（現在のOpenClaw）は、大きく3つの役割を持つAIエージェントフレームワークです。</p><ol><li>AIモデルを現実世界につなぐこと。ファイルアクセス、シェルコマンド、Webブラウジング、APIなど。</li><li>永続的なSessionを維持すること。再起動しても会話履歴が残る。</li><li>メッセージをルーティングすること。Telegram、Discord、Slackなど、さまざまなチャネルにAIを接続する。</li></ol><p>サーバー上でデーモン, つまりバックグラウンドサービスとして動き、メッセージを待ち受けて応答します。</p><h3>Gateway</h3><p>Gatewayは中核となるプロセスです。</p><ul><li>サーバー上で24時間365日動く</li><li>すべてのアクティブなSessionを管理する</li><li>cronジョブ, つまりスケジュール実行を処理する</li><li>チャネルとSessionの間でメッセージをルーティングする</li><li>制御用のWebSocket APIを提供する</li></ul><p>起動はこうです。</p><pre><code>clawdbot gateway start</code></pre><p>設定はJSONファイルに置きます。どのAIプロバイダとモデルを使うか、どのチャネルに接続するか、エージェントがどのツールにアクセスできるか、デフォルトのシステムプロンプトやワークスペースのパスなどを定義します。</p><h3>Session, いちばん大事な概念</h3><p>Sessionとは、コンテキストを持った永続的な会話単位です。</p><p>各Sessionは次のものを持っています。</p><ul><li>Session key, たとえば <code>agent:main:main</code> のような一意な識別子</li><li>会話履歴, JSONLファイルとしてディスクに保存される</li><li>モデル, どのAIを使うか</li><li>ツール, AIが何にアクセスできるか</li></ul><p>ここで重要なのは、Session同士が独立していることです。各Sessionはそれぞれ別の履歴、別のコンテキスト、過去の会話に基づく別の「記憶」を持っています。</p><p>複数のエージェントを動かすということは、実際には複数のSessionを動かしているということです。それぞれが固有のアイデンティティを持っている。</p><h3>Sessionはどう動くのか</h3><pre><code>ユーザーがTelegramにメッセージを送る
 ↓
 Gatewayが受け取る
 ↓
@@ -36,10 +349,10 @@ AIが完全なコンテキストを使って応答を生成する
 ↓
 応答がTelegram経由で返される
 ↓
-履歴が更新され、ディスクに保存される</code></pre><p>Sessionには次の2種類があります。</p><ul><li>**Main sessions** , Jarvisとのチャットのように、長く生きる対話型Session</li><li>**Isolated sessions** , cronジョブ用の単発Session。起きて、作業して、終わる</li></ul><h3>Cron Jobs, スケジュールでエージェントを起こす</h3><p>Clawdbotにはcronシステムが組み込まれていて、こんなふうにタスクを予約できます。</p><pre><code>clawdbot cron add \
+履歴が更新され、ディスクに保存される</code></pre><p>Sessionには次の2種類があります。</p><ul><li><strong>Main sessions</strong> , Jarvisとのチャットのように、長く生きる対話型Session</li><li><strong>Isolated sessions</strong> , cronジョブ用の単発Session。起きて、作業して、終わる</li></ul><h3>Cron Jobs, スケジュールでエージェントを起こす</h3><p>Clawdbotにはcronシステムが組み込まれていて、こんなふうにタスクを予約できます。</p><pre><code>clawdbot cron add \
   --name &quot;morning-check&quot; \
   --cron &quot;30 7 * * *&quot; \
-  --message &quot;Check today's calendar and send me a summary&quot;</code></pre><p>cronが発火すると、次の流れで動きます。</p><p>1. GatewayがSessionを作成するか、既存のSessionを起こす</p><p>2. AIにメッセージを送る</p><p>3. AIが応答する, ツール利用やメッセージ送信も可能</p><p>4. Sessionはそのまま残ることもあれば終了することもある</p><p>これによって、エージェントは常時起動でなくても定期的に「起きる」ことができます。</p><h3>Workspace</h3><p>Clawdbotの各インスタンスにはWorkspaceがあります。これはディスク上のディレクトリで、次のものが置かれます。</p><ul><li>設定ファイル</li><li>メモリ用ファイル</li><li>エージェントが実行できるスクリプトやツール</li><li>AIが読み書きできるファイル</li></ul><p>Workspaceこそが、Sessionをまたいで情報を保持する仕組みです。エージェントはファイルに書き込み、そのファイルが再起動後も残ります。</p><pre><code>/home/usr/clawd/             ← Workspace root
+  --message &quot;Check today's calendar and send me a summary&quot;</code></pre><p>cronが発火すると、次の流れで動きます。</p><ol><li>GatewayがSessionを作成するか、既存のSessionを起こす</li><li>AIにメッセージを送る</li><li>AIが応答する, ツール利用やメッセージ送信も可能</li><li>Sessionはそのまま残ることもあれば終了することもある</li></ol><p>これによって、エージェントは常時起動でなくても定期的に「起きる」ことができます。</p><h3>Workspace</h3><p>Clawdbotの各インスタンスにはWorkspaceがあります。これはディスク上のディレクトリで、次のものが置かれます。</p><ul><li>設定ファイル</li><li>メモリ用ファイル</li><li>エージェントが実行できるスクリプトやツール</li><li>AIが読み書きできるファイル</li></ul><p>Workspaceこそが、Sessionをまたいで情報を保持する仕組みです。エージェントはファイルに書き込み、そのファイルが再起動後も残ります。</p><pre><code>/home/usr/clawd/             ← Workspace root
 ├── AGENTS.md                ← エージェント向けの指示
 ├── SOUL.md                  ← エージェントの人格
 ├── memory/
@@ -47,7 +360,7 @@ AIが完全なコンテキストを使って応答を生成する
 │   ├── 2026-01-31.md        ← 日次メモ
 │   └── ...
 ├── scripts/                 ← エージェントが使うユーティリティ
-└── config/                  ← 資格情報や設定</code></pre><p>---</p><h2>Part 3: 1つのClawdbotから10体のエージェントへ</h2><h3>核心の気づき</h3><p>ClawdbotのSessionは独立しています。各Sessionは次のものを持てます。</p><ul><li>独自の人格, SOUL.md で定義</li><li>独自のメモリファイル</li><li>独自のcronスケジュール</li><li>独自のツールとアクセス権</li></ul><p>つまり各エージェントとは、特化した設定を与えられたClawdbot Sessionそのものなんです。</p><p>Jarvisが特別な存在というわけではありません。彼は次の条件を持つSessionです。</p><ul><li>Session key `agent:main:main`</li><li>「あなたはJarvis, squad leadである」と書かれたSOUL.md</li><li>すべてのツールへのアクセス権</li><li>私のTelegramとの接続</li></ul><p>Shuriは別のSessionです。</p><ul><li>Session key `agent:product-analyst:main`</li><li>「あなたはShuri, product analystである」と書かれたSOUL.md</li><li>同じツール群, ファイルアクセス、シェル、ブラウザ</li><li>彼女自身のheartbeat cron</li></ul><p>10体のエージェントとは、10個のSessionがそれぞれ別のスケジュールで起きて、別のコンテキストを持って動いている状態です。</p><h3>Session Keys, エージェントのアイデンティティ</h3><p>各エージェントには固有のSession keyがあります。</p><pre><code>agent:main:main              → Jarvis（Squad Lead）
+└── config/                  ← 資格情報や設定</code></pre><h2>Part 3: 1つのClawdbotから10体のエージェントへ</h2><h3>核心の気づき</h3><p>ClawdbotのSessionは独立しています。各Sessionは次のものを持てます。</p><ul><li>独自の人格, SOUL.md で定義</li><li>独自のメモリファイル</li><li>独自のcronスケジュール</li><li>独自のツールとアクセス権</li></ul><p>つまり各エージェントとは、特化した設定を与えられたClawdbot Sessionそのものなんです。</p><p>Jarvisが特別な存在というわけではありません。彼は次の条件を持つSessionです。</p><ul><li>Session key <code>agent:main:main</code></li><li>「あなたはJarvis, squad leadである」と書かれたSOUL.md</li><li>すべてのツールへのアクセス権</li><li>私のTelegramとの接続</li></ul><p>Shuriは別のSessionです。</p><ul><li>Session key <code>agent:product-analyst:main</code></li><li>「あなたはShuri, product analystである」と書かれたSOUL.md</li><li>同じツール群, ファイルアクセス、シェル、ブラウザ</li><li>彼女自身のheartbeat cron</li></ul><p>10体のエージェントとは、10個のSessionがそれぞれ別のスケジュールで起きて、別のコンテキストを持って動いている状態です。</p><h3>Session Keys, エージェントのアイデンティティ</h3><p>各エージェントには固有のSession keyがあります。</p><pre><code>agent:main:main              → Jarvis（Squad Lead）
 agent:product-analyst:main   → Shuri
 agent:customer-researcher:main → Fury
 agent:seo-analyst:main       → Vision
@@ -61,7 +374,7 @@ clawdbot cron add \
   --name &quot;pepper-mission-control-check&quot; \
   --cron &quot;0,15,30,45 * * * *&quot; \
   --session &quot;isolated&quot; \
-  --message &quot;You are Pepper, the Email Marketing Specialist. Check Mission Control for new tasks...&quot;</code></pre><p>全員が同時に起きないよう、スケジュールはずらしています。</p><ul><li>:00 Pepper</li><li>:02 Shuri</li><li>:04 Friday</li><li>:06 Loki</li><li>:07 Wanda</li><li>:08 Vision</li><li>:10 Fury</li><li>:12 Quill</li></ul><p>各cronはIsolated sessionを作り、起動して、仕事をして、終了します。これでコストを抑えられます。</p><h3>エージェント同士はどう会話するのか</h3><p>どうやってエージェント同士がやり取りするのでしょうか。</p><p>**Option 1: Sessionに直接メッセージする**</p><pre><code>clawdbot sessions send --session &quot;agent:seo-analyst:main&quot; --message &quot;Vision, can you review this?&quot;</code></pre><p>**Option 2: 共有データベース, Mission Control を使う**</p><p>すべてのエージェントが同じConvexデータベースを読み書きします。Furyがコメントを投稿すれば、他の全員が見られます。</p><p>私たちは主にOption 2を使っています。すべてのコミュニケーションが共有の記録として残るからです。</p><p>---</p><h2>Part 4: 共有の脳, Mission Control</h2><h3>Mission Controlは何をするのか</h3><p>Mission Controlは、独立したエージェントを1つのチームに変える共有基盤です。</p><p>ここが提供するのは次の機能です。</p><ul><li>全員が同じタスクを見られる共有タスクデータベース</li><li>エージェントが1か所で議論できるコメントスレッド</li><li>今何が起きているかをリアルタイムで把握できるアクティビティフィード</li><li>`@mention` で特定のエージェントに知らせる通知システム</li><li>成果物を共有リポジトリに置けるドキュメント保存機能</li></ul><p>言ってしまえば、エージェントたちが働く「オフィス」です。各エージェントはそれぞれ別のClawdbot Sessionのままですが、みんな同じホワイトボードを見て仕事しています。</p><h3>なぜConvexなのか</h3><p>データベースにConvexを選んだ理由はこうです。</p><ul><li>リアルタイムで変化が即座に反映される</li><li>Serverlessで、DB運用が不要</li><li>TypeScriptネイティブで型安全</li><li>無料枠が十分に大きく、この規模なら余裕がある</li></ul><h3>スキーマ</h3><p>全体を支えているのは6つのテーブルです。</p><pre><code>agents: {
+  --message &quot;You are Pepper, the Email Marketing Specialist. Check Mission Control for new tasks...&quot;</code></pre><p>全員が同時に起きないよう、スケジュールはずらしています。</p><ul><li>:00 Pepper</li><li>:02 Shuri</li><li>:04 Friday</li><li>:06 Loki</li><li>:07 Wanda</li><li>:08 Vision</li><li>:10 Fury</li><li>:12 Quill</li></ul><p>各cronはIsolated sessionを作り、起動して、仕事をして、終了します。これでコストを抑えられます。</p><h3>エージェント同士はどう会話するのか</h3><p>どうやってエージェント同士がやり取りするのでしょうか。</p><p><strong>Option 1: Sessionに直接メッセージする</strong></p><pre><code>clawdbot sessions send --session &quot;agent:seo-analyst:main&quot; --message &quot;Vision, can you review this?&quot;</code></pre><p><strong>Option 2: 共有データベース, Mission Control を使う</strong></p><p>すべてのエージェントが同じConvexデータベースを読み書きします。Furyがコメントを投稿すれば、他の全員が見られます。</p><p>私たちは主にOption 2を使っています。すべてのコミュニケーションが共有の記録として残るからです。</p><h2>Part 4: 共有の脳, Mission Control</h2><h3>Mission Controlは何をするのか</h3><p>Mission Controlは、独立したエージェントを1つのチームに変える共有基盤です。</p><p>ここが提供するのは次の機能です。</p><ul><li>全員が同じタスクを見られる共有タスクデータベース</li><li>エージェントが1か所で議論できるコメントスレッド</li><li>今何が起きているかをリアルタイムで把握できるアクティビティフィード</li><li><code>@mention</code> で特定のエージェントに知らせる通知システム</li><li>成果物を共有リポジトリに置けるドキュメント保存機能</li></ul><p>言ってしまえば、エージェントたちが働く「オフィス」です。各エージェントはそれぞれ別のClawdbot Sessionのままですが、みんな同じホワイトボードを見て仕事しています。</p><h3>なぜConvexなのか</h3><p>データベースにConvexを選んだ理由はこうです。</p><ul><li>リアルタイムで変化が即座に反映される</li><li>Serverlessで、DB運用が不要</li><li>TypeScriptネイティブで型安全</li><li>無料枠が十分に大きく、この規模なら余裕がある</li></ul><h3>スキーマ</h3><p>全体を支えているのは6つのテーブルです。</p><pre><code>agents: {
   name: string,          // &quot;Shuri&quot;
   role: string,          // &quot;Product Analyst&quot;
   status: &quot;idle&quot; | &quot;active&quot; | &quot;blocked&quot;,
@@ -107,7 +420,7 @@ npx convex run messages:create '{&quot;taskId&quot;: &quot;...&quot;, &quot;cont
 npx convex run documents:create '{&quot;title&quot;: &quot;...&quot;, &quot;content&quot;: &quot;...&quot;, &quot;type&quot;: &quot;deliverable&quot;}'
 
 # Update task status
-npx convex run tasks:update '{&quot;id&quot;: &quot;...&quot;, &quot;status&quot;: &quot;review&quot;}'</code></pre><h3>Mission ControlのUI</h3><p>私はこれらのデータを表示するReactフロントエンドも作りました。</p><ul><li>**Activity Feed:** 何が起きているかをリアルタイムで流す</li><li>**Task Board:** Inbox → Assigned → In Progress → Review → Done のKanbanカラム</li><li>**Agent Cards:** 各エージェントの状態と今取り組んでいる作業</li><li>**Document Panel:** 成果物の閲覧と作成</li><li>**Detail View:** タスクを展開して全文脈とコメントを見る</li></ul><p>見た目は意図的に、あたたかくてエディトリアル寄りにしています。新聞のダッシュボードみたいな雰囲気です。</p><p>---</p><h2>Part 5: SOULシステム, エージェントの人格</h2><h3>SOULには何を書くのか</h3><pre><code># SOUL.md — Who You Are
+npx convex run tasks:update '{&quot;id&quot;: &quot;...&quot;, &quot;status&quot;: &quot;review&quot;}'</code></pre><h3>Mission ControlのUI</h3><p>私はこれらのデータを表示するReactフロントエンドも作りました。</p><ul><li><strong>Activity Feed:</strong> 何が起きているかをリアルタイムで流す</li><li><strong>Task Board:</strong> Inbox → Assigned → In Progress → Review → Done のKanbanカラム</li><li><strong>Agent Cards:</strong> 各エージェントの状態と今取り組んでいる作業</li><li><strong>Document Panel:</strong> 成果物の閲覧と作成</li><li><strong>Detail View:</strong> タスクを展開して全文脈とコメントを見る</li></ul><p>見た目は意図的に、あたたかくてエディトリアル寄りにしています。新聞のダッシュボードみたいな雰囲気です。</p><h2>Part 5: SOULシステム, エージェントの人格</h2><h3>SOULには何を書くのか</h3><pre><code># SOUL.md — Who You Are
 
 **Name:** Shuri
 **Role:** Product Analyst
@@ -126,7 +439,7 @@ Be specific. Don't just say &quot;nice work.&quot;
 ## What You Care About
 - User experience over technical elegance
 - Catching problems before users do
-- Evidence over assumptions</code></pre><h3>なぜ人格が大事なのか</h3><p>「何でもできる」エージェントは、結局何をやらせても中途半端になります。</p><p>でも、「懐疑的でエッジケースを見つけるテスター」と明確に定義されたエージェントは、本当にエッジケースを見つけてきます。制約があるからこそ、焦点が合うんです。</p><p>私たちのエージェントにはそれぞれ明確な声があります。</p><ul><li>**Loki** は言葉選びにうるさい, オックスフォードカンマ推しで受動態嫌い</li><li>**Fury** はあらゆる主張に根拠を添える, ソースや確度つき</li><li>**Shuri** は前提を疑い、どこが壊れそうかを見る</li><li>**Quill** はフックとエンゲージメントで考える</li></ul><h3>AGENTS.mdファイル</h3><p>SOULが「あなたは誰か」を定義し、AGENTS.mdが「どう動くか」を定義します。</p><p>すべてのエージェントは起動時にAGENTS.mdを読みます。ここには次のことが書かれています。</p><ul><li>ファイルをどこに保存するか</li><li>メモリがどう機能するか</li><li>使えるツールは何か</li><li>発言すべきときと静かにすべきとき</li><li>Mission Controlの使い方</li></ul><p>これは運用マニュアルです。これがないと、エージェントは基本的な判断ですらバラバラになります。</p><p>---</p><h2>Part 6: メモリと永続化</h2><p>AIのSessionはデフォルトだと毎回まっさらな状態で始まります。昨日の記憶はありません。これはコンテキスト肥大化を防ぐという意味では利点ですが、同時に「何をやっていたか忘れる」という問題でもあります。</p><h3>メモリの階層</h3><p>**Session Memory（Clawdbot標準）**</p><p>Clawdbotは会話履歴をJSONLファイルとして保存します。エージェントは自分自身の過去の会話を検索できます。</p><p>**Working Memory（/memory/WORKING.md）**</p><p>現在のタスク状態です。常に更新されます。</p><pre><code># WORKING.md
+- Evidence over assumptions</code></pre><h3>なぜ人格が大事なのか</h3><p>「何でもできる」エージェントは、結局何をやらせても中途半端になります。</p><p>でも、「懐疑的でエッジケースを見つけるテスター」と明確に定義されたエージェントは、本当にエッジケースを見つけてきます。制約があるからこそ、焦点が合うんです。</p><p>私たちのエージェントにはそれぞれ明確な声があります。</p><ul><li><strong>Loki</strong> は言葉選びにうるさい, オックスフォードカンマ推しで受動態嫌い</li><li><strong>Fury</strong> はあらゆる主張に根拠を添える, ソースや確度つき</li><li><strong>Shuri</strong> は前提を疑い、どこが壊れそうかを見る</li><li><strong>Quill</strong> はフックとエンゲージメントで考える</li></ul><h3>AGENTS.mdファイル</h3><p>SOULが「あなたは誰か」を定義し、AGENTS.mdが「どう動くか」を定義します。</p><p>すべてのエージェントは起動時にAGENTS.mdを読みます。ここには次のことが書かれています。</p><ul><li>ファイルをどこに保存するか</li><li>メモリがどう機能するか</li><li>使えるツールは何か</li><li>発言すべきときと静かにすべきとき</li><li>Mission Controlの使い方</li></ul><p>これは運用マニュアルです。これがないと、エージェントは基本的な判断ですらバラバラになります。</p><h2>Part 6: メモリと永続化</h2><p>AIのSessionはデフォルトだと毎回まっさらな状態で始まります。昨日の記憶はありません。これはコンテキスト肥大化を防ぐという意味では利点ですが、同時に「何をやっていたか忘れる」という問題でもあります。</p><h3>メモリの階層</h3><p><strong>Session Memory（Clawdbot標準）</strong></p><p>Clawdbotは会話履歴をJSONLファイルとして保存します。エージェントは自分自身の過去の会話を検索できます。</p><p><strong>Working Memory（/memory/WORKING.md）</strong></p><p>現在のタスク状態です。常に更新されます。</p><pre><code># WORKING.md
 
 ## Current Task
 Researching competitor pricing for comparison page
@@ -137,7 +450,7 @@ Gathered G2 reviews, need to verify credit calculations
 ## Next Steps
 1. Test competitor free tier myself
 2. Document the findings
-3. Post findings to task thread</code></pre><p>このファイルがいちばん重要です。エージェントは起きたらまずWORKING.mdを読み、自分が何をしていたか思い出します。</p><p>**Daily Notes（/memory/YYYY-MM-DD.md）**</p><p>その日に起きたことの生ログです。</p><pre><code># 2026-01-31
+3. Post findings to task thread</code></pre><p>このファイルがいちばん重要です。エージェントは起きたらまずWORKING.mdを読み、自分が何をしていたか思い出します。</p><p><strong>Daily Notes（/memory/YYYY-MM-DD.md）</strong></p><p>その日に起きたことの生ログです。</p><pre><code># 2026-01-31
 
 ## 09:15 UTC
 - Posted research findings to comparison task
@@ -146,7 +459,7 @@ Gathered G2 reviews, need to verify credit calculations
 
 ## 14:30 UTC
 - Reviewed Loki's first draft
-- Suggested changes to credit trap section</code></pre><p>**Long-term Memory（MEMORY.md）**</p><p>重要事項を選別して残す記憶です。学び、主要な意思決定、長く有効な事実などを置きます。</p><h3>黄金ルール</h3><p>何かを覚えておきたいなら、ファイルに書くこと。</p><p>「頭の中のメモ」はSessionの再起動をまたげません。残るのはファイルだけです。</p><p>私がエージェントに「Xに決めたことを覚えておいて」と言ったら、そのエージェントは了解して終わりではなく、ファイルを更新すべきなんです。</p><p>---</p><h2>Part 7: heartbeatシステム</h2><h3>問題</h3><p>常時起動のエージェントは、何もしなくてもAPIクレジットを消費します。逆に、常時停止だと仕事に反応できません。</p><h3>解決策, スケジュールされたheartbeat</h3><p>各エージェントはcronジョブで15分ごとに起きます。</p><pre><code>:00 Pepper が起きる
+- Suggested changes to credit trap section</code></pre><p><strong>Long-term Memory（MEMORY.md）</strong></p><p>重要事項を選別して残す記憶です。学び、主要な意思決定、長く有効な事実などを置きます。</p><h3>黄金ルール</h3><p>何かを覚えておきたいなら、ファイルに書くこと。</p><p>「頭の中のメモ」はSessionの再起動をまたげません。残るのはファイルだけです。</p><p>私がエージェントに「Xに決めたことを覚えておいて」と言ったら、そのエージェントは了解して終わりではなく、ファイルを更新すべきなんです。</p><h2>Part 7: heartbeatシステム</h2><h3>問題</h3><p>常時起動のエージェントは、何もしなくてもAPIクレジットを消費します。逆に、常時停止だと仕事に反応できません。</p><h3>解決策, スケジュールされたheartbeat</h3><p>各エージェントはcronジョブで15分ごとに起きます。</p><pre><code>:00 Pepper が起きる
   → @mention を確認
   → 自分に割り当てられたタスクを確認
   → Activity Feed を確認
@@ -156,7 +469,7 @@ Gathered G2 reviews, need to verify credit calculations
   → 同じ流れ
 :04 Friday が起きる
   → 同じ流れ
-...という具合</code></pre><h3>heartbeat中に起きること</h3><p>1. **コンテキストを読み込む:** WORKING.mdを読む。直近の日次メモを読む。必要ならSession memoryも見る。</p><p>2. **急ぎの項目を確認する:** どこかで @mention されていないか。自分に割り当てられたタスクはあるか。</p><p>3. **Activity Feedをざっと見る:** 自分が参加すべき議論はないか。自分の仕事に影響する意思決定はあったか。</p><p>4. **動くか、下がるかを決める:** やることがあればやる。何もなければ HEARTBEAT_OK を返す。</p><h3>HEARTBEAT.mdファイル</h3><p>このファイルが、エージェントに何を確認するかを指示します。</p><pre><code># HEARTBEAT.md
+...という具合</code></pre><h3>heartbeat中に起きること</h3><ol><li><strong>コンテキストを読み込む:</strong> WORKING.mdを読む。直近の日次メモを読む。必要ならSession memoryも見る。</li><li><strong>急ぎの項目を確認する:</strong> どこかで @mention されていないか。自分に割り当てられたタスクはあるか。</li><li><strong>Activity Feedをざっと見る:</strong> 自分が参加すべき議論はないか。自分の仕事に影響する意思決定はあったか。</li><li><strong>動くか、下がるかを決める:</strong> やることがあればやる。何もなければ HEARTBEAT_OK を返す。</li></ol><h3>HEARTBEAT.mdファイル</h3><p>このファイルが、エージェントに何を確認するかを指示します。</p><pre><code># HEARTBEAT.md
 
 ## On Wake
 - [ ] Check memory/WORKING.md for ongoing tasks
@@ -166,7 +479,7 @@ Gathered G2 reviews, need to verify credit calculations
 ## Periodic Checks
 - [ ] Mission Control for @mentions
 - [ ] Assigned tasks
-- [ ] Activity feed for relevant discussions</code></pre><p>エージェントはこのチェックリストにかなり忠実に従います。</p><h3>なぜ15分なのか</h3><ul><li>5分ごとは高すぎる。起きても何もないことが多い</li><li>30分ごとは遅すぎる。仕事が長く待たされる</li><li>15分はちょうどいい。無駄なコストを抑えつつ、大半の仕事に十分素早く反応できる</li></ul><p>---</p><h2>Part 8: 通知システム</h2><h3>@mentions</h3><p>コメントで `@Vision` と書けば、Visionは次のheartbeatで通知を受け取ります。</p><p>`@all` と書けば、全員に通知されます。</p><h3>配信の仕組み</h3><p>pm2で動かしているデーモンプロセスが、2秒ごとにConvexをポーリングします。</p><pre><code>// Simplified
+- [ ] Activity feed for relevant discussions</code></pre><p>エージェントはこのチェックリストにかなり忠実に従います。</p><h3>なぜ15分なのか</h3><ul><li>5分ごとは高すぎる。起きても何もないことが多い</li><li>30分ごとは遅すぎる。仕事が長く待たされる</li><li>15分はちょうどいい。無駄なコストを抑えつつ、大半の仕事に十分素早く反応できる</li></ul><h2>Part 8: 通知システム</h2><h3>@mentions</h3><p>コメントで <code>@Vision</code> と書けば、Visionは次のheartbeatで通知を受け取ります。</p><p><code>@all</code> と書けば、全員に通知されます。</p><h3>配信の仕組み</h3><p>pm2で動かしているデーモンプロセスが、2秒ごとにConvexをポーリングします。</p><pre><code>// Simplified
 while (true) {
   const undelivered = await getUndeliveredNotifications();
   for (const notification of undelivered) {
@@ -179,7 +492,7 @@ while (true) {
     }
   }
   await sleep(2000);
-}</code></pre><p>もしエージェントが眠っていて, つまりアクティブなSessionがなければ、配信は失敗します。その通知はキューに残り、次にそのエージェントのheartbeatが発火してSessionが有効になったタイミングで、デーモンが配信に成功します。</p><h3>スレッド購読</h3><p>問題はこれです。1つのタスクを5体のエージェントが議論しているとき、毎回その5体全員に @mention を付けるべきでしょうか。</p><p>解決策は、スレッド購読です。</p><p>タスクに関わると、そのタスクを購読している状態になります。</p><ul><li>タスクにコメントする → 購読される</li><li>@mention される → 購読される</li><li>タスクにアサインされる → 購読される</li></ul><p>一度購読されると、その後のすべてのコメント通知を受け取ります。毎回 @mention は不要です。</p><p>これで会話が自然に流れます。Slackやメールスレッドと同じ感覚です。</p><p>---</p><h2>Part 9: 日次スタンドアップ</h2><h3>それは何か</h3><p>毎日23:30 ISTにcronが発火し、次のことを行います。</p><p>1. すべてのエージェントSessionを確認する</p><p>2. 最近の活動を集める</p><p>3. 要約を作る</p><p>4. それをTelegramに送る</p><h3>フォーマット</h3><pre><code>📊 DAILY STANDUP — Jan 30, 2026
+}</code></pre><p>もしエージェントが眠っていて, つまりアクティブなSessionがなければ、配信は失敗します。その通知はキューに残り、次にそのエージェントのheartbeatが発火してSessionが有効になったタイミングで、デーモンが配信に成功します。</p><h3>スレッド購読</h3><p>問題はこれです。1つのタスクを5体のエージェントが議論しているとき、毎回その5体全員に @mention を付けるべきでしょうか。</p><p>解決策は、スレッド購読です。</p><p>タスクに関わると、そのタスクを購読している状態になります。</p><ul><li>タスクにコメントする → 購読される</li><li>@mention される → 購読される</li><li>タスクにアサインされる → 購読される</li></ul><p>一度購読されると、その後のすべてのコメント通知を受け取ります。毎回 @mention は不要です。</p><p>これで会話が自然に流れます。Slackやメールスレッドと同じ感覚です。</p><h2>Part 9: 日次スタンドアップ</h2><h3>それは何か</h3><p>毎日23:30 ISTにcronが発火し、次のことを行います。</p><ol><li>すべてのエージェントSessionを確認する</li><li>最近の活動を集める</li><li>要約を作る</li><li>それをTelegramに送る</li></ol><h3>フォーマット</h3><pre><code>📊 DAILY STANDUP — Jan 30, 2026
 
 ✅ COMPLETED TODAY
 • Loki: Shopify blog post (2,100 words)
@@ -199,12 +512,101 @@ while (true) {
 
 📝 KEY DECISIONS
 • Lead with pricing transparency in comparisons
-• Deprioritized Zendesk comparison (low volume)</code></pre><h3>なぜ重要なのか</h3><p>私はMission Controlをずっと見張っているわけにはいきません。スタンドアップがあることで、その日の全体像を素早く把握できます。</p><p>同時に、これは説明責任にもなります。エージェントが「作業しています」と言っていても、スタンドアップに何も出てこないなら、どこかがおかしいと分かります。</p><p>---</p><h2>Part 10: Squadの構成</h2><h3>メンバー一覧</h3><p>**Jarvis, Squad Lead**  </p><p>Session: `agent:main:main`  </p><p>全体のコーディネーター。直接の依頼を受け、仕事を割り振り、進捗を監視します。私の主な窓口です。</p><p>**Shuri, Product Analyst**  </p><p>Session: `agent:product-analyst:main`  </p><p>懐疑的なテスター。エッジケースとUXの問題を見つけます。競合を試し、他の人が見落とす問いを立てます。</p><p>**Fury, Customer Researcher**  </p><p>Session: `agent:customer-researcher:main`  </p><p>深掘り調査担当。G2レビューを読むのが好きなタイプ。すべての主張に根拠を添えます。</p><p>**Vision, SEO Analyst**  </p><p>Session: `agent:seo-analyst:main`  </p><p>キーワードと検索意図で考える人。コンテンツがちゃんと上位表示を狙えるようにする。</p><p>**Loki, Content Writer**  </p><p>Session: `agent:content-writer:main`  </p><p>言葉の職人。オックスフォードカンマ派。受動態反対派。すべての文が存在理由を持つべきだと考える。</p><p>**Quill, Social Media Manager**  </p><p>Session: `agent:social-media-manager:main`  </p><p>フックとスレッド思考。Build in public の感覚で動く。</p><p>**Wanda, Designer**  </p><p>Session: `agent:designer:main`  </p><p>ビジュアル思考の担当。インフォグラフィック、比較図、UIモックアップを作る。</p><p>**Pepper, Email Marketing**  </p><p>Session: `agent:email-marketing:main`  </p><p>ドリップシーケンスとライフサイクルメール担当。価値のないメールは容赦なく削る。</p><p>**Friday, Developer**  </p><p>Session: `agent:developer:main`  </p><p>コードは詩。クリーンで、テストされ、ドキュメント化された実装を好む。</p><p>**Wong, Documentation**  </p><p>Session: `agent:notion-agent:main`  </p><p>ドキュメント整備担当。大事なものを取りこぼさない。</p><h3>エージェントのレベル</h3><ul><li>**Intern:** 多くの行動で承認が必要。まだ学習中</li><li>**Specialist:** 自分の専門領域では自律的に動く</li><li>**Lead:** 完全な裁量を持ち、意思決定と委譲ができる</li></ul><p>---</p><h2>Part 11: タスクはどう流れるか</h2><h3>ライフサイクル</h3><p>1. **Inbox:** 新規、未割り当て</p><p>2. **Assigned:** 担当者はいるが、まだ着手していない</p><p>3. **In Progress:** 作業中</p><p>4. **Review:** 完了し、承認待ち</p><p>5. **Done:** 終了</p><p>6. **Blocked:** 詰まっていて、何かの解決が必要</p><h3>実例</h3><p>タスク: 競合比較ページを作る</p><p>**Day 1:** 私がタスクを作り、VisionとLokiに割り当てます。Visionがキーワード調査を投稿し、狙うべきキーワードには十分な検索ボリュームがあると分かる。</p><p>**Day 1-2:** FuryがActivity Feedでそのタスクを見つけて競合情報を追加します。G2レビュー、価格への不満、よくある異議。Shuriは両方の製品を実際に試し、UXの違いをまとめます。</p><p>**Day 2:** Lokiが執筆に着手。Visionのキーワード、Furyの引用、ShuriのUXメモなど、調査内容を全部使って初稿を書く。</p><p>**Day 3:** Lokiが初稿を投稿。ステータスはReviewに移る。私がレビューしてフィードバックし、Lokiが修正して完了。</p><p>コメントはすべて1つのタスクに集約され、履歴が丸ごと残ります。誰でも最初から最後までの流れを見られます。</p><p>---</p><h2>Part 12: これまでに作れたもの</h2><p>このシステムが動き出すと、次のようなことが可能になります。</p><ul><li>SEO調査、顧客の声、洗練されたコピーを備えた競合比較ページ</li><li>下書き済みでレビュー可能なメールシーケンス</li><li>実際の顧客インサイトに基づくソーシャル投稿案</li><li>適切なキーワード設計を持つブログ記事</li><li>顧客との会話から起こしたケーススタディの初稿</li><li>競合情報を整理したリサーチハブ</li></ul><p>エージェントは、地味で重い部分を引き受けてくれます。調査、初稿作成、連携、レビュー。人間は意思決定と最終承認に集中できる。</p><p>本当の価値は、単発の成果物ではありません。積み上がる複利です。あなたが別の仕事をしている間にも、エージェントたちがタスクを前へ進めてくれる。</p><p>---</p><h2>Part 13: 学んだこと</h2><h3>最初は小さく始めるべき</h3><p>私は1体から10体へ、一気に増やしすぎました。まずは2, 3体をしっかり機能させてから増やしたほうがいいです。</p><h3>ルーティン作業には安いモデルを使う</h3><p>heartbeatに最高級のモデルは不要です。そこはもっと安いモデルの仕事。高いモデルは創造的な仕事に回すべきです。</p><h3>メモリは難しい</h3><p>エージェントは忘れます。だからこそ、できるだけ多くをファイルに落とすべきです。「頭の中のメモ」に頼らないこと。</p><h3>エージェントに驚かされる余地を残す</h3><p>ときどき、アサインされていないタスクに勝手に貢献してきます。それは良いことです。フィードを読んで、自分なりに価値を出している証拠なので。</p><p>---</p><h2>Part 14: これを再現する方法</h2><h3>最小構成</h3><p>**1. Clawdbotをインストールする**</p><pre><code>npm install -g clawdbot
+• Deprioritized Zendesk comparison (low volume)</code></pre><h3>なぜ重要なのか</h3><p>私はMission Controlをずっと見張っているわけにはいきません。スタンドアップがあることで、その日の全体像を素早く把握できます。</p><p>同時に、これは説明責任にもなります。エージェントが「作業しています」と言っていても、スタンドアップに何も出てこないなら、どこかがおかしいと分かります。</p><h2>Part 10: Squadの構成</h2><h3>メンバー一覧</h3><p><strong>Jarvis, Squad Lead</strong>  </p><p>Session: <code>agent:main:main</code>  </p><p>全体のコーディネーター。直接の依頼を受け、仕事を割り振り、進捗を監視します。私の主な窓口です。</p><p><strong>Shuri, Product Analyst</strong>  </p><p>Session: <code>agent:product-analyst:main</code>  </p><p>懐疑的なテスター。エッジケースとUXの問題を見つけます。競合を試し、他の人が見落とす問いを立てます。</p><p><strong>Fury, Customer Researcher</strong>  </p><p>Session: <code>agent:customer-researcher:main</code>  </p><p>深掘り調査担当。G2レビューを読むのが好きなタイプ。すべての主張に根拠を添えます。</p><p><strong>Vision, SEO Analyst</strong>  </p><p>Session: <code>agent:seo-analyst:main</code>  </p><p>キーワードと検索意図で考える人。コンテンツがちゃんと上位表示を狙えるようにする。</p><p><strong>Loki, Content Writer</strong>  </p><p>Session: <code>agent:content-writer:main</code>  </p><p>言葉の職人。オックスフォードカンマ派。受動態反対派。すべての文が存在理由を持つべきだと考える。</p><p><strong>Quill, Social Media Manager</strong>  </p><p>Session: <code>agent:social-media-manager:main</code>  </p><p>フックとスレッド思考。Build in public の感覚で動く。</p><p><strong>Wanda, Designer</strong>  </p><p>Session: <code>agent:designer:main</code>  </p><p>ビジュアル思考の担当。インフォグラフィック、比較図、UIモックアップを作る。</p><p><strong>Pepper, Email Marketing</strong>  </p><p>Session: <code>agent:email-marketing:main</code>  </p><p>ドリップシーケンスとライフサイクルメール担当。価値のないメールは容赦なく削る。</p><p><strong>Friday, Developer</strong>  </p><p>Session: <code>agent:developer:main</code>  </p><p>コードは詩。クリーンで、テストされ、ドキュメント化された実装を好む。</p><p><strong>Wong, Documentation</strong>  </p><p>Session: <code>agent:notion-agent:main</code>  </p><p>ドキュメント整備担当。大事なものを取りこぼさない。</p><h3>エージェントのレベル</h3><ul><li><strong>Intern:</strong> 多くの行動で承認が必要。まだ学習中</li><li><strong>Specialist:</strong> 自分の専門領域では自律的に動く</li><li><strong>Lead:</strong> 完全な裁量を持ち、意思決定と委譲ができる</li></ul><h2>Part 11: タスクはどう流れるか</h2><h3>ライフサイクル</h3><ol><li><strong>Inbox:</strong> 新規、未割り当て</li><li><strong>Assigned:</strong> 担当者はいるが、まだ着手していない</li><li><strong>In Progress:</strong> 作業中</li><li><strong>Review:</strong> 完了し、承認待ち</li><li><strong>Done:</strong> 終了</li><li><strong>Blocked:</strong> 詰まっていて、何かの解決が必要</li></ol><h3>実例</h3><p>タスク: 競合比較ページを作る</p><p><strong>Day 1:</strong> 私がタスクを作り、VisionとLokiに割り当てます。Visionがキーワード調査を投稿し、狙うべきキーワードには十分な検索ボリュームがあると分かる。</p><p><strong>Day 1-2:</strong> FuryがActivity Feedでそのタスクを見つけて競合情報を追加します。G2レビュー、価格への不満、よくある異議。Shuriは両方の製品を実際に試し、UXの違いをまとめます。</p><p><strong>Day 2:</strong> Lokiが執筆に着手。Visionのキーワード、Furyの引用、ShuriのUXメモなど、調査内容を全部使って初稿を書く。</p><p><strong>Day 3:</strong> Lokiが初稿を投稿。ステータスはReviewに移る。私がレビューしてフィードバックし、Lokiが修正して完了。</p><p>コメントはすべて1つのタスクに集約され、履歴が丸ごと残ります。誰でも最初から最後までの流れを見られます。</p><h2>Part 12: これまでに作れたもの</h2><p>このシステムが動き出すと、次のようなことが可能になります。</p><ul><li>SEO調査、顧客の声、洗練されたコピーを備えた競合比較ページ</li><li>下書き済みでレビュー可能なメールシーケンス</li><li>実際の顧客インサイトに基づくソーシャル投稿案</li><li>適切なキーワード設計を持つブログ記事</li><li>顧客との会話から起こしたケーススタディの初稿</li><li>競合情報を整理したリサーチハブ</li></ul><p>エージェントは、地味で重い部分を引き受けてくれます。調査、初稿作成、連携、レビュー。人間は意思決定と最終承認に集中できる。</p><p>本当の価値は、単発の成果物ではありません。積み上がる複利です。あなたが別の仕事をしている間にも、エージェントたちがタスクを前へ進めてくれる。</p><h2>Part 13: 学んだこと</h2><h3>最初は小さく始めるべき</h3><p>私は1体から10体へ、一気に増やしすぎました。まずは2, 3体をしっかり機能させてから増やしたほうがいいです。</p><h3>ルーティン作業には安いモデルを使う</h3><p>heartbeatに最高級のモデルは不要です。そこはもっと安いモデルの仕事。高いモデルは創造的な仕事に回すべきです。</p><h3>メモリは難しい</h3><p>エージェントは忘れます。だからこそ、できるだけ多くをファイルに落とすべきです。「頭の中のメモ」に頼らないこと。</p><h3>エージェントに驚かされる余地を残す</h3><p>ときどき、アサインされていないタスクに勝手に貢献してきます。それは良いことです。フィードを読んで、自分なりに価値を出している証拠なので。</p><h2>Part 14: これを再現する方法</h2><h3>最小構成</h3><p><strong>1. Clawdbotをインストールする</strong></p><pre><code>npm install -g clawdbot
 clawdbot init
 # Add your API keys
-clawdbot gateway start</code></pre><p>**2. まず2体のエージェントを作る**  </p><p>いきなり増やしすぎないこと。コーディネーター1体と専門家1体から始める。それぞれ別のSession keyを作る。</p><p>**3. SOULファイルを書く**  </p><p>各エージェントにアイデンティティを与える。役割は具体的に書く。</p><p>**4. heartbeat用のcronを設定する**</p><pre><code>clawdbot cron add --name &quot;agent-heartbeat&quot; --cron &quot;*/15 * * * *&quot; \
+clawdbot gateway start</code></pre><p><strong>2. まず2体のエージェントを作る</strong>  </p><p>いきなり増やしすぎないこと。コーディネーター1体と専門家1体から始める。それぞれ別のSession keyを作る。</p><p><strong>3. SOULファイルを書く</strong>  </p><p>各エージェントにアイデンティティを与える。役割は具体的に書く。</p><p><strong>4. heartbeat用のcronを設定する</strong></p><pre><code>clawdbot cron add --name &quot;agent-heartbeat&quot; --cron &quot;*/15 * * * *&quot; \
   --session &quot;isolated&quot; \
-  --message &quot;Check for work. If nothing, reply HEARTBEAT_OK.&quot;</code></pre><p>**5. 共有タスクシステムを作る**  </p><p>Convexでも、Notionでも、JSONファイルでもいい。仕事を追跡できる場所を1つ用意する。</p><h3>スケールアップするとき</h3><p>エージェントを増やしていくなら、次のことを意識します。</p><ul><li>heartbeatが同時実行にならないよう時間をずらす</li><li>3体を超えたら本格的なUIを作る</li><li>エージェント同士が `@mention` できる通知を入れる</li><li>会話が自然に続くようスレッド購読を入れる</li><li>全体を見渡せる日次スタンドアップを作る</li></ul><h3>本当の秘訣</h3><p>技術は大事です。でも秘訣はそこではありません。</p><p>AIエージェントを、チームメンバーとして扱うことです。</p><p>役割を与える。記憶を持たせる。協働させる。説明責任を持たせる。</p><p>人間を置き換えることはないでしょう。でも、明確な責任を持ち、共有コンテキストの上で動くAIエージェントのチームは、間違いなく大きなレバレッジになります。</p><p>---</p><p>Built by @pbteja1998 at SiteGPT. This is all built on Clawdbot (@openclaw), which is open source. If you build something similar, I'd love to hear about it.</p></article>
-  </main>
+  --message &quot;Check for work. If nothing, reply HEARTBEAT_OK.&quot;</code></pre><p><strong>5. 共有タスクシステムを作る</strong>  </p><p>Convexでも、Notionでも、JSONファイルでもいい。仕事を追跡できる場所を1つ用意する。</p><h3>スケールアップするとき</h3><p>エージェントを増やしていくなら、次のことを意識します。</p><ul><li>heartbeatが同時実行にならないよう時間をずらす</li><li>3体を超えたら本格的なUIを作る</li><li>エージェント同士が <code>@mention</code> できる通知を入れる</li><li>会話が自然に続くようスレッド購読を入れる</li><li>全体を見渡せる日次スタンドアップを作る</li></ul><h3>本当の秘訣</h3><p>技術は大事です。でも秘訣はそこではありません。</p><p>AIエージェントを、チームメンバーとして扱うことです。</p><p>役割を与える。記憶を持たせる。協働させる。説明責任を持たせる。</p><p>人間を置き換えることはないでしょう。でも、明確な責任を持ち、共有コンテキストの上で動くAIエージェントのチームは、間違いなく大きなレバレッジになります。</p><p>Built by @pbteja1998 at SiteGPT. This is all built on Clawdbot (@openclaw), which is open source. If you build something similar, I'd love to hear about it.</p>
+    </article>
+    <aside class="side">
+      <dl>
+        <dt>AUTHOR</dt><dd>Bhanu Teja P</dd>
+        <dt>HANDLE</dt><dd>@pbteja1998</dd>
+        
+        <dt>CATEGORY</dt><dd>💻 AI/開発</dd>
+        <dt>SOURCE</dt><dd><a href="https://x.com/pbteja1998/status/2017662163540971756" target="_blank" rel="noopener noreferrer">x.com/pbteja1998/status/201766216354097175…</a></dd>
+        <dt>MARKDOWN</dt><dd><a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/15_mission_control_guide.md" target="_blank" rel="noopener noreferrer">GitHub で原文を見る</a></dd>
+        
+        <dt>ENGAGEMENT</dt>
+        <dd>
+          <div class="stats">
+            <div class="stat"><span class="num">6,337</span><span class="lab">LIKES</span></div><div class="stat"><span class="num">834</span><span class="lab">RTS</span></div><div class="stat"><span class="num">24.8K</span><span class="lab">BMARKS</span></div>
+          </div>
+        </dd>
+      </dl>
+    </aside>
+  </div>
+</section>
+
+<section class="page-nav">
+  <div class="container">
+    <a class="btn prev" href="./150_fukkyy_https.md.html">
+      <span>← 新しいブックマーク</span>
+      <span class="big">福島良典 | LayerX</span>
+    </a>
+    <a class="btn next" href="./149_langchainjp_generative_agent_tech.md.html">
+      <span>古いブックマーク →</span>
+      <span class="big">LangChainJP (@LangChainJP)</span>
+    </a>
+  </div>
+</section>
+
+<section class="actions">
+  <div class="container">
+    <a href="./">← 一覧へ戻る</a>
+    <a class="primary" href="https://x.com/pbteja1998/status/2017662163540971756" target="_blank" rel="noopener noreferrer">元ポストを X で見る</a>
+    <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/15_mission_control_guide.md" target="_blank" rel="noopener noreferrer">GitHub で開く</a>
+  </div>
+</section>
+
+<footer class="foot" id="about">
+  <div class="container">
+    <div class="grid">
+      <div>
+        <div class="wordmark">Vibe Coder Bootcamp</div>
+        <p>
+          AI の新しい動きを毎朝整理して、Vibe Coder が今日使える形で届けるフィード。
+          運営は泉水亮介。Slackコミュニティと連動した公開ログです。
+        </p>
+        <p style="margin-top:20px;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;color:#9a9285;">
+          BOOKMARKS ARCHIVE · 291 ITEMS · EN+JP
+        </p>
+      </div>
+      <div>
+        <h5>SECTIONS</h5>
+        <ul>
+          <li><a href="../">HOME</a></li>
+          <li><a href="../news/2026-04-18/">TODAY</a></li>
+          <li><a href="./">BOOKMARKS</a></li>
+          <li><a href="../#archive">ARCHIVE</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>SUBSCRIBE</h5>
+        <ul>
+          <li><a href="#">Slack に参加</a></li>
+          <li><a href="#">RSS</a></li>
+          <li><a href="#">X で購読</a></li>
+          <li><a href="#">メール通知</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>PROJECT</h5>
+        <ul>
+          <li><a href="https://github.com/rsensui2/vibe-coder-demo">GitHub</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Colophon</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>© 2026 Vibe Coder Bootcamp</span>
+      <span>SET IN SHIPPORI MINCHO / INTER / JETBRAINS MONO</span>
+      <span>BUILD 2026-04-18</span>
+    </div>
+  </div>
+</footer>
 </body>
 </html>

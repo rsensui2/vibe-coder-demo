@@ -3,29 +3,431 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Awesome Claude Skills - スキル集まとめ</title>
+  <title>Awesome Claude Skills - スキル集まとめ — Bookmarks · Vibe Coder Bootcamp</title>
+  <meta name="description" content="Claude CodeやAntigravityの能力を拡張する「Skill」のまとめリスト。投稿者が「脳死でこのリストから入れておけば間違いない」と推奨している。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho+B1:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css" />
   <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#fcfcfe;color:#222}
-    main{max-width:860px;margin:0 auto;padding:24px 16px 80px}
-    a{color:#0b57d0;text-decoration:none}
-    .nav{margin-bottom:20px;font-size:14px}
-    h1{font-size:32px;line-height:1.35;margin:0 0 12px}
-    .meta{color:#666;font-size:14px;margin-bottom:24px}
-    article{background:#fff;border:1px solid #e7e7ef;border-radius:16px;padding:24px;line-height:1.85;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-    article h2, article h3{margin-top:28px}
-    article pre{white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:12px;overflow:auto}
-    article code{background:#f3f4f6;padding:2px 4px;border-radius:6px}
-    article blockquote{border-left:4px solid #d6d9e6;margin:16px 0;padding:0 0 0 14px;color:#555}
-    article ul{padding-left:20px}
-  </style>
+  /* Archive page — day sections */
+  .bm-archive { padding: 0 0 40px; background: var(--paper); }
+  .bm-day {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .bm-day:first-of-type { padding-top: 40px; }
+  .bm-day-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .bm-day-head .date {
+    font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+    font-weight: 800;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0;
+  }
+  .bm-day-head .date .sep { color: var(--accent); margin: 0 2px; }
+  .bm-day-head .count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 8px 14px;
+    border: 1px solid var(--accent);
+    white-space: nowrap;
+  }
+  /* active nav underline */
+  .masthead nav a.is-active { border-bottom-color: var(--accent); color: var(--accent); }
+
+  /* Article page — prose */
+  .bm-article-head {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .bm-article-head .breadcrumb {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 18px;
+  }
+  .bm-article-head .breadcrumb a { color: var(--ink); border-bottom: 1px solid var(--hair); padding-bottom: 1px; }
+  .bm-article-head .breadcrumb a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .bm-article-head .cat-line {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .bm-article-head .cat-line .sep { color: var(--mute); }
+  .bm-article-head h1.title {
+    font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+    font-weight: 800;
+    font-size: clamp(32px, 4.4vw, 58px);
+    line-height: 1.12;
+    letter-spacing: -0.005em;
+    margin: 0 0 24px;
+    color: var(--ink);
+  }
+  .bm-article-head .strap {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .bm-article-head .strap span .label { color: var(--accent); margin-right: 6px; }
+  .bm-article-head .strap a { border-bottom: 1px solid var(--hair); padding-bottom: 2px; }
+  .bm-article-head .strap a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .bm-body { padding: 72px 0; border-bottom: 1px solid var(--hair); }
+  .bm-body .container {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr) 300px;
+    gap: 48px;
+  }
+  .bm-body .numeral {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 96px;
+    font-weight: 800;
+    line-height: 0.85;
+    color: var(--ink);
+    position: sticky;
+    top: 40px;
+    align-self: start;
+    letter-spacing: -0.03em;
+  }
+  .bm-body .numeral .ord {
+    display: block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  .bm-body .prose {
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    font-family: "Inter", "Noto Sans JP", sans-serif;
+  }
+  .bm-body .prose > *:first-child { margin-top: 0; }
+  .bm-body .prose h1 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 40px 0 18px;
+    color: var(--ink);
+  }
+  .bm-body .prose h2 {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 40px 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+  }
+  .bm-body .prose h2::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .bm-body .prose h3 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.35;
+    margin: 32px 0 14px;
+    color: var(--ink);
+  }
+  .bm-body .prose p { margin: 0 0 18px; }
+  .bm-body .prose ul, .bm-body .prose ol {
+    border-left: 2px solid var(--ink);
+    padding: 4px 0 4px 24px;
+    margin: 18px 0 24px;
+    list-style: none;
+  }
+  .bm-body .prose ul li, .bm-body .prose ol li {
+    position: relative;
+    padding: 4px 0 4px 18px;
+    font-size: 15px;
+  }
+  .bm-body .prose ul li::before {
+    content: "·";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .bm-body .prose blockquote {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 19px;
+    line-height: 1.6;
+    padding: 18px 0 18px 24px;
+    border-left: 4px solid var(--accent);
+    margin: 28px 0;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .bm-body .prose pre {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 20px 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .bm-body .prose code {
+    background: var(--paper-deep);
+    border: 1px solid var(--hair);
+    padding: 1px 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.9em;
+  }
+  .bm-body .prose pre code { background: transparent; border: 0; padding: 0; color: inherit; font-size: 13px; }
+  .bm-body .prose a { color: var(--accent); border-bottom: 1px solid rgba(200,52,31,0.25); }
+  .bm-body .prose a:hover { border-bottom-color: var(--accent); }
+
+  .bm-body .side {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--mute);
+    border-top: 1px solid var(--hair);
+    padding-top: 24px;
+    position: sticky;
+    top: 40px;
+    align-self: start;
+  }
+  .bm-body .side dl { margin: 0; }
+  .bm-body .side dt {
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-top: 18px;
+    margin-bottom: 6px;
+  }
+  .bm-body .side dt:first-child { margin-top: 0; }
+  .bm-body .side dd {
+    margin: 0 0 4px;
+    color: var(--ink);
+    word-break: break-all;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .bm-body .side dd a { border-bottom: 1px solid var(--hair); padding-bottom: 1px; }
+  .bm-body .side dd a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .bm-body .side .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 18px;
+    margin-top: 8px;
+  }
+  .bm-body .side .stats .stat .num {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 24px;
+    color: var(--ink);
+    line-height: 1;
+    font-weight: 800;
+    display: block;
+  }
+  .bm-body .side .stats .stat .lab {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--mute);
+    margin-top: 4px;
+    display: block;
+    text-transform: uppercase;
+  }
+
+  /* card: stretched-link target must be local nav, not external */
+  .xcard .xcard-main-link { cursor: pointer; }
+
+  @media (max-width: 980px) {
+    .bm-body .container { grid-template-columns: 1fr; gap: 24px; }
+    .bm-body .numeral { position: static; font-size: 64px; }
+    .bm-body .side { position: static; }
+    .bm-day-head .date { font-size: 36px; }
+  }
+</style>
 </head>
 <body>
-  <main>
-    <div class="nav"><a href="./index.html">← 一覧へ戻る</a> ・ <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/03_awesome_claude_skills.md">GitHubで開く</a> ・ <a href="https://x.com/yoshio_nocode/status/2016740684351561869">元ポスト</a></div>
-    <h1>Awesome Claude Skills - スキル集まとめ</h1>
-    <div class="meta">null ・ スモビジ開発ラボ (@yoshio_nocode) ・ 💻 AI/開発</div>
-    <article><h1>Awesome Claude Skills - スキル集まとめ</h1><p>**投稿者:** スモビジ開発ラボ (@yoshio_nocode)  </p><p>**投稿日時:** 2026年1月29日 14:10  </p><p>**URL:** https://x.com/yoshio_nocode/status/2016740684351561869  </p><p>**引用元:** Tom Dörr (@tom_doerr)  </p><p>**GitHubリポジトリ:** https://github.com/BehiSecc/awesome-claude-skills  </p><p>**エンゲージメント:** 98リポスト / 1,212いいね / 1,840ブックマーク / 12.2万表示</p><p>---</p><h2>概要</h2><p>Claude CodeやAntigravityの能力を拡張する「Skill」のまとめリスト。投稿者が「脳死でこのリストから入れておけば間違いない」と推奨している。</p><p>---</p><h2>投稿者おすすめのスキル</h2><p>| スキル名 | 説明 |</p><p>|---------|------|</p><p>| **deep-research** | 市場調査・競合分析を自律実行 |</p><p>| **revealjs-skill** | プレゼン資料を爆速生成 |</p><p>| **test-driven-development** | TDDで実装をガイド |</p><p>| **brainstorming** | AIと壁打ちしてアイデアを洗練 |</p><p>| **ship-learn-next** | 次に何を学ぶか、作るべきかを提案 |</p><p>| **video-downloader** | 動画教材などを保存 |</p><p>| **invoice-organizer** | 請求書などの整理を自動化 |</p><p>---</p><h2>全スキルリスト（カテゴリ別）</h2><h3>📄 ドキュメント系</h3><ul><li>**docx** - Word文書の作成・編集・分析</li><li>**pdf** - PDF抽出、テーブル、メタデータ、マージ、注釈</li><li>**pptx** - スライドの読み込み・生成・調整</li><li>**xlsx** - スプレッドシート操作（数式、チャート、データ変換）</li><li>**revealjs-skill** - Reveal.jsでプロ品質のプレゼン生成</li></ul><h3>🛠 開発・コードツール</h3><ul><li>**web-artifacts-builder** - React, Tailwind, shadcn/uiでHTMLアーティファクト作成</li><li>**test-driven-development** - TDD実装ガイド</li><li>**using-git-worktrees** - 隔離されたgit worktree作成</li><li>**finishing-a-development-branch** - 開発ブランチ完了ワークフロー</li><li>**pypict-claude-skill** - ペアワイズテスト設計</li><li>**aws-skills** - AWS CDKベストプラクティス</li><li>**claude-starter** - 40個のスキル付きテンプレート</li><li>**move-code-quality-skill** - Move言語品質チェック</li><li>**claude-code-terminal-title** - ターミナルタイトル管理</li><li>**charles-proxy-extract** - Charles ProxyセッションHTTPトラフィック分析</li><li>**plugin-authoring** - Claude Codeプラグイン作成ガイド</li><li>**claude-skills** - 65個のフルスタック開発スキル</li><li>**jules** - Google Jules AIエージェント連携</li></ul><h3>📊 データ・分析</h3><ul><li>**root-cause-tracing** - エラーの根本原因追跡</li><li>**csv-data-summarizer** - CSV自動分析（列、分布、欠損、相関）</li><li>**postgres** - 安全なPostgreSQL読み取りクエリ</li></ul><h3>🔬 科学・リサーチ</h3><ul><li>**claude-scientific-skills** - 125+の科学スキル</li><li>**materials-simulation-skills** - 計算材料科学シミュレーション</li><li>**deep-research** - Gemini Deep Researchエージェントで自律リサーチ</li></ul><h3>✍️ ライティング・リサーチ</h3><ul><li>**article-extractor** - Webページから記事テキスト抽出</li><li>**content-research-writer** - リサーチ・引用・フィードバック付きコンテンツ作成</li><li>**internal-comms** - 社内コミュニケーション文書作成</li><li>**brainstorming** - アイデアを構造化質問で洗練</li><li>**family-history-research** - 家系図・系譜リサーチ支援</li></ul><h3>📘 学習・ナレッジ</h3><ul><li>**tapestry** - ドキュメントを知識ネットワークに相互リンク</li><li>**ship-learn-next** - 次に何を作る/学ぶかの提案</li></ul><h3>🎬 メディア・コンテンツ</h3><ul><li>**youtube-transcript** - YouTube動画の文字起こし取得・要約</li><li>**video-downloader** - 動画ダウンロード</li><li>**image-enhancer** - 画像品質向上（スクリーンショット特化）</li><li>**imagen** - Google Gemini画像生成</li><li>**claude-epub-skill** - EPUBパース・分析</li><li>**video-prompting-skill** - 動画生成モデル用プロンプト作成</li></ul><h3>🏥 ヘルス・ライフサイエンス</h3><ul><li>**claude-ally-health** - 医療レポート分析、健康メトリクス追跡</li></ul><h3>🤝 コラボ・プロジェクト管理</h3><ul><li>**git-pushing** - git操作自動化</li><li>**linear-claude-skill** - Linear連携（イシュー、プロジェクト、チーム管理）</li><li>**linear-cli-skill** - Linear CLI操作</li><li>**meeting-insights-analyzer** - ミーティング文字起こし分析</li><li>**review-implementing** - コード実装レビュー</li><li>**test-fixing** - 失敗テスト検出・修正提案</li><li>**plannotator** - 計画レビューUI</li><li>**outline** - Outlineウィキ連携</li><li>**google-workspace-skills** - Gmail, カレンダー, Chat, Docs, Sheets, Slides, Drive連携</li></ul><h3>🛡 セキュリティ・Webテスト</h3><ul><li>**defense-in-depth** - 多層テスト・セキュリティベストプラクティス</li><li>**ffuf_claude_skill** - FFUFファジング連携</li><li>**systematic-debugging** - 体系的デバッグ</li><li>**Trail of Bits Security Skills** - 静的解析、コード監査</li><li>**varlock-claude-skill** - 環境変数セキュア管理</li><li>**webapp-testing** - Playwrightでローカルアプリテスト</li></ul><h3>🔧 ユーティリティ・自動化</h3><ul><li>**file-organizer** - ファイル・フォルダ整理</li><li>**invoice-organizer** - 請求書・領収書自動整理</li><li>**skill-creator** - 新規スキル作成テンプレート</li><li>**template-skill** - 最小スケルトン構造</li><li>**pinme** - ゼロ設定フロントエンドデプロイ</li></ul><p>---</p><h2>インストール方法</h2><p>AIに以下のように指示すればOK:</p><pre><code>こちらのskill集から「~~」というskillをインストールしたい。
-https://github.com/BehiSecc/awesome-claude-skills</code></pre><p>---</p><p>*保存日: 2026-01-30*</p></article>
-  </main>
+<div class="dispatch">
+  <div class="container row">
+    <span class="tick">BOOKMARK №264</span>
+    <span class="sep">/</span>
+    <span>2026-04-18</span>
+    <span class="sep">/</span>
+    <span>@yoshio_nocode</span>
+    <span class="sep">/</span>
+    <span>291 ITEMS</span>
+    <span class="sep">/</span>
+    <span>JST 13:11 SAT</span>
+    <span class="sep">/</span>
+    <span class="live">LIVE</span>
+    <span class="sep">/</span>
+    <span>CURATED BY 泉水亮介</span>
+  </div>
+</div>
+<header class="masthead">
+  <div class="container row">
+    <a href="../" class="wordmark"><span class="bar"></span>Vibe Coder Bootcamp</a>
+    <nav>
+      <a href="../">HOME</a>
+      <a href="../news/2026-04-18/">NEWS</a>
+      <a href="./" class="is-active">BOOKMARKS</a>
+      <a href="../#archive">ARCHIVE</a>
+      <a href="../#about">ABOUT</a>
+    </nav>
+    <div class="meta">JST · 13:11 · SAT</div>
+  </div>
+</header>
+
+<section class="bm-article-head">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="./">← BOOKMARKS</a> <span>/</span> 日付不明 <span>/</span> №264
+    </div>
+    <div class="cat-line">
+      <span>💻 AI/開発</span>
+      <span class="sep">·</span><span>スモビジ開発ラボ <span style="opacity:.7">@yoshio_nocode</span></span>
+      
+    </div>
+    <h1 class="title">Awesome Claude Skills - スキル集まとめ</h1>
+    <div class="strap">
+      <span><span class="label">№</span>264 / 291</span>
+      <span><span class="label">SRC</span><a href="https://x.com/yoshio_nocode/status/2016740684351561869" target="_blank" rel="noopener noreferrer">x.com/yoshio_nocode ↗</a></span>
+      <span><span class="label">GH</span><a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/03_awesome_claude_skills.md" target="_blank" rel="noopener noreferrer">GitHub ↗</a></span>
+    </div>
+  </div>
+</section>
+
+<section class="bm-body">
+  <div class="container">
+    <aside class="numeral">264<span class="ord">BOOKMARK / 291</span></aside>
+    <article class="prose">
+<p><strong>引用元:</strong> Tom Dörr (@tom_doerr)  </p><p><strong>GitHubリポジトリ:</strong> https://github.com/BehiSecc/awesome-claude-skills  </p><p><strong>エンゲージメント:</strong> 98リポスト / 1,212いいね / 1,840ブックマーク / 12.2万表示</p><h2>概要</h2><p>Claude CodeやAntigravityの能力を拡張する「Skill」のまとめリスト。投稿者が「脳死でこのリストから入れておけば間違いない」と推奨している。</p><h2>投稿者おすすめのスキル</h2><p>| スキル名 | 説明 |</p><p>|---------|------|</p><p>| <strong>deep-research</strong> | 市場調査・競合分析を自律実行 |</p><p>| <strong>revealjs-skill</strong> | プレゼン資料を爆速生成 |</p><p>| <strong>test-driven-development</strong> | TDDで実装をガイド |</p><p>| <strong>brainstorming</strong> | AIと壁打ちしてアイデアを洗練 |</p><p>| <strong>ship-learn-next</strong> | 次に何を学ぶか、作るべきかを提案 |</p><p>| <strong>video-downloader</strong> | 動画教材などを保存 |</p><p>| <strong>invoice-organizer</strong> | 請求書などの整理を自動化 |</p><h2>全スキルリスト（カテゴリ別）</h2><h3>📄 ドキュメント系</h3><ul><li><strong>docx</strong> - Word文書の作成・編集・分析</li><li><strong>pdf</strong> - PDF抽出、テーブル、メタデータ、マージ、注釈</li><li><strong>pptx</strong> - スライドの読み込み・生成・調整</li><li><strong>xlsx</strong> - スプレッドシート操作（数式、チャート、データ変換）</li><li><strong>revealjs-skill</strong> - Reveal.jsでプロ品質のプレゼン生成</li></ul><h3>🛠 開発・コードツール</h3><ul><li><strong>web-artifacts-builder</strong> - React, Tailwind, shadcn/uiでHTMLアーティファクト作成</li><li><strong>test-driven-development</strong> - TDD実装ガイド</li><li><strong>using-git-worktrees</strong> - 隔離されたgit worktree作成</li><li><strong>finishing-a-development-branch</strong> - 開発ブランチ完了ワークフロー</li><li><strong>pypict-claude-skill</strong> - ペアワイズテスト設計</li><li><strong>aws-skills</strong> - AWS CDKベストプラクティス</li><li><strong>claude-starter</strong> - 40個のスキル付きテンプレート</li><li><strong>move-code-quality-skill</strong> - Move言語品質チェック</li><li><strong>claude-code-terminal-title</strong> - ターミナルタイトル管理</li><li><strong>charles-proxy-extract</strong> - Charles ProxyセッションHTTPトラフィック分析</li><li><strong>plugin-authoring</strong> - Claude Codeプラグイン作成ガイド</li><li><strong>claude-skills</strong> - 65個のフルスタック開発スキル</li><li><strong>jules</strong> - Google Jules AIエージェント連携</li></ul><h3>📊 データ・分析</h3><ul><li><strong>root-cause-tracing</strong> - エラーの根本原因追跡</li><li><strong>csv-data-summarizer</strong> - CSV自動分析（列、分布、欠損、相関）</li><li><strong>postgres</strong> - 安全なPostgreSQL読み取りクエリ</li></ul><h3>🔬 科学・リサーチ</h3><ul><li><strong>claude-scientific-skills</strong> - 125+の科学スキル</li><li><strong>materials-simulation-skills</strong> - 計算材料科学シミュレーション</li><li><strong>deep-research</strong> - Gemini Deep Researchエージェントで自律リサーチ</li></ul><h3>✍️ ライティング・リサーチ</h3><ul><li><strong>article-extractor</strong> - Webページから記事テキスト抽出</li><li><strong>content-research-writer</strong> - リサーチ・引用・フィードバック付きコンテンツ作成</li><li><strong>internal-comms</strong> - 社内コミュニケーション文書作成</li><li><strong>brainstorming</strong> - アイデアを構造化質問で洗練</li><li><strong>family-history-research</strong> - 家系図・系譜リサーチ支援</li></ul><h3>📘 学習・ナレッジ</h3><ul><li><strong>tapestry</strong> - ドキュメントを知識ネットワークに相互リンク</li><li><strong>ship-learn-next</strong> - 次に何を作る/学ぶかの提案</li></ul><h3>🎬 メディア・コンテンツ</h3><ul><li><strong>youtube-transcript</strong> - YouTube動画の文字起こし取得・要約</li><li><strong>video-downloader</strong> - 動画ダウンロード</li><li><strong>image-enhancer</strong> - 画像品質向上（スクリーンショット特化）</li><li><strong>imagen</strong> - Google Gemini画像生成</li><li><strong>claude-epub-skill</strong> - EPUBパース・分析</li><li><strong>video-prompting-skill</strong> - 動画生成モデル用プロンプト作成</li></ul><h3>🏥 ヘルス・ライフサイエンス</h3><ul><li><strong>claude-ally-health</strong> - 医療レポート分析、健康メトリクス追跡</li></ul><h3>🤝 コラボ・プロジェクト管理</h3><ul><li><strong>git-pushing</strong> - git操作自動化</li><li><strong>linear-claude-skill</strong> - Linear連携（イシュー、プロジェクト、チーム管理）</li><li><strong>linear-cli-skill</strong> - Linear CLI操作</li><li><strong>meeting-insights-analyzer</strong> - ミーティング文字起こし分析</li><li><strong>review-implementing</strong> - コード実装レビュー</li><li><strong>test-fixing</strong> - 失敗テスト検出・修正提案</li><li><strong>plannotator</strong> - 計画レビューUI</li><li><strong>outline</strong> - Outlineウィキ連携</li><li><strong>google-workspace-skills</strong> - Gmail, カレンダー, Chat, Docs, Sheets, Slides, Drive連携</li></ul><h3>🛡 セキュリティ・Webテスト</h3><ul><li><strong>defense-in-depth</strong> - 多層テスト・セキュリティベストプラクティス</li><li><strong>ffuf_claude_skill</strong> - FFUFファジング連携</li><li><strong>systematic-debugging</strong> - 体系的デバッグ</li><li><strong>Trail of Bits Security Skills</strong> - 静的解析、コード監査</li><li><strong>varlock-claude-skill</strong> - 環境変数セキュア管理</li><li><strong>webapp-testing</strong> - Playwrightでローカルアプリテスト</li></ul><h3>🔧 ユーティリティ・自動化</h3><ul><li><strong>file-organizer</strong> - ファイル・フォルダ整理</li><li><strong>invoice-organizer</strong> - 請求書・領収書自動整理</li><li><strong>skill-creator</strong> - 新規スキル作成テンプレート</li><li><strong>template-skill</strong> - 最小スケルトン構造</li><li><strong>pinme</strong> - ゼロ設定フロントエンドデプロイ</li></ul><h2>インストール方法</h2><p>AIに以下のように指示すればOK:</p><pre><code>こちらのskill集から「~~」というskillをインストールしたい。
+https://github.com/BehiSecc/awesome-claude-skills</code></pre><p>*保存日: 2026-01-30*</p>
+    </article>
+    <aside class="side">
+      <dl>
+        <dt>AUTHOR</dt><dd>スモビジ開発ラボ</dd>
+        <dt>HANDLE</dt><dd>@yoshio_nocode</dd>
+        
+        <dt>CATEGORY</dt><dd>💻 AI/開発</dd>
+        <dt>SOURCE</dt><dd><a href="https://x.com/yoshio_nocode/status/2016740684351561869" target="_blank" rel="noopener noreferrer">x.com/yoshio_nocode/status/201674068435156…</a></dd>
+        <dt>MARKDOWN</dt><dd><a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/03_awesome_claude_skills.md" target="_blank" rel="noopener noreferrer">GitHub で原文を見る</a></dd>
+        
+        <dt>ENGAGEMENT</dt>
+        <dd>
+          <div class="stats">
+            <div class="stat"><span class="num">1,212</span><span class="lab">LIKES</span></div><div class="stat"><span class="num">98</span><span class="lab">RTS</span></div><div class="stat"><span class="num">1,840</span><span class="lab">BMARKS</span></div>
+          </div>
+        </dd>
+      </dl>
+    </aside>
+  </div>
+</section>
+
+<section class="page-nav">
+  <div class="container">
+    <a class="btn prev" href="./04_clawdbot_hack_10ways.md.html">
+      <span>← 新しいブックマーク</span>
+      <span class="big">10 Ways to Hack into a Vibecoder's Clawdbot（教育…</span>
+    </a>
+    <a class="btn next" href="./025_iamlukethedev_OpenClaw_v2026_3_31_just_dropped_This_one_is_all_a.md.html">
+      <span>古いブックマーク →</span>
+      <span class="big">OpenClaw v2026.3.31 が公開 🦞</span>
+    </a>
+  </div>
+</section>
+
+<section class="actions">
+  <div class="container">
+    <a href="./">← 一覧へ戻る</a>
+    <a class="primary" href="https://x.com/yoshio_nocode/status/2016740684351561869" target="_blank" rel="noopener noreferrer">元ポストを X で見る</a>
+    <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/03_awesome_claude_skills.md" target="_blank" rel="noopener noreferrer">GitHub で開く</a>
+  </div>
+</section>
+
+<footer class="foot" id="about">
+  <div class="container">
+    <div class="grid">
+      <div>
+        <div class="wordmark">Vibe Coder Bootcamp</div>
+        <p>
+          AI の新しい動きを毎朝整理して、Vibe Coder が今日使える形で届けるフィード。
+          運営は泉水亮介。Slackコミュニティと連動した公開ログです。
+        </p>
+        <p style="margin-top:20px;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;color:#9a9285;">
+          BOOKMARKS ARCHIVE · 291 ITEMS · EN+JP
+        </p>
+      </div>
+      <div>
+        <h5>SECTIONS</h5>
+        <ul>
+          <li><a href="../">HOME</a></li>
+          <li><a href="../news/2026-04-18/">TODAY</a></li>
+          <li><a href="./">BOOKMARKS</a></li>
+          <li><a href="../#archive">ARCHIVE</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>SUBSCRIBE</h5>
+        <ul>
+          <li><a href="#">Slack に参加</a></li>
+          <li><a href="#">RSS</a></li>
+          <li><a href="#">X で購読</a></li>
+          <li><a href="#">メール通知</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>PROJECT</h5>
+        <ul>
+          <li><a href="https://github.com/rsensui2/vibe-coder-demo">GitHub</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Colophon</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>© 2026 Vibe Coder Bootcamp</span>
+      <span>SET IN SHIPPORI MINCHO / INTER / JETBRAINS MONO</span>
+      <span>BUILD 2026-04-18</span>
+    </div>
+  </div>
+</footer>
 </body>
 </html>

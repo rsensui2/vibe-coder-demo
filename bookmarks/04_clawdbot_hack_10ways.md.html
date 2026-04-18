@@ -3,33 +3,435 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>10 Ways to Hack into a Vibecoder's Clawdbot（教育目的）</title>
+  <title>10 Ways to Hack into a Vibecoder's Clawdbot（教育目的） — Bookmarks · Vibe Coder Bootcamp</title>
+  <meta name="description" content="Clawdbot（現Moltbot）のセキュリティ脆弱性を10個紹介し、防止方法を解説した教育目的の記事。Vibe Codingの危険性と対策を理解するための必読資料。 ⚠️ 注意: これは教育目的のみ。他人に対してこれらの手法を試すことは推奨されていない。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho+B1:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css" />
   <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#fcfcfe;color:#222}
-    main{max-width:860px;margin:0 auto;padding:24px 16px 80px}
-    a{color:#0b57d0;text-decoration:none}
-    .nav{margin-bottom:20px;font-size:14px}
-    h1{font-size:32px;line-height:1.35;margin:0 0 12px}
-    .meta{color:#666;font-size:14px;margin-bottom:24px}
-    article{background:#fff;border:1px solid #e7e7ef;border-radius:16px;padding:24px;line-height:1.85;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-    article h2, article h3{margin-top:28px}
-    article pre{white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:12px;overflow:auto}
-    article code{background:#f3f4f6;padding:2px 4px;border-radius:6px}
-    article blockquote{border-left:4px solid #d6d9e6;margin:16px 0;padding:0 0 0 14px;color:#555}
-    article ul{padding-left:20px}
-  </style>
+  /* Archive page — day sections */
+  .bm-archive { padding: 0 0 40px; background: var(--paper); }
+  .bm-day {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .bm-day:first-of-type { padding-top: 40px; }
+  .bm-day-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .bm-day-head .date {
+    font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+    font-weight: 800;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0;
+  }
+  .bm-day-head .date .sep { color: var(--accent); margin: 0 2px; }
+  .bm-day-head .count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 8px 14px;
+    border: 1px solid var(--accent);
+    white-space: nowrap;
+  }
+  /* active nav underline */
+  .masthead nav a.is-active { border-bottom-color: var(--accent); color: var(--accent); }
+
+  /* Article page — prose */
+  .bm-article-head {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .bm-article-head .breadcrumb {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 18px;
+  }
+  .bm-article-head .breadcrumb a { color: var(--ink); border-bottom: 1px solid var(--hair); padding-bottom: 1px; }
+  .bm-article-head .breadcrumb a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .bm-article-head .cat-line {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .bm-article-head .cat-line .sep { color: var(--mute); }
+  .bm-article-head h1.title {
+    font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+    font-weight: 800;
+    font-size: clamp(32px, 4.4vw, 58px);
+    line-height: 1.12;
+    letter-spacing: -0.005em;
+    margin: 0 0 24px;
+    color: var(--ink);
+  }
+  .bm-article-head .strap {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .bm-article-head .strap span .label { color: var(--accent); margin-right: 6px; }
+  .bm-article-head .strap a { border-bottom: 1px solid var(--hair); padding-bottom: 2px; }
+  .bm-article-head .strap a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .bm-body { padding: 72px 0; border-bottom: 1px solid var(--hair); }
+  .bm-body .container {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr) 300px;
+    gap: 48px;
+  }
+  .bm-body .numeral {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 96px;
+    font-weight: 800;
+    line-height: 0.85;
+    color: var(--ink);
+    position: sticky;
+    top: 40px;
+    align-self: start;
+    letter-spacing: -0.03em;
+  }
+  .bm-body .numeral .ord {
+    display: block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  .bm-body .prose {
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    font-family: "Inter", "Noto Sans JP", sans-serif;
+  }
+  .bm-body .prose > *:first-child { margin-top: 0; }
+  .bm-body .prose h1 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 40px 0 18px;
+    color: var(--ink);
+  }
+  .bm-body .prose h2 {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 40px 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+  }
+  .bm-body .prose h2::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .bm-body .prose h3 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.35;
+    margin: 32px 0 14px;
+    color: var(--ink);
+  }
+  .bm-body .prose p { margin: 0 0 18px; }
+  .bm-body .prose ul, .bm-body .prose ol {
+    border-left: 2px solid var(--ink);
+    padding: 4px 0 4px 24px;
+    margin: 18px 0 24px;
+    list-style: none;
+  }
+  .bm-body .prose ul li, .bm-body .prose ol li {
+    position: relative;
+    padding: 4px 0 4px 18px;
+    font-size: 15px;
+  }
+  .bm-body .prose ul li::before {
+    content: "·";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .bm-body .prose blockquote {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 19px;
+    line-height: 1.6;
+    padding: 18px 0 18px 24px;
+    border-left: 4px solid var(--accent);
+    margin: 28px 0;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .bm-body .prose pre {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 20px 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .bm-body .prose code {
+    background: var(--paper-deep);
+    border: 1px solid var(--hair);
+    padding: 1px 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.9em;
+  }
+  .bm-body .prose pre code { background: transparent; border: 0; padding: 0; color: inherit; font-size: 13px; }
+  .bm-body .prose a { color: var(--accent); border-bottom: 1px solid rgba(200,52,31,0.25); }
+  .bm-body .prose a:hover { border-bottom-color: var(--accent); }
+
+  .bm-body .side {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--mute);
+    border-top: 1px solid var(--hair);
+    padding-top: 24px;
+    position: sticky;
+    top: 40px;
+    align-self: start;
+  }
+  .bm-body .side dl { margin: 0; }
+  .bm-body .side dt {
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-top: 18px;
+    margin-bottom: 6px;
+  }
+  .bm-body .side dt:first-child { margin-top: 0; }
+  .bm-body .side dd {
+    margin: 0 0 4px;
+    color: var(--ink);
+    word-break: break-all;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .bm-body .side dd a { border-bottom: 1px solid var(--hair); padding-bottom: 1px; }
+  .bm-body .side dd a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .bm-body .side .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 18px;
+    margin-top: 8px;
+  }
+  .bm-body .side .stats .stat .num {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 24px;
+    color: var(--ink);
+    line-height: 1;
+    font-weight: 800;
+    display: block;
+  }
+  .bm-body .side .stats .stat .lab {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--mute);
+    margin-top: 4px;
+    display: block;
+    text-transform: uppercase;
+  }
+
+  /* card: stretched-link target must be local nav, not external */
+  .xcard .xcard-main-link { cursor: pointer; }
+
+  @media (max-width: 980px) {
+    .bm-body .container { grid-template-columns: 1fr; gap: 24px; }
+    .bm-body .numeral { position: static; font-size: 64px; }
+    .bm-body .side { position: static; }
+    .bm-day-head .date { font-size: 36px; }
+  }
+</style>
 </head>
 <body>
-  <main>
-    <div class="nav"><a href="./index.html">← 一覧へ戻る</a> ・ <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/04_clawdbot_hack_10ways.md">GitHubで開く</a> ・ <a href="https://x.com/mrnacknack/status/2016134416897360212">元ポスト</a></div>
-    <h1>10 Ways to Hack into a Vibecoder's Clawdbot（教育目的）</h1>
-    <div class="meta">null ・ chirag (@mrnacknack) ・ 💻 AI/開発</div>
-    <article><h1>10 Ways to Hack into a Vibecoder's Clawdbot（教育目的）</h1><p>**投稿者:** chirag (@mrnacknack)  </p><p>**投稿日時:** 2026年1月27日  </p><p>**URL:** https://x.com/mrnacknack/status/2016134416897360212  </p><p>**エンゲージメント:** 104返信 / 498リポスト / 3,693いいね / 6,589ブックマーク / 52万表示</p><p>---</p><h2>概要</h2><p>Clawdbot（現Moltbot）のセキュリティ脆弱性を10個紹介し、防止方法を解説した教育目的の記事。Vibe Codingの危険性と対策を理解するための必読資料。</p><blockquote>⚠️ 注意: これは教育目的のみ。他人に対してこれらの手法を試すことは推奨されていない。</blockquote><p>---</p><h2>10のハッキング手法</h2><h3>Hack #1: SSH Brute Force（総当たり攻撃）</h3><p>**攻撃時間:** 5分  </p><p>**防止時間:** 5分  </p><p>**コスト:** $0</p><p>新規VPSがオンラインになると、ボットが自動検出し、デフォルトパスワードを総当たりで突破。</p><p>**対策:**</p><ul><li>パスワード認証を無効化</li><li>SSH鍵を使用</li><li>fail2banをインストール</li></ul><p>---</p><h3>Hack #2: 露出したControl Gateway（認証なし）</h3><p>**攻撃時間:** 30秒（自動化）  </p><p>**防止時間:** 2分</p><p>Control Gatewayが全世界に公開されていると、認証なしですべての設定・トークンが取得可能。</p><p>**対策:**</p><ul><li>ゲートウェイ認証を有効化</li><li>localhostにバインド</li><li>SSHトンネル経由でアクセス</li></ul><p>---</p><h3>Hack #3: Discord/Telegramグループチャット - ユーザーIDホワイトリストなし</h3><p>**攻撃時間:** 2分  </p><p>**必要メッセージ:** 4件</p><p>許可されたユーザーID設定がないと、誰でもボットにDMして.envファイルやSSH鍵を取得可能。</p><p>**対策:**</p><ul><li>ユーザーIDホワイトリストを設定（30秒で完了）</li></ul><p>---</p><h3>Hack #4: ブラウザセッションハイジャック（Gmail → 全アカウント）</h3><p>**攻撃時間:** 15分  </p><p>**侵害アカウント数:** 50+</p><p>ログイン済みのChromeプロファイルをボットに使わせていると、Gmail経由でApple ID、Google Account等すべて乗っ取り可能。</p><p>**侵害される情報:**</p><ul><li>Apple ID: iCloud、写真、メッセージ、Apple Pay</li><li>Google: Gmail、Drive、Photos、Chrome同期パスワード</li></ul><p>**対策:**</p><ul><li>ボット専用の別ブラウザプロファイルを使用</li><li>認証済みセッションへのアクセスを禁止</li></ul><p>---</p><h3>Hack #5: 1Password / パスワードマネージャー全抽出</h3><p>**攻撃時間:** 5分  </p><p>**侵害アイテム数:** 347件</p><p>1Password CLIが認証済みの状態だと、全パスワードをJSON出力して抽出可能。</p><p>**侵害される情報:**</p><ul><li>銀行口座、クレジットカード</li><li>暗号資産取引所</li><li>SSH鍵、APIキー</li><li>SSN、パスポート番号</li></ul><p>**対策:**</p><ul><li>ボットと同じシステムで1Password CLIを認証しない</li><li>パスワード管理は別デバイスで</li></ul><p>---</p><h3>Hack #6: Slackワークスペース乗っ取り → 企業スパイ</h3><p>**攻撃時間:** 約10分  </p><p>**盗まれるデータ:** 約2年分の社内コミュニケーション</p><p>Slackトークンが露出すると、プライベートチャンネル（executive, finance, legal, HR）含め全履歴を取得可能。</p><p>**対策:**</p><ul><li>Slackトークンを設定・ログ・ボット出力に露出させない</li><li>トークンを定期的にローテーション</li><li>API活動を監視</li></ul><p>---</p><h3>Hack #7: 「No Sandbox」フルシステム乗っ取り</h3><p>**攻撃時間:** 20分  </p><p>**回復時間:** 数週間（ゼロから再構築が必要）</p><p>root権限 + Docker特権モード + ホストファイルシステムマウントの組み合わせで、ルートキットのインストールまで可能。</p><p>**対策:**</p><ul><li>特権モードを使用しない</li><li>ホストファイルシステムをマウントしない</li><li>Dockerソケットを露出させない</li><li>非rootユーザーで実行</li></ul><p>---</p><h3>Hack #8: プロンプトインジェクション（メール/Web/ドキュメント経由）</h3><p>#### 8A: メールベース</p><p>悪意のあるメールに隠しテキストで「SYSTEM PRIORITY OVERRIDE」等の指示を埋め込む。ボットがメールを読むと、隠し指示を実行。</p><p>#### 8B: Web検索ポイズニング</p><p>SEO最適化した悪意あるページに隠し指示を埋め込む。ボットがWeb検索で参照すると実行。</p><p>#### 8C: ドキュメント/PDFインジェクション</p><p>PDFの50ページ目等に白文字で隠し指示を埋め込む。ボットがPDFを要約すると実行。</p><p>#### 8D: Slackメッセージインジェクション</p><p>Slackに投稿したリンク先ページや、コード内のdocstringに隠し指示を埋め込む。</p><p>**対策:**</p><ul><li>プロンプトインジェクション耐性の高いモデル（Claude Opus 4.5等）を使用</li></ul><p>---</p><h3>Hack #9: Clawdhubスキル経由のバックドア</h3><p>@theonejvo の記事で詳述。スキルのサプライチェーン攻撃の可能性。</p><p>**参照:** https://x.com/theonejvo/status/2015892980851474595</p><p>---</p><h3>Hack #10: 「Perfect Storm」- 全ミスの組み合わせ</h3><p>すべてのセキュリティミスを犯したVPSは、数分で完全に侵害される。</p><p>**最悪のシナリオ:**</p><pre><code>SSH: パスワード認証有効、root許可
+<div class="dispatch">
+  <div class="container row">
+    <span class="tick">BOOKMARK №263</span>
+    <span class="sep">/</span>
+    <span>2026-04-18</span>
+    <span class="sep">/</span>
+    <span>@mrnacknack</span>
+    <span class="sep">/</span>
+    <span>291 ITEMS</span>
+    <span class="sep">/</span>
+    <span>JST 13:11 SAT</span>
+    <span class="sep">/</span>
+    <span class="live">LIVE</span>
+    <span class="sep">/</span>
+    <span>CURATED BY 泉水亮介</span>
+  </div>
+</div>
+<header class="masthead">
+  <div class="container row">
+    <a href="../" class="wordmark"><span class="bar"></span>Vibe Coder Bootcamp</a>
+    <nav>
+      <a href="../">HOME</a>
+      <a href="../news/2026-04-18/">NEWS</a>
+      <a href="./" class="is-active">BOOKMARKS</a>
+      <a href="../#archive">ARCHIVE</a>
+      <a href="../#about">ABOUT</a>
+    </nav>
+    <div class="meta">JST · 13:11 · SAT</div>
+  </div>
+</header>
+
+<section class="bm-article-head">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="./">← BOOKMARKS</a> <span>/</span> 日付不明 <span>/</span> №263
+    </div>
+    <div class="cat-line">
+      <span>💻 AI/開発</span>
+      <span class="sep">·</span><span>chirag <span style="opacity:.7">@mrnacknack</span></span>
+      
+    </div>
+    <h1 class="title">10 Ways to Hack into a Vibecoder's Clawdbot（教育目的）</h1>
+    <div class="strap">
+      <span><span class="label">№</span>263 / 291</span>
+      <span><span class="label">SRC</span><a href="https://x.com/mrnacknack/status/2016134416897360212" target="_blank" rel="noopener noreferrer">x.com/mrnacknack ↗</a></span>
+      <span><span class="label">GH</span><a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/04_clawdbot_hack_10ways.md" target="_blank" rel="noopener noreferrer">GitHub ↗</a></span>
+    </div>
+  </div>
+</section>
+
+<section class="bm-body">
+  <div class="container">
+    <aside class="numeral">263<span class="ord">BOOKMARK / 291</span></aside>
+    <article class="prose">
+<h2>概要</h2><p>Clawdbot（現Moltbot）のセキュリティ脆弱性を10個紹介し、防止方法を解説した教育目的の記事。Vibe Codingの危険性と対策を理解するための必読資料。</p><blockquote>⚠️ 注意: これは教育目的のみ。他人に対してこれらの手法を試すことは推奨されていない。</blockquote><h2>10のハッキング手法</h2><h3>Hack #1: SSH Brute Force（総当たり攻撃）</h3><p><strong>攻撃時間:</strong> 5分  </p><p><strong>防止時間:</strong> 5分  </p><p><strong>コスト:</strong> $0</p><p>新規VPSがオンラインになると、ボットが自動検出し、デフォルトパスワードを総当たりで突破。</p><p><strong>対策:</strong></p><ul><li>パスワード認証を無効化</li><li>SSH鍵を使用</li><li>fail2banをインストール</li></ul><h3>Hack #2: 露出したControl Gateway（認証なし）</h3><p><strong>攻撃時間:</strong> 30秒（自動化）  </p><p><strong>防止時間:</strong> 2分</p><p>Control Gatewayが全世界に公開されていると、認証なしですべての設定・トークンが取得可能。</p><p><strong>対策:</strong></p><ul><li>ゲートウェイ認証を有効化</li><li>localhostにバインド</li><li>SSHトンネル経由でアクセス</li></ul><h3>Hack #3: Discord/Telegramグループチャット - ユーザーIDホワイトリストなし</h3><p><strong>攻撃時間:</strong> 2分  </p><p><strong>必要メッセージ:</strong> 4件</p><p>許可されたユーザーID設定がないと、誰でもボットにDMして.envファイルやSSH鍵を取得可能。</p><p><strong>対策:</strong></p><ul><li>ユーザーIDホワイトリストを設定（30秒で完了）</li></ul><h3>Hack #4: ブラウザセッションハイジャック（Gmail → 全アカウント）</h3><p><strong>攻撃時間:</strong> 15分  </p><p><strong>侵害アカウント数:</strong> 50+</p><p>ログイン済みのChromeプロファイルをボットに使わせていると、Gmail経由でApple ID、Google Account等すべて乗っ取り可能。</p><p><strong>侵害される情報:</strong></p><ul><li>Apple ID: iCloud、写真、メッセージ、Apple Pay</li><li>Google: Gmail、Drive、Photos、Chrome同期パスワード</li></ul><p><strong>対策:</strong></p><ul><li>ボット専用の別ブラウザプロファイルを使用</li><li>認証済みセッションへのアクセスを禁止</li></ul><h3>Hack #5: 1Password / パスワードマネージャー全抽出</h3><p><strong>攻撃時間:</strong> 5分  </p><p><strong>侵害アイテム数:</strong> 347件</p><p>1Password CLIが認証済みの状態だと、全パスワードをJSON出力して抽出可能。</p><p><strong>侵害される情報:</strong></p><ul><li>銀行口座、クレジットカード</li><li>暗号資産取引所</li><li>SSH鍵、APIキー</li><li>SSN、パスポート番号</li></ul><p><strong>対策:</strong></p><ul><li>ボットと同じシステムで1Password CLIを認証しない</li><li>パスワード管理は別デバイスで</li></ul><h3>Hack #6: Slackワークスペース乗っ取り → 企業スパイ</h3><p><strong>攻撃時間:</strong> 約10分  </p><p><strong>盗まれるデータ:</strong> 約2年分の社内コミュニケーション</p><p>Slackトークンが露出すると、プライベートチャンネル（executive, finance, legal, HR）含め全履歴を取得可能。</p><p><strong>対策:</strong></p><ul><li>Slackトークンを設定・ログ・ボット出力に露出させない</li><li>トークンを定期的にローテーション</li><li>API活動を監視</li></ul><h3>Hack #7: 「No Sandbox」フルシステム乗っ取り</h3><p><strong>攻撃時間:</strong> 20分  </p><p><strong>回復時間:</strong> 数週間（ゼロから再構築が必要）</p><p>root権限 + Docker特権モード + ホストファイルシステムマウントの組み合わせで、ルートキットのインストールまで可能。</p><p><strong>対策:</strong></p><ul><li>特権モードを使用しない</li><li>ホストファイルシステムをマウントしない</li><li>Dockerソケットを露出させない</li><li>非rootユーザーで実行</li></ul><h3>Hack #8: プロンプトインジェクション（メール/Web/ドキュメント経由）</h3><p>#### 8A: メールベース</p><p>悪意のあるメールに隠しテキストで「SYSTEM PRIORITY OVERRIDE」等の指示を埋め込む。ボットがメールを読むと、隠し指示を実行。</p><p>#### 8B: Web検索ポイズニング</p><p>SEO最適化した悪意あるページに隠し指示を埋め込む。ボットがWeb検索で参照すると実行。</p><p>#### 8C: ドキュメント/PDFインジェクション</p><p>PDFの50ページ目等に白文字で隠し指示を埋め込む。ボットがPDFを要約すると実行。</p><p>#### 8D: Slackメッセージインジェクション</p><p>Slackに投稿したリンク先ページや、コード内のdocstringに隠し指示を埋め込む。</p><p><strong>対策:</strong></p><ul><li>プロンプトインジェクション耐性の高いモデル（Claude Opus 4.5等）を使用</li></ul><h3>Hack #9: Clawdhubスキル経由のバックドア</h3><p>@theonejvo の記事で詳述。スキルのサプライチェーン攻撃の可能性。</p><p><strong>参照:</strong> https://x.com/theonejvo/status/2015892980851474595</p><h3>Hack #10: 「Perfect Storm」- 全ミスの組み合わせ</h3><p>すべてのセキュリティミスを犯したVPSは、数分で完全に侵害される。</p><p><strong>最悪のシナリオ:</strong></p><pre><code>SSH: パスワード認証有効、root許可
 Firewall: 無効
 Gateway: 0.0.0.0にバインド、認証なし
 Bot: dmPolicy/groupPolicy = open
 Browser: ログイン済みChromeプロファイル
-Docker: 特権モード、root実行、ホストマウント</code></pre><p>---</p><h2>セキュリティ対策チェックリスト</h2><p>| 対策 | 所要時間 |</p><p>|-----|---------|</p><p>| SSHパスワード認証を無効化 | 5分 |</p><p>| ユーザーIDホワイトリスト設定 | 30秒 |</p><p>| Gateway認証有効化 + localhost バインド | 2分 |</p><p>| 専用ブラウザプロファイル作成 | 5分 |</p><p>| Dockerセキュリティ設定 | 15分 |</p><p>| fail2banインストール | 5分 |</p><p>**総対策時間:** 約30分  </p><p>**全データ喪失からの回復時間:** 数ヶ月〜数年</p><p>---</p><h2>教訓</h2><blockquote>「Nobodies gonna know. Nobodies gonna know.」と思って雑にセットアップすると、5分でroot取られて人生終わる。</blockquote><p>---</p><p>*保存日: 2026-01-30*</p></article>
-  </main>
+Docker: 特権モード、root実行、ホストマウント</code></pre><h2>セキュリティ対策チェックリスト</h2><p>| 対策 | 所要時間 |</p><p>|-----|---------|</p><p>| SSHパスワード認証を無効化 | 5分 |</p><p>| ユーザーIDホワイトリスト設定 | 30秒 |</p><p>| Gateway認証有効化 + localhost バインド | 2分 |</p><p>| 専用ブラウザプロファイル作成 | 5分 |</p><p>| Dockerセキュリティ設定 | 15分 |</p><p>| fail2banインストール | 5分 |</p><p><strong>総対策時間:</strong> 約30分  </p><p><strong>全データ喪失からの回復時間:</strong> 数ヶ月〜数年</p><h2>教訓</h2><blockquote>「Nobodies gonna know. Nobodies gonna know.」と思って雑にセットアップすると、5分でroot取られて人生終わる。</blockquote><p>*保存日: 2026-01-30*</p>
+    </article>
+    <aside class="side">
+      <dl>
+        <dt>AUTHOR</dt><dd>chirag</dd>
+        <dt>HANDLE</dt><dd>@mrnacknack</dd>
+        
+        <dt>CATEGORY</dt><dd>💻 AI/開発</dd>
+        <dt>SOURCE</dt><dd><a href="https://x.com/mrnacknack/status/2016134416897360212" target="_blank" rel="noopener noreferrer">x.com/mrnacknack/status/201613441689736021…</a></dd>
+        <dt>MARKDOWN</dt><dd><a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/04_clawdbot_hack_10ways.md" target="_blank" rel="noopener noreferrer">GitHub で原文を見る</a></dd>
+        
+        <dt>ENGAGEMENT</dt>
+        <dd>
+          <div class="stats">
+            <div class="stat"><span class="num">3,693</span><span class="lab">LIKES</span></div><div class="stat"><span class="num">498</span><span class="lab">RTS</span></div><div class="stat"><span class="num">6,589</span><span class="lab">BMARKS</span></div>
+          </div>
+        </dd>
+      </dl>
+    </aside>
+  </div>
+</section>
+
+<section class="page-nav">
+  <div class="container">
+    <a class="btn prev" href="./05_notebooklm_slide_gem.md.html">
+      <span>← 新しいブックマーク</span>
+      <span class="big">NotebookLMスライド生成を100%引き出すGem</span>
+    </a>
+    <a class="btn next" href="./03_awesome_claude_skills.md.html">
+      <span>古いブックマーク →</span>
+      <span class="big">Awesome Claude Skills - スキル集まとめ</span>
+    </a>
+  </div>
+</section>
+
+<section class="actions">
+  <div class="container">
+    <a href="./">← 一覧へ戻る</a>
+    <a class="primary" href="https://x.com/mrnacknack/status/2016134416897360212" target="_blank" rel="noopener noreferrer">元ポストを X で見る</a>
+    <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/04_clawdbot_hack_10ways.md" target="_blank" rel="noopener noreferrer">GitHub で開く</a>
+  </div>
+</section>
+
+<footer class="foot" id="about">
+  <div class="container">
+    <div class="grid">
+      <div>
+        <div class="wordmark">Vibe Coder Bootcamp</div>
+        <p>
+          AI の新しい動きを毎朝整理して、Vibe Coder が今日使える形で届けるフィード。
+          運営は泉水亮介。Slackコミュニティと連動した公開ログです。
+        </p>
+        <p style="margin-top:20px;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;color:#9a9285;">
+          BOOKMARKS ARCHIVE · 291 ITEMS · EN+JP
+        </p>
+      </div>
+      <div>
+        <h5>SECTIONS</h5>
+        <ul>
+          <li><a href="../">HOME</a></li>
+          <li><a href="../news/2026-04-18/">TODAY</a></li>
+          <li><a href="./">BOOKMARKS</a></li>
+          <li><a href="../#archive">ARCHIVE</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>SUBSCRIBE</h5>
+        <ul>
+          <li><a href="#">Slack に参加</a></li>
+          <li><a href="#">RSS</a></li>
+          <li><a href="#">X で購読</a></li>
+          <li><a href="#">メール通知</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>PROJECT</h5>
+        <ul>
+          <li><a href="https://github.com/rsensui2/vibe-coder-demo">GitHub</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Colophon</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>© 2026 Vibe Coder Bootcamp</span>
+      <span>SET IN SHIPPORI MINCHO / INTER / JETBRAINS MONO</span>
+      <span>BUILD 2026-04-18</span>
+    </div>
+  </div>
+</footer>
 </body>
 </html>

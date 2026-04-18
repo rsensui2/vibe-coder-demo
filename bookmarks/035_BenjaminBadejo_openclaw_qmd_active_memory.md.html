@@ -3,28 +3,430 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OpenClawでQMDとActive-Memoryを併用すると精度がかなり上がる</title>
+  <title>OpenClawでQMDとActive-Memoryを併用すると精度がかなり上がる — Bookmarks · Vibe Coder Bootcamp</title>
+  <meta name="description" content="これは「エージェントの賢さはモデル性能だけではなく、記憶の取り回し設計でかなり変わる」という実務寄りの示唆。特にOpenClawみたいに長期運用するエージェントでは、単なるメモ保存よりも、 - 構造化された記憶検索 - 直近会話の参照 - 長期記憶と短期文脈の橋渡し この3つが効" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho+B1:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/style.css" />
   <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#fcfcfe;color:#222}
-    main{max-width:860px;margin:0 auto;padding:24px 16px 80px}
-    a{color:#0b57d0;text-decoration:none}
-    .nav{margin-bottom:20px;font-size:14px}
-    h1{font-size:32px;line-height:1.35;margin:0 0 12px}
-    .meta{color:#666;font-size:14px;margin-bottom:24px}
-    article{background:#fff;border:1px solid #e7e7ef;border-radius:16px;padding:24px;line-height:1.85;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-    article h2, article h3{margin-top:28px}
-    article pre{white-space:pre-wrap;background:#f6f7fb;padding:12px;border-radius:12px;overflow:auto}
-    article code{background:#f3f4f6;padding:2px 4px;border-radius:6px}
-    article blockquote{border-left:4px solid #d6d9e6;margin:16px 0;padding:0 0 0 14px;color:#555}
-    article ul{padding-left:20px}
-  </style>
+  /* Archive page — day sections */
+  .bm-archive { padding: 0 0 40px; background: var(--paper); }
+  .bm-day {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .bm-day:first-of-type { padding-top: 40px; }
+  .bm-day-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .bm-day-head .date {
+    font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+    font-weight: 800;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0;
+  }
+  .bm-day-head .date .sep { color: var(--accent); margin: 0 2px; }
+  .bm-day-head .count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 8px 14px;
+    border: 1px solid var(--accent);
+    white-space: nowrap;
+  }
+  /* active nav underline */
+  .masthead nav a.is-active { border-bottom-color: var(--accent); color: var(--accent); }
+
+  /* Article page — prose */
+  .bm-article-head {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .bm-article-head .breadcrumb {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 18px;
+  }
+  .bm-article-head .breadcrumb a { color: var(--ink); border-bottom: 1px solid var(--hair); padding-bottom: 1px; }
+  .bm-article-head .breadcrumb a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .bm-article-head .cat-line {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .bm-article-head .cat-line .sep { color: var(--mute); }
+  .bm-article-head h1.title {
+    font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+    font-weight: 800;
+    font-size: clamp(32px, 4.4vw, 58px);
+    line-height: 1.12;
+    letter-spacing: -0.005em;
+    margin: 0 0 24px;
+    color: var(--ink);
+  }
+  .bm-article-head .strap {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .bm-article-head .strap span .label { color: var(--accent); margin-right: 6px; }
+  .bm-article-head .strap a { border-bottom: 1px solid var(--hair); padding-bottom: 2px; }
+  .bm-article-head .strap a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .bm-body { padding: 72px 0; border-bottom: 1px solid var(--hair); }
+  .bm-body .container {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr) 300px;
+    gap: 48px;
+  }
+  .bm-body .numeral {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 96px;
+    font-weight: 800;
+    line-height: 0.85;
+    color: var(--ink);
+    position: sticky;
+    top: 40px;
+    align-self: start;
+    letter-spacing: -0.03em;
+  }
+  .bm-body .numeral .ord {
+    display: block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  .bm-body .prose {
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    font-family: "Inter", "Noto Sans JP", sans-serif;
+  }
+  .bm-body .prose > *:first-child { margin-top: 0; }
+  .bm-body .prose h1 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 40px 0 18px;
+    color: var(--ink);
+  }
+  .bm-body .prose h2 {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 40px 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+  }
+  .bm-body .prose h2::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .bm-body .prose h3 {
+    font-family: "Shippori Mincho B1", serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.35;
+    margin: 32px 0 14px;
+    color: var(--ink);
+  }
+  .bm-body .prose p { margin: 0 0 18px; }
+  .bm-body .prose ul, .bm-body .prose ol {
+    border-left: 2px solid var(--ink);
+    padding: 4px 0 4px 24px;
+    margin: 18px 0 24px;
+    list-style: none;
+  }
+  .bm-body .prose ul li, .bm-body .prose ol li {
+    position: relative;
+    padding: 4px 0 4px 18px;
+    font-size: 15px;
+  }
+  .bm-body .prose ul li::before {
+    content: "·";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .bm-body .prose blockquote {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 19px;
+    line-height: 1.6;
+    padding: 18px 0 18px 24px;
+    border-left: 4px solid var(--accent);
+    margin: 28px 0;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .bm-body .prose pre {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 20px 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .bm-body .prose code {
+    background: var(--paper-deep);
+    border: 1px solid var(--hair);
+    padding: 1px 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.9em;
+  }
+  .bm-body .prose pre code { background: transparent; border: 0; padding: 0; color: inherit; font-size: 13px; }
+  .bm-body .prose a { color: var(--accent); border-bottom: 1px solid rgba(200,52,31,0.25); }
+  .bm-body .prose a:hover { border-bottom-color: var(--accent); }
+
+  .bm-body .side {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--mute);
+    border-top: 1px solid var(--hair);
+    padding-top: 24px;
+    position: sticky;
+    top: 40px;
+    align-self: start;
+  }
+  .bm-body .side dl { margin: 0; }
+  .bm-body .side dt {
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-top: 18px;
+    margin-bottom: 6px;
+  }
+  .bm-body .side dt:first-child { margin-top: 0; }
+  .bm-body .side dd {
+    margin: 0 0 4px;
+    color: var(--ink);
+    word-break: break-all;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .bm-body .side dd a { border-bottom: 1px solid var(--hair); padding-bottom: 1px; }
+  .bm-body .side dd a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .bm-body .side .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 18px;
+    margin-top: 8px;
+  }
+  .bm-body .side .stats .stat .num {
+    font-family: "Shippori Mincho B1", serif;
+    font-size: 24px;
+    color: var(--ink);
+    line-height: 1;
+    font-weight: 800;
+    display: block;
+  }
+  .bm-body .side .stats .stat .lab {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--mute);
+    margin-top: 4px;
+    display: block;
+    text-transform: uppercase;
+  }
+
+  /* card: stretched-link target must be local nav, not external */
+  .xcard .xcard-main-link { cursor: pointer; }
+
+  @media (max-width: 980px) {
+    .bm-body .container { grid-template-columns: 1fr; gap: 24px; }
+    .bm-body .numeral { position: static; font-size: 64px; }
+    .bm-body .side { position: static; }
+    .bm-day-head .date { font-size: 36px; }
+  }
+</style>
 </head>
 <body>
-  <main>
-    <div class="nav"><a href="./index.html">← 一覧へ戻る</a> ・ <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/035_BenjaminBadejo_openclaw_qmd_active_memory.md">GitHubで開く</a> ・ <a href="https://x.com/BenjaminBadejo/status/2043076618093003122">元ポスト</a></div>
-    <h1>OpenClawでQMDとActive-Memoryを併用すると精度がかなり上がる</h1>
-    <div class="meta">2026-04-12 ・ Ben Badejo (@BenjaminBadejo) ・ 💻 AIエージェント / OpenClaw</div>
-    <article><h1>OpenClawでQMDとActive-Memoryを併用すると精度がかなり上がる</h1><p>**投稿者:** Ben Badejo (@BenjaminBadejo)</p><p>**投稿日時:** 2026-04-12 06:19 JST</p><p>**URL:** https://x.com/BenjaminBadejo/status/2043076618093003122</p><p>**エンゲージメント:** 12返信 / 6リポスト / 279いいね / 833ブックマーク / 128981表示</p><p>**カテゴリ:** 💻 AIエージェント / OpenClaw</p><p>**有益度:** ★★★★☆</p><p>---</p><h2>概要</h2><blockquote>I highly recommend turning on both QMD and the new &quot;Active-Memory&quot; plugin in OpenClaw. Just ask your agent to set it up. Once set up, responses will be a little slower... but much sharper and much more accurate. Also, include session transcripts in QMD's paths, not just memory.</blockquote><p>OpenClawの記憶精度を上げる実践メモ。QMDと新しいActive-Memoryプラグインを両方有効化し、さらにQMDの参照対象にmemoryだけでなくセッショントランスクリプトも含めると、応答速度は少し落ちる代わりに、回答の鋭さと正確さがかなり改善するという話。</p><p>---</p><h2>まとめ</h2><p>これは「エージェントの賢さはモデル性能だけではなく、記憶の取り回し設計でかなり変わる」という実務寄りの示唆。特にOpenClawみたいに長期運用するエージェントでは、単なるメモ保存よりも、</p><ul><li>構造化された記憶検索</li><li>直近会話の参照</li><li>長期記憶と短期文脈の橋渡し</li></ul><p>この3つが効く。</p><p>Benの指摘で重要なのは、QMDの対象パスにsession transcriptsも含めろ、という点。これをやらないと、長期メモは引けても「最近その場で決めたこと」を落としやすい。実運用だとそこが一番事故る。</p><h2>活用ポイント</h2><ul><li>*AIエージェント運用者*:</li><p>  OpenClawの回答品質が不安定なら、まずモデルを替える前にメモリ構成を見直す価値あり。</p><li>*プロンプト設計する人*:</li><p>  `memory` と `transcripts` の両輪で検索させる設計が効く。</p><li>*チーム導入*:</li><p>  「遅くなるけど賢くなる」ので、速報系より調査・判断支援系ワークフローに向く。</p></ul><p>---</p><h2>関連リンク</h2><ul><li>[元ポスト](https://x.com/BenjaminBadejo/status/2043076618093003122)</li></ul></article>
-  </main>
+<div class="dispatch">
+  <div class="container row">
+    <span class="tick">BOOKMARK №017</span>
+    <span class="sep">/</span>
+    <span>2026-04-12</span>
+    <span class="sep">/</span>
+    <span>@BenjaminBadejo</span>
+    <span class="sep">/</span>
+    <span>291 ITEMS</span>
+    <span class="sep">/</span>
+    <span>JST 13:11 SAT</span>
+    <span class="sep">/</span>
+    <span class="live">LIVE</span>
+    <span class="sep">/</span>
+    <span>CURATED BY 泉水亮介</span>
+  </div>
+</div>
+<header class="masthead">
+  <div class="container row">
+    <a href="../" class="wordmark"><span class="bar"></span>Vibe Coder Bootcamp</a>
+    <nav>
+      <a href="../">HOME</a>
+      <a href="../news/2026-04-18/">NEWS</a>
+      <a href="./" class="is-active">BOOKMARKS</a>
+      <a href="../#archive">ARCHIVE</a>
+      <a href="../#about">ABOUT</a>
+    </nav>
+    <div class="meta">JST · 13:11 · SAT</div>
+  </div>
+</header>
+
+<section class="bm-article-head">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="./">← BOOKMARKS</a> <span>/</span> 2026-04-12 <span>/</span> №017
+    </div>
+    <div class="cat-line">
+      <span>💻 AIエージェント / OpenClaw</span>
+      <span class="sep">·</span><span>Ben Badejo <span style="opacity:.7">@BenjaminBadejo</span></span>
+      <span class="sep">·</span><span>2026-04-12</span>
+    </div>
+    <h1 class="title">OpenClawでQMDとActive-Memoryを併用すると精度がかなり上がる</h1>
+    <div class="strap">
+      <span><span class="label">№</span>017 / 291</span>
+      <span><span class="label">SRC</span><a href="https://x.com/BenjaminBadejo/status/2043076618093003122" target="_blank" rel="noopener noreferrer">x.com/BenjaminBadejo ↗</a></span>
+      <span><span class="label">GH</span><a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/035_BenjaminBadejo_openclaw_qmd_active_memory.md" target="_blank" rel="noopener noreferrer">GitHub ↗</a></span>
+    </div>
+  </div>
+</section>
+
+<section class="bm-body">
+  <div class="container">
+    <aside class="numeral">017<span class="ord">BOOKMARK / 291</span></aside>
+    <article class="prose">
+<p><strong>有益度:</strong> ★★★★☆</p><h2>概要</h2><blockquote>I highly recommend turning on both QMD and the new &quot;Active-Memory&quot; plugin in OpenClaw. Just ask your agent to set it up. Once set up, responses will be a little slower... but much sharper and much more accurate. Also, include session transcripts in QMD's paths, not just memory.</blockquote><p>OpenClawの記憶精度を上げる実践メモ。QMDと新しいActive-Memoryプラグインを両方有効化し、さらにQMDの参照対象にmemoryだけでなくセッショントランスクリプトも含めると、応答速度は少し落ちる代わりに、回答の鋭さと正確さがかなり改善するという話。</p><h2>まとめ</h2><p>これは「エージェントの賢さはモデル性能だけではなく、記憶の取り回し設計でかなり変わる」という実務寄りの示唆。特にOpenClawみたいに長期運用するエージェントでは、単なるメモ保存よりも、</p><ul><li>構造化された記憶検索</li><li>直近会話の参照</li><li>長期記憶と短期文脈の橋渡し</li></ul><p>この3つが効く。</p><p>Benの指摘で重要なのは、QMDの対象パスにsession transcriptsも含めろ、という点。これをやらないと、長期メモは引けても「最近その場で決めたこと」を落としやすい。実運用だとそこが一番事故る。</p><h2>活用ポイント</h2><ul><li>*AIエージェント運用者*:</li></ul><p>  OpenClawの回答品質が不安定なら、まずモデルを替える前にメモリ構成を見直す価値あり。</p><ul><li>*プロンプト設計する人*:</li></ul><p>  <code>memory</code> と <code>transcripts</code> の両輪で検索させる設計が効く。</p><ul><li>*チーム導入*:</li></ul><p>  「遅くなるけど賢くなる」ので、速報系より調査・判断支援系ワークフローに向く。</p><h2>関連リンク</h2><ul><li><a href="https://x.com/BenjaminBadejo/status/2043076618093003122" target="_blank" rel="noopener noreferrer">元ポスト</a></li></ul>
+    </article>
+    <aside class="side">
+      <dl>
+        <dt>AUTHOR</dt><dd>Ben Badejo</dd>
+        <dt>HANDLE</dt><dd>@BenjaminBadejo</dd>
+        <dt>POSTED</dt><dd>2026-04-12</dd>
+        <dt>CATEGORY</dt><dd>💻 AIエージェント / OpenClaw</dd>
+        <dt>SOURCE</dt><dd><a href="https://x.com/BenjaminBadejo/status/2043076618093003122" target="_blank" rel="noopener noreferrer">x.com/BenjaminBadejo/status/20430766180930…</a></dd>
+        <dt>MARKDOWN</dt><dd><a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/035_BenjaminBadejo_openclaw_qmd_active_memory.md" target="_blank" rel="noopener noreferrer">GitHub で原文を見る</a></dd>
+        
+        <dt>ENGAGEMENT</dt>
+        <dd>
+          <div class="stats">
+            <div class="stat"><span class="num">279</span><span class="lab">LIKES</span></div><div class="stat"><span class="num">6</span><span class="lab">RTS</span></div><div class="stat"><span class="num">833</span><span class="lab">BMARKS</span></div><div class="stat"><span class="num">129K</span><span class="lab">VIEWS</span></div>
+          </div>
+        </dd>
+      </dl>
+    </aside>
+  </div>
+</section>
+
+<section class="page-nav">
+  <div class="container">
+    <a class="btn prev" href="./08_BenjaminBadejo_i_highly_recommend_turning_on_both_qmd_and_the_n.md.html">
+      <span>← 新しいブックマーク</span>
+      <span class="big">QMDと新しい「Active-Memory」プラグインは両方オンにするのを強くおすすめします</span>
+    </a>
+    <a class="btn next" href="./09_iamlukethedev_openclaw_v2026_4_10_just_dropped.md.html">
+      <span>古いブックマーク →</span>
+      <span class="big">OpenClaw v2026.4.10が公開された 🦞</span>
+    </a>
+  </div>
+</section>
+
+<section class="actions">
+  <div class="container">
+    <a href="./">← 一覧へ戻る</a>
+    <a class="primary" href="https://x.com/BenjaminBadejo/status/2043076618093003122" target="_blank" rel="noopener noreferrer">元ポストを X で見る</a>
+    <a href="https://github.com/rsensui2/ryoko/blob/master/bookmarks/ja/035_BenjaminBadejo_openclaw_qmd_active_memory.md" target="_blank" rel="noopener noreferrer">GitHub で開く</a>
+  </div>
+</section>
+
+<footer class="foot" id="about">
+  <div class="container">
+    <div class="grid">
+      <div>
+        <div class="wordmark">Vibe Coder Bootcamp</div>
+        <p>
+          AI の新しい動きを毎朝整理して、Vibe Coder が今日使える形で届けるフィード。
+          運営は泉水亮介。Slackコミュニティと連動した公開ログです。
+        </p>
+        <p style="margin-top:20px;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;color:#9a9285;">
+          BOOKMARKS ARCHIVE · 291 ITEMS · EN+JP
+        </p>
+      </div>
+      <div>
+        <h5>SECTIONS</h5>
+        <ul>
+          <li><a href="../">HOME</a></li>
+          <li><a href="../news/2026-04-18/">TODAY</a></li>
+          <li><a href="./">BOOKMARKS</a></li>
+          <li><a href="../#archive">ARCHIVE</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>SUBSCRIBE</h5>
+        <ul>
+          <li><a href="#">Slack に参加</a></li>
+          <li><a href="#">RSS</a></li>
+          <li><a href="#">X で購読</a></li>
+          <li><a href="#">メール通知</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>PROJECT</h5>
+        <ul>
+          <li><a href="https://github.com/rsensui2/vibe-coder-demo">GitHub</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Colophon</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>© 2026 Vibe Coder Bootcamp</span>
+      <span>SET IN SHIPPORI MINCHO / INTER / JETBRAINS MONO</span>
+      <span>BUILD 2026-04-18</span>
+    </div>
+  </div>
+</footer>
 </body>
 </html>
