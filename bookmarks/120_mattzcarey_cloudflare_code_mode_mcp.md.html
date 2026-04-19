@@ -293,7 +293,7 @@
     <span class="sep">/</span>
     <span>291 ITEMS</span>
     <span class="sep">/</span>
-    <span>JST 10:49 SUN</span>
+    <span>JST 11:07 SUN</span>
     <span class="sep">/</span>
     <span class="live">LIVE</span>
     <span class="sep">/</span>
@@ -310,7 +310,7 @@
       <a href="../#archive">ARCHIVE</a>
       <a href="../#about">ABOUT</a>
     </nav>
-    <div class="meta">JST · 10:49 · SUN</div>
+    <div class="meta">JST · 11:07 · SUN</div>
   </div>
 </header>
 
@@ -337,7 +337,7 @@
   <div class="container">
     <aside class="numeral">110<span class="ord">BOOKMARK / 291</span></aside>
     <article class="prose">
-<p><strong>有益度:</strong> ⭐⭐⭐ HIGH</p><h2>概要</h2><blockquote>Code Mode is all you need, very excited about this direction for MCP</blockquote><h2>まとめ</h2><p>CloudflareがMCP（Model Context Protocol）向け「Code Mode」を正式発表。通常のMCPサーバーはAPI全体を記述すると1.17Mトークン必要になるが、Code Modeは<code>search()</code>と<code>execute()</code>の2ツールだけでCloudflare API全体（2,500+エンドポイント）を約1,000トークンで操作可能（99.9%削減）。</p><ul><li><code>search()</code>：JavaScriptでOpenAPI仕様を検索し、必要なエンドポイントだけを絞り込む</li><li><code>execute()</code>：JavaScriptコードでCloudflare APIを直接実行。複数のAPI呼び出しをまとめて実行可能</li><li>生成コードはV8サンドボックス（Dynamic Worker）で安全に実行。プロンプトインジェクション対策内蔵</li><li>AnthropicもClaudeで同様のパターン（Programmatic Tool Calling）を独自に開発していたことが言及されている</li><li>OpenClaw・Moltworkerも比較対象として記事中で紹介（CLIベースのアプローチとして）</li><li>Code Mode SDKはOSSとして公開済み、自作MCPサーバーにも適用可能</li><li>CloudflareのMCPサーバーは即日利用可能（OAuth 2.1対応）</li></ul><p><strong>活用ポイント:</strong> MCPサーバー開発時のコンテキスト最適化の参考に。OpenClawのMCPサーバー設計にも応用できる考え方。</p><h2>記事詳細</h2><p>CloudflareブログによるCode Modeの技術解説。</p><p><strong>背景:</strong> MCPはAIエージェントのデファクトスタンダードだが、ツールを増やすほどコンテキストを消費するジレンマがある。Cloudflare APIは2,500+エンドポイントあり、従来手法では記述だけで1.17Mトークン必要。</p><p><strong>アーキテクチャ:</strong></p><ol><li><code>search()</code>ツール：エージェントがJavaScriptを書いてOpenAPI仕様オブジェクトを検索。仕様全体はコンテキストに入れず、コード実行結果だけを返す</li><li><code>execute()</code>ツール：エージェントがJavaScriptを書いてCloudflare APIを呼び出す。認証済み<code>cloudflare.request()</code>クライアントが提供される</li><li>両ツールとも生成コードはDynamic Workerサンドボックスで実行（ファイルシステムなし、環境変数漏洩なし）</li></ol><p><strong>Context削減手法の比較:</strong></p><p>| 手法 | 特徴 |</p><p>|------|------|</p><p>| Server-side Code Mode（今回） | トークン固定、エージェント側変更不要、サンドボックス安全実行 |</p><p>| Client-side Code Mode | エージェント側にサンドボックスが必要 |</p><p>| CLI変換（OpenClaw/Moltworker） | プログレッシブ開示、シェル環境が必要 |</p><p>| Dynamic tool search（Claude Code） | 関連ツールを動的に絞り込み、検索機能のメンテが必要 |</p><p><strong>利用開始:</strong></p><pre><code>{
+<p><strong>有益度:</strong> ⭐⭐⭐ HIGH</p><h2>概要</h2><blockquote>Code Mode is all you need, very excited about this direction for MCP</blockquote><h2>まとめ</h2><p>CloudflareがMCP（Model Context Protocol）向け「Code Mode」を正式発表。通常のMCPサーバーはAPI全体を記述すると1.17Mトークン必要になるが、Code Modeは<code>search()</code>と<code>execute()</code>の2ツールだけでCloudflare API全体（2,500+エンドポイント）を約1,000トークンで操作可能（99.9%削減）。</p><ul><li><code>search()</code>：JavaScriptでOpenAPI仕様を検索し、必要なエンドポイントだけを絞り込む</li><li><code>execute()</code>：JavaScriptコードでCloudflare APIを直接実行。複数のAPI呼び出しをまとめて実行可能</li><li>生成コードはV8サンドボックス（Dynamic Worker）で安全に実行。プロンプトインジェクション対策内蔵</li><li>AnthropicもClaudeで同様のパターン（Programmatic Tool Calling）を独自に開発していたことが言及されている</li><li>OpenClaw・Moltworkerも比較対象として記事中で紹介（CLIベースのアプローチとして）</li><li>Code Mode SDKはOSSとして公開済み、自作MCPサーバーにも適用可能</li><li>CloudflareのMCPサーバーは即日利用可能（OAuth 2.1対応）</li></ul><h2>記事詳細</h2><p>CloudflareブログによるCode Modeの技術解説。</p><p><strong>背景:</strong> MCPはAIエージェントのデファクトスタンダードだが、ツールを増やすほどコンテキストを消費するジレンマがある。Cloudflare APIは2,500+エンドポイントあり、従来手法では記述だけで1.17Mトークン必要。</p><p><strong>アーキテクチャ:</strong></p><ol><li><code>search()</code>ツール：エージェントがJavaScriptを書いてOpenAPI仕様オブジェクトを検索。仕様全体はコンテキストに入れず、コード実行結果だけを返す</li><li><code>execute()</code>ツール：エージェントがJavaScriptを書いてCloudflare APIを呼び出す。認証済み<code>cloudflare.request()</code>クライアントが提供される</li><li>両ツールとも生成コードはDynamic Workerサンドボックスで実行（ファイルシステムなし、環境変数漏洩なし）</li></ol><p><strong>Context削減手法の比較:</strong></p><p>| 手法 | 特徴 |</p><p>|------|------|</p><p>| Server-side Code Mode（今回） | トークン固定、エージェント側変更不要、サンドボックス安全実行 |</p><p>| Client-side Code Mode | エージェント側にサンドボックスが必要 |</p><p>| CLI変換（OpenClaw/Moltworker） | プログレッシブ開示、シェル環境が必要 |</p><p>| Dynamic tool search（Claude Code） | 関連ツールを動的に絞り込み、検索機能のメンテが必要 |</p><p><strong>利用開始:</strong></p><pre><code>{
   &quot;mcpServers&quot;: {
     &quot;cloudflare-api&quot;: {
       &quot;url&quot;: &quot;https://mcp.cloudflare.com/mcp&quot;
