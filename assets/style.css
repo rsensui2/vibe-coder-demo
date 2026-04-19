@@ -1031,3 +1031,276 @@ img { max-width: 100%; display: block; }
   .foot .grid { grid-template-columns: 1fr; }
   .masthead nav a { margin-left: 14px; font-size: 11px; }
 }
+
+/* ================================================================
+   X-card additions — type badge / title / preview / X-link / modal
+   (appended; editorial paper × vermillion)
+   ================================================================ */
+.xcard { cursor: pointer; }
+.xcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.xcard-type {
+  align-self: start;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border: 1px solid var(--hair);
+  background: var(--paper);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.xcard-type--article {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.xcard-type--post {
+  color: var(--mute);
+  border-color: var(--hair);
+}
+.xcard-title {
+  font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.xcard-preview {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.xcard-preview strong { color: var(--ink); font-weight: 700; }
+.xcard-x {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  border: 1px solid var(--hair);
+  background: var(--paper);
+  text-decoration: none;
+  position: relative;
+  z-index: 2;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.xcard-x:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+  text-decoration: none;
+}
+.xcard-full { display: none; }
+
+/* ---------- modal ---------- */
+html.is-modal-open, html.is-modal-open body { overflow: hidden; }
+
+.xmodal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5vh 24px;
+}
+.xmodal[hidden] { display: none; }
+.xmodal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20,19,17,0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+.xmodal-panel {
+  position: relative;
+  width: min(760px, 100%);
+  max-height: 90vh;
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  box-shadow: 12px 12px 0 var(--ink);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: xmodal-in 0.2s ease;
+}
+@keyframes xmodal-in {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.xmodal-head {
+  display: grid;
+  grid-template-columns: 52px minmax(0,1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 22px 26px;
+  border-bottom: 1px solid var(--hair);
+  background: var(--paper-deep);
+}
+.xmodal-avatar {
+  width: 52px;
+  height: 52px;
+  background: var(--c, var(--ink));
+  color: var(--paper);
+  display: grid;
+  place-items: center;
+  font-family: "Shippori Mincho B1", serif;
+  font-size: 24px;
+  font-weight: 700;
+  border-radius: 4px;
+}
+.xmodal-who { min-width: 0; }
+.xmodal-name {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.xmodal-name .xcard-cat {
+  font-size: 12px;
+  color: var(--mute);
+  font-weight: 400;
+  padding: 1px 6px;
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 2px;
+}
+.xmodal-meta {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--mute);
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+.xmodal-close {
+  background: transparent;
+  border: 1px solid var(--hair);
+  color: var(--ink);
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+}
+.xmodal-close:hover { background: var(--ink); color: var(--paper); }
+.xmodal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 44px 36px;
+  scroll-behavior: smooth;
+}
+.xmodal-title {
+  font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin: 0 0 24px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.xmodal-text {
+  font-family: "Noto Sans JP", "Inter", sans-serif;
+  font-size: 16px;
+  line-height: 1.95;
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 64ch;
+  margin: 0 auto;
+}
+.xmodal-text strong { color: var(--ink); font-weight: 700; }
+.xmodal-foot {
+  padding: 18px 26px;
+  border-top: 1px solid var(--hair);
+  background: var(--paper-deep);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.xmodal-stats {
+  display: flex;
+  gap: 16px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11.5px;
+  color: var(--mute);
+  letter-spacing: 0.02em;
+}
+.xmodal-stats span { display: inline-flex; align-items: center; gap: 4px; }
+.xmodal-actions {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.xmodal-lang, .xmodal-x {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--hair);
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.xmodal-lang:hover, .xmodal-x:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+  text-decoration: none;
+}
+.xmodal-lang.is-active {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+.xmodal-x {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+.xmodal-x:hover {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+
+@media (max-width: 640px) {
+  .xmodal { padding: 2vh 10px; }
+  .xmodal-head { padding: 16px 18px; grid-template-columns: 40px minmax(0,1fr) auto; gap: 10px; }
+  .xmodal-avatar { width: 40px; height: 40px; font-size: 18px; }
+  .xmodal-body { padding: 22px 22px 26px; }
+  .xmodal-text { font-size: 15px; line-height: 1.85; }
+  .xmodal-foot { padding: 14px 18px; }
+  .xmodal-stats { gap: 10px; font-size: 11px; }
+}
