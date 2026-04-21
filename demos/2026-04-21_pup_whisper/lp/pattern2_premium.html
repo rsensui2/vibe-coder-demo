@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PupWhisper — 犬の本音が、聞こえる。</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Noto+Serif+JP:wght@200;300;400;500;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0B0F0D;
+  --bg-soft: #0F1412;
+  --accent: #D4AF37;
+  --accent-dim: #8A7327;
+  --sub: #7A9B8A;
+  --text: #F5F2E8;
+  --text-mute: #A8A49A;
+  --line: rgba(212, 175, 55, 0.18);
+  --line-strong: rgba(212, 175, 55, 0.5);
+  --serif-en: 'Cormorant Garamond', 'Noto Serif JP', serif;
+  --serif-jp: 'Noto Serif JP', serif;
+  --sans: 'Inter', 'Noto Serif JP', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body { background: var(--bg); color: var(--text); font-family: var(--serif-jp); font-weight: 300; line-height: 1.8; overflow-x: hidden; }
+::selection { background: var(--accent); color: var(--bg); }
+a { color: inherit; text-decoration: none; }
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 28px 56px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(11, 15, 13, 0.8), transparent);
+  backdrop-filter: blur(6px);
+}
+.nav__brand { font-family: var(--serif-en); font-size: 22px; font-weight: 500; letter-spacing: 0.24em; color: var(--text); }
+.nav__brand span { color: var(--accent); }
+.nav__links { display: flex; gap: 48px; font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-mute); }
+.nav__links a { transition: color 0.3s ease; }
+.nav__links a:hover { color: var(--accent); }
+.nav__cta {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 10px 22px;
+  border: 1px solid var(--line-strong);
+  transition: all 0.4s ease;
+}
+.nav__cta:hover { background: var(--accent); color: var(--bg); }
+@media (max-width: 860px) {
+  .nav { padding: 20px 24px; }
+  .nav__links { display: none; }
+}
+.hero { min-height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; padding: 120px 40px 80px; overflow: hidden; }
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+      radial-gradient(ellipse at 20% 30%, rgba(212, 175, 55, 0.08), transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(122, 155, 138, 0.06), transparent 50%);
+  pointer-events: none;
+}
+.hero__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 100px 100px;
+  opacity: 0.25;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+.hero__accent-line { position: absolute; background: linear-gradient(to right, transparent, var(--accent), transparent); height: 1px; }
+.hero__accent-line--top { top: 22%; left: 10%; right: 10%; }
+.hero__accent-line--bottom { bottom: 22%; left: 10%; right: 10%; }
+.hero__inner { position: relative; z-index: 2; width: 100%; max-width: 1400px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 80px; align-items: center; }
+.hero__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 48px;
+}
+.hero__label::before { content: ''; width: 36px; height: 1px; background: var(--accent); }
+.hero__title { font-family: var(--serif-jp); font-weight: 600; font-size: clamp(56px, 9vw, 132px); line-height: 0.98; letter-spacing: -0.04em; color: var(--text); margin-bottom: 40px; }
+.hero__title .line { display: block; overflow: hidden; }
+.hero__title em { font-style: normal; color: var(--accent); font-family: var(--serif-en); font-weight: 400; letter-spacing: -0.02em; }
+.hero__en {
+  font-family: var(--serif-en);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(18px, 1.6vw, 22px);
+  color: var(--sub);
+  letter-spacing: 0.02em;
+  margin-bottom: 56px;
+  max-width: 520px;
+  line-height: 1.6;
+}
+.hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--text);
+  padding: 18px 0;
+  border-bottom: 1px solid var(--accent);
+  transition: all 0.5s ease;
+}
+.hero__cta::after { content: '→'; font-family: var(--serif-en); font-size: 20px; color: var(--accent); transition: transform 0.4s ease; }
+.hero__cta:hover::after { transform: translateX(8px); }
+.hero__meta {
+  position: absolute;
+  bottom: 48px;
+  left: 56px;
+  right: 56px;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.hero__meta span { color: var(--accent); }
+.phone {
+  width: 300px;
+  height: 620px;
+  background: #05090A;
+  border: 1px solid var(--line-strong);
+  border-radius: 46px;
+  padding: 12px;
+  margin: 0 auto;
+  position: relative;
+  box-shadow:
+      0 0 0 1px rgba(212, 175, 55, 0.08),
+      0 40px 80px -20px rgba(0, 0, 0, 0.8),
+      0 0 80px rgba(212, 175, 55, 0.05);
+}
+.phone::before { content: ''; position: absolute; inset: -40px; border: 1px solid var(--line); border-radius: 60px; opacity: 0.5; pointer-events: none; }
+.phone__screen { width: 100%; height: 100%; background: linear-gradient(180deg, #0A1210 0%, #0B0F0D 100%); border-radius: 36px; overflow: hidden; position: relative; padding: 56px 20px 24px; }
+.phone__island {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 98px;
+  height: 30px;
+  background: #000;
+  border-radius: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+.phone__island::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.phone__status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 0 8px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.phone__waveform { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 28px 0; height: 80px; }
+.phone__waveform span { display: block; width: 3px; background: var(--accent); border-radius: 2px; animation: wave 1.4s ease-in-out infinite; }
+.phone__waveform span:nth-child(1) { height: 20%; animation-delay: 0s; }
+.phone__waveform span:nth-child(2) { height: 40%; animation-delay: 0.1s; }
+.phone__waveform span:nth-child(3) { height: 70%; animation-delay: 0.2s; }
+.phone__waveform span:nth-child(4) { height: 90%; animation-delay: 0.3s; }
+.phone__waveform span:nth-child(5) { height: 100%; animation-delay: 0.4s; }
+.phone__waveform span:nth-child(6) { height: 80%; animation-delay: 0.5s; }
+.phone__waveform span:nth-child(7) { height: 60%; animation-delay: 0.6s; }
+.phone__waveform span:nth-child(8) { height: 40%; animation-delay: 0.7s; }
+.phone__waveform span:nth-child(9) { height: 70%; animation-delay: 0.8s; }
+.phone__waveform span:nth-child(10) { height: 90%; animation-delay: 0.9s; }
+.phone__waveform span:nth-child(11) { height: 50%; animation-delay: 1.0s; }
+.phone__waveform span:nth-child(12) { height: 30%; animation-delay: 1.1s; }
+.phone__waveform span:nth-child(13) { height: 60%; animation-delay: 1.2s; }
+.phone__waveform span:nth-child(14) { height: 80%; animation-delay: 1.3s; }
+.phone__waveform span:nth-child(15) { height: 40%; animation-delay: 1.4s; }
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+.phone__analysis { padding: 12px 4px; border-bottom: 1px solid var(--line); }
+.phone__analysis-label { font-family: var(--sans); font-size: 8px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--sub); margin-bottom: 10px; }
+.phone__analysis-title { font-family: var(--serif-jp); font-size: 18px; font-weight: 500; color: var(--text); letter-spacing: -0.01em; margin-bottom: 6px; }
+.phone__analysis-title em { color: var(--accent); font-style: normal; font-family: var(--serif-en); font-weight: 500; }
+.phone__analysis-text { font-size: 10px; color: var(--text-mute); line-height: 1.6; }
+.phone__metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 4px; }
+.phone__metric { padding: 10px; border: 1px solid var(--line); border-radius: 2px; }
+.phone__metric-label { font-family: var(--sans); font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sub); margin-bottom: 6px; }
+.phone__metric-value { font-family: var(--serif-en); font-size: 22px; color: var(--accent); font-weight: 500; letter-spacing: -0.02em; }
+.phone__metric-value small { font-size: 10px; color: var(--text-mute); margin-left: 2px; }
+@media (max-width: 1080px) {
+  .hero__inner { grid-template-columns: 1fr; gap: 60px; text-align: center; }
+  .hero__label { justify-content: center; }
+  .hero__en { margin-left: auto; margin-right: auto; }
+  .hero__meta { position: static; margin-top: 60px; flex-direction: column; gap: 8px; align-items: center; }
+}
+@media (max-width: 600px) {
+  .phone { width: 260px; height: 540px; }
+  .hero { padding: 100px 20px 60px; }
+}
+.problem { padding: 200px 40px; position: relative; border-top: 1px solid var(--line); }
+.problem__inner { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1.3fr 1fr; gap: 120px; align-items: center; }
+.problem__label {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: var(--sub);
+  margin-bottom: 48px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.problem__label::before { content: '01'; font-family: var(--serif-en); font-style: italic; font-size: 14px; color: var(--accent); letter-spacing: 0; }
+.problem__number {
+  font-family: var(--serif-en);
+  font-weight: 400;
+  font-size: clamp(180px, 28vw, 420px);
+  line-height: 0.85;
+  letter-spacing: -0.06em;
+  color: var(--accent);
+  position: relative;
+  display: inline-block;
+}
+.problem__number sup { font-size: 0.25em; vertical-align: top; top: 0.8em; position: relative; color: var(--accent-dim); margin-left: 0.1em; font-style: italic; }
+.problem__text { padding-left: 40px; border-left: 1px solid var(--line); }
+.problem__heading { font-family: var(--serif-jp); font-weight: 500; font-size: clamp(24px, 2.6vw, 36px); line-height: 1.5; letter-spacing: -0.02em; color: var(--text); margin-bottom: 32px; }
+.problem__body { font-size: 14px; color: var(--text-mute); line-height: 1.9; margin-bottom: 40px; max-width: 440px; }
+.problem__footnote { font-family: var(--serif-en); font-style: italic; font-size: 12px; color: var(--sub); letter-spacing: 0.04em; }
+@media (max-width: 980px) {
+  .problem { padding: 120px 24px; }
+  .problem__inner { grid-template-columns: 1fr; gap: 60px; }
+  .problem__text { padding-left: 24px; }
+}
+.solution { padding: 200px 40px; border-top: 1px solid var(--line); position: relative; }
+.solution__intro { max-width: 1400px; margin: 0 auto 160px; text-align: center; }
+.solution__label {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: var(--sub);
+  margin-bottom: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.solution__label::before { content: '02'; font-family: var(--serif-en); font-style: italic; font-size: 14px; color: var(--accent); letter-spacing: 0; }
+.solution__heading { font-family: var(--serif-jp); font-weight: 500; font-size: clamp(40px, 6vw, 96px); line-height: 1.05; letter-spacing: -0.04em; margin-bottom: 40px; }
+.solution__heading em { font-style: normal; color: var(--accent); font-family: var(--serif-en); font-weight: 400; }
+.solution__sub { font-family: var(--serif-en); font-style: italic; font-size: 18px; color: var(--sub); letter-spacing: 0.02em; }
+.solution__chapters { max-width: 980px; margin: 0 auto; }
+.chapter { display: grid; grid-template-columns: 140px 1fr; gap: 60px; padding: 100px 0; border-top: 1px solid var(--line); position: relative; }
+.chapter:last-child { border-bottom: 1px solid var(--line); }
+.chapter__number { font-family: var(--serif-en); font-style: italic; font-weight: 300; font-size: 80px; color: var(--accent); letter-spacing: -0.04em; line-height: 1; }
+.chapter__number small { font-size: 12px; color: var(--sub); letter-spacing: 0.3em; text-transform: uppercase; display: block; font-style: normal; margin-bottom: 16px; font-family: var(--sans); }
+.chapter__title { font-family: var(--serif-jp); font-weight: 500; font-size: clamp(28px, 3.4vw, 48px); line-height: 1.4; letter-spacing: -0.03em; color: var(--text); margin-bottom: 28px; }
+.chapter__body { font-size: 15px; color: var(--text-mute); line-height: 2; max-width: 640px; margin-bottom: 28px; }
+.chapter__quote {
+  font-family: var(--serif-en);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 18px;
+  color: var(--sub);
+  padding-left: 24px;
+  border-left: 1px solid var(--line-strong);
+  max-width: 520px;
+  line-height: 1.7;
+}
+@media (max-width: 780px) {
+  .solution { padding: 120px 24px; }
+  .chapter { grid-template-columns: 1fr; gap: 24px; padding: 60px 0; }
+  .chapter__number { font-size: 56px; }
+}
+.features { padding: 200px 40px; border-top: 1px solid var(--line); background: var(--bg-soft); position: relative; }
+.features::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 80px; background: linear-gradient(to bottom, var(--accent), transparent); }
+.features__intro { max-width: 1400px; margin: 0 auto 120px; text-align: center; }
+.features__label {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: var(--sub);
+  margin-bottom: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.features__label::before { content: '03'; font-family: var(--serif-en); font-style: italic; font-size: 14px; color: var(--accent); letter-spacing: 0; }
+.features__heading { font-family: var(--serif-jp); font-weight: 500; font-size: clamp(40px, 5.5vw, 84px); line-height: 1.05; letter-spacing: -0.04em; }
+.features__heading em { font-style: normal; color: var(--accent); font-family: var(--serif-en); font-weight: 400; }
+.features__stack { max-width: 900px; margin: 0 auto; position: relative; perspective: 1600px; }
+.fcard {
+  background: linear-gradient(145deg, #0F1412 0%, #0B0F0D 100%);
+  border: 1px solid var(--line);
+  padding: 64px 72px;
+  margin-bottom: 24px;
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1), border-color 0.6s ease;
+}
+.fcard:nth-child(1) { transform: translateZ(0); z-index: 3; }
+.fcard:nth-child(2) { transform: translate3d(16px, -12px, -40px); z-index: 2; opacity: 0.96; }
+.fcard:nth-child(3) { transform: translate3d(32px, -24px, -80px); z-index: 1; opacity: 0.92; }
+.fcard:hover { transform: translate3d(0, -4px, 0); border-color: var(--line-strong); z-index: 10; }
+.fcard::before { content: ''; position: absolute; top: 0; left: 0; width: 60px; height: 1px; background: var(--accent); }
+.fcard__head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.fcard__num { font-family: var(--serif-en); font-style: italic; font-weight: 300; font-size: 14px; color: var(--sub); letter-spacing: 0.2em; }
+.fcard__tag { font-family: var(--sans); font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--accent); }
+.fcard__title { font-family: var(--serif-jp); font-weight: 500; font-size: clamp(32px, 3.8vw, 52px); line-height: 1.2; letter-spacing: -0.04em; color: var(--text); margin-bottom: 32px; }
+.fcard__title em { font-style: normal; font-family: var(--serif-en); color: var(--accent); font-weight: 400; }
+.fcard__body { font-size: 15px; color: var(--text-mute); line-height: 2; max-width: 580px; margin-bottom: 40px; }
+.fcard__list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; }
+.fcard__list li { font-family: var(--serif-en); font-style: italic; font-size: 14px; color: var(--sub); padding-left: 18px; position: relative; letter-spacing: 0.02em; }
+.fcard__list li::before { content: ''; position: absolute; left: 0; top: 10px; width: 8px; height: 1px; background: var(--accent); }
+@media (max-width: 780px) {
+  .features { padding: 120px 24px; }
+  .fcard { padding: 40px 28px; }
+  .fcard:nth-child(2), .fcard:nth-child(3) { transform: none; opacity: 1; }
+}
+.pricing { padding: 200px 40px; border-top: 1px solid var(--line); }
+.pricing__intro { max-width: 1400px; margin: 0 auto 120px; text-align: center; }
+.pricing__label {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: var(--sub);
+  margin-bottom: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.pricing__label::before { content: '04'; font-family: var(--serif-en); font-style: italic; font-size: 14px; color: var(--accent); letter-spacing: 0; }
+.pricing__heading { font-family: var(--serif-jp); font-weight: 500; font-size: clamp(40px, 5.5vw, 84px); line-height: 1.05; letter-spacing: -0.04em; }
+.pricing__heading em { font-style: normal; color: var(--accent); font-family: var(--serif-en); font-weight: 400; }
+.pricing__table { max-width: 1100px; margin: 0 auto; border-top: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); }
+.prow { display: grid; grid-template-columns: 1.2fr 2fr 1fr 180px; padding: 40px 32px; border-bottom: 1px solid var(--line); align-items: center; transition: background 0.4s ease; }
+.prow:last-child { border-bottom: none; }
+.prow--head { padding: 24px 32px; font-family: var(--sans); font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--sub); background: rgba(212, 175, 55, 0.02); }
+.prow--featured { background: linear-gradient(90deg, rgba(212, 175, 55, 0.04), rgba(212, 175, 55, 0.01)); position: relative; }
+.prow--featured::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--accent); }
+.prow:not(.prow--head):hover { background: rgba(212, 175, 55, 0.03); }
+.prow__name { font-family: var(--serif-jp); font-weight: 500; font-size: 22px; letter-spacing: -0.02em; color: var(--text); }
+.prow__name small { display: block; font-family: var(--serif-en); font-style: italic; font-size: 12px; font-weight: 300; color: var(--accent); letter-spacing: 0.1em; margin-top: 4px; }
+.prow__desc { font-size: 13px; color: var(--text-mute); line-height: 1.7; }
+.prow__price { font-family: var(--serif-en); font-weight: 400; font-size: 36px; color: var(--accent); letter-spacing: -0.03em; }
+.prow__price small { font-size: 11px; color: var(--text-mute); letter-spacing: 0.2em; margin-left: 4px; font-family: var(--sans); }
+.prow__cta {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text);
+  padding: 14px 24px;
+  border: 1px solid var(--line-strong);
+  text-align: center;
+  transition: all 0.4s ease;
+}
+.prow__cta:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.prow__cta--primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.prow__cta--primary:hover { background: transparent; color: var(--accent); }
+.pricing__note { max-width: 1100px; margin: 40px auto 0; padding: 0 32px; font-family: var(--serif-en); font-style: italic; font-size: 13px; color: var(--sub); letter-spacing: 0.02em; }
+@media (max-width: 860px) {
+  .pricing { padding: 120px 24px; }
+  .prow { grid-template-columns: 1fr; gap: 16px; padding: 32px 20px; }
+  .prow--head { display: none; }
+  .prow__price { font-size: 32px; }
+}
+.testimonial {
+  min-height: 100vh;
+  padding: 160px 40px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-soft);
+  position: relative;
+  overflow: hidden;
+}
+.testimonial::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.05), transparent 60%); pointer-events: none; }
+.testimonial__inner { max-width: 1200px; width: 100%; text-align: center; position: relative; z-index: 1; }
+.testimonial__label {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: var(--sub);
+  margin-bottom: 64px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.testimonial__label::before { content: '05'; font-family: var(--serif-en); font-style: italic; font-size: 14px; color: var(--accent); letter-spacing: 0; }
+.testimonial__mark { font-family: var(--serif-en); font-size: clamp(120px, 18vw, 220px); color: var(--accent); line-height: 0.6; opacity: 0.4; display: block; margin-bottom: -30px; }
+.testimonial__quote { font-family: var(--serif-jp); font-weight: 400; font-size: clamp(28px, 4.2vw, 64px); line-height: 1.5; letter-spacing: -0.03em; color: var(--text); margin-bottom: 64px; }
+.testimonial__quote em { font-style: normal; color: var(--accent); font-family: var(--serif-en); font-weight: 400; }
+.testimonial__attr { display: inline-flex; align-items: center; gap: 24px; padding-top: 32px; border-top: 1px solid var(--line); }
+.testimonial__avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-dim), var(--accent));
+  border: 1px solid var(--line-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif-en);
+  font-weight: 500;
+  color: var(--bg);
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+.testimonial__who { text-align: left; }
+.testimonial__name { font-family: var(--serif-jp); font-weight: 500; font-size: 16px; color: var(--text); letter-spacing: -0.01em; }
+.testimonial__role { font-family: var(--serif-en); font-style: italic; font-size: 13px; color: var(--sub); letter-spacing: 0.04em; margin-top: 2px; }
+.testimonial__dogs { display: flex; justify-content: center; gap: 48px; margin-top: 80px; padding-top: 40px; border-top: 1px solid var(--line); }
+.testimonial__dog { text-align: center; }
+.testimonial__dog-num { font-family: var(--serif-en); font-style: italic; font-weight: 300; font-size: 42px; color: var(--accent); letter-spacing: -0.03em; line-height: 1; margin-bottom: 8px; }
+.testimonial__dog-label { font-family: var(--sans); font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--text-mute); }
+@media (max-width: 780px) {
+  .testimonial { padding: 120px 24px; }
+  .testimonial__dogs { flex-wrap: wrap; gap: 32px; }
+}
+.faq { padding: 200px 40px; border-top: 1px solid var(--line); }
+.faq__inner { max-width: 1100px; margin: 0 auto; }
+.faq__intro { display: grid; grid-template-columns: 1fr 1.4fr; gap: 80px; align-items: end; margin-bottom: 100px; padding-bottom: 60px; border-bottom: 1px solid var(--line); }
+.faq__label {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: var(--sub);
+  margin-bottom: 48px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.faq__label::before { content: '06'; font-family: var(--serif-en); font-style: italic; font-size: 14px; color: var(--accent); letter-spacing: 0; }
+.faq__heading { font-family: var(--serif-jp); font-weight: 500; font-size: clamp(40px, 5.5vw, 84px); line-height: 1.05; letter-spacing: -0.04em; }
+.faq__heading em { font-style: normal; color: var(--accent); font-family: var(--serif-en); font-weight: 400; }
+.faq__sub { font-family: var(--serif-en); font-style: italic; font-size: 18px; line-height: 1.7; color: var(--sub); letter-spacing: 0.02em; max-width: 480px; }
+.faq__list { border-top: 1px solid var(--line); }
+.faq__item { border-bottom: 1px solid var(--line); }
+.faq__item summary { list-style: none; cursor: pointer; padding: 44px 0; display: grid; grid-template-columns: 60px 1fr 40px; gap: 32px; align-items: center; transition: color 0.4s ease; }
+.faq__item summary::-webkit-details-marker { display: none; }
+.faq__num { font-family: var(--serif-en); font-style: italic; font-weight: 300; font-size: 20px; color: var(--accent); letter-spacing: 0.04em; }
+.faq__q { font-family: var(--serif-jp); font-weight: 500; font-size: clamp(18px, 2vw, 26px); letter-spacing: -0.02em; color: var(--text); line-height: 1.5; }
+.faq__icon { width: 24px; height: 24px; position: relative; justify-self: end; }
+.faq__icon::before, .faq__icon::after { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: var(--accent); transition: transform 0.4s ease; }
+.faq__icon::after { transform: rotate(90deg); }
+.faq__item[open] .faq__icon::after { transform: rotate(0); }
+.faq__item[open] summary { color: var(--accent); }
+.faq__a { padding: 0 92px 44px 92px; font-size: 15px; color: var(--text-mute); line-height: 2; max-width: 780px; }
+@media (max-width: 780px) {
+  .faq { padding: 120px 24px; }
+  .faq__intro { grid-template-columns: 1fr; gap: 40px; margin-bottom: 60px; }
+  .faq__item summary { grid-template-columns: 40px 1fr 24px; gap: 20px; padding: 32px 0; }
+  .faq__a { padding: 0 0 32px 60px; }
+}
+.final { padding: 200px 40px; text-align: center; border-top: 1px solid var(--line); position: relative; }
+.final::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1px; height: 100px; background: linear-gradient(to bottom, var(--accent), transparent); }
+.final__mark { font-family: var(--serif-en); font-style: italic; font-size: 14px; color: var(--accent); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 40px; display: inline-block; }
+.final__heading { font-family: var(--serif-jp); font-weight: 500; font-size: clamp(48px, 8vw, 128px); line-height: 1; letter-spacing: -0.05em; color: var(--text); margin-bottom: 64px; }
+.final__heading em { font-style: normal; color: var(--accent); font-family: var(--serif-en); font-weight: 400; }
+.final__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 22px 48px;
+  transition: all 0.5s ease;
+}
+.final__cta:hover { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.final__note { font-family: var(--serif-en); font-style: italic; font-size: 13px; color: var(--sub); margin-top: 40px; letter-spacing: 0.04em; }
+.footer { padding: 80px 40px 40px; border-top: 1px solid var(--line); }
+.footer__inner { max-width: 1400px; margin: 0 auto; }
+.footer__top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; padding-bottom: 60px; border-bottom: 1px solid var(--line); }
+.footer__brand { font-family: var(--serif-en); font-size: 28px; font-weight: 500; letter-spacing: 0.18em; color: var(--text); margin-bottom: 20px; }
+.footer__brand span { color: var(--accent); }
+.footer__tag { font-family: var(--serif-jp); font-size: 14px; color: var(--text-mute); line-height: 1.8; max-width: 380px; }
+.footer__col h4 { font-family: var(--sans); font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; font-weight: 500; }
+.footer__col ul { list-style: none; }
+.footer__col li { margin-bottom: 12px; font-family: var(--serif-jp); font-size: 13px; color: var(--text-mute); transition: color 0.3s ease; cursor: pointer; }
+.footer__col li:hover { color: var(--accent); }
+.footer__bottom { padding-top: 32px; display: flex; justify-content: space-between; align-items: center; font-family: var(--sans); font-size: 11px; letter-spacing: 0.2em; color: var(--text-mute); }
+.footer__bottom em { font-family: var(--serif-en); font-style: italic; color: var(--accent); font-size: 13px; letter-spacing: 0.04em; }
+@media (max-width: 780px) {
+  .footer__top { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .footer__bottom { flex-direction: column; gap: 16px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="nav">
+  <div class="nav__brand">Pup<span>·</span>Whisper</div>
+  <div class="nav__links">
+    <a href="#problem">Story</a>
+    <a href="#features">Method</a>
+    <a href="#pricing">Atelier</a>
+    <a href="#faq">Inquiry</a>
+  </div>
+  <a href="#final" class="nav__cta">Begin — 無料で試す</a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero__grid"></div>
+  <span class="hero__accent-line hero__accent-line--top"></span>
+  <span class="hero__accent-line hero__accent-line--bottom"></span>
+
+  <div class="hero__inner">
+    <div>
+      <div class="hero__label">Chapter — Silent Dialogue</div>
+      <h1 class="hero__title">
+        <span class="line">犬の本音が、</span>
+        <span class="line"><em>聞こえる。</em></span>
+      </h1>
+      <p class="hero__en">
+        A quiet intelligence that listens to your companion —<br>
+        translating bark, posture, and gaze into an <em>intimate</em> language.
+      </p>
+      <a href="#final" class="hero__cta">Enter the Atelier</a>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="phone">
+      <div class="phone__screen">
+        <div class="phone__island"></div>
+        <div class="phone__status">
+          <span>Listening</span>
+          <span>22:41</span>
+        </div>
+        <div class="phone__waveform">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="phone__analysis">
+          <div class="phone__analysis-label">Analysis — Moka, 3.2y</div>
+          <div class="phone__analysis-title">寂しさ <em>/ mild</em></div>
+          <div class="phone__analysis-text">留守番直後の単調な低音域。甘え・再接触の要求を検出。</div>
+        </div>
+        <div class="phone__metrics">
+          <div class="phone__metric">
+            <div class="phone__metric-label">Pitch</div>
+            <div class="phone__metric-value">412<small>Hz</small></div>
+          </div>
+          <div class="phone__metric">
+            <div class="phone__metric-label">Stress</div>
+            <div class="phone__metric-value">0.18</div>
+          </div>
+          <div class="phone__metric">
+            <div class="phone__metric-label">Posture</div>
+            <div class="phone__metric-value">Low</div>
+          </div>
+          <div class="phone__metric">
+            <div class="phone__metric-label">Mood</div>
+            <div class="phone__metric-value">Soft</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__meta">
+    <span>PupWhisper <span>·</span> Est. 2026</span>
+    <span>Tokyo <span>·</span> Kyoto <span>·</span> Melbourne</span>
+    <span>Registered Canine Behaviourists <span>·</span> 112</span>
+  </div>
+</section>
+
+<!-- ===== PROBLEM — 78% ===== -->
+<section class="problem" id="problem">
+  <div class="problem__inner">
+    <div>
+      <div class="problem__label">The Unheard</div>
+      <div class="problem__number">78<sup>%</sup></div>
+    </div>
+    <div class="problem__text">
+      <h2 class="problem__heading">
+        飼い主の<em style="font-style:normal;color:var(--accent);font-family:var(--serif-en)">78%</em>が、<br>
+        愛犬の「本当の気持ち」が<br>わからないと答えた。
+      </h2>
+      <p class="problem__body">
+        鳴くのは寂しいから？ お腹が空いているから？ それとも何処かが痛いのか。<br><br>
+        吠える、唸る、尻尾を振る——その一つひとつに意味がある。けれど私たちは、長い間、その声を聴く術を持たなかった。
+      </p>
+      <div class="problem__footnote">— PupWhisper Research, n=1,204, 2025 autumn</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SOLUTION ===== -->
+<section class="solution">
+  <div class="solution__intro">
+    <div class="solution__label">A Quiet Method</div>
+    <h2 class="solution__heading">
+      静かに、<em>ひとつの声</em>を<br>聴き分けてゆく。
+    </h2>
+    <p class="solution__sub">Three chapters between you and your companion.</p>
+  </div>
+
+  <div class="solution__chapters">
+
+    <div class="chapter">
+      <div class="chapter__number">
+        <small>Chapter I</small>
+        i.
+      </div>
+      <div>
+        <h3 class="chapter__title">まず、三十秒の録音から。</h3>
+        <p class="chapter__body">
+          スマートフォンを向けるだけ。吠え声、呼吸、足音——日常の一部を、ただ記録する。PupWhisper はその波形を、犬種・年齢・既往歴と共に解きほぐしてゆく。
+        </p>
+        <p class="chapter__quote">"Listening is the slowest, and the most luxurious, act of love."</p>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter__number">
+        <small>Chapter II</small>
+        ii.
+      </div>
+      <div>
+        <h3 class="chapter__title">次に、姿勢と視線を読む。</h3>
+        <p class="chapter__body">
+          耳の角度、尾の速度、瞳孔の揺れ。独自の姿勢推定モデルが 47 のマイクロシグナルを抽出し、その日の感情・緊張・甘えを、静かな図として並べる。
+        </p>
+        <p class="chapter__quote">"A tail is a sentence. We learned to read it, word by word."</p>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter__number">
+        <small>Chapter III</small>
+        iii.
+      </div>
+      <div>
+        <h3 class="chapter__title">そして、一頭だけのカリキュラムへ。</h3>
+        <p class="chapter__body">
+          二匹として同じ犬はいない。PupWhisper は、あなたの犬のためだけに、今日の三分間、来週の十分間、来月の課題を静かに描き出す。急がない。焦らない。信頼の速度で。
+        </p>
+        <p class="chapter__quote">"The curriculum is not a program. It is a conversation."</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section class="features" id="features">
+  <div class="features__intro">
+    <div class="features__label">The Three Instruments</div>
+    <h2 class="features__heading">
+      耳、目、そして<br><em>時間</em>。
+    </h2>
+  </div>
+
+  <div class="features__stack">
+
+    <div class="fcard">
+      <div class="fcard__head">
+        <span class="fcard__num">i. — Instrument</span>
+        <span class="fcard__tag">Vocal Analysis</span>
+      </div>
+      <h3 class="fcard__title">鳴き声から、<em>感情の地図</em>を描く。</h3>
+      <p class="fcard__body">
+        数万時間の犬の発声データと、獣医行動学の監修による分類モデル。吠え・鼻鳴き・うなり・パンティング——それぞれが何を語っているか、七つの感情軸で丁寧に翻訳します。
+      </p>
+      <ul class="fcard__list">
+        <li>七感情分類モデル</li>
+        <li>犬種別チューニング</li>
+        <li>夜間モニタリング</li>
+        <li>リアルタイム解析</li>
+      </ul>
+    </div>
+
+    <div class="fcard">
+      <div class="fcard__head">
+        <span class="fcard__num">ii. — Instrument</span>
+        <span class="fcard__tag">Posture & Gaze</span>
+      </div>
+      <h3 class="fcard__title">姿勢と表情で、<em>沈黙</em>を読む。</h3>
+      <p class="fcard__body">
+        鳴かない犬にも、物語はあります。独自の姿勢推定と表情認識により、耳の傾き、尾の振動、目線の泳ぎから、不安・期待・警戒をやさしく取り出します。
+      </p>
+      <ul class="fcard__list">
+        <li>47 マイクロシグナル</li>
+        <li>姿勢スコアリング</li>
+        <li>表情マップ</li>
+        <li>ストレス早期検出</li>
+      </ul>
+    </div>
+
+    <div class="fcard">
+      <div class="fcard__head">
+        <span class="fcard__num">iii. — Instrument</span>
+        <span class="fcard__tag">Bespoke Curriculum</span>
+      </div>
+      <h3 class="fcard__title">一頭のための、<em>ひと月</em>の物語。</h3>
+      <p class="fcard__body">
+        分析結果と、あなたの暮らしのリズムから、その日・その週・その月の最適なしつけを生成。毎晩五分、あるいは週末だけ——共に過ごせる時間に合わせて、物語が書き加わります。
+      </p>
+      <ul class="fcard__list">
+        <li>日次 / 週次計画</li>
+        <li>獣医行動学の監修</li>
+        <li>進捗ジャーナル</li>
+        <li>プロのオンライン相談</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== PRICING ===== -->
+<section class="pricing" id="pricing">
+  <div class="pricing__intro">
+    <div class="pricing__label">The Atelier</div>
+    <h2 class="pricing__heading">
+      三つの、<em>静かな席</em>。
+    </h2>
+  </div>
+
+  <div class="pricing__table">
+
+    <div class="prow prow--head">
+      <div>Plan</div>
+      <div>Included</div>
+      <div style="text-align:right">Price</div>
+      <div></div>
+    </div>
+
+    <div class="prow">
+      <div class="prow__name">
+        Essentiel
+        <small>— for the curious</small>
+      </div>
+      <div class="prow__desc">鳴き声分析 + 週次レポート。初めてのひと月を、静かに確かめたい方へ。</div>
+      <div class="prow__price" style="text-align:right">¥0<small>/mo</small></div>
+      <div><a href="#" class="prow__cta">Begin Free</a></div>
+    </div>
+
+    <div class="prow prow--featured">
+      <div class="prow__name">
+        Intime
+        <small>— most chosen</small>
+      </div>
+      <div class="prow__desc">全ての分析機能 + 一頭専用カリキュラム + 獣医行動学者への月一相談。</div>
+      <div class="prow__price" style="text-align:right">¥1,980<small>/mo</small></div>
+      <div><a href="#" class="prow__cta prow__cta--primary">Join Intime</a></div>
+    </div>
+
+    <div class="prow">
+      <div class="prow__name">
+        Maison
+        <small>— for the devoted</small>
+      </div>
+      <div class="prow__desc">複数頭対応 + 24h モニタリング + 専属トレーナーによる隔週セッション。</div>
+      <div class="prow__price" style="text-align:right">¥6,800<small>/mo</small></div>
+      <div><a href="#" class="prow__cta">Inquire</a></div>
+    </div>
+
+  </div>
+
+  <p class="pricing__note">* All plans include a 14-day quiet trial. No credit card required. 消費税込。</p>
+</section>
+
+<!-- ===== TESTIMONIAL ===== -->
+<section class="testimonial">
+  <div class="testimonial__inner">
+    <div class="testimonial__label">A Voice from the Atelier</div>
+    <span class="testimonial__mark">“</span>
+    <blockquote class="testimonial__quote">
+      初めて、<em>本当にごめんね</em>と言えた気がしました。<br>
+      十三年連れ添った犬の、小さな<em>違和感</em>に、ようやく気づけた夜。
+    </blockquote>
+    <div class="testimonial__attr">
+      <div class="testimonial__avatar">M</div>
+      <div class="testimonial__who">
+        <div class="testimonial__name">三浦 真理子 さま</div>
+        <div class="testimonial__role">Tokyo / with Chocolat, Toy Poodle 13y</div>
+      </div>
+    </div>
+
+    <div class="testimonial__dogs">
+      <div class="testimonial__dog">
+        <div class="testimonial__dog-num">12,480</div>
+        <div class="testimonial__dog-label">Dogs Listened To</div>
+      </div>
+      <div class="testimonial__dog">
+        <div class="testimonial__dog-num">4.9</div>
+        <div class="testimonial__dog-label">Atelier Rating</div>
+      </div>
+      <div class="testimonial__dog">
+        <div class="testimonial__dog-num">91<span style="font-size:0.5em">%</span></div>
+        <div class="testimonial__dog-label">Continued After 6mo</div>
+      </div>
+      <div class="testimonial__dog">
+        <div class="testimonial__dog-num">112</div>
+        <div class="testimonial__dog-label">Certified Specialists</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="faq" id="faq">
+  <div class="faq__inner">
+    <div class="faq__intro">
+      <div>
+        <div class="faq__label">Inquiries</div>
+        <h2 class="faq__heading">
+          静かな、<em>問いに。</em>
+        </h2>
+      </div>
+      <p class="faq__sub">
+        Answers written carefully — the way we would explain to a friend over slow tea. 他にご不明な点があれば、いつでもお尋ねください。
+      </p>
+    </div>
+
+    <div class="faq__list">
+
+      <details class="faq__item" open>
+        <summary>
+          <span class="faq__num">01.</span>
+          <span class="faq__q">犬種や年齢によって、精度に差はありますか？</span>
+          <span class="faq__icon"></span>
+        </summary>
+        <div class="faq__a">
+          はい、わずかに。PupWhisper は現在 148 犬種のデータで学習されており、トイ〜中型犬で特に高い精度を示します。大型犬・シニア犬についても段階的にチューニングを重ねており、初回セッションで「犬種プロファイル」を調整することで、ほぼすべての個体に対応します。
+        </div>
+      </details>
+
+      <details class="faq__item">
+        <summary>
+          <span class="faq__num">02.</span>
+          <span class="faq__q">録音データはどこに保存されますか？</span>
+          <span class="faq__icon"></span>
+        </summary>
+        <div class="faq__a">
+          東京リージョンの暗号化ストレージに保存され、モデル学習に利用される前に必ずご本人の許諾を確認します。いつでも完全削除リクエストが可能で、退会時には自動的に全データが消去されます。個人情報保護方針は本サイト下部にてご確認いただけます。
+        </div>
+      </details>
+
+      <details class="faq__item">
+        <summary>
+          <span class="faq__num">03.</span>
+          <span class="faq__q">獣医や既存のトレーナーの代わりになりますか？</span>
+          <span class="faq__icon"></span>
+        </summary>
+        <div class="faq__a">
+          いいえ、置き換えるものではありません。PupWhisper は「気づきの補助線」です。病理的な異常が疑われる場合は必ず獣医師への相談を促し、必要に応じて提携クリニックへの紹介状も発行いたします。あくまで、日々の観察を深めるための静かな道具です。
+        </div>
+      </details>
+
+      <details class="faq__item">
+        <summary>
+          <span class="faq__num">04.</span>
+          <span class="faq__q">複数の犬と暮らしています。対応できますか？</span>
+          <span class="faq__icon"></span>
+        </summary>
+        <div class="faq__a">
+          Maison プランでは最大 5 頭まで、それぞれに固有のプロファイルとカリキュラムを生成します。多頭飼育特有の関係性——兄弟関係、序列、嫉妬——もモデルが考慮し、全体としての調和を設計します。
+        </div>
+      </details>
+
+      <details class="faq__item">
+        <summary>
+          <span class="faq__num">05.</span>
+          <span class="faq__q">解約はすぐにできますか？</span>
+          <span class="faq__icon"></span>
+        </summary>
+        <div class="faq__a">
+          もちろんです。アプリ内から一度のタップで、次回請求は発生しません。14 日間の無料体験期間中の解約も同様です。私たちは、留まる理由をお客様に与え続けられる時だけ、お客様に留まっていただきたいと考えています。
+        </div>
+      </details>
+
+      <details class="faq__item">
+        <summary>
+          <span class="faq__num">06.</span>
+          <span class="faq__q">iPad やタブレットでも使えますか？</span>
+          <span class="faq__icon"></span>
+        </summary>
+        <div class="faq__a">
+          はい。iOS / iPadOS / Android / Web の全環境に対応しています。録音・録画は複数端末で同期され、どの画面でも同じ物語が続きます。オフラインでも分析は可能で、接続時に自動で同期されます。
+        </div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section class="final" id="final">
+  <div class="final__mark">— Begin —</div>
+  <h2 class="final__heading">
+    今夜、<em>耳を澄ませて</em><br>みませんか。
+  </h2>
+  <a href="#" class="final__cta">Start 14-day Quiet Trial</a>
+  <p class="final__note">No card. No noise. Only listening.</p>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__top">
+      <div>
+        <div class="footer__brand">Pup<span>·</span>Whisper</div>
+        <p class="footer__tag">
+          犬の本音が、聞こえる。<br>
+          A quiet intelligence for the ones who listen.
+        </p>
+      </div>
+      <div class="footer__col">
+        <h4>Atelier</h4>
+        <ul>
+          <li>Story</li>
+          <li>Method</li>
+          <li>Plans</li>
+          <li>Specialists</li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Inquiry</h4>
+        <ul>
+          <li>Support</li>
+          <li>Veterinary</li>
+          <li>Press</li>
+          <li>Careers</li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul>
+          <li>Privacy</li>
+          <li>Terms</li>
+          <li>Ethics</li>
+          <li>Research</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div>© 2026 PupWhisper Inc. All rights reserved.</div>
+      <div><em>Listening, slowly —</em> Tokyo / Kyoto / Melbourne</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

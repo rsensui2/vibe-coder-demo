@@ -1,0 +1,2795 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PupWhisper — 犬の本音が、聞こえる。</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   PupWhisper LP — Pattern 1: Modern Minimal
+   Colors: #FAF5EC / #1F3A2E / #E8A15A / #0F1A14 / #C7A27A
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #FAF5EC;
+  --primary: #1F3A2E;
+  --accent: #E8A15A;
+  --ink: #0F1A14;
+  --sub: #C7A27A;
+  --bg-soft: #F5EEDF;
+  --line: rgba(31, 58, 46, 0.12);
+  --line-strong: rgba(31, 58, 46, 0.28);
+  --serif: 'Noto Serif JP', 'Times New Roman', serif;
+  --sans: 'Noto Sans JP', 'Inter', -apple-system, sans-serif;
+  --mono: 'Inter', monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 400;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+.wrap {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+@media (max-width: 768px) {
+  .wrap { padding: 0 24px; }
+}
+
+/* ============================================
+   NAV
+   ============================================ */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  background: rgba(250, 245, 236, 0.78);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 18px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  position: relative;
+}
+
+.logo-mark::before,
+.logo-mark::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 10px;
+  background: var(--primary);
+  border-radius: 50% 50% 0 0;
+  top: -5px;
+}
+
+.logo-mark::before { left: 3px; transform: rotate(-20deg); }
+.logo-mark::after { right: 3px; transform: rotate(20deg); }
+
+.logo-mark .eye {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-links {
+  display: flex;
+  gap: 36px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s;
+}
+
+.nav-links a:hover { opacity: 0.6; }
+
+.nav-cta {
+  background: var(--primary);
+  color: var(--bg);
+  padding: 10px 22px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  transition: background 0.2s;
+}
+
+.nav-cta:hover { background: var(--ink); }
+
+@media (max-width: 860px) {
+  .nav-links { display: none; }
+  .nav-inner { padding: 14px 24px; }
+}
+
+/* ============================================
+   HERO
+   ============================================ */
+.hero {
+  padding: 160px 0 140px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  right: -200px;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232, 161, 90, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sub);
+  font-weight: 500;
+  margin-bottom: 40px;
+  font-family: var(--mono);
+}
+
+.hero-eyebrow::before {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.hero-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(52px, 7vw, 104px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--primary);
+  margin-bottom: 40px;
+}
+
+.hero-title .amp {
+  color: var(--accent);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.hero-title .small {
+  display: block;
+  font-size: 0.55em;
+  font-weight: 400;
+  color: var(--ink);
+  margin-top: 18px;
+  letter-spacing: -0.01em;
+}
+
+.hero-sub {
+  font-size: 17px;
+  line-height: 1.9;
+  max-width: 480px;
+  color: var(--ink);
+  opacity: 0.78;
+  margin-bottom: 48px;
+}
+
+.hero-cta-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--bg);
+  padding: 20px 40px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  border: 1px solid var(--primary);
+}
+
+.btn-primary:hover {
+  background: var(--ink);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(15, 26, 20, 0.18);
+}
+
+.btn-primary .arrow {
+  display: inline-block;
+  transition: transform 0.3s;
+}
+
+.btn-primary:hover .arrow { transform: translateX(4px); }
+
+.btn-ghost {
+  color: var(--primary);
+  padding: 20px 8px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--primary);
+  transition: opacity 0.2s;
+}
+
+.btn-ghost:hover { opacity: 0.6; }
+
+.hero-meta {
+  margin-top: 72px;
+  display: flex;
+  gap: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+
+.hero-meta-item {
+  font-size: 13px;
+  color: var(--ink);
+  opacity: 0.72;
+}
+
+.hero-meta-item strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+/* ============================================
+   PHONE MOCKUP
+   ============================================ */
+.phone-stage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translateX(20px);
+}
+
+.phone-stage::before {
+  content: '';
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(31, 58, 46, 0.06) 0%, transparent 65%);
+  z-index: 0;
+}
+
+.phone {
+  position: relative;
+  width: 320px;
+  height: 660px;
+  background: var(--primary);
+  border-radius: 54px;
+  padding: 10px;
+  box-shadow:
+    0 30px 80px rgba(31, 58, 46, 0.22),
+    0 10px 30px rgba(31, 58, 46, 0.12),
+    inset 0 0 0 1.5px rgba(232, 161, 90, 0.15);
+  transform: rotate(-2.5deg);
+  z-index: 2;
+}
+
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  border-radius: 44px;
+  position: relative;
+  overflow: hidden;
+}
+
+.phone-notch {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 96px;
+  height: 28px;
+  background: var(--ink);
+  border-radius: 999px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 10px;
+  gap: 6px;
+}
+
+.phone-notch::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #222;
+  box-shadow: inset 0 0 0 1.5px rgba(232, 161, 90, 0.3);
+}
+
+.phone-notch .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.phone-status {
+  position: absolute;
+  top: 18px;
+  left: 26px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  z-index: 4;
+}
+
+.phone-status-right {
+  position: absolute;
+  top: 18px;
+  right: 26px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  z-index: 4;
+}
+
+.phone-status-right .bar {
+  width: 3px;
+  background: var(--ink);
+  border-radius: 1px;
+}
+
+.phone-status-right .bar:nth-child(1) { height: 5px; }
+.phone-status-right .bar:nth-child(2) { height: 7px; }
+.phone-status-right .bar:nth-child(3) { height: 9px; }
+.phone-status-right .bar:nth-child(4) { height: 11px; }
+
+.phone-status-right .battery {
+  width: 22px;
+  height: 11px;
+  border: 1.2px solid var(--ink);
+  border-radius: 3px;
+  margin-left: 4px;
+  position: relative;
+  padding: 1.2px;
+}
+
+.phone-status-right .battery::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 3px;
+  width: 2px;
+  height: 5px;
+  background: var(--ink);
+  border-radius: 0 2px 2px 0;
+}
+
+.battery-fill {
+  width: 75%;
+  height: 100%;
+  background: var(--ink);
+  border-radius: 1.5px;
+}
+
+.phone-content {
+  padding: 60px 22px 22px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.app-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+.app-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sub);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--serif);
+}
+
+.listening-card {
+  background: var(--primary);
+  color: var(--bg);
+  border-radius: 22px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.listening-card::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232, 161, 90, 0.25) 0%, transparent 60%);
+}
+
+.listening-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 8px;
+  font-family: var(--mono);
+  font-weight: 500;
+}
+
+.listening-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 14px;
+  letter-spacing: -0.01em;
+}
+
+.waveform {
+  display: flex;
+  gap: 3px;
+  align-items: flex-end;
+  height: 40px;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 2;
+}
+
+.waveform .wv {
+  flex: 1;
+  background: var(--accent);
+  border-radius: 2px;
+  animation: wave 1.4s ease-in-out infinite;
+  opacity: 0.9;
+}
+
+.waveform .wv:nth-child(1) { height: 20%; animation-delay: 0s; }
+.waveform .wv:nth-child(2) { height: 45%; animation-delay: 0.08s; }
+.waveform .wv:nth-child(3) { height: 70%; animation-delay: 0.16s; }
+.waveform .wv:nth-child(4) { height: 55%; animation-delay: 0.24s; }
+.waveform .wv:nth-child(5) { height: 85%; animation-delay: 0.32s; }
+.waveform .wv:nth-child(6) { height: 40%; animation-delay: 0.4s; }
+.waveform .wv:nth-child(7) { height: 90%; animation-delay: 0.48s; }
+.waveform .wv:nth-child(8) { height: 60%; animation-delay: 0.56s; }
+.waveform .wv:nth-child(9) { height: 35%; animation-delay: 0.64s; }
+.waveform .wv:nth-child(10) { height: 75%; animation-delay: 0.72s; }
+.waveform .wv:nth-child(11) { height: 50%; animation-delay: 0.8s; }
+.waveform .wv:nth-child(12) { height: 25%; animation-delay: 0.88s; }
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+.listening-sub {
+  font-size: 12px;
+  opacity: 0.8;
+  position: relative;
+  z-index: 2;
+}
+
+.translation-card {
+  background: var(--bg-soft);
+  border-radius: 22px;
+  padding: 18px;
+  border: 1px solid var(--line);
+}
+
+.translation-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.emotion-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--primary);
+  background: rgba(232, 161, 90, 0.18);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.emotion-tag::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.confidence {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--sub);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.translation-text {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+.translation-text .accent-quote {
+  color: var(--accent);
+  font-size: 20px;
+  vertical-align: -2px;
+  margin: 0 2px;
+}
+
+.mini-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.mini-stat {
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.mini-stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--sub);
+  margin-bottom: 6px;
+  font-family: var(--mono);
+  font-weight: 500;
+}
+
+.mini-stat-value {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+.mini-stat-value .unit {
+  font-size: 11px;
+  color: var(--sub);
+  margin-left: 2px;
+  font-family: var(--sans);
+  font-weight: 400;
+}
+
+.phone-tabbar {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-around;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.tab {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--sub);
+}
+
+.tab.active {
+  background: var(--primary);
+  color: var(--bg);
+}
+
+.floating-badge {
+  position: absolute;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px 18px;
+  box-shadow: 0 10px 30px rgba(15, 26, 20, 0.1);
+  z-index: 3;
+}
+
+.floating-badge.fb-1 {
+  top: 8%;
+  left: -10%;
+  transform: rotate(-4deg);
+}
+
+.floating-badge.fb-2 {
+  bottom: 12%;
+  right: -12%;
+  transform: rotate(3deg);
+}
+
+.fb-title {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sub);
+  font-family: var(--mono);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.fb-value {
+  font-family: var(--serif);
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.fb-value .check {
+  color: var(--accent);
+  margin-right: 4px;
+}
+
+@media (max-width: 960px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 60px;
+  }
+  .phone-stage {
+    transform: translateX(0) scale(0.85);
+  }
+  .hero { padding: 130px 0 80px; }
+}
+
+/* ============================================
+   PROBLEM
+   ============================================ */
+.problem {
+  padding: 140px 0;
+  background: var(--primary);
+  color: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.problem::before {
+  content: 'THE PROBLEM';
+  position: absolute;
+  top: 60px;
+  right: 40px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  opacity: 0.35;
+  font-weight: 500;
+}
+
+.problem-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.3fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.problem-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.problem-label::before {
+  content: '01';
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bg);
+}
+
+.problem-heading {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(32px, 4.5vw, 54px);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--bg);
+}
+
+.problem-heading em {
+  color: var(--accent);
+  font-style: normal;
+}
+
+.problem-big-stat {
+  margin-bottom: 48px;
+  padding-left: 80px;
+  position: relative;
+}
+
+.problem-big-stat::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 24px;
+  width: 60px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.big-number {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: clamp(120px, 16vw, 220px);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: var(--bg);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.big-number .pct {
+  font-size: 0.35em;
+  color: var(--accent);
+  font-weight: 700;
+  margin-top: 14px;
+}
+
+.problem-caption {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--bg);
+  margin-top: 20px;
+  letter-spacing: -0.01em;
+}
+
+.problem-detail {
+  font-size: 15px;
+  line-height: 1.9;
+  opacity: 0.78;
+  max-width: 520px;
+  margin-top: 18px;
+}
+
+.problem-list {
+  margin-top: 64px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(250, 245, 236, 0.2);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.problem-list-item {
+  font-size: 14px;
+  line-height: 1.7;
+  opacity: 0.82;
+}
+
+.problem-list-item .idx {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .problem-grid { grid-template-columns: 1fr; gap: 40px; }
+  .problem-big-stat { padding-left: 0; }
+  .problem-big-stat::before { display: none; }
+  .problem-list { grid-template-columns: 1fr; gap: 24px; }
+  .problem { padding: 100px 0; }
+}
+
+/* ============================================
+   SOLUTION
+   ============================================ */
+.solution {
+  padding: 160px 0 140px;
+  position: relative;
+}
+
+.solution-head {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 60px;
+  margin-bottom: 100px;
+  align-items: end;
+}
+
+.section-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.section-label .num {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.section-label::after {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.solution-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(44px, 6vw, 88px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--primary);
+}
+
+.solution-title em {
+  color: var(--accent);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.solution-title .line2 {
+  display: block;
+  padding-left: 80px;
+}
+
+.solution-description {
+  font-size: 16px;
+  line-height: 2;
+  color: var(--ink);
+  opacity: 0.8;
+  max-width: 420px;
+  padding-bottom: 12px;
+}
+
+/* 3-engine diagram */
+.engine-diagram {
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 80px 0 20px;
+  min-height: 480px;
+}
+
+.engine-node {
+  position: absolute;
+  width: 220px;
+  padding: 28px 24px;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  border-radius: 22px;
+  text-align: center;
+  z-index: 2;
+  transition: transform 0.3s;
+}
+
+.engine-node:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 20px 40px rgba(31, 58, 46, 0.1);
+}
+
+.engine-node.core {
+  background: var(--primary);
+  color: var(--bg);
+  border-color: var(--primary);
+  left: 50%;
+  top: 180px;
+  transform: translateX(-50%);
+  width: 260px;
+  padding: 36px 24px;
+}
+
+.engine-node.core:hover {
+  transform: translateX(-50%) translateY(-4px);
+}
+
+.engine-node.n1 { left: 0; top: 40px; transform: rotate(-2deg); }
+.engine-node.n2 { right: 0; top: 40px; transform: rotate(2deg); }
+.engine-node.n3 { left: 50%; bottom: 0; transform: translateX(-50%); }
+
+.engine-node.n1:hover { transform: rotate(-2deg) translateY(-4px); }
+.engine-node.n2:hover { transform: rotate(2deg) translateY(-4px); }
+.engine-node.n3:hover { transform: translateX(-50%) translateY(-4px); }
+
+.engine-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--bg-soft);
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--primary);
+  border: 1px solid var(--line);
+}
+
+.engine-node.core .engine-icon {
+  background: var(--accent);
+  color: var(--primary);
+  border-color: var(--accent);
+}
+
+.engine-name {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+
+.engine-desc {
+  font-size: 12px;
+  opacity: 0.72;
+  line-height: 1.6;
+}
+
+.engine-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@media (max-width: 860px) {
+  .solution-head { grid-template-columns: 1fr; }
+  .solution-title .line2 { padding-left: 0; }
+  .engine-diagram { min-height: auto; padding: 0; }
+  .engine-node {
+    position: static !important;
+    transform: none !important;
+    width: 100% !important;
+    margin-bottom: 20px;
+  }
+  .engine-node:hover {
+    transform: translateY(-4px) !important;
+  }
+  .engine-lines { display: none; }
+  .solution { padding: 100px 0; }
+}
+
+/* ============================================
+   FEATURES
+   ============================================ */
+.features {
+  padding: 140px 0;
+  background: var(--bg-soft);
+  position: relative;
+}
+
+.features-head {
+  max-width: 760px;
+  margin: 0 auto 100px;
+  text-align: center;
+}
+
+.features-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(38px, 5vw, 64px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--primary);
+  margin-bottom: 24px;
+}
+
+.features-sub {
+  font-size: 16px;
+  line-height: 1.9;
+  color: var(--ink);
+  opacity: 0.78;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.feature-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 1.2fr;
+  gap: 60px;
+  padding: 60px 0;
+  border-top: 1px solid var(--line);
+  align-items: start;
+}
+
+.feature-row:last-child { border-bottom: 1px solid var(--line); }
+
+.feature-num {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 72px;
+  line-height: 1;
+  color: var(--primary);
+  letter-spacing: -0.04em;
+  position: relative;
+}
+
+.feature-num .dot {
+  color: var(--accent);
+}
+
+.feature-content h3 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(28px, 3vw, 38px);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+
+.feature-content .tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.feature-content p {
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--ink);
+  opacity: 0.8;
+  max-width: 440px;
+}
+
+.feature-visual {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 32px;
+  min-height: 220px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Feature 1 visual — Emotion translator */
+.fv-emotion {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fv-emotion-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--bg-soft);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.fv-emotion-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--primary);
+}
+
+.fv-emotion-label .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.fv-emotion-bar {
+  flex: 1;
+  max-width: 180px;
+  margin-left: 20px;
+  height: 6px;
+  background: rgba(31, 58, 46, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.fv-emotion-bar .fill {
+  position: absolute;
+  inset: 0;
+  right: auto;
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.fv-emotion-pct {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Feature 2 visual — Curriculum */
+.fv-curriculum {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fv-week {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: var(--bg-soft);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.fv-week-num {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+  min-width: 44px;
+}
+
+.fv-week-task {
+  font-size: 13px;
+  color: var(--ink);
+  flex: 1;
+}
+
+.fv-week-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--bg);
+}
+
+.fv-week.done .fv-week-check {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.fv-week.active {
+  border-color: var(--accent);
+  background: rgba(232, 161, 90, 0.08);
+}
+
+.fv-week.active .fv-week-check {
+  border-color: var(--accent);
+}
+
+/* Feature 3 visual — Voice coach */
+.fv-voice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.fv-voice-orb {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: var(--primary);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.fv-voice-orb::before,
+.fv-voice-orb::after {
+  content: '';
+  position: absolute;
+  inset: -15px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  opacity: 0.4;
+  animation: pulse 2.2s ease-out infinite;
+}
+
+.fv-voice-orb::after {
+  inset: -30px;
+  animation-delay: 0.6s;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(1.2); opacity: 0; }
+}
+
+.fv-voice-core {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 22px;
+}
+
+.fv-voice-caption {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--primary);
+  text-align: center;
+}
+
+.fv-voice-caption span {
+  display: block;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--sub);
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 860px) {
+  .feature-row {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 48px 0;
+  }
+  .feature-num { font-size: 54px; }
+  .features { padding: 100px 0; }
+}
+
+/* ============================================
+   PRICING
+   ============================================ */
+.pricing {
+  padding: 160px 0;
+  position: relative;
+}
+
+.pricing-head {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 90px;
+}
+
+.pricing-head .section-label {
+  justify-content: center;
+}
+
+.pricing-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(38px, 5vw, 64px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+
+.pricing-sub {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--ink);
+  opacity: 0.78;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.plan {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 40px 36px 44px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.plan:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(31, 58, 46, 0.08);
+}
+
+.plan.featured {
+  background: var(--primary);
+  color: var(--bg);
+  border-color: var(--primary);
+  transform: translateY(-20px);
+  box-shadow: 0 30px 60px rgba(31, 58, 46, 0.18);
+  padding: 48px 36px 52px;
+}
+
+.plan.featured:hover {
+  transform: translateY(-24px);
+  box-shadow: 0 40px 80px rgba(31, 58, 46, 0.22);
+}
+
+.plan-badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: var(--primary);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 7px 18px;
+  border-radius: 999px;
+}
+
+.plan-name {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+
+.plan-desc {
+  font-size: 13px;
+  opacity: 0.72;
+  margin-bottom: 32px;
+  min-height: 38px;
+  line-height: 1.6;
+}
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.plan-price .currency {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 22px;
+  opacity: 0.8;
+}
+
+.plan-price .amount {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.plan.featured .plan-price .amount {
+  color: var(--accent);
+}
+
+.plan-price .period {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+
+.plan-tax {
+  font-size: 11px;
+  opacity: 0.5;
+  margin-bottom: 32px;
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.plan-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 40px;
+  flex: 1;
+}
+
+.plan-features li {
+  font-size: 13.5px;
+  line-height: 1.6;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  opacity: 0.88;
+}
+
+.plan-features li::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+  margin-top: 3px;
+  position: relative;
+}
+
+.plan-features li::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  margin-top: 7px;
+  width: 8px;
+  height: 4px;
+  border-left: 1.5px solid var(--primary);
+  border-bottom: 1.5px solid var(--primary);
+  transform: rotate(-45deg);
+}
+
+.plan.featured .plan-features li::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.plan.featured .plan-features li::after {
+  border-color: var(--primary);
+}
+
+.plan-cta {
+  display: block;
+  text-align: center;
+  padding: 16px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  transition: all 0.25s;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.plan-cta:hover {
+  background: var(--primary);
+  color: var(--bg);
+}
+
+.plan.featured .plan-cta {
+  background: var(--accent);
+  color: var(--primary);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.plan.featured .plan-cta:hover {
+  background: var(--bg);
+  color: var(--primary);
+  border-color: var(--bg);
+}
+
+@media (max-width: 960px) {
+  .pricing-grid { grid-template-columns: 1fr; gap: 20px; }
+  .plan.featured { transform: none; }
+  .plan.featured:hover { transform: translateY(-4px); }
+  .pricing { padding: 100px 0; }
+}
+
+/* ============================================
+   TESTIMONIALS
+   ============================================ */
+.testimonials {
+  padding: 140px 0;
+  background: var(--bg-soft);
+  position: relative;
+}
+
+.testimonials-head {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: end;
+  margin-bottom: 80px;
+}
+
+.testimonials-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(40px, 5vw, 68px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--primary);
+}
+
+.testimonials-meta {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--ink);
+  opacity: 0.78;
+  text-align: right;
+  padding-bottom: 8px;
+}
+
+.testimonials-meta .stars {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 30px;
+  color: var(--primary);
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+
+.testimonials-meta .stars em {
+  color: var(--accent);
+  font-style: normal;
+}
+
+.testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.testi {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.testi:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+}
+
+.testi:nth-child(2) { transform: translateY(32px); }
+.testi:nth-child(2):hover { transform: translateY(28px); }
+
+.testi-quote-mark {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 72px;
+  line-height: 0.6;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+.testi-text {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  margin-bottom: 32px;
+  flex: 1;
+}
+
+.testi-text strong {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.testi-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.testi-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--bg);
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.testi-name {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--primary);
+  margin-bottom: 2px;
+}
+
+.testi-sub {
+  font-size: 12px;
+  color: var(--sub);
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 960px) {
+  .testimonials-head { grid-template-columns: 1fr; }
+  .testimonials-meta { text-align: left; }
+  .testimonial-grid { grid-template-columns: 1fr; }
+  .testi:nth-child(2) { transform: none; }
+  .testi:nth-child(2):hover { transform: translateY(-4px); }
+  .testimonials { padding: 100px 0; }
+}
+
+/* ============================================
+   FAQ
+   ============================================ */
+.faq {
+  padding: 160px 0;
+  position: relative;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.4fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.faq-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(40px, 5vw, 68px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--primary);
+  margin-bottom: 28px;
+}
+
+.faq-side-text {
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--ink);
+  opacity: 0.78;
+  max-width: 340px;
+  margin-bottom: 32px;
+}
+
+.faq-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid var(--primary);
+  padding-bottom: 2px;
+  transition: opacity 0.2s;
+}
+
+.faq-contact:hover { opacity: 0.6; }
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.faq-item {
+  border-top: 1px solid var(--line-strong);
+  padding: 32px 0;
+  cursor: pointer;
+}
+
+.faq-item:last-child {
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.faq-q {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--primary);
+  letter-spacing: -0.01em;
+}
+
+.faq-q .idx {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  margin-right: 16px;
+  padding-top: 5px;
+  flex-shrink: 0;
+}
+
+.faq-q .q-text {
+  flex: 1;
+}
+
+.faq-q .toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.25s;
+}
+
+.faq-item[open] .faq-q .toggle {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.faq-q .toggle::before,
+.faq-q .toggle::after {
+  content: '';
+  position: absolute;
+  background: var(--primary);
+  transition: all 0.25s;
+}
+
+.faq-q .toggle::before {
+  width: 12px;
+  height: 1.5px;
+}
+
+.faq-q .toggle::after {
+  width: 1.5px;
+  height: 12px;
+}
+
+.faq-item[open] .faq-q .toggle::before,
+.faq-item[open] .faq-q .toggle::after {
+  background: var(--bg);
+}
+
+.faq-item[open] .faq-q .toggle::after {
+  transform: rotate(90deg);
+  opacity: 0;
+}
+
+.faq-a {
+  padding: 20px 0 0 68px;
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: var(--ink);
+  opacity: 0.8;
+  max-width: 640px;
+}
+
+@media (max-width: 860px) {
+  .faq-grid { grid-template-columns: 1fr; gap: 40px; }
+  .faq-a { padding-left: 0; }
+  .faq { padding: 100px 0; }
+}
+
+/* ============================================
+   FOOTER CTA + FOOTER
+   ============================================ */
+.footer-cta {
+  padding: 140px 0 120px;
+  background: var(--primary);
+  color: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.footer-cta::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: -10%;
+  width: 70%;
+  height: 180%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232, 161, 90, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.footer-cta-inner {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.footer-cta-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 36px;
+  font-weight: 600;
+}
+
+.footer-cta-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(44px, 6vw, 88px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--bg);
+  margin-bottom: 32px;
+}
+
+.footer-cta-title em {
+  color: var(--accent);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.footer-cta-sub {
+  font-size: 16px;
+  line-height: 1.9;
+  opacity: 0.8;
+  max-width: 540px;
+  margin: 0 auto 48px;
+}
+
+.footer-cta-btn {
+  background: var(--accent);
+  color: var(--primary);
+  padding: 22px 48px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s;
+  border: 1px solid var(--accent);
+}
+
+.footer-cta-btn:hover {
+  background: var(--bg);
+  border-color: var(--bg);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+}
+
+.footer-cta-note {
+  margin-top: 24px;
+  font-size: 12px;
+  opacity: 0.6;
+  font-family: var(--mono);
+  letter-spacing: 0.05em;
+}
+
+.footer {
+  background: var(--ink);
+  color: var(--bg);
+  padding: 80px 0 40px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 60px;
+  margin-bottom: 80px;
+}
+
+.footer-brand .logo {
+  color: var(--bg);
+  margin-bottom: 20px;
+}
+
+.footer-brand-text {
+  font-size: 13px;
+  line-height: 1.8;
+  opacity: 0.6;
+  max-width: 300px;
+}
+
+.footer-col h4 {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.footer-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-col a {
+  color: var(--bg);
+  text-decoration: none;
+  font-size: 14px;
+  opacity: 0.78;
+  transition: opacity 0.2s;
+}
+
+.footer-col a:hover { opacity: 1; }
+
+.footer-bottom {
+  padding-top: 32px;
+  border-top: 1px solid rgba(250, 245, 236, 0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  opacity: 0.5;
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.footer-bottom-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-bottom a {
+  color: var(--bg);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.footer-bottom a:hover { opacity: 1; }
+
+@media (max-width: 860px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .footer-brand { grid-column: 1 / -1; }
+  .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+  .footer-cta { padding: 100px 0 90px; }
+}
+
+/* Subtle reveal animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: reveal 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.reveal.d1 { animation-delay: 0.1s; }
+.reveal.d2 { animation-delay: 0.25s; }
+.reveal.d3 { animation-delay: 0.4s; }
+.reveal.d4 { animation-delay: 0.55s; }
+
+@keyframes reveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- ====== NAV ====== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <span class="logo-mark"><span class="eye"></span></span>
+      PupWhisper
+    </a>
+    <ul class="nav-links">
+      <li><a href="#problem">課題</a></li>
+      <li><a href="#solution">仕組み</a></li>
+      <li><a href="#features">機能</a></li>
+      <li><a href="#pricing">料金</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a href="#cta" class="nav-cta">無料で始める</a>
+  </div>
+</nav>
+
+<!-- ====== HERO ====== -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="hero-eyebrow reveal">AI DOG TRANSLATION · 2026</div>
+        <h1 class="hero-title reveal d1">
+          犬の<em class="amp">本音</em>が、<br>聞こえる。
+          <span class="small">A new language between you and your dog.</span>
+        </h1>
+        <p class="hero-sub reveal d2">
+          鳴き声、姿勢、表情。3つのAIエンジンが愛犬の感情を毎秒解析し、<br>
+          その子だけのしつけカリキュラムを自動で生成します。
+        </p>
+        <div class="hero-cta-row reveal d3">
+          <a href="#cta" class="btn-primary">
+            7日間の無料体験を始める <span class="arrow">→</span>
+          </a>
+          <a href="#solution" class="btn-ghost">仕組みを見る</a>
+        </div>
+        <div class="hero-meta reveal d4">
+          <div class="hero-meta-item">
+            <strong>98.2%</strong>
+            感情判定の一致率
+          </div>
+          <div class="hero-meta-item">
+            <strong>12,400+</strong>
+            登録頭数（β版）
+          </div>
+          <div class="hero-meta-item">
+            <strong>4.8<span style="color:var(--accent);">★</span></strong>
+            App Store評価
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone mockup -->
+      <div class="phone-stage">
+        <div class="floating-badge fb-1">
+          <div class="fb-title">Live translate</div>
+          <div class="fb-value"><span class="check">●</span>解析中</div>
+        </div>
+
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-notch"><span class="dot"></span></div>
+            <div class="phone-status">9:41</div>
+            <div class="phone-status-right">
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="battery"><span class="battery-fill"></span></span>
+            </div>
+
+            <div class="phone-content">
+              <div class="app-header">
+                <div class="app-title">モモちゃん</div>
+                <div class="app-avatar">モ</div>
+              </div>
+
+              <div class="listening-card">
+                <div class="listening-label">Listening · Trio engine</div>
+                <div class="listening-title">いま、なんて言ってるの？</div>
+                <div class="waveform">
+                  <span class="wv"></span>
+                  <span class="wv"></span>
+                  <span class="wv"></span>
+                  <span class="wv"></span>
+                  <span class="wv"></span>
+                  <span class="wv"></span>
+                  <span class="wv"></span>
+                  <span class="wv"></span>
+                  <span class="wv"></span>
+                  <span class="wv"></span>
+                  <span class="wv"></span>
+                  <span class="wv"></span>
+                </div>
+                <div class="listening-sub">鳴き声 · 姿勢 · 表情を解析しています</div>
+              </div>
+
+              <div class="translation-card">
+                <div class="translation-meta">
+                  <span class="emotion-tag">甘え · 安心</span>
+                  <span class="confidence">96% conf.</span>
+                </div>
+                <div class="translation-text">
+                  <span class="accent-quote">“</span>もう少しだけ、そばにいて。<span class="accent-quote">”</span>
+                </div>
+              </div>
+
+              <div class="mini-stats">
+                <div class="mini-stat">
+                  <div class="mini-stat-label">今週の進捗</div>
+                  <div class="mini-stat-value">84<span class="unit">%</span></div>
+                </div>
+                <div class="mini-stat">
+                  <div class="mini-stat-label">連続日数</div>
+                  <div class="mini-stat-value">21<span class="unit">日</span></div>
+                </div>
+              </div>
+
+              <div class="phone-tabbar">
+                <div class="tab active">●</div>
+                <div class="tab">◎</div>
+                <div class="tab">◇</div>
+                <div class="tab">☰</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-badge fb-2">
+          <div class="fb-title">Week 03</div>
+          <div class="fb-value">「待て」習得 <span class="check">✓</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== PROBLEM ====== -->
+<section class="problem" id="problem">
+  <div class="wrap">
+    <div class="problem-grid">
+      <div>
+        <div class="problem-label">Why PupWhisper</div>
+        <h2 class="problem-heading">
+          しつけが上手く<br>
+          いかないのは、<br>
+          <em>犬ではなく、</em><br>
+          <em>伝わらない</em>から。
+        </h2>
+      </div>
+
+      <div>
+        <div class="problem-big-stat">
+          <div class="big-number">78<span class="pct">%</span></div>
+          <div class="problem-caption">
+            しつけ教室を卒業した犬の約8割で、<br>
+            3ヶ月以内に同じ問題行動が再発している。
+          </div>
+          <p class="problem-detail">
+            画一的なメソッドは、一頭一頭の気質と生活環境に合いません。
+            犬が本当に伝えたい「不安」「要求」「痛み」を読み違えたまま、
+            正しい行動を教えても、根本は変わらないのです。
+          </p>
+        </div>
+
+        <div class="problem-list">
+          <div class="problem-list-item">
+            <span class="idx">ISSUE / 01</span>
+            鳴き声の意味を、家族ごとに違う解釈で受け止めている。
+          </div>
+          <div class="problem-list-item">
+            <span class="idx">ISSUE / 02</span>
+            教室の成果が、家に帰ると再現できない。
+          </div>
+          <div class="problem-list-item">
+            <span class="idx">ISSUE / 03</span>
+            問題行動のサインを、叱責で抑え込んでしまう。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== SOLUTION ====== -->
+<section class="solution" id="solution">
+  <div class="wrap">
+    <div class="solution-head">
+      <div>
+        <div class="section-label">
+          <span class="num">02</span>
+          Our solution
+        </div>
+        <h2 class="solution-title">
+          犬の声を、<br>
+          <span class="line2"><em>翻訳</em>する。</span>
+        </h2>
+      </div>
+      <p class="solution-description">
+        PupWhisperは、音声・姿勢・表情の3つを同時に読み解くマルチモーダルAIです。
+        人間の言葉では気づけない微細な変化まで捉え、その子だけの「行動の文法」を学習します。
+      </p>
+    </div>
+
+    <div class="engine-diagram">
+      <svg class="engine-lines" viewBox="0 0 1000 480" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#1F3A2E" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#E8A15A" stop-opacity="0.6"/>
+          </linearGradient>
+        </defs>
+        <path d="M 110 90 Q 350 180, 500 250" stroke="url(#lineGrad)" stroke-width="1.2" fill="none" stroke-dasharray="4 5"/>
+        <path d="M 890 90 Q 650 180, 500 250" stroke="url(#lineGrad)" stroke-width="1.2" fill="none" stroke-dasharray="4 5"/>
+        <path d="M 500 300 L 500 400" stroke="url(#lineGrad)" stroke-width="1.2" fill="none" stroke-dasharray="4 5"/>
+        <circle cx="110" cy="90" r="3" fill="#E8A15A"/>
+        <circle cx="890" cy="90" r="3" fill="#E8A15A"/>
+        <circle cx="500" cy="440" r="3" fill="#E8A15A"/>
+      </svg>
+
+      <div class="engine-node n1">
+        <div class="engine-icon">♪</div>
+        <div class="engine-name">Bark Engine</div>
+        <div class="engine-desc">鳴き声の周波数・抑揚から感情を特定</div>
+      </div>
+
+      <div class="engine-node n2">
+        <div class="engine-icon">◈</div>
+        <div class="engine-name">Pose Engine</div>
+        <div class="engine-desc">姿勢・尻尾・耳の角度を骨格推定で解析</div>
+      </div>
+
+      <div class="engine-node core">
+        <div class="engine-icon">✦</div>
+        <div class="engine-name">Whisper Core</div>
+        <div class="engine-desc">3エンジンを統合し、その子の「本音」を翻訳する中枢AI。個体差を学習します。</div>
+      </div>
+
+      <div class="engine-node n3">
+        <div class="engine-icon">◎</div>
+        <div class="engine-name">Face Engine</div>
+        <div class="engine-desc">目・口元・眉の表情から情動を読み取る</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FEATURES ====== -->
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="features-head">
+      <div class="section-label" style="justify-content: center;">
+        <span class="num">03</span>
+        Core features
+      </div>
+      <h2 class="features-title">3つのAIが、<br>毎日の暮らしを変える。</h2>
+      <p class="features-sub">
+        観察 → 理解 → 実践。PupWhisperは「気づく」から「変わる」までを、ひとつのアプリで完結させます。
+      </p>
+    </div>
+
+    <div class="feature-list">
+      <!-- Feature 1 -->
+      <div class="feature-row">
+        <div class="feature-num">01<span class="dot">.</span></div>
+        <div class="feature-content">
+          <div class="tag">EMOTION TRANSLATION AI</div>
+          <h3>鳴き声を、<br>意味のある言葉に。</h3>
+          <p>
+            要求・警戒・甘え・痛みなど、犬特有の16種類の感情をリアルタイムに可視化。
+            家族全員が同じ解釈を共有できるようになります。
+          </p>
+        </div>
+        <div class="feature-visual">
+          <div class="fv-emotion">
+            <div class="fv-emotion-row">
+              <div class="fv-emotion-label"><span class="dot" style="background:#E8A15A;"></span>甘え</div>
+              <div class="fv-emotion-bar"><div class="fill" style="width:82%;"></div></div>
+              <div class="fv-emotion-pct">82%</div>
+            </div>
+            <div class="fv-emotion-row">
+              <div class="fv-emotion-label"><span class="dot" style="background:#1F3A2E;"></span>安心</div>
+              <div class="fv-emotion-bar"><div class="fill" style="width:64%; background:#1F3A2E;"></div></div>
+              <div class="fv-emotion-pct">64%</div>
+            </div>
+            <div class="fv-emotion-row">
+              <div class="fv-emotion-label"><span class="dot" style="background:#C7A27A;"></span>要求</div>
+              <div class="fv-emotion-bar"><div class="fill" style="width:41%; background:#C7A27A;"></div></div>
+              <div class="fv-emotion-pct">41%</div>
+            </div>
+            <div class="fv-emotion-row">
+              <div class="fv-emotion-label"><span class="dot" style="background:rgba(31,58,46,0.35);"></span>警戒</div>
+              <div class="fv-emotion-bar"><div class="fill" style="width:18%; background:rgba(31,58,46,0.45);"></div></div>
+              <div class="fv-emotion-pct">18%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="feature-row">
+        <div class="feature-num">02<span class="dot">.</span></div>
+        <div class="feature-content">
+          <div class="tag">CURRICULUM GENERATION AI</div>
+          <h3>その子だけの、<br>しつけカリキュラム。</h3>
+          <p>
+            犬種・年齢・性格・生活環境を元に、週単位のトレーニングメニューを自動生成。
+            達成度に応じて毎日アップデートされます。
+          </p>
+        </div>
+        <div class="feature-visual">
+          <div class="fv-curriculum">
+            <div class="fv-week done">
+              <div class="fv-week-num">Week 1</div>
+              <div class="fv-week-task">アイコンタクトの確立</div>
+              <div class="fv-week-check">✓</div>
+            </div>
+            <div class="fv-week done">
+              <div class="fv-week-num">Week 2</div>
+              <div class="fv-week-task">「おすわり」の動作連結</div>
+              <div class="fv-week-check">✓</div>
+            </div>
+            <div class="fv-week active">
+              <div class="fv-week-num">Week 3</div>
+              <div class="fv-week-task">「待て」を10秒間キープ</div>
+              <div class="fv-week-check">●</div>
+            </div>
+            <div class="fv-week">
+              <div class="fv-week-num">Week 4</div>
+              <div class="fv-week-task">呼び戻しを屋外で実践</div>
+              <div class="fv-week-check"></div>
+            </div>
+            <div class="fv-week">
+              <div class="fv-week-num">Week 5</div>
+              <div class="fv-week-task">他犬との適切な挨拶</div>
+              <div class="fv-week-check"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="feature-row">
+        <div class="feature-num">03<span class="dot">.</span></div>
+        <div class="feature-content">
+          <div class="tag">VOICE COACH AI</div>
+          <h3>その瞬間に、<br>声でコーチング。</h3>
+          <p>
+            トレーニング中、飼い主の声のトーンやタイミングをリアルタイムに評価。
+            改善ポイントを音声で即座にフィードバックします。
+          </p>
+        </div>
+        <div class="feature-visual">
+          <div class="fv-voice">
+            <div class="fv-voice-orb">
+              <div class="fv-voice-core">◎</div>
+            </div>
+            <div class="fv-voice-caption">
+              「もう少し、明るい声で。」
+              <span>Realtime coach · listening</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== PRICING ====== -->
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="pricing-head">
+      <div class="section-label">
+        <span class="num">04</span>
+        Pricing
+      </div>
+      <h2 class="pricing-title">続けられる価格で、<br>変えられる毎日を。</h2>
+      <p class="pricing-sub">
+        初月無料。いつでも解約できます。家族のLINEグループより安い価格で、犬と本気で向き合う時間が始まります。
+      </p>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Puppy -->
+      <div class="plan">
+        <div class="plan-name">Puppy</div>
+        <div class="plan-desc">ひとまず始めたい方へ。感情翻訳の基本機能。</div>
+        <div class="plan-price">
+          <span class="currency">¥</span>
+          <span class="amount">980</span>
+          <span class="period">/ 月</span>
+        </div>
+        <div class="plan-tax">TAX INCLUDED</div>
+        <ul class="plan-features">
+          <li>感情翻訳AI(基本16種)</li>
+          <li>デイリーレポート</li>
+          <li>1頭まで登録可能</li>
+          <li>コミュニティアクセス</li>
+        </ul>
+        <a href="#cta" class="plan-cta">Puppyで始める</a>
+      </div>
+
+      <!-- Family (featured) -->
+      <div class="plan featured">
+        <div class="plan-badge">Most Popular</div>
+        <div class="plan-name">Family</div>
+        <div class="plan-desc">ご家族全員で共有する、一番選ばれているプラン。</div>
+        <div class="plan-price">
+          <span class="currency">¥</span>
+          <span class="amount">2,980</span>
+          <span class="period">/ 月</span>
+        </div>
+        <div class="plan-tax">TAX INCLUDED · 初月無料</div>
+        <ul class="plan-features">
+          <li>Puppyの全機能</li>
+          <li>カリキュラム生成AI</li>
+          <li>音声コーチAI</li>
+          <li>最大3頭まで登録可能</li>
+          <li>家族5名まで共有</li>
+          <li>週次パーソナルアドバイス</li>
+        </ul>
+        <a href="#cta" class="plan-cta">Familyを7日間無料で試す</a>
+      </div>
+
+      <!-- Pro -->
+      <div class="plan">
+        <div class="plan-name">Pro</div>
+        <div class="plan-desc">ブリーダー・多頭飼い・訓練士の方へ。</div>
+        <div class="plan-price">
+          <span class="currency">¥</span>
+          <span class="amount">5,980</span>
+          <span class="period">/ 月</span>
+        </div>
+        <div class="plan-tax">TAX INCLUDED</div>
+        <ul class="plan-features">
+          <li>Familyの全機能</li>
+          <li>無制限の頭数登録</li>
+          <li>行動分析ダッシュボード</li>
+          <li>獣医師との提携相談</li>
+          <li>API/データエクスポート</li>
+        </ul>
+        <a href="#cta" class="plan-cta">Proを相談する</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== TESTIMONIALS ====== -->
+<section class="testimonials">
+  <div class="wrap">
+    <div class="testimonials-head">
+      <div>
+        <div class="section-label">
+          <span class="num">05</span>
+          Voices
+        </div>
+        <h2 class="testimonials-title">
+          犬と暮らす人の<br>
+          声から、生まれた。
+        </h2>
+      </div>
+      <div class="testimonials-meta">
+        <div class="stars">4.8<em>★</em> / 5.0</div>
+        App Store & Google Play 平均評価<br>
+        2,400件以上のレビューより
+      </div>
+    </div>
+
+    <div class="testimonial-grid">
+      <div class="testi">
+        <div class="testi-quote-mark">“</div>
+        <p class="testi-text">
+          吠え続ける理由が、ずっと分からなかった。PupWhisperで<strong>「不安」ではなく「痛みのサイン」だった</strong>と分かって、獣医さんへ相談するきっかけになりました。この子の声を、やっと聞けた気がします。
+        </p>
+        <div class="testi-meta">
+          <div class="testi-avatar">佐</div>
+          <div>
+            <div class="testi-name">佐藤 美紀さん</div>
+            <div class="testi-sub">柴犬 / 8歳 · 東京</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi">
+        <div class="testi-quote-mark">“</div>
+        <p class="testi-text">
+          4頭のトイプードルを育てています。一頭ごとに性格が違うので、<strong>カリキュラムが完全に個別最適化される</strong>のが本当にありがたい。訓練士の方に相談する前の「一次解析」として、仕事にも導入しました。
+        </p>
+        <div class="testi-meta">
+          <div class="testi-avatar">M</div>
+          <div>
+            <div class="testi-name">Matsumoto Yu</div>
+            <div class="testi-sub">ブリーダー · 神奈川</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi">
+        <div class="testi-quote-mark">“</div>
+        <p class="testi-text">
+          保護犬を迎えて3ヶ月。人への警戒が強かったのですが、<strong>音声コーチに「声のトーンを下げて」と言われて試したら、初めて膝にきた</strong>。ちいさな一歩に気づけるアプリです。
+        </p>
+        <div class="testi-meta">
+          <div class="testi-avatar">田</div>
+          <div>
+            <div class="testi-name">田口 健太さん</div>
+            <div class="testi-sub">MIX / 3歳 · 大阪</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FAQ ====== -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="faq-grid">
+      <div>
+        <div class="section-label">
+          <span class="num">06</span>
+          FAQ
+        </div>
+        <h2 class="faq-title">よくあるご質問</h2>
+        <p class="faq-side-text">
+          ここに載っていないご質問は、サポートチームが1営業日以内にお返事します。お気軽にお問い合わせください。
+        </p>
+        <a href="mailto:hello@pupwhisper.ai" class="faq-contact">
+          hello@pupwhisper.ai →
+        </a>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item" open>
+          <summary class="faq-q">
+            <span class="idx">Q.01</span>
+            <span class="q-text">どの犬種にも対応していますか？</span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="faq-a">
+            主要な120犬種+ミックス犬に対応しています。個体差はその子の発声・姿勢データをAIが学習していくことで、使うほど精度が上がります。特殊な犬種の場合は、初回解析時に追加の音声サンプルをお願いすることがあります。
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span class="idx">Q.02</span>
+            <span class="q-text">古いスマートフォンでも使えますか？</span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="faq-a">
+            iOS 15以上 / Android 11以上に対応しています。カメラとマイクが使えればエントリーモデルでも動作します。処理は基本クラウド側で行うため、端末のCPUパワーは問いません。
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span class="idx">Q.03</span>
+            <span class="q-text">録音・録画データのプライバシーは？</span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="faq-a">
+            通信は全てTLS 1.3で暗号化され、解析後のメタデータのみサーバに保存します。生の音声・映像データは24時間以内に自動削除され、学習モデルへの利用は同意いただいた場合に限ります。設定画面からいつでも全データを削除できます。
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span class="idx">Q.04</span>
+            <span class="q-text">しつけ教室や獣医師の代わりになりますか？</span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="faq-a">
+            PupWhisperは、専門家との「共同パートナー」として設計されています。診断や医学的判断を代替するものではありません。アプリで検出されたサインをもとに、獣医師・訓練士への相談をより的確にできるようサポートします。
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span class="idx">Q.05</span>
+            <span class="q-text">途中で解約できますか？</span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="faq-a">
+            いつでも解約できます。違約金や手数料は一切かかりません。初月無料期間中に解約された場合、課金は発生しません。解約後もその月の末日まで全機能をご利用いただけます。
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FOOTER CTA ====== -->
+<section class="footer-cta" id="cta">
+  <div class="wrap">
+    <div class="footer-cta-inner">
+      <div class="footer-cta-label">START FREE · NO CREDIT CARD</div>
+      <h2 class="footer-cta-title">
+        愛犬と、<br>
+        もう一度、<em>出会いなおす。</em>
+      </h2>
+      <p class="footer-cta-sub">
+        7日間の無料体験で、PupWhisperのすべての機能をお試しいただけます。
+        クレジットカード不要、いつでも解約可能。
+      </p>
+      <a href="#" class="footer-cta-btn">
+        無料体験を始める <span>→</span>
+      </a>
+      <div class="footer-cta-note">App Store · Google Play 対応 / iPad版は2026年夏リリース予定</div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FOOTER ====== -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-mark"><span class="eye"></span></span>
+          PupWhisper
+        </div>
+        <p class="footer-brand-text">
+          AIが犬の鳴き声・姿勢・表情を翻訳し、その子だけのしつけカリキュラムを自動生成する、新しいドッグケアサービス。
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#solution">仕組み</a></li>
+          <li><a href="#features">機能</a></li>
+          <li><a href="#pricing">料金</a></li>
+          <li><a href="#">ダウンロード</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">会社概要</a></li>
+          <li><a href="#">ブログ</a></li>
+          <li><a href="#">採用情報</a></li>
+          <li><a href="#">プレス</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="mailto:hello@pupwhisper.ai">お問い合わせ</a></li>
+          <li><a href="#">ヘルプセンター</a></li>
+          <li><a href="#">獣医師向け</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>© 2026 PupWhisper Inc. All rights reserved.</div>
+      <div class="footer-bottom-links">
+        <a href="#">利用規約</a>
+        <a href="#">プライバシー</a>
+        <a href="#">特商法</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
