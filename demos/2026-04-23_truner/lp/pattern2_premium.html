@@ -1,0 +1,2117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Truner — 運命を、アルゴリズムに託して。</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Serif+JP:wght@200;300;400;500;700&family=Inter:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FDF9F5;
+    --bg-warm: #F8F0E6;
+    --text: #2B1F2A;
+    --text-soft: #5E4B5A;
+    --peach: #F4A89B;
+    --peach-light: #F9CCBF;
+    --rose: #C28B6A;
+    --rose-light: #DDB89B;
+    --accent: #8A4A6B;
+    --line: rgba(43, 31, 42, 0.14);
+    --line-soft: rgba(43, 31, 42, 0.07);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', 'Noto Serif JP', serif;
+    font-weight: 400;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ---------- Shared ---------- */
+  .display {
+    font-family: 'Playfair Display', 'Noto Serif JP', serif;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+  }
+
+  .display--italic {
+    font-style: italic;
+  }
+
+  .serif-jp {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  .sans {
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    letter-spacing: 0.06em;
+  }
+
+  .eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--rose);
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 38px;
+    height: 1px;
+    background: var(--rose);
+  }
+
+  .chapter-number {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--rose);
+    letter-spacing: 0.1em;
+  }
+
+  .rule {
+    width: 1px;
+    height: 80px;
+    background: var(--line);
+    margin: 0 auto;
+  }
+
+  .rule-h {
+    height: 1px;
+    background: var(--line);
+    width: 100%;
+  }
+
+  /* ---------- CTA ---------- */
+  .cta {
+    position: relative;
+    display: inline-block;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--text);
+    text-decoration: none;
+    padding: 12px 4px;
+    letter-spacing: 0.01em;
+    transition: color 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+  }
+
+  .cta::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 100%;
+    background: var(--text);
+    transform-origin: left;
+    transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+  }
+
+  .cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--text);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+    z-index: -1;
+  }
+
+  .cta:hover {
+    color: var(--bg);
+  }
+
+  .cta:hover::before {
+    transform: scaleY(1);
+  }
+
+  .cta-arrow {
+    display: inline-block;
+    margin-left: 14px;
+    transition: transform 0.5s ease;
+  }
+
+  .cta:hover .cta-arrow {
+    transform: translateX(6px);
+  }
+
+  .cta--small {
+    font-size: 16px;
+  }
+
+  /* ---------- Navigation ---------- */
+  nav.top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 48px;
+    background: rgba(253, 249, 245, 0.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .brand {
+    font-family: 'Playfair Display', serif;
+    font-weight: 500;
+    font-size: 20px;
+    letter-spacing: 0.24em;
+  }
+
+  .brand sup {
+    font-size: 9px;
+    color: var(--rose);
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    margin-left: 4px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+    position: relative;
+    padding: 4px 0;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 1px;
+    background: var(--rose);
+    transition: width 0.4s ease;
+  }
+
+  .nav-links a:hover::after {
+    width: 100%;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    min-height: 100vh;
+    padding: 180px 48px 80px;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 80px;
+    align-items: center;
+    position: relative;
+  }
+
+  .hero-side-label {
+    position: absolute;
+    left: 48px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    transform-origin: left center;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.5em;
+    color: var(--rose);
+    text-transform: uppercase;
+  }
+
+  .hero-content {
+    padding-left: 80px;
+  }
+
+  .hero-headline {
+    font-size: clamp(64px, 9vw, 148px);
+    margin-bottom: 48px;
+  }
+
+  .hero-headline .line-1 {
+    display: block;
+    color: var(--text);
+  }
+
+  .hero-headline .line-2 {
+    display: block;
+    font-style: italic;
+    color: var(--rose);
+    margin-left: 1.2em;
+    margin-top: -0.08em;
+  }
+
+  .hero-headline .line-3 {
+    display: block;
+    color: var(--text);
+  }
+
+  .hero-sub {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 2.2;
+    color: var(--text-soft);
+    max-width: 460px;
+    margin-bottom: 56px;
+    letter-spacing: 0.06em;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 56px;
+    align-items: center;
+  }
+
+  .hero-meta-item {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    color: var(--text-soft);
+    text-transform: uppercase;
+  }
+
+  .hero-meta-item strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 28px;
+    color: var(--text);
+    font-weight: 400;
+    letter-spacing: 0;
+    margin-bottom: 6px;
+    text-transform: none;
+  }
+
+  /* ---------- iPhone frame (CSS only) ---------- */
+  .phone-stage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .phone-stage::before {
+    content: 'The Match';
+    position: absolute;
+    top: 8%;
+    right: -20px;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 120px;
+    color: var(--peach-light);
+    opacity: 0.55;
+    z-index: 0;
+    letter-spacing: -0.02em;
+    pointer-events: none;
+  }
+
+  .phone-stage::after {
+    content: '— 98% —';
+    position: absolute;
+    bottom: 6%;
+    left: -10px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 72px;
+    color: var(--rose-light);
+    opacity: 0.7;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .phone {
+    position: relative;
+    z-index: 2;
+    width: 300px;
+    height: 620px;
+    background: #1A1018;
+    border-radius: 48px;
+    padding: 10px;
+    box-shadow:
+      0 0 0 2px rgba(194, 139, 106, 0.3),
+      0 30px 80px -20px rgba(43, 31, 42, 0.4),
+      0 60px 120px -40px rgba(194, 139, 106, 0.35);
+  }
+
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(175deg, #FFF8F0 0%, #FDE8D9 60%, #F4A89B 100%);
+    border-radius: 38px;
+    position: relative;
+    overflow: hidden;
+    padding: 60px 28px 32px;
+  }
+
+  .phone-notch {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 28px;
+    background: #1A1018;
+    border-radius: 20px;
+    z-index: 5;
+  }
+
+  .phone-app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--text);
+    margin-bottom: 32px;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  .phone-match-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--text);
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  .phone-match-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 22px;
+    letter-spacing: 0.04em;
+  }
+
+  .phone-score-ring {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 20px;
+    position: relative;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) 0deg, var(--rose) 120deg, var(--peach) 240deg, rgba(255,255,255,0.6) 352deg, rgba(255,255,255,0.3) 360deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .phone-score-inner {
+    width: 150px;
+    height: 150px;
+    background: #FFF8F0;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 2px 10px rgba(43, 31, 42, 0.08);
+  }
+
+  .phone-score-value {
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    font-size: 58px;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .phone-score-value sup {
+    font-size: 20px;
+    color: var(--rose);
+    font-style: italic;
+    vertical-align: super;
+  }
+
+  .phone-score-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    color: var(--rose);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .phone-tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin: 16px 0;
+  }
+
+  .phone-tag {
+    font-family: 'Cormorant Garamond', 'Noto Serif JP', serif;
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid rgba(43, 31, 42, 0.2);
+    border-radius: 20px;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .phone-tag.accent {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .phone-names {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    text-align: center;
+    color: var(--text);
+    margin-top: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ---------- Sections ---------- */
+  section {
+    padding: 160px 48px;
+    position: relative;
+  }
+
+  .section-header {
+    max-width: 1320px;
+    margin: 0 auto 100px;
+    text-align: center;
+  }
+
+  .section-title {
+    font-size: clamp(56px, 7.5vw, 120px);
+    margin: 24px 0 28px;
+  }
+
+  .section-desc {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 2.2;
+    color: var(--text-soft);
+    max-width: 620px;
+    margin: 0 auto;
+    letter-spacing: 0.08em;
+  }
+
+  /* ---------- Story ---------- */
+  .story {
+    background: var(--bg-warm);
+  }
+
+  .story-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .story-chapter {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 100px;
+    align-items: start;
+    padding: 90px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .story-chapter:last-child {
+    border-bottom: 0;
+  }
+
+  .story-chapter-label {
+    position: sticky;
+    top: 140px;
+  }
+
+  .story-chapter-num {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--rose);
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .story-chapter-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .story-chapter-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .story-chapter-body p {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 2.3;
+    color: var(--text-soft);
+    margin-bottom: 28px;
+    letter-spacing: 0.05em;
+  }
+
+  .story-chapter-body p.lead {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 28px;
+    line-height: 1.6;
+    color: var(--text);
+    letter-spacing: 0.01em;
+    margin-bottom: 32px;
+  }
+
+  .story-pullquote {
+    border-left: 1px solid var(--rose);
+    padding: 8px 0 8px 28px;
+    margin: 40px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--text);
+  }
+
+  .story-pullquote cite {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--rose);
+    margin-top: 16px;
+    text-transform: uppercase;
+  }
+
+  /* ---------- Three Steps ---------- */
+  .steps {
+    background: var(--bg);
+  }
+
+  .steps-list {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .step-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 1.2fr;
+    gap: 60px;
+    align-items: baseline;
+    padding: 70px 0;
+    border-top: 1px solid var(--line);
+    transition: padding-left 0.5s ease;
+  }
+
+  .step-row:hover {
+    padding-left: 24px;
+  }
+
+  .step-row:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 64px;
+    color: var(--rose);
+    line-height: 1;
+  }
+
+  .step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 44px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .step-title small {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--rose);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+
+  .step-desc {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 2.1;
+    color: var(--text-soft);
+    letter-spacing: 0.05em;
+  }
+
+  /* ---------- AI Tag Art ---------- */
+  .tags {
+    background: var(--bg-warm);
+    padding-top: 120px;
+    padding-bottom: 140px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .tags-intro {
+    max-width: 900px;
+    margin: 0 auto 80px;
+    text-align: center;
+  }
+
+  .tags-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(48px, 6vw, 96px);
+    line-height: 1.05;
+  }
+
+  .tags-heading em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .tag-cloud {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    min-height: 720px;
+  }
+
+  .tag-item {
+    position: absolute;
+    font-family: 'Cormorant Garamond', 'Noto Serif JP', serif;
+    white-space: nowrap;
+    border: 1px solid var(--line);
+    padding: 10px 22px;
+    border-radius: 100px;
+    background: rgba(253, 249, 245, 0.5);
+    backdrop-filter: blur(8px);
+    transition: all 0.5s ease;
+    cursor: default;
+  }
+
+  .tag-item:hover {
+    border-color: var(--rose);
+    color: var(--rose);
+    transform: translateY(-4px);
+  }
+
+  .tag-item.size-xl {
+    font-size: 56px;
+    font-style: italic;
+    padding: 18px 42px;
+    color: var(--text);
+    border-color: var(--rose);
+  }
+
+  .tag-item.size-l {
+    font-size: 36px;
+    padding: 14px 32px;
+    color: var(--text);
+  }
+
+  .tag-item.size-m {
+    font-size: 22px;
+    padding: 10px 22px;
+    color: var(--text-soft);
+  }
+
+  .tag-item.size-s {
+    font-size: 14px;
+    padding: 7px 16px;
+    color: var(--text-soft);
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    letter-spacing: 0.12em;
+  }
+
+  .tag-item.accent {
+    background: var(--accent);
+    color: #fff !important;
+    border-color: var(--accent);
+  }
+
+  .tag-item.peach {
+    background: var(--peach);
+    color: var(--text) !important;
+    border-color: var(--peach);
+  }
+
+  /* positions — rhythmic constellation */
+  .t-1  { top: 2%;   left: 4%; }
+  .t-2  { top: 10%;  left: 34%; }
+  .t-3  { top: 4%;   left: 66%; }
+  .t-4  { top: 18%;  left: 8%; }
+  .t-5  { top: 22%;  left: 52%; }
+  .t-6  { top: 16%;  left: 82%; }
+  .t-7  { top: 32%;  left: 22%; }
+  .t-8  { top: 40%;  left: 44%; }
+  .t-9  { top: 34%;  left: 70%; }
+  .t-10 { top: 46%;  left: 6%; }
+  .t-11 { top: 52%;  left: 30%; }
+  .t-12 { top: 56%;  left: 60%; }
+  .t-13 { top: 48%;  left: 86%; }
+  .t-14 { top: 66%;  left: 18%; }
+  .t-15 { top: 72%;  left: 44%; }
+  .t-16 { top: 68%;  left: 72%; }
+  .t-17 { top: 82%;  left: 8%; }
+  .t-18 { top: 86%;  left: 36%; }
+  .t-19 { top: 84%;  left: 64%; }
+  .t-20 { top: 90%;  left: 84%; }
+
+  .tag-footnote {
+    max-width: 720px;
+    margin: 60px auto 0;
+    text-align: center;
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 2.2;
+    color: var(--text-soft);
+    letter-spacing: 0.06em;
+  }
+
+  /* ---------- Compatibility ---------- */
+  .compat {
+    background: var(--bg);
+    padding: 200px 48px;
+  }
+
+  .compat-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 120px;
+    align-items: center;
+  }
+
+  .compat-score-stage {
+    position: relative;
+    height: 540px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .compat-huge-number {
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 420px;
+    line-height: 0.85;
+    color: var(--text);
+    letter-spacing: -0.04em;
+    position: relative;
+  }
+
+  .compat-huge-number::after {
+    content: '%';
+    font-size: 110px;
+    color: var(--rose);
+    font-style: normal;
+    vertical-align: super;
+    margin-left: 8px;
+  }
+
+  .compat-orbit {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .compat-orbit-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+
+  .compat-orbit-ring.r1 { width: 400px; height: 400px; }
+  .compat-orbit-ring.r2 { width: 520px; height: 520px; border-color: var(--line-soft); }
+  .compat-orbit-ring.r3 { width: 640px; height: 640px; border-color: var(--line-soft); }
+
+  .compat-orbit-label {
+    position: absolute;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--rose);
+    text-transform: uppercase;
+  }
+
+  .compat-orbit-label.l1 { top: 6%;  left: 48%; }
+  .compat-orbit-label.l2 { bottom: 8%; left: 14%; }
+  .compat-orbit-label.l3 { top: 40%; right: 4%; }
+
+  .compat-body h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    line-height: 1;
+    margin-bottom: 32px;
+    letter-spacing: -0.02em;
+  }
+
+  .compat-body h3 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .compat-body p {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 2.3;
+    color: var(--text-soft);
+    margin-bottom: 28px;
+    letter-spacing: 0.06em;
+  }
+
+  .compat-axes {
+    margin-top: 50px;
+    display: grid;
+    gap: 20px;
+  }
+
+  .axis-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 50px;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .axis-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--text);
+  }
+
+  .axis-bar {
+    height: 1px;
+    background: var(--line);
+    position: relative;
+  }
+
+  .axis-bar-fill {
+    position: absolute;
+    top: -1px;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--rose), var(--accent));
+  }
+
+  .axis-val {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--rose);
+    text-align: right;
+  }
+
+  /* ---------- Differentiators ---------- */
+  .diff {
+    background: var(--bg-warm);
+    padding: 180px 48px;
+  }
+
+  .diff-grid {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  .diff-cell {
+    background: var(--bg-warm);
+    padding: 80px 60px;
+    position: relative;
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: background 0.5s ease;
+  }
+
+  .diff-cell:hover {
+    background: var(--bg);
+  }
+
+  .diff-num {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--rose);
+    letter-spacing: 0.1em;
+    margin-bottom: 24px;
+  }
+
+  .diff-cell h4 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    font-size: 48px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+
+  .diff-cell h4 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .diff-cell h4 small {
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--rose);
+    letter-spacing: 0.04em;
+    margin-top: 10px;
+    font-weight: 400;
+  }
+
+  .diff-cell p {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 2.1;
+    color: var(--text-soft);
+    letter-spacing: 0.05em;
+  }
+
+  /* ---------- Pricing ---------- */
+  .pricing {
+    background: var(--bg);
+    padding: 200px 48px;
+  }
+
+  .plans {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    align-items: end;
+  }
+
+  .plan {
+    padding: 60px 44px 56px;
+    background: var(--bg-warm);
+    border: 1px solid var(--line);
+    position: relative;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+  }
+
+  .plan:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px -20px rgba(43, 31, 42, 0.12);
+  }
+
+  .plan--featured {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+    padding-top: 80px;
+    padding-bottom: 70px;
+  }
+
+  .plan--featured .plan-name,
+  .plan--featured .plan-price,
+  .plan--featured .plan-desc,
+  .plan--featured .plan-features li {
+    color: var(--bg);
+  }
+
+  .plan--featured .plan-features li::before {
+    background: var(--peach);
+  }
+
+  .plan--featured .cta {
+    color: var(--bg);
+  }
+
+  .plan--featured .cta::after {
+    background: var(--bg);
+  }
+
+  .plan--featured .cta::before {
+    background: var(--bg);
+  }
+
+  .plan--featured .cta:hover {
+    color: var(--text);
+  }
+
+  .plan-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--bg);
+    background: var(--rose);
+    padding: 6px 20px;
+    letter-spacing: 0.12em;
+    border-radius: 2px;
+  }
+
+  .plan-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 32px;
+  }
+
+  .plan-price {
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    font-size: 88px;
+    line-height: 1;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: -0.03em;
+  }
+
+  .plan-price sup {
+    font-size: 24px;
+    color: var(--rose);
+    font-style: italic;
+    vertical-align: super;
+    margin-right: 4px;
+  }
+
+  .plan-price-unit {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--text-soft);
+    margin-bottom: 36px;
+  }
+
+  .plan-desc {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--text-soft);
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--line);
+    letter-spacing: 0.06em;
+  }
+
+  .plan--featured .plan-desc {
+    border-bottom-color: rgba(253, 249, 245, 0.2);
+  }
+
+  .plan-features {
+    list-style: none;
+    margin-bottom: 50px;
+  }
+
+  .plan-features li {
+    position: relative;
+    padding: 12px 0 12px 28px;
+    font-family: 'Cormorant Garamond', 'Noto Serif JP', serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: 0.03em;
+    line-height: 1.5;
+  }
+
+  .plan-features li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 20px;
+    width: 16px;
+    height: 1px;
+    background: var(--rose);
+  }
+
+  /* ---------- Voices ---------- */
+  .voices {
+    background: var(--bg-warm);
+    padding: 180px 48px;
+  }
+
+  .voices-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .voice-row {
+    display: grid;
+    grid-template-columns: 1fr 2.2fr;
+    gap: 80px;
+    align-items: start;
+    padding: 90px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .voice-row:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .voice-meta {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    color: var(--rose);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .voice-profile {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 26px;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .voice-subprofile {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    color: var(--text-soft);
+    line-height: 1.7;
+  }
+
+  .voice-body {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 2.4;
+    color: var(--text);
+    letter-spacing: 0.06em;
+  }
+
+  .voice-body::first-letter {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 80px;
+    float: left;
+    line-height: 0.85;
+    margin: 8px 16px 0 0;
+    color: var(--rose);
+  }
+
+  .voice-stars {
+    margin-top: 24px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--rose);
+    letter-spacing: 0.3em;
+  }
+
+  /* ---------- FAQ ---------- */
+  .faq {
+    background: var(--bg);
+    padding: 180px 48px;
+  }
+
+  .faq-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .faq-item {
+    border-top: 1px solid var(--line);
+    padding: 44px 0;
+    cursor: pointer;
+    transition: padding 0.4s ease;
+  }
+
+  .faq-item:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .faq-q {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 40px;
+  }
+
+  .faq-q-text {
+    font-family: 'Playfair Display', 'Noto Serif JP', serif;
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1.4;
+    color: var(--text);
+    letter-spacing: -0.005em;
+  }
+
+  .faq-q-text em {
+    font-style: italic;
+    color: var(--rose);
+  }
+
+  .faq-q-num {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--rose);
+    flex-shrink: 0;
+    letter-spacing: 0.08em;
+  }
+
+  .faq-a {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 2.2;
+    color: var(--text-soft);
+    margin-top: 24px;
+    padding-right: 80px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ---------- Footer CTA ---------- */
+  .footer-cta {
+    background: var(--bg-warm);
+    padding: 220px 48px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .footer-cta::before {
+    content: 'Truner';
+    position: absolute;
+    bottom: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 380px;
+    color: var(--peach-light);
+    opacity: 0.35;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .footer-cta-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-cta-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(64px, 8.5vw, 144px);
+    line-height: 1;
+    margin-bottom: 40px;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-cta-headline em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .footer-cta-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 24px;
+    color: var(--text-soft);
+    margin-bottom: 64px;
+    letter-spacing: 0.02em;
+  }
+
+  .footer-actions {
+    display: flex;
+    gap: 60px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 120px;
+  }
+
+  .footer-cta .cta {
+    font-size: 32px;
+  }
+
+  .footer-bottom {
+    max-width: 1280px;
+    margin: 80px auto 0;
+    padding-top: 48px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-brand {
+    font-family: 'Playfair Display', serif;
+    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: 0.28em;
+  }
+
+  .footer-meta {
+    display: flex;
+    gap: 32px;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .footer-meta a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .footer-meta a:hover {
+    color: var(--rose);
+  }
+
+  /* ---------- Misc ---------- */
+  .marquee {
+    padding: 28px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+    background: var(--bg);
+    white-space: nowrap;
+  }
+
+  .marquee-inner {
+    display: inline-flex;
+    gap: 80px;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 28px;
+    color: var(--text);
+    letter-spacing: 0.02em;
+    animation: marquee 36s linear infinite;
+  }
+
+  .marquee-inner span {
+    display: inline-flex;
+    gap: 80px;
+  }
+
+  .marquee-inner span::after {
+    content: '✦';
+    color: var(--rose);
+    font-style: normal;
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1024px) {
+    .hero {
+      grid-template-columns: 1fr;
+      padding-top: 140px;
+    }
+    .hero-content { padding-left: 0; }
+    .hero-side-label { display: none; }
+    .phone-stage { margin-top: 60px; }
+    .phone-stage::before, .phone-stage::after { display: none; }
+    .compat-wrap, .diff-grid, .plans, .story-chapter, .voice-row, .step-row {
+      grid-template-columns: 1fr !important;
+      gap: 40px !important;
+    }
+    .step-row { padding: 40px 0; }
+    .compat-huge-number { font-size: 260px; }
+    .compat-score-stage { height: 360px; }
+    .compat-orbit-ring.r1 { width: 280px; height: 280px; }
+    .compat-orbit-ring.r2 { width: 360px; height: 360px; }
+    .compat-orbit-ring.r3 { width: 440px; height: 440px; }
+    nav.top { padding: 18px 24px; }
+    .nav-links { display: none; }
+    section { padding: 100px 24px; }
+    .tag-cloud { min-height: 520px; }
+    .tag-item.size-xl { font-size: 32px; }
+    .tag-item.size-l { font-size: 22px; }
+    .footer-cta::before { font-size: 160px; bottom: -30px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="top">
+  <div class="brand">TRUNER<sup>®</sup></div>
+  <ul class="nav-links">
+    <li><a href="#story">Story</a></li>
+    <li><a href="#steps">Ritual</a></li>
+    <li><a href="#tags">Portrait</a></li>
+    <li><a href="#plans">Plans</a></li>
+    <li><a href="#begin">Begin</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="hero-side-label">Maison Truner · Est. 2026</div>
+  <div class="hero-content">
+    <div class="eyebrow">Chapter One &nbsp;—&nbsp; The Encounter</div>
+    <h1 class="hero-headline display">
+      <span class="line-1">A love</span>
+      <span class="line-2">not by chance,</span>
+      <span class="line-3">but by design.</span>
+    </h1>
+    <p class="hero-sub">
+      偶然の出会いに、もう疲れていませんか。<br>
+      Trunerは、あなたのSNSに宿る言葉の癖、眼差し、沈黙まで読み解き、<br>
+      世界でただ一人の相手を、そっと差し出します。
+    </p>
+    <div class="hero-meta">
+      <a href="#begin" class="cta">
+        Begin Your Chapter
+        <span class="cta-arrow">→</span>
+      </a>
+      <div class="hero-meta-item">
+        <strong>98<sup>.3</sup>%</strong>
+        Match Accuracy
+      </div>
+      <div class="hero-meta-item">
+        <strong>72,418</strong>
+        Stories Began
+      </div>
+    </div>
+  </div>
+
+  <!-- iPhone frame -->
+  <div class="phone-stage">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="phone-app-header">
+          <span>TRUNER</span>
+          <span>04:12</span>
+        </div>
+        <div class="phone-match-title">A Moment Arrived</div>
+        <div class="phone-match-subtitle">— 本日のあなたへ —</div>
+        <div class="phone-score-ring">
+          <div class="phone-score-inner">
+            <div class="phone-score-value">98<sup>%</sup></div>
+            <div class="phone-score-label">Soul Match</div>
+          </div>
+        </div>
+        <div class="phone-tag-row">
+          <span class="phone-tag accent">夜想派</span>
+          <span class="phone-tag">書店を歩く人</span>
+          <span class="phone-tag">余白を愛す</span>
+          <span class="phone-tag">映画の語り手</span>
+        </div>
+        <div class="phone-names">— Hana × Sou —</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Marquee -->
+<div class="marquee">
+  <div class="marquee-inner">
+    <span>Le rendez-vous des âmes</span>
+    <span>運命は、設計できる</span>
+    <span>A Portrait Of You</span>
+    <span>余白こそが、あなたである</span>
+    <span>Le rendez-vous des âmes</span>
+    <span>運命は、設計できる</span>
+    <span>A Portrait Of You</span>
+    <span>余白こそが、あなたである</span>
+  </div>
+</div>
+
+<!-- Story -->
+<section class="story" id="story">
+  <div class="section-header">
+    <div class="eyebrow">Chapter Two &nbsp;—&nbsp; The Confession</div>
+    <h2 class="section-title display">A quiet <em class="display--italic">unease.</em></h2>
+    <p class="section-desc">
+      誰も話さなかったけれど、誰もが感じていた。<br>
+      「出会い」という言葉の、ほんの少しの嘘について。
+    </p>
+  </div>
+
+  <div class="story-wrap">
+
+    <div class="story-chapter">
+      <div class="story-chapter-label">
+        <span class="story-chapter-num">i.</span>
+        <h3 class="story-chapter-title">写真の前で、<br><em>立ちすくむ夜。</em></h3>
+      </div>
+      <div class="story-chapter-body">
+        <p class="lead">右にスワイプ、左にスワイプ。気付けば、親指だけが忙しく働いていた。</p>
+        <p>
+          プロフィールの一枚目が、全てを決める。<br>
+          趣味は「映画鑑賞・カフェ巡り」。文字は整っていて、でも空っぽだ。<br>
+          本当は、もっと深い話がしたかった。昨夜読み返した小説のこと、雨の日に聴く曲のこと。
+        </p>
+        <div class="story-pullquote">
+          「私のことを、一枚の写真で判断しないでほしかった。」
+          <cite>— 28歳 · 編集者 · Z</cite>
+        </div>
+      </div>
+    </div>
+
+    <div class="story-chapter">
+      <div class="story-chapter-label">
+        <span class="story-chapter-num">ii.</span>
+        <h3 class="story-chapter-title">言葉が、<br>届かないアプリ。</h3>
+      </div>
+      <div class="story-chapter-body">
+        <p>
+          三年間で千通のメッセージ。ほとんどが「はじめまして、素敵ですね」で始まり、沈黙で終わった。<br>
+          アルゴリズムが見ていたのは、年齢と年収と、顔の対称性だった。<br>
+          その人が真夜中に何を考え、どんな曲でふと立ち止まるかを、アプリは知らなかった。
+        </p>
+        <p class="lead">私たちは、<em>人格</em>ではなく<em>数値</em>として、扱われていた。</p>
+      </div>
+    </div>
+
+    <div class="story-chapter">
+      <div class="story-chapter-label">
+        <span class="story-chapter-num">iii.</span>
+        <h3 class="story-chapter-title">そして、<br><em>別の方法</em>を考えた。</h3>
+      </div>
+      <div class="story-chapter-body">
+        <p>
+          あなたのSNSには、三年分の「あなた」が書かれている。<br>
+          好きだと言えなかった本のリツイート。深夜に書いて消した長文。行きつけのカフェで撮った光の角度。<br>
+          Trunerは、それらを静かに読み、あなたの内側の地図を描きます。
+        </p>
+        <p>
+          そして、同じ地図を持った誰かを、そっと連れてくる。<br>
+          出会いは、偶然ではなく、設計できる。<br>
+          それが、私たちの信じる新しいロマンスです。
+        </p>
+        <div class="story-pullquote">
+          「Trunerに出会って、はじめて、<br>自分という人間が、言葉にされた気がしました。」
+          <cite>— 創業者インタビューより</cite>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Three Steps -->
+<section class="steps" id="steps">
+  <div class="section-header">
+    <div class="eyebrow">Chapter Three &nbsp;—&nbsp; The Ritual</div>
+    <h2 class="section-title display">Three quiet <em class="display--italic">gestures.</em></h2>
+    <p class="section-desc">
+      あなたがすることは、ほとんどありません。<br>
+      三つの小さな儀式を経て、物語は静かに始まります。
+    </p>
+  </div>
+
+  <div class="steps-list">
+    <div class="step-row">
+      <div class="step-num">i.</div>
+      <div>
+        <h3 class="step-title">
+          <small>Connect</small>
+          SNSを、<br>そっと繋ぐ。
+        </h3>
+      </div>
+      <p class="step-desc">
+        X、Instagram、Threads、note、Spotify。普段使っているアカウントを、ワンタップで繋ぐだけ。<br>
+        投稿は一切公開されません。あなたの言葉は、あなたの肖像を描くためだけに使われます。
+      </p>
+    </div>
+
+    <div class="step-row">
+      <div class="step-num">ii.</div>
+      <div>
+        <h3 class="step-title">
+          <small>Portrait</small>
+          AIが、あなたの<br>肖像画を描く。
+        </h3>
+      </div>
+      <p class="step-desc">
+        最新の大規模言語モデルが、三年分の言葉の癖、語彙の温度、沈黙の長さまで読み解きます。<br>
+        生まれるのは、四十八のタグで描かれた「あなただけの肖像画」。誰とも同じにはなりません。
+      </p>
+    </div>
+
+    <div class="step-row">
+      <div class="step-num">iii.</div>
+      <div>
+        <h3 class="step-title">
+          <small>Encounter</small>
+          物語が、<br>静かに始まる。
+        </h3>
+      </div>
+      <p class="step-desc">
+        毎日、一人だけ。厳選された相手が、あなたのもとに届きます。<br>
+        大量の候補から選ぶ、消耗の時代は終わりました。Trunerは、キュレーションの時代を信じます。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- AI Tag Art -->
+<section class="tags" id="tags">
+  <div class="tags-intro">
+    <div class="eyebrow">Chapter Four &nbsp;—&nbsp; The Portrait</div>
+    <h2 class="tags-heading display">
+      あなたは、四十八の<br><em>詩片</em>でできている。
+    </h2>
+  </div>
+
+  <div class="tag-cloud">
+    <span class="tag-item size-s t-1">#深夜派</span>
+    <span class="tag-item size-l t-2">古書街を歩く人</span>
+    <span class="tag-item size-m t-3">#introspection</span>
+    <span class="tag-item size-xl accent t-4">Quiet Romantic</span>
+    <span class="tag-item size-m t-5">映画の余韻に生きる</span>
+    <span class="tag-item size-s t-6">#INFJ</span>
+    <span class="tag-item size-l peach t-7">夜想派</span>
+    <span class="tag-item size-xl t-8">詩を読む人</span>
+    <span class="tag-item size-m t-9">ジャズ喫茶愛好家</span>
+    <span class="tag-item size-s t-10">#手紙を書く</span>
+    <span class="tag-item size-l t-11">Nordic Minimalist</span>
+    <span class="tag-item size-m t-12">珈琲は黒、深く</span>
+    <span class="tag-item size-s t-13">#京都派</span>
+    <span class="tag-item size-xl accent t-14">言葉で愛する人</span>
+    <span class="tag-item size-m t-15">北欧文学</span>
+    <span class="tag-item size-l t-16">余白を設計する</span>
+    <span class="tag-item size-s t-17">#vinyl</span>
+    <span class="tag-item size-m peach t-18">ブルータス愛読</span>
+    <span class="tag-item size-l t-19">美術館のベンチ</span>
+    <span class="tag-item size-s t-20">#slow living</span>
+  </div>
+
+  <p class="tag-footnote">
+    これらは、ある一人のユーザーから抽出された、四十八のうちの二十のタグ。<br>
+    同じ組み合わせを持つ人は、地球上に二人といません。
+  </p>
+</section>
+
+<!-- Compatibility -->
+<section class="compat" id="compat">
+  <div class="compat-wrap">
+    <div class="compat-score-stage">
+      <div class="compat-orbit">
+        <div class="compat-orbit-ring r1"></div>
+        <div class="compat-orbit-ring r2"></div>
+        <div class="compat-orbit-ring r3"></div>
+        <div class="compat-orbit-label l1">Value Axis</div>
+        <div class="compat-orbit-label l2">Rhythm Axis</div>
+        <div class="compat-orbit-label l3">Silence Axis</div>
+      </div>
+      <div class="compat-huge-number display">98</div>
+    </div>
+
+    <div class="compat-body">
+      <div class="eyebrow">Chapter Five &nbsp;—&nbsp; The Resonance</div>
+      <h3 class="display">相性は、<br>七つの<em>軌道</em>で<br>測られる。</h3>
+      <p>
+        表面的な趣味の一致ではなく、内面の周波数で測る。<br>
+        Trunerの相性スコアは、七つの軸から導かれる一つの詩です。
+      </p>
+
+      <div class="compat-axes">
+        <div class="axis-row">
+          <div class="axis-label">Values</div>
+          <div class="axis-bar"><div class="axis-bar-fill" style="width: 96%;"></div></div>
+          <div class="axis-val">96</div>
+        </div>
+        <div class="axis-row">
+          <div class="axis-label">Vocabulary</div>
+          <div class="axis-bar"><div class="axis-bar-fill" style="width: 99%;"></div></div>
+          <div class="axis-val">99</div>
+        </div>
+        <div class="axis-row">
+          <div class="axis-label">Rhythm</div>
+          <div class="axis-bar"><div class="axis-bar-fill" style="width: 94%;"></div></div>
+          <div class="axis-val">94</div>
+        </div>
+        <div class="axis-row">
+          <div class="axis-label">Silence</div>
+          <div class="axis-bar"><div class="axis-bar-fill" style="width: 98%;"></div></div>
+          <div class="axis-val">98</div>
+        </div>
+        <div class="axis-row">
+          <div class="axis-label">Curiosity</div>
+          <div class="axis-bar"><div class="axis-bar-fill" style="width: 91%;"></div></div>
+          <div class="axis-val">91</div>
+        </div>
+        <div class="axis-row">
+          <div class="axis-label">Humour</div>
+          <div class="axis-bar"><div class="axis-bar-fill" style="width: 89%;"></div></div>
+          <div class="axis-val">89</div>
+        </div>
+        <div class="axis-row">
+          <div class="axis-label">Distance</div>
+          <div class="axis-bar"><div class="axis-bar-fill" style="width: 95%;"></div></div>
+          <div class="axis-val">95</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Differentiators -->
+<section class="diff">
+  <div class="section-header">
+    <div class="eyebrow">Chapter Six &nbsp;—&nbsp; The Difference</div>
+    <h2 class="section-title display">Four <em class="display--italic">quiet</em> promises.</h2>
+    <p class="section-desc">
+      Trunerが、他のどのアプリでもない理由。<br>
+      四つの、静かな約束があります。
+    </p>
+  </div>
+
+  <div class="diff-grid">
+    <div class="diff-cell">
+      <div class="diff-num">No. 01</div>
+      <h4>写真ではなく、<em>言葉</em>から。<small>A portrait of words, not faces.</small></h4>
+      <p>
+        顔写真は、出会った後でいい。<br>
+        Trunerは、あなたの書いた言葉、引用した詩、沈黙の長さからパーソナリティを読み解きます。<br>
+        見た目のヒエラルキーに、もう傷つかないで。
+      </p>
+    </div>
+
+    <div class="diff-cell">
+      <div class="diff-num">No. 02</div>
+      <h4>一日に、<em>たった一人</em>。<small>One soul, per day.</small></h4>
+      <p>
+        消耗するスワイプは終わりにしましょう。<br>
+        Trunerは毎日、あなたに一人だけを届けます。選ぶのではなく、出会う。大量消費の恋愛からの、<br>静かな離脱です。
+      </p>
+    </div>
+
+    <div class="diff-cell">
+      <div class="diff-num">No. 03</div>
+      <h4>AIが、<em>沈黙</em>を読む。<small>Listening to what isn't said.</small></h4>
+      <p>
+        あなたが書かなかったこと、いいねを押さなかった投稿、夜更けに消したツイート。<br>
+        Trunerの言語モデルは、沈黙の形からあなたを読みます。誰にも見せなかった自分を、肯定します。
+      </p>
+    </div>
+
+    <div class="diff-cell">
+      <div class="diff-num">No. 04</div>
+      <h4>プライバシーは、<em>聖域</em>。<small>Your silence, sacred.</small></h4>
+      <p>
+        SNSの内容が公開されることは決してありません。<br>
+        暗号化された専用AIが、あなたのデバイス内でのみ肖像を描き、サーバーに残すのは匿名化された<br>四十八のタグだけです。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="pricing" id="plans">
+  <div class="section-header">
+    <div class="eyebrow">Chapter Seven &nbsp;—&nbsp; The Offering</div>
+    <h2 class="section-title display">Three <em class="display--italic">ways</em> to begin.</h2>
+    <p class="section-desc">
+      物語の深さを、あなたが選ぶ。<br>
+      どのプランも、解約は一タップ。縛りはありません。
+    </p>
+  </div>
+
+  <div class="plans">
+    <div class="plan">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">¥0</div>
+      <div class="plan-price-unit">— forever —</div>
+      <p class="plan-desc">
+        まずは、あなたの肖像画を描いてみることから。<br>
+        SNS連携と、週に一人の紹介。小さな扉を、そっと開けてみてください。
+      </p>
+      <ul class="plan-features">
+        <li>AI肖像診断（48タグ）</li>
+        <li>週に一人の紹介</li>
+        <li>相性スコア閲覧</li>
+        <li>基本メッセージ（週5通）</li>
+      </ul>
+      <a href="#begin" class="cta cta--small">Begin softly <span class="cta-arrow">→</span></a>
+    </div>
+
+    <div class="plan plan--featured">
+      <div class="plan-badge">Most Chosen</div>
+      <div class="plan-name">Plus</div>
+      <div class="plan-price"><sup>¥</sup>2,980</div>
+      <div class="plan-price-unit">— per month —</div>
+      <p class="plan-desc">
+        毎日の出会いと、深い対話を楽しむためのプラン。<br>
+        大多数の方がここから始めます。迷ったら、Plusで。
+      </p>
+      <ul class="plan-features">
+        <li>毎日一人の厳選紹介</li>
+        <li>七軸の詳細相性分析</li>
+        <li>AI会話サジェスト</li>
+        <li>既読・返信率の可視化</li>
+        <li>メッセージ無制限</li>
+        <li>肖像画の月次アップデート</li>
+      </ul>
+      <a href="#begin" class="cta cta--small">Begin this chapter <span class="cta-arrow">→</span></a>
+    </div>
+
+    <div class="plan">
+      <div class="plan-name">Premium</div>
+      <div class="plan-price"><sup>¥</sup>6,980</div>
+      <div class="plan-price-unit">— per month —</div>
+      <p class="plan-desc">
+        真剣な伴侶探しのために。<br>
+        専任のAIコンシェルジュが、あなたの物語に寄り添います。
+      </p>
+      <ul class="plan-features">
+        <li>Plusの全機能</li>
+        <li>AIコンシェルジュ（24時間）</li>
+        <li>プロフィール添削サービス</li>
+        <li>初回デート演出の提案</li>
+        <li>価値観マッチ優先表示</li>
+        <li>パートナー成立までの伴走</li>
+      </ul>
+      <a href="#begin" class="cta cta--small">Begin with care <span class="cta-arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- Voices -->
+<section class="voices">
+  <div class="section-header">
+    <div class="eyebrow">Chapter Eight &nbsp;—&nbsp; The Voices</div>
+    <h2 class="section-title display">They found <em class="display--italic">someone.</em></h2>
+    <p class="section-desc">
+      Trunerを経て、静かな物語を始めた人たちから届いた言葉です。
+    </p>
+  </div>
+
+  <div class="voices-wrap">
+
+    <div class="voice-row">
+      <div>
+        <div class="voice-meta">Story No. 01 · Tokyo · 3 months</div>
+        <div class="voice-profile">Hana, 29</div>
+        <div class="voice-subprofile">Editor · INFJ · 深夜に手紙を書く人</div>
+        <div class="voice-stars">✦ ✦ ✦ ✦ ✦</div>
+      </div>
+      <div class="voice-body">
+        出会って三日目に、彼が「あなたのnoteの、三年前の記事が一番好きだ」と言った。<br>
+        私自身が忘れていた文章でした。<br>
+        この人は私の言葉を、ちゃんと読んでくれたのだと分かって、涙が出ました。Trunerは、たぶん、私という人間の翻訳機です。
+      </div>
+    </div>
+
+    <div class="voice-row">
+      <div>
+        <div class="voice-meta">Story No. 02 · Kyoto · 6 months</div>
+        <div class="voice-profile">Sou, 33</div>
+        <div class="voice-subprofile">Architect · 古書街を歩く人</div>
+        <div class="voice-stars">✦ ✦ ✦ ✦ ✦</div>
+      </div>
+      <div class="voice-body">
+        これまでのアプリは、右にスワイプする作業でした。顔で選び、顔で選ばれ、疲れていった。<br>
+        Trunerの最初のマッチは、相性スコア94%。写真を見る前に、好きになっていたと思います。<br>
+        出会いの順番が、本来あるべき形に戻された気がしました。
+      </div>
+    </div>
+
+    <div class="voice-row">
+      <div>
+        <div class="voice-meta">Story No. 03 · Osaka · 1 year</div>
+        <div class="voice-profile">Rin, 27</div>
+        <div class="voice-subprofile">Photographer · 美術館のベンチ愛好家</div>
+        <div class="voice-stars">✦ ✦ ✦ ✦ ✦</div>
+      </div>
+      <div class="voice-body">
+        三年付き合った人と別れた後、もう恋愛は無理だと思っていました。<br>
+        でも、Trunerの肖像画を見たとき、「ああ、私はまだ、誰かに会いたいのか」と気づいた。<br>
+        AIに、自分の輪郭を思い出させてもらった。今の夫と出会えたのは、そこからでした。
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="section-header">
+    <div class="eyebrow">Chapter Nine &nbsp;—&nbsp; The Questions</div>
+    <h2 class="section-title display">Quiet <em class="display--italic">answers.</em></h2>
+  </div>
+
+  <div class="faq-wrap">
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <div class="faq-q-text">SNSの投稿は<em>公開</em>されますか？</div>
+        <div class="faq-q-num">i.</div>
+      </div>
+      <div class="faq-a">
+        いいえ。絶対に公開されません。あなたのSNSデータは暗号化された上でAIが解析し、出力されるのは四十八の抽象的なタグのみ。原文が他のユーザーや第三者の目に触れることは一切ありません。Trunerは、あなたの沈黙を守るために設計されています。
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <div class="faq-q-text">顔写真は必須ですか？</div>
+        <div class="faq-q-num">ii.</div>
+      </div>
+      <div class="faq-a">
+        必須ではありません。Trunerのマッチは言葉ベースで進みます。相手と価値観が合致し、メッセージが進んだ段階で、任意に写真を共有できます。「顔から入らない」を、ブランドの根幹に据えています。
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <div class="faq-q-text">SNSを普段使っていない人は？</div>
+        <div class="faq-q-num">iii.</div>
+      </div>
+      <div class="faq-a">
+        note、読書記録アプリ、Spotifyの再生履歴など、言葉や嗜好のログがあれば肖像画は描けます。どうしてもログが少ない方向けに、二十問の「言葉のワークシート」をご用意しています。所要時間は十五分ほどです。
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <div class="faq-q-text">解約はすぐ<em>できる</em>？</div>
+        <div class="faq-q-num">iv.</div>
+      </div>
+      <div class="faq-a">
+        いつでも、一タップで。解約手続きは設定画面から即時可能です。違約金、縛り、引き止めポップアップは存在しません。データ削除を希望される場合も、同じ場所から申請できます。
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <div class="faq-q-text">AIが「誤読」することはありますか？</div>
+        <div class="faq-q-num">v.</div>
+      </div>
+      <div class="faq-a">
+        あります。AIは完璧ではありません。だからこそTrunerは、毎月あなたの肖像画を更新し、マッチ後のフィードバックを学習に活かします。「違う」と感じたタグは、あなた自身の手で書き換えられます。共同執筆者は、あなたです。
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <div class="faq-q-text">年齢層や目的は？</div>
+        <div class="faq-q-num">vi.</div>
+      </div>
+      <div class="faq-a">
+        25歳から40歳までのユーザーが中心です。真剣な交際・結婚を目的とする方が八割を占めます。軽い出会い専用ではなく、「物語を始めたい人」のための場所として設計されています。
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <div class="faq-q-text">サクラや<em>業者</em>はいない？</div>
+        <div class="faq-q-num">vii.</div>
+      </div>
+      <div class="faq-a">
+        登録時の本人確認に加え、SNSアカウントの連携(最低三年の運用履歴)を必須としています。言葉のパターン解析により、業者やBotは自動検出されます。検出精度は業界平均の十倍以上を維持しています。
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Footer CTA -->
+<section class="footer-cta" id="begin">
+  <div class="footer-cta-wrap">
+    <div class="eyebrow">Final Chapter &nbsp;—&nbsp; Your Invitation</div>
+    <h2 class="footer-cta-headline display">
+      Your <em>chapter one</em><br>begins tonight.
+    </h2>
+    <p class="footer-cta-sub">
+      物語の一行目は、あなたの手の中に。<br>
+      AppStore・GooglePlayより、無料でダウンロードできます。
+    </p>
+
+    <div class="footer-actions">
+      <a href="#" class="cta">
+        Download for iPhone
+        <span class="cta-arrow">→</span>
+      </a>
+      <a href="#" class="cta">
+        Download for Android
+        <span class="cta-arrow">→</span>
+      </a>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-brand">TRUNER<sup style="font-size: 10px; color: var(--rose); letter-spacing: 0.2em; margin-left: 6px;">®</sup></div>
+      <div class="footer-meta">
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">Contact</a>
+        <a href="#">Press</a>
+        <span>© 2026 Maison Truner, Tokyo</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

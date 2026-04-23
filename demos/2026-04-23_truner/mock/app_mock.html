@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Truner — SNS連携型AIマッチング</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Noto+Serif+JP:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D0B1F;
+    --bg-2: #15122E;
+    --bg-3: #1E1940;
+    --text: #F8F4EE;
+    --text-dim: rgba(248, 244, 238, 0.62);
+    --text-mute: rgba(248, 244, 238, 0.35);
+    --coral: #FF7A8A;
+    --lavender: #C9A0FF;
+    --gold: #F8C471;
+    --mint: #4ECDC4;
+    --line: rgba(248, 244, 238, 0.08);
+    --line-strong: rgba(248, 244, 238, 0.16);
+    --serif-en: 'Playfair Display', serif;
+    --serif-jp: 'Noto Serif JP', serif;
+    --mono: 'Space Grotesk', sans-serif;
+    --sans: 'Inter', 'Noto Serif JP', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: var(--sans);
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(201, 160, 255, 0.18), transparent 55%),
+      radial-gradient(ellipse at 85% 90%, rgba(255, 122, 138, 0.15), transparent 50%),
+      radial-gradient(ellipse at 60% 50%, rgba(78, 205, 196, 0.06), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: 0.01em;
+  }
+
+  .stage {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 56px 24px 80px;
+    gap: 40px;
+  }
+
+  .stage-header {
+    text-align: center;
+    max-width: 520px;
+  }
+  .stage-header .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+  .stage-header h1 {
+    font-family: var(--serif-en);
+    font-weight: 500;
+    font-size: 44px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .stage-header h1 em {
+    font-style: italic;
+    color: var(--coral);
+    font-weight: 500;
+  }
+  .stage-header p {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  /* ===== iPhone 14 Pro frame ===== */
+  .device {
+    position: relative;
+    width: 390px;
+    height: 844px;
+    border-radius: 55px;
+    padding: 10px;
+    background: linear-gradient(145deg, #2a2442 0%, #0a0818 50%, #1a1735 100%);
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.04),
+      0 30px 80px -20px rgba(0,0,0,0.75),
+      0 60px 120px -40px rgba(201, 160, 255, 0.25),
+      inset 0 0 0 1px rgba(255,255,255,0.06);
+  }
+  .device::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 57px;
+    background: linear-gradient(135deg, rgba(201,160,255,0.35), rgba(255,122,138,0.25), rgba(248,196,113,0.2));
+    z-index: -1;
+    filter: blur(10px);
+    opacity: 0.5;
+  }
+
+  /* Side buttons */
+  .device .btn-vol, .device .btn-power {
+    position: absolute;
+    background: linear-gradient(90deg, #080614, #1a1735 40%, #1a1735 60%, #080614);
+    border-radius: 2px;
+  }
+  .btn-vol-up   { left: -3px; top: 170px; width: 4px; height: 62px; }
+  .btn-vol-down { left: -3px; top: 244px; width: 4px; height: 62px; }
+  .btn-silent   { left: -3px; top: 110px; width: 4px; height: 32px; }
+  .btn-power    { right: -3px; top: 200px; width: 4px; height: 100px; }
+
+  .screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 45px;
+    background: linear-gradient(180deg, #100C26 0%, #0D0B1F 40%, #0A0818 100%);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 124px;
+    height: 36px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+  .dynamic-island::before {
+    content: "";
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #1a1a2e, #000);
+    box-shadow: inset 0 0 2px rgba(201,160,255,0.3);
+  }
+  .dynamic-island::after {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #0f0f1a, #000);
+  }
+
+  /* Status bar */
+  .status-bar {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 32px 0;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    z-index: 10;
+    height: 54px;
+  }
+  .status-bar .time { margin-left: -4px; }
+  .status-bar .icons { display: flex; gap: 6px; align-items: center; }
+  .status-bar .icons svg { width: 16px; height: 12px; }
+
+  /* Screen content area */
+  .view {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: none;
+    flex-direction: column;
+    scrollbar-width: none;
+  }
+  .view::-webkit-scrollbar { display: none; }
+  .view.active { display: flex; }
+
+  /* ===== Tab bar ===== */
+  .tabbar {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    background: rgba(13, 11, 31, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line);
+    padding: 10px 8px 26px;
+    z-index: 20;
+  }
+  .tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 4px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--text-mute);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+  }
+  .tab svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 1.6; fill: none; }
+  .tab.active { color: var(--text); }
+  .tab.active svg { stroke: var(--coral); }
+  .tab.active::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 28px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--coral), var(--lavender));
+    border-radius: 0 0 2px 2px;
+  }
+
+  /* ===== Common components ===== */
+  .view-header {
+    padding: 8px 24px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .view-header .eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .view-header h2 {
+    font-family: var(--serif-en);
+    font-weight: 500;
+    font-size: 30px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .view-header h2 em {
+    font-style: italic;
+    color: var(--coral);
+  }
+  .view-header .header-action {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line-strong);
+    display: grid;
+    place-items: center;
+    color: var(--text);
+  }
+  .view-header .header-action svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+  .section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    padding: 20px 24px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-title span.accent { color: var(--gold); }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 100px;
+    background: rgba(248,244,238,0.04);
+    border: 1px solid var(--line-strong);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .pill.check::before {
+    content: "✓";
+    color: var(--mint);
+    font-weight: 700;
+  }
+  .pill.coral { color: var(--coral); border-color: rgba(255,122,138,0.3); background: rgba(255,122,138,0.08); }
+  .pill.lavender { color: var(--lavender); border-color: rgba(201,160,255,0.3); background: rgba(201,160,255,0.08); }
+  .pill.gold { color: var(--gold); border-color: rgba(248,196,113,0.3); background: rgba(248,196,113,0.08); }
+
+  /* Avatar */
+  .avatar {
+    display: grid;
+    place-items: center;
+    font-family: var(--serif-en);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .avatar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+  }
+  .avatar.lg { width: 64px; height: 64px; font-size: 24px; border-radius: 24px; }
+  .avatar.md { width: 48px; height: 48px; font-size: 18px; border-radius: 16px; }
+  .avatar.sm { width: 36px; height: 36px; font-size: 14px; border-radius: 12px; }
+  .avatar.coral    { background: linear-gradient(135deg, #FF7A8A, #ff5872); }
+  .avatar.lavender { background: linear-gradient(135deg, #C9A0FF, #a471ff); color: #1a1035; }
+  .avatar.gold     { background: linear-gradient(135deg, #F8C471, #e5a336); color: #2d1f08; }
+  .avatar.mint     { background: linear-gradient(135deg, #4ECDC4, #2ba89f); color: #0a2826; }
+  .avatar.violet   { background: linear-gradient(135deg, #6e5bb8, #3d2f78); }
+  .avatar.blush    { background: linear-gradient(135deg, #ffb4c6, #ff8ba7); color: #2d0e18; }
+
+  /* ===== HOME VIEW ===== */
+  .greeting {
+    padding: 0 24px 8px;
+  }
+  .greeting .time-of-day {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .greeting h1 {
+    font-family: var(--serif-en);
+    font-weight: 500;
+    font-size: 34px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin-bottom: 6px;
+  }
+  .greeting h1 em {
+    font-style: italic;
+    color: var(--coral);
+  }
+  .greeting .jp {
+    font-family: var(--serif-jp);
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  .hero-card {
+    margin: 24px 20px 0;
+    position: relative;
+    background:
+      radial-gradient(circle at 80% 0%, rgba(255,122,138,0.25), transparent 55%),
+      radial-gradient(circle at 0% 100%, rgba(201,160,255,0.22), transparent 50%),
+      linear-gradient(165deg, #1f1a45 0%, #15122E 100%);
+    border-radius: 28px;
+    padding: 22px 22px 24px;
+    border: 1px solid var(--line-strong);
+    overflow: hidden;
+  }
+  .hero-card::before {
+    content: "";
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(248,196,113,0.15), transparent 70%);
+    filter: blur(10px);
+  }
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+  }
+  .hero-top .today-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .hero-top .today-tag::before {
+    content: "✦ ";
+    color: var(--gold);
+  }
+  .hero-top .save-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--line-strong);
+    display: grid;
+    place-items: center;
+    color: var(--coral);
+  }
+  .hero-top .save-btn svg { width: 14px; height: 14px; fill: currentColor; }
+
+  .hero-body {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .hero-info .name {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1.1;
+    margin-bottom: 2px;
+  }
+  .hero-info .meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  .hero-info .meta .dot { color: var(--text-mute); margin: 0 6px; }
+
+  .compat-score {
+    text-align: right;
+  }
+  .compat-score .label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--text-mute);
+    text-transform: uppercase;
+  }
+  .compat-score .value {
+    font-family: var(--serif-en);
+    font-weight: 600;
+    font-size: 64px;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    background: linear-gradient(180deg, var(--gold), #e5a336);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+  }
+  .compat-score .pct {
+    font-family: var(--mono);
+    font-size: 18px;
+    color: var(--gold);
+    font-weight: 400;
+    margin-left: 2px;
+  }
+
+  .hero-tags {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .hero-tags .tags-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .hero-tags .tag-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .hero-cta {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .hero-cta .cta-primary {
+    background: linear-gradient(95deg, var(--coral) 0%, #ff8ba3 100%);
+    color: #1a0610;
+    border: none;
+    border-radius: 100px;
+    padding: 14px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 8px 20px -8px rgba(255,122,138,0.6);
+  }
+  .hero-cta .cta-secondary {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line-strong);
+    color: var(--text);
+    border-radius: 100px;
+    padding: 0 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  /* Quick stats */
+  .quick-stats {
+    margin: 24px 20px 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .stat .num {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat .num.coral    { color: var(--coral); }
+  .stat .num.lavender { color: var(--lavender); }
+  .stat .num.mint     { color: var(--mint); }
+  .stat .cap {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* Updates feed */
+  .update-list {
+    padding: 0 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .update {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+  .update .txt { flex: 1; }
+  .update .txt .title {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .update .txt .sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    font-family: var(--mono);
+    letter-spacing: 0.02em;
+  }
+  .update .meta-chip {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-mute);
+  }
+
+  /* ===== MATCH VIEW ===== */
+  .filter-row {
+    padding: 0 24px 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    padding: 7px 14px;
+    border-radius: 100px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line-strong);
+    color: var(--text-dim);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .filter-chip.active {
+    background: linear-gradient(95deg, rgba(255,122,138,0.2), rgba(201,160,255,0.2));
+    border-color: var(--coral);
+    color: var(--text);
+  }
+
+  .match-list {
+    padding: 4px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .match-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid var(--line-strong);
+    border-radius: 24px;
+    overflow: hidden;
+  }
+  .match-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 100% 0%, var(--ring-color, rgba(248,196,113,0.12)), transparent 60%);
+    pointer-events: none;
+  }
+  .match-card .info {
+    position: relative;
+    min-width: 0;
+  }
+  .match-card .info .name {
+    font-family: var(--serif-en);
+    font-weight: 500;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    margin-bottom: 2px;
+  }
+  .match-card .info .name em { font-style: italic; color: var(--text); font-weight: 400; }
+  .match-card .info .meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+  .match-card .info .tag-mini-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .tag-mini {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(248,244,238,0.06);
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+  }
+  .match-card .score {
+    position: relative;
+    text-align: right;
+  }
+  .match-card .score .val {
+    font-family: var(--serif-en);
+    font-weight: 600;
+    font-size: 38px;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    background: linear-gradient(180deg, var(--gold), #d49530);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .match-card .score .pct {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--gold);
+  }
+  .match-card .score .lbl {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.25em;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* ===== TAGS VIEW ===== */
+  .sns-status {
+    margin: 0 24px 20px;
+    display: flex;
+    gap: 10px;
+  }
+  .sns-badge {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: rgba(78,205,196,0.06);
+    border: 1px solid rgba(78,205,196,0.25);
+    border-radius: 16px;
+  }
+  .sns-badge.ok .check {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--mint);
+    color: #0a2826;
+    display: grid; place-items: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .sns-badge .name {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .sns-badge .sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-mute);
+  }
+
+  /* Radar chart */
+  .radar-wrap {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    margin: 0 auto;
+  }
+  .radar-label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-family: var(--serif-jp);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    padding: 6px 12px;
+    border-radius: 100px;
+    background: rgba(13,11,31,0.8);
+    border: 1px solid var(--line-strong);
+    backdrop-filter: blur(8px);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .radar-label.strong {
+    color: var(--gold);
+    border-color: rgba(248,196,113,0.35);
+    background: rgba(248,196,113,0.08);
+    font-weight: 600;
+  }
+  .radar-label .val {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-mute);
+    margin-left: 6px;
+  }
+  .radar-label.strong .val { color: var(--gold); }
+
+  .tag-detail-hint {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    padding: 12px 24px 4px;
+  }
+
+  .tag-top-list {
+    padding: 8px 20px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .tag-item {
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .tag-item .score-bar {
+    width: 40px;
+    height: 3px;
+    background: var(--line);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+  .tag-item .score-bar::after {
+    content: "";
+    position: absolute;
+    left: 0; top: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--coral), var(--gold));
+    border-radius: 2px;
+    width: var(--pct, 70%);
+  }
+
+  /* ===== CHAT VIEW ===== */
+  .chat-list {
+    padding: 0 0 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .chat-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+  }
+  .chat-row .info { min-width: 0; }
+  .chat-row .info .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .chat-row .info .name {
+    font-family: var(--serif-en);
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: -0.005em;
+  }
+  .chat-row .info .time {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-mute);
+    letter-spacing: 0.04em;
+  }
+  .chat-row .info .preview {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .chat-row .info .preview .you { color: var(--text-mute); }
+  .chat-row .badge {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--coral);
+    color: #1a0610;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    align-self: flex-start;
+  }
+
+  .chat-open {
+    padding: 16px 20px 16px;
+    background: linear-gradient(180deg, rgba(201,160,255,0.06), transparent 40%);
+    border-top: 1px solid var(--line-strong);
+    margin-top: 8px;
+  }
+  .chat-open-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 14px;
+  }
+  .chat-open-header .info .name {
+    font-family: var(--serif-en);
+    font-weight: 500;
+    font-size: 16px;
+  }
+  .chat-open-header .info .status {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--mint);
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+  .chat-open-header .info .status::before {
+    content: "●";
+    margin-right: 4px;
+  }
+
+  .bubbles {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .bubble {
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 13px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    position: relative;
+  }
+  .bubble .t {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-mute);
+    margin-top: 4px;
+    letter-spacing: 0.1em;
+  }
+  .bubble.them {
+    align-self: flex-start;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--line-strong);
+    border-bottom-left-radius: 6px;
+  }
+  .bubble.me {
+    align-self: flex-end;
+    background: linear-gradient(135deg, var(--coral), #ff98ab);
+    color: #1a0610;
+    font-weight: 500;
+    border-bottom-right-radius: 6px;
+  }
+  .bubble.me .t { color: rgba(26,6,16,0.5); }
+
+  .chat-input {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line-strong);
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--text-mute);
+  }
+  .chat-input::before {
+    content: "＋";
+    color: var(--text-mute);
+    font-size: 18px;
+  }
+  .chat-input .send-btn {
+    margin-left: auto;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--coral);
+    color: #1a0610;
+    display: grid; place-items: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* ===== PROFILE VIEW ===== */
+  .profile-hero {
+    padding: 8px 24px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .profile-hero .info .name {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 26px;
+    font-weight: 500;
+    line-height: 1.05;
+  }
+  .profile-hero .info .handle {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .profile-hero .info .region {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-mute);
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+  }
+  .profile-hero .info .region::before { content: "◉  "; color: var(--coral); }
+
+  .plan-card {
+    margin: 0 20px 4px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(248,196,113,0.15), rgba(255,122,138,0.1) 50%, rgba(201,160,255,0.12));
+    border: 1px solid rgba(248,196,113,0.3);
+    border-radius: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .plan-card::before {
+    content: "";
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(248,196,113,0.25), transparent 70%);
+  }
+  .plan-card .plan-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+  }
+  .plan-card .plan-head .eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .plan-card .plan-head .tier {
+    font-family: var(--serif-en);
+    font-weight: 600;
+    font-size: 32px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    margin-top: 6px;
+    background: linear-gradient(135deg, var(--gold), #ffe8b8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .plan-card .plan-head .tier em {
+    font-style: italic;
+    color: var(--coral);
+    -webkit-text-fill-color: var(--coral);
+  }
+  .plan-card .current {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--text-mute);
+    border: 1px solid var(--line-strong);
+    padding: 4px 8px;
+    border-radius: 100px;
+    text-transform: uppercase;
+  }
+  .plan-tiers {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    position: relative;
+  }
+  .plan-tier {
+    padding: 10px 6px;
+    text-align: center;
+    background: rgba(13,11,31,0.4);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .plan-tier.me {
+    border-color: var(--gold);
+    background: rgba(248,196,113,0.15);
+  }
+  .plan-tier .t {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.08em;
+  }
+  .plan-tier .p {
+    font-family: var(--serif-en);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .plan-tier.me .p { color: var(--gold); }
+
+  .profile-section {
+    margin: 20px 20px 0;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .profile-section .row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+  }
+  .profile-section .row:last-child { border-bottom: none; }
+  .profile-section .row .icon {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line-strong);
+    display: grid; place-items: center;
+    color: var(--coral);
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .profile-section .row .icon.lav { color: var(--lavender); }
+  .profile-section .row .icon.mint { color: var(--mint); }
+  .profile-section .row .icon.gold { color: var(--gold); }
+  .profile-section .row .txt { flex: 1; }
+  .profile-section .row .txt .title {
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .profile-section .row .txt .sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-mute);
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+  }
+  .profile-section .row .trail {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .toggle {
+    width: 38px;
+    height: 22px;
+    border-radius: 100px;
+    background: var(--line-strong);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--mint); }
+  .toggle::after {
+    content: "";
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    transition: left 0.2s;
+  }
+  .toggle.on::after { left: 18px; }
+
+  .profile-footer {
+    padding: 20px 24px 24px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--text-mute);
+    text-transform: uppercase;
+  }
+  .profile-footer .brand {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    margin-bottom: 4px;
+    text-transform: none;
+  }
+  .profile-footer .brand span { color: var(--coral); }
+
+  /* ===== Home indicator ===== */
+  .home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    background: rgba(248,244,238,0.6);
+    border-radius: 3px;
+    z-index: 30;
+  }
+
+  /* ===== Bottom caption ===== */
+  .caption {
+    max-width: 460px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    line-height: 2;
+  }
+  .caption .brand {
+    font-family: var(--serif-en);
+    font-style: italic;
+    color: var(--text);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <header class="stage-header">
+    <div class="eyebrow">Truner · Interactive Mock</div>
+    <h1>Less swiping. <em>More resonance.</em></h1>
+    <p>SNSの投稿からAIが趣味タグを抽出し、共通する言葉で人と人をつなぐマッチングアプリ。下部タブをタップすると各画面を切り替えられます。</p>
+  </header>
+
+  <div class="device">
+    <div class="btn-silent"></div>
+    <div class="btn-vol-up btn-vol"></div>
+    <div class="btn-vol-down btn-vol"></div>
+    <div class="btn-power"></div>
+
+    <div class="screen">
+      <div class="dynamic-island"></div>
+
+      <div class="status-bar">
+        <div class="time">21:08</div>
+        <div class="icons">
+          <svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="6" width="3" height="6" rx="0.5"/><rect x="4.5" y="4" width="3" height="8" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></svg>
+          <svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 5 Q8 -1 15 5"/><path d="M3.5 7 Q8 3 12.5 7"/><path d="M6 9 Q8 7 10 9"/></svg>
+          <svg viewBox="0 0 25 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="1" width="20" height="10" rx="2.5"/><rect x="2.5" y="2.5" width="16" height="7" rx="1.5" fill="currentColor"/><rect x="22" y="4" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <!-- ============== HOME ============== -->
+      <div class="view active" data-view="home">
+        <div class="greeting">
+          <div class="time-of-day">✦ Tuesday Evening</div>
+          <h1>Good evening, <em>Yuki</em>さん</h1>
+          <div class="jp">今日もおつかれさま。AIが今日のベストマッチをひとり選びました。</div>
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-top">
+            <div class="today-tag">Today's Resonance</div>
+            <div class="save-btn">
+              <svg viewBox="0 0 16 16"><path d="M8 13.5 L2.5 8C0.5 6 2 3 4 3 C5.5 3 7 4 8 5.5 C9 4 10.5 3 12 3 C14 3 15.5 6 13.5 8 Z"/></svg>
+            </div>
+          </div>
+
+          <div class="hero-body">
+            <div class="hero-info">
+              <div class="name">Haruki</div>
+              <div class="meta">29 <span class="dot">·</span> Setagaya <span class="dot">·</span> Designer</div>
+            </div>
+            <div class="compat-score">
+              <div class="label">Compatibility</div>
+              <div><span class="value">92</span><span class="pct">%</span></div>
+            </div>
+          </div>
+
+          <div class="hero-tags">
+            <div class="tags-label">Shared Signals · 共通タグ</div>
+            <div class="tag-row">
+              <span class="pill check">サッカー</span>
+              <span class="pill check">映画</span>
+              <span class="pill check">犬</span>
+              <span class="pill">+4 more</span>
+            </div>
+          </div>
+
+          <div class="hero-cta">
+            <button class="cta-primary">Say Hi — メッセージを送る</button>
+            <button class="cta-secondary">⌵</button>
+          </div>
+        </div>
+
+        <div class="quick-stats">
+          <div class="stat">
+            <div class="num coral">12</div>
+            <div class="cap">New Matches</div>
+          </div>
+          <div class="stat">
+            <div class="num lavender">38</div>
+            <div class="cap">Tags</div>
+          </div>
+          <div class="stat">
+            <div class="num mint">4</div>
+            <div class="cap">Threads</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <span>Daily Signals · 最近のできごと</span>
+          <span class="accent">View all →</span>
+        </div>
+
+        <div class="update-list">
+          <div class="update">
+            <div class="avatar sm lavender">M</div>
+            <div class="txt">
+              <div class="title">Minaさんから新しいメッセージ</div>
+              <div class="sub">「ラーメン二郎、府中本店おすすめです」</div>
+            </div>
+            <div class="meta-chip">2m</div>
+          </div>
+          <div class="update">
+            <div class="avatar sm gold">✦</div>
+            <div class="txt">
+              <div class="title">AIが新しいタグを3つ発見</div>
+              <div class="sub">深夜ドライブ · サウナ · 低山ハイク</div>
+            </div>
+            <div class="meta-chip">1h</div>
+          </div>
+          <div class="update">
+            <div class="avatar sm mint">R</div>
+            <div class="txt">
+              <div class="title">Rioさんと相性 88% でマッチ</div>
+              <div class="sub">共通タグ: 写真 / 銭湯 / カフェ巡り</div>
+            </div>
+            <div class="meta-chip">3h</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============== MATCH ============== -->
+      <div class="view" data-view="match">
+        <div class="view-header">
+          <div>
+            <div class="eyebrow">Recommended · 04.23</div>
+            <h2>Your <em>resonance</em></h2>
+          </div>
+          <div class="header-action">
+            <svg viewBox="0 0 16 16" stroke-linecap="round"><path d="M2 4 H14 M4 8 H12 M6 12 H10"/></svg>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-chip active">All</div>
+          <div class="filter-chip">90%+</div>
+          <div class="filter-chip">Nearby</div>
+          <div class="filter-chip">New</div>
+          <div class="filter-chip">Music</div>
+          <div class="filter-chip">Sports</div>
+        </div>
+
+        <div class="match-list">
+
+          <div class="match-card" style="--ring-color: rgba(248,196,113,0.2);">
+            <div class="avatar lg gold">H</div>
+            <div class="info">
+              <div class="name"><em>Haruki</em></div>
+              <div class="meta">29 · Setagaya · Designer</div>
+              <div class="tag-mini-row">
+                <span class="tag-mini">サッカー</span>
+                <span class="tag-mini">映画</span>
+                <span class="tag-mini">犬</span>
+              </div>
+            </div>
+            <div class="score">
+              <div><span class="val">92</span><span class="pct">%</span></div>
+              <div class="lbl">Match</div>
+            </div>
+          </div>
+
+          <div class="match-card" style="--ring-color: rgba(255,122,138,0.18);">
+            <div class="avatar lg coral">R</div>
+            <div class="info">
+              <div class="name"><em>Rio</em></div>
+              <div class="meta">27 · Meguro · PR</div>
+              <div class="tag-mini-row">
+                <span class="tag-mini">写真</span>
+                <span class="tag-mini">銭湯</span>
+                <span class="tag-mini">カフェ</span>
+              </div>
+            </div>
+            <div class="score">
+              <div><span class="val">88</span><span class="pct">%</span></div>
+              <div class="lbl">Match</div>
+            </div>
+          </div>
+
+          <div class="match-card" style="--ring-color: rgba(201,160,255,0.18);">
+            <div class="avatar lg lavender">M</div>
+            <div class="info">
+              <div class="name"><em>Mina</em></div>
+              <div class="meta">31 · Shinjuku · Writer</div>
+              <div class="tag-mini-row">
+                <span class="tag-mini">ラーメン二郎</span>
+                <span class="tag-mini">Mr.Children</span>
+                <span class="tag-mini">DIY</span>
+              </div>
+            </div>
+            <div class="score">
+              <div><span class="val">85</span><span class="pct">%</span></div>
+              <div class="lbl">Match</div>
+            </div>
+          </div>
+
+          <div class="match-card" style="--ring-color: rgba(78,205,196,0.18);">
+            <div class="avatar lg mint">S</div>
+            <div class="info">
+              <div class="name"><em>Sota</em></div>
+              <div class="meta">28 · Nakano · Engineer</div>
+              <div class="tag-mini-row">
+                <span class="tag-mini">サウナ</span>
+                <span class="tag-mini">低山ハイク</span>
+                <span class="tag-mini">深夜ドライブ</span>
+              </div>
+            </div>
+            <div class="score">
+              <div><span class="val">83</span><span class="pct">%</span></div>
+              <div class="lbl">Match</div>
+            </div>
+          </div>
+
+          <div class="match-card" style="--ring-color: rgba(255,180,198,0.18);">
+            <div class="avatar lg blush">A</div>
+            <div class="info">
+              <div class="name"><em>Aoi</em></div>
+              <div class="meta">26 · Kichijoji · Illustrator</div>
+              <div class="tag-mini-row">
+                <span class="tag-mini">映画</span>
+                <span class="tag-mini">犬</span>
+                <span class="tag-mini">古着</span>
+              </div>
+            </div>
+            <div class="score">
+              <div><span class="val">79</span><span class="pct">%</span></div>
+              <div class="lbl">Match</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ============== TAGS ============== -->
+      <div class="view" data-view="tags">
+        <div class="view-header">
+          <div>
+            <div class="eyebrow">Your AI-Extracted</div>
+            <h2>Signature <em>tags</em></h2>
+          </div>
+          <div class="header-action">
+            <svg viewBox="0 0 16 16" stroke-linecap="round"><path d="M8 2 V14 M2 8 H14"/></svg>
+          </div>
+        </div>
+
+        <div class="sns-status">
+          <div class="sns-badge ok">
+            <div class="check">✓</div>
+            <div>
+              <div class="name">Instagram</div>
+              <div class="sub">326 posts · synced</div>
+            </div>
+          </div>
+          <div class="sns-badge ok">
+            <div class="check">✓</div>
+            <div>
+              <div class="name">X</div>
+              <div class="sub">1.2k posts · synced</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="radar-wrap">
+          <svg width="320" height="320" viewBox="0 0 320 320" style="position:absolute; inset:0;">
+            <defs>
+              <radialGradient id="radarFill" cx="50%" cy="50%">
+                <stop offset="0%" stop-color="#FF7A8A" stop-opacity="0.45"/>
+                <stop offset="60%" stop-color="#C9A0FF" stop-opacity="0.28"/>
+                <stop offset="100%" stop-color="#F8C471" stop-opacity="0.12"/>
+              </radialGradient>
+              <linearGradient id="radarStroke" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#FF7A8A"/>
+                <stop offset="50%" stop-color="#F8C471"/>
+                <stop offset="100%" stop-color="#C9A0FF"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Radial grid -->
+            <g stroke="rgba(248,244,238,0.1)" stroke-width="1" fill="none">
+              <polygon points="160,40 264,100 264,220 160,280 56,220 56,100"/>
+              <polygon points="160,70 238,115 238,205 160,250 82,205 82,115"/>
+              <polygon points="160,100 212,130 212,190 160,220 108,190 108,130"/>
+              <polygon points="160,130 186,145 186,175 160,190 134,175 134,145"/>
+            </g>
+
+            <!-- Axes -->
+            <g stroke="rgba(248,244,238,0.12)" stroke-width="1">
+              <line x1="160" y1="160" x2="160" y2="40"/>
+              <line x1="160" y1="160" x2="264" y2="100"/>
+              <line x1="160" y1="160" x2="264" y2="220"/>
+              <line x1="160" y1="160" x2="160" y2="280"/>
+              <line x1="160" y1="160" x2="56" y2="220"/>
+              <line x1="160" y1="160" x2="56" y2="100"/>
+            </g>
+
+            <!-- Data polygon: 6 tags, values out of 1 -->
+            <!-- Top: サッカー 0.92, TR: ラーメン二郎 0.85, BR: 深夜ドライブ 0.7, Bottom: Mr.Children 0.88, BL: DIY 0.6, TL: サウナ 0.78 -->
+            <polygon
+              points="160,50 255.6,105.25 233.2,214 160,265.6 77.6,214 79.3,109.6"
+              fill="url(#radarFill)"
+              stroke="url(#radarStroke)"
+              stroke-width="2"
+              stroke-linejoin="round"/>
+
+            <!-- Vertices -->
+            <g fill="#FF7A8A" stroke="#0D0B1F" stroke-width="2">
+              <circle cx="160" cy="50" r="5"/>
+              <circle cx="255.6" cy="105.25" r="5"/>
+              <circle cx="233.2" cy="214" r="5"/>
+              <circle cx="160" cy="265.6" r="5"/>
+              <circle cx="77.6" cy="214" r="5"/>
+              <circle cx="79.3" cy="109.6" r="5"/>
+            </g>
+
+            <circle cx="160" cy="160" r="3" fill="#F8C471"/>
+          </svg>
+
+          <!-- Labels -->
+          <div class="radar-label strong" style="left:50%; top:6%;">サッカー<span class="val">92</span></div>
+          <div class="radar-label" style="left:90%; top:28%;">ラーメン二郎<span class="val">85</span></div>
+          <div class="radar-label" style="left:90%; top:72%;">深夜ドライブ<span class="val">70</span></div>
+          <div class="radar-label strong" style="left:50%; top:93%;">Mr.Children<span class="val">88</span></div>
+          <div class="radar-label" style="left:10%; top:72%;">DIY<span class="val">60</span></div>
+          <div class="radar-label" style="left:10%; top:28%;">サウナ<span class="val">78</span></div>
+        </div>
+
+        <div class="tag-detail-hint">Tap a tag for AI's reasoning</div>
+
+        <div class="section-title">
+          <span>Top Tags · 上位タグ</span>
+          <span class="accent">Edit →</span>
+        </div>
+        <div class="tag-top-list">
+          <div class="tag-item">
+            <span>⚽ サッカー</span>
+            <div class="score-bar" style="--pct: 92%;"></div>
+          </div>
+          <div class="tag-item">
+            <span>🎸 Mr.Children</span>
+            <div class="score-bar" style="--pct: 88%;"></div>
+          </div>
+          <div class="tag-item">
+            <span>🍜 ラーメン二郎</span>
+            <div class="score-bar" style="--pct: 85%;"></div>
+          </div>
+          <div class="tag-item">
+            <span>🧖 サウナ</span>
+            <div class="score-bar" style="--pct: 78%;"></div>
+          </div>
+          <div class="tag-item">
+            <span>🚗 深夜ドライブ</span>
+            <div class="score-bar" style="--pct: 70%;"></div>
+          </div>
+          <div class="tag-item">
+            <span>🔨 DIY</span>
+            <div class="score-bar" style="--pct: 60%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============== CHAT ============== -->
+      <div class="view" data-view="chat">
+        <div class="view-header">
+          <div>
+            <div class="eyebrow">Conversations · 4 Active</div>
+            <h2>Your <em>threads</em></h2>
+          </div>
+          <div class="header-action">
+            <svg viewBox="0 0 16 16" stroke-linecap="round"><circle cx="7" cy="7" r="5"/><path d="m11 11 3.5 3.5"/></svg>
+          </div>
+        </div>
+
+        <div class="chat-list">
+
+          <div class="chat-row">
+            <div class="avatar md lavender">M</div>
+            <div class="info">
+              <div class="top">
+                <div class="name">Mina</div>
+                <div class="time">21:05</div>
+              </div>
+              <div class="preview">ラーメン二郎、府中本店おすすめです 🍜</div>
+            </div>
+            <div class="badge">2</div>
+          </div>
+
+          <div class="chat-row">
+            <div class="avatar md coral">R</div>
+            <div class="info">
+              <div class="top">
+                <div class="name">Rio</div>
+                <div class="time">19:42</div>
+              </div>
+              <div class="preview"><span class="you">You: </span>写真展いいですね、来週末空いてます？</div>
+            </div>
+          </div>
+
+          <div class="chat-row">
+            <div class="avatar md mint">S</div>
+            <div class="info">
+              <div class="top">
+                <div class="name">Sota</div>
+                <div class="time">Yesterday</div>
+              </div>
+              <div class="preview">深夜ドライブ、奥多摩行きません？笑</div>
+            </div>
+            <div class="badge">1</div>
+          </div>
+        </div>
+
+        <div class="chat-open">
+          <div class="chat-open-header">
+            <div class="avatar md lavender">M</div>
+            <div class="info">
+              <div class="name">Mina</div>
+              <div class="status">online · 共通タグ 5</div>
+            </div>
+          </div>
+
+          <div class="bubbles">
+            <div class="bubble them">
+              Yukiさん、二郎系お好きなんですね！私もハマってて🫧
+              <div class="t">20:58</div>
+            </div>
+            <div class="bubble me">
+              めっちゃ嬉しい、最近どこ行きました？
+              <div class="t">21:01</div>
+            </div>
+            <div class="bubble them">
+              ラーメン二郎、府中本店おすすめです 🍜
+              <div class="t">21:05</div>
+            </div>
+          </div>
+
+          <div class="chat-input">
+            メッセージを入力
+            <div class="send-btn">↑</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============== PROFILE ============== -->
+      <div class="view" data-view="profile">
+        <div class="view-header">
+          <div>
+            <div class="eyebrow">Your Account</div>
+            <h2>My <em>profile</em></h2>
+          </div>
+          <div class="header-action">
+            <svg viewBox="0 0 16 16" stroke-linecap="round"><circle cx="8" cy="4" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="8" cy="12" r="1.5"/></svg>
+          </div>
+        </div>
+
+        <div class="profile-hero">
+          <div class="avatar lg coral">Y</div>
+          <div class="info">
+            <div class="name">Yuki</div>
+            <div class="handle">@yuki · 28</div>
+            <div class="region">Tokyo, Shibuya</div>
+          </div>
+        </div>
+
+        <div class="plan-card">
+          <div class="plan-head">
+            <div>
+              <div class="eyebrow">Your Plan</div>
+              <div class="tier"><em>Plus</em></div>
+            </div>
+            <div class="current">Current</div>
+          </div>
+          <div class="plan-tiers">
+            <div class="plan-tier">
+              <div class="t">FREE</div>
+              <div class="p">¥0</div>
+            </div>
+            <div class="plan-tier me">
+              <div class="t">PLUS</div>
+              <div class="p">¥980</div>
+            </div>
+            <div class="plan-tier">
+              <div class="t">PREMIUM</div>
+              <div class="p">¥2,480</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <span>SNS · 連携</span>
+          <span class="accent">Manage →</span>
+        </div>
+        <div class="profile-section">
+          <div class="row">
+            <div class="icon lav">◈</div>
+            <div class="txt">
+              <div class="title">Instagram</div>
+              <div class="sub">326 POSTS · LAST SYNC 2H AGO</div>
+            </div>
+            <div class="trail">Connected</div>
+          </div>
+          <div class="row">
+            <div class="icon">✕</div>
+            <div class="txt">
+              <div class="title">X (Twitter)</div>
+              <div class="sub">1,214 POSTS · LAST SYNC 4H AGO</div>
+            </div>
+            <div class="trail">Connected</div>
+          </div>
+          <div class="row">
+            <div class="icon mint">♪</div>
+            <div class="txt">
+              <div class="title">Spotify</div>
+              <div class="sub">NOT CONNECTED</div>
+            </div>
+            <div class="trail" style="color: var(--coral);">Connect →</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <span>Tags · 自分のタグ</span>
+          <span class="accent">Edit →</span>
+        </div>
+        <div class="profile-section">
+          <div class="row">
+            <div class="icon gold">✦</div>
+            <div class="txt">
+              <div class="title">AI抽出タグを見る</div>
+              <div class="sub">38 TAGS · UPDATED DAILY</div>
+            </div>
+            <div class="trail">→</div>
+          </div>
+          <div class="row">
+            <div class="icon">✎</div>
+            <div class="txt">
+              <div class="title">手動でタグを追加・編集</div>
+              <div class="sub">PIN YOUR FAVORITES</div>
+            </div>
+            <div class="trail">→</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <span>Privacy · プライバシー</span>
+        </div>
+        <div class="profile-section">
+          <div class="row">
+            <div class="icon lav">◉</div>
+            <div class="txt">
+              <div class="title">プロフィールを公開</div>
+              <div class="sub">MATCH CANDIDATES ONLY</div>
+            </div>
+            <div class="toggle on"></div>
+          </div>
+          <div class="row">
+            <div class="icon">◐</div>
+            <div class="txt">
+              <div class="title">居住地を大まかに表示</div>
+              <div class="sub">CITY LEVEL ONLY</div>
+            </div>
+            <div class="toggle on"></div>
+          </div>
+          <div class="row">
+            <div class="icon mint">⎔</div>
+            <div class="txt">
+              <div class="title">AI分析を許可</div>
+              <div class="sub">SNS POSTS → TAGS</div>
+            </div>
+            <div class="toggle on"></div>
+          </div>
+          <div class="row">
+            <div class="icon">◯</div>
+            <div class="txt">
+              <div class="title">SNS投稿を他ユーザーに表示</div>
+              <div class="sub">SHOW ORIGINAL POSTS</div>
+            </div>
+            <div class="toggle"></div>
+          </div>
+        </div>
+
+        <div class="profile-footer">
+          <div class="brand">Tru<span>·</span>ner</div>
+          v1.2.4 · Made with resonance
+        </div>
+      </div>
+
+      <!-- ============== TAB BAR ============== -->
+      <nav class="tabbar">
+        <button class="tab active" data-tab="home">
+          <svg viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round"><path d="M3 11 L12 3 L21 11 V20 A1 1 0 0 1 20 21 H15 V14 H9 V21 H4 A1 1 0 0 1 3 20 Z"/></svg>
+          Home
+        </button>
+        <button class="tab" data-tab="match">
+          <svg viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round"><path d="M12 20 L3 11 A5 5 0 0 1 10 4 L12 6 L14 4 A5 5 0 0 1 21 11 Z"/></svg>
+          Match
+        </button>
+        <button class="tab" data-tab="tags">
+          <svg viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round"><path d="M12 3 L3 12 L12 21 L21 12 Z"/><circle cx="12" cy="12" r="3"/></svg>
+          Tags
+        </button>
+        <button class="tab" data-tab="chat">
+          <svg viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round"><path d="M4 5 H20 A1 1 0 0 1 21 6 V17 A1 1 0 0 1 20 18 H9 L4 22 V6 A1 1 0 0 1 5 5 Z"/></svg>
+          Chat
+        </button>
+        <button class="tab" data-tab="profile">
+          <svg viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21 A8 8 0 0 1 20 21"/></svg>
+          Profile
+        </button>
+      </nav>
+
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <div class="caption">
+    <div class="brand">Tru·ner</div>
+    SNS · AI TAGGING · RESONANCE MATCHING<br>
+    5 Screens · Interactive Mock · iPhone 14 Pro
+  </div>
+
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const views = document.querySelectorAll('.view');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      views.forEach(v => {
+        v.classList.toggle('active', v.dataset.view === target);
+        if (v.dataset.view === target) v.scrollTop = 0;
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

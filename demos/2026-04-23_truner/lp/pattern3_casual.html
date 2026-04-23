@@ -1,0 +1,1522 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Truner — ちょっと運命、ちょっと偶然。</title>
+<meta name="description" content="Truner（トゥルーナー）は、SNSの「好き」を読み解いて、本当に話が合う人を見つけるAIマッチングアプリ。かしこまらず、かわいく、ちょうどいい距離で。" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,600&family=Outfit:wght@400;600;800;900&family=Noto+Sans+JP:wght@400;600;700;800;900&family=Noto+Serif+JP:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  /* =========================================================
+     Truner — Pattern 3 "Casual / Earthy / Playful"
+     Warm beige × forest green × mint × lime × mustard
+     ========================================================= */
+
+  :root{
+    --bg:       #F2ECE0;
+    --bg-2:     #EADFC9;
+    --bg-3:     #E4D4B7;
+    --text:     #1F2D24;
+    --text-2:   #3B5249;
+    --muted:    #6B7A6E;
+    --mint:     #4ECDC4;
+    --mint-2:   #7FE3DC;
+    --lime:     #C7E956;
+    --lime-2:   #DFF49F;
+    --mustard:  #F4B942;
+    --mustard-2:#F7CF77;
+    --sub:      #3B5249;
+    --paper:    #FFFBF2;
+    --ink:      #14211A;
+    --coral:    #E8846B;
+    --radius-s: 14px;
+    --radius-m: 22px;
+    --radius-l: 34px;
+    --radius-xl:56px;
+    --shadow-s: 0 4px 0 #1f2d24;
+    --shadow-m: 0 8px 0 #1f2d24;
+    --shadow-l: 0 14px 0 #1f2d24;
+    --easing:   cubic-bezier(.2,.8,.2,1);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family:"Noto Sans JP","Outfit",system-ui,sans-serif;
+    font-weight:500;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(247,207,119,.35), transparent 40%),
+      radial-gradient(circle at 88% 2%, rgba(127,227,220,.30), transparent 42%),
+      radial-gradient(circle at 50% 100%, rgba(199,233,86,.22), transparent 45%);
+  }
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:0;background:none}
+
+  /* ---------- Paper texture overlay (pure CSS) ---------- */
+  body::before{
+    content:"";
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      repeating-linear-gradient(45deg, rgba(31,45,36,.020) 0 2px, transparent 2px 7px),
+      repeating-linear-gradient(-45deg, rgba(31,45,36,.015) 0 1px, transparent 1px 5px);
+    mix-blend-mode:multiply;
+  }
+
+  /* ---------- Headings ---------- */
+  .display{
+    font-family:"Outfit","Noto Sans JP",sans-serif;
+    font-weight:900;
+    letter-spacing:-0.02em;
+    line-height:1.02;
+    color:var(--sub);
+  }
+  .serif{ font-family:"Fraunces","Noto Serif JP",serif; font-style:italic; font-weight:600; }
+  .jp-display{ font-family:"Noto Sans JP",sans-serif; font-weight:900; letter-spacing:.01em; }
+
+  /* ---------- Layout ---------- */
+  .wrap{ max-width:1240px; margin:0 auto; padding:0 28px; position:relative; z-index:2;}
+  section{ position:relative; padding:110px 0; z-index:2; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:"Outfit",sans-serif; font-weight:700;
+    font-size:12px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--sub);
+    background:var(--paper);
+    padding:8px 14px; border-radius:999px;
+    border:2px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .eyebrow .dot{ width:8px;height:8px;border-radius:50%; background:var(--coral); }
+
+  /* =========================================================
+     NAV
+     ========================================================= */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(242,236,224,.85);
+    backdrop-filter: blur(10px);
+    border-bottom:2px solid var(--ink);
+  }
+  .nav-inner{
+    max-width:1240px; margin:0 auto; padding:14px 28px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px;
+  }
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    font-family:"Fraunces",serif; font-weight:900; font-size:26px; letter-spacing:-.01em;
+    color:var(--sub);
+  }
+  .logo .badge{
+    width:34px;height:34px; border-radius:50%;
+    background:var(--mustard);
+    border:2.5px solid var(--ink);
+    display:grid; place-items:center;
+    transform:rotate(-8deg);
+    position:relative;
+  }
+  .logo .badge::before{
+    content:""; position:absolute; inset:6px;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 30%, #fff3, transparent 50%),
+      var(--mustard);
+  }
+  .logo .badge::after{
+    content:""; position:absolute; inset:-6px; border-radius:50%;
+    background:
+      conic-gradient(from 0deg,
+        transparent 0 18deg, var(--ink) 18deg 22deg,
+        transparent 22deg 48deg, var(--ink) 48deg 52deg,
+        transparent 52deg 78deg, var(--ink) 78deg 82deg,
+        transparent 82deg 108deg, var(--ink) 108deg 112deg,
+        transparent 112deg 138deg, var(--ink) 138deg 142deg,
+        transparent 142deg 168deg, var(--ink) 168deg 172deg,
+        transparent 172deg 198deg, var(--ink) 198deg 202deg,
+        transparent 202deg 228deg, var(--ink) 228deg 232deg,
+        transparent 232deg 258deg, var(--ink) 258deg 262deg,
+        transparent 262deg 288deg, var(--ink) 288deg 292deg,
+        transparent 292deg 318deg, var(--ink) 318deg 322deg,
+        transparent 322deg 348deg, var(--ink) 348deg 352deg,
+        transparent 352deg 360deg);
+    -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%);
+            mask: radial-gradient(circle, transparent 58%, #000 60%);
+  }
+  .nav-menu{ display:flex; gap:26px; font-weight:700; font-size:14px; color:var(--text-2);}
+  .nav-menu a{ position:relative; padding:6px 0;}
+  .nav-menu a:hover{ color:var(--sub);}
+  .nav-menu a:hover::after{
+    content:""; position:absolute; left:0; right:0; bottom:-2px; height:4px;
+    background:var(--lime); z-index:-1; border-radius:4px;
+  }
+  .nav-cta{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--mustard); color:var(--ink);
+    padding:10px 18px; border-radius:999px;
+    border:2.5px solid var(--ink);
+    font-weight:800; font-size:14px;
+    box-shadow: 3px 3px 0 var(--ink);
+    transition:all .2s var(--easing);
+  }
+  .nav-cta:hover{ transform:translate(-1px,-1px) rotate(-2deg); box-shadow:5px 5px 0 var(--ink); }
+
+  /* =========================================================
+     HERO
+     ========================================================= */
+  .hero{ padding:90px 0 130px; overflow:hidden; }
+  .hero-grid{
+    display:grid; grid-template-columns: 1.1fr .9fr; gap:60px; align-items:center;
+  }
+  .hero-copy h1{
+    font-size: clamp(46px, 7.4vw, 104px);
+    margin: 22px 0 26px;
+  }
+  .hero-copy h1 .accent-mint{ color:var(--mint); }
+  .hero-copy h1 .accent-mustard{
+    background: var(--mustard); color:var(--ink);
+    padding:0 .22em; border-radius:14px;
+    transform:rotate(-1.5deg); display:inline-block;
+    box-shadow: 0 6px 0 var(--ink);
+    margin: 0 .05em;
+  }
+  .hero-copy h1 .serif-word{
+    font-family:"Fraunces",serif; font-weight:700; font-style:italic;
+    color:var(--sub);
+  }
+  .hero-copy h1 .underline{
+    position:relative; display:inline-block;
+  }
+  .hero-copy h1 .underline::after{
+    content:""; position:absolute; left:-4%; right:-4%; bottom:6%; height:22%;
+    background: var(--lime); z-index:-1; border-radius:30% 70% 60% 40%/60% 40% 70% 30%;
+  }
+  .hero-copy .lead{
+    font-size:18px; line-height:1.9; color:var(--text-2); max-width:560px;
+    margin-bottom:36px;
+  }
+  .hero-copy .lead b{ color:var(--sub); font-weight:800; background:var(--lime-2); padding:0 .25em; border-radius:6px;}
+
+  .cta-row{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  .btn{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:16px 28px; border-radius:999px;
+    font-weight:800; font-size:16px;
+    border:2.5px solid var(--ink);
+    transition: all .2s var(--easing);
+    white-space:nowrap;
+  }
+  .btn-primary{
+    background:var(--mustard); color:var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .btn-primary:hover{ transform:translate(-2px,-2px) rotate(-2deg); box-shadow: 8px 8px 0 var(--ink);}
+  .btn-ghost{
+    background:var(--paper); color:var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .btn-ghost:hover{ transform:translate(-2px,-2px) rotate(2deg); background:var(--mint-2);}
+  .btn .arrow{ transition: transform .2s var(--easing); }
+  .btn:hover .arrow{ transform: translateX(4px);}
+
+  .hero-meta{
+    margin-top:34px; display:flex; gap:22px; align-items:center; flex-wrap:wrap;
+    color:var(--text-2); font-weight:600; font-size:14px;
+  }
+  .hero-meta .avatars{ display:flex; }
+  .hero-meta .avatar{
+    width:38px;height:38px; border-radius:50%;
+    border:2.5px solid var(--ink);
+    margin-left:-10px;
+    display:grid; place-items:center;
+    font-family:"Fraunces",serif; font-weight:900; font-size:14px; color:var(--ink);
+  }
+  .avatar:nth-child(1){ background:var(--mustard); margin-left:0;}
+  .avatar:nth-child(2){ background:var(--mint); }
+  .avatar:nth-child(3){ background:var(--lime); }
+  .avatar:nth-child(4){ background:var(--coral); }
+  .avatar:nth-child(5){ background:var(--paper); }
+
+  .stars{ display:inline-flex; gap:2px; color:var(--mustard);}
+  .stars span{ font-size:16px;}
+
+  /* ---- Phone ---- */
+  .hero-phone{
+    position:relative; justify-self:center; transform:rotate(4deg);
+    filter: drop-shadow(-18px 18px 0 rgba(31,45,36,.12));
+  }
+  .phone{
+    width:300px; height:620px;
+    background:var(--ink);
+    border-radius:54px;
+    padding:14px;
+    position:relative;
+    border:3px solid var(--ink);
+    box-shadow: 14px 14px 0 var(--sub);
+  }
+  .phone::before{
+    content:""; position:absolute; top:22px; left:50%; transform:translateX(-50%);
+    width:110px; height:26px; background:#000; border-radius:14px; z-index:3;
+  }
+  .phone-screen{
+    width:100%; height:100%; border-radius:42px;
+    background:
+      radial-gradient(circle at 80% 0%, rgba(247,207,119,.5), transparent 50%),
+      radial-gradient(circle at 0% 80%, rgba(127,227,220,.5), transparent 50%),
+      var(--paper);
+    overflow:hidden; position:relative;
+    display:flex; flex-direction:column;
+  }
+  .phone-header{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:54px 20px 14px;
+    font-family:"Outfit",sans-serif; font-weight:800;
+  }
+  .phone-header .t-logo{ color:var(--sub); font-size:18px; font-family:"Fraunces",serif; font-style:italic;}
+  .phone-header .t-dot{ width:10px;height:10px; border-radius:50%; background:var(--coral);}
+  .phone-body{ padding:0 16px; display:flex; flex-direction:column; gap:10px; flex:1;}
+  .phone-hi{
+    background:var(--lime); border:2px solid var(--ink); border-radius:20px; padding:12px 14px;
+    font-size:12px; color:var(--ink); font-weight:700;
+    transform:rotate(-1.5deg);
+  }
+  .match-card{
+    background:var(--paper); border:2.5px solid var(--ink); border-radius:22px; padding:14px;
+    position:relative; margin-top:4px;
+    box-shadow: 0 6px 0 var(--ink);
+  }
+  .match-card .face{
+    width:100%; height:120px; border-radius:16px; position:relative; overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 60%, var(--mustard-2) 0 50%, transparent 50%),
+      linear-gradient(180deg, var(--mint-2), var(--lime-2));
+    border:2px solid var(--ink);
+  }
+  .match-card .face::after{
+    content:""; position:absolute; left:50%; top:28%; transform:translateX(-50%);
+    width:60px; height:60px; border-radius:50%;
+    background:var(--mustard);
+    border:2px solid var(--ink);
+    box-shadow: 0 0 0 4px var(--paper), 0 0 0 6px var(--ink);
+  }
+  .match-card .face::before{
+    content:""; position:absolute; left:0; right:0; bottom:0; height:26px;
+    background:var(--ink); border-radius:20px 20px 0 0;
+    clip-path: polygon(10% 100%, 20% 40%, 30% 100%, 38% 30%, 50% 100%, 58% 40%, 70% 100%, 80% 30%, 90% 100%);
+  }
+  .match-card h4{
+    margin:10px 0 6px; font-family:"Fraunces",serif; font-weight:700; font-size:16px;
+    color:var(--ink);
+  }
+  .match-card .tags{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;}
+  .match-card .tag{
+    font-size:10px; font-weight:700; padding:3px 8px; border-radius:999px;
+    border:1.5px solid var(--ink); background:var(--paper); color:var(--ink);
+  }
+  .match-card .tag.mint{ background:var(--mint-2);}
+  .match-card .tag.lime{ background:var(--lime-2);}
+  .match-card .tag.must{ background:var(--mustard-2);}
+  .match-score{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 10px; background:var(--sub); color:var(--paper);
+    border-radius:14px; font-size:11px; font-weight:700;
+  }
+  .match-score .big{ font-family:"Fraunces",serif; font-style:italic; font-size:22px; color:var(--mustard-2);}
+  .phone-bottom-bar{
+    margin:auto 12px 16px;
+    background:var(--ink); color:var(--paper);
+    border-radius:999px; padding:10px 16px;
+    display:flex; justify-content:space-around; align-items:center;
+    font-size:11px; font-weight:700;
+  }
+  .phone-bottom-bar .nb{ width:10px; height:10px; border-radius:50%; background:var(--mint); display:inline-block;}
+  .phone-home{
+    position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
+    width:120px; height:4px; background:#fff4; border-radius:4px;
+  }
+
+  /* ---- Floating deco ---- */
+  .float-card{
+    position:absolute; background:var(--paper);
+    border:2.5px solid var(--ink); border-radius:18px;
+    padding:12px 16px; font-weight:800; font-size:13px;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .float-card.a{
+    top:-18px; left:-90px; transform:rotate(-6deg);
+    background:var(--mustard); color:var(--ink);
+  }
+  .float-card.b{
+    bottom:40px; left:-70px; transform:rotate(5deg);
+    background:var(--mint);
+  }
+  .float-card.c{
+    top:40%; right:-110px; transform:rotate(-3deg);
+    background:var(--lime);
+  }
+  .float-card .mini{ font-size:11px; font-weight:700; opacity:.75; display:block; margin-top:2px;}
+
+  /* ---- Hero sun ---- */
+  .sun{
+    position:absolute; top:-60px; right:-80px;
+    width:360px; height:360px; pointer-events:none;
+    z-index:1;
+  }
+  .sun-core{
+    position:absolute; inset:30%;
+    border-radius:50%;
+    background: radial-gradient(circle at 40% 35%, var(--mustard-2), var(--mustard) 60%, #e6a62f 100%);
+    border:3px solid var(--ink);
+    box-shadow: 0 8px 0 var(--ink);
+  }
+  .sun-rays{
+    position:absolute; inset:0;
+    background:
+      conic-gradient(from 0deg,
+        var(--ink) 0 2deg, transparent 2deg 28deg,
+        var(--ink) 28deg 30deg, transparent 30deg 58deg,
+        var(--ink) 58deg 60deg, transparent 60deg 88deg,
+        var(--ink) 88deg 90deg, transparent 90deg 118deg,
+        var(--ink) 118deg 120deg, transparent 120deg 148deg,
+        var(--ink) 148deg 150deg, transparent 150deg 178deg,
+        var(--ink) 178deg 180deg, transparent 180deg 208deg,
+        var(--ink) 208deg 210deg, transparent 210deg 238deg,
+        var(--ink) 238deg 240deg, transparent 240deg 268deg,
+        var(--ink) 268deg 270deg, transparent 270deg 298deg,
+        var(--ink) 298deg 300deg, transparent 300deg 328deg,
+        var(--ink) 328deg 330deg, transparent 330deg 358deg,
+        var(--ink) 358deg 360deg);
+    -webkit-mask: radial-gradient(circle, transparent 34%, #000 36% 48%, transparent 50%);
+            mask: radial-gradient(circle, transparent 34%, #000 36% 48%, transparent 50%);
+    animation: spin 40s linear infinite;
+  }
+  @keyframes spin{ to { transform: rotate(360deg);} }
+
+  /* ---- Marquee ---- */
+  .marquee{
+    margin-top:40px;
+    background:var(--ink); color:var(--paper);
+    border-top:2.5px solid var(--ink); border-bottom:2.5px solid var(--ink);
+    padding:16px 0; overflow:hidden;
+    transform: rotate(-1.5deg);
+    position:relative; z-index:3;
+  }
+  .marquee-track{
+    display:flex; gap:56px; white-space:nowrap;
+    animation: marquee 30s linear infinite;
+    font-family:"Fraunces",serif; font-style:italic; font-weight:700; font-size:22px;
+  }
+  .marquee span{ display:inline-flex; align-items:center; gap:56px;}
+  .marquee em{ color:var(--mint); font-style:normal; font-family:"Outfit",sans-serif; font-weight:900;}
+  @keyframes marquee{ to { transform: translateX(-50%);} }
+
+  /* =========================================================
+     VOICES (Problem Raising)
+     ========================================================= */
+  .voices{
+    background: var(--bg-2);
+    border-top:2.5px solid var(--ink); border-bottom:2.5px solid var(--ink);
+    position:relative;
+  }
+  .voices::before, .voices::after{
+    content:""; position:absolute; left:0; right:0; height:24px;
+    background:
+      radial-gradient(circle at 20px 0, var(--bg) 20px, transparent 21px) repeat-x;
+    background-size:40px 24px;
+  }
+  .voices::before{ top:-1px; transform: translateY(-24px);}
+  .voices::after{ bottom:-1px; transform: translateY(24px) scaleY(-1);}
+  .voices-head{ max-width:720px; margin:0 auto 56px; text-align:center;}
+  .voices-head h2{
+    font-size:clamp(32px, 5vw, 56px); margin:16px 0 12px;
+    color:var(--sub);
+  }
+  .voices-head p{ color:var(--text-2); font-size:17px;}
+  .voices-grid{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap:28px;
+  }
+  .voice{
+    background:var(--paper); border:2.5px solid var(--ink); border-radius:26px;
+    padding:24px 22px; position:relative;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .voice:nth-child(1){ transform: rotate(-2deg); }
+  .voice:nth-child(2){ transform: rotate(1.5deg) translateY(18px); background:var(--mint-2);}
+  .voice:nth-child(3){ transform: rotate(-1deg); }
+  .voice:nth-child(4){ transform: rotate(2.5deg); background:var(--lime-2);}
+  .voice:nth-child(5){ transform: rotate(-1.5deg) translateY(10px); }
+  .voice:nth-child(6){ transform: rotate(1deg); background:var(--mustard-2);}
+  .voice-quote{ font-family:"Fraunces",serif; font-style:italic; font-size:54px; line-height:.5;
+    color:var(--coral); position:absolute; top:20px; right:22px;}
+  .voice .who{ display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .voice .who .av{
+    width:38px;height:38px; border-radius:50%;
+    background:var(--mustard); border:2px solid var(--ink);
+    display:grid; place-items:center; font-weight:900; font-family:"Fraunces",serif;
+  }
+  .voice .who .name{ font-weight:800; font-size:14px;}
+  .voice .who .name small{ display:block; font-weight:500; color:var(--muted); font-size:11px;}
+  .voice p.msg{ font-size:15px; color:var(--text); margin:8px 0 0; }
+
+  /* =========================================================
+     STEPS (手書き風番号)
+     ========================================================= */
+  .steps{ background:var(--bg); position:relative; padding-top:130px; padding-bottom:140px;}
+  .steps-head{ text-align:center; max-width:720px; margin:0 auto 70px;}
+  .steps-head h2{ font-size:clamp(36px, 5.6vw, 64px); color:var(--sub); margin:14px 0 12px;}
+  .steps-head h2 .hl{ background:var(--mustard); padding:0 .2em; border-radius:12px; color:var(--ink); transform:rotate(-2deg); display:inline-block; box-shadow: 0 4px 0 var(--ink);}
+  .steps-head p{ color:var(--text-2);}
+
+  .steps-wrap{ position:relative; }
+  .steps-wrap::before{
+    content:""; position:absolute; left:7%; right:7%; top:80px;
+    height:8px; border-radius:8px;
+    background: repeating-linear-gradient(90deg, var(--ink) 0 14px, transparent 14px 28px);
+    z-index:1;
+  }
+  .steps-grid{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap:36px;
+    position:relative; z-index:2;
+  }
+  .step{
+    background:var(--paper); border:2.5px solid var(--ink); border-radius:28px;
+    padding:40px 28px 32px; text-align:center; position:relative;
+    box-shadow: 8px 8px 0 var(--ink);
+  }
+  .step:nth-child(1){ transform: rotate(-1.5deg);}
+  .step:nth-child(2){ transform: rotate(2deg) translateY(-10px);}
+  .step:nth-child(3){ transform: rotate(-2deg);}
+  .step-num{
+    width:86px; height:86px; border-radius:50%;
+    display:grid; place-items:center;
+    font-family:"Fraunces",serif; font-weight:900; font-style:italic;
+    font-size:56px; color:var(--ink);
+    border:3px solid var(--ink);
+    margin:-80px auto 14px;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .step:nth-child(1) .step-num{ background:var(--mustard);}
+  .step:nth-child(2) .step-num{ background:var(--mint);}
+  .step:nth-child(3) .step-num{ background:var(--lime);}
+  .step h3{ font-family:"Noto Sans JP",sans-serif; font-weight:900; font-size:22px; margin:0 0 10px; color:var(--sub);}
+  .step p{ font-size:14.5px; color:var(--text-2);}
+  .step-foot{
+    margin-top:16px; display:inline-block;
+    font-family:"Outfit",sans-serif; font-weight:800; font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink);
+    background:var(--bg-3); padding:6px 12px; border-radius:999px;
+    border:2px solid var(--ink);
+  }
+
+  /* =========================================================
+     TAGS (AIタグ可視化)
+     ========================================================= */
+  .tags-sec{
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+    position:relative; overflow:hidden;
+    padding-top:140px; padding-bottom:140px;
+  }
+  .tags-sec::before{
+    content:""; position:absolute; top:60px; left:-120px;
+    width:280px; height:280px; border-radius:50%;
+    background:
+      radial-gradient(circle at 40% 40%, var(--lime), var(--lime) 60%, transparent 62%);
+    transform: rotate(-15deg);
+    opacity:.7; z-index:1;
+  }
+  .tags-sec::after{
+    content:""; position:absolute; bottom:30px; right:-80px;
+    width:220px; height:220px; border-radius:50%;
+    background: var(--mint-2);
+    border:3px dashed var(--ink);
+    opacity:.4;
+  }
+  .tags-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap:80px; align-items:center;
+    position:relative; z-index:2;
+  }
+  .tags-copy h2{ font-size:clamp(34px, 5vw, 56px); color:var(--sub); margin:14px 0 18px; }
+  .tags-copy h2 .outlined{
+    -webkit-text-stroke:2.5px var(--ink); color:var(--bg);
+    font-style:italic; font-family:"Fraunces",serif;
+  }
+  .tags-copy p{ color:var(--text-2); font-size:16.5px; max-width:520px;}
+  .tags-copy ul{ list-style:none; padding:0; margin:26px 0 0; display:grid; gap:10px;}
+  .tags-copy li{
+    display:flex; align-items:flex-start; gap:10px;
+    font-weight:600; color:var(--text);
+  }
+  .tags-copy li::before{
+    content:"✦"; color:var(--mustard); font-weight:900; font-size:18px;
+  }
+  .tag-cloud{
+    position:relative; height:500px;
+  }
+  .t-chip{
+    position:absolute; padding:10px 18px; border-radius:999px;
+    border:2.5px solid var(--ink); font-weight:800; font-size:14px;
+    background:var(--paper); color:var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    animation: bobber 6s var(--easing) infinite;
+  }
+  .t-chip.big{ font-size:18px; padding:14px 22px;}
+  .t-chip.mint{ background:var(--mint);}
+  .t-chip.lime{ background:var(--lime);}
+  .t-chip.must{ background:var(--mustard);}
+  .t-chip.coral{ background:var(--coral); color:var(--paper);}
+  .t-chip.dark{ background:var(--sub); color:var(--paper);}
+  .t-chip .em{ font-family:"Fraunces",serif; font-style:italic; }
+  .t-chip .em::before{ content:"# "; opacity:.5;}
+  .t-chip:nth-child(1){ top:20px; left:20px; transform: rotate(-6deg); animation-delay:0s;}
+  .t-chip:nth-child(2){ top:60px; right:30px; transform: rotate(4deg); animation-delay:.8s;}
+  .t-chip:nth-child(3){ top:150px; left:80px; transform: rotate(3deg); animation-delay:1.6s;}
+  .t-chip:nth-child(4){ top:190px; right:80px; transform: rotate(-5deg); animation-delay:2.4s;}
+  .t-chip:nth-child(5){ top:260px; left:30px; transform: rotate(6deg); animation-delay:.4s;}
+  .t-chip:nth-child(6){ top:300px; right:40px; transform: rotate(-3deg); animation-delay:1.2s;}
+  .t-chip:nth-child(7){ top:380px; left:100px; transform: rotate(-7deg); animation-delay:2s;}
+  .t-chip:nth-child(8){ top:420px; right:90px; transform: rotate(4deg); animation-delay:2.8s;}
+  .t-chip:nth-child(9){ top:350px; right:200px; transform: rotate(-2deg); animation-delay:3.2s;}
+  .t-chip:nth-child(10){ top:100px; left:220px; transform: rotate(5deg); animation-delay:3.6s;}
+  @keyframes bobber{
+    0%, 100% { translate: 0 0;}
+    50% { translate: 0 -10px;}
+  }
+
+  /* =========================================================
+     SCORE (相性スコア プレイフル)
+     ========================================================= */
+  .score-sec{
+    background:var(--sub); color:var(--paper);
+    border-top:3px solid var(--ink); border-bottom:3px solid var(--ink);
+    position:relative; overflow:hidden;
+  }
+  .score-sec .noise{
+    position:absolute; inset:0; pointer-events:none; opacity:.12;
+    background:
+      radial-gradient(circle at 20% 30%, var(--mint) 0 2px, transparent 3px) 0 0/60px 60px,
+      radial-gradient(circle at 80% 70%, var(--lime) 0 2px, transparent 3px) 0 0/80px 80px;
+  }
+  .score-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;
+    position:relative; z-index:2;
+  }
+  .score-copy h2{ font-size:clamp(34px, 5vw, 56px); margin:14px 0 16px; color:var(--paper);}
+  .score-copy h2 .lm{ color:var(--lime); font-family:"Fraunces",serif; font-style:italic; font-weight:700;}
+  .score-copy p{ color:#E4D4B7cc; max-width:500px; font-size:16px;}
+  .score-stats{ display:grid; grid-template-columns: repeat(3,1fr); gap:16px; margin-top:28px;}
+  .score-stats .stat{ background:#ffffff10; border:2px solid var(--paper); border-radius:18px; padding:16px 14px; text-align:center;}
+  .score-stats .stat b{ display:block; font-family:"Fraunces",serif; font-style:italic; font-size:32px; color:var(--mustard-2);}
+  .score-stats .stat small{ color:#E4D4B7cc; font-size:11px; letter-spacing:.14em; text-transform:uppercase;}
+
+  .score-card{
+    background:var(--paper); color:var(--ink);
+    border:3px solid var(--ink); border-radius:32px;
+    padding:36px 30px; position:relative;
+    box-shadow: 14px 14px 0 var(--ink);
+    transform: rotate(-2deg);
+  }
+  .score-card .label{
+    font-family:"Outfit",sans-serif; font-weight:900; font-size:12px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--muted);
+  }
+  .score-card .score-number{
+    font-family:"Fraunces",serif; font-style:italic; font-weight:900;
+    font-size:180px; line-height:.9; color:var(--sub);
+    display:flex; align-items:flex-start; gap:4px;
+  }
+  .score-card .score-number sup{
+    font-size:42px; color:var(--coral); transform: rotate(-8deg); display:inline-block; margin-top:10px;
+  }
+  .score-card .compat-bar{
+    margin-top:6px; background:var(--bg-3); border:2px solid var(--ink); border-radius:999px; height:24px;
+    position:relative; overflow:hidden;
+  }
+  .score-card .compat-bar::after{
+    content:""; position:absolute; inset:0;
+    background: repeating-linear-gradient(45deg, var(--lime) 0 10px, var(--mint) 10px 20px);
+    width:92%;
+    border-right:3px solid var(--ink);
+  }
+  .score-card .bits{ display:flex; gap:8px; flex-wrap:wrap; margin-top:22px;}
+  .score-card .bit{
+    background:var(--bg-2); padding:6px 12px; border-radius:999px; border:2px solid var(--ink);
+    font-size:12px; font-weight:700;
+  }
+  .score-card .bit.ok{ background:var(--lime);}
+  .score-card .bit.mid{ background:var(--mustard-2);}
+  .score-card .bit.mint{ background:var(--mint-2);}
+  .score-card .pros{
+    margin-top:22px; padding:16px 18px; background:var(--bg); border:2px dashed var(--ink); border-radius:18px;
+    font-size:14px;
+  }
+  .score-card .pros b{ color:var(--sub);}
+  .sticker{
+    position:absolute; width:92px; height:92px; border-radius:50%;
+    background:var(--mustard); border:3px solid var(--ink);
+    display:grid; place-items:center; text-align:center;
+    font-family:"Fraunces",serif; font-style:italic; font-weight:900; line-height:1;
+    color:var(--ink); padding:10px;
+    transform: rotate(14deg);
+    top:-40px; right:-30px;
+    box-shadow: 4px 4px 0 var(--ink);
+    font-size:13px;
+  }
+  .sticker small{ display:block; font-family:"Outfit",sans-serif; font-style:normal; font-size:9px; letter-spacing:.2em; margin-top:4px;}
+
+  /* =========================================================
+     FEATURES (非対称)
+     ========================================================= */
+  .features{ padding-top:140px; padding-bottom:140px; position:relative; overflow:hidden;}
+  .features::before{
+    content:""; position:absolute; top:40px; right:6%; width:90px; height:90px;
+    border-radius:50%; background:var(--coral); border:3px solid var(--ink);
+    transform: rotate(12deg);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .features-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:40px; flex-wrap:wrap; margin-bottom:70px;}
+  .features-head h2{ font-size:clamp(36px, 5.4vw, 64px); color:var(--sub); margin:14px 0 0;}
+  .features-head h2 .u{ position:relative; display:inline-block;}
+  .features-head h2 .u::after{
+    content:""; position:absolute; left:-2%; right:-2%; bottom:8%; height:16px;
+    background:var(--mint); z-index:-1; border-radius:50% 50% 50% 50%/80% 80% 20% 20%;
+  }
+  .features-head p{ max-width:340px; color:var(--text-2); font-size:15.5px; margin:0;}
+
+  .features-grid{
+    display:grid; grid-template-columns: 1.2fr .8fr 1fr; grid-auto-rows: minmax(220px, auto); gap:26px;
+  }
+  .feat{
+    background:var(--paper); border:2.5px solid var(--ink); border-radius:28px;
+    padding:30px 28px; box-shadow: 6px 6px 0 var(--ink);
+    position:relative; overflow:hidden;
+  }
+  .feat h3{ font-family:"Noto Sans JP",sans-serif; font-weight:900; font-size:22px; margin:14px 0 10px; color:var(--sub);}
+  .feat p{ color:var(--text-2); font-size:14.5px;}
+  .feat .icon{
+    width:58px; height:58px; border-radius:18px;
+    border:2.5px solid var(--ink);
+    display:grid; place-items:center;
+    font-family:"Fraunces",serif; font-size:26px; font-weight:900; font-style:italic;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .feat.f1{ grid-column: span 2; transform: rotate(-1.5deg); background:var(--mint-2);}
+  .feat.f2{ transform: rotate(2deg); background:var(--lime-2);}
+  .feat.f3{ transform: rotate(1deg); background:var(--mustard-2);}
+  .feat.f4{ grid-column: span 2; transform: rotate(-2deg); background:var(--paper);}
+  .feat.f1 .icon{ background:var(--mustard);}
+  .feat.f2 .icon{ background:var(--mint);}
+  .feat.f3 .icon{ background:var(--paper);}
+  .feat.f4 .icon{ background:var(--lime);}
+  .feat .more{
+    margin-top:16px; display:inline-flex; align-items:center; gap:6px;
+    font-weight:800; font-size:13px; border-bottom:2px solid var(--ink); padding-bottom:2px;
+  }
+
+  /* ---- Wave deco ---- */
+  .wave{
+    position:absolute; left:0; right:0; height:60px; overflow:hidden;
+  }
+  .wave svg{ display:block; width:100%; height:100%;}
+  .wave-top{ top:0; transform: translateY(-100%);}
+  .wave-bottom{ bottom:0; transform: translateY(100%) scaleY(-1);}
+
+  /* =========================================================
+     PRICING
+     ========================================================= */
+  .pricing{
+    background:var(--bg-2); border-top:2.5px solid var(--ink); border-bottom:2.5px solid var(--ink);
+    padding-top:150px; padding-bottom:150px; position:relative;
+  }
+  .pricing::before{
+    content:""; position:absolute; top:-40px; left:50%; transform:translateX(-50%);
+    width:240px; height:80px; background:var(--mustard);
+    border-radius:40px; border:2.5px solid var(--ink);
+    display:grid; place-items:center;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .pricing .price-banner{
+    position:absolute; top:-28px; left:50%; transform:translateX(-50%);
+    z-index:3; font-family:"Fraunces",serif; font-style:italic; font-weight:900; font-size:22px; color:var(--ink);
+    display:flex; align-items:center; gap:8px;
+  }
+  .pricing-head{ text-align:center; max-width:760px; margin:0 auto 60px;}
+  .pricing-head h2{ font-size:clamp(36px, 5.4vw, 64px); color:var(--sub); margin:16px 0 10px;}
+  .pricing-head p{ color:var(--text-2); font-size:16px;}
+  .plans{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap:28px; align-items:stretch;
+  }
+  .plan{
+    background:var(--paper); border:2.5px solid var(--ink); border-radius:28px;
+    padding:36px 30px; position:relative;
+    box-shadow: 8px 8px 0 var(--ink);
+    display:flex; flex-direction:column;
+  }
+  .plan:nth-child(1){ transform: rotate(-1.5deg);}
+  .plan:nth-child(2){ transform: rotate(1deg) translateY(-18px); background:var(--mint-2);}
+  .plan:nth-child(3){ transform: rotate(-2deg);}
+  .plan .ribbon{
+    position:absolute; top:-18px; left:50%; transform:translateX(-50%) rotate(-2deg);
+    background:var(--mustard); color:var(--ink); padding:6px 14px; border-radius:999px;
+    border:2.5px solid var(--ink); font-weight:900; font-size:12px;
+    letter-spacing:.1em; text-transform:uppercase;
+  }
+  .plan .plan-name{ font-family:"Fraunces",serif; font-style:italic; font-weight:900; font-size:28px; color:var(--sub);}
+  .plan .plan-tag{ color:var(--muted); font-weight:700; font-size:13px; margin-bottom:18px;}
+  .plan .price{ font-family:"Fraunces",serif; font-weight:900; font-size:54px; color:var(--ink); line-height:1;}
+  .plan .price sup{ font-size:18px; font-weight:700; color:var(--muted); margin-left:4px; font-family:"Outfit",sans-serif; font-style:normal;}
+  .plan .per{ color:var(--text-2); font-size:13px; margin-top:2px; margin-bottom:22px;}
+  .plan ul{ list-style:none; padding:0; margin:0 0 26px; display:grid; gap:10px;}
+  .plan li{ display:flex; align-items:flex-start; gap:8px; font-size:14.5px;}
+  .plan li::before{
+    content:"✓"; width:22px; height:22px; border-radius:50%;
+    background:var(--mustard); color:var(--ink); font-weight:900; font-size:13px;
+    display:grid; place-items:center; border:2px solid var(--ink); flex-shrink:0;
+  }
+  .plan .plan-cta{
+    margin-top:auto;
+    display:flex; justify-content:center;
+  }
+
+  /* =========================================================
+     USER VOICE
+     ========================================================= */
+  .reviews{ padding:140px 0; position:relative; overflow:hidden;}
+  .reviews-head{ text-align:center; max-width:720px; margin:0 auto 60px;}
+  .reviews-head h2{ font-size:clamp(36px, 5.2vw, 60px); color:var(--sub); margin:14px 0 12px;}
+  .reviews-head p{ color:var(--text-2);}
+  .reviews-grid{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap:28px;
+  }
+  .rv{
+    background:var(--paper); border:2.5px solid var(--ink); border-radius:28px;
+    padding:28px 26px; position:relative;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .rv:nth-child(1){ transform: rotate(-2deg); background:var(--lime-2);}
+  .rv:nth-child(2){ transform: rotate(1.5deg) translateY(20px);}
+  .rv:nth-child(3){ transform: rotate(-1.5deg); background:var(--mint-2);}
+  .rv:nth-child(4){ transform: rotate(2deg); }
+  .rv:nth-child(5){ transform: rotate(-2deg) translateY(10px); background:var(--mustard-2);}
+  .rv:nth-child(6){ transform: rotate(1deg); }
+  .rv .stars{ color:var(--coral); font-size:18px; margin-bottom:10px;}
+  .rv h4{ margin:0 0 8px; font-weight:900; font-family:"Fraunces",serif; font-style:italic; font-size:20px; color:var(--sub);}
+  .rv p{ font-size:14.5px; color:var(--text);}
+  .rv .profile{ display:flex; align-items:center; gap:10px; margin-top:16px; padding-top:14px; border-top:2px dashed var(--ink);}
+  .rv .profile .av{
+    width:42px;height:42px; border-radius:50%;
+    background:var(--mustard); border:2px solid var(--ink);
+    display:grid; place-items:center; font-family:"Fraunces",serif; font-weight:900;
+  }
+  .rv .profile b{ font-size:14px; display:block;}
+  .rv .profile small{ color:var(--muted); font-size:12px;}
+
+  /* =========================================================
+     FAQ
+     ========================================================= */
+  .faq{ background:var(--bg-2); border-top:2.5px solid var(--ink); padding:130px 0;}
+  .faq-head{ text-align:center; max-width:720px; margin:0 auto 50px;}
+  .faq-head h2{ font-size:clamp(36px, 5.2vw, 60px); color:var(--sub); margin:14px 0 12px;}
+  .faq-list{ max-width:860px; margin:0 auto; display:grid; gap:16px;}
+  .faq-item{
+    background:var(--paper); border:2.5px solid var(--ink); border-radius:22px;
+    padding:22px 26px; box-shadow: 4px 4px 0 var(--ink);
+    position:relative;
+  }
+  .faq-item:nth-child(odd){ transform: rotate(-.5deg);}
+  .faq-item:nth-child(even){ transform: rotate(.5deg);}
+  .faq-item h4{
+    margin:0 0 8px; font-family:"Noto Sans JP",sans-serif; font-weight:900; font-size:17px; color:var(--sub);
+    display:flex; align-items:flex-start; gap:12px;
+  }
+  .faq-item h4::before{
+    content:"Q."; font-family:"Fraunces",serif; font-style:italic; color:var(--coral); font-size:22px; line-height:1; flex-shrink:0;
+  }
+  .faq-item p{
+    margin:0; color:var(--text-2); font-size:14.5px;
+    padding-left:30px;
+    position:relative;
+  }
+  .faq-item p::before{
+    content:"A."; position:absolute; left:0; top:0;
+    font-family:"Fraunces",serif; font-style:italic; font-weight:900; color:var(--mint); font-size:18px;
+  }
+
+  /* =========================================================
+     FOOTER CTA
+     ========================================================= */
+  .cta-sec{
+    position:relative; background:var(--mustard);
+    border-top:3px solid var(--ink);
+    padding:130px 0 130px; overflow:hidden;
+  }
+  .cta-sec::before, .cta-sec::after{
+    content:""; position:absolute;
+  }
+  .cta-sec::before{
+    top:-80px; left:-80px; width:260px; height:260px; border-radius:50%;
+    background: var(--lime); border:3px solid var(--ink);
+  }
+  .cta-sec::after{
+    bottom:-120px; right:-80px; width:320px; height:320px; border-radius:50%;
+    background: var(--mint);
+    border:3px solid var(--ink);
+  }
+  .cta-inner{
+    position:relative; z-index:2; text-align:center; max-width:780px; margin:0 auto;
+  }
+  .cta-inner h2{
+    font-size:clamp(42px, 7vw, 92px); color:var(--ink); margin:0 0 20px;
+    font-family:"Fraunces",serif; font-weight:900; line-height:1.02;
+    letter-spacing:-.01em;
+  }
+  .cta-inner h2 .jp{ font-family:"Noto Sans JP",sans-serif; font-weight:900; font-style:normal; display:block; font-size:.5em; margin-top:14px; color:var(--sub);}
+  .cta-inner p{ color:var(--ink); font-size:17px; margin-bottom:36px; max-width:560px; margin-left:auto; margin-right:auto;}
+  .cta-inner .cta-row{ justify-content:center;}
+  .cta-btn{
+    background:var(--ink); color:var(--paper);
+    padding:20px 36px; font-size:18px;
+  }
+  .cta-btn:hover{ transform: translate(-2px,-2px) rotate(-2deg); box-shadow: 8px 8px 0 var(--sub);}
+
+  .arch{
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:640px; height:320px; border-radius:320px 320px 0 0;
+    border:3px solid var(--ink); border-bottom:0;
+    background: repeating-linear-gradient(90deg, transparent 0 30px, rgba(31,45,36,.08) 30px 31px);
+    z-index:1;
+  }
+
+  /* ---------- Footer ---------- */
+  .foot{ background:var(--ink); color:var(--paper); padding:60px 0 30px;}
+  .foot-inner{ display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap;}
+  .foot-col h5{ font-family:"Outfit",sans-serif; font-weight:900; font-size:13px; letter-spacing:.2em; text-transform:uppercase; color:var(--mustard-2); margin:0 0 14px;}
+  .foot-col a{ display:block; font-size:14px; color:#E4D4B7cc; padding:4px 0;}
+  .foot-col a:hover{ color:var(--lime);}
+  .foot-brand{ max-width:320px;}
+  .foot-brand p{ color:#E4D4B7cc; font-size:14px; margin-top:10px; line-height:1.8;}
+  .foot-bottom{
+    margin-top:44px; padding-top:20px; border-top:1px solid #ffffff22;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
+    font-size:12px; color:#E4D4B799;
+  }
+  .foot-socials{ display:flex; gap:10px;}
+  .foot-socials a{
+    width:38px; height:38px; border-radius:50%;
+    border:2px solid var(--paper);
+    display:grid; place-items:center; font-weight:900;
+    color:var(--paper);
+  }
+  .foot-socials a:hover{ background:var(--mustard); color:var(--ink); border-color:var(--mustard);}
+
+  /* ---------- Misc deco ---------- */
+  .star-deco{
+    position:absolute; pointer-events:none;
+    font-family:"Fraunces",serif; font-style:italic; font-weight:900;
+    color:var(--mustard);
+    text-shadow: 2px 2px 0 var(--ink);
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 960px){
+    .hero-grid{ grid-template-columns:1fr; }
+    .hero-phone{ margin-top:40px;}
+    .voices-grid, .reviews-grid, .plans, .steps-grid{ grid-template-columns:1fr 1fr; }
+    .features-grid{ grid-template-columns: 1fr 1fr; }
+    .feat.f1, .feat.f4{ grid-column: span 2;}
+    .tags-grid, .score-grid{ grid-template-columns:1fr;}
+    .sun{ display:none;}
+  }
+  @media (max-width: 640px){
+    .nav-menu{ display:none;}
+    section{ padding:80px 0;}
+    .voices-grid, .reviews-grid, .plans, .steps-grid, .features-grid{ grid-template-columns:1fr; }
+    .feat.f1, .feat.f4{ grid-column: auto;}
+    .hero-copy h1{ font-size:48px;}
+    .steps-wrap::before{ display:none;}
+    .step-num{ width:70px; height:70px; font-size:44px; margin-top:-60px;}
+    .plan:nth-child(2){ transform:rotate(0) translateY(0);}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================== NAV ================== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <span class="badge"></span>
+      Truner<span style="color:var(--coral)">.</span>
+    </a>
+    <div class="nav-menu">
+      <a href="#voices">みんなの声</a>
+      <a href="#steps">使い方</a>
+      <a href="#features">特徴</a>
+      <a href="#pricing">料金</a>
+      <a href="#faq">よくある質問</a>
+    </div>
+    <a href="#cta" class="nav-cta">はじめる <span>→</span></a>
+  </div>
+</nav>
+
+<!-- ================== HERO ================== -->
+<section class="hero">
+  <div class="sun" aria-hidden="true">
+    <div class="sun-rays"></div>
+    <div class="sun-core"></div>
+  </div>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="dot"></span>SNS × AI Matching, made gentle.</span>
+        <h1>
+          <span class="serif-word">ちょっと運命、</span><br>
+          <span class="underline">ちょっと偶然。</span><br>
+          <span class="accent-mustard">好き</span>でつながる、<br>
+          新しい出会い。
+        </h1>
+        <p class="lead">
+          Truner（トゥルーナー）は、<b>あなたのSNS投稿をAIが読み解き</b>、
+          本当に話が合う人を探してくれるマッチングアプリ。
+          がんばらず、かわいく、ちょうどいい距離感で、好きが重なる人に出会えます。
+        </p>
+        <div class="cta-row">
+          <a href="#cta" class="btn btn-primary">無料ではじめる <span class="arrow">→</span></a>
+          <a href="#steps" class="btn btn-ghost">使い方を見る</a>
+        </div>
+        <div class="hero-meta">
+          <div class="avatars">
+            <div class="avatar">A</div>
+            <div class="avatar">N</div>
+            <div class="avatar">M</div>
+            <div class="avatar">S</div>
+            <div class="avatar">+</div>
+          </div>
+          <div>
+            <div class="stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span> <b style="color:var(--sub)">4.9</b></div>
+            <div style="font-size:12px; color:var(--muted)">全国 52,000+ 人が利用中</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-phone">
+        <div class="float-card a">
+          ✨ 相性 92%
+          <span class="mini">映画/レコード好き</span>
+        </div>
+        <div class="float-card b">
+          🌿 新しい話題が来た
+          <span class="mini">「クラフトビール」</span>
+        </div>
+        <div class="float-card c">
+          💬 今日マッチ
+          <span class="mini">3人 / 話したい人 1人</span>
+        </div>
+
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-header">
+              <div class="t-logo">Truner.</div>
+              <div class="t-dot"></div>
+            </div>
+            <div class="phone-body">
+              <div class="phone-hi">🌞 おはよ、今日の「ぴったり」が届いたよ</div>
+              <div class="match-card">
+                <div class="face"></div>
+                <h4>Haruki, 27 — 東京</h4>
+                <div class="tags">
+                  <span class="tag mint"># 映画</span>
+                  <span class="tag lime"># 喫茶店</span>
+                  <span class="tag must"># 古着</span>
+                  <span class="tag"># 銭湯</span>
+                </div>
+                <div class="match-score">
+                  <span>相性スコア</span>
+                  <span class="big">92</span>
+                </div>
+              </div>
+            </div>
+            <div class="phone-bottom-bar">
+              <span><span class="nb"></span> Home</span>
+              <span>探す</span>
+              <span>メッセ</span>
+              <span>プロフ</span>
+            </div>
+            <div class="phone-home"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="marquee">
+    <div class="marquee-track">
+      <span>本当に話が合う人 &nbsp;✦&nbsp; <em>gentle matching</em> &nbsp;✦&nbsp; 好きでつながる &nbsp;✦&nbsp; <em>made with AI</em> &nbsp;✦&nbsp; ちょうどいい距離感 &nbsp;✦&nbsp; </span>
+      <span>本当に話が合う人 &nbsp;✦&nbsp; <em>gentle matching</em> &nbsp;✦&nbsp; 好きでつながる &nbsp;✦&nbsp; <em>made with AI</em> &nbsp;✦&nbsp; ちょうどいい距離感 &nbsp;✦&nbsp; </span>
+    </div>
+  </div>
+</section>
+
+<!-- ================== VOICES (問題提起) ================== -->
+<section id="voices" class="voices">
+  <div class="wrap">
+    <div class="voices-head">
+      <span class="eyebrow"><span class="dot"></span>Real voices</span>
+      <h2 class="display jp-display">これ、あるあるすぎる<br>マッチングアプリの<span class="serif" style="color:var(--coral)">もやもや</span></h2>
+      <p>「プロフで盛る」「会ってがっかり」「結局話が合わない」<br>もう、そんなの卒業しよう。</p>
+    </div>
+    <div class="voices-grid">
+      <div class="voice">
+        <div class="voice-quote">"</div>
+        <div class="who">
+          <div class="av">A</div>
+          <div class="name">Aoi, 24<small>東京 / デザイナー</small></div>
+        </div>
+        <p class="msg">プロフ写真は完璧なのに、会って話すと全然趣味合わなくて…5分で「違うな」ってなるのつらい。</p>
+      </div>
+      <div class="voice">
+        <div class="voice-quote">"</div>
+        <div class="who">
+          <div class="av">K</div>
+          <div class="name">Kaito, 29<small>大阪 / エンジニア</small></div>
+        </div>
+        <p class="msg">「趣味：映画」って書いてあっても、観てるものが全然違う。もっと深いところで合う人が欲しい。</p>
+      </div>
+      <div class="voice">
+        <div class="voice-quote">"</div>
+        <div class="who">
+          <div class="av">M</div>
+          <div class="name">Mika, 26<small>福岡 / 企画</small></div>
+        </div>
+        <p class="msg">自己紹介書くの、毎回マジで消耗する。結局、私らしさなんて伝わらないし。</p>
+      </div>
+      <div class="voice">
+        <div class="voice-quote">"</div>
+        <div class="who">
+          <div class="av">S</div>
+          <div class="name">Sota, 31<small>名古屋 / 会社員</small></div>
+        </div>
+        <p class="msg">条件でフィルターかけても、結局みんな似たようなプロフ。話題がなくて会話が続かない…。</p>
+      </div>
+      <div class="voice">
+        <div class="voice-quote">"</div>
+        <div class="who">
+          <div class="av">R</div>
+          <div class="name">Rina, 28<small>京都 / ライター</small></div>
+        </div>
+        <p class="msg">メッセージが「趣味何ですか？」の繰り返し。もっと自然に、共通の話題で盛り上がりたいな。</p>
+      </div>
+      <div class="voice">
+        <div class="voice-quote">"</div>
+        <div class="who">
+          <div class="av">Y</div>
+          <div class="name">Yuto, 25<small>札幌 / 学生</small></div>
+        </div>
+        <p class="msg">本当の自分を出したら引かれそうで…結局、当たり障りないプロフになっちゃう。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================== STEPS ================== -->
+<section id="steps" class="steps">
+  <div class="wrap">
+    <div class="steps-head">
+      <span class="eyebrow"><span class="dot"></span>How it works</span>
+      <h2 class="jp-display">はじめかたは、<br><span class="hl">たった3ステップ。</span></h2>
+      <p>プロフィールを書かなくていい。SNSを連携するだけ。AIがあなたの「好き」を読み解きます。</p>
+    </div>
+    <div class="steps-wrap">
+      <div class="steps-grid">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>SNSをつなぐ</h3>
+          <p>X・Instagram・Spotify・Letterboxd から好きなものを連携。
+          プロフ文、もう書かなくていい。</p>
+          <span class="step-foot">30 seconds</span>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>AIがあなたを描く</h3>
+          <p>投稿・いいね・プレイリストから、
+          あなたの「好き」をタグ化。見えないクセまで。</p>
+          <span class="step-foot">Auto</span>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>話したい人と出会う</h3>
+          <p>毎日3人、本当に話が合う人をAIが連れてくる。
+          会う前から、会話が弾む。</p>
+          <span class="step-foot">Every morning</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================== TAGS ================== -->
+<section class="tags-sec">
+  <div class="wrap">
+    <div class="tags-grid">
+      <div class="tags-copy">
+        <span class="eyebrow"><span class="dot"></span>AI × your taste</span>
+        <h2 class="jp-display">あなたの<br><span class="outlined">"好き"</span>を、<br>AIがタグで描き出す。</h2>
+        <p>Trunerのタグは、ただの「映画」「音楽」じゃない。
+        <b>"80年代シティポップ"</b> <b>"ホン・サンス映画"</b> <b>"銭湯めぐり"</b>──
+        あなたの具体的な「好き」が見える化されます。</p>
+        <ul>
+          <li>SNSの投稿から、140以上のタグを自動生成</li>
+          <li>好きの粒度を細かく調整（ジャンル / 作品 / 季節感）</li>
+          <li>月に1度、あなたのタグはアップデートされます</li>
+          <li>気恥ずかしいタグは、もちろん非公開にできる</li>
+        </ul>
+      </div>
+      <div class="tag-cloud">
+        <div class="t-chip big mint"><span class="em">ホン・サンス映画</span></div>
+        <div class="t-chip lime"><span class="em">レコード屋めぐり</span></div>
+        <div class="t-chip must"><span class="em">銭湯デート</span></div>
+        <div class="t-chip dark"><span class="em">シティポップ</span></div>
+        <div class="t-chip big coral"><span class="em">古着</span></div>
+        <div class="t-chip"><span class="em">喫茶店モーニング</span></div>
+        <div class="t-chip mint"><span class="em">村上春樹</span></div>
+        <div class="t-chip big"><span class="em">ZINE作り</span></div>
+        <div class="t-chip must"><span class="em">韓国インディー</span></div>
+        <div class="t-chip lime"><span class="em">写ルンです</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================== SCORE ================== -->
+<section class="score-sec">
+  <div class="noise"></div>
+  <div class="wrap">
+    <div class="score-grid">
+      <div class="score-copy">
+        <span class="eyebrow" style="background:var(--paper); color:var(--ink)"><span class="dot"></span>Compatibility score</span>
+        <h2 class="jp-display">数字じゃなくて、<br><span class="lm">"物語"</span>としての<br>相性。</h2>
+        <p>90%という数字の裏に、「好きな映画監督が3人被ってる」「どちらも朝型の生活」「週末はひとり時間派」
+        ──そんな"物語"を、AIが読み解きます。</p>
+        <div class="score-stats">
+          <div class="stat">
+            <b>140+</b>
+            <small>Tags</small>
+          </div>
+          <div class="stat">
+            <b>8</b>
+            <small>Dimensions</small>
+          </div>
+          <div class="stat">
+            <b>3.2s</b>
+            <small>Calc time</small>
+          </div>
+        </div>
+      </div>
+      <div class="score-card">
+        <div class="sticker">great<br>match!<small>★★★★★</small></div>
+        <div class="label">Compatibility Score</div>
+        <div class="score-number">92<sup>%</sup></div>
+        <div class="compat-bar"></div>
+        <div class="bits">
+          <span class="bit ok">✦ 映画</span>
+          <span class="bit mint">♪ 音楽</span>
+          <span class="bit ok">☕ 生活リズム</span>
+          <span class="bit mid">◎ ユーモア</span>
+          <span class="bit">♡ 価値観</span>
+        </div>
+        <div class="pros">
+          <b>Why it clicks:</b> 2人とも<em>ホン・サンスの作品を3本以上</em>見ていて、
+          どちらも夜型ではなく朝のカフェ派。共通タグは <b>17個</b>。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================== FEATURES ================== -->
+<section id="features" class="features">
+  <div class="wrap">
+    <div class="features-head">
+      <div>
+        <span class="eyebrow"><span class="dot"></span>Features</span>
+        <h2 class="jp-display">Trunerが<br><span class="u">ちょっと違う</span>、4つの理由。</h2>
+      </div>
+      <p>プロフィールじゃなくて、あなたの"好き"そのもので出会う。
+      だから、会ってから話が弾むんです。</p>
+    </div>
+    <div class="features-grid">
+      <div class="feat f1">
+        <div class="icon">A</div>
+        <h3>SNS連携で、プロフ入力ゼロ。</h3>
+        <p>X・Instagram・Spotify・Letterboxd。
+        あなたの投稿や好きな音楽・映画から、AIが"あなたらしさ"を自動で描き出します。
+        プロフ文を1行も書かずに、本当のあなたを伝えられる。</p>
+        <a href="#cta" class="more">詳しく見る →</a>
+      </div>
+      <div class="feat f2">
+        <div class="icon">B</div>
+        <h3>毎朝、3人だけ。</h3>
+        <p>無限スワイプはもう終わり。
+        AIが厳選した3人を、毎朝お届け。</p>
+      </div>
+      <div class="feat f3">
+        <div class="icon">C</div>
+        <h3>会話の種が落ちてる。</h3>
+        <p>共通の"好き"から、AIが会話のきっかけを提案。
+        「何話そう」がなくなる。</p>
+      </div>
+      <div class="feat f4">
+        <div class="icon">D</div>
+        <h3>"盛らない"が正解の、やさしいアプリ。</h3>
+        <p>写真加工しない、プロフ盛らない、無理しない。
+        SNSにある"素のあなた"を見てくれる人と出会う。
+        だから、最初から距離が近くて、会話が自然。</p>
+        <a href="#cta" class="more">詳しく見る →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================== PRICING ================== -->
+<section id="pricing" class="pricing">
+  <div class="price-banner">✦ Plans ✦</div>
+  <div class="wrap">
+    <div class="pricing-head">
+      <span class="eyebrow"><span class="dot"></span>Pricing</span>
+      <h2 class="jp-display">まずは、無料で<br>ふわっと試してみて。</h2>
+      <p>いつでもキャンセル可能。解約料なし。</p>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">Free</div>
+        <div class="plan-tag">はじめの一歩に</div>
+        <div class="price">¥0</div>
+        <div class="per">ずっと無料</div>
+        <ul>
+          <li>SNS連携 3つまで</li>
+          <li>毎朝1人マッチング</li>
+          <li>相性スコア表示</li>
+          <li>月3回までメッセージ</li>
+          <li>基本タグ生成（50個）</li>
+        </ul>
+        <div class="plan-cta">
+          <a href="#cta" class="btn btn-ghost">はじめる</a>
+        </div>
+      </div>
+      <div class="plan">
+        <div class="ribbon">Most popular</div>
+        <div class="plan-name">Plus</div>
+        <div class="plan-tag">いちばん選ばれてる</div>
+        <div class="price">¥2,980<sup>/月</sup></div>
+        <div class="per">年払いで20%オフ</div>
+        <ul>
+          <li>SNS連携 無制限</li>
+          <li>毎朝3人マッチング</li>
+          <li>AI会話提案（無制限）</li>
+          <li>メッセージ無制限</li>
+          <li>詳細タグ生成（140個）</li>
+          <li>"今だけ会える"通知</li>
+        </ul>
+        <div class="plan-cta">
+          <a href="#cta" class="btn btn-primary">Plusにする →</a>
+        </div>
+      </div>
+      <div class="plan">
+        <div class="plan-name">Premium</div>
+        <div class="plan-tag">真剣な出会いを</div>
+        <div class="price">¥6,980<sup>/月</sup></div>
+        <div class="per">初回7日間 無料体験</div>
+        <ul>
+          <li>Plus のすべての機能</li>
+          <li>毎朝5人 + 深掘りマッチ</li>
+          <li>オーダーメイド相性分析</li>
+          <li>オンライン対話セッション</li>
+          <li>本人確認バッジ表示</li>
+          <li>コンシェルジュ伴走</li>
+        </ul>
+        <div class="plan-cta">
+          <a href="#cta" class="btn btn-ghost">Premiumにする</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================== REVIEWS ================== -->
+<section class="reviews">
+  <div class="wrap">
+    <div class="reviews-head">
+      <span class="eyebrow"><span class="dot"></span>User voices</span>
+      <h2 class="jp-display">Trunerで出会った、<br>ちょっといい毎日。</h2>
+      <p>リアルユーザーの、リアルな声を集めました。</p>
+    </div>
+    <div class="reviews-grid">
+      <div class="rv">
+        <div class="stars">★★★★★</div>
+        <h4>会う前から、話が尽きない。</h4>
+        <p>相性92%の彼とは、初対面なのに2時間カフェで喋りっぱなし。「これ好きって言ってたよね」が合言葉になりました。</p>
+        <div class="profile">
+          <div class="av">N</div>
+          <div><b>Natsuki, 26</b><small>東京 / アートディレクター</small></div>
+        </div>
+      </div>
+      <div class="rv">
+        <div class="stars">★★★★★</div>
+        <h4>プロフ盛らなくていいのが、楽。</h4>
+        <p>自己紹介にうだうだ書く必要がない。SNSつなぐだけで、ちゃんと"私"が伝わる気がします。</p>
+        <div class="profile">
+          <div class="av">T</div>
+          <div><b>Takumi, 30</b><small>大阪 / 飲食経営</small></div>
+        </div>
+      </div>
+      <div class="rv">
+        <div class="stars">★★★★★</div>
+        <h4>朝が楽しみになった。</h4>
+        <p>毎朝届く3人通知が、なんか小さなワクワク。スワイプ地獄から解放されました。</p>
+        <div class="profile">
+          <div class="av">M</div>
+          <div><b>Miyu, 23</b><small>京都 / 学生</small></div>
+        </div>
+      </div>
+      <div class="rv">
+        <div class="stars">★★★★★</div>
+        <h4>"ホン・サンス好き"が刺さった。</h4>
+        <p>タグが細かいのがいい。ざっくり「映画」じゃなくて、好きな監督レベルで合う人に会えるとは思わなかった。</p>
+        <div class="profile">
+          <div class="av">R</div>
+          <div><b>Ryoji, 32</b><small>横浜 / 編集者</small></div>
+        </div>
+      </div>
+      <div class="rv">
+        <div class="stars">★★★★★</div>
+        <h4>AI提案の話題がちょうどいい。</h4>
+        <p>「最近、坂本慎太郎聴いてるんですよね」って切り出せたの、AIのおかげ。自然に仲良くなれました。</p>
+        <div class="profile">
+          <div class="av">A</div>
+          <div><b>Ayaka, 27</b><small>福岡 / フォトグラファー</small></div>
+        </div>
+      </div>
+      <div class="rv">
+        <div class="stars">★★★★★</div>
+        <h4>安心して"素"でいられる。</h4>
+        <p>盛らなくていいのが心地いい。本当の自分で出会えるって、こんなにラクなんだなって。</p>
+        <div class="profile">
+          <div class="av">K</div>
+          <div><b>Kyo, 29</b><small>名古屋 / マーケター</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================== FAQ ================== -->
+<section id="faq" class="faq">
+  <div class="wrap">
+    <div class="faq-head">
+      <span class="eyebrow"><span class="dot"></span>FAQ</span>
+      <h2 class="jp-display">みんなが聞きたい、<br>あれこれ。</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <h4>SNSをつなぐのって、勝手に投稿されたりしない？</h4>
+        <p>されません。Trunerは読み取り専用で連携します。あなたのアカウントで勝手に投稿したり、フォロワーにマッチング活動を通知したりは、絶対にありません。</p>
+      </div>
+      <div class="faq-item">
+        <h4>プロフィールに出したくないタグは隠せる？</h4>
+        <p>もちろんです。AIが生成したタグは、すべて「表示 / 非表示」を自分で選べます。こっそり持っておきたい"好き"も、そのままで大丈夫。</p>
+      </div>
+      <div class="faq-item">
+        <h4>本人確認や安全対策は？</h4>
+        <p>Plus・Premium プランでは本人確認バッジがつきます。AIによる不審行動の検知や、通報時の24時間対応チームも運営しています。</p>
+      </div>
+      <div class="faq-item">
+        <h4>毎朝3人って少なくない？</h4>
+        <p>"量より質"がTrunerの考え方です。適当にマッチすると、結局話が合わないってなりがち。3人に絞ることで、じっくり向き合える出会いになります。</p>
+      </div>
+      <div class="faq-item">
+        <h4>解約はかんたん？</h4>
+        <p>はい、アプリ内から1タップで可能です。解約料も、継続縛りもありません。</p>
+      </div>
+      <div class="faq-item">
+        <h4>恋愛目的じゃなくて、友達探しでもOK？</h4>
+        <p>もちろんです。登録時に「恋愛」「友達」「どちらも」を選べます。同じ"好き"でつながりたい人となら、関係性は自由です。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================== CTA ================== -->
+<section id="cta" class="cta-sec">
+  <div class="arch"></div>
+  <div class="wrap">
+    <div class="cta-inner">
+      <span class="eyebrow" style="background:var(--paper)"><span class="dot"></span>Start now</span>
+      <h2>
+        <i>Hey,</i> let's meet<br>someone <i>gentle.</i>
+        <span class="jp">あなたの好きが、誰かの好きと重なる日。</span>
+      </h2>
+      <p>30秒でSNSをつなぐだけ。今朝の"ぴったり"を、あなたにも届けさせてください。</p>
+      <div class="cta-row">
+        <a href="#" class="btn cta-btn">無料ではじめる <span class="arrow">→</span></a>
+        <a href="#" class="btn btn-ghost">App Storeで見る</a>
+      </div>
+      <div style="margin-top:30px; font-size:12px; color:var(--ink); opacity:.7;">
+        ⌘ クレジットカード不要・広告なし・退会いつでもOK
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================== FOOTER ================== -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-inner">
+      <div class="foot-brand">
+        <div class="logo" style="color:var(--paper)">
+          <span class="badge"></span>
+          Truner<span style="color:var(--coral)">.</span>
+        </div>
+        <p>SNSの「好き」を読み解いて、本当に話が合う人を見つけるAIマッチングアプリ。かしこまらず、かわいく、ちょうどいい距離で。</p>
+        <div class="foot-socials" style="margin-top:18px;">
+          <a href="#">X</a>
+          <a href="#">IG</a>
+          <a href="#">Sp</a>
+          <a href="#">nt</a>
+        </div>
+      </div>
+      <div class="foot-col">
+        <h5>Product</h5>
+        <a href="#features">特徴</a>
+        <a href="#steps">使い方</a>
+        <a href="#pricing">料金プラン</a>
+        <a href="#">セキュリティ</a>
+      </div>
+      <div class="foot-col">
+        <h5>Company</h5>
+        <a href="#">私たちについて</a>
+        <a href="#">お知らせ</a>
+        <a href="#">採用情報</a>
+        <a href="#">お問い合わせ</a>
+      </div>
+      <div class="foot-col">
+        <h5>Legal</h5>
+        <a href="#">利用規約</a>
+        <a href="#">プライバシーポリシー</a>
+        <a href="#">特商法表示</a>
+        <a href="#">ガイドライン</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div>© 2026 Truner, Inc. Made with care in Tokyo.</div>
+      <div>🌞 good vibes only, since 2026</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
