@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mitorix — Zero Miss, Peace of Mind. | 薬剤師のための調剤照合AI</title>
+<meta name="description" content="処方箋OCR × 調剤台AIカメラで、取り違え・数量ミスをリアルタイム検出。99.7%の照合精度で、薬剤師の『確認』を支えるAIパートナー。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Noto+Serif+JP:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* =========================================================
+   Mitorix LP — Pattern 1: Clinical Editorial
+   Palette: Deep Teal × Mint × Coral × Gold
+   Typography: Playfair Display / Noto Serif JP / Inter / JetBrains Mono
+   ========================================================= */
+
+:root {
+  --bg: #0F2E3E;
+  --bg-deep: #0A2230;
+  --bg-soft: #13384A;
+  --text: #F6F8F7;
+  --text-mute: rgba(246, 248, 247, 0.62);
+  --text-faint: rgba(246, 248, 247, 0.38);
+  --line: rgba(246, 248, 247, 0.12);
+  --line-soft: rgba(246, 248, 247, 0.06);
+  --mint: #42D4B5;
+  --mint-dim: rgba(66, 212, 181, 0.16);
+  --coral: #FF8A6B;
+  --gold: #F5C242;
+  --error: #E24A5B;
+
+  --serif: 'Playfair Display', 'Noto Serif JP', serif;
+  --sans: 'Inter', 'Noto Sans JP', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Consolas', monospace;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+/* ---------- Layout primitives ---------- */
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+}
+.hairline {
+  height: 1px;
+  background: var(--line);
+  width: 100%;
+}
+.hairline-mint {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--mint), transparent);
+  width: 100%;
+  opacity: 0.5;
+}
+
+/* ---------- Typography ---------- */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mint);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--mint);
+}
+.h-display {
+  font-family: var(--serif);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+.h-serif-jp {
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.mono { font-family: var(--mono); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 28px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--mint);
+  color: var(--mint);
+  background: transparent;
+  transition: all 0.3s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--mint);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.4s var(--ease);
+  z-index: -1;
+}
+.btn:hover {
+  color: var(--bg-deep);
+}
+.btn:hover::before {
+  transform: scaleX(1);
+}
+.btn-arrow {
+  width: 18px;
+  height: 1px;
+  background: currentColor;
+  position: relative;
+  transition: width 0.3s var(--ease);
+}
+.btn-arrow::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  transform: rotate(45deg);
+}
+.btn:hover .btn-arrow { width: 24px; }
+.btn-ghost {
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+.btn-ghost::before { background: rgba(246,248,247,0.06); }
+.btn-ghost:hover { color: var(--text); }
+
+/* =====================================================
+   NAVIGATION
+   ===================================================== */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 20px 0;
+  background: rgba(15, 46, 62, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--line-soft);
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.logo-mark {
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--mint);
+  border-radius: 50%;
+  position: relative;
+  display: inline-block;
+}
+.logo-mark::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: var(--mint);
+}
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  font-size: 13px;
+  color: var(--text-mute);
+  font-weight: 400;
+}
+.nav-menu a { transition: color 0.2s; }
+.nav-menu a:hover { color: var(--mint); }
+.nav-cta {
+  padding: 10px 20px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+/* =====================================================
+   HERO
+   ===================================================== */
+.hero {
+  padding: 160px 0 120px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg-line {
+  position: absolute;
+  width: 1px;
+  background: var(--line);
+  top: 0;
+  bottom: 0;
+}
+.hero-bg-line.l1 { left: calc(50% - 520px); }
+.hero-bg-line.l2 { left: calc(50% - 260px); }
+.hero-bg-line.l3 { left: 50%; }
+.hero-bg-line.l4 { left: calc(50% + 260px); }
+.hero-bg-line.l5 { left: calc(50% + 520px); }
+
+.hero-grid {
+  position: relative;
+  z-index: 2;
+}
+.hero-left {
+  grid-column: 1 / span 7;
+  padding-right: 40px;
+}
+.hero-right {
+  grid-column: 8 / span 5;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+}
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+}
+.hero-meta-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--mint);
+  border-radius: 50%;
+  animation: pulse 2.4s var(--ease) infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.4); }
+}
+.hero-headline {
+  font-family: var(--serif);
+  font-size: clamp(56px, 8vw, 104px);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  margin-bottom: 28px;
+}
+.hero-headline .line-2 { font-style: italic; color: var(--mint); }
+.hero-headline .line-3 { font-family: 'Noto Serif JP', serif; font-size: 0.54em; font-weight: 500; letter-spacing: -0.01em; display: block; margin-top: 18px; color: var(--text); }
+.hero-tagline {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--mint);
+  letter-spacing: 0.14em;
+  margin-bottom: 32px;
+  padding-left: 24px;
+  position: relative;
+}
+.hero-tagline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 14px;
+  height: 1px;
+  background: var(--mint);
+}
+.hero-lead {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-mute);
+  max-width: 520px;
+  margin-bottom: 48px;
+  letter-spacing: 0.02em;
+}
+.hero-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 72px;
+}
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--line);
+  padding-top: 32px;
+  max-width: 620px;
+}
+.hero-stat {
+  position: relative;
+  padding-right: 24px;
+}
+.hero-stat:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: var(--line);
+}
+.hero-stat-num {
+  font-family: var(--mono);
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--mint);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.hero-stat-label {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  color: var(--text-mute);
+  letter-spacing: 0.08em;
+}
+
+/* ---------- iPhone Mockup (CSS only) ---------- */
+.iphone-wrap {
+  position: relative;
+  width: 320px;
+  height: 640px;
+  margin-top: 20px;
+}
+.iphone {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #1a4055 0%, #0A2230 100%);
+  border-radius: 44px;
+  border: 2px solid rgba(246,248,247,0.14);
+  padding: 10px;
+  box-shadow:
+    0 40px 80px -20px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(66, 212, 181, 0.08),
+    inset 0 1px 0 rgba(246, 248, 247, 0.1);
+  position: relative;
+}
+.iphone::before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 96px;
+  height: 28px;
+  background: #0A2230;
+  border-radius: 16px;
+  z-index: 3;
+}
+.iphone-screen {
+  width: 100%;
+  height: 100%;
+  background: #0E2736;
+  border-radius: 36px;
+  overflow: hidden;
+  position: relative;
+  padding: 54px 20px 24px;
+}
+.iphone-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text);
+  margin-bottom: 20px;
+  padding: 0 8px;
+}
+.iphone-status-icons {
+  display: flex;
+  gap: 4px;
+}
+.iphone-status-icon {
+  width: 11px;
+  height: 8px;
+  background: var(--text);
+  border-radius: 1px;
+  opacity: 0.8;
+}
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding: 0 4px;
+}
+.app-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.app-chip {
+  font-family: var(--mono);
+  font-size: 8px;
+  padding: 3px 8px;
+  background: var(--mint-dim);
+  color: var(--mint);
+  border-radius: 4px;
+  letter-spacing: 0.1em;
+}
+.scan-frame {
+  position: relative;
+  height: 250px;
+  background: linear-gradient(180deg, rgba(66,212,181,0.04), rgba(66,212,181,0.02));
+  border-radius: 14px;
+  border: 1px solid rgba(66,212,181,0.22);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.scan-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: var(--mint);
+  border-style: solid;
+}
+.scan-corner.tl { top: 14px; left: 14px; border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
+.scan-corner.tr { top: 14px; right: 14px; border-width: 2px 2px 0 0; border-radius: 0 4px 0 0; }
+.scan-corner.bl { bottom: 14px; left: 14px; border-width: 0 0 2px 2px; border-radius: 0 0 0 4px; }
+.scan-corner.br { bottom: 14px; right: 14px; border-width: 0 2px 2px 0; border-radius: 0 0 4px 0; }
+.scan-line {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--mint), transparent);
+  animation: scanSlide 2.6s var(--ease) infinite;
+  box-shadow: 0 0 12px var(--mint);
+}
+@keyframes scanSlide {
+  0%, 100% { transform: translateY(-80px); opacity: 0.4; }
+  50% { transform: translateY(80px); opacity: 1; }
+}
+.pill-visual {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 8px;
+}
+.pill {
+  width: 28px;
+  height: 18px;
+  border-radius: 9px;
+  background: #F6F8F7;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.pill::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #CBD4D1;
+}
+.pill.coral { background: var(--coral); }
+.pill.coral::after { background: #C76850; }
+.pill.teal-pill { background: var(--mint); }
+.pill.teal-pill::after { background: #2AA589; }
+
+.match-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--mint), #2EBA9D);
+  border-radius: 14px;
+  margin-bottom: 14px;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(66, 212, 181, 0.3);
+}
+.match-badge-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #F6F8F7;
+  position: relative;
+}
+.match-badge-icon::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 13px;
+  width: 5px;
+  height: 10px;
+  border-right: 2px solid var(--bg-deep);
+  border-bottom: 2px solid var(--bg-deep);
+  transform: rotate(45deg);
+}
+.match-badge-text {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--bg-deep);
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+.match-badge-sub {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--bg-deep);
+  letter-spacing: 0.22em;
+  opacity: 0.75;
+}
+.rx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rx-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 10px;
+  background: rgba(246, 248, 247, 0.04);
+  border-radius: 6px;
+  font-size: 10px;
+  border-left: 2px solid var(--mint);
+}
+.rx-item-name {
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--text);
+}
+.rx-item-qty {
+  font-family: var(--mono);
+  color: var(--mint);
+  font-weight: 500;
+}
+.iphone-floating-badge {
+  position: absolute;
+  top: -8px;
+  right: -24px;
+  padding: 10px 18px;
+  background: var(--coral);
+  color: var(--bg-deep);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  border-radius: 4px;
+  box-shadow: 0 10px 28px rgba(255, 138, 107, 0.35);
+  transform: rotate(3deg);
+  z-index: 5;
+}
+.iphone-side-annotation {
+  position: absolute;
+  left: -60px;
+  top: 180px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  text-align: right;
+  line-height: 1.6;
+  writing-mode: horizontal-tb;
+}
+.iphone-side-annotation::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--mint);
+  margin-top: 8px;
+  margin-left: auto;
+}
+
+/* =====================================================
+   TRUST STRIP
+   ===================================================== */
+.trust-strip {
+  padding: 40px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: rgba(10, 34, 48, 0.35);
+}
+.trust-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.trust-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.18em;
+}
+.trust-logos {
+  display: flex;
+  gap: 48px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.trust-logo {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-mute);
+  opacity: 0.75;
+  letter-spacing: 0.02em;
+  font-style: italic;
+}
+
+/* =====================================================
+   ISSUE SECTION (3 numbers)
+   ===================================================== */
+.issue {
+  padding: 140px 0 120px;
+  position: relative;
+}
+.section-header {
+  margin-bottom: 80px;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(40px, 5.5vw, 68px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 18px 0 24px;
+  max-width: 880px;
+}
+.section-title em {
+  font-style: italic;
+  color: var(--coral);
+}
+.section-title .serif-jp {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.6em;
+  font-weight: 500;
+  display: block;
+  margin-top: 12px;
+  letter-spacing: -0.01em;
+}
+.section-lead {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-mute);
+  max-width: 640px;
+  letter-spacing: 0.02em;
+}
+
+.issue-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--line);
+  margin-top: 40px;
+}
+.issue-stat {
+  padding: 56px 40px 48px 0;
+  position: relative;
+  border-right: 1px solid var(--line);
+}
+.issue-stat:last-child { border-right: none; padding-right: 0; }
+.issue-stat:not(:first-child) { padding-left: 40px; }
+.issue-stat-index {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.2em;
+  margin-bottom: 24px;
+}
+.issue-stat-num {
+  font-family: var(--serif);
+  font-size: clamp(88px, 12vw, 160px);
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--coral);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+}
+.issue-stat-num .unit {
+  font-size: 0.38em;
+  color: var(--text);
+  margin-left: 6px;
+  margin-top: 12px;
+  letter-spacing: 0;
+}
+.issue-stat-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  letter-spacing: 0.02em;
+}
+.issue-stat-desc {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--text-mute);
+  line-height: 1.8;
+}
+.issue-stat-source {
+  margin-top: 20px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.08em;
+}
+
+/* =====================================================
+   WHY SECTION
+   ===================================================== */
+.why {
+  padding: 140px 0 120px;
+  background: var(--bg-deep);
+  border-top: 1px solid var(--line);
+  position: relative;
+}
+.why-inner { position: relative; }
+.why-layout {
+  display: grid;
+  grid-template-columns: 4fr 7fr;
+  gap: 80px;
+  align-items: flex-start;
+}
+.why-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.why-reason {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 24px;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--line);
+  align-items: flex-start;
+}
+.why-reason:first-child { border-top: 1px solid var(--line); }
+.why-num {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--mint);
+  letter-spacing: 0.08em;
+  padding-top: 4px;
+}
+.why-reason-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+.why-reason-desc {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--text-mute);
+}
+
+/* =====================================================
+   HOW IT WORKS (3 steps)
+   ===================================================== */
+.how {
+  padding: 160px 0 140px;
+  position: relative;
+  border-top: 1px solid var(--line);
+}
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-top: 60px;
+  position: relative;
+}
+.how-step {
+  padding: 48px 32px;
+  border: 1px solid var(--line);
+  background: linear-gradient(170deg, rgba(66,212,181,0.03), transparent);
+  position: relative;
+  transition: all 0.4s var(--ease);
+}
+.how-step::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--mint);
+  transition: width 0.6s var(--ease);
+}
+.how-step:hover::before { width: 100%; }
+.how-step:hover {
+  background: linear-gradient(170deg, rgba(66,212,181,0.06), rgba(66,212,181,0.02));
+  transform: translateY(-4px);
+}
+.how-step-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--mint);
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--mint);
+  margin-bottom: 32px;
+  font-weight: 500;
+}
+.how-step-icon {
+  margin-bottom: 28px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+}
+.icon-rx {
+  position: relative;
+  width: 80px;
+  height: 88px;
+}
+.icon-rx-paper {
+  width: 62px;
+  height: 78px;
+  border: 1.5px solid var(--text-mute);
+  border-radius: 3px;
+  position: absolute;
+  top: 6px;
+  left: 0;
+}
+.icon-rx-paper::before, .icon-rx-paper::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  height: 1.5px;
+  background: var(--text-faint);
+}
+.icon-rx-paper::before { top: 18px; }
+.icon-rx-paper::after { top: 28px; right: 20px; }
+.icon-rx-lines {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 38px;
+  height: 1.5px;
+  background: var(--text-faint);
+  box-shadow: 0 8px 0 var(--text-faint), 0 16px 0 var(--text-faint);
+}
+.icon-rx-scan {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 40px;
+  height: 2px;
+  background: var(--mint);
+  box-shadow: 0 0 8px var(--mint);
+}
+.icon-cam {
+  width: 86px;
+  height: 70px;
+  border: 1.5px solid var(--text-mute);
+  border-radius: 8px;
+  position: relative;
+}
+.icon-cam::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 28px;
+  width: 32px;
+  height: 12px;
+  border: 1.5px solid var(--text-mute);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: var(--bg);
+}
+.icon-cam-lens {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--mint);
+  border-radius: 50%;
+}
+.icon-cam-lens::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  background: var(--mint);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+.icon-check {
+  width: 70px;
+  height: 70px;
+  border: 2px solid var(--mint);
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 24px var(--mint-dim);
+}
+.icon-check::after {
+  content: '';
+  position: absolute;
+  left: 22px;
+  top: 30px;
+  width: 10px;
+  height: 22px;
+  border-right: 2.5px solid var(--mint);
+  border-bottom: 2.5px solid var(--mint);
+  transform: rotate(45deg);
+}
+.how-step-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  letter-spacing: 0.02em;
+}
+.how-step-caption {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--mint);
+  letter-spacing: 0.14em;
+  margin-bottom: 16px;
+}
+.how-step-desc {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  line-height: 1.85;
+  color: var(--text-mute);
+}
+
+/* =====================================================
+   ACCURACY (99.7%)
+   ===================================================== */
+.accuracy {
+  padding: 180px 0 160px;
+  background: var(--bg-deep);
+  border-top: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+}
+.accuracy-inner {
+  display: grid;
+  grid-template-columns: 5fr 6fr;
+  gap: 80px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+.accuracy-big {
+  font-family: var(--serif);
+  font-size: clamp(180px, 26vw, 340px);
+  font-weight: 500;
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+  color: var(--mint);
+  display: flex;
+  align-items: flex-start;
+}
+.accuracy-big .pct {
+  font-size: 0.32em;
+  margin-top: 0.35em;
+  color: var(--text);
+}
+.accuracy-big .period {
+  width: 14px;
+  height: 14px;
+  background: var(--coral);
+  border-radius: 50%;
+  margin: 0.85em 0 0 0.1em;
+  display: inline-block;
+}
+.accuracy-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.22em;
+  margin-top: 20px;
+  padding-left: 0;
+  display: block;
+}
+.accuracy-content h3 {
+  font-family: var(--serif);
+  font-size: clamp(34px, 4.5vw, 56px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+}
+.accuracy-content h3 em { font-style: italic; color: var(--mint); }
+.accuracy-content h3 .jp { font-family: 'Noto Serif JP', serif; display: block; font-size: 0.58em; margin-top: 14px; }
+.accuracy-list {
+  list-style: none;
+  margin-top: 36px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+.accuracy-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.accuracy-item:last-child { border-bottom: none; }
+.accuracy-item-num {
+  font-family: var(--mono);
+  font-size: 20px;
+  color: var(--mint);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  min-width: 80px;
+}
+.accuracy-item-label {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+}
+.accuracy-item-label span {
+  display: block;
+  font-size: 12px;
+  color: var(--text-mute);
+  margin-top: 2px;
+}
+
+/* =====================================================
+   VALUES (4 cards)
+   ===================================================== */
+.values {
+  padding: 160px 0 140px;
+  border-top: 1px solid var(--line);
+}
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  margin-top: 60px;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.value-card {
+  padding: 56px 48px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  position: relative;
+  transition: background 0.35s var(--ease);
+}
+.value-card:hover {
+  background: rgba(66, 212, 181, 0.03);
+}
+.value-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+.value-card-index {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.2em;
+}
+.value-card-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-shield {
+  width: 36px;
+  height: 42px;
+  background: linear-gradient(180deg, var(--mint) 60%, #2EBA9D 100%);
+  clip-path: path('M18 0 L36 6 L36 24 Q36 38 18 42 Q0 38 0 24 L0 6 Z');
+  position: relative;
+}
+.icon-shield::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 15px;
+  width: 8px;
+  height: 14px;
+  border-right: 2px solid var(--bg-deep);
+  border-bottom: 2px solid var(--bg-deep);
+  transform: rotate(45deg);
+}
+.icon-heart {
+  width: 38px;
+  height: 34px;
+  position: relative;
+}
+.icon-heart::before, .icon-heart::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 20px;
+  height: 30px;
+  background: var(--coral);
+  border-radius: 20px 20px 0 0;
+}
+.icon-heart::before { left: 0; transform: rotate(-45deg); transform-origin: 0 100%; }
+.icon-heart::after { right: 0; transform: rotate(45deg); transform-origin: 100% 100%; }
+.icon-flow {
+  width: 44px;
+  height: 44px;
+  position: relative;
+}
+.icon-flow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  border-right-color: transparent;
+  animation: spin 8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.icon-flow::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.icon-doc {
+  width: 36px;
+  height: 44px;
+  border: 2px solid var(--mint);
+  border-radius: 3px;
+  position: relative;
+}
+.icon-doc::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 6px;
+  right: 6px;
+  height: 2px;
+  background: var(--mint);
+  box-shadow: 0 6px 0 var(--mint), 0 12px 0 var(--mint), 0 18px 0 var(--mint);
+}
+
+.value-card-title-en {
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.value-card-title-jp {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+.value-card-desc {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--text-mute);
+  margin-bottom: 24px;
+}
+.value-card-footer {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--mint);
+  letter-spacing: 0.1em;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-soft);
+}
+
+/* =====================================================
+   PRICING
+   ===================================================== */
+.pricing {
+  padding: 160px 0 140px;
+  background: var(--bg-deep);
+  border-top: 1px solid var(--line);
+  position: relative;
+}
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 72px;
+}
+.price-card {
+  border: 1px solid var(--line);
+  padding: 56px 40px 48px;
+  position: relative;
+  background: rgba(19, 56, 74, 0.4);
+  transition: all 0.4s var(--ease);
+}
+.price-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--mint);
+}
+.price-card.featured {
+  border-color: var(--gold);
+  background: linear-gradient(180deg, rgba(245, 194, 66, 0.06), rgba(245, 194, 66, 0.02));
+  transform: translateY(-16px);
+  box-shadow: 0 24px 64px -24px rgba(245, 194, 66, 0.24);
+}
+.price-card.featured:hover {
+  transform: translateY(-22px);
+}
+.featured-badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 18px;
+  background: var(--gold);
+  color: var(--bg-deep);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  font-weight: 600;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.featured-badge::before {
+  content: '♥';
+  color: var(--bg-deep);
+  font-size: 11px;
+}
+.price-tier-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.18em;
+  margin-bottom: 20px;
+}
+.price-tier-name {
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  margin-bottom: 14px;
+}
+.price-tier-tagline {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  color: var(--text-mute);
+  margin-bottom: 36px;
+  min-height: 40px;
+  line-height: 1.7;
+}
+.price-amount {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.price-currency {
+  font-family: var(--mono);
+  font-size: 20px;
+  color: var(--text-mute);
+  margin-bottom: 14px;
+}
+.price-number {
+  font-family: var(--serif);
+  font-size: 72px;
+  font-weight: 500;
+  line-height: 0.9;
+  color: var(--text);
+  letter-spacing: -0.03em;
+}
+.featured .price-number { color: var(--gold); }
+.price-period {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text-mute);
+  margin-bottom: 14px;
+  letter-spacing: 0.05em;
+}
+.price-note {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+  margin-bottom: 32px;
+}
+.price-divider {
+  height: 1px;
+  background: var(--line);
+  margin-bottom: 32px;
+}
+.price-features {
+  list-style: none;
+  margin-bottom: 40px;
+}
+.price-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 11px 0;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+.price-check {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--mint);
+  border-radius: 50%;
+  position: relative;
+  margin-top: 2px;
+}
+.price-check::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border-right: 1.5px solid var(--mint);
+  border-bottom: 1.5px solid var(--mint);
+  transform: rotate(45deg);
+}
+.featured .price-check { border-color: var(--gold); }
+.featured .price-check::after { border-color: var(--gold); }
+.price-feature-dim { color: var(--text-mute); }
+.price-cta {
+  width: 100%;
+  justify-content: center;
+}
+.price-card.featured .price-cta {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.price-card.featured .price-cta::before {
+  background: var(--gold);
+}
+.price-card.featured .price-cta:hover { color: var(--bg-deep); }
+
+.pricing-footnote {
+  text-align: center;
+  margin-top: 60px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.12em;
+}
+
+/* =====================================================
+   TESTIMONIALS
+   ===================================================== */
+.voices {
+  padding: 160px 0 140px;
+  border-top: 1px solid var(--line);
+}
+.voices-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--line);
+  margin-top: 60px;
+}
+.voice {
+  padding: 56px 40px 48px 0;
+  border-right: 1px solid var(--line);
+  position: relative;
+}
+.voice:last-child { border-right: none; }
+.voice:not(:first-child) { padding-left: 40px; }
+.voice-mark {
+  font-family: var(--serif);
+  font-size: 80px;
+  font-style: italic;
+  color: var(--mint);
+  line-height: 0.6;
+  margin-bottom: 16px;
+  opacity: 0.85;
+}
+.voice-body {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
+  margin-bottom: 36px;
+  color: var(--text);
+}
+.voice-author {
+  padding-top: 24px;
+  border-top: 1px solid var(--line-soft);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.voice-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--mint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--mint);
+  font-style: italic;
+  flex-shrink: 0;
+}
+.voice-meta-name {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 3px;
+}
+.voice-meta-role {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-mute);
+  letter-spacing: 0.08em;
+}
+
+/* =====================================================
+   FAQ
+   ===================================================== */
+.faq {
+  padding: 160px 0 140px;
+  background: var(--bg-deep);
+  border-top: 1px solid var(--line);
+}
+.faq-layout {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: 80px;
+  align-items: flex-start;
+}
+.faq-list {
+  border-top: 1px solid var(--line);
+}
+.faq-item {
+  border-bottom: 1px solid var(--line);
+  padding: 28px 0;
+  cursor: pointer;
+  transition: padding 0.3s var(--ease);
+}
+.faq-item[open] {
+  padding-bottom: 32px;
+}
+.faq-q {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+  list-style: none;
+  cursor: pointer;
+}
+.faq-q::-webkit-details-marker { display: none; }
+.faq-toggle {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.3s var(--ease);
+}
+.faq-toggle::before, .faq-toggle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 1px;
+  background: var(--text);
+  transform: translate(-50%, -50%);
+  transition: transform 0.3s var(--ease);
+}
+.faq-toggle::after { transform: translate(-50%, -50%) rotate(90deg); }
+.faq-item[open] .faq-toggle {
+  background: var(--mint);
+  border-color: var(--mint);
+}
+.faq-item[open] .faq-toggle::before { background: var(--bg-deep); }
+.faq-item[open] .faq-toggle::after { transform: translate(-50%, -50%) rotate(0); background: var(--bg-deep); }
+.faq-a {
+  padding-top: 20px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--text-mute);
+  max-width: 640px;
+}
+
+/* =====================================================
+   FOOTER CTA
+   ===================================================== */
+.footer-cta {
+  padding: 180px 0 120px;
+  text-align: center;
+  border-top: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+}
+.footer-cta-bg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 720px;
+  height: 720px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.footer-cta-bg::before {
+  content: '';
+  position: absolute;
+  inset: 80px;
+  border: 1px solid var(--line-soft);
+  border-radius: 50%;
+}
+.footer-cta-inner { position: relative; z-index: 2; }
+.footer-cta-tag {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--mint);
+  letter-spacing: 0.22em;
+  margin-bottom: 36px;
+}
+.footer-cta-headline {
+  font-family: var(--serif);
+  font-size: clamp(48px, 7vw, 96px);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  margin-bottom: 40px;
+  max-width: 920px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.footer-cta-headline em { font-style: italic; color: var(--mint); }
+.footer-cta-sub {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 17px;
+  color: var(--text-mute);
+  max-width: 540px;
+  margin: 0 auto 56px;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+}
+.footer-cta-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+.footer {
+  padding: 80px 0 40px;
+  border-top: 1px solid var(--line);
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: 48px;
+  margin-bottom: 72px;
+}
+.footer-brand-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--mint);
+  letter-spacing: 0.14em;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.footer-brand-desc {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--text-mute);
+  line-height: 1.8;
+  max-width: 340px;
+}
+.footer-col-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.2em;
+  margin-bottom: 24px;
+}
+.footer-col ul { list-style: none; }
+.footer-col li {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--text-mute);
+  padding: 8px 0;
+  transition: color 0.2s;
+}
+.footer-col li:hover { color: var(--mint); cursor: pointer; }
+.footer-bottom {
+  padding-top: 36px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+}
+.footer-legal { display: flex; gap: 24px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+  .hero-left, .hero-right { grid-column: 1 / -1; padding-right: 0; }
+  .hero-right { margin-top: 60px; }
+  .why-layout, .accuracy-inner, .faq-layout { grid-template-columns: 1fr; gap: 48px; }
+  .issue-stats, .voices-grid { grid-template-columns: 1fr; }
+  .issue-stat, .voice { border-right: none; border-bottom: 1px solid var(--line); padding: 32px 0; }
+  .issue-stat:last-child, .voice:last-child { border-bottom: none; }
+  .issue-stat:not(:first-child), .voice:not(:first-child) { padding-left: 0; }
+  .how-steps, .values-grid, .pricing-grid { grid-template-columns: 1fr; }
+  .price-card.featured { transform: none; }
+  .price-card.featured:hover { transform: translateY(-6px); }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+  .hero-bg-line { display: none; }
+  .iphone-side-annotation { display: none; }
+  .iphone-floating-badge { right: -10px; }
+}
+@media (max-width: 640px) {
+  .container { padding: 0 20px; }
+  .nav-menu a:not(.nav-cta) { display: none; }
+  .hero { padding: 120px 0 80px; }
+  .hero-cta-row { flex-direction: column; align-items: stretch; gap: 14px; }
+  .hero-stats { grid-template-columns: 1fr; gap: 20px; padding-top: 24px; }
+  .hero-stat { padding: 20px 0; border-top: 1px solid var(--line-soft); }
+  .hero-stat:first-child { border-top: none; padding-top: 0; }
+  .hero-stat:not(:last-child)::after { display: none; }
+  .footer-top { grid-template-columns: 1fr; }
+  .footer-bottom { flex-direction: column; gap: 14px; }
+  .footer-cta-buttons { flex-direction: column; }
+  .iphone-wrap { width: 260px; height: 520px; }
+  .value-card { padding: 40px 28px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==========================================================
+     NAV
+     ========================================================== -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="#" class="logo">
+      <span class="logo-mark"></span>
+      Mitorix
+    </a>
+    <div class="nav-menu">
+      <a href="#issue">課題</a>
+      <a href="#how">仕組み</a>
+      <a href="#values">価値</a>
+      <a href="#pricing">料金</a>
+      <a href="#faq">FAQ</a>
+      <a href="#cta" class="btn nav-cta">無料デモ<span class="btn-arrow"></span></a>
+    </div>
+  </div>
+</nav>
+
+<!-- ==========================================================
+     HERO
+     ========================================================== -->
+<section class="hero">
+  <span class="hero-bg-line l1"></span>
+  <span class="hero-bg-line l2"></span>
+  <span class="hero-bg-line l3"></span>
+  <span class="hero-bg-line l4"></span>
+  <span class="hero-bg-line l5"></span>
+
+  <div class="container">
+    <div class="grid-12 hero-grid">
+      <div class="hero-left">
+        <div class="hero-meta">
+          <span class="hero-meta-dot"></span>
+          <span>VOL. 01 / 2026</span>
+          <span style="color: var(--line);">|</span>
+          <span>ISSUE — PHARMACEUTICAL AI</span>
+        </div>
+
+        <h1 class="hero-headline">
+          <span class="line-1">Zero Miss,</span><br>
+          <span class="line-2">Peace of Mind.</span>
+          <span class="line-3">薬剤師の『確認』を、AIが支える。</span>
+        </h1>
+
+        <div class="hero-tagline">MITORIX — DISPENSING INTELLIGENCE</div>
+
+        <p class="hero-lead">
+          処方箋OCRと調剤台AIカメラ。二つの目が同時に照合し、取り違えと数量ミスをリアルタイムに検出する。薬剤師が本来向き合うべき仕事に、静かに時間を取り戻す。
+        </p>
+
+        <div class="hero-cta-row">
+          <a href="#cta" class="btn">無料デモを予約<span class="btn-arrow"></span></a>
+          <a href="#how" class="btn btn-ghost">仕組みを見る<span class="btn-arrow"></span></a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-num">99.7<span style="font-size: 18px;">%</span></div>
+            <div class="hero-stat-label">照合精度（社内検証）</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-num">0.8<span style="font-size: 18px;">s</span></div>
+            <div class="hero-stat-label">判定レイテンシ</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-num">120<span style="font-size: 18px;">+</span></div>
+            <div class="hero-stat-label">導入薬局（β期間）</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="iphone-wrap">
+          <div class="iphone-side-annotation">
+            RT-01<br>
+            調剤照合画面<br>
+            ver 1.8
+          </div>
+          <span class="iphone-floating-badge">REAL-TIME</span>
+          <div class="iphone">
+            <div class="iphone-screen">
+              <div class="iphone-status">
+                <span>9:41</span>
+                <div class="iphone-status-icons">
+                  <span class="iphone-status-icon"></span>
+                  <span class="iphone-status-icon"></span>
+                  <span class="iphone-status-icon"></span>
+                </div>
+              </div>
+
+              <div class="app-header">
+                <div class="app-title">Mitorix</div>
+                <div class="app-chip">SCANNING</div>
+              </div>
+
+              <div class="scan-frame">
+                <span class="scan-corner tl"></span>
+                <span class="scan-corner tr"></span>
+                <span class="scan-corner bl"></span>
+                <span class="scan-corner br"></span>
+                <span class="scan-line"></span>
+                <div class="pill-visual">
+                  <span class="pill"></span>
+                  <span class="pill coral"></span>
+                  <span class="pill teal-pill"></span>
+                </div>
+              </div>
+
+              <div class="match-badge">
+                <span class="match-badge-icon"></span>
+                <span class="match-badge-text">一致</span>
+                <span class="match-badge-sub">ALL ITEMS MATCHED</span>
+              </div>
+
+              <div class="rx-list">
+                <div class="rx-item">
+                  <span class="rx-item-name">アムロジピン 5mg</span>
+                  <span class="rx-item-qty">28T</span>
+                </div>
+                <div class="rx-item">
+                  <span class="rx-item-name">メトホルミン 250mg</span>
+                  <span class="rx-item-qty">56T</span>
+                </div>
+                <div class="rx-item">
+                  <span class="rx-item-name">ロスバスタチン 2.5mg</span>
+                  <span class="rx-item-qty">14T</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     TRUST STRIP
+     ========================================================== -->
+<section class="trust-strip">
+  <div class="container trust-inner">
+    <div class="trust-label">TRUSTED BY MODERN PHARMACIES ACROSS JAPAN</div>
+    <div class="trust-logos">
+      <span class="trust-logo">Kawabe Pharmacy</span>
+      <span class="trust-logo">Aoi Dispensing Co.</span>
+      <span class="trust-logo">Sakura Health</span>
+      <span class="trust-logo">Midori Pharma Group</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     ISSUE — 3 Numbers
+     ========================================================== -->
+<section class="issue" id="issue">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">THE PROBLEM — 調剤過誤の現在</span>
+      <h2 class="section-title">
+        見えている数字の、<em>その向こうに。</em>
+        <span class="serif-jp">毎日、どこかの調剤台で起きていること。</span>
+      </h2>
+      <p class="section-lead">
+        薬剤師の熟練と注意力だけで支えてきた『照合』は、人員不足と処方件数増加によって限界に近づいている。業界データが示す三つの数字は、この国の調剤現場の静かな危機を示している。
+      </p>
+    </div>
+
+    <div class="issue-stats">
+      <div class="issue-stat">
+        <div class="issue-stat-index">01 — 発生率</div>
+        <div class="issue-stat-num">2.4<span class="unit">%</span></div>
+        <div class="issue-stat-title">処方の約40件に1件、ヒヤリ・ハット</div>
+        <div class="issue-stat-desc">
+          日本薬剤師会の報告によれば、調剤における確認行為のうち一定割合で『見間違い』『取り違え』が発生。多くは薬剤師の目視で食い止められているが、疲労時にはすり抜けうる。
+        </div>
+        <div class="issue-stat-source">SOURCE — JPA Incident Report 2024</div>
+      </div>
+      <div class="issue-stat">
+        <div class="issue-stat-index">02 — 時間的損失</div>
+        <div class="issue-stat-num">38<span class="unit">min</span></div>
+        <div class="issue-stat-title">1日あたりの確認ロスタイム</div>
+        <div class="issue-stat-desc">
+          薬剤師1人が1日の業務で『再確認』『ダブルチェック呼び出し』に費やす平均時間。薬歴記入や服薬指導など本来の業務を圧迫し、スタッフのストレス要因にもなっている。
+        </div>
+        <div class="issue-stat-source">SOURCE — Mitorix Field Study, Q3 2025</div>
+      </div>
+      <div class="issue-stat">
+        <div class="issue-stat-index">03 — 潜在コスト</div>
+        <div class="issue-stat-num">1.2<span class="unit">M¥</span></div>
+        <div class="issue-stat-title">1件の調剤過誤が生む平均損失</div>
+        <div class="issue-stat-desc">
+          処方ミスが顕在化した場合の賠償・回収・調査・信用毀損を含めた、1件あたりの平均損失額推計。数字は氷山の一角であり、失う信頼はそれ以上である。
+        </div>
+        <div class="issue-stat-source">SOURCE — Pharma Risk Survey 2024</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     WHY — なぜ起こるのか
+     ========================================================== -->
+<section class="why">
+  <div class="container why-inner">
+    <div class="why-layout">
+      <div>
+        <span class="eyebrow">WHY IT HAPPENS</span>
+        <h2 class="section-title">
+          『確認』は、<em>注意力</em>だけでは守れない。
+          <span class="serif-jp">ミスは個人の問題ではなく、構造の問題。</span>
+        </h2>
+        <p class="section-lead" style="margin-top: 24px;">
+          調剤過誤の原因は多くの場合、特定の誰かの怠慢ではない。現場が抱える三つの静かな構造こそが、最大の温床になっている。
+        </p>
+      </div>
+
+      <div class="why-reasons">
+        <div class="why-reason">
+          <div class="why-num">01</div>
+          <div>
+            <div class="why-reason-title">類似パッケージと似た薬剤名</div>
+            <div class="why-reason-desc">
+              色違い・一文字違い・メーカー差。2〜3秒の目視照合で見分けられるはずの差異が、繁忙時には一瞬ですり抜ける。記憶と思い込みが視覚を上書きしてしまう。
+            </div>
+          </div>
+        </div>
+        <div class="why-reason">
+          <div class="why-num">02</div>
+          <div>
+            <div class="why-reason-title">割り込みによる集中の途切れ</div>
+            <div class="why-reason-desc">
+              電話、窓口対応、在庫問い合わせ。1回の調剤は平均3.4回の割り込みにさらされる。再開した瞬間、どこまで確認したかが曖昧になる構造。
+            </div>
+          </div>
+        </div>
+        <div class="why-reason">
+          <div class="why-num">03</div>
+          <div>
+            <div class="why-reason-title">ダブルチェック人員の慢性不足</div>
+            <div class="why-reason-desc">
+              1人薬剤師体制の薬局は全国で4割を超える。確認者がいない、もしくはセルフチェックに頼らざるを得ない状況が、最後の安全網を脆くしている。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     HOW IT WORKS — 3 Steps
+     ========================================================== -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">HOW MITORIX WORKS — 3つの工程</span>
+      <h2 class="section-title">
+        処方箋を読み、薬を見て、<em>一致を告げる。</em>
+        <span class="serif-jp">いつもの調剤に、もう一対の目を。</span>
+      </h2>
+    </div>
+
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-num">01</div>
+        <div class="how-step-icon">
+          <div class="icon-rx">
+            <div class="icon-rx-paper"></div>
+            <div class="icon-rx-lines"></div>
+            <div class="icon-rx-scan"></div>
+          </div>
+        </div>
+        <div class="how-step-caption">STEP 01 — RX CAPTURE</div>
+        <h3 class="how-step-title">処方箋OCR</h3>
+        <p class="how-step-desc">
+          紙・FAX・電子処方箋のいずれも、薬剤名・規格・数量・用法を日本の医薬品DBと照合した『読み違えない』精度で構造化。手書きの癖にも適応する。
+        </p>
+      </div>
+
+      <div class="how-step">
+        <div class="how-step-num">02</div>
+        <div class="how-step-icon">
+          <div class="icon-cam">
+            <div class="icon-cam-lens"></div>
+          </div>
+        </div>
+        <div class="how-step-caption">STEP 02 — TABLE VISION</div>
+        <h3 class="how-step-title">調剤台AIカメラ</h3>
+        <p class="how-step-desc">
+          調剤台に置くだけのAIカメラが、PTPシート・バラ錠・散薬・水剤を自動認識。薬剤の種類と数量、規格をリアルタイムに把握し、処方箋側と突合する。
+        </p>
+      </div>
+
+      <div class="how-step">
+        <div class="how-step-num">03</div>
+        <div class="how-step-icon">
+          <div class="icon-check"></div>
+        </div>
+        <div class="how-step-caption">STEP 03 — MATCH SIGNAL</div>
+        <h3 class="how-step-title">一致／相違をリアルタイム判定</h3>
+        <p class="how-step-desc">
+          0.8秒以内に『一致』のミントバッジ、または『相違』の警告。すべてのイベントは監査ログとして保存され、後からトレース可能。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     ACCURACY — 99.7%
+     ========================================================== -->
+<section class="accuracy">
+  <div class="container accuracy-inner">
+    <div class="accuracy-left">
+      <div class="accuracy-big">99.7<span class="pct">%</span><span class="period"></span></div>
+      <span class="accuracy-label">VERIFIED IN FIELD — JAN 2026</span>
+    </div>
+    <div class="accuracy-content">
+      <span class="eyebrow">PROVEN ACCURACY</span>
+      <h3>
+        現場で、<em>99.7%</em>。
+        <span class="jp">検証は、数字を盛らず積み上げた。</span>
+      </h3>
+      <p class="section-lead">
+        全国12薬局、延べ48,000処方の実地検証で記録した平均照合精度。処方箋OCRの認識精度と、調剤台AIカメラの薬剤識別精度の総合値として算出した。
+      </p>
+      <ul class="accuracy-list">
+        <li class="accuracy-item">
+          <span class="accuracy-item-num">99.9%</span>
+          <span class="accuracy-item-label">PTP錠剤の識別精度<span>主要な先発・後発品5,800種に対応</span></span>
+        </li>
+        <li class="accuracy-item">
+          <span class="accuracy-item-num">99.4%</span>
+          <span class="accuracy-item-label">処方箋OCRの薬剤名認識<span>手書き処方箋を含む</span></span>
+        </li>
+        <li class="accuracy-item">
+          <span class="accuracy-item-num">0.8s</span>
+          <span class="accuracy-item-label">判定レイテンシ中央値<span>調剤台に置くだけ、待たせない</span></span>
+        </li>
+        <li class="accuracy-item">
+          <span class="accuracy-item-num">24/7</span>
+          <span class="accuracy-item-label">監査ログと自動学習<span>現場のフィードバックで日々向上</span></span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     VALUES — 4 cards
+     ========================================================== -->
+<section class="values" id="values">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">FOUR VALUES</span>
+      <h2 class="section-title">
+        Mitorixが薬局にもたらす、<em>4つの静かな変化。</em>
+        <span class="serif-jp">薬剤師が『薬剤師の仕事』に集中できる現場へ。</span>
+      </h2>
+    </div>
+
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-card-head">
+          <span class="value-card-index">VALUE 01</span>
+          <div class="value-card-icon"><span class="icon-shield"></span></div>
+        </div>
+        <h3 class="value-card-title-en">Zero Miss</h3>
+        <div class="value-card-title-jp">見落とさない、見逃させない。</div>
+        <p class="value-card-desc">
+          処方箋OCRと調剤台カメラの二重照合で、薬剤取り違え・規格違い・数量不足をリアルタイムに検出。人間の目が疲れていても、AIの目は疲れない。
+        </p>
+        <div class="value-card-footer">— リアルタイム照合エンジン</div>
+      </div>
+
+      <div class="value-card">
+        <div class="value-card-head">
+          <span class="value-card-index">VALUE 02</span>
+          <div class="value-card-icon"><span class="icon-heart"></span></div>
+        </div>
+        <h3 class="value-card-title-en">Peace of Mind</h3>
+        <div class="value-card-title-jp">薬剤師の、夜の眠り。</div>
+        <p class="value-card-desc">
+          『あの処方、大丈夫だっただろうか』。その不安を、AIが保存した監査ログが引き受ける。翌日には確信を持って次の処方に向き合える。
+        </p>
+        <div class="value-card-footer">— 不安を肩代わりする監査ログ</div>
+      </div>
+
+      <div class="value-card">
+        <div class="value-card-head">
+          <span class="value-card-index">VALUE 03</span>
+          <div class="value-card-icon"><span class="icon-flow"></span></div>
+        </div>
+        <h3 class="value-card-title-en">Workflow Fit</h3>
+        <div class="value-card-title-jp">調剤の流れを、邪魔しない。</div>
+        <p class="value-card-desc">
+          調剤台に置くだけ。既存レセコン・電子薬歴との連携APIも整備済み。新しい手順を覚える必要はなく、いつもの動作にAIがそっと寄り添う。
+        </p>
+        <div class="value-card-footer">— レセコン／電子薬歴連携</div>
+      </div>
+
+      <div class="value-card">
+        <div class="value-card-head">
+          <span class="value-card-index">VALUE 04</span>
+          <div class="value-card-icon"><span class="icon-doc"></span></div>
+        </div>
+        <h3 class="value-card-title-en">Audit Log</h3>
+        <div class="value-card-title-jp">すべての照合を、証跡に。</div>
+        <p class="value-card-desc">
+          いつ、誰が、何を調剤し、AIはどう判定したか。画像付きログを暗号化保存。監査、クレーム対応、品質改善に即時エビデンスを提供する。
+        </p>
+        <div class="value-card-footer">— 画像付き暗号化ログ（5年間保管）</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     PRICING
+     ========================================================== -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-header" style="text-align: center;">
+      <span class="eyebrow" style="justify-content: center;">PRICING — 月額定額・初期費用ゼロ</span>
+      <h2 class="section-title" style="margin-left: auto; margin-right: auto;">
+        規模に合わせて選べる、<em>3つのプラン。</em>
+        <span class="serif-jp">どのプランからでも、安心は同じ。</span>
+      </h2>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Starter -->
+      <div class="price-card">
+        <div class="price-tier-eyebrow">PLAN 01</div>
+        <h3 class="price-tier-name">Starter</h3>
+        <p class="price-tier-tagline">1人薬剤師・日50件まで。小規模薬局の安心装備。</p>
+        <div class="price-amount">
+          <span class="price-currency">¥</span>
+          <span class="price-number">38,000</span>
+        </div>
+        <div class="price-period">/ 月（税別）</div>
+        <div class="price-note">初期費用 ¥0 / 最短当日導入</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li class="price-feature"><span class="price-check"></span>処方箋OCR（月1,500件まで）</li>
+          <li class="price-feature"><span class="price-check"></span>調剤台AIカメラ1台</li>
+          <li class="price-feature"><span class="price-check"></span>リアルタイム一致判定</li>
+          <li class="price-feature"><span class="price-check"></span>監査ログ12ヶ月保管</li>
+          <li class="price-feature price-feature-dim"><span class="price-check"></span>メールサポート（平日）</li>
+        </ul>
+        <a href="#cta" class="btn price-cta">このプランで始める<span class="btn-arrow"></span></a>
+      </div>
+
+      <!-- Standard (featured) -->
+      <div class="price-card featured">
+        <div class="featured-badge">MOST LOVED</div>
+        <div class="price-tier-eyebrow">PLAN 02</div>
+        <h3 class="price-tier-name">Standard</h3>
+        <p class="price-tier-tagline">最も選ばれる標準構成。複数薬剤師の中規模薬局に。</p>
+        <div class="price-amount">
+          <span class="price-currency">¥</span>
+          <span class="price-number">98,000</span>
+        </div>
+        <div class="price-period">/ 月（税別）</div>
+        <div class="price-note">初期費用 ¥0 / 30日間 無料トライアル</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li class="price-feature"><span class="price-check"></span>処方箋OCR（月6,000件まで）</li>
+          <li class="price-feature"><span class="price-check"></span>調剤台AIカメラ 最大3台</li>
+          <li class="price-feature"><span class="price-check"></span>レセコン／電子薬歴連携API</li>
+          <li class="price-feature"><span class="price-check"></span>監査ログ 36ヶ月保管</li>
+          <li class="price-feature"><span class="price-check"></span>ヒヤリハット自動集計レポート</li>
+          <li class="price-feature"><span class="price-check"></span>電話＋チャットサポート</li>
+        </ul>
+        <a href="#cta" class="btn price-cta">このプランで始める<span class="btn-arrow"></span></a>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="price-card">
+        <div class="price-tier-eyebrow">PLAN 03</div>
+        <h3 class="price-tier-name">Enterprise</h3>
+        <p class="price-tier-tagline">多店舗チェーン・病院門前向け。全社横断のガバナンスを。</p>
+        <div class="price-amount">
+          <span class="price-currency">¥</span>
+          <span class="price-number">250,000</span>
+        </div>
+        <div class="price-period">〜 / 月（税別）</div>
+        <div class="price-note">店舗数に応じて見積もり</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li class="price-feature"><span class="price-check"></span>処方箋OCR（件数無制限）</li>
+          <li class="price-feature"><span class="price-check"></span>AIカメラ台数無制限</li>
+          <li class="price-feature"><span class="price-check"></span>SSO / SAML / IPアドレス制御</li>
+          <li class="price-feature"><span class="price-check"></span>監査ログ 60ヶ月・オンプレ保管可</li>
+          <li class="price-feature"><span class="price-check"></span>本部ダッシュボード・KPI自動集計</li>
+          <li class="price-feature"><span class="price-check"></span>専任カスタマーサクセス</li>
+        </ul>
+        <a href="#cta" class="btn price-cta">見積もりを依頼<span class="btn-arrow"></span></a>
+      </div>
+    </div>
+
+    <div class="pricing-footnote">
+      ALL PLANS INCLUDE — リアルタイム一致判定 / 画像付き監査ログ / 継続的モデルアップデート
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     VOICES — Testimonials
+     ========================================================== -->
+<section class="voices">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">VOICES — 現場の薬剤師から</span>
+      <h2 class="section-title">
+        『もう、<em>戻れない。</em>』
+        <span class="serif-jp">導入した薬局から届いた声。</span>
+      </h2>
+    </div>
+
+    <div class="voices-grid">
+      <div class="voice">
+        <div class="voice-mark">&ldquo;</div>
+        <p class="voice-body">
+          一人薬剤師の店舗で、夜に不安で眠れないことが減った。AIが『一致』と告げてくれるだけで、翌朝の自分を救っている。
+        </p>
+        <div class="voice-author">
+          <div class="voice-avatar">K</div>
+          <div>
+            <div class="voice-meta-name">河部 美樹 さん</div>
+            <div class="voice-meta-role">KAWABE PHARMACY / 管理薬剤師</div>
+          </div>
+        </div>
+      </div>
+      <div class="voice">
+        <div class="voice-mark">&ldquo;</div>
+        <p class="voice-body">
+          類似PTPの取り違えを3件、導入初月に防いだ。監査ログが画像付きで残るから、ヒヤリハット報告の質が別次元に変わった。
+        </p>
+        <div class="voice-author">
+          <div class="voice-avatar">A</div>
+          <div>
+            <div class="voice-meta-name">浅井 拓郎 さん</div>
+            <div class="voice-meta-role">AOI DISPENSING / エリアマネージャー</div>
+          </div>
+        </div>
+      </div>
+      <div class="voice">
+        <div class="voice-mark">&ldquo;</div>
+        <p class="voice-body">
+          調剤台に置くだけという言葉通り、導入初日からスタッフが普通に使い始めた。研修資料を作り込む必要がなかったのは正直驚いた。
+        </p>
+        <div class="voice-author">
+          <div class="voice-avatar">S</div>
+          <div>
+            <div class="voice-meta-name">佐伯 玲 さん</div>
+            <div class="voice-meta-role">SAKURA HEALTH / 薬局事業部長</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     FAQ
+     ========================================================== -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="faq-layout">
+      <div>
+        <span class="eyebrow">FREQUENTLY ASKED</span>
+        <h2 class="section-title">
+          よくある、<em>ご質問。</em>
+          <span class="serif-jp">導入前に気になるポイントを。</span>
+        </h2>
+        <p class="section-lead" style="margin-top: 24px;">
+          ここに無い質問は、デモのなかで遠慮なくお尋ねください。現場薬剤師出身のカスタマーサクセスが答えます。
+        </p>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item" open>
+          <summary class="faq-q">
+            <span>既存のレセコンや電子薬歴と連携できますか？</span>
+            <span class="faq-toggle"></span>
+          </summary>
+          <div class="faq-a">
+            主要なレセコン・電子薬歴（Medicom、調剤Melphin、Pharnes、Elixir、メディパスなど）とAPI連携しています。Standardプラン以上で追加費用なくご利用いただけます。未対応ベンダーについても、都度対応検討を行っています。
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span>導入にはどれくらいの時間がかかりますか？</span>
+            <span class="faq-toggle"></span>
+          </summary>
+          <div class="faq-a">
+            Starter/Standardは最短で申込当日〜翌営業日に発送、翌々日からご利用開始可能です。既存ネットワークへの追加設定は最小限で、調剤台にカメラを置き、iPadアプリを起動するだけです。
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span>患者情報・処方データは外部に出ますか？</span>
+            <span class="faq-toggle"></span>
+          </summary>
+          <div class="faq-a">
+            処方箋画像・照合ログは日本国内のリージョン（AWS東京）で暗号化保管されます。個人を特定できる情報（氏名・生年月日・保険情報）はマスキングした状態で機械学習に使用されます。Enterpriseプランではオンプレミス保管も選択可能です。
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span>AIが誤判定した場合、責任はどうなりますか？</span>
+            <span class="faq-toggle"></span>
+          </summary>
+          <div class="faq-a">
+            Mitorixは薬剤師の最終確認を代替するものではなく、支援するシステムです。最終的な調剤責任は薬剤師にあります。一方で、AIが検出できなかった事例に関しては、弊社の製造物責任保険（1事故最大3,000万円）がカバーします。
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span>散薬・水剤・一包化にも対応していますか？</span>
+            <span class="faq-toggle"></span>
+          </summary>
+          <div class="faq-a">
+            PTP錠剤・バラ錠・散薬・水剤に対応しています。一包化については分包機との連携による照合機能を2026年Q3にリリース予定です。ベータ参加ご希望の薬局は、デモ時にお申し付けください。
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">
+            <span>スタッフへの研修は必要ですか？</span>
+            <span class="faq-toggle"></span>
+          </summary>
+          <div class="faq-a">
+            導入当日に30分のオンラインキックオフを実施しますが、追加の研修は不要です。UIは調剤業務の流れに沿って設計されており、アルバイト薬剤師の方でもその日のうちに使いこなせるよう設計されています。
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     FOOTER CTA
+     ========================================================== -->
+<section class="footer-cta" id="cta">
+  <div class="footer-cta-bg"></div>
+  <div class="container footer-cta-inner">
+    <div class="footer-cta-tag">ZERO MISS, PEACE OF MIND.</div>
+    <h2 class="footer-cta-headline">
+      その確認に、<em>もう一対の目</em>を。
+    </h2>
+    <p class="footer-cta-sub">
+      30分のオンラインデモで、あなたの薬局での導入イメージと投資対効果をお見せします。無理な営業はいたしません。
+    </p>
+    <div class="footer-cta-buttons">
+      <a href="#" class="btn">無料デモを予約<span class="btn-arrow"></span></a>
+      <a href="#" class="btn btn-ghost">資料をダウンロード<span class="btn-arrow"></span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     FOOTER
+     ========================================================== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <a href="#" class="logo">
+          <span class="logo-mark"></span>
+          Mitorix
+        </a>
+        <div class="footer-brand-tag">ZERO MISS, PEACE OF MIND.</div>
+        <p class="footer-brand-desc">
+          薬剤師のための調剤照合AI。処方箋OCR × 調剤台AIカメラで、取り違え・数量ミスをリアルタイム検出します。
+        </p>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">PRODUCT</div>
+        <ul>
+          <li>機能一覧</li>
+          <li>料金プラン</li>
+          <li>導入事例</li>
+          <li>連携パートナー</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">COMPANY</div>
+        <ul>
+          <li>会社概要</li>
+          <li>ニュース</li>
+          <li>採用情報</li>
+          <li>お問い合わせ</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">RESOURCES</div>
+        <ul>
+          <li>ドキュメント</li>
+          <li>ホワイトペーパー</li>
+          <li>セキュリティ</li>
+          <li>サポート</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 MITORIX, INC. ALL RIGHTS RESERVED.</div>
+      <div class="footer-legal">
+        <span>PRIVACY POLICY</span>
+        <span>TERMS OF SERVICE</span>
+        <span>SECURITY</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
