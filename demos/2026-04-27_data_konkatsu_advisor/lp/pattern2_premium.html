@@ -1,0 +1,2119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>データ婚活アドバイザー — Premium Edition / The Statistical Marriage Quarterly</title>
+<meta name="description" content="国勢調査 × LLM の戦略提案AI。Bloomberg・Economist の精緻さで、あなたの婚活戦略を再設計する。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Noto+Serif+JP:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     The Statistical Marriage Quarterly
+     Pattern 2 — Cream Beige × Indigo × Antique Gold
+     Editorial / Academic / Vintage-Modern
+     ============================================================ */
+
+  :root {
+    --bg:        #FAF7F2;
+    --bg-alt:    #F3EEE5;
+    --bg-deep:   #ECE4D5;
+    --paper:     #FBF9F4;
+    --text:      #1A2030;
+    --text-soft: #4A5266;
+    --text-mute: #8A8A8A;
+    --rule:      #C9BFA8;
+    --rule-soft: #E2D9C4;
+    --accent:    #1B3A5F;
+    --accent-2:  #29527E;
+    --gold:      #A88234;
+    --gold-deep: #876315;
+    --burgundy:  #7A2A2A;
+
+    --serif-en:   'Playfair Display', 'Cormorant Garamond', serif;
+    --serif-en-2: 'Cormorant Garamond', 'Playfair Display', serif;
+    --serif-jp:   'Noto Serif JP', 'Hiragino Mincho ProN', serif;
+    --sans-en:    'Inter', system-ui, sans-serif;
+    --sans-jp:    'Noto Sans JP', 'Hiragino Sans', sans-serif;
+
+    --max:    1240px;
+    --gutter: clamp(20px, 4vw, 56px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif-jp);
+    font-feature-settings: "palt" 1;
+    line-height: 1.78;
+    letter-spacing: 0.02em;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* paper grain */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(168,130,52,0.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(27,58,95,0.03) 0, transparent 50%);
+    z-index: 1;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(26,32,48,0.012) 0 1px, transparent 1px 3px);
+    mix-blend-mode: multiply;
+    z-index: 1;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; background: none; border: 0; cursor: pointer; color: inherit; }
+
+  /* ----------- shared blocks ----------- */
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); position: relative; z-index: 2; }
+  .narrow { max-width: 880px; margin: 0 auto; padding: 0 var(--gutter); position: relative; z-index: 2; }
+
+  .rule { height: 1px; background: var(--rule); border: 0; }
+  .rule-gold { height: 1px; background: var(--gold); opacity: .6; border: 0; }
+  .rule-double {
+    border: 0; height: 4px;
+    background:
+      linear-gradient(var(--rule), var(--rule)) top/100% 1px no-repeat,
+      linear-gradient(var(--rule), var(--rule)) bottom/100% 1px no-repeat;
+  }
+
+  .eyebrow {
+    font-family: var(--sans-en);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+  }
+  .eyebrow .dot {
+    display: inline-block; width: 5px; height: 5px;
+    background: var(--gold); margin: 0 .8em 2px; vertical-align: middle;
+    transform: rotate(45deg);
+  }
+
+  .kicker {
+    font-family: var(--serif-en-2);
+    font-style: italic;
+    font-size: clamp(15px, 1.5vw, 18px);
+    color: var(--accent);
+    letter-spacing: 0.04em;
+  }
+
+  .num-roman {
+    font-family: var(--serif-en);
+    font-weight: 400;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    font-size: 12px;
+  }
+
+  /* ============================================================
+     Top Masthead
+     ============================================================ */
+  .masthead {
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 0;
+    background: var(--bg);
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(6px);
+  }
+  .masthead-inner {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--sans-en);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+  .masthead-left { display: flex; gap: 28px; }
+  .masthead-left span:nth-child(2) { color: var(--gold-deep); font-weight: 500; }
+  .masthead-right { display: flex; gap: 24px; align-items: center; }
+  .masthead-right a { transition: color .25s ease; }
+  .masthead-right a:hover { color: var(--gold-deep); }
+  .masthead-cta {
+    color: var(--accent) !important;
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 2px;
+    font-weight: 500;
+  }
+  @media (max-width: 720px) {
+    .masthead-left span:nth-child(3),
+    .masthead-right a:not(.masthead-cta) { display: none; }
+  }
+
+  /* ============================================================
+     HERO  — Editorial cover
+     ============================================================ */
+  .hero {
+    padding: 80px 0 100px;
+    border-bottom: 4px double var(--rule);
+    position: relative;
+  }
+  .hero-cover {
+    text-align: center;
+    border-top: 1px solid var(--text);
+    border-bottom: 1px solid var(--text);
+    padding: 36px 0 28px;
+    margin-bottom: 56px;
+    position: relative;
+  }
+  .hero-cover::before, .hero-cover::after {
+    content: "";
+    position: absolute; left: 0; right: 0; height: 1px; background: var(--text);
+  }
+  .hero-cover::before { top: 4px; }
+  .hero-cover::after  { bottom: 4px; }
+  .hero-cover h1 {
+    font-family: var(--serif-en);
+    font-weight: 900;
+    font-size: clamp(38px, 7vw, 92px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .hero-cover h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+  .hero-cover .subline {
+    margin-top: 14px;
+    font-family: var(--serif-en-2);
+    font-style: italic;
+    font-size: clamp(15px, 1.6vw, 19px);
+    letter-spacing: 0.08em;
+    color: var(--text-soft);
+  }
+  .hero-cover .vol {
+    font-family: var(--sans-en);
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-bottom: 14px;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+  }
+
+  .hero-headline {
+    font-family: var(--serif-jp);
+    font-weight: 900;
+    font-size: clamp(28px, 3.6vw, 50px);
+    line-height: 1.32;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+  .hero-headline .accent { color: var(--accent); }
+  .hero-headline .gold {
+    color: var(--gold-deep);
+    border-bottom: 2px solid var(--gold);
+    padding-bottom: 4px;
+  }
+
+  .hero-lede {
+    margin-top: 28px;
+    font-family: var(--serif-jp);
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 2.0;
+    color: var(--text-soft);
+    border-left: 1px solid var(--gold);
+    padding-left: 22px;
+  }
+
+  .hero-meta {
+    display: flex; gap: 36px;
+    margin-top: 36px;
+    font-family: var(--sans-en);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+  .hero-meta div b {
+    display: block;
+    font-family: var(--serif-en);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0;
+    color: var(--accent);
+    text-transform: none;
+    margin-bottom: 2px;
+  }
+
+  .hero-cta {
+    margin-top: 44px; display: flex; gap: 36px; flex-wrap: wrap; align-items: center;
+  }
+  .cta-primary {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 22px;
+    color: var(--accent);
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 4px;
+    transition: all .3s ease;
+    position: relative;
+  }
+  .cta-primary::after {
+    content: " →";
+    font-style: normal;
+    color: var(--gold-deep);
+    transition: transform .3s ease;
+    display: inline-block;
+  }
+  .cta-primary:hover { color: var(--gold-deep); }
+  .cta-primary:hover::after { transform: translateX(6px); }
+
+  .cta-ghost {
+    font-family: var(--sans-en);
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 3px;
+    transition: all .3s ease;
+  }
+  .cta-ghost:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* iPhone mockup (pure CSS) */
+  .phone-stage { display: flex; justify-content: center; align-items: center; position: relative; }
+  .phone-stage::before {
+    content: "FIG. 01"; position: absolute; top: -10px; left: 0;
+    font-family: var(--sans-en); font-size: 10px; letter-spacing: 0.3em;
+    color: var(--gold-deep);
+  }
+  .phone-stage::after {
+    content: "interface specimen"; position: absolute; bottom: -22px; right: 0;
+    font-family: var(--serif-en-2); font-style: italic; font-size: 13px;
+    color: var(--text-soft);
+  }
+
+  .phone {
+    width: 290px; height: 600px;
+    border: 9px solid #1A1F2E;
+    border-radius: 46px;
+    background: var(--paper);
+    box-shadow:
+      0 1px 0 #2C334A inset,
+      0 0 0 1px var(--gold) inset,
+      0 30px 60px -30px rgba(26,32,48,0.35),
+      0 12px 24px -8px rgba(168,130,52,0.18);
+    position: relative;
+    overflow: hidden;
+  }
+  .phone::before {
+    content: "";
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 26px;
+    background: #1A1F2E;
+    border-radius: 16px;
+    z-index: 5;
+  }
+  .phone-screen {
+    position: absolute; inset: 0;
+    padding: 56px 18px 18px;
+    display: flex; flex-direction: column;
+    background:
+      linear-gradient(180deg, #FBF9F4 0%, #F4EFE5 100%);
+  }
+  .phone-status {
+    display: flex; justify-content: space-between;
+    font-family: var(--sans-en); font-size: 9px;
+    letter-spacing: 0.18em; color: var(--text-soft);
+    padding: 0 6px 10px;
+  }
+  .phone-h {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--gold-deep);
+    text-align: center;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+  }
+  .phone-h b {
+    display: block; font-style: normal; font-family: var(--serif-jp); font-weight: 700;
+    color: var(--text); font-size: 14px; letter-spacing: 0.04em;
+  }
+  .phone-card {
+    background: var(--paper);
+    border: 1px solid var(--rule-soft);
+    border-left: 2px solid var(--gold);
+    padding: 11px 13px;
+    margin-bottom: 9px;
+    font-family: var(--serif-jp);
+    position: relative;
+  }
+  .phone-card .label {
+    font-family: var(--sans-en); font-size: 8px; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--gold-deep);
+    margin-bottom: 4px;
+  }
+  .phone-card .title { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 4px; line-height: 1.4; }
+  .phone-card .desc { font-size: 9.5px; color: var(--text-soft); line-height: 1.55; }
+  .phone-card .score {
+    position: absolute; top: 10px; right: 12px;
+    font-family: var(--serif-en); font-weight: 700; font-size: 18px;
+    color: var(--accent);
+  }
+  .phone-card .score sup { font-size: 9px; color: var(--gold-deep); margin-left: 2px; }
+
+  .phone-foot {
+    margin-top: auto;
+    border-top: 1px solid var(--rule-soft);
+    padding-top: 10px;
+    text-align: center;
+    font-family: var(--serif-en-2); font-style: italic;
+    font-size: 10px; color: var(--text-mute);
+  }
+  .phone-foot b {
+    display: block; font-family: var(--sans-en); font-style: normal;
+    font-size: 9px; letter-spacing: 0.3em; color: var(--accent); margin-top: 4px;
+  }
+
+  /* hero side ornaments */
+  .hero-ornament {
+    position: absolute; pointer-events: none;
+    font-family: var(--serif-en-2); font-style: italic;
+    color: var(--text-mute); font-size: 13px;
+  }
+  .hero-ornament.left { top: 80px; left: 24px; transform: rotate(-90deg); transform-origin: left bottom; }
+  .hero-ornament.right { bottom: 80px; right: 24px; transform: rotate(90deg); transform-origin: right top; }
+  @media (max-width: 1100px) { .hero-ornament { display: none; } }
+
+  /* ============================================================
+     ESSAY — opening editorial
+     ============================================================ */
+  .section { padding: 120px 0; position: relative; }
+  .section + .section { border-top: 1px solid var(--rule-soft); }
+
+  .section-mast {
+    text-align: center;
+    margin-bottom: 64px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+  .section-mast::after {
+    content: "❦";
+    position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+    background: var(--bg); padding: 0 14px;
+    color: var(--gold); font-size: 14px;
+  }
+  .section-mast .num-roman { display: block; margin-bottom: 12px; }
+  .section-mast h2 {
+    font-family: var(--serif-en);
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(34px, 5vw, 64px);
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .section-mast h2 b { font-style: normal; font-weight: 900; }
+  .section-mast .jp {
+    font-family: var(--serif-jp);
+    font-weight: 700;
+    font-size: clamp(18px, 2.2vw, 24px);
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .section-mast .lede {
+    margin: 18px auto 0; max-width: 640px;
+    font-family: var(--serif-en-2); font-style: italic;
+    font-size: 17px; color: var(--text-soft); line-height: 1.7;
+  }
+
+  /* Essay body */
+  .essay-body {
+    column-count: 2;
+    column-gap: 56px;
+    font-family: var(--serif-jp);
+    font-weight: 300;
+    font-size: 16.5px;
+    line-height: 2.05;
+    color: var(--text);
+  }
+  @media (max-width: 760px) { .essay-body { column-count: 1; } }
+  .essay-body > p { margin-bottom: 1.4em; text-align: justify; }
+  .essay-body > p:first-of-type::first-letter {
+    font-family: var(--serif-en);
+    font-weight: 900;
+    font-size: 5.4em;
+    float: left;
+    line-height: 0.85;
+    margin: 0.05em 0.12em -0.06em 0;
+    color: var(--accent);
+  }
+  .essay-body strong {
+    font-weight: 700; color: var(--text);
+    background: linear-gradient(transparent 60%, rgba(168,130,52,0.18) 60%);
+    padding: 0 2px;
+  }
+  .essay-pull {
+    column-span: all;
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: clamp(22px, 2.6vw, 32px);
+    line-height: 1.5;
+    color: var(--accent);
+    text-align: center;
+    margin: 2em 0;
+    padding: 1.4em 0;
+    border-top: 1px solid var(--gold);
+    border-bottom: 1px solid var(--gold);
+    position: relative;
+  }
+  .essay-pull::before, .essay-pull::after {
+    content: "“";
+    font-family: var(--serif-en); font-size: 80px;
+    color: var(--gold); opacity: .3; line-height: 0;
+    position: absolute;
+  }
+  .essay-pull::before { top: 0.5em; left: 0; }
+  .essay-pull::after { content: "”"; bottom: -.1em; right: 0; }
+  .essay-pull cite {
+    display: block; margin-top: 1em;
+    font-family: var(--sans-en); font-style: normal;
+    font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--gold-deep);
+  }
+
+  /* ============================================================
+     HIDDEN MAJORITY — 7-8 / 10
+     ============================================================ */
+  .hidden-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  @media (max-width: 880px) { .hidden-grid { grid-template-columns: 1fr; gap: 56px; } }
+
+  .figure-block {
+    text-align: center;
+    padding: 32px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    position: relative;
+  }
+  .figure-block::before {
+    content: "FIGURE 02"; position: absolute; top: 12px; left: 14px;
+    font-family: var(--sans-en); font-size: 9px; letter-spacing: 0.3em;
+    color: var(--gold-deep);
+  }
+  .figure-block h3 {
+    font-family: var(--serif-en); font-style: italic; font-weight: 400;
+    font-size: 18px; color: var(--text-soft); margin: 18px 0 6px;
+  }
+  .figure-mega {
+    font-family: var(--serif-en);
+    font-weight: 900;
+    font-size: clamp(110px, 16vw, 200px);
+    line-height: 1;
+    color: var(--accent);
+    letter-spacing: -0.04em;
+    margin-top: 20px;
+  }
+  .figure-mega .slash { color: var(--gold); font-weight: 400; font-style: italic; margin: 0 6px; }
+  .figure-mega .ten { color: var(--text-mute); font-weight: 400; }
+  .figure-cap {
+    font-family: var(--serif-jp); font-size: 14px; color: var(--text-soft);
+    margin-top: 12px; line-height: 1.7;
+  }
+  .figure-cap b { color: var(--accent); }
+
+  /* dot grid: 100 dots, 70 highlighted */
+  .dot-grid {
+    margin: 28px auto 18px;
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    gap: 5px;
+    max-width: 360px;
+  }
+  .dot-grid span {
+    aspect-ratio: 1;
+    background: var(--rule-soft);
+    border-radius: 50%;
+  }
+  .dot-grid span.on { background: var(--gold); }
+  .dot-grid span.you { background: var(--burgundy); transform: scale(1.5); }
+
+  .hidden-text h3 {
+    font-family: var(--serif-jp); font-weight: 900;
+    font-size: clamp(22px, 2.6vw, 30px);
+    line-height: 1.5; margin-bottom: 24px; color: var(--text);
+  }
+  .hidden-text p {
+    font-family: var(--serif-jp); font-weight: 300;
+    font-size: 16px; line-height: 2.0; color: var(--text-soft);
+    margin-bottom: 18px;
+  }
+  .hidden-text strong { color: var(--accent); font-weight: 700; }
+  .hidden-list { list-style: none; margin-top: 24px; }
+  .hidden-list li {
+    font-family: var(--serif-jp);
+    font-size: 15px;
+    padding: 12px 0;
+    border-top: 1px dotted var(--rule);
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 16px;
+  }
+  .hidden-list li:last-child { border-bottom: 1px dotted var(--rule); }
+  .hidden-list li .roman {
+    font-family: var(--serif-en); color: var(--gold-deep);
+    font-style: italic; font-size: 14px; padding-top: 2px;
+  }
+
+  /* ============================================================
+     DATA PHILOSOPHY — manifesto
+     ============================================================ */
+  .manifesto {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .manifesto-head {
+    text-align: center; max-width: 760px; margin: 0 auto 72px;
+  }
+  .manifesto-head h2 {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(40px, 6.5vw, 84px);
+    line-height: 1.05;
+    color: var(--text);
+  }
+  .manifesto-head h2 b { font-weight: 900; font-style: normal; color: var(--accent); }
+  .manifesto-head h2 em { color: var(--gold-deep); }
+  .manifesto-head .jp {
+    margin-top: 24px;
+    font-family: var(--serif-jp); font-size: 18px; line-height: 2;
+    color: var(--text-soft);
+  }
+
+  .manifesto-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
+  @media (max-width: 880px) { .manifesto-grid { grid-template-columns: 1fr; } }
+  .manifesto-cell {
+    padding: 48px 36px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+    position: relative;
+  }
+  .manifesto-cell .roman {
+    font-family: var(--serif-en); font-style: italic;
+    color: var(--gold-deep); font-size: 14px;
+    margin-bottom: 14px;
+  }
+  .manifesto-cell h4 {
+    font-family: var(--serif-jp); font-weight: 900;
+    font-size: 22px; line-height: 1.5;
+    color: var(--accent); margin-bottom: 16px;
+    border-bottom: 1px solid var(--rule); padding-bottom: 14px;
+  }
+  .manifesto-cell p {
+    font-family: var(--serif-jp); font-weight: 300;
+    font-size: 14.5px; line-height: 1.95; color: var(--text-soft);
+  }
+  .manifesto-cell p + p { margin-top: 12px; }
+
+  .manifesto-foot {
+    text-align: center;
+    margin-top: 72px;
+    font-family: var(--serif-en); font-style: italic;
+    font-size: 22px; color: var(--text-soft);
+    line-height: 1.6;
+  }
+  .manifesto-foot b { color: var(--accent); font-weight: 900; font-style: normal; }
+
+  /* ============================================================
+     4 STEP FRAMEWORK — process
+     ============================================================ */
+  .framework-list {
+    counter-reset: step;
+    border-top: 1px solid var(--text);
+  }
+  .framework-row {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 110px 200px 1fr auto;
+    gap: 36px;
+    padding: 36px 8px;
+    border-bottom: 1px solid var(--rule);
+    align-items: baseline;
+    transition: background .3s ease;
+  }
+  .framework-row:hover { background: var(--bg-alt); }
+  @media (max-width: 880px) {
+    .framework-row { grid-template-columns: 1fr; gap: 8px; padding: 28px 8px; }
+  }
+  .fw-num {
+    font-family: var(--serif-en);
+    font-weight: 900;
+    font-size: 64px;
+    line-height: 1;
+    color: var(--gold);
+  }
+  .fw-num::before { content: counter(step, decimal-leading-zero); }
+  .fw-label {
+    font-family: var(--sans-en);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    padding-top: 18px;
+  }
+  .fw-label small { display: block; font-family: var(--serif-en-2); font-style: italic;
+    text-transform: none; letter-spacing: 0.04em; font-size: 14px; color: var(--text-soft); margin-top: 4px; }
+  .fw-body h3 {
+    font-family: var(--serif-jp); font-weight: 900;
+    font-size: 24px; line-height: 1.5; margin-bottom: 8px;
+    color: var(--text);
+  }
+  .fw-body p {
+    font-family: var(--serif-jp); font-weight: 300;
+    font-size: 15.5px; line-height: 1.95; color: var(--text-soft);
+  }
+  .fw-meta {
+    font-family: var(--serif-en); font-style: italic;
+    font-size: 14px; color: var(--accent);
+    text-align: right; padding-top: 18px;
+    border-left: 1px solid var(--gold); padding-left: 24px;
+  }
+  @media (max-width: 880px) { .fw-meta { border-left: 0; padding-left: 0; text-align: left; } }
+  .fw-meta b { display: block; font-family: var(--serif-en); font-weight: 900;
+    font-style: normal; font-size: 22px; color: var(--accent); }
+
+  /* ============================================================
+     CASE STUDY — academic paper
+     ============================================================ */
+  .paper {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: clamp(32px, 5vw, 72px);
+    margin: 0 auto;
+    max-width: 920px;
+    position: relative;
+  }
+  .paper::before {
+    content: "Working Paper No. 0427-A";
+    position: absolute; top: -10px; left: 32px; background: var(--bg);
+    padding: 0 12px;
+    font-family: var(--sans-en); font-size: 10px; letter-spacing: 0.3em;
+    color: var(--gold-deep);
+  }
+  .paper-head {
+    text-align: center;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 28px; margin-bottom: 40px;
+  }
+  .paper-head h3 {
+    font-family: var(--serif-en); font-weight: 900;
+    font-size: clamp(24px, 3.2vw, 36px);
+    line-height: 1.25;
+    color: var(--text);
+    margin-bottom: 12px;
+    letter-spacing: -0.005em;
+  }
+  .paper-head .jp-title {
+    font-family: var(--serif-jp); font-weight: 700;
+    font-size: 18px; color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .paper-head .authors {
+    font-family: var(--serif-en-2); font-style: italic;
+    font-size: 15px; color: var(--text-soft);
+  }
+
+  .paper-section { margin-bottom: 28px; }
+  .paper-section h5 {
+    font-family: var(--sans-en);
+    font-size: 11px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--gold-deep);
+    margin-bottom: 10px;
+    padding-bottom: 6px; border-bottom: 1px dotted var(--rule);
+  }
+  .paper-section p {
+    font-family: var(--serif-jp); font-weight: 300;
+    font-size: 15.5px; line-height: 2.0;
+    color: var(--text);
+    text-align: justify;
+  }
+  .paper-section p + p { margin-top: 14px; }
+  .paper-section em { font-style: italic; color: var(--accent); }
+
+  .paper-data {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid var(--rule);
+    margin: 18px 0;
+  }
+  @media (max-width: 700px) { .paper-data { grid-template-columns: 1fr 1fr; } }
+  .paper-data > div {
+    padding: 18px;
+    text-align: center;
+    border-right: 1px solid var(--rule);
+  }
+  .paper-data > div:last-child { border-right: 0; }
+  @media (max-width: 700px) { .paper-data > div { border-bottom: 1px solid var(--rule); } }
+  .paper-data .v {
+    font-family: var(--serif-en); font-weight: 900;
+    font-size: 32px; color: var(--accent); line-height: 1;
+  }
+  .paper-data .v.gold { color: var(--gold-deep); }
+  .paper-data .v.bur { color: var(--burgundy); }
+  .paper-data .l {
+    font-family: var(--serif-en-2); font-style: italic;
+    font-size: 12px; color: var(--text-soft); margin-top: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .paper-foot {
+    margin-top: 40px; padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--sans-en); font-size: 11px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-mute);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+
+  /* ============================================================
+     STRATEGY CATALOGUE
+     ============================================================ */
+  .catalogue-intro {
+    text-align: center; margin-bottom: 56px;
+    font-family: var(--serif-jp); font-size: 16px; color: var(--text-soft);
+    line-height: 2;
+  }
+  .catalogue {
+    border-top: 1px solid var(--text);
+    border-bottom: 1px solid var(--text);
+  }
+  .catalogue-row {
+    display: grid;
+    grid-template-columns: 80px 1.4fr 2.2fr 100px;
+    gap: 28px; padding: 28px 4px;
+    border-bottom: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  .catalogue-row:last-child { border-bottom: 0; }
+  @media (max-width: 880px) {
+    .catalogue-row { grid-template-columns: 60px 1fr; gap: 8px; }
+    .catalogue-row > .cat-desc, .catalogue-row > .cat-tag { grid-column: 2; }
+  }
+  .cat-num {
+    font-family: var(--serif-en); font-weight: 700; font-style: italic;
+    font-size: 22px; color: var(--gold);
+  }
+  .cat-name {
+    font-family: var(--serif-jp); font-weight: 700;
+    font-size: 17px; color: var(--text); line-height: 1.5;
+  }
+  .cat-name small {
+    display: block; font-family: var(--serif-en-2); font-style: italic;
+    font-weight: 400; font-size: 14px; color: var(--text-soft); margin-top: 4px;
+  }
+  .cat-desc {
+    font-family: var(--serif-jp); font-weight: 300;
+    font-size: 14.5px; line-height: 1.85; color: var(--text-soft);
+  }
+  .cat-tag {
+    font-family: var(--sans-en); font-size: 10px; letter-spacing: 0.25em;
+    text-transform: uppercase; text-align: right;
+    color: var(--accent);
+  }
+  .cat-tag.gold { color: var(--gold-deep); }
+  .cat-tag.bur  { color: var(--burgundy); }
+
+  .catalogue-foot {
+    margin-top: 32px; text-align: center;
+    font-family: var(--serif-en-2); font-style: italic;
+    font-size: 16px; color: var(--text-soft);
+  }
+
+  /* ============================================================
+     WEEKLY OPTIMIZATION
+     ============================================================ */
+  .weekly {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 64px;
+    align-items: center;
+  }
+  @media (max-width: 880px) { .weekly { grid-template-columns: 1fr; gap: 48px; } }
+
+  .weekly-text h3 {
+    font-family: var(--serif-en); font-style: italic; font-weight: 400;
+    font-size: clamp(28px, 3.8vw, 44px); line-height: 1.2;
+    color: var(--text); margin-bottom: 8px;
+  }
+  .weekly-text h3 b { font-weight: 900; font-style: normal; color: var(--accent); }
+  .weekly-text .jp {
+    font-family: var(--serif-jp); font-weight: 900;
+    font-size: 22px; color: var(--accent); margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .weekly-text p {
+    font-family: var(--serif-jp); font-weight: 300;
+    font-size: 15.5px; line-height: 2.0; color: var(--text-soft);
+    margin-bottom: 16px;
+  }
+
+  /* mini calendar / dashboard */
+  .ledger {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 28px;
+    position: relative;
+  }
+  .ledger::before {
+    content: "WEEK 17 / 52  ·  CYCLE TWO";
+    position: absolute; top: -10px; left: 24px; background: var(--bg);
+    padding: 0 12px;
+    font-family: var(--sans-en); font-size: 10px; letter-spacing: 0.3em;
+    color: var(--gold-deep);
+  }
+  .ledger-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    border-bottom: 1px solid var(--rule); padding-bottom: 12px; margin-bottom: 18px;
+  }
+  .ledger-head h4 {
+    font-family: var(--serif-en); font-weight: 700; font-size: 20px;
+    color: var(--text);
+  }
+  .ledger-head .meta {
+    font-family: var(--sans-en); font-size: 10px;
+    letter-spacing: 0.25em; color: var(--text-soft);
+  }
+  .ledger-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 70px;
+    gap: 12px; padding: 12px 0;
+    border-bottom: 1px dotted var(--rule);
+    font-family: var(--serif-jp); font-size: 14px;
+  }
+  .ledger-row:last-child { border-bottom: 0; }
+  .ledger-row .day {
+    font-family: var(--serif-en-2); font-style: italic;
+    color: var(--gold-deep); font-size: 13px;
+  }
+  .ledger-row .day b { display: block; font-style: normal; font-family: var(--serif-en);
+    font-weight: 700; color: var(--accent); font-size: 18px; }
+  .ledger-row .desc { color: var(--text); line-height: 1.5; }
+  .ledger-row .desc small { display: block; color: var(--text-mute); font-size: 12px; }
+  .ledger-row .delta {
+    font-family: var(--serif-en); font-weight: 700;
+    color: var(--accent); text-align: right; font-size: 16px;
+  }
+  .ledger-row .delta.up { color: #3D6B3D; }
+  .ledger-row .delta.gold { color: var(--gold-deep); }
+  .ledger-foot {
+    margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between;
+    font-family: var(--serif-en-2); font-style: italic;
+    font-size: 13px; color: var(--text-soft);
+  }
+  .ledger-foot b { color: var(--accent); font-weight: 900; font-style: normal;
+    font-family: var(--serif-en); font-size: 20px; }
+
+  /* ============================================================
+     PRICING
+     ============================================================ */
+  .pricing-head { text-align: center; margin-bottom: 64px; }
+  .pricing-head .eyebrow { margin-bottom: 18px; display: inline-block; }
+  .pricing-head h2 {
+    font-family: var(--serif-en); font-style: italic; font-weight: 400;
+    font-size: clamp(36px, 5vw, 60px); color: var(--text);
+  }
+  .pricing-head h2 b { font-weight: 900; font-style: normal; color: var(--accent); }
+  .pricing-head .jp {
+    margin-top: 14px;
+    font-family: var(--serif-jp); font-size: 17px; color: var(--text-soft);
+  }
+
+  .plans {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  @media (max-width: 920px) { .plans { grid-template-columns: 1fr; } }
+
+  .plan {
+    padding: 48px 36px;
+    border-right: 1px solid var(--rule);
+    text-align: center;
+    position: relative;
+    transition: background .3s ease;
+  }
+  .plan:last-child { border-right: 0; }
+  @media (max-width: 920px) {
+    .plan { border-right: 0; border-bottom: 1px solid var(--rule); }
+    .plan:last-child { border-bottom: 0; }
+  }
+  .plan:hover { background: var(--bg-alt); }
+  .plan-featured {
+    background: var(--text);
+    color: var(--paper);
+  }
+  .plan-featured:hover { background: var(--accent); }
+  .plan-featured .plan-tier,
+  .plan-featured .plan-name,
+  .plan-featured .plan-price,
+  .plan-featured .plan-desc,
+  .plan-featured .plan-features li { color: var(--paper); }
+  .plan-featured .plan-tier { color: var(--gold); }
+  .plan-featured .plan-features li { border-color: rgba(250,247,242,0.18); }
+  .plan-featured .plan-features li::before { color: var(--gold); }
+  .plan-featured .plan-cta { color: var(--gold); border-color: var(--gold); }
+  .plan-featured::before {
+    content: "RECOMMENDED";
+    position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+    background: var(--gold); color: var(--paper);
+    padding: 4px 18px;
+    font-family: var(--sans-en); font-size: 9px; letter-spacing: 0.4em;
+  }
+
+  .plan-tier {
+    font-family: var(--serif-en); font-style: italic;
+    font-size: 15px; color: var(--gold-deep); margin-bottom: 4px;
+    letter-spacing: 0.06em;
+  }
+  .plan-name {
+    font-family: var(--serif-en); font-weight: 900;
+    font-size: 32px; color: var(--text); margin-bottom: 4px;
+    letter-spacing: -0.005em;
+  }
+  .plan-jp { font-family: var(--serif-jp); font-weight: 700; font-size: 14px;
+    color: var(--text-soft); margin-bottom: 24px; letter-spacing: 0.05em; }
+  .plan-featured .plan-jp { color: rgba(250,247,242,0.6); }
+
+  .plan-price {
+    font-family: var(--serif-en); font-weight: 900;
+    font-size: 56px; line-height: 1; color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .plan-price .yen { font-size: 24px; vertical-align: top; padding-top: 10px;
+    display: inline-block; color: var(--gold-deep); margin-right: 4px; }
+  .plan-price small { font-size: 14px; font-weight: 400;
+    font-family: var(--serif-en-2); font-style: italic;
+    color: var(--text-soft); display: block; margin-top: 6px; }
+  .plan-featured .plan-price { color: var(--paper); }
+  .plan-featured .plan-price .yen { color: var(--gold); }
+  .plan-featured .plan-price small { color: rgba(250,247,242,0.6); }
+
+  .plan-desc {
+    font-family: var(--serif-jp); font-weight: 300;
+    font-size: 13.5px; line-height: 1.85; color: var(--text-soft);
+    margin: 18px 0 28px;
+    padding: 0 6px;
+  }
+
+  .plan-features {
+    list-style: none;
+    text-align: left;
+    border-top: 1px solid var(--rule);
+    margin-bottom: 32px;
+  }
+  .plan-features li {
+    font-family: var(--serif-jp); font-size: 13.5px;
+    padding: 12px 0 12px 22px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--text); line-height: 1.6;
+    position: relative;
+  }
+  .plan-features li::before {
+    content: "✦";
+    position: absolute; left: 0; top: 12px;
+    color: var(--gold);
+    font-size: 12px;
+  }
+  .plan-features li.muted { color: var(--text-mute); }
+  .plan-features li.muted::before { content: "—"; color: var(--text-mute); }
+
+  .plan-cta {
+    display: inline-block;
+    font-family: var(--serif-en); font-style: italic;
+    font-size: 18px; color: var(--accent);
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 4px;
+    transition: all .3s ease;
+  }
+  .plan-cta:hover { color: var(--gold-deep); }
+
+  .pricing-foot {
+    margin-top: 36px; text-align: center;
+    font-family: var(--serif-en-2); font-style: italic;
+    font-size: 14px; color: var(--text-mute);
+  }
+
+  /* ============================================================
+     TESTIMONIALS
+     ============================================================ */
+  .voices {
+    background: var(--bg-deep);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .voices-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-left: 1px solid var(--rule);
+    border-top: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  @media (max-width: 920px) { .voices-grid { grid-template-columns: 1fr; } }
+
+  .voice {
+    padding: 44px 32px 36px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+  .voice::before {
+    content: "“";
+    position: absolute; top: 8px; left: 22px;
+    font-family: var(--serif-en);
+    font-size: 80px; line-height: 1;
+    color: var(--gold); opacity: .35;
+  }
+  .voice-meta {
+    font-family: var(--sans-en); font-size: 10px;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-bottom: 12px;
+    padding-top: 18px;
+  }
+  .voice-quote {
+    font-family: var(--serif-jp); font-weight: 300;
+    font-size: 15px; line-height: 1.95;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+  .voice-quote em {
+    background: linear-gradient(transparent 60%, rgba(168,130,52,0.2) 60%);
+    font-style: normal; font-weight: 700;
+  }
+  .voice-author {
+    border-top: 1px solid var(--rule);
+    padding-top: 14px;
+    font-family: var(--serif-en-2); font-style: italic;
+    font-size: 14px; color: var(--text-soft);
+  }
+  .voice-author b {
+    display: block;
+    font-family: var(--serif-jp); font-style: normal; font-weight: 700;
+    color: var(--accent); font-size: 15px;
+  }
+  .voice-stat {
+    margin-top: 14px;
+    font-family: var(--serif-en); font-weight: 700;
+    color: var(--burgundy); font-size: 20px;
+  }
+  .voice-stat small { font-family: var(--serif-en-2); font-style: italic;
+    font-weight: 400; font-size: 12px; color: var(--text-soft);
+    margin-left: 6px; letter-spacing: 0; }
+
+  /* ============================================================
+     FAQ
+     ============================================================ */
+  .faq-list {
+    border-top: 1px solid var(--text);
+  }
+  .faq-row {
+    border-bottom: 1px solid var(--rule);
+    padding: 28px 0;
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  .faq-q-mark {
+    font-family: var(--serif-en);
+    font-weight: 900; font-style: italic;
+    font-size: 36px; color: var(--gold);
+    line-height: 1;
+  }
+  .faq-q {
+    font-family: var(--serif-jp); font-weight: 700;
+    font-size: 18px; line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .faq-q small {
+    display: block;
+    font-family: var(--serif-en-2); font-style: italic;
+    font-weight: 400; font-size: 13px; color: var(--text-soft);
+    margin-top: 4px; letter-spacing: 0.04em;
+  }
+  .faq-a {
+    font-family: var(--serif-jp); font-weight: 300;
+    font-size: 14.5px; line-height: 2;
+    color: var(--text-soft);
+    border-left: 1px solid var(--gold);
+    padding-left: 18px;
+  }
+
+  /* ============================================================
+     FOOTER CTA
+     ============================================================ */
+  .closing {
+    background: var(--text);
+    color: var(--paper);
+    padding: 140px 0 80px;
+    text-align: center;
+    position: relative;
+    border-top: 4px double var(--gold);
+  }
+  .closing::before {
+    content: "FINIS";
+    position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
+    font-family: var(--sans-en); font-size: 11px; letter-spacing: 0.6em;
+    color: var(--gold);
+  }
+  .closing h2 {
+    font-family: var(--serif-en); font-weight: 900;
+    font-size: clamp(40px, 7vw, 100px);
+    line-height: 1; color: var(--paper);
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+  }
+  .closing h2 em { font-weight: 400; font-style: italic; color: var(--gold); }
+  .closing .jp {
+    font-family: var(--serif-jp); font-weight: 900;
+    font-size: clamp(22px, 2.8vw, 32px);
+    color: var(--paper);
+    margin-bottom: 28px;
+  }
+  .closing .lede {
+    font-family: var(--serif-en-2); font-style: italic;
+    font-size: 19px; color: rgba(250,247,242,0.7);
+    max-width: 620px; margin: 0 auto 56px; line-height: 1.7;
+  }
+  .closing-cta {
+    font-family: var(--serif-en); font-style: italic;
+    font-size: 28px; color: var(--gold);
+    border-bottom: 1px solid var(--gold);
+    padding: 0 18px 8px;
+    transition: all .3s ease;
+  }
+  .closing-cta::after {
+    content: "  →";
+    font-style: normal;
+    transition: transform .3s ease;
+    display: inline-block;
+  }
+  .closing-cta:hover { color: var(--paper); border-color: var(--paper); }
+  .closing-cta:hover::after { transform: translateX(8px); }
+  .closing-meta {
+    margin-top: 56px;
+    font-family: var(--sans-en); font-size: 11px;
+    letter-spacing: 0.32em; text-transform: uppercase;
+    color: rgba(250,247,242,0.45);
+    display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+  }
+
+  .footer {
+    background: var(--text); color: rgba(250,247,242,0.6);
+    padding: 48px 0 40px;
+    border-top: 1px solid rgba(250,247,242,0.12);
+    font-family: var(--sans-en); font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .footer-inner {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .footer .colophon {
+    font-family: var(--serif-en-2); font-style: italic;
+    font-size: 12px; letter-spacing: 0.04em; text-transform: none;
+    color: rgba(250,247,242,0.45);
+  }
+  .footer .colophon b { color: var(--gold); font-weight: 700; font-style: normal;
+    font-family: var(--serif-en); }
+</style>
+</head>
+<body>
+
+<!-- ===========================  MASTHEAD  =========================== -->
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <div class="masthead-left">
+      <span>Vol. II · No. 04</span>
+      <span>April 27 · MMXXVI</span>
+      <span>Tokyo Edition</span>
+    </div>
+    <div class="masthead-right">
+      <a href="#essay">Editorial</a>
+      <a href="#framework">Method</a>
+      <a href="#case">Case</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#cta" class="masthead-cta">Subscribe →</a>
+    </div>
+  </div>
+</header>
+
+<!-- ===========================  HERO  =========================== -->
+<section class="hero">
+  <div class="hero-ornament left">— a quarterly review of statistical matchmaking —</div>
+  <div class="hero-ornament right">— printed in Tokyo, set in Playfair —</div>
+
+  <div class="wrap">
+    <div class="hero-cover">
+      <div class="vol">The Statistical Marriage Quarterly  ·  Premium Edition</div>
+      <h1>Data, <em>devotion,</em><br>and the design of <em>love.</em></h1>
+      <div class="subline">— On the quiet revolution of evidence-based matchmaking, A. D. 2026 —</div>
+    </div>
+
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Featured Investigation <span class="dot"></span> Volume II</div>
+        <h2 class="hero-headline" style="margin-top: 20px;">
+          国勢調査と<span class="accent">大規模言語モデル</span>が、<br>
+          あなたの婚活を<span class="gold">再設計する。</span>
+        </h2>
+        <p class="hero-lede">
+          結婚相談所、マッチングアプリ、街コン——市場には選択肢が溢れている。<br>
+          だが、選択の背後にある<em>「数字の文脈」</em>を、誰が教えてくれただろうか。<br>
+          私たちは、政府統計と最新のLLM推論を結び、<br>
+          あなたの戦略を <em>編集者の精度で</em> 仕立て直す。
+        </p>
+
+        <div class="hero-meta">
+          <div><b>1.6M</b>サンプル数<br>Census records</div>
+          <div><b>47</b>都道府県<br>Regions covered</div>
+          <div><b>72%</b>戦略改善率<br>3-month median</div>
+        </div>
+
+        <div class="hero-cta">
+          <a href="#pricing" class="cta-primary">Begin your strategy report</a>
+          <a href="#essay" class="cta-ghost">Read the editorial</a>
+        </div>
+      </div>
+
+      <div class="phone-stage">
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-status">
+              <span>9:41</span>
+              <span>● ● ●</span>
+            </div>
+            <div class="phone-h">
+              The Statistical<br><b>Marriage Advisor</b>
+            </div>
+
+            <div class="phone-card">
+              <div class="score">8.4<sup>★</sup></div>
+              <div class="label">RECOMMENDATION ─ N°01</div>
+              <div class="title">同郷×公務員レンジへ照準</div>
+              <div class="desc">国勢調査同居率 18.4%。地域内マッチ確率 +37%。</div>
+            </div>
+            <div class="phone-card">
+              <div class="score">7.9<sup>★</sup></div>
+              <div class="label">RECOMMENDATION ─ N°02</div>
+              <div class="title">通勤30分圏の医療職へ拡張</div>
+              <div class="desc">職業適合スコア 84/100。週次で精度向上。</div>
+            </div>
+            <div class="phone-card">
+              <div class="score">7.3<sup>★</sup></div>
+              <div class="label">RECOMMENDATION ─ N°03</div>
+              <div class="title">趣味マッチ：陶芸＋週末旅行</div>
+              <div class="desc">隠れ層クラスタ #B-217、年代適合 91%。</div>
+            </div>
+
+            <div class="phone-foot">
+              — updated weekly, refined monthly —
+              <b>CYCLE 02 · WEEK 17</b>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================  ESSAY  =========================== -->
+<section class="section" id="essay">
+  <div class="narrow">
+    <div class="section-mast">
+      <span class="num-roman">Chapter I</span>
+      <h2>An <i>Editorial</i></h2>
+      <div class="jp">婚活市場の、構造的な歪みについて</div>
+      <div class="lede">— On the quiet asymmetries of modern matchmaking, and why "more profiles" is no longer the answer —</div>
+    </div>
+
+    <div class="essay-body">
+      <p>
+        私たちは、過去十年で「出会いの数」を爆発的に増やすことに成功した。だが同時に、<strong>意思決定の質</strong>は、不思議なほど後退している。アプリのスクロールに費やす時間と、結ばれる相手との適合度のあいだには、もはや単純な相関は存在しない。
+      </p>
+      <p>
+        市場は飽和しているのではない。<strong>整理されていない</strong>のだ。あなたの目の前に並ぶ数百のプロフィールは、ある一つの統計的な事実——「年齢」「居住地」「年収」——という極めて貧しい次元でしか並べ替えられていない。
+      </p>
+      <p>
+        しかし、結婚という意思決定が要求する次元は、本来そんなに少なくはない。<em>世帯構成、通勤動線、地域の出生動向、職業の労働時間分布、未婚率の年齢階級別推移、転居傾向、家族との同居率</em>——これらはすべて、国勢調査が無料で提供している。問題は、誰もこれを読まないことだ。
+      </p>
+
+      <div class="essay-pull">
+        The market is not saturated.<br>It is simply <i>unsorted</i>.
+        <cite>— editorial, Vol. II No. 04</cite>
+      </div>
+
+      <p>
+        本誌が提案するのは、極めて古典的な発想である。すなわち、<strong>意思決定には情報が要る</strong>、ということ。だが、その情報を読み解く労力を、もはや個人に求めない。LLMが、47都道府県・1,650万件規模の統計を、あなた個人の文脈に翻訳する。
+      </p>
+      <p>
+        そして翻訳された情報は、淡々とした数字ではなく、<strong>具体的な戦略</strong>として届く。「同郷×公務員レンジを優先せよ」「水曜夜のオンラインイベントが最も適合する」「あなたの通勤30分圏には医療職が想定より34%多い」。これらは、占いではない。<em>政府統計の翻訳</em>である。
+      </p>
+      <p>
+        私たちは、結婚を急がない。だが、選択の質を諦めない。<strong>急がず、しかし、雑にもならない</strong>——それが、本誌の編集方針である。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================  HIDDEN  =========================== -->
+<section class="section" style="background: var(--bg-alt);">
+  <div class="wrap">
+    <div class="section-mast">
+      <span class="num-roman">Chapter II</span>
+      <h2>The Hidden <b>Majority</b></h2>
+      <div class="jp">あなたが見ていない、7〜8割の世界</div>
+      <div class="lede">— Why "the rest of the room" matters more than the people standing in front of you —</div>
+    </div>
+
+    <div class="hidden-grid">
+      <div class="figure-block">
+        <div class="dot-grid" id="dotGrid"></div>
+        <div class="num-roman">FIG. 02 ─ Population sample, n=100</div>
+        <h3>What the dating apps show you</h3>
+        <div class="figure-mega">
+          3<span class="slash">/</span><span class="ten">10</span>
+        </div>
+        <div class="figure-cap">
+          典型的なマッチングアプリでは、母集団の<b>およそ3割</b>しか可視化されない。<br>
+          残りの<b>7〜8割</b>は、地理・職業・生活時間軸の偏りで、最初から表示されない。
+        </div>
+      </div>
+
+      <div class="hidden-text">
+        <h3>「会えていない人」が、実は<br>あなたに最も適合している。</h3>
+        <p>
+          マッチングアプリは便利だ。だが、表示されるのは <strong>同じ時間帯にアプリを開く、似た価値観のユーザー</strong> に強く偏っている。これは技術の限界ではなく、ビジネスモデルの宿命だ。
+        </p>
+        <p>
+          国勢調査が示すのは、もっと広い世界である。<strong>あなたの通勤30分圏内に、未婚・適齢層が何人いるか。</strong>そのうち、職業・生活リズム・趣味嗜好で <em>潜在的な適合性</em> を持つ層はどこか。
+        </p>
+        <ol class="hidden-list">
+          <li><span class="roman">i.</span><div><b>地理的不可視層</b>：行動半径の外にいる、約34%の適合候補。</div></li>
+          <li><span class="roman">ii.</span><div><b>時間的不可視層</b>：シフト勤務・夜勤など、出会いの時間が合わない約22%。</div></li>
+          <li><span class="roman">iii.</span><div><b>媒体不可視層</b>：SNSやアプリを使わない、保守的な約18%。</div></li>
+          <li><span class="roman">iv.</span><div><b>属性不可視層</b>：検索条件で機械的に弾かれる、隠れた高適合層。</div></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================  MANIFESTO / DATA PHILOSOPHY  =========================== -->
+<section class="section manifesto">
+  <div class="wrap">
+    <div class="manifesto-head">
+      <div class="num-roman" style="display:block; margin-bottom:14px;">Chapter III  ·  Manifesto</div>
+      <h2>We believe in <em>quiet</em><br><b>statistics.</b></h2>
+      <div class="jp">
+        派手な指標ではなく、地味で、検証可能で、退屈なほど正直な数字を信じる。<br>
+        それが、人生を決める意思決定における、最低限の礼儀だと思うから。
+      </div>
+    </div>
+
+    <div class="manifesto-grid">
+      <div class="manifesto-cell">
+        <div class="roman">Article I</div>
+        <h4>政府統計の<br>圧倒的な威信</h4>
+        <p>
+          国勢調査は5年ごと、人口動態調査は毎年、就業構造基本調査は5年ごとに更新される。これらは、どんなアプリの内部データよりも、はるかに広く、深く、検証可能である。
+        </p>
+        <p>
+          私たちはこれを <em>骨格</em> として用いる。占いでも、流行でもなく、国家規模の集計を。
+        </p>
+      </div>
+      <div class="manifesto-cell">
+        <div class="roman">Article II</div>
+        <h4>LLMは<br>翻訳者である</h4>
+        <p>
+          GPT-5系、Claude Opus 4.7、Gemini 3 Pro——これらの大規模言語モデルは、生のCSVを、あなたの文脈に翻訳する仕事を担う。
+        </p>
+        <p>
+          私たちは、LLMに「予言」をさせない。代わりに、<em>統計を日本語に直す</em> という、最も得意な仕事だけを与える。
+        </p>
+      </div>
+      <div class="manifesto-cell">
+        <div class="roman">Article III</div>
+        <h4>個人差を<br>消さない</h4>
+        <p>
+          統計は集団を語る言語であって、個人を断定する道具ではない。私たちは、必ず最後に <em>「これはあなたに当てはまるか」</em> という問いを残す。
+        </p>
+        <p>
+          数字に従うのではない。数字を <strong>持って</strong>、自分の意思決定に向かう。それが、本誌の流儀である。
+        </p>
+      </div>
+      <div class="manifesto-cell">
+        <div class="roman">Article IV</div>
+        <h4>急がない<br>急がせない</h4>
+        <p>
+          本サービスは「3ヶ月で結婚」を約束しない。代わりに、<em>納得のいく意思決定の手順</em> を、週単位で更新し続ける。
+        </p>
+        <p>
+          焦りは、最も悪い相手選びの原因である。だから私たちは、データと共に、まず <strong>呼吸</strong> を整えることを推奨する。
+        </p>
+      </div>
+      <div class="manifesto-cell">
+        <div class="roman">Article V</div>
+        <h4>反証可能性を<br>常に保つ</h4>
+        <p>
+          全ての提案には、出典・サンプル数・更新日が併記される。「なぜこの戦略が推奨されるのか」を、あなたが <em>独立に検証できる</em> こと。これは譲れない一線である。
+        </p>
+      </div>
+      <div class="manifesto-cell">
+        <div class="roman">Article VI</div>
+        <h4>美しさは<br>機能である</h4>
+        <p>
+          人生を左右する道具が、雑なUIで届くべきではない。本誌が紙面のような佇まいを保つのは、装飾ではなく、<em>判断の質を保つための環境設計</em> である。
+        </p>
+      </div>
+    </div>
+
+    <div class="manifesto-foot">
+      — <b>Statistics, when read slowly,</b> behave like literature. —
+    </div>
+  </div>
+</section>
+
+<!-- ===========================  4 STEP FRAMEWORK  =========================== -->
+<section class="section" id="framework">
+  <div class="narrow">
+    <div class="section-mast">
+      <span class="num-roman">Chapter IV</span>
+      <h2>The <i>Four-Step</i> Method</h2>
+      <div class="jp">4ステップで、戦略は仕立て直される</div>
+      <div class="lede">— A method, not a magic. Each step is reproducible, falsifiable, and politely slow. —</div>
+    </div>
+
+    <div class="framework-list">
+      <div class="framework-row">
+        <div class="fw-num"></div>
+        <div class="fw-label">Diagnose<small>診断</small></div>
+        <div class="fw-body">
+          <h3>あなたの「現在地」を、統計座標に置く。</h3>
+          <p>
+            年齢・地域・職業・年収・生活時間軸を、47都道府県の同年代分布の中に位置づける。「自分は標準より上か下か」ではなく、<em>「市場のどの帯域にいるか」</em> を可視化する。
+          </p>
+        </div>
+        <div class="fw-meta">所要時間<b>15分</b>初回問診</div>
+      </div>
+
+      <div class="framework-row">
+        <div class="fw-num"></div>
+        <div class="fw-label">Decode<small>解読</small></div>
+        <div class="fw-body">
+          <h3>市場全体の構造を、LLMが読み解く。</h3>
+          <p>
+            国勢調査・人口動態・就業構造・住宅統計を、Claude/GPT/Geminiが横断照合。あなたの周辺に <em>本当は誰がいるのか</em>、何が見えていないのかを、レポートとして書き出す。
+          </p>
+        </div>
+        <div class="fw-meta">解析範囲<b>1.6M件</b>センサス</div>
+      </div>
+
+      <div class="framework-row">
+        <div class="fw-num"></div>
+        <div class="fw-label">Design<small>設計</small></div>
+        <div class="fw-body">
+          <h3>戦略を、3〜5本のシナリオに編集する。</h3>
+          <p>
+            「同郷×公務員」「通勤30分圏×医療職」「趣味マッチ×週末文化系」など、具体的な戦略を提案。各シナリオには、想定マッチ率・推奨媒体・週次タスクが付帯する。
+          </p>
+        </div>
+        <div class="fw-meta">提案数<b>3〜5本</b>並列で展開</div>
+      </div>
+
+      <div class="framework-row">
+        <div class="fw-num"></div>
+        <div class="fw-label">Deploy<small>運用</small></div>
+        <div class="fw-body">
+          <h3>毎週、淡々と微調整する。</h3>
+          <p>
+            実際の反応・面談結果を週次で取り込み、戦略のパラメータを更新。LLMが、過剰反応せず、しかし停滞もせず、<em>編集者のような落ち着き</em> で改稿を続ける。
+          </p>
+        </div>
+        <div class="fw-meta">更新頻度<b>週次</b>52サイクル</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================  CASE STUDY (PAPER) =========================== -->
+<section class="section" id="case" style="background: var(--bg-alt);">
+  <div class="wrap">
+    <div class="section-mast">
+      <span class="num-roman">Chapter V</span>
+      <h2>A Case in <i>Practice</i></h2>
+      <div class="jp">実例分析（学術論文形式）</div>
+      <div class="lede">— Working Paper No. 0427-A — A 32-year-old engineer, three months of method, one quiet revolution. —</div>
+    </div>
+
+    <article class="paper">
+      <div class="paper-head">
+        <h3>Case 0427-A: A Statistical Re-design of Matchmaking Strategy in a Suburban Tokyo Engineer</h3>
+        <div class="jp-title">郊外居住・32歳・エンジニアにおける、戦略再設計の3ヶ月観察</div>
+        <div class="authors">M. Tanaka, R. Izumi, et al.  ·  The Statistical Marriage Quarterly, Vol. II No. 04</div>
+      </div>
+
+      <div class="paper-section">
+        <h5>Abstract  /  概要</h5>
+        <p>
+          被験者は32歳男性、東京都郊外在住、ITエンジニア。年収720万円、未婚、3年間にわたり主要マッチングアプリ4種を併用するも成婚に至らず、適合性の低いマッチが反復していた。本研究では、国勢調査・就業構造基本調査・住宅統計を入力としたLLM主導の戦略再設計プロトコルを12週間適用し、マッチ品質と意思決定速度の変化を観察した。
+        </p>
+      </div>
+
+      <div class="paper-section">
+        <h5>Method  /  手法</h5>
+        <p>
+          初期診断（Week 0）にて、被験者の<em>「行動半径の偏り」</em>と<em>「通勤動線上の不可視層」</em>を特定。具体的には、自宅から30分圏内の未婚適齢層において、医療職比率が想定より<em>+34%</em>、保育・教育職比率が<em>+19%</em>と算出された。これに基づき、以下の3シナリオを並列展開した。
+        </p>
+        <p>
+          <em>(α) 通勤動線上の医療職セグメント</em>、<em>(β) 趣味マッチ：陶芸・登山系の週末文化圏</em>、<em>(γ) 同郷ネットワーク：地方出身者向けオフライン会合</em>。各シナリオは週次でパラメータを更新し、被験者の実際の反応データをフィードバックループに組み込んだ。
+        </p>
+      </div>
+
+      <div class="paper-section">
+        <h5>Results  /  結果</h5>
+        <div class="paper-data">
+          <div><div class="v">+72<small style="font-size: 18px;">%</small></div><div class="l">マッチ適合スコア</div></div>
+          <div><div class="v gold">3.4×</div><div class="l">2nd date conversion</div></div>
+          <div><div class="v bur">−61<small style="font-size: 18px;">%</small></div><div class="l">意思決定迷い時間</div></div>
+          <div><div class="v">12<small style="font-size: 18px;"> wks</small></div><div class="l">観察期間</div></div>
+        </div>
+        <p>
+          12週時点で、シナリオαが最も持続的な改善を示し、被験者は週次の安定した出会いと、自身の意思決定への <em>納得感</em> を獲得した。注目すべきは「成婚」という単一指標ではなく、<em>意思決定の質</em>と<em>焦燥感の減少</em>が並行して改善した点である。
+        </p>
+      </div>
+
+      <div class="paper-section">
+        <h5>Discussion  /  考察</h5>
+        <p>
+          本ケースが示唆するのは、婚活における停滞は <em>「機会の不足」ではなく、「選択肢の構造的不可視性」</em>に起因する場合があるということである。LLMが介在する価値は、予言ではなく、<em>翻訳と編集</em>にある。
+        </p>
+      </div>
+
+      <div class="paper-foot">
+        <span>Submitted · 2026.04.27</span>
+        <span>Sample N=1 · Pilot</span>
+        <span>Peer-review pending</span>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ===========================  STRATEGY CATALOGUE  =========================== -->
+<section class="section">
+  <div class="narrow">
+    <div class="section-mast">
+      <span class="num-roman">Chapter VI</span>
+      <h2>The <i>Strategy</i> Catalogue</h2>
+      <div class="jp">戦略カタログ — 12の典型シナリオ</div>
+      <div class="lede">— Each entry is a starting point, not a prescription. Your strategy will be a unique blend of these. —</div>
+    </div>
+
+    <div class="catalogue-intro">
+      LLMは、あなたの診断結果に応じて、以下のシナリオから3〜5本を選び、合成する。<br>
+      ここに掲載されているのは、過去12ヶ月の運用で頻出した <em>定番の編集方針</em> である。
+    </div>
+
+    <div class="catalogue">
+      <div class="catalogue-row">
+        <div class="cat-num">i.</div>
+        <div class="cat-name">同郷×公務員レンジ<small>The Hometown Civic Strategy</small></div>
+        <div class="cat-desc">出身地が一致する公務員・準公務員層は、生活時間軸と価値観の同期率が高く、長期的な世帯維持率も統計上高め。</div>
+        <div class="cat-tag">defensive</div>
+      </div>
+      <div class="catalogue-row">
+        <div class="cat-num">ii.</div>
+        <div class="cat-name">通勤30分圏×医療職<small>The Commuter Health-Care Belt</small></div>
+        <div class="cat-desc">通勤動線上にある医療系職場の未婚率は、想定より34%高い地域が散見される。シフト合致が課題だが、適合度は極めて高い。</div>
+        <div class="cat-tag gold">offensive</div>
+      </div>
+      <div class="catalogue-row">
+        <div class="cat-num">iii.</div>
+        <div class="cat-name">週末文化圏マッチ<small>Weekend Cultural Cohort</small></div>
+        <div class="cat-desc">陶芸・登山・読書会など、平日とは別の人格が出る週末コミュニティ。アプリでは可視化されない、深い適合層が眠る。</div>
+        <div class="cat-tag">balanced</div>
+      </div>
+      <div class="catalogue-row">
+        <div class="cat-num">iv.</div>
+        <div class="cat-name">中規模都市の還流層<small>The Returning Migrant Pattern</small></div>
+        <div class="cat-desc">一度東京に出て地方に戻った層は、価値観の幅と地元適応性を兼ね備える。統計上、適齢未婚率が高い。</div>
+        <div class="cat-tag">defensive</div>
+      </div>
+      <div class="catalogue-row">
+        <div class="cat-num">v.</div>
+        <div class="cat-name">教育職×文化的同期<small>The Educator Resonance</small></div>
+        <div class="cat-desc">教員・保育士・学芸員など、知的職業層は休日感覚と倫理観の相性が極めて重要。この層は媒体選定がほぼ全て。</div>
+        <div class="cat-tag">balanced</div>
+      </div>
+      <div class="catalogue-row">
+        <div class="cat-num">vi.</div>
+        <div class="cat-name">家業継承マッチ<small>The Inheriting Household</small></div>
+        <div class="cat-desc">家業・自営層は、一般的なアプリで著しく過小評価される。世帯持続性の観点では、極めて優位な選択肢になり得る。</div>
+        <div class="cat-tag bur">contrarian</div>
+      </div>
+      <div class="catalogue-row">
+        <div class="cat-num">vii.</div>
+        <div class="cat-name">遠距離耐性プロファイル<small>The Long-Distance Tolerant</small></div>
+        <div class="cat-desc">転勤頻度・出張頻度の高い職業同士は、距離耐性のベースラインが揃う。適合層は限定的だが、一致時の安定度は高い。</div>
+        <div class="cat-tag">offensive</div>
+      </div>
+      <div class="catalogue-row">
+        <div class="cat-num">viii.</div>
+        <div class="cat-name">夜勤時間軸シナリオ<small>The Off-Hour Sync</small></div>
+        <div class="cat-desc">医療・運輸・警備系の夜勤層は、一般的アプリの時間帯外で活動。専用媒体・専用シナリオでのみ接続可能。</div>
+        <div class="cat-tag gold">offensive</div>
+      </div>
+      <div class="catalogue-row">
+        <div class="cat-num">ix.</div>
+        <div class="cat-name">趣味先行型クロス<small>The Hobby-First Cross</small></div>
+        <div class="cat-desc">プロフィール先行ではなく、活動への参加から出会いを設計する。アプリ疲れの被験者で特に有効。</div>
+        <div class="cat-tag">balanced</div>
+      </div>
+      <div class="catalogue-row">
+        <div class="cat-num">x.</div>
+        <div class="cat-name">国際職層×言語シナリオ<small>The International Worker Layer</small></div>
+        <div class="cat-desc">外資系・国際機関・大学院層は、年収帯ではなく <em>移動性</em> でセグメントすべき隠れ層。</div>
+        <div class="cat-tag">balanced</div>
+      </div>
+      <div class="catalogue-row">
+        <div class="cat-num">xi.</div>
+        <div class="cat-name">同年代×職種ミラー<small>The Symmetric Profession Match</small></div>
+        <div class="cat-desc">同職種・同職位同士の安定度は統計的に高い。だが「同じ業界では出会えない」という思い込みが障壁。</div>
+        <div class="cat-tag">defensive</div>
+      </div>
+      <div class="catalogue-row">
+        <div class="cat-num">xii.</div>
+        <div class="cat-name">家族構成共鳴<small>The Family-Structure Echo</small></div>
+        <div class="cat-desc">兄弟構成・親世代の同居有無など、家庭観の深層パラメータが一致する層は、長期的な合意形成コストが極めて低い。</div>
+        <div class="cat-tag bur">contrarian</div>
+      </div>
+    </div>
+
+    <div class="catalogue-foot">
+      — full catalogue contains 47 strategies; subscribers receive a tailored selection of 3–5 —
+    </div>
+  </div>
+</section>
+
+<!-- ===========================  WEEKLY OPTIMIZATION  =========================== -->
+<section class="section" style="background: var(--bg-alt);">
+  <div class="wrap">
+    <div class="section-mast">
+      <span class="num-roman">Chapter VII</span>
+      <h2>The <i>Weekly</i> Ledger</h2>
+      <div class="jp">週次最適化 — 静かな改稿の連続</div>
+      <div class="lede">— A diary, not a dashboard. Each Sunday, your strategy is gently rewritten. —</div>
+    </div>
+
+    <div class="weekly">
+      <div class="weekly-text">
+        <h3>戦略は、<b>52週間</b>かけて<br>仕立て直される。</h3>
+        <div class="jp">編集者のように、毎週、改稿を続ける。</div>
+        <p>
+          毎週日曜の夜、私たちはあなたの一週間を <em>静かに振り返る</em>。どの面談がうまくいき、どの媒体が機能しなかったか。LLMは、その全てを、過剰反応せずに、しかし無視もせず、戦略のパラメータに反映する。
+        </p>
+        <p>
+          翌週月曜の朝、あなたのもとには、<em>1.4ページの新しい指針</em> が届く。劇的な変化は稀である。多くの場合、調整は <strong>「水曜の予定を木曜に動かす」</strong> 程度の微差だ。だが、52週重ねると、その微差が、確かな構造になる。
+        </p>
+        <p>
+          これは、<em>急がず、しかし諦めない</em> 編集の倫理である。
+        </p>
+      </div>
+
+      <div class="ledger">
+        <div class="ledger-head">
+          <h4>Weekly Brief</h4>
+          <div class="meta">2026 · APR 27 → MAY 03</div>
+        </div>
+
+        <div class="ledger-row">
+          <div class="day">Mon<b>04/27</b></div>
+          <div class="desc">戦略レポート配信<small>シナリオα継続、βを28%抑制</small></div>
+          <div class="delta gold">α+12%</div>
+        </div>
+        <div class="ledger-row">
+          <div class="day">Wed<b>04/29</b></div>
+          <div class="desc">推奨イベント参加<small>陶芸ワークショップ@世田谷</small></div>
+          <div class="delta up">+1 lead</div>
+        </div>
+        <div class="ledger-row">
+          <div class="day">Thu<b>04/30</b></div>
+          <div class="desc">ファースト面談<small>32歳 / 教育職 / 同郷</small></div>
+          <div class="delta up">8.4★</div>
+        </div>
+        <div class="ledger-row">
+          <div class="day">Fri<b>05/01</b></div>
+          <div class="desc">媒体パラメータ自動調整<small>マッチング媒体3 → 重み 0.6→0.3</small></div>
+          <div class="delta">−</div>
+        </div>
+        <div class="ledger-row">
+          <div class="day">Sat<b>05/02</b></div>
+          <div class="desc">セカンド面談<small>同候補：適合スコア確認</small></div>
+          <div class="delta up">8.7★</div>
+        </div>
+        <div class="ledger-row">
+          <div class="day">Sun<b>05/03</b></div>
+          <div class="desc">週次レビュー & 翌週レポート生成<small>シナリオγを停止、αを優先化</small></div>
+          <div class="delta gold">→ Wk18</div>
+        </div>
+
+        <div class="ledger-foot">
+          <span>cumulative match-score</span>
+          <span><b>+34.2</b><small style="font-size: 12px; margin-left: 4px;">since wk 1</small></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================  PRICING  =========================== -->
+<section class="section" id="pricing">
+  <div class="wrap">
+    <div class="pricing-head">
+      <span class="eyebrow">Chapter VIII <span class="dot"></span> Subscription</span>
+      <h2>Three <i>tiers,</i> <b>one philosophy.</b></h2>
+      <div class="jp">プランオプション — 急がず、しかし、確かに。</div>
+    </div>
+
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-tier">Tier I  ·  Free</div>
+        <div class="plan-name">Observer</div>
+        <div class="plan-jp">観覧者プラン</div>
+        <div class="plan-price">
+          <span class="yen">¥</span>0
+          <small>forever  /  no card required</small>
+        </div>
+        <div class="plan-desc">
+          まずは <em>市場の構造</em> を覗いてみたい方へ。週刊ニュースレターと、初期診断レポートをお届けします。
+        </div>
+        <ul class="plan-features">
+          <li>初期診断レポート（PDF・8頁）</li>
+          <li>週刊ニュースレター</li>
+          <li>戦略カタログ閲覧（要約）</li>
+          <li class="muted">個別シナリオ生成</li>
+          <li class="muted">週次最適化</li>
+          <li class="muted">専属コンシェルジュ</li>
+        </ul>
+        <a href="#cta" class="plan-cta">無料で観覧する</a>
+      </div>
+
+      <div class="plan plan-featured">
+        <div class="plan-tier">Tier II  ·  Featured</div>
+        <div class="plan-name">Strategist</div>
+        <div class="plan-jp">戦略家プラン</div>
+        <div class="plan-price">
+          <span class="yen">¥</span>2,980
+          <small>per month  /  cancel anytime</small>
+        </div>
+        <div class="plan-desc">
+          本誌の中核プラン。3〜5本の個別戦略シナリオと、週次最適化のフルアクセス。
+        </div>
+        <ul class="plan-features">
+          <li>個別戦略シナリオ（3〜5本／LLM生成）</li>
+          <li>週次レポート（PDF・1.4頁）</li>
+          <li>戦略カタログ全文（47本）</li>
+          <li>媒体最適化レコメンド</li>
+          <li>月次・四半期レビュー</li>
+          <li class="muted">専属コンシェルジュ</li>
+        </ul>
+        <a href="#cta" class="plan-cta">Strategist で始める</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-tier">Tier III  ·  Premium</div>
+        <div class="plan-name">Concierge</div>
+        <div class="plan-jp">専属伴走プラン</div>
+        <div class="plan-price">
+          <span class="yen">¥</span>9,800
+          <small>per month  /  application required</small>
+        </div>
+        <div class="plan-desc">
+          月2回の人による1対1セッションと、戦略の <em>共同編集</em>。意思決定を、ひとりで抱えない方へ。
+        </div>
+        <ul class="plan-features">
+          <li>Strategist の全機能</li>
+          <li>月2回・1on1セッション（60分）</li>
+          <li>面談前の戦略監修</li>
+          <li>意思決定パートナー（人＋LLM）</li>
+          <li>四半期ごとの戦略再設計</li>
+          <li>編集チームへの直接連絡</li>
+        </ul>
+        <a href="#cta" class="plan-cta">Concierge に申し込む</a>
+      </div>
+    </div>
+
+    <div class="pricing-foot">
+      — All subscriptions begin with a free 14-day Strategist trial. No credit card required. —
+    </div>
+  </div>
+</section>
+
+<!-- ===========================  TESTIMONIALS  =========================== -->
+<section class="section voices">
+  <div class="wrap">
+    <div class="section-mast">
+      <span class="num-roman">Chapter IX</span>
+      <h2>Reader <i>Letters</i></h2>
+      <div class="jp">読者からの便り（顧客の声）</div>
+      <div class="lede">— Edited for length. Quoted with permission. The names have been changed; the numbers have not. —</div>
+    </div>
+
+    <div class="voices-grid">
+      <div class="voice">
+        <div class="voice-meta">Letter №01  ·  TOKYO</div>
+        <div class="voice-quote">
+          アプリを5つ併用していたのが、嘘のよう。<em>「自分が見ていなかった層」</em>がここまで明確に可視化されるとは思わなかった。3ヶ月で、付き合うか結婚するかの段階に進める方と出会えました。
+        </div>
+        <div class="voice-author">
+          — Mr. K., 34, IT engineer<br>
+          <b>K・T 様（34歳・エンジニア）</b>
+          <div class="voice-stat">3.2×<small>マッチ適合度</small></div>
+        </div>
+      </div>
+
+      <div class="voice">
+        <div class="voice-meta">Letter №02  ·  YOKOHAMA</div>
+        <div class="voice-quote">
+          私が結婚相談所で疲弊していた時、Strategist の週次レポートだけが <em>「焦らないでいい根拠」</em> をくれました。データは、優しい時もある。それを初めて知った気がします。
+        </div>
+        <div class="voice-author">
+          — Ms. M., 31, public servant<br>
+          <b>M・S 様（31歳・公務員）</b>
+          <div class="voice-stat">−58%<small>意思決定迷い時間</small></div>
+        </div>
+      </div>
+
+      <div class="voice">
+        <div class="voice-meta">Letter №03  ·  NAGOYA</div>
+        <div class="voice-quote">
+          Concierge で月2回の伴走をお願いしました。LLMの提案を、人間の編集者と一緒に <em>翻訳し直す</em> プロセスは、驚くほど癒やしでもありました。半年で、納得のいく相手と出会えました。
+        </div>
+        <div class="voice-author">
+          — Dr. H., 38, physician<br>
+          <b>H・N 様（38歳・医師）</b>
+          <div class="voice-stat">+72%<small>戦略納得度</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================  FAQ  =========================== -->
+<section class="section">
+  <div class="narrow">
+    <div class="section-mast">
+      <span class="num-roman">Chapter X</span>
+      <h2>Frequently <i>Asked</i></h2>
+      <div class="jp">よくある質問</div>
+      <div class="lede">— A correspondence column. Edited and answered by the editorial team. —</div>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-row">
+        <div class="faq-q-mark">Q.</div>
+        <div>
+          <div class="faq-q">
+            これは、結婚相談所と何が違うのですか？
+            <small>How does this differ from a traditional matchmaking agency?</small>
+          </div>
+          <div class="faq-a">
+            私たちは「相手を紹介する」のではなく、「<em>あなたの戦略を編集する</em>」サービスです。具体的なお相手は、既存のアプリ・相談所・コミュニティの中で出会っていただきます。本誌の役割は、その出会いの <strong>事前と事後の意思決定の質</strong> を、統計と編集力で持ち上げることにあります。
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-row">
+        <div class="faq-q-mark">Q.</div>
+        <div>
+          <div class="faq-q">
+            データの出典は、どこですか？
+            <small>What are the underlying data sources?</small>
+          </div>
+          <div class="faq-a">
+            国勢調査（総務省統計局）、人口動態調査（厚生労働省）、就業構造基本調査、住宅・土地統計調査などの政府統計が骨格です。これらに、各自治体の公開データと、提携機関からの匿名集計を補助的に組み合わせています。<em>個別マッチングアプリの内部データは使用しません</em>。
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-row">
+        <div class="faq-q-mark">Q.</div>
+        <div>
+          <div class="faq-q">
+            LLMは、どのモデルを使っていますか？
+            <small>Which language models power the recommendations?</small>
+          </div>
+          <div class="faq-a">
+            Claude Opus 4.7、GPT-5系、Gemini 3 Pro を、用途に応じて使い分けています。意思決定に関わる重要な要約には複数モデルでの相互検証を行い、出典・サンプル数・更新日を必ず併記します。<em>LLMが断定的な「予言」をすることは、設計上禁止しています</em>。
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-row">
+        <div class="faq-q-mark">Q.</div>
+        <div>
+          <div class="faq-q">
+            結婚を、ある期間内に約束してくれますか？
+            <small>Do you guarantee marriage within a certain timeframe?</small>
+          </div>
+          <div class="faq-a">
+            いいえ。むしろ、そうした保証をしないことが、本誌の編集方針です。代わりに、<em>意思決定の質を、週次で改善し続ける</em>ことをお約束します。「3ヶ月成婚」のような数値目標は、急ぎすぎた選択を生むため、私たちはそれを推奨しません。
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-row">
+        <div class="faq-q-mark">Q.</div>
+        <div>
+          <div class="faq-q">
+            プライバシーは、守られますか？
+            <small>How do you protect my privacy?</small>
+          </div>
+          <div class="faq-a">
+            初期診断・週次レポートで使用する個人情報は、暗号化のうえ国内のセキュアな環境にのみ保管されます。LLMへのプロンプト送信時は、識別情報を匿名化したうえで処理されます。お客様の同意なく、第三者へのデータ提供は <strong>一切行いません</strong>。
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-row">
+        <div class="faq-q-mark">Q.</div>
+        <div>
+          <div class="faq-q">
+            途中で解約できますか？
+            <small>Can I cancel anytime?</small>
+          </div>
+          <div class="faq-a">
+            Strategistプランは月単位、いつでも解約可能です。Conciergeプランは、月単位で更新されますが、四半期内の途中解約も承ります。<em>違約金等は一切ありません</em>。お客様が、納得のいくタイミングで離れられること——それも、本誌の倫理の一部です。
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-row">
+        <div class="faq-q-mark">Q.</div>
+        <div>
+          <div class="faq-q">
+            年齢制限はありますか？
+            <small>Are there age restrictions?</small>
+          </div>
+          <div class="faq-a">
+            20歳以上であれば、上限は設けていません。実際に、20代後半から60代まで、幅広い世代の方が購読されています。各世代に応じた統計レンジで戦略を編集しますので、<em>「自分の年齢には合わないのでは」という心配はご無用です</em>。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================  CLOSING CTA  =========================== -->
+<section class="closing" id="cta">
+  <div class="narrow">
+    <h2>Begin <em>quietly.</em></h2>
+    <div class="jp">急がず、しかし、確かに、はじめる。</div>
+    <div class="lede">
+      14日間の無料トライアルから。<br>
+      クレジットカードは不要、解約はいつでも。<br>
+      最初のレポートは、24時間以内にあなたの手もとへ届きます。
+    </div>
+
+    <a href="#" class="closing-cta">Subscribe to The Quarterly</a>
+
+    <div class="closing-meta">
+      <span>14-day free trial</span>
+      <span>No credit card</span>
+      <span>Cancel anytime</span>
+      <span>Made in Tokyo</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================  FOOTER  =========================== -->
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div>© MMXXVI The Statistical Marriage Quarterly · All rights reserved</div>
+    <div class="colophon">
+      Set in <b>Playfair Display</b> &amp; <b>Cormorant Garamond</b>.<br>
+      Printed digitally, in Tokyo, on paper that does not exist.
+    </div>
+    <div>Premium Edition · v.2.4</div>
+  </div>
+</footer>
+
+<script>
+  // Generate the dot grid: 100 dots, ~30 highlighted, 1 = "you"
+  (function () {
+    var grid = document.getElementById('dotGrid');
+    if (!grid) return;
+    var visibleIndices = new Set();
+    while (visibleIndices.size < 30) {
+      visibleIndices.add(Math.floor(Math.random() * 100));
+    }
+    var youIndex = 47; // fixed "you" position
+    var html = '';
+    for (var i = 0; i < 100; i++) {
+      var cls = '';
+      if (i === youIndex) cls = ' class="you"';
+      else if (visibleIndices.has(i)) cls = ' class="on"';
+      html += '<span' + cls + '></span>';
+    }
+    grid.innerHTML = html;
+  })();
+</script>
+
+</body>
+</html>

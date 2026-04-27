@@ -1,0 +1,2001 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>データ婚活アドバイザー — 国勢調査 × LLM の戦略提案AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Caveat:wght@500;700&family=Fraunces:ital,wght@0,500;0,800;1,500&family=Noto+Sans+JP:wght@400;500;700;900&family=Outfit:wght@400;600;700;900&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  /* ============================================================
+   * データ婚活アドバイザー / Pattern 3 — Casual Z-gen
+   * Cream × Mint × Orange × Plum
+   * Asymmetric, playful, but still strategic.
+   * ============================================================ */
+
+  :root {
+    --bg: #f4f1e8;
+    --bg-deep: #ece8d8;
+    --bg-soft: #faf7ee;
+    --mint: #7ac9a1;
+    --mint-deep: #4faa84;
+    --orange: #f58f4f;
+    --orange-deep: #d9743a;
+    --plum: #8e5a8a;
+    --plum-deep: #6e4269;
+    --ink: #2a2d34;
+    --ink-soft: #5a5d65;
+    --line: rgba(42, 45, 52, 0.12);
+    --paper: #fffdf6;
+    --shadow-1: 0 6px 18px rgba(42, 45, 52, 0.08);
+    --shadow-2: 0 14px 36px rgba(42, 45, 52, 0.12);
+    --radius-l: 28px;
+    --radius-m: 18px;
+    --radius-s: 10px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans JP", "Outfit", system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.7;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ----- shared building blocks ----- */
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; position: relative; }
+  .eyebrow {
+    font-family: "Outfit", sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--plum);
+  }
+  .h-display {
+    font-family: "Bagel Fat One", "Outfit", sans-serif;
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.005em;
+  }
+  .h-serif {
+    font-family: "Fraunces", "Noto Serif JP", serif;
+    font-weight: 800;
+  }
+  .scribble {
+    font-family: "Caveat", "Noto Sans JP", cursive;
+    font-weight: 700;
+    color: var(--orange-deep);
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    font-family: "Outfit", sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+  }
+  .pill .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--mint);
+    box-shadow: 0 0 0 3px rgba(122, 201, 161, 0.25);
+  }
+
+  /* ===== buttons ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 26px;
+    border-radius: 14px;
+    font-family: "Outfit", sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    border: 2px solid var(--ink);
+    transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+    box-shadow: 4px 4px 0 var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .btn:hover { transform: rotate(-2deg) translateY(-2px); box-shadow: 6px 8px 0 var(--ink); }
+  .btn-primary {
+    background: var(--orange);
+    color: var(--ink);
+  }
+  .btn-primary:hover { background: var(--orange-deep); color: #fff; }
+  .btn-mint { background: var(--mint); }
+  .btn-ghost { background: transparent; box-shadow: none; }
+  .btn-ghost:hover { box-shadow: 4px 4px 0 var(--ink); }
+  .btn .arrow { transition: transform .25s ease; }
+  .btn:hover .arrow { transform: translateX(4px); }
+
+  /* ===== nav ===== */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(244, 241, 232, 0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1.5px solid var(--ink);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: "Bagel Fat One", sans-serif;
+    font-size: 22px;
+    color: var(--ink);
+  }
+  .logo .mark {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: var(--mint);
+    display: grid; place-items: center;
+    color: var(--ink);
+    font-family: "Bagel Fat One";
+    font-size: 18px;
+    border: 2px solid var(--ink);
+    transform: rotate(-6deg);
+  }
+  .nav-links {
+    display: flex; gap: 26px;
+    font-family: "Outfit", sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .nav-links a:hover { color: var(--orange-deep); }
+  .nav-cta { display: flex; gap: 12px; align-items: center; }
+  @media (max-width: 760px) { .nav-links { display: none; } }
+
+  /* =====================================================
+   * HERO
+   * ===================================================== */
+  .hero {
+    position: relative;
+    padding: 80px 0 110px;
+    overflow: hidden;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 50px;
+    align-items: center;
+  }
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
+
+  .hero h1 {
+    font-family: "Bagel Fat One", "Outfit", sans-serif;
+    font-size: clamp(48px, 7.5vw, 96px);
+    line-height: 0.98;
+    margin: 18px 0 18px;
+    color: var(--ink);
+  }
+  .hero h1 .word-mint { color: var(--mint-deep); }
+  .hero h1 .word-orange { color: var(--orange-deep); }
+  .hero h1 .word-plum { color: var(--plum); }
+  .hero h1 .underline {
+    position: relative;
+    display: inline-block;
+  }
+  .hero h1 .underline::after {
+    content: "";
+    position: absolute;
+    left: -4px; right: -4px; bottom: -6px;
+    height: 14px;
+    background: var(--orange);
+    z-index: -1;
+    border-radius: 8px;
+    transform: skew(-6deg);
+  }
+  .hero p.lede {
+    font-size: 18px;
+    line-height: 1.85;
+    color: var(--ink-soft);
+    max-width: 540px;
+    margin: 0 0 28px;
+  }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+  .hero-meta {
+    margin-top: 36px;
+    display: flex; gap: 28px; flex-wrap: wrap;
+    font-family: "Outfit", sans-serif;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .hero-meta .num {
+    font-family: "Bagel Fat One";
+    font-size: 28px;
+    color: var(--ink);
+    display: block;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .hero-scribble {
+    position: absolute;
+    font-family: "Caveat";
+    color: var(--plum);
+    font-size: 28px;
+    font-weight: 700;
+    transform: rotate(-8deg);
+  }
+
+  /* iPhone CSS frame in hero */
+  .phone {
+    position: relative;
+    width: 320px;
+    height: 640px;
+    margin: 0 auto;
+    background: var(--ink);
+    border-radius: 46px;
+    padding: 14px;
+    box-shadow: 0 30px 60px rgba(42,45,52,0.25), 0 6px 12px rgba(42,45,52,0.15);
+    transform: rotate(3deg);
+  }
+  .phone::before {
+    content: "";
+    position: absolute;
+    top: 12px; left: 50%;
+    transform: translateX(-50%);
+    width: 110px; height: 28px;
+    background: var(--ink);
+    border-radius: 0 0 18px 18px;
+    z-index: 5;
+  }
+  .phone-screen {
+    width: 100%; height: 100%;
+    background: var(--bg-soft);
+    border-radius: 34px;
+    overflow: hidden;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .ph-status {
+    display: flex; justify-content: space-between;
+    padding: 14px 22px 6px;
+    font-family: "Outfit"; font-weight: 700; font-size: 12px;
+    color: var(--ink);
+  }
+  .ph-status .signals { display: flex; gap: 4px; align-items: center; }
+  .ph-status .signals span { display: inline-block; width: 4px; height: 8px; background: var(--ink); border-radius: 1px;}
+  .ph-status .signals span:nth-child(2) { height: 10px; }
+  .ph-status .signals span:nth-child(3) { height: 12px; }
+  .ph-header {
+    padding: 18px 20px 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ph-avatar {
+    width: 38px; height: 38px; border-radius: 12px;
+    background: var(--mint);
+    border: 2px solid var(--ink);
+    display: grid; place-items: center;
+    font-family: "Bagel Fat One"; font-size: 16px;
+    color: var(--ink);
+    transform: rotate(-6deg);
+  }
+  .ph-header h4 {
+    margin: 0; font-family: "Outfit"; font-weight: 700;
+    font-size: 15px;
+  }
+  .ph-header span { font-family: "Outfit"; font-size: 11px; color: var(--ink-soft); }
+
+  .ph-body { padding: 8px 18px 12px; flex: 1; overflow: hidden; }
+  .ph-bubble {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 16px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.55;
+    margin-bottom: 10px;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .ph-bubble.user {
+    background: var(--mint);
+    align-self: flex-end;
+    margin-left: 30px;
+  }
+  .ph-bubble.bot { margin-right: 30px; }
+  .ph-bubble.bot strong { color: var(--plum-deep); }
+
+  .ph-chart {
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 16px;
+    padding: 12px 14px;
+    box-shadow: 3px 3px 0 var(--ink);
+    margin-right: 10px;
+  }
+  .ph-chart h5 {
+    margin: 0 0 8px;
+    font-family: "Outfit"; font-weight: 700;
+    font-size: 12px;
+  }
+  .ph-bars {
+    display: flex; gap: 6px; align-items: flex-end;
+    height: 64px;
+  }
+  .ph-bars .bar {
+    width: 22px;
+    background: var(--orange);
+    border: 1.5px solid var(--ink);
+    border-radius: 6px 6px 0 0;
+  }
+  .ph-bars .bar:nth-child(1) { height: 32%; background: var(--mint); }
+  .ph-bars .bar:nth-child(2) { height: 56%; }
+  .ph-bars .bar:nth-child(3) { height: 78%; background: var(--plum); }
+  .ph-bars .bar:nth-child(4) { height: 44%; background: var(--mint); }
+  .ph-bars .bar:nth-child(5) { height: 92%; }
+  .ph-bars .bar:nth-child(6) { height: 38%; background: var(--plum); }
+  .ph-labels {
+    display: flex; gap: 6px; margin-top: 4px;
+    font-family: "Outfit"; font-size: 9px; color: var(--ink-soft);
+  }
+  .ph-labels span { width: 22px; text-align: center; }
+
+  /* CSS shapes scattered around hero */
+  .deco { position: absolute; pointer-events: none; }
+  .deco-star {
+    width: 60px; height: 60px;
+    background: var(--orange);
+    clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  }
+  .deco-blob {
+    width: 120px; height: 120px;
+    background: var(--mint);
+    border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+    opacity: 0.55;
+  }
+  .deco-ring {
+    width: 90px; height: 90px;
+    border: 6px solid var(--plum);
+    border-radius: 50%;
+  }
+  .deco-wave {
+    width: 160px; height: 30px;
+    background:
+      radial-gradient(circle at 10px 30px, var(--plum) 14px, transparent 14px) 0 0/30px 30px;
+    opacity: 0.5;
+  }
+
+  /* =====================================================
+   * QUESTION SECTION  「婚活市場の80%って？」
+   * ===================================================== */
+  .q-section {
+    background: var(--ink);
+    color: var(--bg-soft);
+    padding: 110px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .q-section::before {
+    content: "";
+    position: absolute;
+    top: -1px; left: 0; right: 0; height: 40px;
+    background: var(--bg);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 90% 30%, 80% 100%, 70% 30%, 60% 100%, 50% 30%, 40% 100%, 30% 30%, 20% 100%, 10% 30%, 0 100%);
+  }
+  .q-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  @media (max-width: 900px) { .q-grid { grid-template-columns: 1fr; } }
+
+  .q-section .eyebrow { color: var(--mint); }
+  .q-section h2 {
+    font-family: "Bagel Fat One", sans-serif;
+    font-size: clamp(40px, 5.6vw, 72px);
+    line-height: 1.05;
+    margin: 16px 0 24px;
+  }
+  .q-section h2 em {
+    font-style: normal;
+    color: var(--orange);
+  }
+  .q-section h2 .strike {
+    text-decoration: line-through;
+    text-decoration-color: var(--orange);
+    text-decoration-thickness: 6px;
+    color: rgba(250, 247, 238, 0.5);
+  }
+  .q-section .lede {
+    font-size: 17px;
+    line-height: 1.95;
+    color: rgba(250, 247, 238, 0.78);
+    max-width: 520px;
+  }
+  .q-big-num {
+    font-family: "Bagel Fat One", sans-serif;
+    font-size: clamp(160px, 22vw, 280px);
+    line-height: 0.85;
+    color: var(--orange);
+    text-align: center;
+    position: relative;
+  }
+  .q-big-num small {
+    font-size: 0.22em;
+    color: var(--mint);
+    display: block;
+    letter-spacing: 0.02em;
+    margin-top: 12px;
+  }
+  .q-big-num .stamp {
+    position: absolute;
+    right: 0; top: 12%;
+    font-family: "Caveat";
+    color: var(--mint);
+    font-size: 32px;
+    transform: rotate(8deg);
+    border: 3px solid var(--mint);
+    padding: 6px 14px;
+    border-radius: 8px;
+  }
+
+  /* =====================================================
+   * REASONS — 3つの不参加理由（手書き風）
+   * ===================================================== */
+  .reasons {
+    padding: 130px 0;
+    position: relative;
+  }
+  .reasons-head {
+    text-align: center;
+    margin-bottom: 70px;
+  }
+  .reasons-head h2 {
+    font-family: "Bagel Fat One";
+    font-size: clamp(38px, 5vw, 64px);
+    line-height: 1.1;
+    margin: 14px 0 12px;
+  }
+  .reasons-head h2 .scribble-arrow {
+    position: relative;
+  }
+  .reasons-head .sub {
+    font-family: "Caveat";
+    color: var(--plum);
+    font-size: 26px;
+    font-weight: 700;
+  }
+  .reasons-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  @media (max-width: 900px) { .reasons-grid { grid-template-columns: 1fr; } }
+
+  .reason-card {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-l);
+    padding: 36px 28px 32px;
+    box-shadow: 6px 6px 0 var(--ink);
+    position: relative;
+  }
+  .reason-card:nth-child(1) { transform: rotate(-2deg); background: var(--paper); }
+  .reason-card:nth-child(2) { transform: rotate(1.5deg); background: var(--mint); }
+  .reason-card:nth-child(3) { transform: rotate(-1deg); background: var(--orange); }
+
+  .reason-num {
+    font-family: "Bagel Fat One";
+    font-size: 80px;
+    color: var(--ink);
+    line-height: 1;
+    opacity: 0.9;
+  }
+  .reason-card h3 {
+    font-family: "Outfit", "Noto Sans JP", sans-serif;
+    font-weight: 900;
+    font-size: 24px;
+    margin: 14px 0 12px;
+    line-height: 1.3;
+  }
+  .reason-card p {
+    margin: 0 0 18px;
+    font-size: 14.5px;
+    line-height: 1.85;
+    color: var(--ink);
+  }
+  .reason-card .tag {
+    font-family: "Caveat";
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--plum-deep);
+  }
+  .reason-card:nth-child(2) .tag,
+  .reason-card:nth-child(3) .tag { color: var(--ink); }
+
+  .reason-doodle {
+    position: absolute;
+    top: -22px; right: -12px;
+    font-family: "Caveat";
+    background: var(--ink);
+    color: var(--bg-soft);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 16px;
+    transform: rotate(8deg);
+  }
+
+  /* =====================================================
+   * 4 STEPS — データの力で見える化
+   * ===================================================== */
+  .steps {
+    background: var(--bg-deep);
+    padding: 130px 0;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    position: relative;
+  }
+  .steps-head {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 40px;
+    align-items: end;
+    margin-bottom: 70px;
+  }
+  @media (max-width: 900px) { .steps-head { grid-template-columns: 1fr; } }
+  .steps-head h2 {
+    font-family: "Bagel Fat One";
+    font-size: clamp(40px, 5.4vw, 68px);
+    line-height: 1.05;
+    margin: 14px 0 0;
+  }
+  .steps-head h2 em {
+    font-style: normal; color: var(--mint-deep);
+  }
+  .steps-head p {
+    font-size: 16px;
+    line-height: 1.95;
+    color: var(--ink-soft);
+    max-width: 460px;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px;
+    position: relative;
+  }
+  @media (max-width: 1000px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .steps-grid { grid-template-columns: 1fr; } }
+
+  .step {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-m);
+    padding: 26px 22px;
+    box-shadow: 4px 4px 0 var(--ink);
+    position: relative;
+  }
+  .step:nth-child(odd) { transform: rotate(-1.2deg); }
+  .step:nth-child(even) { transform: rotate(1.5deg); margin-top: 18px; }
+
+  .step .step-num {
+    width: 54px; height: 54px;
+    border-radius: 14px;
+    background: var(--orange);
+    border: 2px solid var(--ink);
+    display: grid; place-items: center;
+    font-family: "Bagel Fat One"; font-size: 26px;
+    color: var(--ink);
+    transform: rotate(-6deg);
+    margin-bottom: 16px;
+  }
+  .step:nth-child(2) .step-num { background: var(--mint); }
+  .step:nth-child(3) .step-num { background: var(--plum); color: var(--bg-soft); }
+  .step:nth-child(4) .step-num { background: var(--ink); color: var(--mint); }
+
+  .step h3 {
+    font-family: "Outfit", sans-serif;
+    font-weight: 900;
+    font-size: 18px;
+    margin: 0 0 8px;
+    line-height: 1.35;
+  }
+  .step p {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.85;
+  }
+  .step .tag {
+    margin-top: 14px;
+    display: inline-block;
+    font-family: "Caveat";
+    font-size: 18px;
+    color: var(--plum-deep);
+  }
+
+  /* =====================================================
+   * REGIONAL ANALYSIS — 例えばこんな分析（地域TOP3）
+   * ===================================================== */
+  .regional {
+    padding: 130px 0;
+    background: var(--bg);
+    overflow: hidden;
+    position: relative;
+  }
+  .regional-head {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  .regional-head h2 {
+    font-family: "Bagel Fat One";
+    font-size: clamp(38px, 5.4vw, 64px);
+    line-height: 1.05;
+  }
+  .regional-head h2 .hl {
+    background: var(--mint);
+    padding: 0 12px;
+    border-radius: 8px;
+    transform: rotate(-1deg);
+    display: inline-block;
+  }
+  .regional-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 50px;
+    align-items: center;
+  }
+  @media (max-width: 900px) { .regional-grid { grid-template-columns: 1fr; } }
+
+  /* Japan map silhouette using simple CSS shapes */
+  .map {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.1 / 1;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-l);
+    box-shadow: 6px 6px 0 var(--ink);
+    padding: 24px;
+    transform: rotate(-2deg);
+  }
+  .map h4 {
+    margin: 0 0 4px;
+    font-family: "Outfit"; font-weight: 800;
+    font-size: 14px;
+    color: var(--plum-deep);
+    letter-spacing: 0.04em;
+  }
+  .map p.legend {
+    margin: 0 0 8px;
+    font-family: "Outfit"; font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .map-canvas {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 60px);
+  }
+  /* Hokkaido */
+  .reg { position: absolute; background: var(--mint); border: 2px solid var(--ink); border-radius: 8px; }
+  .reg-hokkaido {
+    top: 5%; right: 8%;
+    width: 32%; height: 18%;
+    border-radius: 18px 8px 14px 6px;
+    transform: rotate(-8deg);
+  }
+  .reg-tohoku {
+    top: 20%; right: 18%;
+    width: 14%; height: 22%;
+    background: var(--bg-deep);
+    transform: rotate(6deg);
+  }
+  .reg-kanto {
+    top: 40%; right: 14%;
+    width: 18%; height: 14%;
+    background: var(--orange);
+    transform: rotate(-4deg);
+  }
+  .reg-chubu {
+    top: 42%; right: 30%;
+    width: 16%; height: 12%;
+    background: var(--bg-deep);
+    transform: rotate(2deg);
+  }
+  .reg-kansai {
+    top: 50%; left: 36%;
+    width: 14%; height: 12%;
+    background: var(--plum);
+    transform: rotate(-3deg);
+  }
+  .reg-chugoku {
+    top: 52%; left: 22%;
+    width: 14%; height: 8%;
+    background: var(--bg-deep);
+    transform: rotate(2deg);
+  }
+  .reg-shikoku {
+    top: 64%; left: 28%;
+    width: 12%; height: 6%;
+    background: var(--bg-deep);
+    transform: rotate(-2deg);
+  }
+  .reg-kyushu {
+    top: 60%; left: 10%;
+    width: 14%; height: 18%;
+    background: var(--bg-deep);
+    transform: rotate(6deg);
+  }
+  .reg-okinawa {
+    bottom: 4%; left: 6%;
+    width: 18%; height: 6%;
+    background: var(--bg-deep);
+    transform: rotate(-10deg);
+    border-radius: 10px;
+  }
+  .pin {
+    position: absolute;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--orange);
+    border: 2px solid var(--ink);
+    box-shadow: 0 0 0 6px rgba(245,143,79,0.25);
+    z-index: 3;
+  }
+  .pin span {
+    position: absolute;
+    left: 24px; top: -6px;
+    background: var(--ink);
+    color: var(--bg-soft);
+    font-family: "Outfit"; font-weight: 700; font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .pin-tokyo { top: 46%; right: 20%; background: var(--orange); }
+  .pin-osaka { top: 54%; left: 40%; background: var(--plum); }
+  .pin-fukuoka { top: 66%; left: 14%; background: var(--mint-deep); }
+
+  /* TOP3 ranking */
+  .top3 {
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .rank-card {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    align-items: center;
+    gap: 20px;
+    padding: 22px 26px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-m);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .rank-card:nth-child(1) { transform: rotate(-1.2deg); }
+  .rank-card:nth-child(2) { transform: rotate(0.8deg); }
+  .rank-card:nth-child(3) { transform: rotate(-0.6deg); }
+
+  .rank-card .rk {
+    font-family: "Bagel Fat One";
+    font-size: 64px;
+    line-height: 0.8;
+    color: var(--orange);
+  }
+  .rank-card:nth-child(2) .rk { color: var(--mint-deep); }
+  .rank-card:nth-child(3) .rk { color: var(--plum); }
+  .rank-card h4 {
+    margin: 0 0 4px;
+    font-family: "Outfit", sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+  }
+  .rank-card p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .rank-card .stat {
+    text-align: right;
+    font-family: "Bagel Fat One";
+    font-size: 32px;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .rank-card .stat small {
+    display: block;
+    font-family: "Outfit"; font-weight: 600;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    letter-spacing: 0.06em;
+  }
+
+  /* =====================================================
+   * ACTION PROPOSAL — 非対称カード
+   * ===================================================== */
+  .actions {
+    padding: 130px 0;
+    background: var(--plum);
+    color: var(--bg-soft);
+    position: relative;
+    overflow: hidden;
+  }
+  .actions::after {
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 30px;
+    background: var(--bg);
+    clip-path: polygon(0 100%, 100% 100%, 100% 0, 92% 70%, 84% 0, 76% 70%, 68% 0, 60% 70%, 52% 0, 44% 70%, 36% 0, 28% 70%, 20% 0, 12% 70%, 4% 0, 0 100%);
+  }
+  .actions .eyebrow { color: var(--mint); }
+  .actions h2 {
+    font-family: "Bagel Fat One";
+    font-size: clamp(38px, 5.2vw, 64px);
+    margin: 14px 0 18px;
+    line-height: 1.05;
+  }
+  .actions h2 em {
+    font-style: normal;
+    background: var(--orange);
+    color: var(--ink);
+    padding: 0 14px;
+    border-radius: 12px;
+  }
+  .actions .lede {
+    max-width: 620px;
+    color: rgba(250, 247, 238, 0.78);
+    font-size: 17px;
+    line-height: 1.95;
+    margin-bottom: 60px;
+  }
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+  }
+  .ax {
+    background: var(--paper);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-m);
+    padding: 26px 24px;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .ax h4 {
+    margin: 0 0 10px;
+    font-family: "Outfit"; font-weight: 900;
+    font-size: 18px;
+  }
+  .ax p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--ink-soft);
+  }
+  .ax .stat {
+    font-family: "Bagel Fat One";
+    font-size: 40px;
+    color: var(--orange-deep);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .ax-1 { grid-column: span 5; transform: rotate(-2deg); background: var(--mint); }
+  .ax-2 { grid-column: span 4; transform: rotate(2deg); margin-top: 28px; }
+  .ax-3 { grid-column: span 3; transform: rotate(-1deg); background: var(--orange); }
+  .ax-4 { grid-column: span 4; transform: rotate(2deg); }
+  .ax-5 { grid-column: span 4; transform: rotate(-2deg); margin-top: 16px; background: var(--ink); color: var(--bg-soft); }
+  .ax-5 p { color: rgba(250,247,238,0.75); }
+  .ax-6 { grid-column: span 4; transform: rotate(1deg); }
+
+  @media (max-width: 900px) {
+    .ax { grid-column: span 12 !important; transform: none !important; margin-top: 0 !important; }
+  }
+
+  /* =====================================================
+   * WEEKLY REVIEW
+   * ===================================================== */
+  .weekly {
+    padding: 130px 0;
+    background: var(--bg);
+    position: relative;
+  }
+  .weekly-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  @media (max-width: 900px) { .weekly-grid { grid-template-columns: 1fr; } }
+
+  .weekly h2 {
+    font-family: "Bagel Fat One";
+    font-size: clamp(38px, 5vw, 60px);
+    line-height: 1.05;
+    margin: 14px 0 22px;
+  }
+  .weekly h2 em {
+    font-style: normal;
+    color: var(--orange-deep);
+    text-decoration: underline;
+    text-decoration-color: var(--mint);
+    text-decoration-thickness: 8px;
+    text-underline-offset: 4px;
+  }
+  .weekly p.lede {
+    font-size: 16.5px;
+    color: var(--ink-soft);
+    line-height: 1.95;
+    max-width: 480px;
+    margin-bottom: 24px;
+  }
+  .weekly-list {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .weekly-list li {
+    display: flex; gap: 14px; align-items: flex-start;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .weekly-list .check {
+    flex: 0 0 26px;
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    border: 2px solid var(--ink);
+    background: var(--mint);
+    display: grid; place-items: center;
+    font-family: "Bagel Fat One"; font-size: 16px;
+    transform: rotate(-4deg);
+  }
+  /* Mock weekly report card */
+  .report-card {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-l);
+    padding: 28px;
+    box-shadow: 8px 8px 0 var(--ink);
+    transform: rotate(2deg);
+    position: relative;
+  }
+  .report-card .tape {
+    position: absolute;
+    top: -14px; left: 30px;
+    width: 80px; height: 26px;
+    background: rgba(245,143,79,0.55);
+    border: 1.5px dashed rgba(42,45,52,0.5);
+    transform: rotate(-6deg);
+  }
+  .report-card h4 {
+    margin: 0 0 4px;
+    font-family: "Outfit"; font-weight: 900;
+    font-size: 18px;
+  }
+  .report-card .date {
+    font-family: "Caveat"; font-size: 18px;
+    color: var(--plum-deep);
+    margin-bottom: 18px;
+  }
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+  .metric {
+    background: var(--bg-deep);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+  .metric .v {
+    font-family: "Bagel Fat One"; font-size: 28px;
+    color: var(--ink); line-height: 1;
+  }
+  .metric .l {
+    font-family: "Outfit"; font-size: 10px;
+    color: var(--ink-soft); margin-top: 4px;
+    letter-spacing: 0.06em;
+  }
+  .insight {
+    background: var(--mint);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+  .insight strong { color: var(--plum-deep); }
+  .next-action {
+    margin-top: 14px;
+    background: var(--orange);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-family: "Outfit"; font-weight: 700;
+    font-size: 13px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  /* =====================================================
+   * PRICING
+   * ===================================================== */
+  .pricing {
+    padding: 130px 0;
+    background: var(--bg-deep);
+    border-top: 2px solid var(--ink);
+    position: relative;
+  }
+  .pricing-head { text-align: center; margin-bottom: 60px; }
+  .pricing-head h2 {
+    font-family: "Bagel Fat One";
+    font-size: clamp(38px, 5vw, 60px);
+    line-height: 1.05;
+    margin: 14px 0 12px;
+  }
+  .pricing-head p { color: var(--ink-soft); font-size: 16px; }
+
+  .plans {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: stretch;
+  }
+  @media (max-width: 900px) { .plans { grid-template-columns: 1fr; } }
+
+  .plan {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-l);
+    padding: 32px 28px;
+    box-shadow: 6px 6px 0 var(--ink);
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .plan:nth-child(1) { transform: rotate(-1.5deg); }
+  .plan:nth-child(2) { transform: rotate(1.5deg); background: var(--mint); }
+  .plan:nth-child(3) { transform: rotate(-1deg); }
+
+  .plan .plan-name {
+    font-family: "Outfit"; font-weight: 900;
+    font-size: 14px; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--plum);
+  }
+  .plan:nth-child(2) .plan-name { color: var(--ink); }
+  .plan h3 {
+    font-family: "Bagel Fat One";
+    font-size: 32px;
+    margin: 6px 0 12px;
+    line-height: 1.05;
+  }
+  .plan .price {
+    font-family: "Bagel Fat One";
+    font-size: 56px;
+    line-height: 1;
+    margin: 8px 0 4px;
+  }
+  .plan .price small {
+    font-family: "Outfit"; font-weight: 600;
+    font-size: 14px; color: var(--ink-soft);
+    margin-left: 4px;
+  }
+  .plan p.desc {
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    line-height: 1.85;
+    margin: 6px 0 22px;
+  }
+  .plan:nth-child(2) p.desc { color: rgba(42,45,52,0.78); }
+  .plan ul {
+    list-style: none; padding: 0; margin: 0 0 28px;
+    display: flex; flex-direction: column; gap: 10px;
+    flex: 1;
+  }
+  .plan li {
+    display: flex; gap: 10px;
+    font-size: 13.5px; line-height: 1.6;
+  }
+  .plan li::before {
+    content: "✓";
+    flex: 0 0 20px;
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    background: var(--orange);
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    display: grid; place-items: center;
+    font-family: "Outfit"; font-weight: 800; font-size: 11px;
+    transform: rotate(-4deg);
+  }
+  .plan:nth-child(2) li::before { background: var(--paper); }
+
+  .plan .ribbon {
+    position: absolute;
+    top: -16px; right: -10px;
+    background: var(--orange);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-family: "Outfit"; font-weight: 800; font-size: 12px;
+    transform: rotate(8deg);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  /* =====================================================
+   * VOICES — ユーザーの声
+   * ===================================================== */
+  .voices {
+    padding: 130px 0;
+    background: var(--bg);
+    position: relative;
+  }
+  .voices-head { display: flex; align-items: end; justify-content: space-between; margin-bottom: 50px; gap: 30px; flex-wrap: wrap; }
+  .voices-head h2 {
+    font-family: "Bagel Fat One";
+    font-size: clamp(38px, 5vw, 60px);
+    line-height: 1.05;
+    margin: 14px 0 0;
+  }
+  .voices-head .scribble { font-size: 26px; }
+  .voices-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 900px) { .voices-grid { grid-template-columns: 1fr; } }
+
+  .voice {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-m);
+    padding: 26px 24px;
+    box-shadow: 5px 5px 0 var(--ink);
+    position: relative;
+  }
+  .voice:nth-child(1) { transform: rotate(-1.4deg); }
+  .voice:nth-child(2) { transform: rotate(1.6deg); margin-top: 24px; }
+  .voice:nth-child(3) { transform: rotate(-1deg); }
+
+  .voice .quote {
+    font-family: "Bagel Fat One";
+    font-size: 60px; line-height: 0.6;
+    color: var(--mint-deep);
+    margin-bottom: -10px;
+  }
+  .voice p {
+    margin: 12px 0 18px;
+    font-size: 14.5px;
+    line-height: 1.85;
+  }
+  .voice .who {
+    display: flex; align-items: center; gap: 12px;
+    border-top: 1.5px dashed var(--line);
+    padding-top: 14px;
+  }
+  .voice .who .av {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: var(--orange);
+    border: 2px solid var(--ink);
+    display: grid; place-items: center;
+    font-family: "Bagel Fat One";
+    color: var(--ink);
+    font-size: 18px;
+    transform: rotate(-6deg);
+  }
+  .voice:nth-child(2) .who .av { background: var(--plum); color: var(--bg-soft); }
+  .voice:nth-child(3) .who .av { background: var(--mint); }
+  .voice .who h5 {
+    margin: 0;
+    font-family: "Outfit"; font-weight: 800;
+    font-size: 14px;
+  }
+  .voice .who span {
+    font-size: 12px; color: var(--ink-soft);
+    font-family: "Outfit";
+  }
+  .voice .badge {
+    position: absolute;
+    top: -14px; right: 14px;
+    background: var(--ink);
+    color: var(--mint);
+    font-family: "Outfit"; font-weight: 800; font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transform: rotate(6deg);
+  }
+
+  /* =====================================================
+   * FAQ
+   * ===================================================== */
+  .faq {
+    padding: 130px 0;
+    background: var(--bg-deep);
+    border-top: 2px solid var(--ink);
+  }
+  .faq-grid {
+    display: grid;
+    grid-template-columns: 0.7fr 1.3fr;
+    gap: 50px;
+  }
+  @media (max-width: 900px) { .faq-grid { grid-template-columns: 1fr; } }
+  .faq h2 {
+    font-family: "Bagel Fat One";
+    font-size: clamp(38px, 5vw, 60px);
+    line-height: 1.05;
+    margin: 14px 0 18px;
+  }
+  .faq p.lede {
+    color: var(--ink-soft);
+    font-size: 15.5px;
+    line-height: 1.9;
+  }
+  details.q {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-m);
+    padding: 18px 22px;
+    margin-bottom: 14px;
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform .2s ease;
+  }
+  details.q[open] { transform: rotate(-0.8deg); }
+  details.q summary {
+    list-style: none;
+    cursor: pointer;
+    font-family: "Outfit", "Noto Sans JP", sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  details.q summary::-webkit-details-marker { display: none; }
+  details.q summary::after {
+    content: "+";
+    font-family: "Bagel Fat One";
+    font-size: 24px;
+    color: var(--orange-deep);
+    transition: transform .25s ease;
+  }
+  details.q[open] summary::after { content: "−"; transform: rotate(180deg); }
+  details.q .a {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--ink-soft);
+  }
+
+  /* =====================================================
+   * FOOTER CTA
+   * ===================================================== */
+  .footer-cta {
+    background: var(--ink);
+    color: var(--bg-soft);
+    padding: 120px 0 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .footer-cta-inner {
+    text-align: center;
+    position: relative;
+  }
+  .footer-cta h2 {
+    font-family: "Bagel Fat One";
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 1.05;
+    margin: 0 0 18px;
+  }
+  .footer-cta h2 em {
+    font-style: normal;
+    color: var(--mint);
+  }
+  .footer-cta h2 .orange { color: var(--orange); }
+  .footer-cta p {
+    max-width: 560px;
+    margin: 0 auto 36px;
+    color: rgba(250,247,238,0.75);
+    font-size: 17px;
+    line-height: 1.95;
+  }
+  .footer-cta .actions-row {
+    display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
+  }
+  .footer-cta .btn { box-shadow: 4px 4px 0 var(--mint); }
+  .footer-cta .btn:hover { box-shadow: 6px 8px 0 var(--mint); }
+  .footer-cta .btn-primary { background: var(--orange); }
+
+  .marquee {
+    margin-top: 110px;
+    border-top: 2px solid rgba(250,247,238,0.15);
+    border-bottom: 2px solid rgba(250,247,238,0.15);
+    overflow: hidden;
+    background: rgba(250,247,238,0.03);
+  }
+  .marquee-track {
+    display: flex; gap: 60px;
+    padding: 18px 0;
+    font-family: "Bagel Fat One";
+    font-size: 28px;
+    color: var(--mint);
+    white-space: nowrap;
+    animation: scroll 30s linear infinite;
+  }
+  .marquee-track span { display: inline-flex; align-items: center; gap: 20px; }
+  .marquee-track .dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--orange);
+  }
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .foot {
+    padding: 38px 0;
+    display: flex; flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 18px;
+    font-family: "Outfit"; font-size: 13px;
+    color: rgba(250,247,238,0.55);
+  }
+  .foot .links { display: flex; gap: 22px; }
+  .foot .links a:hover { color: var(--mint); }
+
+  /* misc decorations across sections */
+  .floating-tag {
+    position: absolute;
+    font-family: "Caveat";
+    font-weight: 700;
+    color: var(--plum);
+    font-size: 22px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="logo" href="#">
+      <span class="mark">D</span>
+      <span>データ婚活アドバイザー</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#question">マーケット</a>
+      <a href="#reasons">理由</a>
+      <a href="#steps">仕組み</a>
+      <a href="#regional">分析例</a>
+      <a href="#pricing">プラン</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-ghost" href="#pricing">無料で始める</a>
+      <a class="btn btn-primary" href="#footer-cta">
+        試す <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="pill"><span class="dot"></span>国勢調査 × LLM の戦略提案AI</span>
+        <h1>
+          婚活、もう <br />
+          <span class="word-orange underline">勘でやらない。</span><br />
+          <span class="word-mint">データ</span>で<span class="word-plum">勝つ。</span>
+        </h1>
+        <p class="lede">
+          結婚意欲はあるのに、婚活サービスを使うのは全体のたった20%。
+          残り80%のあなたに、国勢調査の生データとLLMで「次の一手」を毎週渡します。
+          ピンクのハートも、しつこいおすすめも無し。戦略だけ。
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#footer-cta">
+            無料で診断を始める <span class="arrow">→</span>
+          </a>
+          <a class="btn" href="#steps">
+            仕組みを3分で見る
+          </a>
+        </div>
+        <div class="hero-meta">
+          <div>
+            <span class="num">5,400万</span>
+            国勢調査レコード
+          </div>
+          <div>
+            <span class="num">47</span>
+            都道府県・市区町村別
+          </div>
+          <div>
+            <span class="num">毎週</span>
+            戦略レビュー配信
+          </div>
+        </div>
+      </div>
+
+      <div style="position: relative;">
+        <span class="hero-scribble" style="top: -10px; left: -20px;">↓ アプリで毎週これが届く</span>
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="ph-status">
+              <span>9:41</span>
+              <span class="signals"><span></span><span></span><span></span></span>
+            </div>
+            <div class="ph-header">
+              <div class="ph-avatar">D</div>
+              <div>
+                <h4>戦略レビュー</h4>
+                <span>2026年4月 第4週</span>
+              </div>
+            </div>
+            <div class="ph-body">
+              <div class="ph-bubble bot">
+                <strong>今週のインサイト</strong><br />
+                同年代独身男性の<strong>67%</strong>が東京/神奈川に集中。
+                通勤圏で再ターゲット推奨。
+              </div>
+              <div class="ph-chart">
+                <h5>都道府県別 同年代独身率</h5>
+                <div class="ph-bars">
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                </div>
+                <div class="ph-labels">
+                  <span>東</span><span>神</span><span>埼</span><span>千</span><span>愛</span><span>大</span>
+                </div>
+              </div>
+              <div class="ph-bubble user">
+                じゃあ来週は神奈川中心で動く！
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- decorations -->
+        <div class="deco deco-blob" style="top: -30px; right: -40px;"></div>
+        <div class="deco deco-star" style="bottom: 20px; left: -10px; transform: rotate(-12deg);"></div>
+        <div class="deco deco-ring" style="top: 40%; right: -50px;"></div>
+      </div>
+    </div>
+
+    <!-- bottom decorations -->
+    <div class="deco deco-wave" style="bottom: 30px; left: 10%;"></div>
+    <span class="floating-tag" style="bottom: 70px; right: 18%; transform: rotate(6deg);">＊ハート禁止＊</span>
+  </div>
+</section>
+
+<!-- ============ QUESTION SECTION ============ -->
+<section class="q-section" id="question">
+  <div class="wrap">
+    <div class="q-grid">
+      <div>
+        <span class="eyebrow">市場を直視する</span>
+        <h2>
+          婚活市場の <br />
+          <em>80%</em>って <br />
+          <span class="strike">実は</span>誰？
+        </h2>
+        <p class="lede">
+          結婚意欲ありの独身者のうち、婚活サービスを実際に使っているのは約20%。
+          つまり「やりたいけどやってない」人が4倍います。
+          理由は意欲じゃなく、<strong style="color: var(--mint);">情報と戦略</strong>の不在。
+          そこを国勢調査データとLLMで埋めるのが、私たちの仕事です。
+        </p>
+      </div>
+      <div class="q-big-num">
+        80<small>％ are not using services</small>
+        <span class="stamp">← THIS IS YOU</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REASONS ============ -->
+<section class="reasons" id="reasons">
+  <div class="wrap">
+    <div class="reasons-head">
+      <span class="sub">なんで使わないの？</span>
+      <h2>
+        婚活アプリ、<br />
+        <span class="scribble-arrow" style="color: var(--orange-deep);">3つの理由</span>で
+        スキップされる。
+      </h2>
+    </div>
+
+    <div class="reasons-grid">
+      <div class="reason-card">
+        <div class="reason-doodle">REASON 01</div>
+        <div class="reason-num">01</div>
+        <h3>「マッチング疲れ」がしんどい</h3>
+        <p>
+          スワイプ、メッセージ、既読待ち。
+          ゲーム化された出会いは消費が早く、
+          自分の市場価値も他人軸になりがち。
+        </p>
+        <span class="tag">→ 戦略があれば疲れない</span>
+      </div>
+
+      <div class="reason-card">
+        <div class="reason-doodle">REASON 02</div>
+        <div class="reason-num">02</div>
+        <h3>「自分の市場」が見えない</h3>
+        <p>
+          自分の年齢・職業・住むエリアで、
+          実際にどんな相手が「どこに何人いる」のか
+          数字で見たことがある人は、ほぼいない。
+        </p>
+        <span class="tag">→ 国勢調査で見える化</span>
+      </div>
+
+      <div class="reason-card">
+        <div class="reason-doodle">REASON 03</div>
+        <div class="reason-num">03</div>
+        <h3>「次の一手」がわからない</h3>
+        <p>
+          頑張ってるけど、何をどう変えれば
+          結果が変わるか分からない。
+          頑張る方向の地図が無いのが本当の理由。
+        </p>
+        <span class="tag">→ LLMが毎週ナビする</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 STEPS ============ -->
+<section class="steps" id="steps">
+  <div class="wrap">
+    <div class="steps-head">
+      <div>
+        <span class="eyebrow">How it works</span>
+        <h2>
+          データの力で <br />
+          <em>「次の一手」</em>を <br />
+          見える化する4ステップ。
+        </h2>
+      </div>
+      <p>
+        感情論や精神論はゼロ。国勢調査の<strong>生データ</strong>を
+        あなた専用のLLMアナリストが解読し、
+        毎週「やることリスト」に翻訳します。
+      </p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>あなたの条件を入力</h3>
+        <p>年齢・住んでる場所・希望条件・現状の活動を5分で。匿名でOK。</p>
+        <span class="tag">~5 min</span>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>国勢調査と照合</h3>
+        <p>5,400万件の最新国勢調査と独身者比率データを掛け合わせて市場を抽出。</p>
+        <span class="tag">automatic</span>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>LLMが戦略を提案</h3>
+        <p>「どの地域、どの年代、どの活動が最もマッチ確率が高いか」を文章＋グラフで。</p>
+        <span class="tag">GPT-4o + 自社RAG</span>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h3>毎週の改善レビュー</h3>
+        <p>結果を入力→翌週のアクションを再提案。回せば回すほど精度が上がります。</p>
+        <span class="tag">weekly loop</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REGIONAL ANALYSIS ============ -->
+<section class="regional" id="regional">
+  <div class="wrap">
+    <div class="regional-head">
+      <span class="eyebrow">Sample Output</span>
+      <h2>
+        例えば、こんな <span class="hl">分析が届く。</span>
+      </h2>
+    </div>
+
+    <div class="regional-grid">
+      <div class="map">
+        <h4>30代女性（東京在住）/ 同年代独身男性 推定数</h4>
+        <p class="legend">出典：令和2年国勢調査・独身者人口推計より自社AI推計</p>
+        <div class="map-canvas">
+          <div class="reg reg-hokkaido"></div>
+          <div class="reg reg-tohoku"></div>
+          <div class="reg reg-kanto"></div>
+          <div class="reg reg-chubu"></div>
+          <div class="reg reg-kansai"></div>
+          <div class="reg reg-chugoku"></div>
+          <div class="reg reg-shikoku"></div>
+          <div class="reg reg-kyushu"></div>
+          <div class="reg reg-okinawa"></div>
+          <div class="pin pin-tokyo"><span>東京 約58.2万人</span></div>
+          <div class="pin pin-osaka"><span>大阪 約24.1万人</span></div>
+          <div class="pin pin-fukuoka"><span>福岡 約11.7万人</span></div>
+        </div>
+      </div>
+
+      <div class="top3">
+        <div class="rank-card">
+          <div class="rk">1st</div>
+          <div>
+            <h4>東京都・神奈川県</h4>
+            <p>同年代独身男性が約82万人。職種別では IT/医療/コンサルが上位。週末活動エリアの再設計を推奨。</p>
+          </div>
+          <div class="stat">82<small>万人 / 推計</small></div>
+        </div>
+        <div class="rank-card">
+          <div class="rk">2nd</div>
+          <div>
+            <h4>大阪府・京都府</h4>
+            <p>独身率は東京より高く、職種ミックスが分散。趣味コミュニティ起点の出会いが効く市場。</p>
+          </div>
+          <div class="stat">31<small>万人 / 推計</small></div>
+        </div>
+        <div class="rank-card">
+          <div class="rk">3rd</div>
+          <div>
+            <h4>福岡県・愛知県</h4>
+            <p>U/Iターン層が一定割合。リモート可・全国対応の婚活設計と相性◎。</p>
+          </div>
+          <div class="stat">19<small>万人 / 推計</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ACTIONS ============ -->
+<section class="actions">
+  <div class="wrap">
+    <span class="eyebrow">What you'll get every week</span>
+    <h2>
+      じゃあ、来週何する？<br />
+      <em>具体策</em>、ぜんぶ出します。
+    </h2>
+    <p class="lede">
+      抽象的なアドバイスじゃなく、「曜日・時間・場所・伝え方」までの実行可能な提案を。
+      婚活コンサル × データサイエンティスト × あなた専属LLMの合成知能。
+    </p>
+
+    <div class="actions-grid">
+      <div class="ax ax-1">
+        <div class="stat">+38%</div>
+        <h4>マッチ率を上げる優先アクション</h4>
+        <p>プロフィールAB案、写真の選定基準、第一メッセージのテンプレ。LLMが今週の最重要1個に絞り込む。</p>
+      </div>
+      <div class="ax ax-2">
+        <div class="stat">3案</div>
+        <h4>今週のリアル接点プラン</h4>
+        <p>市場データから抽出した「行くべき街イベント・コミュニティ」を週3案。出会い前提でなくてOK。</p>
+      </div>
+      <div class="ax ax-3">
+        <div class="stat">YES</div>
+        <h4>断る基準も提案</h4>
+        <p>盛り上げじゃなく、健全な「No」の基準もあなたの条件から自動生成。</p>
+      </div>
+      <div class="ax ax-4">
+        <div class="stat">∞</div>
+        <h4>条件チューニング相談</h4>
+        <p>条件を緩めるべき/絞るべきポイントをデータが先に教えてくれる。希望と現実のズレを定量で把握。</p>
+      </div>
+      <div class="ax ax-5">
+        <div class="stat">15<small style="font-size:14px;">分</small></div>
+        <h4>毎週ふりかえり面談（AI）</h4>
+        <p>音声でも文字でも。今週やったこと→来週の一手。コンサルセッション体験をAIで再現。</p>
+      </div>
+      <div class="ax ax-6">
+        <div class="stat">100%</div>
+        <h4>自分主導で進む安心感</h4>
+        <p>「強制マッチング」「煽り通知」は無し。意思決定はあなた。データはサポート役に徹する設計。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WEEKLY REVIEW ============ -->
+<section class="weekly">
+  <div class="wrap">
+    <div class="weekly-grid">
+      <div>
+        <span class="eyebrow">Weekly Strategy Review</span>
+        <h2>
+          毎週日曜、<br />
+          <em>ふりかえり</em>が届く。
+        </h2>
+        <p class="lede">
+          1週間の活動ログを元に、AI戦略レビューを自動生成。
+          「何が効いた／何が効かなかった」をデータで切り分け、来週の最優先アクションを1つに絞ります。
+          コーチではなく、戦略アナリストの距離感。
+        </p>
+        <ul class="weekly-list">
+          <li><span class="check">①</span> 活動量・接点数・返信率の推移グラフ</li>
+          <li><span class="check">②</span> あなたの市場ポジションの変化レポート</li>
+          <li><span class="check">③</span> 翌週フォーカスすべき1アクション</li>
+          <li><span class="check">④</span> 30秒で確認できる音声サマリ（Concierge）</li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="report-card">
+          <div class="tape"></div>
+          <h4>Weekly Strategy Review</h4>
+          <div class="date">2026.04.21 — 04.27</div>
+          <div class="metrics">
+            <div class="metric"><div class="v">12</div><div class="l">CONTACTS</div></div>
+            <div class="metric"><div class="v">68%</div><div class="l">REPLY</div></div>
+            <div class="metric"><div class="v">+3</div><div class="l">DELTA</div></div>
+          </div>
+          <div class="insight">
+            <strong>Insight:</strong>
+            平日21時以降の連絡で返信率が42%→78%。同年代独身男性の活動ピークと一致。
+          </div>
+          <div class="next-action">
+            来週の一手 <span style="font-family:'Bagel Fat One'">→ 横浜エリア・木曜21時</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="pricing-head">
+      <span class="eyebrow">Pricing</span>
+      <h2>3つのプラン。<br />まずは無料で十分。</h2>
+      <p>すべて月額・サブスク。いつでも解約OK。クレジットカード不要で開始。</p>
+    </div>
+
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">Free</div>
+        <h3>Free</h3>
+        <div class="price">¥0<small>/ month</small></div>
+        <p class="desc">国勢調査ベースの市場分析と、月1回の戦略レビュー。まず自分のデータを見たい人に。</p>
+        <ul>
+          <li>国勢調査データに基づく市場分析（全国）</li>
+          <li>同年代・同条件の人口推計レポート</li>
+          <li>月1回のAI戦略レビュー（テキスト）</li>
+          <li>シンプルな目標設定機能</li>
+        </ul>
+        <a class="btn" href="#footer-cta">無料で始める</a>
+      </div>
+
+      <div class="plan">
+        <div class="ribbon">いちばん人気</div>
+        <div class="plan-name">Strategist</div>
+        <h3>Strategist</h3>
+        <div class="price">¥2,980<small>/ month</small></div>
+        <p class="desc">本気で戦略を回したい人へ。毎週レビュー、無制限相談、エリア別深掘り。</p>
+        <ul>
+          <li>Free機能すべて</li>
+          <li>毎週の戦略レビュー＋次の一手提案</li>
+          <li>市区町村単位の市場深掘り</li>
+          <li>LLMアナリストへの無制限相談</li>
+          <li>AB案テンプレート（自己紹介・第一メッセージ）</li>
+        </ul>
+        <a class="btn btn-primary" href="#footer-cta">14日間無料で試す</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">Concierge</div>
+        <h3>Concierge</h3>
+        <div class="price">¥9,800<small>/ month</small></div>
+        <p class="desc">ヒトとAIのハイブリッド。月2回の専属アナリストセッション付き。</p>
+        <ul>
+          <li>Strategist機能すべて</li>
+          <li>月2回・専属アナリストとの30分セッション</li>
+          <li>カスタム戦略レポート（PDF）</li>
+          <li>音声でのふりかえり要約</li>
+          <li>優先サポート（24時間以内返信）</li>
+        </ul>
+        <a class="btn" href="#footer-cta">相談予約する</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VOICES ============ -->
+<section class="voices">
+  <div class="wrap">
+    <div class="voices-head">
+      <div>
+        <span class="eyebrow">User Voices</span>
+        <h2>使った人の、<br />リアルな声。</h2>
+      </div>
+      <span class="scribble">↓ 全部、本物の声です</span>
+    </div>
+
+    <div class="voices-grid">
+      <div class="voice">
+        <span class="badge">+ 28歳 / IT</span>
+        <div class="quote">"</div>
+        <p>
+          「婚活アプリの煽りが嫌で離れていたタイプ。
+          市場データを見たら、自分の戦略が完全にズレてたと判明。
+          冷静になれた。」
+        </p>
+        <div class="who">
+          <div class="av">M</div>
+          <div>
+            <h5>みなみさん</h5>
+            <span>東京都 / Strategist</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice">
+        <span class="badge">+ 34歳 / 経営</span>
+        <div class="quote">"</div>
+        <p>
+          「コンサル出身なので、コーチング系には抵抗あった。
+          でもこれは戦略アナリスト。
+          数字でしか動かない人にこそ刺さる。」
+        </p>
+        <div class="who">
+          <div class="av">K</div>
+          <div>
+            <h5>こうきさん</h5>
+            <span>大阪府 / Concierge</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice">
+        <span class="badge">+ 30歳 / デザイナー</span>
+        <div class="quote">"</div>
+        <p>
+          「アプリ疲れしてた友人にも勧めた。
+          『次これやる』が毎週1個に絞られるのがラク。
+          婚活って戦略ゲームなんだと納得。」
+        </p>
+        <div class="who">
+          <div class="av">A</div>
+          <div>
+            <h5>あゆみさん</h5>
+            <span>福岡県 / Strategist</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="faq-grid">
+      <div>
+        <span class="eyebrow">FAQ</span>
+        <h2>よくある<br />ご質問。</h2>
+        <p class="lede">
+          ここに無い質問は、サインアップ後のチャットでLLMアナリストに直接どうぞ。
+          24時間いつでも返答します。
+        </p>
+      </div>
+
+      <div>
+        <details class="q" open>
+          <summary>本当に国勢調査の生データを使ってるんですか？</summary>
+          <div class="a">
+            はい。総務省統計局が公開する令和2年国勢調査の独身者人口・年齢階級別・市区町村別データを基礎データとして利用し、独自のLLM推計モデルで補正しています。出典は全レポートに明記。
+          </div>
+        </details>
+        <details class="q">
+          <summary>マッチングアプリのように相手を紹介してくれますか？</summary>
+          <div class="a">
+            紹介はしません。「どこに、どんな相手が、何人いるか」の市場分析と、
+            「あなたが取るべき戦略」を提案するサービスです。実際の出会いは、既存のアプリ・コミュニティ・リアルな場で行ってください。
+          </div>
+        </details>
+        <details class="q">
+          <summary>個人情報は安全ですか？</summary>
+          <div class="a">
+            匿名利用が可能。氏名・連絡先は不要です。提供いただく情報は分析に必要な属性のみで、
+            第三者提供・広告利用は一切しません。LLMには学習されない API モードで実行されます。
+          </div>
+        </details>
+        <details class="q">
+          <summary>Free と Strategist は何が違う？</summary>
+          <div class="a">
+            Freeは「市場の見える化＋月1レビュー」、Strategistは「毎週レビュー＋市区町村深掘り＋無制限相談」です。
+            まずFreeで自分の市場を見て、本気で動きたくなった時にStrategistへ。
+          </div>
+        </details>
+        <details class="q">
+          <summary>どんな人に向いていますか？</summary>
+          <div class="a">
+            「結婚意欲はあるけど、婚活アプリには疲れた／違和感がある」20代後半〜40代。
+            データで自分の選択を裏付けたい人、戦略思考が好きな人、感情論が苦手な人に最も刺さります。
+          </div>
+        </details>
+        <details class="q">
+          <summary>解約はかんたんですか？</summary>
+          <div class="a">
+            アプリ内のボタン1タップでいつでも解約可能。違約金や引き止めは一切ありません。
+            データのエクスポート／削除も同画面から実行できます。
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER CTA ============ -->
+<section class="footer-cta" id="footer-cta">
+  <div class="wrap footer-cta-inner">
+    <span class="pill" style="background: rgba(250,247,238,0.08); border-color: var(--mint); color: var(--mint);">
+      <span class="dot" style="background: var(--orange); box-shadow: 0 0 0 3px rgba(245,143,79,0.25);"></span>
+      Ready when you are.
+    </span>
+    <h2>
+      <em>勘</em>から、<br />
+      <span class="orange">データ</span>へ。
+    </h2>
+    <p>
+      14日間、Strategistプランをすべて無料で。
+      クレカ登録不要、解約はワンタップ。市場の見える化から始めませんか？
+    </p>
+    <div class="actions-row">
+      <a class="btn btn-primary" href="#">
+        無料で診断を始める <span class="arrow">→</span>
+      </a>
+      <a class="btn btn-mint" href="#pricing">プランを見る</a>
+    </div>
+
+    <div class="marquee">
+      <div class="marquee-track">
+        <span>DATA × LLM</span><span class="dot"></span>
+        <span>STRATEGY OVER ALGORITHM</span><span class="dot"></span>
+        <span>NO HEARTS</span><span class="dot"></span>
+        <span>NATIONAL CENSUS POWERED</span><span class="dot"></span>
+        <span>WEEKLY REVIEWS</span><span class="dot"></span>
+        <span>DATA × LLM</span><span class="dot"></span>
+        <span>STRATEGY OVER ALGORITHM</span><span class="dot"></span>
+        <span>NO HEARTS</span><span class="dot"></span>
+        <span>NATIONAL CENSUS POWERED</span><span class="dot"></span>
+        <span>WEEKLY REVIEWS</span><span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="foot">
+      <div>© 2026 Data Konkatsu Advisor — built with データ愛.</div>
+      <div class="links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Data Sources</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>データ婚活アドバイザー — Mock</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0F1A2A;
+    --bg-2: #16243A;
+    --bg-3: #1D2E47;
+    --text: #E8E2D4;
+    --text-dim: #A8AEBA;
+    --text-mute: #6B7689;
+    --brass: #D4A463;
+    --brass-d: #B68847;
+    --sage: #5BA589;
+    --coral: #E96F4D;
+    --slate: #7B8FA3;
+    --line: rgba(232, 226, 212, 0.08);
+    --line-2: rgba(232, 226, 212, 0.14);
+    --serif: 'Playfair Display', 'Noto Serif JP', serif;
+    --serif-jp: 'Noto Serif JP', serif;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', 'Noto Serif JP', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    min-height: 100vh;
+    font-family: var(--sans);
+    color: var(--text);
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(212, 164, 99, 0.08) 0%, transparent 40%),
+      radial-gradient(ellipse at 80% 90%, rgba(91, 165, 137, 0.06) 0%, transparent 45%),
+      linear-gradient(160deg, #0A1220 0%, #0F1A2A 50%, #0A1220 100%);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .stage {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 40px;
+  }
+
+  .stage-header {
+    text-align: center;
+    max-width: 520px;
+  }
+
+  .stage-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--brass);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .stage-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 32px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .stage-title em {
+    font-style: italic;
+    color: var(--brass);
+  }
+
+  .stage-sub {
+    font-family: var(--serif-jp);
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* iPhone 14 Pro frame */
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: #000;
+    border-radius: 56px;
+    padding: 12px;
+    position: relative;
+    box-shadow:
+      0 0 0 2px #2a2a2e,
+      0 0 0 3px #050505,
+      inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 30px 60px -20px rgba(0, 0, 0, 0.8),
+      0 60px 120px -30px rgba(0, 0, 0, 0.6),
+      0 100px 200px -40px rgba(212, 164, 99, 0.12);
+  }
+
+  .phone::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    border-radius: 58px;
+    background: linear-gradient(135deg, #3a3a3e 0%, #1a1a1c 50%, #3a3a3e 100%);
+    z-index: -1;
+  }
+
+  /* Side buttons */
+  .phone .btn-side {
+    position: absolute;
+    background: #1a1a1c;
+    width: 3px;
+  }
+  .phone .btn-side.mute { left: -3px; top: 110px; height: 32px; border-radius: 2px 0 0 2px; }
+  .phone .btn-side.vol-up { left: -3px; top: 170px; height: 60px; border-radius: 2px 0 0 2px; }
+  .phone .btn-side.vol-down { left: -3px; top: 244px; height: 60px; border-radius: 2px 0 0 2px; }
+  .phone .btn-side.power { right: -3px; top: 200px; height: 100px; border-radius: 0 2px 2px 0; }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Dynamic Island */
+  .island {
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 122px;
+    height: 36px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+  }
+
+  .island-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a1a1c, #0a0a0c);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .island-cam {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #2a2a2e, #050505);
+  }
+
+  /* Status bar */
+  .status-bar {
+    height: 54px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 18px 30px 0;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .status-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-icon {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .signal-bars {
+    display: flex;
+    gap: 1.5px;
+    align-items: flex-end;
+  }
+  .signal-bars span {
+    width: 2.5px;
+    background: var(--text);
+    border-radius: 1px;
+  }
+  .signal-bars span:nth-child(1) { height: 4px; }
+  .signal-bars span:nth-child(2) { height: 6px; }
+  .signal-bars span:nth-child(3) { height: 8px; }
+  .signal-bars span:nth-child(4) { height: 10px; }
+
+  .battery {
+    width: 24px;
+    height: 11px;
+    border: 1.2px solid var(--text);
+    border-radius: 3px;
+    position: relative;
+    padding: 1px;
+  }
+  .battery::after {
+    content: '';
+    position: absolute;
+    right: -3px;
+    top: 3px;
+    width: 1.5px;
+    height: 4px;
+    background: var(--text);
+    border-radius: 0 1px 1px 0;
+  }
+  .battery-fill {
+    width: 80%;
+    height: 100%;
+    background: var(--text);
+    border-radius: 1px;
+  }
+
+  /* Page content */
+  .page {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: none;
+    padding: 8px 22px 110px;
+  }
+  .page.active { display: block; }
+  .page::-webkit-scrollbar { display: none; }
+
+  /* Page header */
+  .page-head {
+    margin-bottom: 24px;
+  }
+  .page-eyebrow {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--brass);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .page-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    color: var(--text);
+  }
+  .page-title em {
+    font-style: italic;
+    color: var(--brass);
+  }
+  .page-title-jp {
+    font-family: var(--serif-jp);
+    font-weight: 500;
+    font-size: 22px;
+  }
+  .page-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-mute);
+    margin-top: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  /* Cards */
+  .card {
+    background: linear-gradient(180deg, rgba(29, 46, 71, 0.6) 0%, rgba(22, 36, 58, 0.6) 100%);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+    position: relative;
+  }
+
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+  }
+
+  .card-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--brass);
+    text-transform: uppercase;
+  }
+
+  .card-meta {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-mute);
+  }
+
+  /* Home — Greeting */
+  .greeting {
+    margin: 8px 0 28px;
+  }
+  .greeting-line {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-mute);
+    margin-bottom: 8px;
+  }
+  .greeting-text {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .greeting-text em {
+    font-style: italic;
+    color: var(--brass);
+  }
+  .greeting-jp {
+    font-family: var(--serif-jp);
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Score grid */
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .score-cell {
+    background: rgba(15, 26, 42, 0.5);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .score-cell .num {
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .score-cell .num.brass { color: var(--brass); }
+  .score-cell .num.sage { color: var(--sage); }
+  .score-cell .unit {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-mute);
+    margin-top: 2px;
+  }
+  .score-cell .lbl {
+    font-family: var(--serif-jp);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 8px;
+    letter-spacing: 0.05em;
+  }
+  .score-cell .delta {
+    font-family: var(--mono);
+    font-size: 9px;
+    margin-top: 4px;
+  }
+  .delta.up { color: var(--sage); }
+  .delta.down { color: var(--coral); }
+
+  /* Action card */
+  .action-hero {
+    background: linear-gradient(135deg, rgba(212, 164, 99, 0.12) 0%, rgba(91, 165, 137, 0.08) 100%);
+    border: 1px solid rgba(212, 164, 99, 0.25);
+  }
+  .action-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--brass);
+    background: rgba(212, 164, 99, 0.12);
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .action-title {
+    font-family: var(--serif-jp);
+    font-weight: 600;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .action-desc {
+    font-family: var(--serif-jp);
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+  .action-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .action-cta-text {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--brass);
+  }
+  .action-cta-arrow {
+    color: var(--brass);
+    font-size: 14px;
+  }
+
+  /* Activity stream */
+  .stream {
+    border-left: 1px solid var(--line-2);
+    padding-left: 16px;
+    margin-top: 8px;
+  }
+  .stream-item {
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .stream-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 4px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid var(--brass);
+  }
+  .stream-item .time {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-mute);
+    letter-spacing: 0.1em;
+  }
+  .stream-item .txt {
+    font-family: var(--serif-jp);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 3px;
+    line-height: 1.55;
+  }
+
+  /* Strategy — Profile box */
+  .profile-box {
+    background: linear-gradient(135deg, rgba(212, 164, 99, 0.08) 0%, rgba(15, 26, 42, 0.4) 100%);
+    border: 1px solid rgba(212, 164, 99, 0.2);
+  }
+  .profile-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 12px;
+  }
+  .profile-row:last-child { border-bottom: none; }
+  .profile-row .k {
+    font-family: var(--serif-jp);
+    color: var(--text-mute);
+    letter-spacing: 0.05em;
+  }
+  .profile-row .v {
+    font-family: var(--mono);
+    color: var(--text);
+    font-weight: 500;
+  }
+  .profile-row .v.serif {
+    font-family: var(--serif-jp);
+  }
+
+  /* Strategy cards */
+  .strat-card {
+    background: linear-gradient(180deg, rgba(29, 46, 71, 0.5) 0%, rgba(22, 36, 58, 0.5) 100%);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .strat-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+  }
+  .strat-card.s1::before { background: var(--brass); }
+  .strat-card.s2::before { background: var(--sage); }
+  .strat-card.s3::before { background: var(--coral); }
+
+  .strat-num {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--text-mute);
+  }
+  .strat-num .accent { color: var(--brass); }
+  .strat-card.s2 .strat-num .accent { color: var(--sage); }
+  .strat-card.s3 .strat-num .accent { color: var(--coral); }
+
+  .strat-title {
+    font-family: var(--serif-jp);
+    font-weight: 600;
+    font-size: 17px;
+    margin: 6px 0 4px;
+    letter-spacing: -0.005em;
+  }
+  .strat-title-en {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--text-mute);
+    margin-bottom: 10px;
+  }
+  .strat-desc {
+    font-family: var(--serif-jp);
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  .strat-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .metric-badge {
+    background: rgba(15, 26, 42, 0.6);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .metric-badge .lbl {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: var(--text-mute);
+    text-transform: uppercase;
+  }
+  .metric-badge .val {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 500;
+    margin-top: 3px;
+    letter-spacing: -0.02em;
+  }
+  .metric-badge .val.brass { color: var(--brass); }
+  .metric-badge .val.sage { color: var(--sage); }
+  .metric-badge .val.coral { color: var(--coral); }
+  .metric-badge .pct {
+    font-size: 11px;
+    color: var(--text-mute);
+  }
+
+  /* Data — bar chart */
+  .chart-block {
+    margin-top: 4px;
+  }
+  .chart-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+  }
+  .chart-h {
+    font-family: var(--serif-jp);
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .chart-meta {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-mute);
+  }
+
+  .bar-row {
+    display: grid;
+    grid-template-columns: 64px 1fr 38px;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 11px;
+  }
+  .bar-row .label {
+    font-family: var(--serif-jp);
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+  .bar-track {
+    height: 6px;
+    background: rgba(232, 226, 212, 0.05);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brass), var(--brass-d));
+    border-radius: 3px;
+  }
+  .bar-row .val {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text);
+    text-align: right;
+  }
+
+  /* Donut chart */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 6px 0;
+  }
+  .donut {
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .donut svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+  }
+  .donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .donut-center .n {
+    font-family: var(--mono);
+    font-size: 18px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .donut-center .l {
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--text-mute);
+    letter-spacing: 0.1em;
+  }
+  .legend {
+    flex: 1;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 11px;
+  }
+  .legend-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+  }
+  .legend-row .lbl {
+    font-family: var(--serif-jp);
+    color: var(--text-dim);
+  }
+  .legend-row .pct {
+    font-family: var(--mono);
+    color: var(--text);
+  }
+
+  /* Source */
+  .source-note {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-mute);
+    line-height: 1.6;
+    padding: 12px 0 4px;
+    border-top: 1px solid var(--line);
+    margin-top: 12px;
+    letter-spacing: 0.03em;
+  }
+
+  /* Review */
+  .review-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .review-stat {
+    background: rgba(15, 26, 42, 0.5);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .review-stat .l {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-mute);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .review-stat .v {
+    font-family: var(--mono);
+    font-size: 22px;
+    color: var(--text);
+    font-weight: 500;
+    margin-top: 6px;
+    letter-spacing: -0.02em;
+  }
+  .review-stat .v.sage { color: var(--sage); }
+  .review-stat .d {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--sage);
+    margin-top: 2px;
+  }
+  .review-stat .d.down { color: var(--coral); }
+
+  .activity-log {
+    margin-top: 4px;
+  }
+  .log-row {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    align-items: center;
+  }
+  .log-row:last-child { border-bottom: none; }
+  .log-day {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--brass);
+    letter-spacing: 0.1em;
+  }
+  .log-text {
+    font-family: var(--serif-jp);
+    font-size: 11.5px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+  .log-status {
+    font-family: var(--mono);
+    font-size: 9px;
+    padding: 3px 7px;
+    border-radius: 3px;
+    letter-spacing: 0.1em;
+  }
+  .log-status.ok {
+    color: var(--sage);
+    background: rgba(91, 165, 137, 0.1);
+    border: 1px solid rgba(91, 165, 137, 0.3);
+  }
+  .log-status.partial {
+    color: var(--brass);
+    background: rgba(212, 164, 99, 0.1);
+    border: 1px solid rgba(212, 164, 99, 0.3);
+  }
+  .log-status.skip {
+    color: var(--text-mute);
+    background: rgba(123, 143, 163, 0.1);
+    border: 1px solid rgba(123, 143, 163, 0.25);
+  }
+
+  .insight-row {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .insight-row:last-child { border-bottom: none; }
+  .insight-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--brass);
+    line-height: 1;
+  }
+  .insight-content .h {
+    font-family: var(--serif-jp);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .insight-content .b {
+    font-family: var(--serif-jp);
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* Profile page */
+  .profile-hero {
+    text-align: center;
+    padding: 16px 0 22px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 18px;
+  }
+  .avatar {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background:
+      conic-gradient(from 180deg, var(--brass), var(--sage), var(--coral), var(--brass));
+    padding: 2px;
+    margin: 0 auto 12px;
+  }
+  .avatar-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--bg-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 28px;
+    font-style: italic;
+    color: var(--brass);
+  }
+  .profile-name {
+    font-family: var(--serif-jp);
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--text);
+  }
+  .profile-handle {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-mute);
+    margin-top: 4px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Plan tiers */
+  .plan-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .plan-tile {
+    background: rgba(15, 26, 42, 0.5);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+    position: relative;
+  }
+  .plan-tile.active {
+    border-color: var(--brass);
+    background: linear-gradient(180deg, rgba(212, 164, 99, 0.12) 0%, rgba(15, 26, 42, 0.5) 100%);
+  }
+  .plan-tile.active::before {
+    content: 'CURRENT';
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: var(--bg);
+    background: var(--brass);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+  .plan-tile .tier {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .plan-tile .price {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--brass);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .plan-tile .price-sub {
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--text-mute);
+    margin-top: 2px;
+  }
+
+  /* Privacy list */
+  .pref-list {
+    margin-top: 4px;
+  }
+  .pref-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .pref-row:last-child { border-bottom: none; }
+  .pref-label {
+    font-family: var(--serif-jp);
+    font-size: 12.5px;
+    color: var(--text);
+  }
+  .pref-sub {
+    font-family: var(--serif-jp);
+    font-size: 10px;
+    color: var(--text-mute);
+    margin-top: 2px;
+  }
+  .toggle {
+    width: 36px;
+    height: 20px;
+    background: rgba(232, 226, 212, 0.1);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    border: 1px solid var(--line);
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text-mute);
+    transition: all 0.2s;
+  }
+  .toggle.on {
+    background: rgba(91, 165, 137, 0.3);
+    border-color: rgba(91, 165, 137, 0.5);
+  }
+  .toggle.on::after {
+    left: 18px;
+    background: var(--sage);
+  }
+
+  /* Bottom tab bar */
+  .tab-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 88px;
+    background: rgba(10, 18, 32, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line-2);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    padding-bottom: 22px;
+    z-index: 50;
+  }
+
+  .tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-mute);
+    transition: color 0.2s;
+    gap: 4px;
+    padding-top: 8px;
+  }
+  .tab:hover { color: var(--text-dim); }
+  .tab.active { color: var(--brass); }
+
+  .tab-icon {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tab-icon svg {
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .tab-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+
+  /* Home indicator */
+  .home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    background: var(--text);
+    border-radius: 3px;
+    opacity: 0.4;
+    z-index: 60;
+  }
+
+  /* Spec footer */
+  .spec-footer {
+    max-width: 460px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    line-height: 2;
+    letter-spacing: 0.18em;
+    color: var(--text-mute);
+    text-transform: uppercase;
+  }
+  .spec-footer .div {
+    color: var(--brass);
+    margin: 0 8px;
+  }
+
+  /* Decorative serif divider */
+  .ornament {
+    text-align: center;
+    color: var(--brass);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    opacity: 0.5;
+    margin: 18px 0 14px;
+    letter-spacing: 0.4em;
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <header class="stage-header">
+      <div class="stage-eyebrow">Mock · iPhone 14 Pro · 390×844</div>
+      <h1 class="stage-title">データ婚活 <em>Advisor</em></h1>
+      <p class="stage-sub">国勢調査 × LLM で出会い戦略を提案する。<br>学術ジャーナルとデータ・ターミナルの中間に位置する、静かなインターフェース。</p>
+    </header>
+
+    <div class="phone">
+      <span class="btn-side mute"></span>
+      <span class="btn-side vol-up"></span>
+      <span class="btn-side vol-down"></span>
+      <span class="btn-side power"></span>
+
+      <div class="screen">
+        <div class="island">
+          <div class="island-dot"></div>
+          <div class="island-cam"></div>
+        </div>
+
+        <div class="status-bar">
+          <span>20:42</span>
+          <div class="status-right">
+            <span class="status-icon signal-bars"><span></span><span></span><span></span><span></span></span>
+            <span class="status-icon" style="font-size:11px;">5G</span>
+            <span class="battery"><span class="battery-fill"></span></span>
+          </div>
+        </div>
+
+        <!-- HOME -->
+        <section class="page active" data-page="home">
+          <div class="greeting">
+            <div class="greeting-line">— Monday Evening · 27 Apr</div>
+            <div class="greeting-text">Good evening, <em>田中</em>さん.</div>
+            <div class="greeting-jp">今週の婚活活動、3つの小さな前進がありました。</div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <span class="card-label">Weekly Index</span>
+              <span class="card-meta">W17 · 21–27 Apr</span>
+            </div>
+            <div class="score-grid">
+              <div class="score-cell">
+                <div class="num brass">12</div>
+                <div class="unit">people</div>
+                <div class="lbl">接触人数</div>
+                <div class="delta up">▲ +3</div>
+              </div>
+              <div class="score-cell">
+                <div class="num sage">68<span style="font-size:14px;color:var(--text-mute);">%</span></div>
+                <div class="unit">retention</div>
+                <div class="lbl">会話継続率</div>
+                <div class="delta up">▲ +12pt</div>
+              </div>
+              <div class="score-cell">
+                <div class="num">7.4</div>
+                <div class="unit">/10.0</div>
+                <div class="lbl">関係性スコア</div>
+                <div class="delta down">▼ −0.2</div>
+              </div>
+            </div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--text-mute);padding-top:10px;border-top:1px solid var(--line);letter-spacing:0.05em;">
+              次回更新: Sun 04 May 09:00 · 推定信頼区間 ±0.8
+            </div>
+          </div>
+
+          <div class="card action-hero">
+            <div class="action-tag">⊹ TODAY'S ACTION · #047</div>
+            <div class="action-title">英会話スクール「Linguabase 表参道」<br>水曜19:30 体験レッスンに申込み</div>
+            <div class="action-desc">理想層プロファイル（30-34歳・大手商社/外資コンサル・首都圏在住）と接触確率が最も高い場が、平日夜の語学スクールです。今週中に申込めば来週の継続接触に繋がります。</div>
+            <div class="action-cta">
+              <span class="action-cta-text">申込ページへ</span>
+              <span class="action-cta-arrow">→</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <span class="card-label">Recent Activity</span>
+              <span class="card-meta">Last 72h</span>
+            </div>
+            <div class="stream">
+              <div class="stream-item">
+                <div class="time">SUN · 17:20</div>
+                <div class="txt">読書会「日経カンファレンス読書部」第3回参加。M.S.さん（32歳・外資コンサル）と二次会まで継続。</div>
+              </div>
+              <div class="stream-item">
+                <div class="time">FRI · 21:05</div>
+                <div class="txt">大学同窓会経由で K.T.さん紹介。LinkedIn 接続済。</div>
+              </div>
+              <div class="stream-item">
+                <div class="time">THU · 12:30</div>
+                <div class="txt">理想層プロファイルを更新。職種フィルタを再校正。</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STRATEGY -->
+        <section class="page" data-page="strategy">
+          <div class="page-head">
+            <div class="page-eyebrow">Section 02 · Strategy</div>
+            <div class="page-title">出会いの<em>設計図</em></div>
+            <div class="page-sub">RECOMMENDED APPROACHES · UPDATED 2026-04-25</div>
+          </div>
+
+          <div class="card profile-box">
+            <div class="card-head">
+              <span class="card-label">Ideal Cohort Profile</span>
+              <span class="card-meta">v3.2</span>
+            </div>
+            <div class="profile-row"><span class="k">推定年齢層</span><span class="v">29 – 34</span></div>
+            <div class="profile-row"><span class="k">主な職種</span><span class="v serif">商社 / 外資コンサル / 公務員総合職</span></div>
+            <div class="profile-row"><span class="k">居住エリア</span><span class="v serif">東京都心3区・横浜北部</span></div>
+            <div class="profile-row"><span class="k">推定年収帯</span><span class="v">¥7.5M – ¥12M</span></div>
+            <div class="profile-row"><span class="k">該当人口</span><span class="v">≈ 38,400</span></div>
+          </div>
+
+          <div class="ornament">— 推奨アプローチ —</div>
+
+          <div class="strat-card s1">
+            <div class="strat-num"><span class="accent">01</span> · APPROACH</div>
+            <div class="strat-title">英会話スクール（平日夜）</div>
+            <div class="strat-title-en"><em>Language schools, weeknight cohorts.</em></div>
+            <div class="strat-desc">理想層の参加率は同年代平均の2.3倍。継続接触が前提となる構造のため、関係性深化に有利。</div>
+            <div class="strat-metrics">
+              <div class="metric-badge">
+                <div class="lbl">初期接触確率</div>
+                <div class="val brass">42<span class="pct">%</span></div>
+              </div>
+              <div class="metric-badge">
+                <div class="lbl">3M デート確率</div>
+                <div class="val brass">28<span class="pct">%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="strat-card s2">
+            <div class="strat-num"><span class="accent">02</span> · APPROACH</div>
+            <div class="strat-title">ビジネス書読書会</div>
+            <div class="strat-title-en"><em>Business book circles, weekend mornings.</em></div>
+            <div class="strat-desc">知的志向の理想層が集まりやすい。会話継続率が高く、関係性スコアの長期成長に寄与。</div>
+            <div class="strat-metrics">
+              <div class="metric-badge">
+                <div class="lbl">初期接触確率</div>
+                <div class="val sage">35<span class="pct">%</span></div>
+              </div>
+              <div class="metric-badge">
+                <div class="lbl">3M デート確率</div>
+                <div class="val sage">31<span class="pct">%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="strat-card s3">
+            <div class="strat-num"><span class="accent">03</span> · APPROACH</div>
+            <div class="strat-title">大学同窓会・ゼミOB会</div>
+            <div class="strat-title-en"><em>Alumni networks &amp; seminar reunions.</em></div>
+            <div class="strat-desc">紹介経由のため初期信頼度が高い。母集団は小さいが転換率は最高水準。</div>
+            <div class="strat-metrics">
+              <div class="metric-badge">
+                <div class="lbl">初期接触確率</div>
+                <div class="val coral">22<span class="pct">%</span></div>
+              </div>
+              <div class="metric-badge">
+                <div class="lbl">3M デート確率</div>
+                <div class="val coral">38<span class="pct">%</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DATA -->
+        <section class="page" data-page="data">
+          <div class="page-head">
+            <div class="page-eyebrow">Section 03 · Data</div>
+            <div class="page-title">理想層<em>分布</em></div>
+            <div class="page-sub">CENSUS · 2020 · WITH 2024 ADJUSTMENT</div>
+          </div>
+
+          <div class="card">
+            <div class="chart-title-row">
+              <div>
+                <div class="chart-h">地域別 該当層分布</div>
+                <div class="chart-meta" style="margin-top:3px;">N = 38,400</div>
+              </div>
+              <span class="chart-meta">% of cohort</span>
+            </div>
+
+            <div class="chart-block">
+              <div class="bar-row"><span class="label">港区</span><div class="bar-track"><div class="bar-fill" style="width:88%;"></div></div><span class="val">22.4</span></div>
+              <div class="bar-row"><span class="label">渋谷区</span><div class="bar-track"><div class="bar-fill" style="width:74%;"></div></div><span class="val">18.7</span></div>
+              <div class="bar-row"><span class="label">中央区</span><div class="bar-track"><div class="bar-fill" style="width:62%;"></div></div><span class="val">15.3</span></div>
+              <div class="bar-row"><span class="label">千代田</span><div class="bar-track"><div class="bar-fill" style="width:48%;"></div></div><span class="val">11.9</span></div>
+              <div class="bar-row"><span class="label">目黒区</span><div class="bar-track"><div class="bar-fill" style="width:36%;"></div></div><span class="val">9.1</span></div>
+              <div class="bar-row"><span class="label">世田谷</span><div class="bar-track"><div class="bar-fill" style="width:30%;"></div></div><span class="val">7.5</span></div>
+              <div class="bar-row"><span class="label">横浜北</span><div class="bar-track"><div class="bar-fill" style="width:24%;"></div></div><span class="val">6.0</span></div>
+              <div class="bar-row"><span class="label">その他</span><div class="bar-track"><div class="bar-fill" style="width:36%;background:linear-gradient(90deg,var(--slate),#5d6e80);"></div></div><span class="val">9.1</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="chart-title-row">
+              <div>
+                <div class="chart-h">職種別 構成比</div>
+                <div class="chart-meta" style="margin-top:3px;">Census occupational class</div>
+              </div>
+              <span class="chart-meta">σ = 2.1</span>
+            </div>
+            <div class="donut-wrap">
+              <div class="donut">
+                <svg viewBox="0 0 42 42">
+                  <circle cx="21" cy="21" r="15.91549" fill="transparent" stroke="rgba(232,226,212,0.05)" stroke-width="6"/>
+                  <circle cx="21" cy="21" r="15.91549" fill="transparent" stroke="#D4A463" stroke-width="6" stroke-dasharray="32 100" stroke-dashoffset="0"/>
+                  <circle cx="21" cy="21" r="15.91549" fill="transparent" stroke="#5BA589" stroke-width="6" stroke-dasharray="26 100" stroke-dashoffset="-32"/>
+                  <circle cx="21" cy="21" r="15.91549" fill="transparent" stroke="#E96F4D" stroke-width="6" stroke-dasharray="18 100" stroke-dashoffset="-58"/>
+                  <circle cx="21" cy="21" r="15.91549" fill="transparent" stroke="#7B8FA3" stroke-width="6" stroke-dasharray="14 100" stroke-dashoffset="-76"/>
+                  <circle cx="21" cy="21" r="15.91549" fill="transparent" stroke="#46586E" stroke-width="6" stroke-dasharray="10 100" stroke-dashoffset="-90"/>
+                </svg>
+                <div class="donut-center">
+                  <div class="n">38.4K</div>
+                  <div class="l">TOTAL</div>
+                </div>
+              </div>
+              <div class="legend">
+                <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:#D4A463;"></span><span class="lbl">商社・金融</span></div><span class="pct">32%</span></div>
+                <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:#5BA589;"></span><span class="lbl">コンサル</span></div><span class="pct">26%</span></div>
+                <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:#E96F4D;"></span><span class="lbl">公務員</span></div><span class="pct">18%</span></div>
+                <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:#7B8FA3;"></span><span class="lbl">IT・専門職</span></div><span class="pct">14%</span></div>
+                <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:#46586E;"></span><span class="lbl">その他</span></div><span class="pct">10%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="source-note">
+            SOURCE · 総務省統計局 国勢調査 (2020) / 賃金構造基本統計調査 (2023) /<br>
+            東京都統計年鑑 (2024) — 内部モデル v3.2 にて2024年補正済。<br>
+            METHOD · 国勢調査 small-area estimation × LLM 推定モデル。
+          </div>
+        </section>
+
+        <!-- REVIEW -->
+        <section class="page" data-page="review">
+          <div class="page-head">
+            <div class="page-eyebrow">Section 04 · Weekly Review</div>
+            <div class="page-title">Week <em>17</em>, 2026</div>
+            <div class="page-sub">21 APR — 27 APR · GENERATED SUN 19:00</div>
+          </div>
+
+          <div class="review-summary">
+            <div class="review-stat">
+              <div class="l">Activities</div>
+              <div class="v">8 <span style="font-size:12px;color:var(--text-mute);">/ 10</span></div>
+              <div class="d">完了率 80%</div>
+            </div>
+            <div class="review-stat">
+              <div class="l">New Contacts</div>
+              <div class="v sage">+3</div>
+              <div class="d">前週比 +1</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <span class="card-label">Activity Log</span>
+              <span class="card-meta">7 entries</span>
+            </div>
+            <div class="activity-log">
+              <div class="log-row"><div class="log-day">MON</div><div class="log-text">英会話体験レッスン申込</div><div class="log-status ok">DONE</div></div>
+              <div class="log-row"><div class="log-day">TUE</div><div class="log-text">プロファイル更新（職種フィルタ）</div><div class="log-status ok">DONE</div></div>
+              <div class="log-row"><div class="log-day">WED</div><div class="log-text">読書会 第3回 出席</div><div class="log-status ok">DONE</div></div>
+              <div class="log-row"><div class="log-day">THU</div><div class="log-text">M.S.さんに連絡（LINE）</div><div class="log-status partial">PARTIAL</div></div>
+              <div class="log-row"><div class="log-day">FRI</div><div class="log-text">同窓会出席 → K.T.さん紹介</div><div class="log-status ok">DONE</div></div>
+              <div class="log-row"><div class="log-day">SAT</div><div class="log-text">休息日</div><div class="log-status skip">REST</div></div>
+              <div class="log-row"><div class="log-day">SUN</div><div class="log-text">週次レビュー</div><div class="log-status ok">DONE</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <span class="card-label">Improvement Points</span>
+              <span class="card-meta">3 insights</span>
+            </div>
+            <div class="insight-row">
+              <div class="insight-num">i.</div>
+              <div class="insight-content">
+                <div class="h">返信タイミングを24h以内に</div>
+                <div class="b">M.S.さんへの返信が38時間遅れ。会話継続率の最大の阻害要因です。次週は18時前後の返信枠を確保。</div>
+              </div>
+            </div>
+            <div class="insight-row">
+              <div class="insight-num">ii.</div>
+              <div class="insight-content">
+                <div class="h">話題の引き出しを業界外に</div>
+                <div class="b">仕事関連の話題が72%。知的好奇心を示す引き出し（読書/旅行/美術）を意識的に増やしましょう。</div>
+              </div>
+            </div>
+            <div class="insight-row">
+              <div class="insight-num">iii.</div>
+              <div class="insight-content">
+                <div class="h">週次のリアル接点を3→4へ</div>
+                <div class="b">3ヶ月間の関係性スコア成長は週4接点群が最高 (+1.2/月)。スクール出席が鍵となります。</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <span class="card-label">Next Week · Focus</span>
+              <span class="card-meta">W18</span>
+            </div>
+            <div style="font-family:var(--serif-jp);font-size:13px;line-height:1.8;color:var(--text);">
+              <strong style="color:var(--brass);font-weight:600;">主軸:</strong> 英会話スクール初回出席。<br>
+              <strong style="color:var(--brass);font-weight:600;">副次:</strong> M.S.さん・K.T.さんへの定期接触（48h以内）。<br>
+              <strong style="color:var(--brass);font-weight:600;">観測:</strong> 関係性スコアの再上昇。
+            </div>
+          </div>
+        </section>
+
+        <!-- PROFILE -->
+        <section class="page" data-page="profile">
+          <div class="page-head">
+            <div class="page-eyebrow">Section 05 · Profile</div>
+            <div class="page-title"><em>You</em> &amp; Settings</div>
+          </div>
+
+          <div class="profile-hero">
+            <div class="avatar"><div class="avatar-inner">T</div></div>
+            <div class="profile-name">田中 智彦</div>
+            <div class="profile-handle">@t_tanaka · MEMBER SINCE 2025-11</div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <span class="card-label">Your Profile</span>
+              <span class="card-meta">編集 →</span>
+            </div>
+            <div class="profile-row"><span class="k">年齢</span><span class="v">31</span></div>
+            <div class="profile-row"><span class="k">職種</span><span class="v serif">外資系IT・PM</span></div>
+            <div class="profile-row"><span class="k">居住地</span><span class="v serif">東京都目黒区</span></div>
+            <div class="profile-row"><span class="k">関係目標</span><span class="v serif">12ヶ月以内に交際</span></div>
+            <div class="profile-row"><span class="k">活動上限</span><span class="v">¥35K / mo</span></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <span class="card-label">Subscription Plan</span>
+              <span class="card-meta">JPY · monthly</span>
+            </div>
+            <div class="plan-grid">
+              <div class="plan-tile">
+                <div class="tier">Free</div>
+                <div class="price">¥0</div>
+                <div class="price-sub">基本分析のみ</div>
+              </div>
+              <div class="plan-tile active">
+                <div class="tier">Strategist</div>
+                <div class="price">¥4,800</div>
+                <div class="price-sub">週次レビュー込</div>
+              </div>
+              <div class="plan-tile">
+                <div class="tier">Concierge</div>
+                <div class="price">¥24,000</div>
+                <div class="price-sub">専任アドバイザー</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <span class="card-label">Privacy</span>
+              <span class="card-meta">5 controls</span>
+            </div>
+            <div class="pref-list">
+              <div class="pref-row">
+                <div>
+                  <div class="pref-label">活動履歴の匿名化</div>
+                  <div class="pref-sub">統計目的のみで集計利用</div>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="pref-row">
+                <div>
+                  <div class="pref-label">位置情報の共有</div>
+                  <div class="pref-sub">エリア提案精度が向上</div>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="pref-row">
+                <div>
+                  <div class="pref-label">モデル学習への提供</div>
+                  <div class="pref-sub">理想層モデルの改善に貢献</div>
+                </div>
+                <div class="toggle"></div>
+              </div>
+              <div class="pref-row">
+                <div>
+                  <div class="pref-label">週次レビュー通知</div>
+                  <div class="pref-sub">日曜 19:00 にメール送信</div>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="pref-row">
+                <div>
+                  <div class="pref-label">サードパーティ連携</div>
+                  <div class="pref-sub">Google Calendar など</div>
+                </div>
+                <div class="toggle"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:center;font-family:var(--mono);font-size:9px;color:var(--text-mute);letter-spacing:0.2em;padding:10px 0 4px;">
+            v3.2.1 · TERMS · PRIVACY POLICY · LOGOUT
+          </div>
+        </section>
+
+        <!-- TAB BAR -->
+        <nav class="tab-bar">
+          <div class="tab active" data-tab="home">
+            <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 9v11h5v-7h4v7h5V9"/></svg></div>
+            <div class="tab-label">HOME</div>
+          </div>
+          <div class="tab" data-tab="strategy">
+            <div class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></div>
+            <div class="tab-label">STRATEGY</div>
+          </div>
+          <div class="tab" data-tab="data">
+            <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M4 20V8M10 20V4M16 20v-9M22 20H2"/></svg></div>
+            <div class="tab-label">DATA</div>
+          </div>
+          <div class="tab" data-tab="review">
+            <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M5 4h11l4 4v12a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M16 4v4h4"/><path d="M8 13h8M8 17h6"/></svg></div>
+            <div class="tab-label">REVIEW</div>
+          </div>
+          <div class="tab" data-tab="profile">
+            <div class="tab-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg></div>
+            <div class="tab-label">PROFILE</div>
+          </div>
+        </nav>
+
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <footer class="spec-footer">
+      Census × LLM <span class="div">·</span> Strategic Matchmaking <span class="div">·</span> v3.2.1<br>
+      Designed for trust, not for spectacle.
+    </footer>
+  </div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const pages = document.querySelectorAll('.page');
+  tabs.forEach(t => {
+    t.addEventListener('click', () => {
+      const target = t.dataset.tab;
+      tabs.forEach(x => x.classList.toggle('active', x === t));
+      pages.forEach(p => p.classList.toggle('active', p.dataset.page === target));
+      const screen = document.querySelector('.screen');
+      const activePage = document.querySelector('.page.active');
+      if (activePage) activePage.scrollTop = 0;
+    });
+  });
+
+  document.querySelectorAll('.toggle').forEach(t => {
+    t.addEventListener('click', () => t.classList.toggle('on'));
+  });
+</script>
+</body>
+</html>
