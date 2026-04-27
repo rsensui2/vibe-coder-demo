@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Torty's TACO Stand — App Mock</title>
+<style>
+  :root {
+    --bg: #F5EBD9;
+    --text: #2A1810;
+    --chili: #D9482E;
+    --avocado: #5C8A3A;
+    --corn: #F4B942;
+    --talavera: #3A6B82;
+    --paper: #FBF4E4;
+    --line: rgba(42, 24, 16, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: 'Hiragino Sans', 'Yu Gothic', system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(217, 72, 46, 0.08), transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(58, 107, 130, 0.08), transparent 40%),
+      var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .brand-mark {
+    text-align: center;
+    color: var(--text);
+  }
+  .brand-mark .es { font-size: 11px; letter-spacing: 0.4em; color: var(--chili); font-weight: 700; }
+  .brand-mark h1 { font-size: 22px; letter-spacing: 0.05em; margin-top: 4px; font-weight: 800; }
+  .brand-mark .sub { font-size: 11px; color: rgba(42, 24, 16, 0.55); margin-top: 4px; letter-spacing: 0.18em; }
+
+  /* iPhone 14 Pro frame */
+  .iphone {
+    width: 390px;
+    height: 844px;
+    background: #0a0a0a;
+    border-radius: 56px;
+    padding: 12px;
+    position: relative;
+    box-shadow:
+      0 0 0 2px #1a1a1a,
+      0 0 0 6px #2a2a2a,
+      0 30px 60px -10px rgba(0, 0, 0, 0.45),
+      0 18px 36px -8px rgba(0, 0, 0, 0.35),
+      inset 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .iphone::before, .iphone::after {
+    content: '';
+    position: absolute;
+    background: #2a2a2a;
+    right: -2px;
+    border-radius: 2px;
+  }
+  .iphone::before { top: 110px; width: 3px; height: 32px; box-shadow: 0 60px 0 #2a2a2a, 0 110px 0 #2a2a2a; }
+
+  .side-btn {
+    position: absolute;
+    left: -2px;
+    width: 3px;
+    background: #2a2a2a;
+    border-radius: 2px;
+  }
+  .side-btn.s1 { top: 95px; height: 22px; }
+  .side-btn.s2 { top: 145px; height: 50px; }
+  .side-btn.s3 { top: 210px; height: 50px; }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: var(--paper);
+    border-radius: 46px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Dynamic Island */
+  .island {
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 34px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 50;
+  }
+
+  /* Status bar */
+  .status {
+    height: 50px;
+    padding: 16px 32px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+  .status .right { display: flex; gap: 6px; align-items: center; font-size: 12px; }
+
+  /* App content */
+  .app {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 22px 100px;
+    position: relative;
+  }
+  .app::-webkit-scrollbar { display: none; }
+
+  .view { display: none; animation: fade 0.35s ease; }
+  .view.active { display: block; }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Top bar */
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .logo {
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .logo .dot { color: var(--chili); }
+  .icon-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--line);
+    display: grid;
+    place-items: center;
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  .greeting {
+    font-size: 13px;
+    color: rgba(42, 24, 16, 0.6);
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  .h-title {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 16px;
+  }
+  .h-title em {
+    font-style: normal;
+    color: var(--chili);
+    position: relative;
+  }
+  .h-title em::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -2px;
+    height: 4px;
+    background: var(--corn);
+    border-radius: 2px;
+    opacity: 0.6;
+    transform: skewX(-12deg);
+  }
+
+  /* Section title with handwritten touch */
+  .section-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 22px 0 12px;
+  }
+  .section-title h3 {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    color: var(--text);
+  }
+  .section-title h3 span {
+    color: var(--chili);
+    font-style: italic;
+    font-weight: 600;
+    margin-left: 6px;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+  .section-title .more {
+    font-size: 11px;
+    color: rgba(42, 24, 16, 0.5);
+    letter-spacing: 0.1em;
+  }
+
+  /* Featured taco card */
+  .featured {
+    background: linear-gradient(135deg, #fff 0%, #FBF4E4 100%);
+    border-radius: 22px;
+    padding: 22px 22px 20px;
+    border: 1px solid var(--line);
+    box-shadow: 0 8px 20px -10px rgba(42, 24, 16, 0.18);
+    position: relative;
+    overflow: hidden;
+  }
+  .featured::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(244, 185, 66, 0.25), transparent 70%);
+    border-radius: 50%;
+  }
+  .badge-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .badge {
+    font-size: 10px;
+    padding: 4px 9px;
+    border-radius: 100px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  .badge.hot { background: var(--chili); color: #fff; }
+  .badge.new { background: var(--avocado); color: #fff; }
+  .badge.line { background: transparent; color: var(--text); border: 1px solid var(--line); }
+
+  .taco-icon {
+    font-size: 56px;
+    line-height: 1;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 4px 8px rgba(217, 72, 46, 0.2));
+  }
+  .featured h2 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .featured .es-name {
+    font-size: 11px;
+    color: var(--chili);
+    font-style: italic;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+  .featured p.desc {
+    font-size: 12px;
+    color: rgba(42, 24, 16, 0.65);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .price-tag {
+    background: var(--chili);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 100px;
+    font-weight: 800;
+    font-size: 16px;
+    box-shadow: 0 4px 10px -2px rgba(217, 72, 46, 0.4);
+    transform: rotate(-2deg);
+  }
+  .price-tag small { font-size: 10px; opacity: 0.85; font-weight: 600; }
+
+  .order-btn {
+    background: var(--text);
+    color: var(--paper);
+    padding: 12px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Quick chips on home */
+  .chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 100px;
+    background: #fff;
+    border: 1px solid var(--line);
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .chip.active { background: var(--text); color: var(--paper); border-color: var(--text); }
+
+  /* Info strip */
+  .info-strip {
+    margin-top: 18px;
+    background: var(--talavera);
+    color: #fff;
+    border-radius: 18px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-image:
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.06) 0 8px, transparent 8px 16px);
+  }
+  .info-strip .label { font-size: 10px; letter-spacing: 0.18em; opacity: 0.8; }
+  .info-strip .val { font-size: 16px; font-weight: 800; margin-top: 2px; }
+  .info-strip .arrow { font-size: 18px; }
+
+  /* Menu list */
+  .menu-card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .menu-card .ico {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: var(--bg);
+    display: grid; place-items: center;
+    font-size: 30px;
+    flex-shrink: 0;
+  }
+  .menu-card.c1 .ico { background: rgba(217, 72, 46, 0.12); }
+  .menu-card.c2 .ico { background: rgba(58, 107, 130, 0.12); }
+  .menu-card.c3 .ico { background: rgba(244, 185, 66, 0.18); }
+  .menu-card.c4 .ico { background: rgba(92, 138, 58, 0.14); }
+  .menu-card.c5 .ico { background: rgba(217, 72, 46, 0.10); }
+
+  .menu-card .info { flex: 1; min-width: 0; }
+  .menu-card h4 {
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+  .menu-card .es {
+    font-size: 10px;
+    color: var(--chili);
+    font-style: italic;
+    margin-bottom: 4px;
+    letter-spacing: 0.06em;
+  }
+  .menu-card .d {
+    font-size: 11px;
+    color: rgba(42, 24, 16, 0.55);
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+  .menu-card .right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .menu-card .price {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .menu-card .price small { font-size: 9px; font-weight: 600; }
+  .add-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--chili);
+    color: #fff;
+    border: none;
+    font-size: 18px;
+    font-weight: 700;
+    display: grid; place-items: center;
+    box-shadow: 0 3px 8px -2px rgba(217, 72, 46, 0.5);
+  }
+
+  /* Filter row */
+  .filter-row {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    margin-bottom: 14px;
+    padding-bottom: 4px;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .f-chip {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border-radius: 100px;
+    background: transparent;
+    border: 1px solid var(--line);
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(42, 24, 16, 0.6);
+  }
+  .f-chip.active { background: var(--text); border-color: var(--text); color: var(--paper); }
+
+  /* Cart */
+  .cart-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .cart-item .ico {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--bg);
+    display: grid; place-items: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .cart-item .info { flex: 1; min-width: 0; }
+  .cart-item h5 { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .cart-item .qty-line { font-size: 11px; color: rgba(42, 24, 16, 0.5); }
+  .cart-item .qty {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    background: var(--bg);
+    border-radius: 100px;
+    padding: 3px;
+  }
+  .qty button {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 12px;
+  }
+  .qty span { font-size: 12px; font-weight: 700; min-width: 14px; text-align: center; }
+
+  .pickup-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 16px;
+    margin-top: 18px;
+  }
+  .pickup-card .lab {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: rgba(42, 24, 16, 0.55);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pickup-times {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .pt {
+    text-align: center;
+    padding: 12px 6px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    cursor: pointer;
+  }
+  .pt.active {
+    background: var(--avocado);
+    color: #fff;
+    border-color: var(--avocado);
+    box-shadow: 0 4px 10px -3px rgba(92, 138, 58, 0.5);
+  }
+  .pt .m { font-size: 18px; font-weight: 800; line-height: 1; }
+  .pt .s { font-size: 9px; letter-spacing: 0.1em; margin-top: 4px; opacity: 0.8; }
+
+  .total-card {
+    background: var(--text);
+    color: var(--paper);
+    border-radius: 22px;
+    padding: 18px 20px;
+    margin-top: 18px;
+  }
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+  .total-row.big {
+    font-size: 22px;
+    font-weight: 800;
+    margin-top: 8px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(245, 235, 217, 0.25);
+    opacity: 1;
+  }
+  .pay-btn {
+    margin-top: 14px;
+    width: 100%;
+    background: var(--corn);
+    color: var(--text);
+    border: none;
+    padding: 14px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    box-shadow: 0 6px 14px -4px rgba(244, 185, 66, 0.6);
+  }
+
+  /* Stamp card */
+  .stamp-hero {
+    background: linear-gradient(135deg, var(--chili), #B83A22);
+    color: #fff;
+    border-radius: 22px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .stamp-hero::before {
+    content: '🌽🌽🌽';
+    position: absolute;
+    top: -10px; right: -8px;
+    font-size: 60px;
+    opacity: 0.12;
+    line-height: 1;
+  }
+  .stamp-hero .lab { font-size: 11px; letter-spacing: 0.18em; opacity: 0.85; }
+  .stamp-hero h2 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-top: 4px;
+    line-height: 1.2;
+  }
+  .stamp-hero .progress {
+    margin-top: 14px;
+    background: rgba(255,255,255,0.18);
+    height: 8px;
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .stamp-hero .progress span {
+    display: block;
+    width: 50%;
+    height: 100%;
+    background: var(--corn);
+    border-radius: 100px;
+  }
+  .stamp-hero .count {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    margin-top: 8px;
+    opacity: 0.85;
+  }
+  .stamp-hero .count strong { font-size: 13px; }
+
+  .stamp-grid {
+    background: #fff;
+    border: 1px dashed var(--line);
+    border-radius: 22px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    position: relative;
+  }
+  .stamp-grid::before {
+    content: '¡Buenos Tacos!';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    background: var(--paper);
+    padding: 0 10px;
+    font-size: 11px;
+    color: var(--chili);
+    font-style: italic;
+    letter-spacing: 0.05em;
+  }
+  .stamp {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 2px dashed rgba(42, 24, 16, 0.2);
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    color: rgba(42, 24, 16, 0.18);
+    position: relative;
+  }
+  .stamp.filled {
+    border: 2px solid var(--chili);
+    background: rgba(217, 72, 46, 0.08);
+    color: var(--chili);
+    transform: rotate(-8deg);
+  }
+  .stamp.filled::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    border: 1px solid var(--chili);
+    opacity: 0.5;
+  }
+  .stamp.filled:nth-child(2) { transform: rotate(6deg); }
+  .stamp.filled:nth-child(3) { transform: rotate(-4deg); }
+  .stamp.filled:nth-child(4) { transform: rotate(10deg); }
+
+  .reward-card {
+    margin-top: 14px;
+    background: var(--avocado);
+    color: #fff;
+    border-radius: 18px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .reward-card .ico { font-size: 26px; }
+  .reward-card .info { flex: 1; }
+  .reward-card .info b { display: block; font-size: 13px; margin-bottom: 2px; }
+  .reward-card .info span { font-size: 11px; opacity: 0.85; }
+
+  /* Shop / Map */
+  .map {
+    background: #E8DDC4;
+    border-radius: 22px;
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    margin-bottom: 16px;
+    background-image:
+      linear-gradient(0deg, rgba(58, 107, 130, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(58, 107, 130, 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .road {
+    position: absolute;
+    background: #DDD0B5;
+  }
+  .road.r1 { top: 50%; left: 0; right: 0; height: 30px; transform: translateY(-50%); }
+  .road.r2 { top: 0; bottom: 0; left: 60%; width: 24px; }
+  .road.r3 {
+    top: 25%;
+    left: 0;
+    width: 60%;
+    height: 16px;
+    transform: rotate(-8deg);
+    transform-origin: left;
+  }
+  .building {
+    position: absolute;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  .b1 { top: 18%; left: 12%; width: 60px; height: 36px; }
+  .b2 { top: 14%; right: 14%; width: 44px; height: 30px; }
+  .b3 { bottom: 18%; left: 14%; width: 50px; height: 40px; }
+  .b4 { bottom: 14%; right: 18%; width: 70px; height: 38px; background: rgba(92, 138, 58, 0.2); }
+
+  .pin {
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    z-index: 5;
+  }
+  .pin .head {
+    width: 44px; height: 44px;
+    background: var(--chili);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 6px 14px -3px rgba(217, 72, 46, 0.5);
+    border: 3px solid #fff;
+  }
+  .pin .head span { transform: rotate(45deg); font-size: 18px; }
+  .pin .pulse {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 2px solid var(--chili);
+    opacity: 0.4;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
+  }
+  .map-label {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    padding: 6px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  .compass {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: #fff;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--chili);
+  }
+
+  .shop-info {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+  .shop-info h3 {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+  .shop-info .es-line {
+    font-size: 11px;
+    color: var(--chili);
+    font-style: italic;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+  .shop-info .addr {
+    font-size: 12px;
+    color: rgba(42, 24, 16, 0.65);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .hours {
+    background: var(--paper);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+  }
+  .hours .row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 3px 0;
+  }
+  .hours .row .l { font-weight: 700; color: rgba(42, 24, 16, 0.5); letter-spacing: 0.08em; font-size: 10px; }
+  .hours .row .v { font-weight: 700; }
+  .hours .row.now .v { color: var(--avocado); }
+  .hours .row.now .v::before { content: '● '; }
+
+  .shop-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .s-btn {
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .s-btn .ico { font-size: 18px; }
+  .s-btn.primary {
+    background: var(--text);
+    color: var(--paper);
+    border-color: var(--text);
+  }
+
+  /* Bottom tab bar */
+  .tabbar {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--line);
+    border-radius: 30px;
+    padding: 8px 6px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    box-shadow: 0 8px 20px -8px rgba(42, 24, 16, 0.18);
+    z-index: 30;
+  }
+  .tab {
+    background: none;
+    border: none;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: rgba(42, 24, 16, 0.4);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border-radius: 22px;
+    transition: all 0.2s ease;
+  }
+  .tab .ico { font-size: 18px; }
+  .tab.active {
+    color: var(--chili);
+  }
+  .tab.active .ico {
+    transform: translateY(-1px);
+    filter: drop-shadow(0 2px 4px rgba(217, 72, 46, 0.4));
+  }
+  .tab .badge-num {
+    position: absolute;
+    background: var(--chili);
+    color: #fff;
+    font-size: 9px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    margin-top: -28px;
+    margin-left: 14px;
+    border: 2px solid #fff;
+  }
+
+  /* Home bar */
+  .home-bar {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 4px;
+    background: rgba(42, 24, 16, 0.25);
+    border-radius: 100px;
+    z-index: 100;
+  }
+
+  .footnote {
+    text-align: center;
+    font-size: 10px;
+    color: rgba(42, 24, 16, 0.4);
+    letter-spacing: 0.2em;
+    margin-top: 8px;
+  }
+
+  /* tiny stars / corn doodle decorations */
+  .doodle {
+    position: absolute;
+    pointer-events: none;
+    color: var(--corn);
+    font-size: 14px;
+    opacity: 0.6;
+  }
+  .doodle.d1 { top: 10px; right: 30px; transform: rotate(15deg); }
+  .doodle.d2 { bottom: 80px; left: 20px; transform: rotate(-12deg); }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="brand-mark">
+    <div class="es">¡Hecho a mano!</div>
+    <h1>Torty's TACO Stand</h1>
+    <div class="sub">三軒茶屋 · 朝挽きコーンの本物のタコス</div>
+  </div>
+
+  <div class="iphone">
+    <div class="side-btn s1"></div>
+    <div class="side-btn s2"></div>
+    <div class="side-btn s3"></div>
+
+    <div class="screen">
+      <div class="island"></div>
+
+      <div class="status">
+        <span>9:41</span>
+        <span class="right">•••• 5G ▣</span>
+      </div>
+
+      <div class="app">
+
+        <!-- ========== HOME ========== -->
+        <div class="view active" id="view-home">
+          <div class="top">
+            <div class="logo">🌮 <span>Torty's</span><span class="dot">.</span></div>
+            <div style="display:flex; gap:8px;">
+              <div class="icon-btn">🔔</div>
+              <div class="icon-btn">👤</div>
+            </div>
+          </div>
+
+          <div class="greeting">Buenos días ☀</div>
+          <div class="h-title">Hola, <em>Yukiさん</em>！<br>今朝のコーンが<br>挽き上がりました 🌽</div>
+
+          <div class="chips">
+            <div class="chip active">🔥 おすすめ</div>
+            <div class="chip">🌶 スパイシー</div>
+            <div class="chip">🥑 ベジ</div>
+            <div class="chip">🐟 シーフード</div>
+          </div>
+
+          <div class="section-title">
+            <h3>HOY'S PICK<span>本日のおすすめ</span></h3>
+            <div class="more">→</div>
+          </div>
+
+          <div class="featured">
+            <div class="badge-row">
+              <span class="badge hot">🔥 限定</span>
+              <span class="badge line">朝挽きコーン</span>
+            </div>
+            <div class="taco-icon">🌮</div>
+            <h2>カルニータス</h2>
+            <div class="es-name">Tacos al Carnitas</div>
+            <p class="desc">12時間煮込んだ豚肩肉を、朝挽きの白コーン・トルティーヤで。香菜とライム、自家製サルサ・ベルデで。</p>
+            <div class="price-row">
+              <div class="price-tag">¥<small> </small>480</div>
+              <button class="order-btn">注文する →</button>
+            </div>
+          </div>
+
+          <div class="info-strip">
+            <div>
+              <div class="label">PICKUP IN</div>
+              <div class="val">5分後に受け取り 🚀</div>
+            </div>
+            <div class="arrow">›</div>
+          </div>
+
+          <div class="section-title">
+            <h3>QUICK ORDER<span>もう一度</span></h3>
+          </div>
+
+          <div class="menu-card c2">
+            <div class="ico">🐟</div>
+            <div class="info">
+              <h4>ペスカード</h4>
+              <div class="es">Tacos de Pescado</div>
+              <div class="d">前回 4/22 · タラ・キャベツ・チポトレ</div>
+            </div>
+            <div class="right">
+              <div class="price">¥<small> </small>520</div>
+              <button class="add-btn">+</button>
+            </div>
+          </div>
+
+          <div class="doodle d1">✦</div>
+          <div class="doodle d2">✦</div>
+        </div>
+
+        <!-- ========== MENU ========== -->
+        <div class="view" id="view-menu">
+          <div class="top">
+            <div class="logo">🌮 <span>Menú</span></div>
+            <div class="icon-btn">🔍</div>
+          </div>
+
+          <div class="greeting">¿Qué quieres hoy?</div>
+          <div class="h-title"><em>定番5種</em>から<br>選んでください</div>
+
+          <div class="filter-row">
+            <div class="f-chip active">ALL</div>
+            <div class="f-chip">🐷 ポーク</div>
+            <div class="f-chip">🐟 シーフード</div>
+            <div class="f-chip">🥑 ベジ</div>
+            <div class="f-chip">🌶 ホット</div>
+          </div>
+
+          <div class="menu-card c1">
+            <div class="ico">🌮</div>
+            <div class="info">
+              <h4>カルニータス</h4>
+              <div class="es">Tacos al Carnitas</div>
+              <div class="d">12時間煮込みポーク・サルサベルデ</div>
+            </div>
+            <div class="right">
+              <div class="price">¥<small> </small>480</div>
+              <button class="add-btn">+</button>
+            </div>
+          </div>
+
+          <div class="menu-card c2">
+            <div class="ico">🐟</div>
+            <div class="info">
+              <h4>ペスカード</h4>
+              <div class="es">Tacos de Pescado</div>
+              <div class="d">タラのフライ・キャベツ・チポトレマヨ</div>
+            </div>
+            <div class="right">
+              <div class="price">¥<small> </small>520</div>
+              <button class="add-btn">+</button>
+            </div>
+          </div>
+
+          <div class="menu-card c5">
+            <div class="ico">🌶</div>
+            <div class="info">
+              <h4>アル・パストール</h4>
+              <div class="es">Tacos al Pastor</div>
+              <div class="d">マリネポーク・パイナップル・玉ねぎ</div>
+            </div>
+            <div class="right">
+              <div class="price">¥<small> </small>500</div>
+              <button class="add-btn">+</button>
+            </div>
+          </div>
+
+          <div class="menu-card c4">
+            <div class="ico">🥑</div>
+            <div class="info">
+              <h4>ベジ・ノガダ</h4>
+              <div class="es">Tacos Vegetarianos</div>
+              <div class="d">ローストかぼちゃ・くるみソース・ザクロ</div>
+            </div>
+            <div class="right">
+              <div class="price">¥<small> </small>460</div>
+              <button class="add-btn">+</button>
+            </div>
+          </div>
+
+          <div class="menu-card c3">
+            <div class="ico">🌽</div>
+            <div class="info">
+              <h4>チョリソ・ベルデ</h4>
+              <div class="es">Tacos de Chorizo Verde</div>
+              <div class="d">青チョリソ・じゃがいも・コリアンダー</div>
+            </div>
+            <div class="right">
+              <div class="price">¥<small> </small>490</div>
+              <button class="add-btn">+</button>
+            </div>
+          </div>
+
+          <div style="text-align:center; margin-top: 20px; font-size: 11px; color: rgba(42,24,16,0.45); font-style: italic; letter-spacing: 0.1em;">
+            — todos hechos a mano —
+          </div>
+        </div>
+
+        <!-- ========== CART ========== -->
+        <div class="view" id="view-cart">
+          <div class="top">
+            <div class="logo">🛒 <span>Tu Pedido</span></div>
+            <div class="icon-btn">✕</div>
+          </div>
+
+          <div class="greeting">CARRITO · 3点</div>
+          <div class="h-title"><em>あと5分</em>で<br>挽きたてが届きます</div>
+
+          <div style="margin-top: 8px;">
+            <div class="cart-item">
+              <div class="ico">🌮</div>
+              <div class="info">
+                <h5>カルニータス</h5>
+                <div class="qty-line">¥480 · サルサベルデ</div>
+              </div>
+              <div class="qty">
+                <button>−</button><span>2</span><button>+</button>
+              </div>
+            </div>
+
+            <div class="cart-item">
+              <div class="ico">🐟</div>
+              <div class="info">
+                <h5>ペスカード</h5>
+                <div class="qty-line">¥520 · チポトレマヨ</div>
+              </div>
+              <div class="qty">
+                <button>−</button><span>1</span><button>+</button>
+              </div>
+            </div>
+
+            <div class="cart-item" style="border-bottom:none;">
+              <div class="ico">🥑</div>
+              <div class="info">
+                <h5>ベジ・ノガダ</h5>
+                <div class="qty-line">¥460 · ザクロ多め</div>
+              </div>
+              <div class="qty">
+                <button>−</button><span>1</span><button>+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="pickup-card">
+            <div class="lab">⏱ PICKUP TIME</div>
+            <div class="pickup-times">
+              <div class="pt active"><div class="m">5</div><div class="s">MIN</div></div>
+              <div class="pt"><div class="m">10</div><div class="s">MIN</div></div>
+              <div class="pt"><div class="m">15</div><div class="s">MIN</div></div>
+            </div>
+          </div>
+
+          <div class="total-card">
+            <div class="total-row"><span>小計 (4点)</span><span>¥1,940</span></div>
+            <div class="total-row"><span>容器・包装</span><span>¥0</span></div>
+            <div class="total-row"><span>スタンプ4 → 5</span><span>+1 🌮</span></div>
+            <div class="total-row big"><span>合計</span><span>¥1,940</span></div>
+            <button class="pay-btn">¥1,940を支払う 🌽</button>
+          </div>
+
+          <div style="text-align:center; margin-top: 14px; font-size: 10px; color: rgba(42,24,16,0.45); letter-spacing: 0.12em;">
+            ¡Gracias por tu pedido!
+          </div>
+        </div>
+
+        <!-- ========== STAMP ========== -->
+        <div class="view" id="view-stamp">
+          <div class="top">
+            <div class="logo">🌮 <span>Lealtad</span></div>
+            <div class="icon-btn">⋯</div>
+          </div>
+
+          <div class="greeting">STAMP CARD</div>
+          <div class="h-title"><em>あと4個</em>で<br>無料タコス1個 🎉</div>
+
+          <div class="stamp-hero">
+            <div class="lab">YUKI'S CARD · No. 0428</div>
+            <h2>Buenos Tacos<br>Stamp Card</h2>
+            <div class="progress"><span></span></div>
+            <div class="count"><span>進捗</span><strong>4 / 8</strong></div>
+          </div>
+
+          <div class="stamp-grid">
+            <div class="stamp filled">🌮</div>
+            <div class="stamp filled">🌮</div>
+            <div class="stamp filled">🌮</div>
+            <div class="stamp filled">🌮</div>
+            <div class="stamp">5</div>
+            <div class="stamp">6</div>
+            <div class="stamp">7</div>
+            <div class="stamp" style="background: rgba(244,185,66,0.15); border-color: var(--corn); color: var(--corn);">★</div>
+          </div>
+
+          <div class="reward-card">
+            <div class="ico">🎁</div>
+            <div class="info">
+              <b>残り4個で「お好きなタコス1個」無料</b>
+              <span>使用期限なし · 店内のみ</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; padding: 14px 16px; background: #fff; border: 1px solid var(--line); border-radius: 18px;">
+            <div style="font-size: 10px; letter-spacing: 0.16em; color: rgba(42,24,16,0.5); margin-bottom: 8px;">📜 HISTORIA</div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0;">
+              <span>2026/04/22 · ペスカード ×2</span>
+              <span style="color: var(--chili); font-weight: 700;">+2</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0;">
+              <span>2026/04/15 · カルニータス</span>
+              <span style="color: var(--chili); font-weight: 700;">+1</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0;">
+              <span>2026/04/08 · アル・パストール</span>
+              <span style="color: var(--chili); font-weight: 700;">+1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== SHOP ========== -->
+        <div class="view" id="view-shop">
+          <div class="top">
+            <div class="logo">📍 <span>Nuestra Tienda</span></div>
+            <div class="icon-btn">⌖</div>
+          </div>
+
+          <div class="greeting">SANGENJAYA · No. 1</div>
+          <div class="h-title"><em>三軒茶屋</em><br>1号店</div>
+
+          <div class="map">
+            <div class="road r1"></div>
+            <div class="road r2"></div>
+            <div class="road r3"></div>
+            <div class="building b1"></div>
+            <div class="building b2"></div>
+            <div class="building b3"></div>
+            <div class="building b4"></div>
+            <div class="pin">
+              <div class="pulse"></div>
+              <div class="head"><span>🌮</span></div>
+            </div>
+            <div class="map-label">📍 Torty's · 0.2km</div>
+            <div class="compass">N</div>
+          </div>
+
+          <div class="shop-info">
+            <h3>三軒茶屋 1号店</h3>
+            <div class="es-line">Sucursal Sangenjaya</div>
+            <div class="addr">〒154-0024 東京都世田谷区<br>三軒茶屋1-X-X タコス通り路地裏</div>
+
+            <div class="hours">
+              <div class="row now">
+                <span class="l">LUNCH</span>
+                <span class="v">11:00 — 15:00</span>
+              </div>
+              <div class="row">
+                <span class="l">DINNER</span>
+                <span class="v">17:00 — 22:00</span>
+              </div>
+              <div class="row">
+                <span class="l">CLOSED</span>
+                <span class="v" style="color: rgba(42,24,16,0.5); font-weight: 600;">毎週水曜</span>
+              </div>
+            </div>
+
+            <div class="shop-actions">
+              <button class="s-btn">
+                <span class="ico">📞</span>
+                <span>電話</span>
+              </button>
+              <button class="s-btn primary">
+                <span class="ico">🧭</span>
+                <span>道案内</span>
+              </button>
+            </div>
+          </div>
+
+          <div style="background: var(--talavera); color:#fff; border-radius: 18px; padding: 14px 16px; display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 24px;">🌽</div>
+            <div style="flex:1;">
+              <div style="font-size: 11px; letter-spacing: 0.14em; opacity: 0.8;">DAILY · 朝挽き</div>
+              <div style="font-size: 13px; font-weight: 700; margin-top: 2px;">毎朝6時、白コーンから挽きます</div>
+            </div>
+          </div>
+
+          <div style="text-align:center; margin-top: 16px; font-size: 11px; color: rgba(42,24,16,0.45); font-style: italic;">
+            — Te esperamos —
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tabbar -->
+      <div class="tabbar">
+        <button class="tab active" data-tab="home">
+          <span class="ico">🏠</span>
+          <span>HOME</span>
+        </button>
+        <button class="tab" data-tab="menu">
+          <span class="ico">📖</span>
+          <span>MENU</span>
+        </button>
+        <button class="tab" data-tab="cart" style="position:relative;">
+          <span class="ico">🛒</span>
+          <span>CART</span>
+          <span class="badge-num">4</span>
+        </button>
+        <button class="tab" data-tab="stamp">
+          <span class="ico">🌮</span>
+          <span>STAMP</span>
+        </button>
+        <button class="tab" data-tab="shop">
+          <span class="ico">📍</span>
+          <span>SHOP</span>
+        </button>
+      </div>
+
+      <div class="home-bar"></div>
+    </div>
+  </div>
+
+  <div class="footnote">¡BUEN PROVECHO!  ·  Mock v1.0  ·  2026.04.27</div>
+
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const views = document.querySelectorAll('.view');
+  tabs.forEach(t => {
+    t.addEventListener('click', () => {
+      tabs.forEach(x => x.classList.remove('active'));
+      views.forEach(v => v.classList.remove('active'));
+      t.classList.add('active');
+      const id = 'view-' + t.dataset.tab;
+      const view = document.getElementById(id);
+      if (view) view.classList.add('active');
+      document.querySelector('.app').scrollTop = 0;
+    });
+  });
+
+  // Pickup time toggle
+  document.querySelectorAll('.pt').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.pt').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
