@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PriceRadar | The Curator's Watchlist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ==========================================================
+     PriceRadar — Pattern 2: Premium Trader
+     Editorial / Hedge-fund report aesthetic
+     ========================================================== */
+
+  :root{
+    --bg: #FAF8F3;
+    --bg-alt: #FFFFFF;
+    --bg-deep: #F3EFE5;
+    --accent: #B89B5E;
+    --accent-deep: #8E7642;
+    --accent-soft: #D9C99A;
+    --ink: #1A1A1A;
+    --ink-soft: #2C2C2C;
+    --text-sub: #5E5E5E;
+    --text-muted: #8A8378;
+    --border: #E8E2D4;
+    --border-strong: #C9BFA6;
+    --shadow-soft: 0 30px 80px -40px rgba(60,50,20,0.18);
+    --serif: 'Playfair Display', 'Noto Serif JP', Georgia, 'Times New Roman', serif;
+    --serif-jp: 'Noto Serif JP', 'Playfair Display', serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  }
+
+  *,*::before,*::after{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 400;
+    line-height: 1.7;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a{ color: inherit; text-decoration: none; }
+  img{ display: block; max-width: 100%; }
+
+  /* ---------- Type system ---------- */
+  .serif{ font-family: var(--serif); font-weight: 400; }
+  .serif-jp{ font-family: var(--serif-jp); }
+  .italic{ font-style: italic; }
+  .gold{ color: var(--accent); }
+  .uppercase{ text-transform: uppercase; letter-spacing: 0.22em; }
+
+  .eyebrow{
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .eyebrow::before{
+    content: "";
+    display: inline-block;
+    width: 36px;
+    height: 1px;
+    background: var(--accent);
+    vertical-align: middle;
+    margin-right: 14px;
+    transform: translateY(-2px);
+  }
+
+  /* ---------- Layout ---------- */
+  .container{
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+
+  .container-narrow{
+    width: 100%;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+
+  .rule{
+    height: 1px;
+    background: var(--border);
+    width: 100%;
+  }
+
+  .rule-gold{
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent) 70%, transparent);
+    width: 100%;
+  }
+
+  /* ---------- Header ---------- */
+  .site-header{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(250,248,243,0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  .site-header__inner{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 76px;
+  }
+  .brand{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand__mark{
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    position: relative;
+    display: grid;
+    place-items: center;
+  }
+  .brand__mark::before{
+    content: "";
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+  }
+  .brand__name{
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 20px;
+    letter-spacing: 0.04em;
+  }
+  .brand__name em{ font-style: italic; color: var(--accent); }
+
+  .nav{
+    display: flex;
+    align-items: center;
+    gap: 36px;
+  }
+  .nav a{
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-sub);
+    transition: color .25s ease;
+  }
+  .nav a:hover{ color: var(--ink); }
+
+  .btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 28px;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    background: transparent;
+    cursor: pointer;
+    transition: all .35s ease;
+  }
+  .btn:hover{
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .btn--gold{
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .btn--gold:hover{
+    background: var(--accent);
+    color: var(--bg-alt);
+  }
+  .btn--solid{
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .btn--solid:hover{
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg-alt);
+  }
+  .btn--lg{ padding: 18px 40px; font-size: 12px; }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding: 80px 0 120px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero__top{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 60px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 80px;
+  }
+  .hero__issue{
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .hero__issue span{ color: var(--accent); }
+
+  .hero__grid{
+    display: grid;
+    grid-template-columns: 1fr 460px;
+    gap: 80px;
+    align-items: center;
+  }
+  .hero__copy h1{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(56px, 7.2vw, 108px);
+    line-height: 0.98;
+    letter-spacing: -0.015em;
+    margin: 0 0 36px;
+    color: var(--ink);
+  }
+  .hero__copy h1 .it{
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+  }
+  .hero__copy h1 .small{
+    display: block;
+    font-size: 0.42em;
+    letter-spacing: 0.02em;
+    color: var(--ink-soft);
+    margin-top: 18px;
+    font-weight: 400;
+  }
+  .hero__lede{
+    font-family: var(--serif-jp);
+    font-size: 18px;
+    line-height: 2;
+    color: var(--text-sub);
+    max-width: 480px;
+    margin: 0 0 40px;
+    font-weight: 400;
+  }
+  .hero__cta{
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .hero__note{
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-left: 1px solid var(--accent);
+    padding-left: 14px;
+  }
+
+  /* ---------- Phone frame ---------- */
+  .frame{
+    position: relative;
+    padding: 28px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow-soft);
+  }
+  .frame::before, .frame::after{
+    content: "";
+    position: absolute;
+    width: 18px; height: 18px;
+    border: 1px solid var(--accent);
+  }
+  .frame::before{ top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
+  .frame::after{ bottom: 10px; right: 10px; border-left: 0; border-top: 0; }
+
+  .frame__corner{
+    position: absolute;
+    width: 18px; height: 18px;
+    border: 1px solid var(--accent);
+    pointer-events: none;
+  }
+  .frame__corner.tr{ top: 10px; right: 10px; border-left: 0; border-bottom: 0; }
+  .frame__corner.bl{ bottom: 10px; left: 10px; border-right: 0; border-top: 0; }
+
+  .frame__caption{
+    text-align: center;
+    margin-top: 24px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+  .frame__caption span{ color: var(--accent); }
+
+  .phone{
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    aspect-ratio: 320 / 640;
+    background: linear-gradient(180deg, #1A1A1A 0%, #0E0E0E 100%);
+    border-radius: 42px;
+    padding: 12px;
+    position: relative;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.06),
+      0 40px 80px -30px rgba(0,0,0,0.45);
+  }
+  .phone__notch{
+    position: absolute;
+    top: 18px; left: 50%;
+    transform: translateX(-50%);
+    width: 90px; height: 22px;
+    background: #000;
+    border-radius: 14px;
+    z-index: 5;
+  }
+  .phone__screen{
+    width: 100%; height: 100%;
+    background: #FAF8F3;
+    border-radius: 32px;
+    overflow: hidden;
+    position: relative;
+    padding: 50px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .phone__statusbar{
+    position: absolute;
+    top: 18px; left: 22px; right: 22px;
+    display: flex; justify-content: space-between;
+    font-size: 10px; font-weight: 600;
+    color: var(--ink);
+    z-index: 4;
+    font-family: var(--sans);
+  }
+  .phone__title{
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 6px 4px 4px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .phone__title em{ font-style: italic; color: var(--accent); font-weight: 400; font-size: 11px; }
+
+  .alert-card{
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--accent);
+    padding: 10px 12px;
+    border-radius: 4px;
+  }
+  .alert-card__row{
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 8px;
+  }
+  .alert-card__label{
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .alert-card__name{
+    font-family: var(--serif);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 2px 0 6px;
+    line-height: 1.3;
+  }
+  .alert-card__price{
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .alert-card__delta{
+    font-size: 10px;
+    color: var(--accent-deep);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .alert-card__strike{
+    font-size: 10px;
+    color: var(--text-muted);
+    text-decoration: line-through;
+    margin-left: 6px;
+  }
+  .alert-card.alert-card--hot{
+    border-left-color: #B85C3F;
+  }
+  .alert-card.alert-card--hot .alert-card__delta{ color: #B85C3F; }
+
+  .phone__footer{
+    margin-top: auto;
+    text-align: center;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 10px;
+    color: var(--text-muted);
+    padding: 8px 0 4px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ---------- Section base ---------- */
+  section{ padding: 140px 0; position: relative; }
+  .section-head{
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 80px;
+    align-items: start;
+    margin-bottom: 100px;
+  }
+  .section-head__meta{
+    border-top: 1px solid var(--accent);
+    padding-top: 18px;
+  }
+  .section-head__num{
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+  }
+  .section-head__kicker{
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 8px;
+  }
+  .section-head h2{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(40px, 4.6vw, 64px);
+    line-height: 1.05;
+    letter-spacing: -0.012em;
+    margin: 0;
+    color: var(--ink);
+  }
+  .section-head h2 .it{ font-style: italic; color: var(--accent); font-weight: 400; }
+  .section-head__lede{
+    font-family: var(--serif-jp);
+    font-size: 17px;
+    line-height: 2;
+    color: var(--text-sub);
+    margin-top: 28px;
+    max-width: 620px;
+  }
+
+  /* ---------- About ---------- */
+  .about{
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .about__grid{
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 100px;
+    align-items: center;
+  }
+  .about__pull{
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(34px, 3.4vw, 50px);
+    line-height: 1.25;
+    color: var(--ink);
+    margin: 0 0 32px;
+    letter-spacing: -0.005em;
+  }
+  .about__pull::before{
+    content: "“";
+    font-family: var(--serif);
+    font-size: 1.4em;
+    color: var(--accent);
+    line-height: 0;
+    margin-right: 6px;
+    vertical-align: -0.18em;
+  }
+  .about__pull::after{
+    content: "”";
+    font-family: var(--serif);
+    font-size: 1.4em;
+    color: var(--accent);
+    line-height: 0;
+    margin-left: 4px;
+    vertical-align: -0.18em;
+  }
+  .about__body p{
+    font-family: var(--serif-jp);
+    font-size: 16px;
+    line-height: 2.05;
+    color: var(--text-sub);
+    margin: 0 0 18px;
+  }
+  .about__sig{
+    margin-top: 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--text-muted);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .about__sig span{ color: var(--accent); font-family: var(--serif); font-style: italic; text-transform: none; letter-spacing: normal; font-size: 16px; }
+
+  .about__visual{
+    position: relative;
+    padding: 36px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .about__visual::before{
+    content: "FIG. 01";
+    position: absolute;
+    top: -10px; left: 24px;
+    background: var(--bg-alt);
+    padding: 0 10px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+  }
+
+  /* ---------- Savings (problem) ---------- */
+  .savings{ background: var(--bg); }
+  .savings__hero{
+    text-align: center;
+    margin-bottom: 100px;
+  }
+  .savings__pre{
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--text-sub);
+    margin-bottom: 24px;
+  }
+  .savings__big{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(120px, 18vw, 280px);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    position: relative;
+    display: inline-block;
+  }
+  .savings__big .currency{
+    font-size: 0.45em;
+    vertical-align: 0.5em;
+    color: var(--accent);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .savings__big::after{
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -18px;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+  .savings__caption{
+    margin-top: 56px;
+    font-family: var(--serif-jp);
+    font-size: 18px;
+    color: var(--text-sub);
+    line-height: 2;
+    max-width: 640px;
+    margin-left: auto; margin-right: auto;
+  }
+  .savings__caption strong{ color: var(--ink); font-weight: 600; }
+
+  .savings__grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .savings__cell{
+    padding: 56px 40px;
+    border-right: 1px solid var(--border);
+    text-align: left;
+  }
+  .savings__cell:last-child{ border-right: 0; }
+  .savings__cell-num{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 64px;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+  .savings__cell-num em{ color: var(--accent); font-style: italic; font-weight: 400; }
+  .savings__cell-label{
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .savings__cell-body{
+    font-family: var(--serif-jp);
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--text-sub);
+  }
+
+  /* ---------- Features (Members Preview style) ---------- */
+  .features{
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .feature{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 100px;
+    align-items: center;
+    padding: 90px 0;
+    border-top: 1px solid var(--border);
+  }
+  .feature:first-of-type{ border-top: 0; padding-top: 40px; }
+  .feature--reverse{ direction: rtl; }
+  .feature--reverse > *{ direction: ltr; }
+
+  .feature__num{
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 16px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+  }
+  .feature__title{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(34px, 3.6vw, 52px);
+    line-height: 1.1;
+    margin: 0 0 24px;
+    color: var(--ink);
+  }
+  .feature__title .it{ font-style: italic; color: var(--accent); font-weight: 400; }
+  .feature__lede{
+    font-family: var(--serif-jp);
+    font-size: 16px;
+    line-height: 2.05;
+    color: var(--text-sub);
+    margin: 0 0 24px;
+  }
+  .feature__list{
+    list-style: none;
+    padding: 0; margin: 0;
+    border-top: 1px solid var(--border);
+  }
+  .feature__list li{
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--serif-jp);
+    font-size: 14px;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+  }
+  .feature__list li::before{
+    content: counter(li, decimal-leading-zero);
+    counter-increment: li;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--accent);
+    font-size: 13px;
+    min-width: 28px;
+  }
+  .feature__list{ counter-reset: li; }
+
+  /* visual blocks for features */
+  .visual-card{
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 32px;
+    position: relative;
+  }
+  .visual-card__tag{
+    position: absolute;
+    top: -10px; left: 24px;
+    background: var(--bg-alt);
+    padding: 0 10px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+  }
+
+  /* Watchlist card */
+  .watchlist{
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    padding: 28px;
+    position: relative;
+  }
+  .watchlist::before{
+    content: "CURATED WATCHLIST";
+    position: absolute;
+    top: -10px; left: 24px;
+    background: var(--bg-alt);
+    padding: 0 10px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+  }
+  .watchlist__head{
+    display: flex; justify-content: space-between; align-items: baseline;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+  }
+  .watchlist__title{
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 500;
+  }
+  .watchlist__title em{ color: var(--accent); font-style: italic; }
+  .watchlist__meta{
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .watchlist__row{
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 18px;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .watchlist__row:last-child{ border-bottom: 0; }
+  .watchlist__name{
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .watchlist__name small{
+    display: block;
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+    font-weight: 500;
+  }
+  .watchlist__price{
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    text-align: right;
+  }
+  .watchlist__price small{
+    display: block;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 400;
+    text-decoration: line-through;
+    font-style: italic;
+  }
+  .watchlist__delta{
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--accent);
+    min-width: 56px;
+    text-align: right;
+  }
+  .watchlist__delta.hot{ color: #B85C3F; }
+
+  /* Chart visual */
+  .chart{
+    background: var(--bg);
+    height: 300px;
+    border: 1px solid var(--border);
+    position: relative;
+    padding: 24px;
+  }
+  .chart svg{ width: 100%; height: 100%; }
+  .chart__legend{
+    position: absolute;
+    top: 12px; left: 24px; right: 24px;
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted);
+  }
+  .chart__legend strong{ color: var(--accent); font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: 0.02em; text-transform: none; font-size: 13px; }
+
+  /* ---------- Pricing ---------- */
+  .pricing{ background: var(--bg); }
+  .pricing__grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--accent);
+    border-bottom: 1px solid var(--accent);
+  }
+  .plan{
+    padding: 64px 44px 56px;
+    border-right: 1px solid var(--border-strong);
+    background: var(--bg);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .plan:last-child{ border-right: 0; }
+  .plan--featured{
+    background: var(--bg-alt);
+    border-left: 1px solid var(--accent);
+    border-right: 1px solid var(--accent);
+  }
+  .plan__tier{
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+  .plan__name{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 32px;
+    margin: 0 0 28px;
+    color: var(--ink);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 28px;
+  }
+  .plan__price{
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 84px;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+  }
+  .plan__price .currency{
+    font-size: 0.45em;
+    vertical-align: 0.55em;
+    color: var(--accent);
+    font-style: italic;
+    font-weight: 400;
+    margin-right: 4px;
+  }
+  .plan__price .cents{
+    font-size: 0.32em;
+    color: var(--text-sub);
+    vertical-align: 0.85em;
+    font-weight: 400;
+  }
+  .plan__period{
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 36px;
+  }
+  .plan__quota{
+    font-family: var(--serif);
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .plan__quota strong{
+    display: block;
+    font-size: 32px;
+    color: var(--accent);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+  .plan__features{
+    list-style: none;
+    padding: 0;
+    margin: 0 0 36px;
+    flex: 1;
+  }
+  .plan__features li{
+    padding: 10px 0;
+    font-family: var(--serif-jp);
+    font-size: 14px;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+  }
+  .plan__features li::before{
+    content: "—";
+    color: var(--accent);
+    font-family: var(--serif);
+  }
+  .plan__features li.muted{ color: var(--text-muted); }
+  .plan__features li.muted::before{ content: "·"; }
+  .plan__cta{
+    margin-top: auto;
+  }
+  .plan__cta .btn{ width: 100%; }
+
+  .plan__badge{
+    position: absolute;
+    top: -12px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-alt);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 4px 14px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-family: var(--sans);
+  }
+
+  /* ---------- Voices ---------- */
+  .voices{ background: var(--bg-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .voices__grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--border);
+  }
+  .voice{
+    padding: 64px 56px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .voice:nth-child(2n){ border-right: 0; }
+  .voice:nth-last-child(-n+2){ border-bottom: 0; }
+  .voice__mark{
+    font-family: var(--serif);
+    font-size: 64px;
+    line-height: 0.6;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .voice__quote{
+    font-family: var(--serif-jp);
+    font-size: 19px;
+    line-height: 2;
+    color: var(--ink);
+    margin: 0 0 32px;
+    font-weight: 400;
+  }
+  .voice__sep{
+    width: 40px; height: 1px;
+    background: var(--accent);
+    margin-bottom: 18px;
+  }
+  .voice__author{
+    font-family: var(--serif);
+    font-size: 16px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .voice__author em{
+    display: block;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+    font-weight: 400;
+  }
+  .voice__num{
+    position: absolute;
+    top: 24px; right: 32px;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--accent);
+    font-size: 13px;
+  }
+
+  /* ---------- FAQ ---------- */
+  .faq{ background: var(--bg); }
+  .faq__list{
+    border-top: 1px solid var(--accent);
+  }
+  .faq__item{
+    border-bottom: 1px solid var(--border);
+    padding: 32px 0;
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 40px;
+    align-items: start;
+    transition: background .25s ease;
+  }
+  .faq__item:hover{ background: rgba(184,155,94,0.04); padding-left: 16px; padding-right: 16px; }
+  .faq__num{
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--accent);
+    font-size: 18px;
+    padding-top: 4px;
+  }
+  .faq__q{
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0 0 12px;
+    line-height: 1.4;
+  }
+  .faq__a{
+    font-family: var(--serif-jp);
+    font-size: 15px;
+    line-height: 2;
+    color: var(--text-sub);
+    margin: 0;
+  }
+
+  /* ---------- Footer / final CTA ---------- */
+  .final-cta{
+    background: var(--ink);
+    color: var(--bg);
+    padding: 180px 0 140px;
+    text-align: center;
+    border-bottom: 1px solid #2A2A2A;
+  }
+  .final-cta__pre{
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--accent);
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    margin-bottom: 28px;
+  }
+  .final-cta h2{
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(48px, 6vw, 92px);
+    line-height: 1.05;
+    margin: 0 0 32px;
+    color: var(--bg);
+    letter-spacing: -0.012em;
+  }
+  .final-cta h2 .it{ font-style: italic; color: var(--accent); }
+  .final-cta__lede{
+    font-family: var(--serif-jp);
+    color: rgba(250,248,243,0.7);
+    font-size: 17px;
+    line-height: 2;
+    max-width: 600px;
+    margin: 0 auto 56px;
+  }
+  .final-cta .btn{
+    border-color: var(--accent);
+    color: var(--bg);
+    background: transparent;
+  }
+  .final-cta .btn:hover{
+    background: var(--accent);
+    color: var(--ink);
+  }
+  .final-cta__note{
+    margin-top: 28px;
+    color: rgba(250,248,243,0.55);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+  .final-cta__note span{ color: var(--accent); }
+
+  .footer{
+    background: var(--ink);
+    color: rgba(250,248,243,0.6);
+    padding: 80px 0 60px;
+  }
+  .footer__top{
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 60px;
+    padding-bottom: 60px;
+    border-bottom: 1px solid #2A2A2A;
+  }
+  .footer__brand .brand__name{ color: var(--bg); }
+  .footer__tag{
+    font-family: var(--serif);
+    font-style: italic;
+    color: rgba(250,248,243,0.5);
+    margin-top: 18px;
+    max-width: 320px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .footer__col h4{
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 20px;
+    font-weight: 500;
+  }
+  .footer__col a{
+    display: block;
+    padding: 6px 0;
+    color: rgba(250,248,243,0.65);
+    font-size: 13px;
+    transition: color .2s ease;
+  }
+  .footer__col a:hover{ color: var(--bg); }
+
+  .footer__bottom{
+    padding-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(250,248,243,0.4);
+  }
+  .footer__bottom em{
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--accent);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  /* ---------- Marquee strip ---------- */
+  .strip{
+    background: var(--ink);
+    color: var(--bg);
+    padding: 28px 0;
+    overflow: hidden;
+    border-top: 1px solid #2A2A2A;
+    border-bottom: 1px solid #2A2A2A;
+  }
+  .strip__inner{
+    display: flex;
+    gap: 80px;
+    white-space: nowrap;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    color: rgba(250,248,243,0.85);
+    animation: scroll 38s linear infinite;
+  }
+  .strip__inner span{ color: var(--accent); }
+  @keyframes scroll{
+    from{ transform: translateX(0); }
+    to{ transform: translateX(-50%); }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1024px){
+    .hero__grid{ grid-template-columns: 1fr; gap: 60px; }
+    .section-head{ grid-template-columns: 1fr; gap: 32px; margin-bottom: 60px; }
+    .about__grid{ grid-template-columns: 1fr; gap: 60px; }
+    .feature{ grid-template-columns: 1fr; gap: 48px; }
+    .feature--reverse{ direction: ltr; }
+    .footer__top{ grid-template-columns: 1fr 1fr; gap: 40px; }
+  }
+  @media (max-width: 720px){
+    .container, .container-narrow{ padding: 0 24px; }
+    section{ padding: 90px 0; }
+    .hero{ padding: 56px 0 80px; }
+    .nav{ display: none; }
+    .pricing__grid{ grid-template-columns: 1fr; }
+    .plan{ border-right: 0; border-bottom: 1px solid var(--border-strong); }
+    .savings__grid{ grid-template-columns: 1fr; }
+    .savings__cell{ border-right: 0; border-bottom: 1px solid var(--border); }
+    .voices__grid{ grid-template-columns: 1fr; }
+    .voice{ border-right: 0; }
+    .footer__top{ grid-template-columns: 1fr 1fr; }
+    .footer__bottom{ flex-direction: column; gap: 12px; }
+    .hero__top{ flex-direction: column; gap: 12px; align-items: flex-start; }
+    .savings__big{ font-size: 96px; }
+  }
+
+  /* ---------- Reveal ---------- */
+  .reveal{
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1);
+  }
+  .reveal.is-in{
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- ============== HEADER ============== -->
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="#" class="brand">
+      <span class="brand__mark"></span>
+      <span class="brand__name">Price<em>Radar</em></span>
+    </a>
+    <nav class="nav" aria-label="primary">
+      <a href="#about">About</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Membership</a>
+      <a href="#voices">Voices</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a href="#cta" class="btn btn--gold">Begin Preview</a>
+  </div>
+</header>
+
+<!-- ============== HERO ============== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero__top">
+      <div class="hero__issue">VOLUME 01 · <span>THE CURATOR&rsquo;S WATCHLIST</span> · MMXXVI</div>
+      <div class="hero__issue">EST. 2026 · Members Preview</div>
+    </div>
+
+    <div class="hero__grid">
+      <div class="hero__copy reveal">
+        <p class="eyebrow">A Private Service for Discerning Buyers</p>
+        <h1>
+          もう価格チェックを、<br>
+          <span class="it">しなくていい。</span>
+          <span class="small">— 安くなった瞬間を、あなたの代わりに掴む。</span>
+        </h1>
+        <p class="hero__lede">
+          チケット、ホテル、航空券。価格は静かに揺れ、誰かが利益を取り、誰かが取り損ねる。
+          PriceRadar は、あなたが見ない時間にも市場を見続け、最適な瞬間にだけ、静かに合図を送ります。
+        </p>
+        <div class="hero__cta">
+          <a href="#cta" class="btn btn--solid btn--lg">Begin 14-day Preview</a>
+          <span class="hero__note">No card required<br>14 days, complimentary</span>
+        </div>
+      </div>
+
+      <div class="hero__visual reveal">
+        <div class="frame">
+          <span class="frame__corner tr"></span>
+          <span class="frame__corner bl"></span>
+          <div class="phone">
+            <div class="phone__notch"></div>
+            <div class="phone__screen">
+              <div class="phone__statusbar">
+                <span>9:41</span>
+                <span>PriceRadar</span>
+              </div>
+
+              <div class="phone__title">
+                <span>Watchlist</span>
+                <em>Live</em>
+              </div>
+
+              <div class="alert-card alert-card--hot">
+                <div class="alert-card__row">
+                  <span class="alert-card__label">Suntory Hall · Box A</span>
+                  <span class="alert-card__delta">▼ 38%</span>
+                </div>
+                <div class="alert-card__name">Wiener Philharmoniker · Tokyo</div>
+                <div class="alert-card__row">
+                  <span class="alert-card__price">¥28,400 <span class="alert-card__strike">¥45,800</span></span>
+                </div>
+              </div>
+
+              <div class="alert-card">
+                <div class="alert-card__row">
+                  <span class="alert-card__label">ANA · NRT–CDG · J Class</span>
+                  <span class="alert-card__delta">▼ 22%</span>
+                </div>
+                <div class="alert-card__name">Tokyo → Paris · Nov 14</div>
+                <div class="alert-card__row">
+                  <span class="alert-card__price">$2,180 <span class="alert-card__strike">$2,810</span></span>
+                </div>
+              </div>
+
+              <div class="alert-card">
+                <div class="alert-card__row">
+                  <span class="alert-card__label">Aman Tokyo · Premier</span>
+                  <span class="alert-card__delta">▼ 14%</span>
+                </div>
+                <div class="alert-card__name">3 nights · Suite</div>
+                <div class="alert-card__row">
+                  <span class="alert-card__price">¥412,000 <span class="alert-card__strike">¥478,000</span></span>
+                </div>
+              </div>
+
+              <div class="phone__footer">— monitored quietly, around the clock —</div>
+            </div>
+          </div>
+          <p class="frame__caption"><span>FIG.</span> &nbsp;Members&rsquo; Watchlist · Live</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== STRIP ============== -->
+<div class="strip" aria-hidden="true">
+  <div class="strip__inner">
+    <span>—</span> Watching for you, around the clock <span>—</span> The Curator&rsquo;s Watchlist <span>—</span> Tickets · Hotels · Flights <span>—</span> Members Preview &middot; 2026 <span>—</span> Watching for you, around the clock <span>—</span> The Curator&rsquo;s Watchlist <span>—</span> Tickets · Hotels · Flights <span>—</span> Members Preview &middot; 2026 <span>—</span>
+  </div>
+</div>
+
+<!-- ============== ABOUT ============== -->
+<section class="about" id="about">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-head__meta">
+        <div class="section-head__num">— I —</div>
+        <div class="section-head__kicker">About PriceRadar</div>
+      </div>
+      <div>
+        <h2>For those who <span class="it">watch the market</span>.</h2>
+        <p class="section-head__lede">
+          価格は気まぐれな潮のように動く。私たちはその潮目だけを、静かに、正確に切り取って差し上げます。
+        </p>
+      </div>
+    </div>
+
+    <div class="about__grid">
+      <div class="about__copy reveal">
+        <p class="about__pull">
+          The price you see today is rarely the price you should pay.
+        </p>
+        <div class="about__body">
+          <p>
+            航空券、ホテル、コンサートのチケット。動的価格設定（ダイナミックプライシング）の時代、ひとつの席や一晩の宿は、1日に何度も価格を変えます。
+            ほとんどの買い手は、一度見て、一度諦め、結果として最適でない瞬間に決断する。
+          </p>
+          <p>
+            PriceRadar は、その意思決定を私たちに委ねていただくためのプライベートサービスです。
+            あなたの監視リストを、24時間365日、私たちが代わりに観ています。価格が静かに有利な側に振れた瞬間にだけ、合図を差し上げる。
+          </p>
+        </div>
+        <div class="about__sig">
+          <span>— Curated for the discerning</span>
+        </div>
+      </div>
+
+      <div class="about__visual reveal">
+        <div class="watchlist">
+          <div class="watchlist__head">
+            <div class="watchlist__title">Curated <em>Watchlist</em></div>
+            <div class="watchlist__meta">As of 04:12 GMT</div>
+          </div>
+          <div class="watchlist__row">
+            <div class="watchlist__name">
+              Wiener Philharmoniker — Tokyo
+              <small>Suntory Hall · Box A · Nov 22</small>
+            </div>
+            <div class="watchlist__price">¥28,400<small>¥45,800</small></div>
+            <div class="watchlist__delta hot">▼ 38%</div>
+          </div>
+          <div class="watchlist__row">
+            <div class="watchlist__name">
+              Tokyo → Paris
+              <small>ANA J · NRT–CDG · Nov 14</small>
+            </div>
+            <div class="watchlist__price">$2,180<small>$2,810</small></div>
+            <div class="watchlist__delta">▼ 22%</div>
+          </div>
+          <div class="watchlist__row">
+            <div class="watchlist__name">
+              Aman Tokyo
+              <small>3 nights · Premier Suite</small>
+            </div>
+            <div class="watchlist__price">¥412,000<small>¥478,000</small></div>
+            <div class="watchlist__delta">▼ 14%</div>
+          </div>
+          <div class="watchlist__row">
+            <div class="watchlist__name">
+              Centre Court · Wimbledon
+              <small>Day 12 · Pair</small>
+            </div>
+            <div class="watchlist__price">£1,920<small>£2,440</small></div>
+            <div class="watchlist__delta">▼ 21%</div>
+          </div>
+          <div class="watchlist__row">
+            <div class="watchlist__name">
+              Ritz Paris
+              <small>2 nights · Coco Chanel Suite</small>
+            </div>
+            <div class="watchlist__price">€4,180<small>€4,820</small></div>
+            <div class="watchlist__delta">▼ 13%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== SAVINGS / PROBLEM ============== -->
+<section class="savings">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-head__meta">
+        <div class="section-head__num">— II —</div>
+        <div class="section-head__kicker">The Quiet Cost of Watching Alone</div>
+      </div>
+      <div>
+        <h2>毎年、見逃されている <span class="it">$2,450</span>。</h2>
+        <p class="section-head__lede">
+          手動で価格を追う旅行者・チケットコレクターが平均的に支払い過ぎている金額。
+          見ていない時間に、機会は静かに過ぎ去ります。
+        </p>
+      </div>
+    </div>
+
+    <div class="savings__hero reveal">
+      <div class="savings__pre">— Average overspend per year —</div>
+      <div class="savings__big"><span class="currency">$</span>2,450</div>
+      <p class="savings__caption">
+        ダイナミックプライシングは平均で <strong>1日に14回</strong> 価格を更新します。
+        あなたが眠っている間にも、ベストプライスは現れ、そして消える。
+      </p>
+    </div>
+
+    <div class="savings__grid">
+      <div class="savings__cell reveal">
+        <div class="savings__cell-label">Frequency</div>
+        <div class="savings__cell-num">14<em>×</em></div>
+        <div class="savings__cell-body">主要OTA・チケット販売サイトで観測される、1日あたりの平均価格更新回数。</div>
+      </div>
+      <div class="savings__cell reveal">
+        <div class="savings__cell-label">Best window</div>
+        <div class="savings__cell-num">3<em>分</em></div>
+        <div class="savings__cell-body">最安価格が市場に存在し続ける中央値。手動チェックでは、ほぼ確実に取り逃します。</div>
+      </div>
+      <div class="savings__cell reveal">
+        <div class="savings__cell-label">Members&rsquo; recapture</div>
+        <div class="savings__cell-num"><em>34</em>%</div>
+        <div class="savings__cell-body">PriceRadar 会員が、当初提示価格に対して取り戻している平均ディスカウント率（過去12ヶ月）。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FEATURES ============== -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-head__meta">
+        <div class="section-head__num">— III —</div>
+        <div class="section-head__kicker">Members Preview · Three Pillars</div>
+      </div>
+      <div>
+        <h2>静かに、 正確に、<span class="it">逃さない。</span></h2>
+        <p class="section-head__lede">
+          私たちのサービスは、3つのシンプルな仕事のみで構成されています。それぞれを、可能な限り完璧に行うこと。それが約束です。
+        </p>
+      </div>
+    </div>
+
+    <!-- Feature 1 -->
+    <article class="feature reveal">
+      <div class="feature__copy">
+        <div class="feature__num">— FEATURE No. 01 —</div>
+        <h3 class="feature__title">URL Watch <span class="it">— 一行で、市場を捕捉する。</span></h3>
+        <p class="feature__lede">
+          チケットの予約ページ、ホテルの空室カレンダー、航空券の検索結果。気になるURLを貼り付けるだけで、私たちはその一点を継続的に観測します。
+          観測対象は世界主要500以上のプラットフォームに対応。
+        </p>
+        <ul class="feature__list">
+          <li>主要 OTA・チケットサイト・公式販売ページに対応</li>
+          <li>セッション・地域・通貨を踏まえた正確な価格捕捉</li>
+          <li>会員のリクエストに応じてカスタムスクレイパを増設</li>
+        </ul>
+      </div>
+      <div class="feature__visual">
+        <div class="visual-card">
+          <span class="visual-card__tag">PLATE I · URL WATCH</span>
+          <div style="font-family: var(--serif); font-size: 13px; color: var(--text-muted); margin-bottom: 16px; letter-spacing: 0.05em;">// Add to Watchlist</div>
+          <div style="border:1px solid var(--border); padding: 18px 20px; background: var(--bg-alt); font-family: 'Inter', monospace; font-size: 13px; color: var(--ink); border-left: 2px solid var(--accent);">
+            https://&zwnj;tickets.suntory.co.jp/<br>
+            <span style="color: var(--text-muted);">events/wiener-2026/seat-A?date=11-22</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 11px; letter-spacing: 0.18em; color: var(--text-muted); text-transform: uppercase;">
+            <span>Cadence</span>
+            <span style="color: var(--accent); font-family: var(--serif); font-style: italic; letter-spacing: 0.02em; text-transform: none; font-size: 14px;">every 4 minutes</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top: 12px; font-size: 11px; letter-spacing: 0.18em; color: var(--text-muted); text-transform: uppercase;">
+            <span>Last seen</span>
+            <span style="color: var(--ink); font-family: var(--serif); letter-spacing: 0.02em; text-transform: none; font-size: 14px;">¥45,800 · 04:08 GMT</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Feature 2 -->
+    <article class="feature feature--reverse reveal">
+      <div class="feature__copy">
+        <div class="feature__num">— FEATURE No. 02 —</div>
+        <h3 class="feature__title">Threshold Alert <span class="it">— あなたの“買い時”を、あなたが定義する。</span></h3>
+        <p class="feature__lede">
+          固定価格の閾値、割引率、過去30日比のZスコア、需要トレンド。
+          会員ごとの基準で「合図を送るに値する瞬間」を定義します。それ以外の時間は、私たちは黙ります。
+        </p>
+        <ul class="feature__list">
+          <li>閾値・割引率・Zスコア・複合トリガーに対応</li>
+          <li>プッシュ通知 / Email / Slack / LINE / Webhook</li>
+          <li>"Quiet hours" — 真夜中は通知を抑制し、朝にダイジェスト配信</li>
+        </ul>
+      </div>
+      <div class="feature__visual">
+        <div class="visual-card">
+          <span class="visual-card__tag">PLATE II · ALERT RULE</span>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-bottom: 18px;">
+            <div style="border:1px solid var(--border); padding: 14px; background: var(--bg-alt);">
+              <div style="font-size:10px; letter-spacing:.2em; color:var(--text-muted); text-transform:uppercase;">Trigger</div>
+              <div style="font-family:var(--serif); font-size:18px; color:var(--ink); margin-top:6px;">Drop &gt; <span style="color:var(--accent);">15%</span></div>
+            </div>
+            <div style="border:1px solid var(--border); padding: 14px; background: var(--bg-alt);">
+              <div style="font-size:10px; letter-spacing:.2em; color:var(--text-muted); text-transform:uppercase;">Or below</div>
+              <div style="font-family:var(--serif); font-size:18px; color:var(--ink); margin-top:6px;">¥<span style="color:var(--accent);">35,000</span></div>
+            </div>
+            <div style="border:1px solid var(--border); padding: 14px; background: var(--bg-alt);">
+              <div style="font-size:10px; letter-spacing:.2em; color:var(--text-muted); text-transform:uppercase;">Channel</div>
+              <div style="font-family:var(--serif); font-size:18px; color:var(--ink); margin-top:6px;">Push <em style="color:var(--accent);">+</em> Slack</div>
+            </div>
+            <div style="border:1px solid var(--border); padding: 14px; background: var(--bg-alt);">
+              <div style="font-size:10px; letter-spacing:.2em; color:var(--text-muted); text-transform:uppercase;">Quiet hours</div>
+              <div style="font-family:var(--serif); font-size:18px; color:var(--ink); margin-top:6px;">23 — 07 JST</div>
+            </div>
+          </div>
+          <div style="border-top: 1px solid var(--border); padding-top: 14px; font-family: var(--serif); font-style: italic; font-size: 13px; color: var(--text-muted); text-align: right;">
+            — silent until it matters —
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Feature 3 -->
+    <article class="feature reveal">
+      <div class="feature__copy">
+        <div class="feature__num">— FEATURE No. 03 —</div>
+        <h3 class="feature__title">Price History <span class="it">— 過去を読み、未来の動きを推定する。</span></h3>
+        <p class="feature__lede">
+          価格は単独で見ても判断できません。30日・90日・365日のヒストリカルチャートと、需要・在庫・季節性を重ねて、
+          「いまが本当に買い時か」を、視覚的に確認していただけます。
+        </p>
+        <ul class="feature__list">
+          <li>30 / 90 / 365 日のヒストリカルチャート</li>
+          <li>過去最低・中央値・現在価格の同時比較</li>
+          <li>One-tap で公式販売ページへ遷移、購買導線まで一直線</li>
+        </ul>
+      </div>
+      <div class="feature__visual">
+        <div class="chart">
+          <div class="chart__legend">
+            <span>30-DAY HISTORY</span>
+            <strong>—42% from peak</strong>
+          </div>
+          <svg viewBox="0 0 600 260" preserveAspectRatio="none">
+            <!-- subtle grid -->
+            <g stroke="#E8E2D4" stroke-width="1">
+              <line x1="0" y1="60" x2="600" y2="60"/>
+              <line x1="0" y1="120" x2="600" y2="120"/>
+              <line x1="0" y1="180" x2="600" y2="180"/>
+            </g>
+            <!-- price area -->
+            <path d="M0,80 C40,60 80,90 120,70 C160,50 200,40 240,80 C280,120 320,160 360,140 C400,120 440,170 480,200 C520,220 560,210 600,220 L600,260 L0,260 Z"
+                  fill="#B89B5E" fill-opacity="0.08"/>
+            <!-- price line -->
+            <path d="M0,80 C40,60 80,90 120,70 C160,50 200,40 240,80 C280,120 320,160 360,140 C400,120 440,170 480,200 C520,220 560,210 600,220"
+                  fill="none" stroke="#1A1A1A" stroke-width="1.5"/>
+            <!-- median dotted -->
+            <line x1="0" y1="120" x2="600" y2="120" stroke="#B89B5E" stroke-dasharray="4 4" stroke-width="1"/>
+            <!-- alert marker -->
+            <circle cx="480" cy="200" r="6" fill="#FAF8F3" stroke="#B89B5E" stroke-width="1.5"/>
+            <circle cx="480" cy="200" r="2.5" fill="#B89B5E"/>
+            <text x="492" y="196" font-family="Playfair Display" font-style="italic" font-size="13" fill="#B89B5E">alert</text>
+            <!-- axis labels -->
+            <text x="0" y="252" font-family="Inter" font-size="9" fill="#8A8378" letter-spacing="2">D-30</text>
+            <text x="288" y="252" font-family="Inter" font-size="9" fill="#8A8378" letter-spacing="2">D-15</text>
+            <text x="572" y="252" font-family="Inter" font-size="9" fill="#8A8378" letter-spacing="2">TODAY</text>
+          </svg>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============== PRICING ============== -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-head__meta">
+        <div class="section-head__num">— IV —</div>
+        <div class="section-head__kicker">Membership</div>
+      </div>
+      <div>
+        <h2>Three tiers, <span class="it">one quiet promise.</span></h2>
+        <p class="section-head__lede">
+          すべてのプランで、14日間のメンバーズ・プレビューをご用意しています。クレジットカードは不要です。
+        </p>
+      </div>
+    </div>
+
+    <div class="pricing__grid reveal">
+      <!-- Free -->
+      <div class="plan">
+        <div class="plan__tier">— Tier I —</div>
+        <h3 class="plan__name">Reader</h3>
+        <div class="plan__price"><span class="currency">$</span>0</div>
+        <div class="plan__period"><em>per month, indefinitely</em></div>
+        <div class="plan__quota">
+          Watch up to
+          <strong>3 items</strong>
+        </div>
+        <ul class="plan__features">
+          <li>URL Watch · 4分間隔</li>
+          <li>Threshold Alert (基本)</li>
+          <li>過去30日のチャート</li>
+          <li>メール / プッシュ通知</li>
+          <li class="muted">Slack / Webhook 連携</li>
+          <li class="muted">優先サポート</li>
+        </ul>
+        <div class="plan__cta">
+          <a href="#cta" class="btn">Begin Reading</a>
+        </div>
+      </div>
+
+      <!-- Pro (featured) -->
+      <div class="plan plan--featured">
+        <div class="plan__badge">Most Selected</div>
+        <div class="plan__tier">— Tier II —</div>
+        <h3 class="plan__name">Curator</h3>
+        <div class="plan__price"><span class="currency">$</span>9<span class="cents">.99</span></div>
+        <div class="plan__period"><em>per month</em></div>
+        <div class="plan__quota">
+          Watch up to
+          <strong>50 items</strong>
+        </div>
+        <ul class="plan__features">
+          <li>URL Watch · 1分間隔</li>
+          <li>高度な閾値・Zスコア・複合トリガー</li>
+          <li>過去365日のチャート + 中央値ライン</li>
+          <li>Slack / LINE / Webhook 連携</li>
+          <li>Quiet hours / Daily digest</li>
+          <li>Members Preview コミュニティ</li>
+        </ul>
+        <div class="plan__cta">
+          <a href="#cta" class="btn btn--solid">Begin Curating</a>
+        </div>
+      </div>
+
+      <!-- Unlimited -->
+      <div class="plan">
+        <div class="plan__tier">— Tier III —</div>
+        <h3 class="plan__name">Connoisseur</h3>
+        <div class="plan__price"><span class="currency">$</span>29<span class="cents">.99</span></div>
+        <div class="plan__period"><em>per month</em></div>
+        <div class="plan__quota">
+          Watch
+          <strong>Unlimited</strong>
+        </div>
+        <ul class="plan__features">
+          <li>URL Watch · 30秒間隔</li>
+          <li>Curator のすべて</li>
+          <li>カスタムスクレイパ・専用ダッシュボード</li>
+          <li>API / 全データエクスポート</li>
+          <li>専属コンシェルジュ</li>
+          <li>新機能への先行アクセス</li>
+        </ul>
+        <div class="plan__cta">
+          <a href="#cta" class="btn">Inquire</a>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 60px; font-family: var(--serif); font-style: italic; color: var(--text-muted); font-size: 14px;" class="reveal">
+      — All tiers include a complimentary 14-day Members Preview · No card required —
+    </div>
+  </div>
+</section>
+
+<!-- ============== VOICES ============== -->
+<section class="voices" id="voices">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="section-head__meta">
+        <div class="section-head__num">— V —</div>
+        <div class="section-head__kicker">In Their Own Words</div>
+      </div>
+      <div>
+        <h2>The members, <span class="it">on the record.</span></h2>
+        <p class="section-head__lede">
+          静かに監視を続けてきた一年、私たちのサービスはどう使われ、どう感じられてきたのか。会員の声から抜粋しました。
+        </p>
+      </div>
+    </div>
+
+    <div class="voices__grid">
+      <article class="voice reveal">
+        <div class="voice__num">— I —</div>
+        <div class="voice__mark">“</div>
+        <p class="voice__quote">
+          オペラ座のシーズンを毎年追いかけているのですが、いままでは無駄な時間と無駄な出費の繰り返しでした。
+          PriceRadar に切り替えてから、観劇の準備は「通知を待つ」だけ。年間で<strong style="color: var(--accent); font-family: var(--serif); font-style: italic; font-weight: 500;">$3,200</strong>ほど節約しています。
+        </p>
+        <div class="voice__sep"></div>
+        <div class="voice__author">
+          M. Hayashi
+          <em>Private Investor · Tokyo</em>
+        </div>
+      </article>
+
+      <article class="voice reveal">
+        <div class="voice__num">— II —</div>
+        <div class="voice__mark">“</div>
+        <p class="voice__quote">
+          ヘッジファンドのアラートシステムと同じ思想を、旅費に持ち込んだ感じです。
+          静かで、邪魔をせず、本当に意味のある瞬間にだけ通知が鳴る。<strong style="color: var(--accent); font-family: var(--serif); font-style: italic; font-weight: 500;">UI も含めて品があり</strong>、見ていて疲れません。
+        </p>
+        <div class="voice__sep"></div>
+        <div class="voice__author">
+          A. Kuroda
+          <em>Portfolio Manager · Singapore</em>
+        </div>
+      </article>
+
+      <article class="voice reveal">
+        <div class="voice__num">— III —</div>
+        <div class="voice__mark">“</div>
+        <p class="voice__quote">
+          年に4回、家族で長距離旅行をしますが、旅程を組んだ後の「最安値探し」が一番ストレスでした。
+          PriceRadar はその<strong style="color: var(--accent); font-family: var(--serif); font-style: italic; font-weight: 500;">最後の最後の作業</strong>を、まるで秘書のように引き受けてくれます。
+        </p>
+        <div class="voice__sep"></div>
+        <div class="voice__author">
+          C. Sato
+          <em>Founder · Hong Kong</em>
+        </div>
+      </article>
+
+      <article class="voice reveal">
+        <div class="voice__num">— IV —</div>
+        <div class="voice__mark">“</div>
+        <p class="voice__quote">
+          チケットコレクターとして、PriceRadar は<strong style="color: var(--accent); font-family: var(--serif); font-style: italic; font-weight: 500;">秘密兵器</strong>です。
+          ウィーンフィル来日公演のBOX席が定価の60%で取れた時は、思わず会員費の元を一晩で取りました。
+        </p>
+        <div class="voice__sep"></div>
+        <div class="voice__author">
+          R. Mori
+          <em>Collector · Tokyo</em>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FAQ ============== -->
+<section class="faq" id="faq">
+  <div class="container container-narrow">
+    <div class="section-head reveal" style="grid-template-columns: 1fr; gap: 24px; text-align: center; margin-bottom: 80px;">
+      <div class="section-head__meta" style="border-top: 0; padding-top: 0;">
+        <div class="section-head__num">— VI —</div>
+        <div class="section-head__kicker">Frequently Asked</div>
+      </div>
+      <div>
+        <h2 style="text-align:center;">よくあるご質問</h2>
+      </div>
+    </div>
+
+    <div class="faq__list reveal">
+      <article class="faq__item">
+        <div class="faq__num">i.</div>
+        <div>
+          <h3 class="faq__q">14日間のプレビュー後、自動で課金されますか？</h3>
+          <p class="faq__a">
+            いいえ。クレジットカードのご登録は不要ですので、プレビュー終了後に自動課金されることはありません。
+            継続される場合のみ、ご自身のタイミングで Curator または Connoisseur へお進みください。
+          </p>
+        </div>
+      </article>
+
+      <article class="faq__item">
+        <div class="faq__num">ii.</div>
+        <div>
+          <h3 class="faq__q">対応しているサイト・プラットフォームは？</h3>
+          <p class="faq__a">
+            主要な OTA・ホテル予約サイト・チケット販売プラットフォーム、世界500以上に対応しています。
+            未対応のサイトは Curator 以上のプランからリクエストいただければ、原則1週間以内にカスタムスクレイパを増設します。
+          </p>
+        </div>
+      </article>
+
+      <article class="faq__item">
+        <div class="faq__num">iii.</div>
+        <div>
+          <h3 class="faq__q">通知はどのくらいの速さで届きますか？</h3>
+          <p class="faq__a">
+            Connoisseur は30秒、Curator は1分、Reader は4分間隔で監視しています。
+            閾値ヒットから通知配信までの中央値は2.4秒です。最安価格の機会窓は中央値で3分。Curator 以上であればほぼ確実に捕捉できます。
+          </p>
+        </div>
+      </article>
+
+      <article class="faq__item">
+        <div class="faq__num">iv.</div>
+        <div>
+          <h3 class="faq__q">夜中に通知が鳴ったりしませんか？</h3>
+          <p class="faq__a">
+            "Quiet hours" 機能で、深夜帯の通知を抑制し、翌朝のダイジェストに集約することができます。会員様の生活リズムを崩さない設計です。
+          </p>
+        </div>
+      </article>
+
+      <article class="faq__item">
+        <div class="faq__num">v.</div>
+        <div>
+          <h3 class="faq__q">解約はいつでもできますか？</h3>
+          <p class="faq__a">
+            はい。いつでも、ワンクリックで。会員様のデータは解約後30日間保持され、その後完全に削除されます。
+            返金は日割り計算で対応します。
+          </p>
+        </div>
+      </article>
+
+      <article class="faq__item">
+        <div class="faq__num">vi.</div>
+        <div>
+          <h3 class="faq__q">企業・複数アカウントでの利用は可能ですか？</h3>
+          <p class="faq__a">
+            Connoisseur 以上で、ファミリーアカウント・チームアカウント機能をご利用いただけます。法人向けの個別プランについては、お問い合わせください。
+          </p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FINAL CTA ============== -->
+<section class="final-cta" id="cta">
+  <div class="container container-narrow reveal">
+    <div class="final-cta__pre">— An invitation —</div>
+    <h2>Begin your <span class="it">14-day Members Preview.</span></h2>
+    <p class="final-cta__lede">
+      静かに、正確に、市場を見続ける。
+      私たちにとって価値ある瞬間とは、あなたが「まだ間に合った」と気づく、その合図の音です。
+      クレジットカードは不要。今日から14日間、無料でご体験いただけます。
+    </p>
+    <a href="#" class="btn btn--lg">Begin Members Preview</a>
+    <div class="final-cta__note">No card required · 14 days · <span>Cancel anytime</span></div>
+  </div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <div class="brand">
+          <span class="brand__mark"></span>
+          <span class="brand__name">Price<em>Radar</em></span>
+        </div>
+        <p class="footer__tag">
+          The curator&rsquo;s watchlist for tickets, hotels and flights.
+          Quietly watching, around the clock.
+        </p>
+      </div>
+      <div class="footer__col">
+        <h4>Service</h4>
+        <a href="#features">Features</a>
+        <a href="#pricing">Membership</a>
+        <a href="#voices">Voices</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="footer__col">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="#">Press</a>
+        <a href="#">Careers</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">Cookies</a>
+        <a href="#">Imprint</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div>© MMXXVI · PriceRadar — <em>The Curator&rsquo;s Watchlist</em></div>
+      <div>Vol. 01 · Members Preview</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Subtle reveal-on-scroll
+  (function(){
+    var els = document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){
+      els.forEach(function(el){ el.classList.add('is-in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    els.forEach(function(el){ io.observe(el); });
+  })();
+</script>
+
+</body>
+</html>
+<!-- Pattern 2 - Premium Trader -->

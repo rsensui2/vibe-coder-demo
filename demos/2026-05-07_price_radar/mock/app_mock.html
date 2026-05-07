@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PriceRadar — App Mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0E1A; --bg-2: #0F1424; --bg-3: #141B30;
+    --accent: #00E5FF; --accent-dim: rgba(0,229,255,0.18);
+    --alert: #FF3B6B; --alert-dim: rgba(255,59,107,0.18);
+    --text: #E6F0FF; --text-sub: #7B8BAB; --border: #1F2A44;
+    --shadow: 0 30px 80px rgba(0,0,0,0.55); --green: #34D399;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(0,229,255,0.08), transparent 55%),
+      radial-gradient(ellipse at 85% 90%, rgba(255,59,107,0.07), transparent 55%),
+      var(--bg);
+    color: var(--text);
+    font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-height: 100vh; padding: 40px 20px; gap: 18px;
+  }
+  .stage-label {
+    display: flex; align-items: center; gap: 14px;
+    color: var(--text-sub); font-size: 13px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .stage-label .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 12px var(--accent);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .stage-label .pipe { color: var(--border); }
+
+  .phone-wrap { position: relative; padding: 10px; }
+  .phone {
+    position: relative; width: 393px; height: 852px;
+    border-radius: 56px;
+    background: linear-gradient(180deg, #1a2238 0%, #0c0f1c 100%);
+    padding: 12px;
+    box-shadow: var(--shadow),
+      inset 0 0 0 1.5px rgba(255,255,255,0.08),
+      inset 0 0 0 4px #000;
+  }
+  .side-btn {
+    position: absolute;
+    background: linear-gradient(90deg, #1c2440, #11162a);
+    border-radius: 2px;
+  }
+  .side-btn.mute   { left: -3px; top: 110px; width: 4px; height: 30px; }
+  .side-btn.vol-up { left: -3px; top: 165px; width: 4px; height: 55px; }
+  .side-btn.vol-dn { left: -3px; top: 235px; width: 4px; height: 55px; }
+  .side-btn.power  { right: -3px; top: 200px; width: 4px; height: 95px; }
+  .screen {
+    position: relative; width: 100%; height: 100%;
+    border-radius: 46px; background: var(--bg);
+    overflow: hidden; isolation: isolate;
+  }
+  .dynamic-island {
+    position: absolute; top: 11px; left: 50%;
+    transform: translateX(-50%);
+    width: 124px; height: 36px;
+    background: #000; border-radius: 22px; z-index: 100;
+  }
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px 0; z-index: 5; pointer-events: none;
+  }
+  .status-bar .time { font-weight: 700; font-size: 15px; color: var(--text); letter-spacing: 0.5px; }
+  .status-bar .icons { display: flex; align-items: center; gap: 6px; color: var(--text); }
+  .status-bar svg { display: block; }
+
+  .screens { position: absolute; top: 54px; bottom: 86px; left: 0; right: 0; overflow: hidden; }
+  .screen-page {
+    position: absolute; inset: 0;
+    overflow-y: auto; overflow-x: hidden;
+    padding: 12px 18px 24px;
+    opacity: 0; transform: translateX(40px);
+    transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  .screen-page.active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+  .screen-page.exit-left { transform: translateX(-40px); }
+  .screen-page::-webkit-scrollbar { width: 0; }
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-top: 4px; }
+  .page-title { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+  .page-title .count { font-size: 16px; font-weight: 600; color: var(--text-sub); margin-left: 8px; }
+  .page-subtitle { font-size: 13px; color: var(--text-sub); margin-top: 2px; }
+  .add-btn {
+    background: var(--accent); color: #001218;
+    font-weight: 700; font-size: 13px;
+    padding: 8px 14px; border-radius: 999px; border: none; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,229,255,0.3);
+  }
+
+  .watch-card {
+    background: linear-gradient(180deg, var(--bg-3) 0%, var(--bg-2) 100%);
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 16px; margin-bottom: 12px;
+    position: relative; overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .watch-card:hover { transform: translateY(-2px); border-color: rgba(0,229,255,0.4); }
+  .watch-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 100% 0%, var(--accent-dim), transparent 50%);
+    opacity: 0.4; pointer-events: none;
+  }
+  .watch-card.alerted::before { background: radial-gradient(circle at 100% 0%, var(--alert-dim), transparent 50%); }
+  .watch-meta { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; position: relative; }
+  .watch-tag {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 999px;
+    background: rgba(0,229,255,0.12); color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .watch-tag.hotel { background: rgba(255,59,107,0.12); color: var(--alert); }
+  .watch-tag.flight { background: rgba(52,211,153,0.12); color: var(--green); }
+  .watch-title { font-size: 15px; font-weight: 700; line-height: 1.35; margin-bottom: 6px; letter-spacing: -0.01em; }
+  .watch-thr { font-size: 11px; color: var(--text-sub); }
+  .watch-price { text-align: right; }
+  .price-current { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+  .price-delta {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+    margin-top: 6px; padding: 3px 8px; border-radius: 6px; display: inline-block;
+  }
+  .price-delta.down { background: var(--alert-dim); color: var(--alert); }
+  .price-delta.up { background: var(--accent-dim); color: var(--accent); }
+  .mini-chart { margin-top: 12px; height: 50px; width: 100%; position: relative; }
+  .mini-chart svg { width: 100%; height: 100%; display: block; }
+
+  .upgrade-banner {
+    margin-top: 16px; padding: 14px 16px; border-radius: 14px;
+    background: linear-gradient(120deg, rgba(0,229,255,0.12), rgba(255,59,107,0.08));
+    border: 1px solid rgba(0,229,255,0.25);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .upgrade-banner .ub-text { font-size: 12px; color: var(--text); line-height: 1.45; }
+  .upgrade-banner .ub-text strong { color: var(--accent); }
+  .upgrade-banner .ub-cta {
+    background: var(--accent); color: #001218;
+    font-size: 12px; font-weight: 700;
+    padding: 8px 12px; border-radius: 999px;
+    border: none; cursor: pointer; white-space: nowrap;
+  }
+  .url-field {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-3); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 14px 16px;
+    transition: border-color 0.2s ease;
+  }
+  .url-field:focus-within { border-color: var(--accent); }
+  .url-field input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-size: 14px; font-family: inherit; }
+  .url-field input::placeholder { color: var(--text-sub); }
+  .url-field .icn { color: var(--accent); }
+
+  .preview-card {
+    margin-top: 14px; background: var(--bg-3);
+    border: 1px solid var(--border); border-radius: 16px;
+    padding: 14px; display: flex; gap: 12px; align-items: center;
+  }
+  .preview-thumb {
+    width: 64px; height: 64px; border-radius: 12px;
+    background: linear-gradient(135deg, #4a3aff, #00e5ff);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px;
+  }
+  .preview-info { flex: 1; min-width: 0; }
+  .preview-info h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .preview-info p { font-size: 12px; color: var(--text-sub); }
+  .preview-info .preview-price { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-size: 14px; font-weight: 700; margin-top: 4px; }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 22px 0 10px;
+  }
+
+  .radio-group { display: flex; gap: 8px; }
+  .radio-pill {
+    flex: 1;
+    background: var(--bg-3);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-sub);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .radio-pill.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .threshold-input {
+    display: flex;
+    align-items: center;
+    background: var(--bg-3);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-top: 10px;
+  }
+  .threshold-input input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .threshold-input .unit {
+    color: var(--text-sub);
+    font-weight: 700;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-row .label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .toggle-row .label .icon {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--bg-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 14px;
+  }
+  .toggle-row .label .name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .toggle {
+    width: 44px;
+    height: 26px;
+    background: var(--border);
+    border-radius: 999px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 20px; height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle.on::after { transform: translateX(18px); }
+
+  .primary-btn {
+    width: 100%;
+    margin-top: 22px;
+    background: var(--accent);
+    color: #001218;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 12px 32px rgba(0, 229, 255, 0.28);
+    transition: transform 0.15s ease;
+  }
+  .primary-btn:hover { transform: translateY(-1px); }
+
+  .secondary-btn {
+    width: 100%;
+    margin-top: 10px;
+    background: transparent;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+  }
+  .secondary-btn.danger {
+    color: var(--alert);
+    border-color: rgba(255, 59, 107, 0.35);
+  }
+
+  /* Alerts list */
+  .alert-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+  .alert-item:hover { border-color: rgba(0, 229, 255, 0.3); }
+  .alert-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .alert-icon.down { background: var(--alert-dim); }
+  .alert-icon.up { background: var(--accent-dim); }
+  .alert-body { flex: 1; min-width: 0; }
+  .alert-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .alert-meta {
+    font-size: 11px;
+    color: var(--text-sub);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .alert-meta .dot { color: var(--border); }
+  .alert-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: right;
+  }
+  .alert-price.down { color: var(--alert); }
+  .alert-price.up { color: var(--accent); }
+  .alert-price small {
+    display: block;
+    font-size: 10px;
+    color: var(--text-sub);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  /* Detail */
+  .detail-hero {
+    background: linear-gradient(160deg, var(--bg-3), var(--bg-2));
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .detail-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 90% 10%, var(--alert-dim), transparent 60%);
+    pointer-events: none;
+  }
+  .detail-hero .name {
+    font-size: 14px;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+    position: relative;
+  }
+  .detail-hero .price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    position: relative;
+  }
+  .detail-hero .price small {
+    font-size: 14px;
+    color: var(--text-sub);
+    font-weight: 500;
+    margin-left: 6px;
+    letter-spacing: 0;
+  }
+  .detail-hero .delta-pill {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--alert-dim);
+    color: var(--alert);
+    position: relative;
+  }
+
+  .main-chart {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px 12px 8px;
+    margin-bottom: 14px;
+    height: 200px;
+    position: relative;
+  }
+  .chart-legend {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    gap: 12px;
+    font-size: 10px;
+    color: var(--text-sub);
+  }
+  .chart-legend .lg {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .chart-legend .swatch {
+    width: 10px; height: 2px; border-radius: 1px;
+  }
+  .chart-legend .swatch.cyan { background: var(--accent); }
+  .chart-legend .swatch.pink { background: var(--alert); }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .stat-card {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .stat-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .stat-val.alert { color: var(--alert); }
+  .stat-val.accent { color: var(--accent); }
+
+  /* Settings */
+  .plan-card {
+    background: var(--bg-3);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .plan-card.active {
+    border-color: var(--accent);
+    background: linear-gradient(180deg, rgba(0, 229, 255, 0.08), var(--bg-3));
+  }
+  .plan-card .plan-info h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .plan-card .plan-info h4 .badge {
+    font-size: 9px;
+    background: var(--accent);
+    color: #001218;
+    padding: 2px 6px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+  .plan-card .plan-info p {
+    font-size: 11px;
+    color: var(--text-sub);
+  }
+  .plan-card .plan-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .plan-card .plan-price small {
+    font-size: 10px;
+    color: var(--text-sub);
+    font-weight: 500;
+  }
+  .plan-card .radio-circle {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .plan-card.active .radio-circle {
+    border-color: var(--accent);
+  }
+  .plan-card.active .radio-circle::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .currency-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .account-card {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: 4px;
+  }
+  .account-card .email {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .account-card .since {
+    font-size: 11px;
+    color: var(--text-sub);
+  }
+
+  /* Tab Bar */
+  .tab-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 86px;
+    background: rgba(10, 14, 26, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 8px 22px;
+    z-index: 50;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--text-sub);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 4px;
+    border-radius: 12px;
+    transition: color 0.2s ease, background 0.2s ease;
+    font-family: inherit;
+  }
+  .tab svg { width: 22px; height: 22px; }
+  .tab.active {
+    color: var(--accent);
+  }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    width: 22px; height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* Home indicator */
+  .home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    background: var(--text);
+    border-radius: 3px;
+    opacity: 0.7;
+    z-index: 60;
+  }
+
+  /* Bottom hint */
+  .hint {
+    color: var(--text-sub);
+    font-size: 12px;
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+  .hint kbd {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    margin: 0 2px;
+  }
+
+  /* Skeleton */
+  .skeleton {
+    background: linear-gradient(90deg, var(--bg-3) 0%, var(--border) 50%, var(--bg-3) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 8px;
+  }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  @media (max-width: 480px) {
+    .phone {
+      transform: scale(0.85);
+      transform-origin: top center;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage-label">
+  <span class="dot"></span>
+  <span>Live Demo</span>
+  <span class="pipe">/</span>
+  <span>PriceRadar v0.9</span>
+  <span class="pipe">/</span>
+  <span>Dynamic Pricing Watcher</span>
+</div>
+
+<div class="phone-wrap">
+  <div class="phone">
+    <span class="side-btn mute"></span>
+    <span class="side-btn vol-up"></span>
+    <span class="side-btn vol-dn"></span>
+    <span class="side-btn power"></span>
+
+    <div class="screen">
+      <div class="dynamic-island"></div>
+
+      <!-- Status bar -->
+      <div class="status-bar">
+        <div class="time">9:41</div>
+        <div class="icons">
+          <!-- Signal -->
+          <svg width="17" height="11" viewBox="0 0 17 11" fill="none">
+            <rect x="0" y="7" width="3" height="4" rx="0.5" fill="currentColor"/>
+            <rect x="4.5" y="5" width="3" height="6" rx="0.5" fill="currentColor"/>
+            <rect x="9" y="2.5" width="3" height="8.5" rx="0.5" fill="currentColor"/>
+            <rect x="13.5" y="0" width="3" height="11" rx="0.5" fill="currentColor"/>
+          </svg>
+          <!-- Wifi -->
+          <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
+            <path d="M8 10.5a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z" fill="currentColor"/>
+            <path d="M3.4 6.5a6.5 6.5 0 0 1 9.2 0l1.4-1.4a8.5 8.5 0 0 0-12 0l1.4 1.4Z" fill="currentColor"/>
+            <path d="M5.6 8.7a3.4 3.4 0 0 1 4.8 0l1.4-1.4a5.4 5.4 0 0 0-7.6 0l1.4 1.4Z" fill="currentColor"/>
+          </svg>
+          <!-- Battery -->
+          <svg width="27" height="12" viewBox="0 0 27 12" fill="none">
+            <rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor" stroke-opacity="0.4"/>
+            <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor"/>
+            <rect x="24" y="4" width="2" height="4" rx="1" fill="currentColor" fill-opacity="0.5"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Pages -->
+      <div class="screens">
+
+        <!-- Page 1: Watchlist -->
+        <section class="screen-page active" data-page="watch">
+          <div class="page-header">
+            <div>
+              <div class="page-title">監視中<span class="count">3/3</span></div>
+              <div class="page-subtitle">最終チェック: 2分前</div>
+            </div>
+            <button class="add-btn" onclick="goTo('add')">+ 追加</button>
+          </div>
+
+          <div class="watch-card alerted">
+            <div class="watch-meta">
+              <div>
+                <span class="watch-tag">🎟 Ticket</span>
+                <div class="watch-title">Lakers vs Warriors<br><span style="color:var(--text-sub);font-weight:500">@ Crypto.com Arena · 5/14</span></div>
+                <div class="watch-thr">閾値: <span style="color:var(--text)">$300以下</span> でアラート</div>
+              </div>
+              <div class="watch-price">
+                <div class="price-current">$312</div>
+                <div class="price-delta down">▼ -8%</div>
+              </div>
+            </div>
+            <div class="mini-chart">
+              <svg viewBox="0 0 280 50" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#FF3B6B" stop-opacity="0.35"/>
+                    <stop offset="100%" stop-color="#FF3B6B" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,15 L40,12 L80,18 L120,22 L160,28 L200,30 L240,35 L280,38 L280,50 L0,50 Z" fill="url(#g1)"/>
+                <path d="M0,15 L40,12 L80,18 L120,22 L160,28 L200,30 L240,35 L280,38" fill="none" stroke="#FF3B6B" stroke-width="2"/>
+                <circle cx="280" cy="38" r="3" fill="#FF3B6B"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="watch-card alerted">
+            <div class="watch-meta">
+              <div>
+                <span class="watch-tag hotel">🏨 Hotel</span>
+                <div class="watch-title">Park Hyatt Tokyo<br><span style="color:var(--text-sub);font-weight:500">Booking · 3 nights · 6/2-5</span></div>
+                <div class="watch-thr">閾値: <span style="color:var(--text)">$1,500以下</span> でアラート</div>
+              </div>
+              <div class="watch-price">
+                <div class="price-current">$1,840</div>
+                <div class="price-delta down">▼ -12%</div>
+              </div>
+            </div>
+            <div class="mini-chart">
+              <svg viewBox="0 0 280 50" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#FF3B6B" stop-opacity="0.35"/>
+                    <stop offset="100%" stop-color="#FF3B6B" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,8 L40,14 L80,10 L120,16 L160,24 L200,28 L240,34 L280,32 L280,50 L0,50 Z" fill="url(#g2)"/>
+                <path d="M0,8 L40,14 L80,10 L120,16 L160,24 L200,28 L240,34 L280,32" fill="none" stroke="#FF3B6B" stroke-width="2"/>
+                <circle cx="280" cy="32" r="3" fill="#FF3B6B"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="watch-card">
+            <div class="watch-meta">
+              <div>
+                <span class="watch-tag flight">✈️ Flight</span>
+                <div class="watch-title">United SFO → NRT<br><span style="color:var(--text-sub);font-weight:500">Round trip · 7/12-7/22</span></div>
+                <div class="watch-thr">閾値: <span style="color:var(--text)">20%下落</span> でアラート</div>
+              </div>
+              <div class="watch-price">
+                <div class="price-current">$980</div>
+                <div class="price-delta up">▲ +3%</div>
+              </div>
+            </div>
+            <div class="mini-chart">
+              <svg viewBox="0 0 280 50" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#00E5FF" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,30 L40,28 L80,32 L120,26 L160,22 L200,18 L240,16 L280,12 L280,50 L0,50 Z" fill="url(#g3)"/>
+                <path d="M0,30 L40,28 L80,32 L120,26 L160,22 L200,18 L240,16 L280,12" fill="none" stroke="#00E5FF" stroke-width="2"/>
+                <circle cx="280" cy="12" r="3" fill="#00E5FF"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="upgrade-banner">
+            <div class="ub-text">無料プランで監視中: <strong>3/3</strong>。<br>Pro なら無制限で監視できる。</div>
+            <button class="ub-cta" onclick="goTo('settings')">アップグレード</button>
+          </div>
+        </section>
+
+        <!-- Page 2: Add -->
+        <section class="screen-page" data-page="add">
+          <div class="page-header">
+            <div>
+              <div class="page-title">追加</div>
+              <div class="page-subtitle">URLを貼って閾値を決めるだけ</div>
+            </div>
+          </div>
+
+          <div class="section-title">商品URL</div>
+          <div class="url-field">
+            <span class="icn">🔗</span>
+            <input type="text" placeholder="ticketmaster.com/event/... を貼り付け" value="ticketmaster.com/event/0A005F2C8E1D7B53">
+          </div>
+
+          <div class="preview-card">
+            <div class="preview-thumb">🎟</div>
+            <div class="preview-info">
+              <h4>Knicks vs Celtics</h4>
+              <p>Madison Square Garden · 5/22 19:30</p>
+              <div class="preview-price">現在: $254</div>
+            </div>
+          </div>
+
+          <div class="section-title">閾値</div>
+          <div class="radio-group">
+            <div class="radio-pill active">絶対値で指定 ($)</div>
+            <div class="radio-pill">変動率で指定 (%)</div>
+          </div>
+          <div class="threshold-input">
+            <input type="text" value="200">
+            <span class="unit">USD 以下で通知</span>
+          </div>
+
+          <div class="section-title">通知方法</div>
+          <div class="toggle-row">
+            <div class="label">
+              <div class="icon">🔔</div>
+              <div class="name">Push 通知</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="label">
+              <div class="icon">✉️</div>
+              <div class="name">Email</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="label">
+              <div class="icon">💬</div>
+              <div class="name">Slack #price-alerts</div>
+            </div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+
+          <button class="primary-btn" onclick="goTo('watch')">監視を開始</button>
+        </section>
+
+        <!-- Page 3: Alerts -->
+        <section class="screen-page" data-page="alerts">
+          <div class="page-header">
+            <div>
+              <div class="page-title">アラート履歴</div>
+              <div class="page-subtitle">過去30日間で 7 件</div>
+            </div>
+          </div>
+
+          <div class="alert-item" onclick="goTo('detail')">
+            <div class="alert-icon down">📉</div>
+            <div class="alert-body">
+              <div class="alert-name">Lakers vs Warriors</div>
+              <div class="alert-meta"><span>Ticketmaster</span><span class="dot">•</span><span>3時間前</span></div>
+            </div>
+            <div class="alert-price down">$312<small>-8%</small></div>
+          </div>
+
+          <div class="alert-item" onclick="goTo('detail')">
+            <div class="alert-icon down">📉</div>
+            <div class="alert-body">
+              <div class="alert-name">Park Hyatt Tokyo</div>
+              <div class="alert-meta"><span>Booking</span><span class="dot">•</span><span>昨日</span></div>
+            </div>
+            <div class="alert-price down">$1,840<small>-12%</small></div>
+          </div>
+
+          <div class="alert-item" onclick="goTo('detail')">
+            <div class="alert-icon up">📈</div>
+            <div class="alert-body">
+              <div class="alert-name">United SFO → NRT</div>
+              <div class="alert-meta"><span>United.com</span><span class="dot">•</span><span>3日前</span></div>
+            </div>
+            <div class="alert-price up">$1,012<small>+5%</small></div>
+          </div>
+
+          <div class="alert-item" onclick="goTo('detail')">
+            <div class="alert-icon down">📉</div>
+            <div class="alert-body">
+              <div class="alert-name">Knicks vs Celtics</div>
+              <div class="alert-meta"><span>Ticketmaster</span><span class="dot">•</span><span>5日前</span></div>
+            </div>
+            <div class="alert-price down">$215<small>-15%</small></div>
+          </div>
+
+          <div class="alert-item" onclick="goTo('detail')">
+            <div class="alert-icon down">📉</div>
+            <div class="alert-body">
+              <div class="alert-name">Aman Tokyo</div>
+              <div class="alert-meta"><span>Booking</span><span class="dot">•</span><span>1週間前</span></div>
+            </div>
+            <div class="alert-price down">$2,200<small>-9%</small></div>
+          </div>
+
+          <div class="alert-item" onclick="goTo('detail')">
+            <div class="alert-icon up">📈</div>
+            <div class="alert-body">
+              <div class="alert-name">ANA HND → JFK</div>
+              <div class="alert-meta"><span>ANA.com</span><span class="dot">•</span><span>2週間前</span></div>
+            </div>
+            <div class="alert-price up">$1,580<small>+11%</small></div>
+          </div>
+
+          <div class="alert-item" onclick="goTo('detail')">
+            <div class="alert-icon down">📉</div>
+            <div class="alert-body">
+              <div class="alert-name">Coldplay World Tour</div>
+              <div class="alert-meta"><span>Ticketmaster</span><span class="dot">•</span><span>3週間前</span></div>
+            </div>
+            <div class="alert-price down">$148<small>-22%</small></div>
+          </div>
+        </section>
+
+        <!-- Page 4: Detail -->
+        <section class="screen-page" data-page="detail">
+          <div class="page-header">
+            <div>
+              <div class="page-title" style="font-size:20px">Lakers vs Warriors</div>
+              <div class="page-subtitle">Ticketmaster · Section 116</div>
+            </div>
+          </div>
+
+          <div class="detail-hero">
+            <div class="name">現在価格</div>
+            <div class="price">$312<small>USD</small></div>
+            <div class="delta-pill">▼ -8% (過去24h) / 最安 $248 から +26%</div>
+          </div>
+
+          <div class="main-chart">
+            <div class="chart-legend">
+              <div class="lg"><span class="swatch cyan"></span>該当席</div>
+              <div class="lg"><span class="swatch pink"></span>市場最安</div>
+            </div>
+            <svg viewBox="0 0 320 180" preserveAspectRatio="none" style="width:100%;height:100%;">
+              <defs>
+                <linearGradient id="gMain1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#00E5FF" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="gMain2" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#FF3B6B" stop-opacity="0.2"/>
+                  <stop offset="100%" stop-color="#FF3B6B" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- grid -->
+              <line x1="0" y1="40" x2="320" y2="40" stroke="#1F2A44" stroke-width="1" stroke-dasharray="2 4"/>
+              <line x1="0" y1="90" x2="320" y2="90" stroke="#1F2A44" stroke-width="1" stroke-dasharray="2 4"/>
+              <line x1="0" y1="140" x2="320" y2="140" stroke="#1F2A44" stroke-width="1" stroke-dasharray="2 4"/>
+              <!-- threshold line -->
+              <line x1="0" y1="100" x2="320" y2="100" stroke="#FF3B6B" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.55"/>
+              <text x="6" y="96" font-size="9" fill="#FF3B6B" font-family="JetBrains Mono">閾値 $300</text>
+              <!-- cyan series (target seat) -->
+              <path d="M0,60 L20,68 L40,55 L60,72 L80,80 L100,75 L120,90 L140,88 L160,95 L180,92 L200,100 L220,108 L240,102 L260,118 L280,112 L300,120 L320,115 L320,180 L0,180 Z" fill="url(#gMain1)"/>
+              <path d="M0,60 L20,68 L40,55 L60,72 L80,80 L100,75 L120,90 L140,88 L160,95 L180,92 L200,100 L220,108 L240,102 L260,118 L280,112 L300,120 L320,115" fill="none" stroke="#00E5FF" stroke-width="2"/>
+              <!-- pink series (market low) -->
+              <path d="M0,80 L20,85 L40,82 L60,88 L80,95 L100,92 L120,108 L140,112 L160,118 L180,115 L200,128 L220,135 L240,128 L260,140 L280,138 L300,148 L320,142" fill="none" stroke="#FF3B6B" stroke-width="2"/>
+              <!-- end dot -->
+              <circle cx="320" cy="115" r="4" fill="#00E5FF"/>
+              <circle cx="320" cy="115" r="8" fill="#00E5FF" opacity="0.25"/>
+            </svg>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-card">
+              <div class="stat-label">最安値</div>
+              <div class="stat-val accent">$248</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">現在値</div>
+              <div class="stat-val">$312</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">差分</div>
+              <div class="stat-val alert">-20%</div>
+            </div>
+          </div>
+
+          <button class="secondary-btn">閾値を編集</button>
+          <button class="secondary-btn danger">監視を解除</button>
+        </section>
+
+        <!-- Page 5: Settings -->
+        <section class="screen-page" data-page="settings">
+          <div class="page-header">
+            <div>
+              <div class="page-title">設定</div>
+              <div class="page-subtitle">プランと通知をカスタマイズ</div>
+            </div>
+          </div>
+
+          <div class="section-title">プラン</div>
+          <div class="plan-card active">
+            <div class="radio-circle"></div>
+            <div class="plan-info">
+              <h4>Free <span class="badge">現在</span></h4>
+              <p>3 件まで監視 / 1時間おきにチェック</p>
+            </div>
+            <div class="plan-price">$0<small>/mo</small></div>
+          </div>
+          <div class="plan-card">
+            <div class="radio-circle"></div>
+            <div class="plan-info">
+              <h4>Pro</h4>
+              <p>50 件まで監視 / 5分おき / Slack通知</p>
+            </div>
+            <div class="plan-price">$9.99<small>/mo</small></div>
+          </div>
+          <div class="plan-card">
+            <div class="radio-circle"></div>
+            <div class="plan-info">
+              <h4>Unlimited</h4>
+              <p>無制限 / リアルタイム / API access</p>
+            </div>
+            <div class="plan-price">$29.99<small>/mo</small></div>
+          </div>
+
+          <div class="section-title">通知</div>
+          <div class="toggle-row">
+            <div class="label">
+              <div class="icon">🔔</div>
+              <div class="name">Push 通知</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="label">
+              <div class="icon">✉️</div>
+              <div class="name">Email</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="label">
+              <div class="icon">💬</div>
+              <div class="name">Slack</div>
+            </div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+
+          <div class="section-title">通貨</div>
+          <div class="currency-row">
+            <div class="radio-pill active">USD</div>
+            <div class="radio-pill">JPY</div>
+            <div class="radio-pill">EUR</div>
+          </div>
+
+          <div class="section-title">アカウント</div>
+          <div class="account-card">
+            <div class="email">rsensui@tekion.jp</div>
+            <div class="since">登録: 2026-01-25 · Free Plan</div>
+          </div>
+          <button class="secondary-btn danger" style="margin-top:12px;">ログアウト</button>
+          <div style="height:20px"></div>
+        </section>
+
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <button class="tab active" data-target="watch" onclick="goTo('watch')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+          <span>監視中</span>
+        </button>
+        <button class="tab" data-target="add" onclick="goTo('add')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <span>追加</span>
+        </button>
+        <button class="tab" data-target="alerts" onclick="goTo('alerts')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+          <span>アラート</span>
+        </button>
+        <button class="tab" data-target="detail" onclick="goTo('detail')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+          <span>チャート</span>
+        </button>
+        <button class="tab" data-target="settings" onclick="goTo('settings')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+          <span>設定</span>
+        </button>
+      </div>
+
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+</div>
+
+<div class="hint">Tap a tab to switch screens · 矢印キー <kbd>←</kbd><kbd>→</kbd> で切替</div>
+
+<script>
+  const order = ['watch', 'add', 'alerts', 'detail', 'settings'];
+  let current = 'watch';
+
+  function goTo(target) {
+    if (target === current) return;
+    const pages = document.querySelectorAll('.screen-page');
+    const tabs = document.querySelectorAll('.tab');
+    const fromIdx = order.indexOf(current);
+    const toIdx = order.indexOf(target);
+    const goingForward = toIdx > fromIdx;
+
+    pages.forEach(p => {
+      const name = p.dataset.page;
+      p.classList.remove('active', 'exit-left');
+      if (name === current) {
+        if (goingForward) {
+          p.classList.add('exit-left');
+        }
+      }
+      if (name === target) {
+        // pre-position
+        p.style.transform = goingForward ? 'translateX(40px)' : 'translateX(-40px)';
+        // scroll reset
+        p.scrollTop = 0;
+        // force reflow then activate
+        void p.offsetWidth;
+        p.style.transform = '';
+        p.classList.add('active');
+      }
+    });
+
+    tabs.forEach(t => {
+      t.classList.toggle('active', t.dataset.target === target);
+    });
+
+    current = target;
+  }
+
+  // keyboard nav
+  document.addEventListener('keydown', (e) => {
+    const idx = order.indexOf(current);
+    if (e.key === 'ArrowRight' && idx < order.length - 1) goTo(order[idx + 1]);
+    if (e.key === 'ArrowLeft' && idx > 0) goTo(order[idx - 1]);
+  });
+</script>
+
+</body>
+</html>
+<!-- PriceRadar mock app -->

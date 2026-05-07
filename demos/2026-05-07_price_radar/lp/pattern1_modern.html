@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PriceRadar | ダイナミックプライシング監視 - もう価格チェックしなくていい</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0A0E1A;
+    --bg-alt: #0F1729;
+    --bg-elev: #131C33;
+    --accent: #00E5FF;
+    --accent-dim: #00B8CC;
+    --alert: #FF3B6B;
+    --alert-dim: #CC2F55;
+    --success: #3DFFA3;
+    --text: #E6F0FF;
+    --text-sub: #7B8BAB;
+    --text-mute: #4A5878;
+    --border: #1F2A44;
+    --border-bright: #2C3A5C;
+    --grid-line: rgba(0, 229, 255, 0.06);
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+  }
+
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .container { max-width: 1240px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* ===== Header ===== */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(10, 14, 26, 0.7);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.02em;
+  }
+  .logo-mark {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent) 0%, #0099FF 100%);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 24px rgba(0, 229, 255, 0.4);
+    position: relative;
+  }
+  .logo-mark::before {
+    content: '';
+    width: 16px; height: 16px;
+    border: 2px solid var(--bg);
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 2s linear infinite;
+  }
+  .logo-mark::after {
+    content: '';
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--bg);
+  }
+  .logo span.brand-accent { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-sub);
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  .nav-cta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .btn-ghost {
+    padding: 8px 14px;
+    color: var(--text-sub);
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--text); }
+  .btn-primary {
+    padding: 10px 20px;
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    transition: all 0.2s;
+    box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.5);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary:hover {
+    box-shadow: 0 0 24px rgba(0, 229, 255, 0.6);
+    transform: translateY(-1px);
+  }
+  .btn-primary.large {
+    padding: 16px 28px;
+    font-size: 16px;
+  }
+  .btn-secondary {
+    padding: 14px 24px;
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    background: rgba(0, 229, 255, 0.05);
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    position: relative;
+    padding: 140px 0 100px;
+    overflow: hidden;
+  }
+  .hero-bg-radar {
+    position: absolute;
+    top: 50%;
+    right: -200px;
+    transform: translateY(-50%);
+    width: 900px;
+    height: 900px;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.5;
+    z-index: 0;
+  }
+  .hero-bg-radar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0%, rgba(0, 229, 255, 0.18) 8%, transparent 25%);
+    animation: radar-spin 4s linear infinite;
+  }
+  .hero-bg-radar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, transparent 0%, transparent 24%, rgba(0, 229, 255, 0.08) 25%, transparent 26%),
+      radial-gradient(circle, transparent 0%, transparent 49%, rgba(0, 229, 255, 0.08) 50%, transparent 51%),
+      radial-gradient(circle, transparent 0%, transparent 74%, rgba(0, 229, 255, 0.08) 75%, transparent 76%);
+  }
+  @keyframes radar-spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 48px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-bright);
+    border-radius: 100px;
+    background: rgba(0, 229, 255, 0.04);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 24px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .hero-eyebrow .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hero h1 {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: clamp(40px, 6vw, 76px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+  .hero h1 .accent {
+    background: linear-gradient(135deg, var(--accent) 0%, #66FFEE 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+  }
+  .hero h1 .strike {
+    position: relative;
+    color: var(--text-mute);
+  }
+  .hero h1 .strike::after {
+    content: '';
+    position: absolute;
+    left: -4px; right: -4px;
+    top: 52%;
+    height: 4px;
+    background: var(--alert);
+    transform: rotate(-3deg);
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--text-sub);
+    max-width: 540px;
+    margin-bottom: 36px;
+    line-height: 1.7;
+  }
+
+  .hero-cta-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  .hero-trust {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    color: var(--text-mute);
+    font-size: 13px;
+  }
+  .hero-trust span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hero-trust .check {
+    color: var(--success);
+    font-weight: 700;
+  }
+
+  /* ===== Phone Mock ===== */
+  .phone-wrap {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1200px;
+  }
+  .phone {
+    width: 320px;
+    height: 640px;
+    background: #050810;
+    border: 8px solid #1A2138;
+    border-radius: 44px;
+    padding: 14px;
+    position: relative;
+    box-shadow:
+      0 0 0 1px var(--border-bright),
+      0 40px 80px rgba(0, 0, 0, 0.6),
+      0 0 60px rgba(0, 229, 255, 0.15);
+    transform: rotateY(-8deg) rotateX(4deg);
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 18px; left: 50%;
+    transform: translateX(-50%);
+    width: 100px; height: 22px;
+    background: #0A0E1A;
+    border-radius: 100px;
+    z-index: 2;
+  }
+  .phone-screen {
+    width: 100%; height: 100%;
+    background: linear-gradient(180deg, #0A0E1A 0%, #0F1729 100%);
+    border-radius: 32px;
+    overflow: hidden;
+    padding: 50px 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .phone-status {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-bottom: 4px;
+  }
+  .phone-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .phone-header h3 {
+    font-size: 18px;
+    font-weight: 800;
+  }
+  .phone-header .live-dot {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: var(--success);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .phone-header .live-dot::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 6px var(--success);
+    animation: pulse 1.5s infinite;
+  }
+
+  .watch-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    position: relative;
+  }
+  .watch-card.alert {
+    border-color: var(--alert);
+    background: linear-gradient(135deg, rgba(255, 59, 107, 0.08), var(--bg-elev));
+    box-shadow: 0 0 16px rgba(255, 59, 107, 0.15);
+  }
+  .watch-row1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .watch-title {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .watch-vendor {
+    font-size: 9px;
+    color: var(--text-mute);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
+  }
+  .watch-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .watch-card.alert .watch-price { color: var(--alert); }
+  .watch-row2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: var(--text-sub);
+  }
+  .watch-delta {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--success);
+    font-weight: 600;
+  }
+  .watch-delta.down { color: var(--alert); }
+
+  .mini-chart {
+    height: 22px;
+    width: 60px;
+  }
+
+  .phone-banner {
+    background: linear-gradient(90deg, rgba(255, 59, 107, 0.18), rgba(255, 59, 107, 0.05));
+    border: 1px solid rgba(255, 59, 107, 0.4);
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+  }
+  .phone-banner .icon {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: var(--alert);
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .phone-banner b { color: var(--alert); }
+
+  /* ===== Section Common ===== */
+  section { padding: 100px 0; position: relative; z-index: 1; }
+  .section-eyebrow {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .section-eyebrow::before {
+    content: '// ';
+    color: var(--text-mute);
+  }
+  .section-title {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .section-sub {
+    color: var(--text-sub);
+    font-size: 17px;
+    max-width: 640px;
+    line-height: 1.7;
+  }
+  .section-head {
+    margin-bottom: 64px;
+  }
+  .section-head.center {
+    text-align: center;
+  }
+  .section-head.center .section-sub {
+    margin: 0 auto;
+  }
+
+  /* ===== Stats Section ===== */
+  .stats {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+  }
+  .stat {
+    text-align: left;
+    padding: 24px;
+    border-left: 2px solid var(--accent);
+    background: linear-gradient(90deg, rgba(0, 229, 255, 0.03), transparent);
+  }
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(36px, 4vw, 52px);
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+  }
+  .stat-value.alert { color: var(--alert); }
+  .stat-label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .stat-desc {
+    font-size: 14px;
+    color: var(--text-sub);
+    margin-top: 8px;
+  }
+
+  /* ===== Problem Section ===== */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 48px;
+  }
+  .problem-card {
+    padding: 32px 28px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, var(--alert), transparent);
+  }
+  .problem-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--alert);
+    margin-bottom: 16px;
+    letter-spacing: 0.1em;
+  }
+  .problem-stat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 16px;
+    letter-spacing: -0.04em;
+  }
+  .problem-stat .unit {
+    font-size: 28px;
+    color: var(--text-sub);
+    margin-left: 4px;
+  }
+  .problem-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .problem-card p {
+    color: var(--text-sub);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* ===== Solution / Steps ===== */
+  .solution {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .terminal {
+    max-width: 760px;
+    margin: 0 auto 64px;
+    background: #060912;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  }
+  .terminal-bar {
+    background: var(--bg-elev);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .terminal-bar .dot {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+  }
+  .terminal-bar .dot.r { background: #FF5F57; }
+  .terminal-bar .dot.y { background: #FEBC2E; }
+  .terminal-bar .dot.g { background: #27C840; }
+  .terminal-bar .title {
+    margin-left: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-sub);
+  }
+  .terminal-body {
+    padding: 22px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.85;
+  }
+  .terminal-body .prompt { color: var(--accent); }
+  .terminal-body .cmd { color: var(--text); }
+  .terminal-body .out { color: var(--text-sub); }
+  .terminal-body .ok { color: var(--success); }
+  .terminal-body .alert-c { color: var(--alert); }
+  .terminal-body .cursor {
+    display: inline-block;
+    width: 9px;
+    height: 16px;
+    background: var(--accent);
+    vertical-align: middle;
+    animation: blink 1s steps(2) infinite;
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    position: relative;
+  }
+  .step {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 28px;
+    position: relative;
+  }
+  .step-num {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--bg-elev);
+    border: 1px solid var(--accent);
+    display: grid;
+    place-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 20px;
+    font-size: 16px;
+    box-shadow: 0 0 16px rgba(0, 229, 255, 0.2);
+  }
+  .step h3 {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .step p {
+    color: var(--text-sub);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .step-icon {
+    margin-top: 20px;
+    height: 80px;
+    background: var(--bg-elev);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    display: grid;
+    place-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-sub);
+    overflow: hidden;
+    position: relative;
+  }
+  .step-icon.scan {
+    background:
+      conic-gradient(from 0deg at 50% 50%, transparent 0%, rgba(0, 229, 255, 0.25) 8%, transparent 25%),
+      var(--bg-elev);
+    animation: radar-spin 3s linear infinite;
+  }
+
+  /* ===== Features ===== */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .feature {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 32px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 229, 255, 0.1);
+  }
+  .feature-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(0, 229, 255, 0.04));
+    border: 1px solid rgba(0, 229, 255, 0.3);
+    display: grid;
+    place-items: center;
+    margin-bottom: 24px;
+    color: var(--accent);
+  }
+  .feature h3 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+  .feature p {
+    color: var(--text-sub);
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .feature-visual {
+    height: 140px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .feature-visual.viz-1 {
+    padding: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-sub);
+    line-height: 1.6;
+  }
+  .feature-visual.viz-1 .url {
+    color: var(--accent);
+    word-break: break-all;
+  }
+  .feature-visual.viz-1 .ok-line {
+    color: var(--success);
+    margin-top: 10px;
+  }
+  .feature-visual.viz-2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 20px;
+    gap: 10px;
+  }
+  .threshold-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 8px 12px;
+    background: var(--bg-alt);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .threshold-row .label { color: var(--text-sub); }
+  .threshold-row .value { color: var(--accent); font-weight: 700; }
+  .threshold-row.fired { border-color: var(--alert); }
+  .threshold-row.fired .value { color: var(--alert); }
+
+  .feature-visual.viz-3 svg {
+    width: 100%; height: 100%;
+  }
+
+  /* ===== Pricing ===== */
+  .pricing {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: stretch;
+  }
+  .price-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 32px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .price-card.featured {
+    border-color: var(--accent);
+    background: linear-gradient(180deg, rgba(0, 229, 255, 0.06), var(--bg) 60%);
+    box-shadow: 0 0 0 1px var(--accent), 0 24px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 229, 255, 0.15);
+    transform: scale(1.04);
+  }
+  .price-badge {
+    position: absolute;
+    top: -12px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: var(--bg);
+    padding: 4px 14px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .price-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .price-card.featured .price-name { color: var(--accent); }
+  .price-tag {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .price-tag .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .price-tag .dollar {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    color: var(--text-sub);
+    font-weight: 600;
+  }
+  .price-tag .per {
+    color: var(--text-sub);
+    font-size: 15px;
+    margin-left: 4px;
+  }
+  .price-summary {
+    color: var(--text-sub);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .price-features {
+    list-style: none;
+    margin-bottom: 32px;
+    flex: 1;
+  }
+  .price-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .price-features li .check {
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+    width: 16px; height: 16px;
+  }
+  .price-features li.muted { color: var(--text-mute); }
+  .price-features li.muted .check { color: var(--text-mute); }
+  .price-cta {
+    display: block;
+    text-align: center;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  .price-cta.primary {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .price-cta.primary:hover {
+    box-shadow: 0 0 24px rgba(0, 229, 255, 0.5);
+  }
+  .price-cta.outline {
+    border: 1px solid var(--border-bright);
+    color: var(--text);
+  }
+  .price-cta.outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ===== Testimonials ===== */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .testimonial {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 28px;
+    position: relative;
+  }
+  .testimonial::before {
+    content: '"';
+    position: absolute;
+    top: 16px; right: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 80px;
+    color: var(--accent);
+    opacity: 0.15;
+    line-height: 1;
+  }
+  .testimonial-quote {
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+  .testimonial-quote .hl {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .testimonial-foot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #0099FF);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    color: var(--bg);
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .avatar.a2 { background: linear-gradient(135deg, var(--alert), #CC4080); }
+  .avatar.a3 { background: linear-gradient(135deg, var(--success), #00CC88); color: var(--bg); }
+  .avatar.a4 { background: linear-gradient(135deg, #FFB800, #FF6B00); }
+  .testimonial-meta .handle {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .testimonial-meta .role {
+    font-size: 12px;
+    color: var(--text-sub);
+  }
+  .saved-badge {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--success);
+    background: rgba(61, 255, 163, 0.08);
+    padding: 4px 10px;
+    border-radius: 100px;
+    border: 1px solid rgba(61, 255, 163, 0.3);
+  }
+
+  /* ===== FAQ ===== */
+  .faq {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .faq-list {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  details {
+    border-bottom: 1px solid var(--border);
+    padding: 24px 0;
+  }
+  details summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    transition: color 0.2s;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary:hover { color: var(--accent); }
+  details summary .q-mark {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-size: 14px;
+    margin-right: 12px;
+  }
+  details summary .toggle {
+    width: 24px; height: 24px;
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    color: var(--text-sub);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  details[open] summary .toggle {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    transform: rotate(45deg);
+  }
+  details p {
+    color: var(--text-sub);
+    font-size: 15px;
+    line-height: 1.8;
+    padding: 16px 0 4px 24px;
+  }
+
+  /* ===== Final CTA ===== */
+  .final-cta {
+    text-align: center;
+    padding: 120px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .final-cta::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(0, 229, 255, 0.08), transparent 60%);
+    pointer-events: none;
+  }
+  .final-cta h2 {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+    line-height: 1.1;
+    position: relative;
+  }
+  .final-cta h2 .accent {
+    background: linear-gradient(135deg, var(--accent), #66FFEE);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .final-cta p {
+    font-size: 18px;
+    color: var(--text-sub);
+    margin-bottom: 36px;
+    position: relative;
+  }
+  .final-cta .hero-cta-row {
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  /* ===== Footer ===== */
+  footer {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border);
+    padding: 64px 0 32px;
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 48px;
+  }
+  .footer-about p {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-top: 16px;
+    line-height: 1.7;
+  }
+  .footer-col h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-mute);
+    margin-bottom: 16px;
+  }
+  .footer-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .footer-col a {
+    color: var(--text-sub);
+    font-size: 14px;
+    transition: color 0.2s;
+  }
+  .footer-col a:hover { color: var(--accent); }
+  .footer-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    color: var(--text-mute);
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 980px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 64px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .problem-grid, .features-grid, .steps { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .price-card.featured { transform: none; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .hero-bg-radar { width: 600px; height: 600px; right: -300px; opacity: 0.3; }
+    .phone { transform: none; }
+  }
+  @media (max-width: 540px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr; }
+    section { padding: 64px 0; }
+    .hero { padding: 110px 0 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============== HEADER ============== -->
+<header>
+  <div class="container">
+    <nav class="nav">
+      <a href="#" class="logo">
+        <div class="logo-mark"></div>
+        Price<span class="brand-accent">Radar</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">機能</a></li>
+        <li><a href="#how">仕組み</a></li>
+        <li><a href="#pricing">料金</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="#" class="btn-ghost">ログイン</a>
+        <a href="#pricing" class="btn-primary">無料で始める →</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- ============== HERO ============== -->
+<section class="hero">
+  <div class="hero-bg-radar"></div>
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="hero-eyebrow">
+          <span class="dot"></span>
+          REAL-TIME PRICE INTELLIGENCE
+        </div>
+        <h1>
+          もう<span class="strike">価格チェック</span><br>
+          しなくていい。<br>
+          <span class="accent">安くなった瞬間を、</span><br>
+          <span class="accent">逃さない。</span>
+        </h1>
+        <p class="hero-sub">
+          チケット・ホテル・航空券のURLを貼るだけ。<br>
+          PriceRadarが24時間スキャンし、あなたの設定価格を下回った瞬間にプッシュ通知。<br>
+          <strong style="color: var(--text);">Bot嫌い向け、人間派の価格監視サービス。</strong>
+        </p>
+        <div class="hero-cta-row">
+          <a href="#pricing" class="btn-primary large">14日間無料で試す →</a>
+          <a href="#how" class="btn-secondary">仕組みを見る</a>
+        </div>
+        <div class="hero-trust">
+          <span><span class="check">✓</span> クレカ不要</span>
+          <span><span class="check">✓</span> 監視3件まで永続無料</span>
+          <span><span class="check">✓</span> 自動購入なし（事故防止）</span>
+        </div>
+      </div>
+
+      <!-- Phone Mock -->
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-status">
+              <span>9:41</span>
+              <span>5G ●●●●○</span>
+            </div>
+            <div class="phone-header">
+              <h3>監視中</h3>
+              <span class="live-dot">SCANNING</span>
+            </div>
+
+            <div class="watch-card alert">
+              <div class="watch-row1">
+                <div>
+                  <div class="watch-vendor">Ticketmaster</div>
+                  <div class="watch-title">Lakers vs Warriors<br>2026-05-22</div>
+                </div>
+                <div class="watch-price">$248</div>
+              </div>
+              <div class="watch-row2">
+                <span>閾値 $300</span>
+                <span class="watch-delta down">▼ 17.3%</span>
+              </div>
+            </div>
+
+            <div class="phone-banner">
+              <div class="icon">!</div>
+              <div><b>$300以下！</b> 今が買い時です。</div>
+            </div>
+
+            <div class="watch-card">
+              <div class="watch-row1">
+                <div>
+                  <div class="watch-vendor">Booking.com</div>
+                  <div class="watch-title">Marriott NYC<br>6/12 - 6/14</div>
+                </div>
+                <div class="watch-price">$432</div>
+              </div>
+              <div class="watch-row2">
+                <span>閾値 $400</span>
+                <svg class="mini-chart" viewBox="0 0 60 22">
+                  <polyline points="0,8 10,12 20,6 30,14 40,10 50,16 60,12"
+                    fill="none" stroke="#00E5FF" stroke-width="1.5"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="watch-card">
+              <div class="watch-row1">
+                <div>
+                  <div class="watch-vendor">United Airlines</div>
+                  <div class="watch-title">SFO → NRT<br>7/3 R/T</div>
+                </div>
+                <div class="watch-price">$1,189</div>
+              </div>
+              <div class="watch-row2">
+                <span>閾値 $1,000</span>
+                <svg class="mini-chart" viewBox="0 0 60 22">
+                  <polyline points="0,4 10,8 20,10 30,7 40,12 50,9 60,14"
+                    fill="none" stroke="#00E5FF" stroke-width="1.5"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="watch-card">
+              <div class="watch-row1">
+                <div>
+                  <div class="watch-vendor">StubHub</div>
+                  <div class="watch-title">Taylor Swift<br>Eras Tour</div>
+                </div>
+                <div class="watch-price">$612</div>
+              </div>
+              <div class="watch-row2">
+                <span>閾値 $500</span>
+                <span class="watch-delta">▲ 2.1%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== STATS ============== -->
+<section class="stats" style="padding: 64px 0;">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-value" id="stat-1">12,847</div>
+        <div class="stat-label">Watching now</div>
+        <div class="stat-desc">監視中アイテム数</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value alert" id="stat-2">$2.4M</div>
+        <div class="stat-label">Total saved</div>
+        <div class="stat-desc">ユーザー累計節約額</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="stat-3">99.7%</div>
+        <div class="stat-label">Uptime</div>
+        <div class="stat-desc">監視サーバー稼働率</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="stat-4">3.2s</div>
+        <div class="stat-label">Avg latency</div>
+        <div class="stat-desc">価格変動検知から通知まで</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== PROBLEM ============== -->
+<section id="problem">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">THE PROBLEM</div>
+      <h2 class="section-title">価格は、寝てる間にも動いている。</h2>
+      <p class="section-sub">
+        ダイナミックプライシングは便利な仕組み。でも消費者側からすれば、24時間気を張り続けるなんて不可能。<br>
+        ほとんどの人は、こうやって損している。
+      </p>
+    </div>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-num">// PROBLEM_01</div>
+        <div class="problem-stat">12<span class="unit">回/日</span></div>
+        <h3>価格は1日に12回変動する</h3>
+        <p>主要チケット・宿泊サイトの平均値。需要・在庫・競合価格に応じて、あなたが見ていない時間帯に何度も上下している。</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">// PROBLEM_02</div>
+        <div class="problem-stat">73<span class="unit">%</span></div>
+        <h3>安いタイミングを逃している</h3>
+        <p>「あと$50安かったら買ったのに」が頻発。実は1日のうち数時間、希望価格を下回るウィンドウが存在することが多い。</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">// PROBLEM_03</div>
+        <div class="problem-stat">38<span class="unit">分</span></div>
+        <h3>毎日リロードに使う時間</h3>
+        <p>チケット買付層・出張族の平均。タブを開いてF5を押し続ける人生は、もう終わりにしませんか？</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== HOW IT WORKS ============== -->
+<section id="how" class="solution">
+  <div class="container">
+    <div class="section-head center">
+      <div class="section-eyebrow">HOW IT WORKS</div>
+      <h2 class="section-title">URLを貼って、3秒。</h2>
+      <p class="section-sub">あとはRadarが24時間まわす。あなたは通知が来てから動けばいい。</p>
+    </div>
+
+    <!-- Terminal -->
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="dot r"></span>
+        <span class="dot y"></span>
+        <span class="dot g"></span>
+        <span class="title">priceradar — zsh — 80×24</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="prompt">$</span> <span class="cmd">priceradar watch ticketmaster.com/lakers-warriors-2026-05-22</span></div>
+        <div class="out">→ Target captured: <span class="ok">Lakers vs Warriors @ Crypto.com Arena</span></div>
+        <div class="out">→ Current price: <span class="ok">$312.00</span></div>
+        <div class="out">→ Set threshold? [default: -10%]</div>
+        <div><span class="prompt">$</span> <span class="cmd">priceradar threshold $300</span></div>
+        <div class="out">→ Watching every 60s • Alerts via push + email</div>
+        <div class="out">→ <span class="ok">[OK]</span> Radar online. Sleep well.</div>
+        <div style="margin-top: 12px;">
+          <span class="alert-c">[14:23:08]</span> <span class="cmd">PRICE DROP</span>
+          <span class="out">→</span>
+          <span class="alert-c">$248.00</span>
+          <span class="out">(-20.5%) — sending alert<span class="cursor"></span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>URLを貼る</h3>
+        <p>監視したい商品ページのURLをコピペするだけ。チケット・ホテル・航空券・ECなど主要サイトに対応。</p>
+        <div class="step-icon mono">📋 paste → register</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>監視中</h3>
+        <p>あなたは普通に生活する。Radarが裏で60秒間隔でスキャン、価格履歴を蓄積し続ける。</p>
+        <div class="step-icon scan"></div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>通知が来る</h3>
+        <p>閾値を下回った瞬間、プッシュ通知。リンクから1タップで購入ページへ。買うかどうかは、あなたが決める。</p>
+        <div class="step-icon mono">🔔 PUSH → 1-tap buy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FEATURES ============== -->
+<section id="features">
+  <div class="container">
+    <div class="section-head center">
+      <div class="section-eyebrow">CORE FEATURES</div>
+      <h2 class="section-title">必要なものだけ、最高の精度で。</h2>
+      <p class="section-sub">価格監視に集中したシンプルな設計。余計な機能でごちゃごちゃさせません。</p>
+    </div>
+
+    <div class="features-grid">
+      <!-- F1: URL監視 -->
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </div>
+        <h3>URL監視</h3>
+        <p>主要EC/チケット/旅行サイトのURLを貼るだけで自動登録。サイト構造変更にも自動追従、メンテ不要。</p>
+        <div class="feature-visual viz-1">
+          <div>$ priceradar add</div>
+          <div class="url">→ ticketmaster.com/lakers</div>
+          <div class="url">→ booking.com/marriott-nyc</div>
+          <div class="url">→ united.com/SFO-NRT</div>
+          <div class="ok-line">[3 watchers active ✓]</div>
+        </div>
+      </div>
+
+      <!-- F2: 閾値アラート -->
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+          </svg>
+        </div>
+        <h3>閾値アラート</h3>
+        <p>「$300以下」「20%下落」「過去30日最安値」など、柔軟な条件設定。プッシュ・メール・Slackから選べる通知。</p>
+        <div class="feature-visual viz-2">
+          <div class="threshold-row">
+            <span class="label">price ≤</span>
+            <span class="value">$300</span>
+          </div>
+          <div class="threshold-row fired">
+            <span class="label">drop ≥</span>
+            <span class="value">20%</span>
+          </div>
+          <div class="threshold-row">
+            <span class="label">match</span>
+            <span class="value">30d-low</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- F3: 履歴グラフ -->
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <h3>履歴グラフ</h3>
+        <p>過去30日の価格推移を一目で。「今が本当に安いのか？」を、感覚ではなくデータで判断できる。</p>
+        <div class="feature-visual viz-3">
+          <svg viewBox="0 0 280 120" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#00E5FF" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="40" x2="280" y2="40" stroke="#1F2A44" stroke-dasharray="2 4"/>
+            <line x1="0" y1="80" x2="280" y2="80" stroke="#1F2A44" stroke-dasharray="2 4"/>
+            <path d="M 0,50 L 20,55 L 40,40 L 60,60 L 80,52 L 100,68 L 120,45 L 140,72 L 160,55 L 180,90 L 200,82 L 220,95 L 240,75 L 260,98 L 280,85 L 280,120 L 0,120 Z"
+              fill="url(#g1)"/>
+            <polyline points="0,50 20,55 40,40 60,60 80,52 100,68 120,45 140,72 160,55 180,90 200,82 220,95 240,75 260,98 280,85"
+              fill="none" stroke="#00E5FF" stroke-width="2"/>
+            <circle cx="260" cy="98" r="4" fill="#FF3B6B" stroke="#0A0E1A" stroke-width="2"/>
+            <text x="245" y="115" fill="#FF3B6B" font-family="JetBrains Mono" font-size="9" font-weight="700">$248 ▼</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bonus features list -->
+    <div style="margin-top: 48px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+      <div style="padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-alt); display: flex; align-items: center; gap: 16px;">
+        <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(0, 229, 255, 0.1); display: grid; place-items: center; color: var(--accent); flex-shrink: 0;">☀</div>
+        <div>
+          <h4 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">朝イチダイジェスト</h4>
+          <p style="font-size: 13px; color: var(--text-sub); margin: 0;">毎朝7:00、監視中アイテムの24時間サマリーを配信。</p>
+        </div>
+      </div>
+      <div style="padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-alt); display: flex; align-items: center; gap: 16px;">
+        <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(255, 59, 107, 0.1); display: grid; place-items: center; color: var(--alert); flex-shrink: 0;">🛡</div>
+        <div>
+          <h4 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">自動購入はしない</h4>
+          <p style="font-size: 13px; color: var(--text-sub); margin: 0;">事故防止のため最終決定は必ず人間が。Botじゃない、Radar。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== PRICING ============== -->
+<section id="pricing" class="pricing">
+  <div class="container">
+    <div class="section-head center">
+      <div class="section-eyebrow">PRICING</div>
+      <h2 class="section-title">無料で試せる。続けても、安い。</h2>
+      <p class="section-sub">節約額がサブスク代を上回らなかった月は、サポートまでご連絡ください。</p>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Free -->
+      <div class="price-card">
+        <div class="price-name">Free</div>
+        <div class="price-tag">
+          <span class="num">0</span>
+          <span class="per">永続無料</span>
+        </div>
+        <p class="price-summary">まずは試してみたい人へ。3件まで永続的に監視できます。</p>
+        <ul class="price-features">
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> 監視 3件まで</li>
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> プッシュ + メール通知</li>
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> 過去7日履歴</li>
+          <li class="muted"><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> 朝イチダイジェスト</li>
+          <li class="muted"><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> Slack/Discord連携</li>
+        </ul>
+        <a href="#" class="price-cta outline">無料で始める</a>
+      </div>
+
+      <!-- Pro -->
+      <div class="price-card featured">
+        <div class="price-badge">★ MOST POPULAR</div>
+        <div class="price-name">Pro</div>
+        <div class="price-tag">
+          <span class="dollar">$</span>
+          <span class="num">9.99</span>
+          <span class="per">/月</span>
+        </div>
+        <p class="price-summary">出張族・チケット買付層向け。これだけで元が取れる人がほとんど。</p>
+        <ul class="price-features">
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> <strong>監視 50件まで</strong></li>
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> プッシュ + メール + Slack通知</li>
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> 過去30日履歴グラフ</li>
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> 朝イチダイジェスト</li>
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> 高度な閾値ロジック</li>
+        </ul>
+        <a href="#" class="price-cta primary">14日間無料で試す →</a>
+      </div>
+
+      <!-- Unlimited -->
+      <div class="price-card">
+        <div class="price-name">Unlimited</div>
+        <div class="price-tag">
+          <span class="dollar">$</span>
+          <span class="num">29.99</span>
+          <span class="per">/月</span>
+        </div>
+        <p class="price-summary">パワーユーザー・転売対策チーム向け。すべて無制限。</p>
+        <ul class="price-features">
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> <strong>監視 無制限</strong></li>
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> 全通知チャネル + Webhook</li>
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> 過去365日履歴 + CSV出力</li>
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> APIアクセス</li>
+          <li><svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3,8 7,12 13,4"/></svg> 優先サポート</li>
+        </ul>
+        <a href="#" class="price-cta outline">Unlimitedを試す</a>
+      </div>
+    </div>
+
+    <p style="text-align: center; color: var(--text-mute); font-size: 13px; margin-top: 32px; font-family: 'JetBrains Mono', monospace;">
+      // 全プラン クレカ不要で開始 • いつでもキャンセル可能 • 年額プランで2ヶ月分お得
+    </p>
+  </div>
+</section>
+
+<!-- ============== TESTIMONIALS ============== -->
+<section id="voices">
+  <div class="container">
+    <div class="section-head center">
+      <div class="section-eyebrow">USER VOICES</div>
+      <h2 class="section-title">実際に使っている人の声。</h2>
+      <p class="section-sub">節約額のセルフレポートを許可してもらった抜粋です。</p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial">
+        <p class="testimonial-quote">
+          NBAプレーオフのチケット、 <span class="hl">$420 → $268</span> に下がった瞬間に通知。即買って、隣の友達は$400で買ってた。差額で寿司食えた。
+        </p>
+        <div class="testimonial-foot">
+          <div class="avatar">J</div>
+          <div class="testimonial-meta">
+            <div class="handle">@court_side_jay</div>
+            <div class="role">NBAファン / LA</div>
+          </div>
+          <div class="saved-badge">SAVED $152</div>
+        </div>
+      </div>
+
+      <div class="testimonial">
+        <p class="testimonial-quote">
+          毎月10回飛ぶ出張族。航空券の監視を全部任せたら、 <span class="hl">月平均$340節約</span>。Pro $9.99がアホみたいに安く感じる。
+        </p>
+        <div class="testimonial-foot">
+          <div class="avatar a2">M</div>
+          <div class="testimonial-meta">
+            <div class="handle">@road_warrior_m</div>
+            <div class="role">Sales / SF</div>
+          </div>
+          <div class="saved-badge">SAVED $4,080/yr</div>
+        </div>
+      </div>
+
+      <div class="testimonial">
+        <p class="testimonial-quote">
+          Bot系ツールは怖くて使えなかった派。<span class="hl">「自動購入しない」のが安心</span>。通知から自分で買う、これくらいでちょうどいい。
+        </p>
+        <div class="testimonial-foot">
+          <div class="avatar a3">S</div>
+          <div class="testimonial-meta">
+            <div class="handle">@simple_shopper</div>
+            <div class="role">Concert-goer / NYC</div>
+          </div>
+          <div class="saved-badge">SAVED $89</div>
+        </div>
+      </div>
+
+      <div class="testimonial">
+        <p class="testimonial-quote">
+          ハネムーンのホテル、3ヶ月前から監視してたら <span class="hl">$220/泊 → $148/泊</span> に。8泊で$576浮いた。レストラン2回追加できた。
+        </p>
+        <div class="testimonial-foot">
+          <div class="avatar a4">K</div>
+          <div class="testimonial-meta">
+            <div class="handle">@kana_traveler</div>
+            <div class="role">Honeymoon planner</div>
+          </div>
+          <div class="saved-badge">SAVED $576</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FAQ ============== -->
+<section id="faq" class="faq">
+  <div class="container">
+    <div class="section-head center">
+      <div class="section-eyebrow">FAQ</div>
+      <h2 class="section-title">よくある質問</h2>
+    </div>
+
+    <div class="faq-list">
+      <details open>
+        <summary>
+          <span><span class="q-mark">Q01.</span>どんなサイトに対応していますか？</span>
+          <span class="toggle">+</span>
+        </summary>
+        <p>主要なチケット (Ticketmaster, StubHub, SeatGeek)、ホテル (Booking.com, Expedia, Hotels.com, Marriott, Hilton)、航空券 (Google Flights, Kayak, 各航空会社直販)、EC (Amazon, BestBuy, Apple) などに対応。対応していないサイトもURLを送っていただければ、48時間以内に対応可否をお返事します。</p>
+      </details>
+
+      <details>
+        <summary>
+          <span><span class="q-mark">Q02.</span>Botとは何が違うんですか？</span>
+          <span class="toggle">+</span>
+        </summary>
+        <p>PriceRadarは「監視と通知」専用です。<strong>自動購入は一切しません</strong>。これは技術的にできないのではなく、設計思想です。最終的に「買う/買わない」を決めるのは人間のあなた。これにより、規約違反のリスク・誤購入の事故・発券エラー時のトラブルをすべて回避できます。Bot嫌いな方にも安心して使っていただけます。</p>
+      </details>
+
+      <details>
+        <summary>
+          <span><span class="q-mark">Q03.</span>監視はどれくらいの頻度で実行されますか？</span>
+          <span class="toggle">+</span>
+        </summary>
+        <p>Free: 5分間隔 / Pro: 60秒間隔 / Unlimited: 30秒間隔。価格変動が頻繁な商品(コンサートチケット、フライト)は自動的に高頻度モードに切り替わります。サイト側に過剰な負荷をかけないよう、レートリミットを尊重した設計です。</p>
+      </details>
+
+      <details>
+        <summary>
+          <span><span class="q-mark">Q04.</span>解約はいつでもできますか？</span>
+          <span class="toggle">+</span>
+        </summary>
+        <p>はい、いつでもダッシュボードから1クリックで解約できます。解約後も、すでに登録した監視設定は次回の請求日まで使い続けられます。データのエクスポート(CSV)も無料で可能です。</p>
+      </details>
+
+      <details>
+        <summary>
+          <span><span class="q-mark">Q05.</span>支払いに対応している通貨・方法は？</span>
+          <span class="toggle">+</span>
+        </summary>
+        <p>USD/JPY/EUR/GBPの4通貨に対応。クレジットカード(Visa, Mastercard, Amex, JCB)・Apple Pay・Google Pay・PayPal で支払い可能です。請求書払いはUnlimitedプランから対応しています。</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FINAL CTA ============== -->
+<section class="final-cta">
+  <div class="container">
+    <h2>
+      もう、価格チェックは<br>
+      <span class="accent">Radarに任せていい。</span>
+    </h2>
+    <p>14日間無料トライアル。クレカ不要。3件までは永続無料。</p>
+    <div class="hero-cta-row">
+      <a href="#" class="btn-primary large">無料で始める →</a>
+      <a href="#features" class="btn-secondary">機能をもう一度見る</a>
+    </div>
+    <p class="mono" style="font-size: 12px; color: var(--text-mute); margin-top: 16px;">
+      // priceradar v2.4.1 — uptime 99.7% — 12,847 watchers active
+    </p>
+  </div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-about">
+        <a href="#" class="logo">
+          <div class="logo-mark"></div>
+          Price<span class="brand-accent">Radar</span>
+        </a>
+        <p>ダイナミックプライシング監視SaaS。安くなった瞬間を、逃さない。Bot嫌い向け、人間派の価格監視サービス。</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">機能</a></li>
+          <li><a href="#pricing">料金</a></li>
+          <li><a href="#how">仕組み</a></li>
+          <li><a href="#">対応サイト</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">運営会社</a></li>
+          <li><a href="#">ブログ</a></li>
+          <li><a href="#">採用情報</a></li>
+          <li><a href="#">お問い合わせ</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">利用規約</a></li>
+          <li><a href="#">プライバシー</a></li>
+          <li><a href="#">特商法表記</a></li>
+          <li><a href="#">セキュリティ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 PriceRadar Inc. All rights reserved.</div>
+      <div>// built for humans, not bots.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Animated counters for stats section
+  (function() {
+    const targets = [
+      { id: 'stat-1', end: 12847, prefix: '', suffix: '', commas: true },
+      { id: 'stat-2', end: 2.4, prefix: '$', suffix: 'M', decimals: 1 },
+      { id: 'stat-3', end: 99.7, prefix: '', suffix: '%', decimals: 1 },
+      { id: 'stat-4', end: 3.2, prefix: '', suffix: 's', decimals: 1 }
+    ];
+    const duration = 1600;
+    let started = false;
+
+    function animate() {
+      if (started) return;
+      started = true;
+      const start = performance.now();
+      function frame(now) {
+        const t = Math.min(1, (now - start) / duration);
+        const ease = 1 - Math.pow(1 - t, 3);
+        targets.forEach(tg => {
+          const el = document.getElementById(tg.id);
+          if (!el) return;
+          const v = tg.end * ease;
+          let str;
+          if (tg.decimals) str = v.toFixed(tg.decimals);
+          else if (tg.commas) str = Math.floor(v).toLocaleString('en-US');
+          else str = Math.floor(v).toString();
+          el.textContent = (tg.prefix || '') + str + (tg.suffix || '');
+        });
+        if (t < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    const statsEl = document.querySelector('.stats');
+    if (!statsEl) return;
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) animate(); });
+      }, { threshold: 0.3 });
+      io.observe(statsEl);
+    } else {
+      animate();
+    }
+
+    // Tiny fluctuation on the "watching" counter after animation
+    setTimeout(() => {
+      const el = document.getElementById('stat-1');
+      if (!el) return;
+      let n = 12847;
+      setInterval(() => {
+        n += Math.floor(Math.random() * 7) - 2;
+        if (n < 12800) n = 12800;
+        el.textContent = n.toLocaleString('en-US');
+      }, 2400);
+    }, duration + 400);
+  })();
+</script>
+</body>
+</html>
+<!-- Pattern 1 - Modern Tech -->

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PriceRadar | アプリ入れて、寝てよ。</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>/* ========== Reset & Base ========== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }html { scroll-behavior: smooth; }:root {
+    --bg: #FFF8EE; --bg-alt: #FFFFFF; --primary: #FF6B5B; --primary-dark: #E8553F; --secondary: #5BC9B0; --secondary-dark: #3FA68E; --yellow: #FFD45E; --yellow-dark: #F5BC2A; --ink: #2C2419; --text-sub: #7A6F5F; --line-gray: #ECE5D6; --shadow-sm: 0 4px 0 rgba(44, 36, 25, 0.08); --shadow-md: 0 8px 0 rgba(44, 36, 25, 0.10), 0 12px 24px rgba(44, 36, 25, 0.08); --shadow-lg: 0 12px 0 rgba(44, 36, 25, 0.12), 0 20px 40px rgba(44, 36, 25, 0.10);
+  }body { font-family: 'Zen Maru Gothic', 'Quicksand', system-ui, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.7; overflow-x: hidden; font-weight: 500; }a { color: inherit; text-decoration: none; }button { font-family: inherit; cursor: pointer; border: none; background: none; }img { max-width: 100%; display: block; }/* ========== Decorative dots background ========== */
+  body::before {
+    content: ''; position: fixed; inset: 0; background-image:
+      radial-gradient(circle, rgba(255, 107, 91, 0.06) 1.5px, transparent 1.5px),
+      radial-gradient(circle, rgba(91, 201, 176, 0.05) 1.5px, transparent 1.5px); background-size: 32px 32px, 48px 48px; background-position: 0 0, 16px 16px; pointer-events: none; z-index: 0;
+  }/* ========== Layout ========== */
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }section { position: relative; padding: 110px 0; }/* ========== Header ========== */
+  .header {
+    position: sticky; top: 0; z-index: 100; background: rgba(255, 248, 238, 0.92); backdrop-filter: blur(12px); border-bottom: 2px dashed var(--line-gray); padding: 16px 0;
+  }.header-inner { display: flex; align-items: center; justify-content: space-between; max-width: 1180px; margin: 0 auto; padding: 0 24px; }.logo { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 22px; transition: transform 0.3s cubic-bezier(.34,1.56,.64,1); }.logo:hover { transform: rotate(-3deg) scale(1.05); }.logo-mark {
+    width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: grid; place-items: center; color: white; font-size: 22px; box-shadow: var(--shadow-sm); border: 3px solid var(--ink); transform: rotate(-8deg);
+  }.nav-links { display: flex; gap: 28px; align-items: center; font-weight: 700; }.nav-links a { transition: color 0.2s; font-size: 15px; }.nav-links a:hover { color: var(--primary); }.btn-download {
+    background: var(--primary); color: white !important; padding: 10px 22px; border-radius: 999px; font-weight: 900; border: 3px solid var(--ink); box-shadow: var(--shadow-sm); transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
+  }.btn-download:hover { transform: translateY(-3px) rotate(-2deg); box-shadow: 0 7px 0 rgba(44, 36, 25, 0.12); }
+  @media (max-width: 720px) {.nav-links a:not(.btn-download) { display: none; }
+  }/* ========== Hero ========== */
+  .hero { padding: 80px 0 140px; overflow: hidden; }.hero-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center; }.hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px; background: var(--yellow); border: 3px solid var(--ink); border-radius: 999px; padding: 8px 18px; font-weight: 900; font-size: 14px; box-shadow: var(--shadow-sm); transform: rotate(-2deg); margin-bottom: 24px;
+  }.hero h1 { font-size: clamp(40px, 6.2vw, 76px); line-height: 1.15; font-weight: 900; letter-spacing: -0.01em; margin-bottom: 28px; position: relative; }.hero h1 .accent { position: relative; color: var(--primary); display: inline-block; }.hero h1 .accent svg.scribble { position: absolute; left: -4%; bottom: -10px; width: 108%; height: auto; pointer-events: none; }.hero h1 .ink-bg { position: relative; display: inline-block; background: var(--yellow); padding: 0 12px; border-radius: 8px; transform: rotate(-1.5deg); }.hero p.lead { font-size: 19px; color: var(--text-sub); margin-bottom: 36px; max-width: 520px; font-weight: 500; }.hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 28px; }.btn-primary {
+    background: var(--primary); color: white; padding: 18px 32px; border-radius: 999px; font-size: 17px; font-weight: 900; border: 3px solid var(--ink); box-shadow: var(--shadow-md); transition: all 0.3s cubic-bezier(.34,1.56,.64,1); display: inline-flex; align-items: center; gap: 10px;
+  }.btn-primary:hover { transform: translateY(-4px) rotate(-1deg); box-shadow: 0 12px 0 rgba(44, 36, 25, 0.12), 0 16px 32px rgba(255, 107, 91, 0.25); }.btn-secondary {
+    background: white; color: var(--ink); padding: 18px 28px; border-radius: 999px; font-size: 16px; font-weight: 700; border: 3px solid var(--ink); box-shadow: var(--shadow-sm); transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
+  }.btn-secondary:hover { transform: translateY(-3px); background: var(--yellow); }.hero-perks { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; color: var(--text-sub); font-weight: 700; }.hero-perks span { display: inline-flex; align-items: center; gap: 6px; }.hero-perks span::before { content: '✓'; color: var(--secondary); font-weight: 900; font-size: 16px; }/* Hero phone mockup */
+  .hero-visual { position: relative; height: 560px; display: flex; justify-content: center; align-items: center; }.phone {
+    width: 280px; height: 560px; background: var(--ink); border-radius: 44px; padding: 14px; box-shadow:
+      0 20px 0 rgba(44, 36, 25, 0.12),
+      0 30px 60px rgba(44, 36, 25, 0.18); transform: rotate(6deg); position: relative; z-index: 2; transition: transform 0.5s cubic-bezier(.34,1.56,.64,1);
+  }.phone:hover { transform: rotate(2deg) translateY(-8px); }.phone-notch {
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 100px; height: 22px; background: var(--ink); border-radius: 0 0 14px 14px; z-index: 3;
+  }.phone-screen {
+    width: 100%; height: 100%; background: linear-gradient(160deg, #FFF8EE 0%, #FFE9D5 100%); border-radius: 32px; padding: 36px 18px 18px; overflow: hidden; position: relative;
+  }.phone-time { text-align: center; font-weight: 900; font-size: 13px; color: var(--ink); margin-bottom: 18px; }.phone-card { background: white; border: 2.5px solid var(--ink); border-radius: 20px; padding: 14px; margin-bottom: 12px; box-shadow: 0 4px 0 rgba(44, 36, 25, 0.10); }.phone-card.alert { background: var(--yellow); transform: rotate(-1.5deg); animation: wiggle 3s ease-in-out infinite; }
+  @keyframes wiggle {0%, 100% { transform: rotate(-1.5deg); }50% { transform: rotate(1.5deg); }
+  }.phone-card-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 4px; }.phone-card-name { font-size: 14px; font-weight: 900; color: var(--ink); margin-bottom: 6px; }.phone-card-prices { display: flex; align-items: center; gap: 10px; }.phone-card .old { text-decoration: line-through; color: var(--text-sub); font-size: 13px; }.phone-card .new { color: var(--primary); font-size: 19px; font-weight: 900; }.phone-chart { background: white; border: 2.5px solid var(--ink); border-radius: 20px; padding: 14px; margin-top: 12px; box-shadow: 0 4px 0 rgba(44, 36, 25, 0.10); }.phone-chart-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }.chart-svg { width: 100%; height: 60px; }/* Hero floating decorations */
+  .hero-deco { position: absolute; pointer-events: none; font-weight: 900; }.deco-1 {
+    top: 6%; left: 4%; width: 56px; height: 56px; background: var(--secondary); border: 3px solid var(--ink); border-radius: 18px; display: grid; place-items: center; font-size: 28px; transform: rotate(-12deg); box-shadow: var(--shadow-sm); animation: float 4s ease-in-out infinite;
+  }.deco-2 {
+    top: 14%; right: 8%; background: var(--yellow); border: 3px solid var(--ink); border-radius: 999px; padding: 8px 16px; font-size: 13px; transform: rotate(8deg); box-shadow: var(--shadow-sm); font-weight: 900;
+  }.deco-3 { bottom: 10%; left: 0; font-size: 32px; transform: rotate(-15deg); animation: float 3.5s ease-in-out infinite reverse; }.deco-4 {
+    bottom: 14%; right: -2%; background: var(--primary); color: white; border: 3px solid var(--ink); border-radius: 16px; padding: 10px 14px; font-size: 13px; font-weight: 900; transform: rotate(-6deg); box-shadow: var(--shadow-sm);
+  }.deco-5 {
+    top: 38%; right: 2%; width: 36px; height: 36px; background: var(--yellow); border-radius: 50%; border: 3px solid var(--ink); box-shadow: var(--shadow-sm);
+  }.deco-star { position: absolute; color: var(--primary); font-size: 24px; pointer-events: none; }.deco-star.s1 { top: 22%; left: 14%; transform: rotate(20deg); animation: spin 8s linear infinite; }.deco-star.s2 { top: 60%; right: 18%; transform: rotate(-30deg); animation: spin 10s linear infinite reverse; }.deco-star.s3 { bottom: 28%; left: 38%; color: var(--secondary); animation: spin 12s linear infinite; }
+  @keyframes float {0%, 100% { transform: translateY(0) rotate(-12deg); }50% { transform: translateY(-12px) rotate(-8deg); }
+  }
+  @keyframes spin {from { transform: rotate(0deg); }to { transform: rotate(360deg); }
+  }
+  @media (max-width: 880px) {.hero-grid { grid-template-columns: 1fr; }.hero-visual { height: 480px; margin-top: 32px; }.phone { width: 240px; height: 480px; }
+  }/* ========== Section Headings ========== */
+  .section-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px; background: white; border: 3px solid var(--ink); border-radius: 999px; padding: 6px 16px; font-weight: 900; font-size: 13px; box-shadow: var(--shadow-sm); margin-bottom: 18px; transform: rotate(-2deg);
+  }.section-eyebrow.coral { background: var(--primary); color: white; }.section-eyebrow.mint { background: var(--secondary); color: white; }.section-eyebrow.yellow { background: var(--yellow); }.section-title { font-size: clamp(32px, 4.6vw, 52px); line-height: 1.2; font-weight: 900; margin-bottom: 18px; }.section-sub { font-size: 17px; color: var(--text-sub); max-width: 620px; margin-bottom: 56px; }.section-head { text-align: center; margin: 0 auto; max-width: 720px; }.section-head .section-sub { margin-left: auto; margin-right: auto; }/* ========== Problem Section (LINE風) ========== */
+  .problem { background: linear-gradient(180deg, var(--bg) 0%, #FFEFD9 100%); padding: 110px 0; }.problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }.chat-window {
+    background: #E5DDD5; border: 3px solid var(--ink); border-radius: 24px; padding: 28px 22px; box-shadow: var(--shadow-md); position: relative; transform: rotate(-1.5deg);
+  }.chat-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 2px dashed rgba(44, 36, 25, 0.15); }.chat-avatar-grp { display: flex; }.chat-avatar-grp .avatar { width: 36px; height: 36px; border-radius: 50%; border: 2px solid white; margin-left: -8px; }.chat-avatar-grp .avatar:first-child { margin-left: 0; }.chat-name { font-weight: 900; font-size: 14px; }.chat-msg {
+    background: white; border-radius: 18px; padding: 12px 16px; margin-bottom: 14px; max-width: 85%; font-size: 15px; box-shadow: 0 2px 0 rgba(44, 36, 25, 0.06); position: relative; border: 2px solid var(--ink);
+  }.chat-msg::before { content: ''; position: absolute; left: -10px; top: 14px; border: 8px solid transparent; border-right-color: var(--ink); }.chat-msg::after { content: ''; position: absolute; left: -7px; top: 14px; border: 8px solid transparent; border-right-color: white; }.chat-time { font-size: 11px; color: var(--text-sub); margin-top: 4px; margin-left: 8px; }.chat-msg.user { background: var(--secondary); color: white; margin-left: auto; border-color: var(--ink); }.chat-msg.user::before { display: none; }.chat-msg.user::after { display: none; }.chat-msg.user .chat-arrow { position: absolute; right: -10px; top: 14px; border: 8px solid transparent; border-left-color: var(--ink); }.chat-msg.user .chat-arrow::after { content: ''; position: absolute; left: -7px; top: -8px; border: 8px solid transparent; border-left-color: var(--secondary); }.problem-text h2 { font-size: clamp(30px, 4vw, 48px); line-height: 1.25; font-weight: 900; margin-bottom: 24px; }.problem-text h2 .hl { background: var(--yellow); padding: 0 8px; border-radius: 6px; transform: rotate(-1deg); display: inline-block; }.problem-text p { font-size: 17px; color: var(--text-sub); margin-bottom: 16px; }.problem-list { list-style: none; margin-top: 22px; }.problem-list li { padding: 12px 0 12px 38px; font-size: 16px; font-weight: 700; position: relative; border-bottom: 2px dashed var(--line-gray); }.problem-list li::before { content: '😭'; position: absolute; left: 0; top: 12px; font-size: 22px; }.problem-list li:nth-child(2)::before { content: '😩'; }.problem-list li:nth-child(3)::before { content: '🥹'; }
+  @media (max-width: 880px) {.problem-grid { grid-template-columns: 1fr; }
+  }/* ========== How It Works (3 steps) ========== */
+  .how { background: var(--bg); padding: 120px 0; }.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 32px; }.step-card {
+    background: white; border: 3px solid var(--ink); border-radius: 28px; padding: 36px 28px; box-shadow: var(--shadow-md); position: relative; transition: transform 0.4s cubic-bezier(.34,1.56,.64,1);
+  }.step-card:hover { transform: translateY(-8px) rotate(-1deg); }.step-card:nth-child(2) { transform: translateY(20px); }.step-card:nth-child(2):hover { transform: translateY(12px) rotate(1deg); }.step-num {
+    position: absolute; top: -18px; left: 24px; width: 50px; height: 50px; background: var(--ink); color: var(--yellow); border-radius: 50%; display: grid; place-items: center; font-size: 22px; font-weight: 900; border: 3px solid var(--ink); transform: rotate(-6deg);
+  }.step-emoji { font-size: 64px; margin-bottom: 16px; display: block; line-height: 1; }.step-card h3 { font-size: 22px; font-weight: 900; margin-bottom: 10px; position: relative; display: inline-block; }.step-card h3 .underline { position: absolute; left: 0; bottom: -4px; width: 100%; }.step-card p { font-size: 15px; color: var(--text-sub); line-height: 1.7; }.step-card .tag {
+    display: inline-block; background: var(--yellow); border: 2px solid var(--ink); border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 900; margin-top: 16px; transform: rotate(-2deg);
+  }
+  @media (max-width: 880px) {.steps { grid-template-columns: 1fr; }.step-card:nth-child(2) { transform: none; }.step-card:nth-child(2):hover { transform: translateY(-8px); }
+  }/* ========== Features (大きなカード) ========== */
+  .features { background: linear-gradient(180deg, #FFEFD9 0%, var(--bg) 100%); padding: 130px 0; }.feature-stack { display: flex; flex-direction: column; gap: 80px; margin-top: 56px; }.feature-row { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }.feature-row.flip { direction: rtl; }.feature-row.flip > * { direction: ltr; }.feature-visual {
+    position: relative; aspect-ratio: 4 / 3; border-radius: 32px; border: 3px solid var(--ink); box-shadow: var(--shadow-lg); padding: 32px; overflow: hidden;
+  }.feature-visual.coral { background: var(--primary); }.feature-visual.mint { background: var(--secondary); }.feature-visual.yellow { background: var(--yellow); }.feature-emoji { font-size: 110px; text-align: center; line-height: 1; margin-top: 20px; filter: drop-shadow(0 4px 0 rgba(44, 36, 25, 0.18)); }.feature-stamp {
+    position: absolute; background: white; border: 3px solid var(--ink); border-radius: 999px; padding: 10px 18px; font-weight: 900; font-size: 14px; box-shadow: var(--shadow-sm);
+  }.feature-stamp.tl { top: 18px; left: 18px; transform: rotate(-8deg); }.feature-stamp.tr { top: 18px; right: 18px; transform: rotate(6deg); }.feature-stamp.br { bottom: 18px; right: 18px; transform: rotate(-4deg); background: var(--ink); color: var(--yellow); }.feature-mini-card {
+    position: absolute; bottom: 26px; left: 26px; background: white; border: 2.5px solid var(--ink); border-radius: 16px; padding: 12px 14px; box-shadow: var(--shadow-sm); font-size: 13px; font-weight: 700; transform: rotate(-3deg);
+  }.feature-mini-card .big { font-size: 22px; font-weight: 900; color: var(--primary); }.feature-num {
+    display: inline-block; font-family: 'Quicksand', sans-serif; font-size: 88px; font-weight: 700; line-height: 1; background: var(--yellow); border: 3px solid var(--ink); border-radius: 22px; padding: 4px 18px; transform: rotate(-3deg); margin-bottom: 18px; box-shadow: var(--shadow-sm);
+  }.feature-content h3 { font-size: clamp(28px, 3.4vw, 40px); line-height: 1.25; font-weight: 900; margin-bottom: 16px; }.feature-content p { font-size: 17px; color: var(--text-sub); margin-bottom: 20px; }.feature-bullets { list-style: none; }.feature-bullets li { padding: 10px 0 10px 32px; position: relative; font-weight: 700; font-size: 15px; border-bottom: 2px dashed var(--line-gray); }.feature-bullets li::before { content: '⭐'; position: absolute; left: 0; top: 10px; }.feature-bullets li:nth-child(2)::before { content: '✨'; }.feature-bullets li:nth-child(3)::before { content: '🎯'; }
+  @media (max-width: 880px) {.feature-row, .feature-row.flip { grid-template-columns: 1fr; direction: ltr; gap: 32px; }
+  }/* ========== Voices (LINE風 testimonials) ========== */
+  .voices { background: var(--bg); padding: 120px 0; }.voice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }.voice-card {
+    background: white; border: 3px solid var(--ink); border-radius: 24px; padding: 26px; box-shadow: var(--shadow-md); position: relative; transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+  }.voice-card:hover { transform: translateY(-6px) rotate(-1deg); }.voice-card:nth-child(2) { background: var(--yellow); }.voice-card:nth-child(2):hover { transform: translateY(-6px) rotate(1deg); }.voice-quote { font-size: 16px; font-weight: 700; line-height: 1.7; margin-bottom: 22px; position: relative; }.voice-quote::before {
+    content: '“'; font-family: 'Quicksand', serif; font-size: 60px; color: var(--primary); position: absolute; top: -22px; left: -8px; line-height: 1; opacity: 0.4;
+  }.voice-card:nth-child(2) .voice-quote::before { color: var(--ink); }.voice-meta { display: flex; align-items: center; gap: 12px; padding-top: 16px; border-top: 2px dashed rgba(44, 36, 25, 0.15); }.voice-avatar {
+    width: 48px; height: 48px; border-radius: 50%; border: 3px solid var(--ink); display: grid; place-items: center; font-size: 22px; font-weight: 900; color: white; flex-shrink: 0;
+  }.voice-name { font-weight: 900; font-size: 14px; }.voice-role { font-size: 12px; color: var(--text-sub); }.voice-stars { color: var(--primary); font-size: 14px; margin-bottom: 6px; }.voice-card:nth-child(2) .voice-stars { color: var(--ink); }
+  @media (max-width: 880px) {.voice-grid { grid-template-columns: 1fr; }
+  }/* ========== Pricing ========== */
+  .pricing { background: linear-gradient(180deg, var(--bg) 0%, #FFEFD9 60%, var(--bg) 100%); padding: 130px 0; overflow: hidden; }.pricing-grid { display: grid; grid-template-columns: 1.05fr 1.15fr 1.05fr; gap: 24px; align-items: stretch; margin-top: 56px; }.price-card {
+    background: white; border: 3px solid var(--ink); border-radius: 28px; padding: 36px 30px; box-shadow: var(--shadow-md); position: relative; transition: transform 0.4s cubic-bezier(.34,1.56,.64,1); display: flex; flex-direction: column;
+  }.price-card:hover { transform: translateY(-6px); }.price-card.featured { background: var(--primary); color: white; border-color: var(--ink); transform: translateY(-12px) rotate(-0.8deg); box-shadow: var(--shadow-lg); }.price-card.featured:hover { transform: translateY(-18px) rotate(0deg); }.price-stamp {
+    position: absolute; top: -18px; right: -10px; background: var(--yellow); border: 3px solid var(--ink); border-radius: 999px; padding: 8px 18px; font-weight: 900; font-size: 13px; transform: rotate(8deg); box-shadow: var(--shadow-sm); z-index: 2;
+  }.price-stamp.coral { background: var(--primary); color: white; }.price-name { font-size: 22px; font-weight: 900; margin-bottom: 6px; }.price-tag { color: var(--text-sub); font-size: 14px; margin-bottom: 22px; }.price-card.featured .price-tag { color: rgba(255,255,255,0.85); }.price-amount { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }.price-amount .num { font-family: 'Quicksand', sans-serif; font-size: 56px; font-weight: 700; line-height: 1; }.price-amount .unit { font-size: 14px; font-weight: 700; color: var(--text-sub); }.price-card.featured .price-amount .unit { color: rgba(255,255,255,0.85); }.price-divider { height: 2px; background: var(--line-gray); background-image: repeating-linear-gradient(90deg, var(--line-gray) 0, var(--line-gray) 4px, transparent 4px, transparent 8px); margin: 22px 0; }.price-card.featured .price-divider { background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.5) 0, rgba(255,255,255,0.5) 4px, transparent 4px, transparent 8px); }.price-features { list-style: none; margin-bottom: 28px; flex-grow: 1; }.price-features li { padding: 8px 0 8px 28px; position: relative; font-size: 14px; font-weight: 700; }.price-features li::before {
+    content: '✓'; position: absolute; left: 0; top: 8px; color: var(--secondary); font-weight: 900; font-size: 16px;
+  }.price-card.featured .price-features li::before { color: var(--yellow); }.price-cta {
+    display: block; width: 100%; padding: 14px; border-radius: 999px; text-align: center; font-weight: 900; font-size: 15px; background: var(--ink); color: white; border: 3px solid var(--ink); transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
+  }.price-cta:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }.price-card.featured .price-cta { background: var(--yellow); color: var(--ink); border-color: var(--ink); }
+  @media (max-width: 880px) {.pricing-grid { grid-template-columns: 1fr; }.price-card.featured { transform: none; }
+  }/* ========== FAQ ========== */
+  .faq { background: var(--bg); padding: 120px 0; }.faq-list { max-width: 760px; margin: 48px auto 0; }.faq-item {
+    background: white; border: 3px solid var(--ink); border-radius: 22px; margin-bottom: 16px; box-shadow: var(--shadow-sm); overflow: hidden; transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+  }.faq-item:hover { transform: rotate(-0.5deg); }.faq-item:nth-child(2):hover { transform: rotate(0.5deg); }.faq-q {
+    width: 100%; text-align: left; padding: 22px 26px; font-size: 16px; font-weight: 900; display: flex; align-items: center; gap: 14px; cursor: pointer;
+  }.faq-q::before {
+    content: 'Q'; width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 50%; display: grid; place-items: center; font-family: 'Quicksand', sans-serif; font-size: 16px; font-weight: 700; border: 2.5px solid var(--ink); flex-shrink: 0;
+  }.faq-q .toggle {
+    margin-left: auto; width: 28px; height: 28px; background: var(--yellow); border-radius: 50%; display: grid; place-items: center; font-size: 18px; font-weight: 900; border: 2.5px solid var(--ink); transition: transform 0.3s; flex-shrink: 0;
+  }.faq-item.open .faq-q .toggle { transform: rotate(45deg); }.faq-a {
+    max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(.34,1.56,.64,1), padding 0.3s; padding: 0 26px; color: var(--text-sub); font-size: 15px; line-height: 1.8; border-top: 2px dashed transparent;
+  }.faq-item.open .faq-a { max-height: 240px; padding: 18px 26px 24px; border-top-color: var(--line-gray); }.faq-a::before {
+    content: 'A'; display: inline-grid; place-items: center; width: 28px; height: 28px; background: var(--secondary); color: white; border-radius: 50%; font-family: 'Quicksand', sans-serif; font-size: 14px; font-weight: 700; border: 2.5px solid var(--ink); margin-right: 10px; vertical-align: middle;
+  }/* ========== Final CTA / Footer ========== */
+  .final-cta { background: var(--ink); color: white; padding: 130px 0 100px; position: relative; overflow: hidden; }.final-cta::before {
+    content: ''; position: absolute; inset: 0; background-image:
+      radial-gradient(circle, rgba(255, 212, 94, 0.06) 2px, transparent 2px),
+      radial-gradient(circle, rgba(91, 201, 176, 0.05) 2px, transparent 2px); background-size: 40px 40px, 60px 60px; background-position: 0 0, 20px 20px; pointer-events: none;
+  }.final-cta-inner { position: relative; z-index: 1; text-align: center; max-width: 760px; margin: 0 auto; }.final-cta-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px; background: var(--yellow); color: var(--ink); padding: 8px 18px; border-radius: 999px; font-weight: 900; font-size: 13px; border: 3px solid var(--yellow); margin-bottom: 28px; transform: rotate(-2deg);
+  }.final-cta h2 { font-size: clamp(36px, 5.6vw, 68px); line-height: 1.2; font-weight: 900; margin-bottom: 22px; }.final-cta h2 .pop { background: var(--primary); color: white; padding: 0 14px; border-radius: 12px; display: inline-block; transform: rotate(-1.5deg); }.final-cta p { font-size: 18px; color: rgba(255,255,255,0.78); margin-bottom: 40px; }.final-cta .btn-primary { background: var(--yellow); color: var(--ink); border-color: var(--yellow); font-size: 19px; padding: 22px 40px; }.final-cta .btn-primary:hover { background: white; border-color: white; }.final-perks { margin-top: 24px; color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 700; }.final-perks span { margin: 0 10px; }.footer { background: var(--ink); color: rgba(255,255,255,0.6); padding: 40px 0; border-top: 2px dashed rgba(255,255,255,0.12); text-align: center; font-size: 13px; }.footer-links { display: flex; gap: 24px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }.footer-links a:hover { color: var(--yellow); }/* ========== Reveal animations ========== */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s cubic-bezier(.34,1.56,.64,1); }.reveal.in { opacity: 1; transform: translateY(0); }</style></style></style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="header">
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <span class="logo-mark">📡</span>
+      PriceRadar
+    </a>
+    <nav class="nav-links">
+      <a href="#how">使い方</a>
+      <a href="#features">きのう</a>
+      <a href="#pricing">りょうきん</a>
+      <a href="#faq">FAQ</a>
+      <a href="#cta" class="btn-download">ダウンロード</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="hero-eyebrow">🌟 Z世代に人気No.1 価格アラートApp</div>
+        <h1>
+          もう、<br>
+          <span class="accent">価格チェック</span>しなくていい。<br>
+          <span class="ink-bg">アプリ入れて、</span><br>寝てよ。
+        </h1>
+        <p class="lead">
+          チケット・ホテル・航空券、ぜんぶPriceRadarが見張ってる。<br>
+          安くなった瞬間にプッシュでお知らせするから、あなたは寝てて大丈夫。
+        </p>
+        <div class="hero-ctas">
+          <a href="#cta" class="btn-primary">14日間むりょうで試す →</a>
+          <a href="#how" class="btn-secondary">▶ 30秒でわかる</a>
+        </div>
+        <div class="hero-perks">
+          <span>クレカいらない</span>
+          <span>3件まで永遠タダ</span>
+          <span>1分でセットアップ</span>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="deco-1">📡</div>
+        <div class="deco-2">SALE発見📣</div>
+        <div class="deco-3">✨</div>
+        <div class="deco-4">-32%↓</div>
+        <div class="deco-5"></div>
+        <div class="deco-star s1">✦</div>
+        <div class="deco-star s2">✦</div>
+        <div class="deco-star s3">✦</div>
+
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-time">9:41 🌸 PriceRadar</div>
+
+            <div class="phone-card alert">
+              <div class="phone-card-title">🔔 安くなりました！</div>
+              <div class="phone-card-name">Taylor Swift Tour 東京</div>
+              <div class="phone-card-prices">
+                <span class="old">¥18,500</span>
+                <span class="new">¥12,600</span>
+              </div>
+            </div>
+
+            <div class="phone-card">
+              <div class="phone-card-title">監視中</div>
+              <div class="phone-card-name">沖縄 ホテルA</div>
+              <div class="phone-card-prices">
+                <span class="new" style="color:#5BC9B0;">¥8,200/泊</span>
+              </div>
+            </div>
+
+            <div class="phone-chart">
+              <div class="phone-chart-title">📈 価格の推移</div>
+              <svg class="chart-svg" viewBox="0 0 240 60" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#FF6B5B" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#FF6B5B" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,20 L40,15 L80,30 L120,22 L160,40 L200,35 L240,50 L240,60 L0,60 Z" fill="url(#g1)"/>
+                <path d="M0,20 L40,15 L80,30 L120,22 L160,40 L200,35 L240,50" stroke="#FF6B5B" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <circle cx="240" cy="50" r="3.5" fill="#FF6B5B"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section class="problem">
+  <div class="container">
+    <div class="problem-grid">
+      <div class="chat-window">
+        <div class="chat-header">
+          <div class="chat-avatar-grp">
+            <div class="avatar" style="background:#FF6B5B;"></div>
+            <div class="avatar" style="background:#5BC9B0;"></div>
+            <div class="avatar" style="background:#FFD45E;"></div>
+          </div>
+          <div>
+            <div class="chat-name">推し活グループ💜</div>
+            <div style="font-size:11px;color:var(--text-sub);">3 members</div>
+          </div>
+        </div>
+        <div class="chat-msg">
+          昨日チェックしたとき1万円だったのに、今見たら1万8千円になってた…😭
+          <div class="chat-time">14:23</div>
+        </div>
+        <div class="chat-msg">
+          1日忘れただけで売り切れ寸前😩
+          <div class="chat-time">14:24</div>
+        </div>
+        <div class="chat-msg user">
+          それな！毎日チェックするの限界💀
+          <div class="chat-arrow"></div>
+          <div class="chat-time" style="text-align:right;color:rgba(255,255,255,0.85);">14:25</div>
+        </div>
+        <div class="chat-msg">
+          もう、自分で見張るのやめない…？🥲
+          <div class="chat-time">14:27</div>
+        </div>
+      </div>
+
+      <div class="problem-text">
+        <div class="section-eyebrow">😮‍💨 こんな経験ない？</div>
+        <h2>
+          気付いたら<br>
+          <span class="hl">値上がりしてた</span>…<br>
+          人生、損してない？
+        </h2>
+        <p>
+          イベチケ、ホテル、飛行機。値段はずっと変わってるのに、<br>
+          毎日URLを開いてチェックする時間、ない。
+        </p>
+        <ul class="problem-list">
+          <li>気づいたら売り切れてた</li>
+          <li>セールに気づかず定価で買った</li>
+          <li>毎日チェックするのが地味にしんどい</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow yellow">🚀 つかいかた</div>
+      <h2 class="section-title">3ステップだけ。<br>あとは寝てて。</h2>
+      <p class="section-sub">URLを貼って、欲しい値段を決めて、終わり。<br>あとはPriceRadarが24時間ずっと監視してくれる。</p>
+    </div>
+
+    <div class="steps">
+      <div class="step-card reveal">
+        <div class="step-num">1</div>
+        <span class="step-emoji">🔗</span>
+        <h3>
+          URLをはるだけ
+          <svg class="underline" viewBox="0 0 200 12" preserveAspectRatio="none"><path d="M2,8 Q50,2 100,7 T198,5" stroke="#FF6B5B" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+        </h3>
+        <p>チケット販売ページでも、ホテル予約ページでも、URLをコピペ。あとはPriceRadarが解析してくれる。</p>
+        <div class="tag">📱 1分でOK</div>
+      </div>
+
+      <div class="step-card reveal">
+        <div class="step-num">2</div>
+        <span class="step-emoji">🎯</span>
+        <h3>
+          いくらになったら教えて欲しい？
+          <svg class="underline" viewBox="0 0 200 12" preserveAspectRatio="none"><path d="M2,7 Q50,3 100,6 T198,5" stroke="#5BC9B0" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+        </h3>
+        <p>「1万円以下になったら教えて」みたいに、狙ってる値段を入力。複数の閾値もOK。</p>
+        <div class="tag" style="background:var(--secondary);color:white;">⚡ かんたん設定</div>
+      </div>
+
+      <div class="step-card reveal">
+        <div class="step-num">3</div>
+        <span class="step-emoji">🛌</span>
+        <h3>
+          寝てる間に通知が来る
+          <svg class="underline" viewBox="0 0 200 12" preserveAspectRatio="none"><path d="M2,7 Q50,2 100,8 T198,4" stroke="#FFD45E" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+        </h3>
+        <p>安くなった瞬間、プッシュ通知でお知らせ。タップしてそのまま購入ページへ飛べるから、買い逃さない。</p>
+        <div class="tag" style="background:var(--primary);color:white;">😴 寝ててOK</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow coral">✨ できること</div>
+      <h2 class="section-title">大事なきのう、<br>ぜんぶのせ。</h2>
+      <p class="section-sub">価格を追いかけるために必要なものを、シンプルに3つだけ。</p>
+    </div>
+
+    <div class="feature-stack">
+
+      <!-- Feature 1 -->
+      <div class="feature-row">
+        <div class="feature-content">
+          <span class="feature-num">01</span>
+          <h3>URL監視。<br>貼ったら忘れていい。</h3>
+          <p>
+            人気のチケットサイト、旅行サイト、フライト予約サイトに対応。<br>
+            URLを登録するだけで24時間ずっと自動チェック。
+          </p>
+          <ul class="feature-bullets">
+            <li>主要50サイト以上に対応</li>
+            <li>5分ごとに最新価格をチェック</li>
+            <li>在庫切れも自動検知</li>
+          </ul>
+        </div>
+        <div class="feature-visual coral">
+          <div class="feature-stamp tl">ラク！</div>
+          <div class="feature-stamp br">24h監視中</div>
+          <div class="feature-emoji">🎯</div>
+          <div class="feature-mini-card">
+            登録ずみ<br>
+            <span class="big">12件</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="feature-row flip">
+        <div class="feature-content">
+          <span class="feature-num" style="background:var(--secondary);color:white;">02</span>
+          <h3>閾値アラート。<br>狙った値段で通知。</h3>
+          <p>
+            「これ以下になったら買いたい！」を設定するだけ。<br>
+            その瞬間に、プッシュ通知でお知らせ。
+          </p>
+          <ul class="feature-bullets">
+            <li>商品ごとに複数の閾値を設定可</li>
+            <li>%引きでも通知できる</li>
+            <li>夜中だけ通知OFF設定も</li>
+          </ul>
+        </div>
+        <div class="feature-visual mint">
+          <div class="feature-stamp tr">無料！</div>
+          <div class="feature-stamp br" style="background:white;color:var(--ink);">通知でゲット</div>
+          <div class="feature-emoji">🔔</div>
+          <div class="feature-mini-card" style="left:auto;right:26px;transform:rotate(3deg);">
+            さっき通知<br>
+            <span class="big" style="color:var(--secondary-dark);">-28%↓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="feature-row">
+        <div class="feature-content">
+          <span class="feature-num" style="background:var(--primary);color:white;">03</span>
+          <h3>履歴グラフ。<br>「今が買い時」が見える。</h3>
+          <p>
+            過去90日の価格推移をかわいいグラフで表示。<br>
+            「これ以上は安くならないかも」が一目でわかる。
+          </p>
+          <ul class="feature-bullets">
+            <li>過去90日 / 1年の価格推移</li>
+            <li>最安値・最高値を自動表示</li>
+            <li>セール周期も予測</li>
+          </ul>
+        </div>
+        <div class="feature-visual yellow">
+          <div class="feature-stamp tl" style="background:var(--ink);color:var(--yellow);">人気！</div>
+          <div class="feature-stamp br" style="background:var(--primary);color:white;">買い時👀</div>
+          <div class="feature-emoji">📈</div>
+          <div class="feature-mini-card">
+            最安値<br>
+            <span class="big">¥9,800</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ VOICES ============ -->
+<section class="voices">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow mint">💬 みんなの声</div>
+      <h2 class="section-title">こんな感じで、<br>使ってます。</h2>
+      <p class="section-sub">ヘビーユーザーから、たまにしか旅行しない人まで。</p>
+    </div>
+
+    <div class="voice-grid">
+      <div class="voice-card">
+        <div class="voice-stars">★★★★★</div>
+        <p class="voice-quote">推しのライブチケット、いつも転売価格にビビってた。Free枠で3件入れたら、定価で取れた瞬間に通知来た！マジで神。</p>
+        <div class="voice-meta">
+          <div class="voice-avatar" style="background:var(--primary);">A</div>
+          <div>
+            <div class="voice-name">あおいさん</div>
+            <div class="voice-role">大学生 / 22歳</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-stars">★★★★★</div>
+        <p class="voice-quote">家族旅行のホテル、半年前から監視してたら、3週間前に40%オフに。Pro入っといて正解だった〜！年間で4万円浮きました🎉</p>
+        <div class="voice-meta">
+          <div class="voice-avatar" style="background:var(--ink);">M</div>
+          <div>
+            <div class="voice-name">みなみさん</div>
+            <div class="voice-role">会社員 / 31歳</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-stars">★★★★★</div>
+        <p class="voice-quote">UIがかわいすぎ。価格チェックって地味な作業だったけど、PriceRadar開くのが楽しみになっちゃった。グラフも見やすい。</p>
+        <div class="voice-meta">
+          <div class="voice-avatar" style="background:var(--secondary);">R</div>
+          <div>
+            <div class="voice-name">りこさん</div>
+            <div class="voice-role">フリーランス / 27歳</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow yellow">💸 りょうきん</div>
+      <h2 class="section-title">まずは、<br>タダで使ってみて。</h2>
+      <p class="section-sub">3件までずっと無料。気に入ったらアップグレードしてね。<br>クレカ登録なしで始められる。</p>
+    </div>
+
+    <div class="pricing-grid">
+
+      <!-- Free -->
+      <div class="price-card">
+        <div class="price-stamp" style="background:var(--secondary);color:white;">永遠にタダ✨</div>
+        <div class="price-name">Free</div>
+        <div class="price-tag">まずは試したい人に</div>
+        <div class="price-amount">
+          <span class="num">¥0</span>
+          <span class="unit">/ ずっと</span>
+        </div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>監視枠 3件まで</li>
+          <li>プッシュ通知</li>
+          <li>30日の履歴グラフ</li>
+          <li>1日1回の自動チェック</li>
+        </ul>
+        <a href="#cta" class="price-cta">今すぐ始める</a>
+      </div>
+
+      <!-- Pro (featured) -->
+      <div class="price-card featured">
+        <div class="price-stamp coral">🔥 一番人気！</div>
+        <div class="price-name">Pro</div>
+        <div class="price-tag">本気で得したい人に</div>
+        <div class="price-amount">
+          <span class="num">$9.99</span>
+          <span class="unit">/ 月</span>
+        </div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>監視枠 50件まで</li>
+          <li>5分ごとの自動チェック</li>
+          <li>90日の履歴グラフ</li>
+          <li>%引き通知 / 在庫切れ通知</li>
+          <li>セール予測機能</li>
+        </ul>
+        <a href="#cta" class="price-cta">14日間むりょうで試す</a>
+      </div>
+
+      <!-- Unlimited -->
+      <div class="price-card">
+        <div class="price-stamp">むげん☁</div>
+        <div class="price-name">Unlimited</div>
+        <div class="price-tag">ヘビーユーザー / 仕入れ用に</div>
+        <div class="price-amount">
+          <span class="num">$29.99</span>
+          <span class="unit">/ 月</span>
+        </div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>監視枠 無制限</li>
+          <li>1分ごとの自動チェック</li>
+          <li>1年の履歴グラフ</li>
+          <li>API / Webhook 連携</li>
+          <li>優先サポート</li>
+        </ul>
+        <a href="#cta" class="price-cta">14日間むりょうで試す</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">🤔 よくあるしつもん</div>
+      <h2 class="section-title">気になること、<br>ぜんぶ答えます。</h2>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item open">
+        <button class="faq-q">
+          ほんとうに無料で使えますか？
+          <span class="toggle">+</span>
+        </button>
+        <div class="faq-a">
+          はい、3件までは永遠に無料で使えます。クレジットカード登録も不要。気に入ったらPro / Unlimitedにアップグレードしてください。
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          どんなサイトに対応してますか？
+          <span class="toggle">+</span>
+        </button>
+        <div class="faq-a">
+          国内外の主要50サイト以上に対応してます。チケット系（イープラス、ローチケなど）、ホテル系（楽天トラベル、Booking.com）、航空券系（Skyscanner、Expedia）など。日々追加中。
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          14日のお試し後、自動で課金されますか？
+          <span class="toggle">+</span>
+        </button>
+        <div class="faq-a">
+          いいえ。お試し期間中はクレカ登録不要なので、自動で課金されることはありません。続けたい人だけ、明示的にPro / Unlimitedに登録してください。
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          通知の頻度ってどれくらい？
+          <span class="toggle">+</span>
+        </button>
+        <div class="faq-a">
+          設定した閾値に届いたときだけ通知します。基本は静かなアプリ。夜中の通知をOFFにすることもできるので、寝てる間も安心です。
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          解約はかんたんですか？
+          <span class="toggle">+</span>
+        </button>
+        <div class="faq-a">
+          はい、アプリ内から1タップで解約できます。引き止めや面倒な手続きは一切なし。次の請求日までは引き続きProとして使えます。
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          海外サイトの価格も追えますか？
+          <span class="toggle">+</span>
+        </button>
+        <div class="faq-a">
+          はい、対応しています。ドル / ユーロなど外貨表示にも対応していて、為替を含めた円換算で通知することも可能です。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="final-cta" id="cta">
+  <div class="container">
+    <div class="final-cta-inner">
+      <div class="final-cta-eyebrow">🌸 あとは寝るだけ</div>
+      <h2>
+        もう、価格チェック<br>
+        <span class="pop">しなくていい。</span>
+      </h2>
+      <p>
+        14日間むりょうで、Proのぜんぶの機能を試せます。<br>
+        クレカいらない、いつでも解約OK。
+      </p>
+      <a href="#" class="btn-primary">いますぐ始める →</a>
+      <div class="final-perks">
+        <span>✓ クレカ不要</span>
+        <span>✓ 1分でセットアップ</span>
+        <span>✓ いつでも解約OK</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-links">
+      <a href="#">利用規約</a>
+      <a href="#">プライバシー</a>
+      <a href="#">お問い合わせ</a>
+      <a href="#">運営会社</a>
+      <a href="#">@priceradar_jp</a>
+    </div>
+    <div>© 2026 PriceRadar — Made with 🌸 in Tokyo. アプリ入れて、寝てよ。</div>
+  </div>
+</footer>
+
+<script>
+  // FAQ toggle
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.parentElement.classList.toggle('open');
+    });
+  });
+
+  // Reveal on scroll (springy)
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.step-card, .voice-card, .price-card, .feature-row, .faq-item').forEach((el, i) => {
+    el.classList.add('reveal');
+    el.style.transitionDelay = (i % 3) * 80 + 'ms';
+    obs.observe(el);
+  });
+</script>
+
+</body>
+</html>
+<!-- Pattern 3 - Casual Friendly -->
