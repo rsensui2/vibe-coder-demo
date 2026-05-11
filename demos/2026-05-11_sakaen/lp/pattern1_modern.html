@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>酒縁 — AIが、あなたの 酒縁 を結ぶ。</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet" />
+<style>
+  /* ===========================================================
+     Sakaen LP — Pattern 1: Premium Japanese
+     漆黒×古美金×朱赤の和モダン
+     =========================================================== */
+
+  :root {
+    --bg: #0B0B0D;
+    --surface: #15151B;
+    --surface-2: #1C1C24;
+    --gold: #C8A24B;
+    --gold-soft: #8C7233;
+    --gold-bright: #E6C374;
+    --red: #A81C1C;
+    --red-soft: #6E1212;
+    --text: #F4EDE0;
+    --text-sub: #8C8576;
+    --line: rgba(200, 162, 75, 0.18);
+
+    --serif: 'Noto Serif JP', 'Yu Mincho', serif;
+    --sans: 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    --en: 'Cormorant Garamond', serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 400;
+    line-height: 1.8;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 金箔テクスチャ（背景全体に薄く） */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(200, 162, 75, 0.045), transparent 35%),
+      radial-gradient(circle at 88% 82%, rgba(200, 162, 75, 0.035), transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(168, 28, 28, 0.02), transparent 50%);
+    z-index: 0;
+  }
+
+  /* 背景の薄い「縁」筆文字 */
+  body::after {
+    content: '縁';
+    position: fixed;
+    right: -8vw;
+    bottom: -12vw;
+    font-family: var(--serif);
+    font-weight: 900;
+    font-size: 60vw;
+    color: rgba(200, 162, 75, 0.025);
+    line-height: 0.8;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  ul, ol { list-style: none; }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== Header ===== */
+  header.nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: 24px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    background: linear-gradient(180deg, rgba(11, 11, 13, 0.85), transparent);
+    backdrop-filter: blur(8px);
+  }
+  .nav-brand {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.18em;
+    color: var(--gold-bright);
+  }
+  .nav-brand small {
+    font-family: var(--en);
+    font-style: italic;
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    color: var(--text-sub);
+    margin-left: 12px;
+    font-weight: 400;
+  }
+  .nav-menu {
+    display: flex;
+    gap: 36px;
+    align-items: center;
+  }
+  .nav-menu a {
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    color: var(--text-sub);
+    transition: color .3s;
+  }
+  .nav-menu a:hover { color: var(--gold-bright); }
+  .nav-cta {
+    font-family: var(--serif);
+    font-size: 13px;
+    padding: 10px 24px;
+    border: 1px solid var(--gold);
+    color: var(--gold-bright);
+    letter-spacing: 0.18em;
+    transition: all .3s;
+  }
+  .nav-cta:hover {
+    background: var(--gold);
+    color: var(--bg);
+  }
+
+  /* ===== Hero ===== */
+  section.hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 120px 32px 80px;
+  }
+
+  /* 金箔の薄いグラデーション */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at top, rgba(200, 162, 75, 0.12), transparent 55%),
+      radial-gradient(ellipse at bottom right, rgba(168, 28, 28, 0.08), transparent 50%),
+      linear-gradient(180deg, var(--bg) 0%, #0E0E12 100%);
+    z-index: 0;
+  }
+  .hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(rgba(200, 162, 75, 0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 60px;
+    align-items: center;
+    max-width: 1280px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* 縦書き巨大筆文字「酒縁」 */
+  .hero-vertical {
+    writing-mode: vertical-rl;
+    -webkit-writing-mode: vertical-rl;
+    font-family: var(--serif);
+    font-weight: 900;
+    font-size: clamp(120px, 18vw, 240px);
+    line-height: 0.92;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 40%, var(--gold-soft) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 60px rgba(200, 162, 75, 0.18);
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .hero-vertical::before {
+    content: '';
+    position: absolute;
+    left: -30px;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, var(--gold), transparent);
+    opacity: 0.6;
+  }
+
+  .hero-reading {
+    font-family: var(--en);
+    font-style: italic;
+    font-size: 14px;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    margin-bottom: 18px;
+  }
+  .hero-catch {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(18px, 2vw, 24px);
+    color: var(--text-sub);
+    letter-spacing: 0.12em;
+    line-height: 1.9;
+    margin-bottom: 12px;
+  }
+  .hero-catch strong {
+    color: var(--gold-bright);
+    font-weight: 700;
+  }
+  .hero-sub {
+    font-size: 13px;
+    color: var(--text-sub);
+    letter-spacing: 0.18em;
+    margin-bottom: 48px;
+  }
+
+  .cta-gold {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 40px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-soft) 100%);
+    color: var(--bg);
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.22em;
+    border: 1px solid var(--gold-bright);
+    position: relative;
+    overflow: hidden;
+    transition: all .4s;
+    box-shadow: 0 8px 30px rgba(200, 162, 75, 0.18);
+  }
+  .cta-gold::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+    opacity: 0;
+    transition: opacity .4s;
+    z-index: 0;
+  }
+  .cta-gold:hover {
+    box-shadow: 0 12px 40px rgba(230, 195, 116, 0.45), 0 0 60px rgba(200, 162, 75, 0.35);
+    transform: translateY(-2px);
+  }
+  .cta-gold:hover::before { opacity: 1; }
+  .cta-gold span { position: relative; z-index: 1; }
+  .cta-gold .arrow {
+    position: relative;
+    z-index: 1;
+    font-family: var(--en);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  /* ===== スマホモック（CSSのみ） ===== */
+  .phone {
+    width: 280px;
+    height: 580px;
+    background: #0A0A0E;
+    border-radius: 38px;
+    border: 2px solid #2A2A30;
+    position: relative;
+    box-shadow:
+      0 30px 80px rgba(0, 0, 0, 0.6),
+      0 0 0 8px #15151B,
+      0 0 80px rgba(200, 162, 75, 0.18);
+    padding: 14px;
+    flex-shrink: 0;
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 22px;
+    background: #0A0A0E;
+    border-radius: 12px;
+    z-index: 3;
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #0E0E12 0%, #15151B 100%);
+    border-radius: 28px;
+    overflow: hidden;
+    position: relative;
+    padding: 40px 18px 18px;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone-screen .ph-brand {
+    font-family: var(--serif);
+    font-size: 14px;
+    color: var(--gold-bright);
+    letter-spacing: 0.2em;
+    text-align: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .ph-msg {
+    background: rgba(200, 162, 75, 0.08);
+    border-left: 2px solid var(--gold);
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .ph-msg.user {
+    background: rgba(168, 28, 28, 0.12);
+    border-left-color: var(--red);
+    margin-left: 24px;
+  }
+  .ph-msg.ai {
+    margin-right: 24px;
+  }
+  .ph-result {
+    margin-top: 12px;
+    background: rgba(200, 162, 75, 0.06);
+    border: 1px solid var(--line);
+    padding: 12px;
+    border-radius: 6px;
+  }
+  .ph-result h4 {
+    font-family: var(--serif);
+    font-size: 12px;
+    color: var(--gold-bright);
+    margin-bottom: 4px;
+  }
+  .ph-result p {
+    font-size: 9px;
+    color: var(--text-sub);
+    line-height: 1.5;
+  }
+  .ph-result .stars {
+    color: var(--gold);
+    font-size: 10px;
+    margin-top: 4px;
+  }
+
+  /* 朱赤の鳥居シルエット */
+  .torii {
+    position: absolute;
+    bottom: 40px;
+    right: 60px;
+    width: 110px;
+    height: 130px;
+    z-index: 2;
+    opacity: 0.55;
+  }
+  .torii .top {
+    position: absolute;
+    top: 0;
+    left: -8%;
+    width: 116%;
+    height: 14px;
+    background: var(--red);
+    border-radius: 4px 4px 0 0;
+    box-shadow: 0 -4px 0 var(--red-soft);
+  }
+  .torii .top::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 4%;
+    width: 92%;
+    height: 6px;
+    background: var(--red);
+    border-radius: 3px 3px 0 0;
+  }
+  .torii .beam {
+    position: absolute;
+    top: 32px;
+    left: 8%;
+    width: 84%;
+    height: 8px;
+    background: var(--red-soft);
+  }
+  .torii .pillar-l, .torii .pillar-r {
+    position: absolute;
+    top: 14px;
+    width: 14px;
+    height: 116px;
+    background: var(--red);
+  }
+  .torii .pillar-l { left: 18%; }
+  .torii .pillar-r { right: 18%; }
+  .torii .label {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--serif);
+    font-weight: 900;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--red);
+    padding: 2px 8px;
+  }
+
+  /* スクロールヒント */
+  .scroll-hint {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--en);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--text-sub);
+    letter-spacing: 0.3em;
+    z-index: 3;
+  }
+  .scroll-hint::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(180deg, var(--gold), transparent);
+    margin: 12px auto 0;
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(0.6); }
+    50% { opacity: 1; transform: scaleY(1); }
+  }
+
+  /* ===== セクション共通 ===== */
+  section {
+    position: relative;
+    padding: 140px 0;
+    z-index: 1;
+  }
+
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.4;
+  }
+
+  .section-label {
+    font-family: var(--en);
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(28px, 4vw, 44px);
+    text-align: center;
+    line-height: 1.6;
+    letter-spacing: 0.06em;
+    margin-bottom: 80px;
+    color: var(--text);
+  }
+  .section-title .accent {
+    color: var(--gold-bright);
+  }
+
+  /* フェードイン */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity .9s ease, transform .9s ease;
+  }
+  .fade-up.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ===== 課題提起 ===== */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  .problem-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 48px 32px;
+    text-align: center;
+    position: relative;
+  }
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 20px; right: 20px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.5;
+  }
+  .problem-card .icon {
+    font-family: var(--serif);
+    font-weight: 900;
+    font-size: 48px;
+    color: var(--red);
+    opacity: 0.7;
+    margin-bottom: 20px;
+    line-height: 1;
+  }
+  .problem-card h3 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: 0.06em;
+    line-height: 1.6;
+  }
+  .problem-card p {
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.9;
+  }
+
+  /* ===== ソリューション ===== */
+  .solution {
+    background: linear-gradient(180deg, var(--bg) 0%, #0F0F14 50%, var(--bg) 100%);
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    position: relative;
+  }
+  .step {
+    text-align: center;
+    padding: 60px 24px;
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+  .step .kanji {
+    font-family: var(--serif);
+    font-weight: 900;
+    font-size: 140px;
+    line-height: 1;
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold-soft));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+  }
+  .step h3 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: 0.08em;
+  }
+  .step p {
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.9;
+  }
+  .step::after {
+    content: '➔';
+    position: absolute;
+    right: -24px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    color: var(--gold);
+    opacity: 0.5;
+    z-index: 2;
+  }
+  .step:last-child::after { display: none; }
+
+  /* ===== 機能 ===== */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    padding: 56px 36px;
+    position: relative;
+    transition: all .4s;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(200, 162, 75, 0.25);
+    pointer-events: none;
+  }
+  .feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(200, 162, 75, 0.18);
+  }
+  .feature-num {
+    font-family: var(--en);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--gold);
+    letter-spacing: 0.3em;
+    margin-bottom: 24px;
+  }
+  .feature-card h3 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--gold-bright);
+    margin-bottom: 20px;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+  }
+  .feature-card p {
+    font-size: 14px;
+    color: var(--text-sub);
+    line-height: 1.95;
+    margin-bottom: 24px;
+  }
+  .feature-card ul li {
+    font-size: 12px;
+    color: var(--text);
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line);
+    position: relative;
+    padding-left: 18px;
+  }
+  .feature-card ul li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 10px;
+  }
+  .feature-card ul li:last-child { border-bottom: none; }
+
+  /* ===== 料金 ===== */
+  .pricing {
+    background: linear-gradient(180deg, var(--bg) 0%, #100D0D 100%);
+  }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  .price-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 60px 48px;
+    position: relative;
+    text-align: center;
+  }
+  .price-card.premium {
+    border: 1.5px solid var(--red);
+    background: linear-gradient(180deg, var(--surface) 0%, rgba(168, 28, 28, 0.06) 100%);
+  }
+  .price-badge {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--red);
+    color: var(--text);
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 12px;
+    padding: 8px 22px;
+    letter-spacing: 0.16em;
+  }
+  .price-name {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: 0.08em;
+  }
+  .price-name .en {
+    display: block;
+    font-family: var(--en);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.3em;
+    margin-top: 6px;
+    font-weight: 400;
+  }
+  .price-amount {
+    margin: 32px 0;
+    font-family: var(--en);
+    color: var(--gold-bright);
+  }
+  .price-amount .num {
+    font-size: 64px;
+    font-weight: 500;
+    line-height: 1;
+  }
+  .price-amount .unit {
+    font-size: 15px;
+    color: var(--text-sub);
+    letter-spacing: 0.18em;
+  }
+  .price-features {
+    margin: 32px 0;
+    text-align: left;
+  }
+  .price-features li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--text);
+    position: relative;
+    padding-left: 22px;
+    line-height: 1.6;
+  }
+  .price-features li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    top: 12px;
+  }
+  .price-card.premium .price-features li::before { color: var(--red); content: '✦'; }
+  .price-card .cta-gold {
+    width: 100%;
+    justify-content: center;
+    font-size: 13px;
+    padding: 16px 24px;
+  }
+  .price-card.premium .cta-gold {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-soft) 100%);
+    border-color: var(--red);
+    color: var(--text);
+    box-shadow: 0 8px 30px rgba(168, 28, 28, 0.3);
+  }
+  .price-card.premium .cta-gold::before {
+    background: linear-gradient(135deg, #C42525, var(--red));
+  }
+  .price-trial {
+    display: inline-block;
+    margin-top: 20px;
+    font-family: var(--serif);
+    font-size: 12px;
+    color: var(--gold-bright);
+    border: 1px dashed var(--gold);
+    padding: 6px 14px;
+    letter-spacing: 0.16em;
+  }
+
+  /* ===== ユーザーの声 ===== */
+  .voices {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  .voice-card {
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    padding: 48px 32px;
+    position: relative;
+  }
+  .voice-card::before {
+    content: '"';
+    position: absolute;
+    top: 12px;
+    left: 18px;
+    font-family: var(--en);
+    font-style: italic;
+    font-size: 90px;
+    color: var(--gold);
+    opacity: 0.3;
+    line-height: 1;
+  }
+  .voice-card::after {
+    content: '"';
+    position: absolute;
+    bottom: -30px;
+    right: 20px;
+    font-family: var(--en);
+    font-style: italic;
+    font-size: 90px;
+    color: var(--gold);
+    opacity: 0.3;
+    line-height: 1;
+  }
+  .voice-quote {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--text);
+    line-height: 1.85;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+    position: relative;
+    z-index: 2;
+  }
+  .voice-author {
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+    font-size: 12px;
+    color: var(--text-sub);
+    letter-spacing: 0.12em;
+  }
+  .voice-author strong {
+    display: block;
+    font-family: var(--serif);
+    color: var(--gold-bright);
+    font-size: 14px;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+
+  /* ===== FAQ ===== */
+  .faq {
+    background: linear-gradient(180deg, var(--bg) 0%, #0F0F14 100%);
+  }
+  .faq-list {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  details.faq-item {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    margin-bottom: 16px;
+    transition: border-color .3s;
+  }
+  details.faq-item[open] {
+    border-color: var(--gold);
+  }
+  details.faq-item summary {
+    cursor: pointer;
+    padding: 24px 32px;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text);
+    letter-spacing: 0.04em;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  details.faq-item summary::-webkit-details-marker { display: none; }
+  details.faq-item summary::before {
+    content: 'Q.';
+    font-family: var(--en);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--gold);
+    margin-right: 16px;
+  }
+  details.faq-item summary::after {
+    content: '＋';
+    font-family: var(--serif);
+    font-weight: 400;
+    color: var(--gold);
+    font-size: 22px;
+    transition: transform .3s;
+  }
+  details.faq-item[open] summary::after {
+    content: '−';
+    transform: rotate(180deg);
+  }
+  details.faq-item .answer {
+    padding: 0 32px 28px 70px;
+    font-size: 14px;
+    color: var(--text-sub);
+    line-height: 1.95;
+    border-top: 1px dashed var(--line);
+    padding-top: 20px;
+    margin: 0 32px;
+  }
+
+  /* ===== Footer CTA ===== */
+  .footer-cta {
+    padding: 160px 0 100px;
+    text-align: center;
+    background:
+      radial-gradient(ellipse at top, rgba(200, 162, 75, 0.10), transparent 60%),
+      linear-gradient(180deg, var(--bg) 0%, #0E0E12 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .footer-cta::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .footer-vertical {
+    writing-mode: vertical-rl;
+    -webkit-writing-mode: vertical-rl;
+    font-family: var(--serif);
+    font-weight: 900;
+    font-size: clamp(48px, 8vw, 96px);
+    line-height: 1.4;
+    letter-spacing: 0.1em;
+    margin: 0 auto 64px;
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold), var(--gold-soft));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    height: 480px;
+  }
+  .footer-cta .cta-gold {
+    font-size: 17px;
+    padding: 24px 56px;
+    letter-spacing: 0.24em;
+  }
+  .footer-cta .sub {
+    margin-top: 32px;
+    font-size: 12px;
+    color: var(--text-sub);
+    letter-spacing: 0.18em;
+  }
+
+  /* ===== Footer ===== */
+  footer.site-footer {
+    padding: 60px 32px 40px;
+    border-top: 1px solid var(--line);
+    background: #08080A;
+  }
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  .footer-brand {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--gold);
+    letter-spacing: 0.18em;
+  }
+  .footer-links {
+    display: flex;
+    gap: 32px;
+  }
+  .footer-links a {
+    font-size: 11px;
+    color: var(--text-sub);
+    letter-spacing: 0.16em;
+    transition: color .3s;
+  }
+  .footer-links a:hover { color: var(--gold-bright); }
+  .footer-copy {
+    font-family: var(--en);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--text-sub);
+    letter-spacing: 0.2em;
+    width: 100%;
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--line);
+  }
+
+  /* ===== レスポンシブ ===== */
+  @media (max-width: 768px) {
+    header.nav { padding: 16px 20px; }
+    .nav-menu { display: none; }
+    .nav-cta { font-size: 11px; padding: 8px 16px; }
+
+    .hero-inner {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .hero-text { align-items: center; text-align: center; }
+    .hero-vertical {
+      writing-mode: horizontal-tb;
+      -webkit-writing-mode: horizontal-tb;
+      font-size: 80px;
+    }
+    .phone {
+      width: 220px;
+      height: 460px;
+      margin: 0 auto;
+    }
+    .torii { width: 80px; height: 95px; right: 20px; bottom: 20px; }
+
+    section { padding: 80px 0; }
+    .section-title { margin-bottom: 48px; font-size: 26px; }
+
+    .problem-grid,
+    .features,
+    .voices,
+    .pricing-grid,
+    .steps {
+      grid-template-columns: 1fr;
+    }
+    .step::after { display: none; }
+
+    .footer-vertical { font-size: 48px; height: 320px; }
+    .footer-inner { flex-direction: column; text-align: center; }
+    .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 0 20px; }
+    .feature-card, .voice-card, .price-card { padding: 36px 24px; }
+    .step .kanji { font-size: 100px; }
+    details.faq-item summary { padding: 18px 20px; font-size: 14px; }
+    details.faq-item .answer { margin: 0 20px; padding: 16px 0 20px 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<header class="nav">
+  <div class="nav-brand">酒縁<small>SAKAEN</small></div>
+  <nav class="nav-menu">
+    <a href="#problem">課題</a>
+    <a href="#solution">仕組み</a>
+    <a href="#feature">機能</a>
+    <a href="#price">料金</a>
+    <a href="#voice">声</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <a href="#cta-final" class="nav-cta">無料で試す</a>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-reading">— S A K A E N —</div>
+      <div class="hero-vertical">酒縁</div>
+      <div class="hero-catch">AIが、あなたの <strong>酒縁</strong> を結ぶ。</div>
+      <div class="hero-sub">日本酒好きのための、AIコンシェルジュ。</div>
+      <a href="#cta-final" class="cta-gold">
+        <span>無料で 酒縁診断 を試す</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <!-- スマホモック（CSSのみ） -->
+    <div class="phone" aria-hidden="true">
+      <div class="phone-screen">
+        <div class="ph-brand">酒縁 — Concierge</div>
+        <div class="ph-msg ai">今夜のお酒の気分は？<br>香り重視 / 切れ味重視？</div>
+        <div class="ph-msg user">香り。少し甘め、肴は白身魚。</div>
+        <div class="ph-msg ai">承知しました。<br>銘柄系統と温度を提案します。</div>
+        <div class="ph-result">
+          <h4>銀座 — 酒匠 月白</h4>
+          <p>新政・而今を冷やで。白身に合う薄旨系を3種揃う隠れ家。</p>
+          <div class="stars">★ ★ ★ ★ ★</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 鳥居シルエット -->
+  <div class="torii" aria-hidden="true">
+    <div class="top"></div>
+    <div class="beam"></div>
+    <div class="pillar-l"></div>
+    <div class="pillar-r"></div>
+  </div>
+
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== 課題提起 ===== -->
+<section id="problem">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label">PROBLEM</div>
+      <h2 class="section-title">日本酒好きの「今夜の店選び」は、<br><span class="accent">難しい。</span></h2>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card fade-up">
+        <div class="icon">食</div>
+        <h3>食べログでは<br>銘柄の細かさが分からない</h3>
+        <p>「日本酒あり」では大雑把すぎる。新政か、而今か、写楽か——その粒度で選びたい。</p>
+      </div>
+      <div class="problem-card fade-up">
+        <div class="icon">酒</div>
+        <h3>SAKETIMEは銘柄レビュー特化、<br>店探しに弱い</h3>
+        <p>銘柄の評価は分かる。けれど「今夜、その銘柄が飲める店」までは導いてくれない。</p>
+      </div>
+      <div class="problem-card fade-up">
+        <div class="icon">距</div>
+        <h3>Google MAPは<br>距離だけしか教えてくれない</h3>
+        <p>近い店は分かる。でも「あなたの好み」と「気分」と「肴」までは読んでくれない。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== ソリューション ===== -->
+<section id="solution" class="solution">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label">SOLUTION</div>
+      <h2 class="section-title">AIコンシェルジュが、<br>3分で「<span class="accent">今日のあなたの一杯</span>」を見つける。</h2>
+    </div>
+    <div class="steps">
+      <div class="step fade-up">
+        <div class="kanji">壱</div>
+        <h3>チャットで好み入力</h3>
+        <p>銘柄系統・温度・肴・気分の4軸を、自然な会話でAIが聞き取り。所要3分。</p>
+      </div>
+      <div class="step fade-up">
+        <div class="kanji">弐</div>
+        <h3>AI厳選 3〜5店</h3>
+        <p>1万件超の店データから、あなたの好みに最適化された店を厳選提示。</p>
+      </div>
+      <div class="step fade-up">
+        <div class="kanji">参</div>
+        <h3>「あなたに合う理由」提示</h3>
+        <p>なぜその店なのか、何を頼めばいいのか。AIが言語化してくれる。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== 機能 ===== -->
+<section id="feature">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label">FEATURE</div>
+      <h2 class="section-title">3つの<span class="accent">主要機能</span></h2>
+    </div>
+    <div class="features">
+      <div class="feature-card fade-up">
+        <div class="feature-num">— Feature 01 —</div>
+        <h3>日本酒特化<br>AIマッチング</h3>
+        <p>食べログにもSAKETIMEにも無い、4軸ヒアリング。あなたの好みを構造化して、最適な一店を導きます。</p>
+        <ul>
+          <li>銘柄系統（薄旨／芳醇／辛口／生酛）</li>
+          <li>温度帯（冷／涼冷／常温／燗）</li>
+          <li>肴の傾向（白身／赤身／発酵／揚物）</li>
+          <li>気分（接待／一人／デート／祝い）</li>
+        </ul>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-num">— Feature 02 —</div>
+        <h3>「なぜ」を<br>言語化する</h3>
+        <p>ただ店を出すだけじゃない。「あなたの今夜の気分にこの店が合う理由」までAIがコピー化。同行者にも説明しやすい。</p>
+        <ul>
+          <li>選定理由のテキスト化</li>
+          <li>頼むべき銘柄の提案</li>
+          <li>合わせる肴のレコメンド</li>
+          <li>同行者向けの語り口テンプレ</li>
+        </ul>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-num">— Feature 03 —</div>
+        <h3>予約から<br>学習継続まで</h3>
+        <p>気に入ったらワンタップで予約。行った後は「酒縁レビュー」を入力すると、次回以降の精度が上がっていく。</p>
+        <ul>
+          <li>提携店は即時予約可能</li>
+          <li>非提携店もLINE転送で予約代行</li>
+          <li>事後レビューで AIが学習</li>
+          <li>あなた専用の酒縁モデル成長</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== 料金 ===== -->
+<section id="price" class="pricing">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label">PRICING</div>
+      <h2 class="section-title">気軽に始め、<span class="accent">深く嗜む</span>。</h2>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card fade-up">
+        <div class="price-name">
+          無料
+          <span class="en">FREE</span>
+        </div>
+        <div class="price-amount">
+          <span class="num">¥0</span>
+          <div class="unit">/ 月</div>
+        </div>
+        <ul class="price-features">
+          <li>月3回まで AI診断 利用可</li>
+          <li>基本マッチング（4軸ヒアリング）</li>
+          <li>提携店の即時予約</li>
+          <li>履歴の保存（直近3回まで）</li>
+        </ul>
+        <a href="#cta-final" class="cta-gold">
+          <span>無料で始める</span>
+          <span class="arrow">→</span>
+        </a>
+        <div class="price-trial">クレジットカード不要</div>
+      </div>
+
+      <div class="price-card premium fade-up">
+        <div class="price-badge">RECOMMENDED</div>
+        <div class="price-name">
+          プレミアム
+          <span class="en">PREMIUM</span>
+        </div>
+        <div class="price-amount">
+          <span class="num">¥980</span>
+          <div class="unit">/ 月（税込）</div>
+        </div>
+        <ul class="price-features">
+          <li>AI診断 無制限</li>
+          <li>高度ヒアリング（季節・地域・予算込み）</li>
+          <li>提携店の予約優先枠</li>
+          <li>あなた専用 酒縁モデル成長</li>
+          <li>非提携店の予約代行</li>
+          <li>履歴・お気に入り無制限</li>
+        </ul>
+        <a href="#cta-final" class="cta-gold">
+          <span>14日間 無料体験</span>
+          <span class="arrow">→</span>
+        </a>
+        <div class="price-trial">14日間 Premium 無料体験</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== ユーザーの声 ===== -->
+<section id="voice">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label">VOICE</div>
+      <h2 class="section-title">先に酒縁を結んだ、<br><span class="accent">お客様の声</span></h2>
+    </div>
+    <div class="voices">
+      <div class="voice-card fade-up">
+        <div class="voice-quote">「接待でハズしたくない」が、<br>これで完全に解決した。</div>
+        <div class="voice-author">
+          <strong>K.S 様</strong>
+          経営者・40代男性
+        </div>
+      </div>
+      <div class="voice-card fade-up">
+        <div class="voice-quote">銘柄の細かさを<br>分かってくれるAIは、<br>初めてだ。</div>
+        <div class="voice-author">
+          <strong>T.M 様</strong>
+          IT職・30代男性
+        </div>
+      </div>
+      <div class="voice-card fade-up">
+        <div class="voice-quote">出張先でも、<br>自分の好みの店が<br>必ず見つかるのが嬉しい。</div>
+        <div class="voice-author">
+          <strong>Y.N 様</strong>
+          営業職・35歳
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== FAQ ===== -->
+<section id="faq" class="faq">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label">FAQ</div>
+      <h2 class="section-title">よくある<span class="accent">ご質問</span></h2>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item fade-up">
+        <summary>無料で本当に使えますか？</summary>
+        <div class="answer">
+          はい。月3回までは完全無料でAI診断をご利用いただけます。クレジットカード登録も不要です。回数を超えた場合のみ Premium プランへのアップグレードをご案内します。
+        </div>
+      </details>
+      <details class="faq-item fade-up">
+        <summary>マイナーな銘柄もカバーしていますか？</summary>
+        <div class="answer">
+          全国2,000以上の蔵元・8,000銘柄超をカバーしています。新政・而今・写楽はもちろん、地域限定流通の希少銘柄も網羅。「店で出会いたい銘柄」を伝えていただければAIがその銘柄を扱う店を厳選します。
+        </div>
+      </details>
+      <details class="faq-item fade-up">
+        <summary>予約はSakaenから直接できますか？</summary>
+        <div class="answer">
+          提携店（現在 約3,200店）は即時予約が可能です。非提携店についても Premium プランをご利用の場合、Sakaenが代行予約を行います（受付時間：9:00-22:00）。
+        </div>
+      </details>
+      <details class="faq-item fade-up">
+        <summary>個人情報は守られていますか？</summary>
+        <div class="answer">
+          ISO/IEC 27001 認証取得の国内サーバーでデータを管理しています。お好み・履歴データは AIモデル学習にのみ利用し、第三者提供は一切いたしません。退会時は完全に削除されます。
+        </div>
+      </details>
+      <details class="faq-item fade-up">
+        <summary>対応エリアはどこですか？</summary>
+        <div class="answer">
+          現在、東京23区・大阪市・京都市・福岡市・札幌市の主要5エリアに対応しています。順次、全国の政令指定都市・県庁所在地へ拡大予定です（2026年内に全国主要50都市対応を目指しています）。
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ===== Footer CTA ===== -->
+<section id="cta-final" class="footer-cta">
+  <div class="container">
+    <div class="fade-up">
+      <div class="footer-vertical">飲んだ瞬間、<br>「これだ」。</div>
+      <a href="#" class="cta-gold">
+        <span>無料で 酒縁診断 を試す</span>
+        <span class="arrow">→</span>
+      </a>
+      <div class="sub">クレジットカード登録不要 ／ 約3分で完了</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">酒縁 SAKAEN</div>
+    <div class="footer-links">
+      <a href="#">利用規約</a>
+      <a href="#">プライバシーポリシー</a>
+      <a href="#">特定商取引法</a>
+      <a href="#">運営会社</a>
+      <a href="#">お問い合わせ</a>
+    </div>
+    <div class="footer-copy">© 2026 SAKAEN inc. — All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+  // フェードイン
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+
+  // スムーススクロール時のヘッダー透過調整
+  const nav = document.querySelector('header.nav');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 80) {
+      nav.style.background = 'rgba(11, 11, 13, 0.95)';
+      nav.style.borderBottom = '1px solid rgba(200, 162, 75, 0.18)';
+    } else {
+      nav.style.background = 'linear-gradient(180deg, rgba(11, 11, 13, 0.85), transparent)';
+      nav.style.borderBottom = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>
