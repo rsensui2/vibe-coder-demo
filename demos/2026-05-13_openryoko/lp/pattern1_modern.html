@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OpenRyoko — Markdown が、AI になる。</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0F14;
+    --bg-elev:#11161D;
+    --bg-elev-2:#161C24;
+    --green:#39FF14;
+    --green-dim:rgba(57,255,20,0.12);
+    --green-soft:rgba(57,255,20,0.45);
+    --red:#FF3B30;
+    --red-dim:rgba(255,59,48,0.12);
+    --ink:#E6EDF3;
+    --muted:#8B949E;
+    --line:#21262D;
+    --line-soft:#1A2028;
+    --mono:'JetBrains Mono','IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+    --sans:'Inter','Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  body{
+    background-image:
+      radial-gradient(ellipse 800px 600px at 80% -10%, rgba(57,255,20,0.06), transparent 60%),
+      radial-gradient(ellipse 700px 500px at -10% 30%, rgba(255,59,48,0.04), transparent 60%),
+      linear-gradient(180deg, var(--bg) 0%, #080B10 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background-image:repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+    pointer-events:none;z-index:1;
+  }
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--green);color:#000}
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:#0B0F14}
+  ::-webkit-scrollbar-thumb{background:#21262D;border-radius:5px}
+  ::-webkit-scrollbar-thumb:hover{background:#39FF14}
+
+  /* Container */
+  .wrap{max-width:1240px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+  @media (max-width:768px){.wrap{padding:0 20px}}
+
+  /* Nav */
+  nav.top{
+    position:sticky;top:0;z-index:50;
+    background:rgba(11,15,20,0.78);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;max-width:1240px;margin:0 auto}
+  .logo{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:800;font-size:18px;letter-spacing:-0.02em}
+  .logo-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green-soft);animation:pulse 1.8s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  .nav-links{display:flex;gap:32px;align-items:center}
+  .nav-links a{font-family:var(--mono);font-size:14px;color:var(--muted);transition:color .15s}
+  .nav-links a:hover{color:var(--green)}
+  .nav-star{
+    display:inline-flex;align-items:center;gap:8px;
+    border:1px solid var(--line);background:var(--bg-elev);
+    padding:8px 14px;border-radius:6px;
+    font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink);
+    transition:all .15s;
+  }
+  .nav-star:hover{border-color:var(--green);color:var(--green);box-shadow:0 0 0 1px var(--green-dim)}
+  .nav-star .star-count{padding-left:8px;border-left:1px solid var(--line);margin-left:4px;color:var(--muted)}
+  @media (max-width:768px){.nav-links a:not(.nav-star){display:none}.nav-inner{padding:14px 20px}}
+
+  /* Hero */
+  .hero{padding:100px 0 80px;position:relative}
+  .hero-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:60px;align-items:center}
+  @media (max-width:980px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);font-size:12px;color:var(--green);
+    background:var(--green-dim);border:1px solid var(--green-soft);
+    padding:6px 12px;border-radius:99px;margin-bottom:28px;
+  }
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+  h1.display{
+    font-family:var(--mono);font-weight:800;
+    font-size:clamp(44px,7vw,92px);
+    line-height:1.02;letter-spacing:-0.04em;
+    margin-bottom:24px;
+  }
+  h1.display .accent{color:var(--green);text-shadow:0 0 24px rgba(57,255,20,0.28)}
+  h1.display .slash{color:var(--red)}
+  .hero-sub{font-size:19px;color:var(--muted);max-width:520px;margin-bottom:36px;line-height:1.6}
+  .hero-sub b{color:var(--ink);font-weight:600}
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:40px}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:14px 22px;border-radius:8px;
+    font-family:var(--mono);font-weight:700;font-size:15px;
+    transition:all .15s;cursor:pointer;border:1px solid transparent;
+  }
+  .btn-primary{background:var(--green);color:#000;box-shadow:0 0 0 0 var(--green-soft)}
+  .btn-primary:hover{box-shadow:0 0 24px var(--green-soft);transform:translateY(-1px)}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+  .btn-ghost:hover{border-color:var(--green);color:var(--green)}
+  .hero-meta{display:flex;gap:24px;font-family:var(--mono);font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .hero-meta span{display:inline-flex;align-items:center;gap:6px}
+  .hero-meta .dot-g{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+  /* Terminal */
+  .terminal{
+    background:#0A0E13;border:1px solid var(--line);
+    border-radius:10px;overflow:hidden;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(57,255,20,0.04);
+    position:relative;
+  }
+  .terminal::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse at top, rgba(57,255,20,0.05), transparent 60%);
+    pointer-events:none;
+  }
+  .term-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:#11161D;border-bottom:1px solid var(--line)}
+  .term-dot{width:12px;height:12px;border-radius:50%}
+  .term-dot.r{background:#FF5F57}
+  .term-dot.y{background:#FEBC2E}
+  .term-dot.g{background:#28C840}
+  .term-title{margin-left:12px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .term-body{padding:24px 22px;font-family:var(--mono);font-size:14px;line-height:1.85;min-height:280px;position:relative}
+  .prompt{color:var(--green)}
+  .cmd{color:var(--ink)}
+  .out{color:var(--muted)}
+  .out .ok{color:var(--green)}
+  .out .warn{color:#FEBC2E}
+  .cursor{display:inline-block;width:9px;height:16px;background:var(--green);margin-left:4px;vertical-align:text-bottom;animation:blink 1s steps(2,start) infinite;box-shadow:0 0 6px var(--green-soft)}
+  @keyframes blink{to{visibility:hidden}}
+
+  /* Phone mock */
+  .phone-float{
+    position:absolute;right:-18px;bottom:-30px;
+    width:220px;background:#000;border:2px solid var(--line);
+    border-radius:28px;padding:8px;
+    box-shadow:0 30px 60px -10px rgba(0,0,0,0.8);
+    transform:rotate(4deg);
+    z-index:3;
+  }
+  .phone-inner{background:#0A0E13;border-radius:22px;padding:18px 14px;font-family:var(--sans);font-size:12px;color:var(--ink)}
+  .phone-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .phone-avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#FF6B9D,#FFB088);display:flex;align-items:center;justify-content:center;font-size:12px}
+  .phone-name{font-weight:600;font-size:11px}
+  .phone-name span{color:var(--muted);font-weight:400;margin-left:4px;font-size:10px}
+  .bubble{padding:8px 11px;border-radius:14px;margin-bottom:8px;font-size:11px;line-height:1.5;max-width:88%}
+  .bubble.me{background:#1F6FEB;color:#fff;border-bottom-right-radius:4px;margin-left:auto}
+  .bubble.bot{background:var(--bg-elev-2);color:var(--ink);border-bottom-left-radius:4px;border:1px solid var(--line)}
+  @media (max-width:980px){.phone-float{position:relative;right:auto;bottom:auto;margin:0 auto;transform:rotate(0)}}
+
+  /* Section common */
+  section{padding:100px 0;position:relative}
+  @media (max-width:768px){section{padding:70px 0}}
+  .sec-eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:var(--mono);font-size:12px;color:var(--green);
+    margin-bottom:16px;letter-spacing:0.05em;text-transform:uppercase;
+  }
+  .sec-eyebrow::before{content:"//";color:var(--red);font-weight:700}
+  .sec-title{
+    font-family:var(--mono);font-weight:800;
+    font-size:clamp(32px,5vw,56px);
+    letter-spacing:-0.03em;line-height:1.1;
+    margin-bottom:20px;
+  }
+  .sec-sub{font-size:18px;color:var(--muted);max-width:680px;line-height:1.6;margin-bottom:60px}
+
+  /* Problems */
+  .prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media (max-width:880px){.prob-grid{grid-template-columns:1fr}}
+  .prob-card{
+    background:var(--bg-elev);border:1px solid var(--line);
+    padding:32px 28px;border-radius:10px;
+    transition:all .2s;position:relative;overflow:hidden;
+  }
+  .prob-card::before{
+    content:"";position:absolute;top:0;left:0;width:3px;height:0;
+    background:var(--red);transition:height .3s;
+  }
+  .prob-card:hover{border-color:var(--red);transform:translateY(-2px)}
+  .prob-card:hover::before{height:100%}
+  .prob-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .prob-dot{width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 10px rgba(255,59,48,0.5)}
+  .prob-num{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .prob-card h3{font-family:var(--mono);font-size:20px;font-weight:700;margin-bottom:12px;letter-spacing:-0.02em}
+  .prob-card p{color:var(--muted);font-size:15px;line-height:1.65}
+
+  /* Solution grid */
+  .sol-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media (max-width:1000px){.sol-grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:680px){.sol-grid{grid-template-columns:1fr}}
+  .sol-card{
+    background:linear-gradient(180deg, var(--bg-elev) 0%, var(--bg-elev-2) 100%);
+    border:1px solid var(--line);
+    padding:28px;border-radius:10px;
+    transition:all .2s;position:relative;overflow:hidden;
+  }
+  .sol-card:hover{border-color:var(--green-soft);box-shadow:0 0 0 1px var(--green-dim)}
+  .sol-icon{
+    width:40px;height:40px;border-radius:8px;
+    background:var(--green-dim);color:var(--green);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:18px;
+  }
+  .sol-card h3{font-family:var(--mono);font-size:18px;font-weight:700;margin-bottom:10px;letter-spacing:-0.02em}
+  .sol-card h3 .label{color:var(--green);margin-right:6px}
+  .sol-card p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:16px}
+  .snippet{
+    background:#080B10;border:1px solid var(--line-soft);
+    border-radius:6px;padding:12px 14px;
+    font-family:var(--mono);font-size:12px;line-height:1.6;
+    color:var(--ink);overflow-x:auto;
+  }
+  .snippet .k{color:#FF7B72}
+  .snippet .v{color:#A5D6FF}
+  .snippet .s{color:#A5D6FF}
+  .snippet .c{color:var(--muted)}
+  .snippet .n{color:#FFA657}
+
+  /* Feature deep */
+  .feat-tabs{
+    display:flex;gap:8px;margin-bottom:32px;
+    border-bottom:1px solid var(--line);
+    overflow-x:auto;
+  }
+  .feat-tab{
+    padding:14px 20px;font-family:var(--mono);font-size:14px;font-weight:600;
+    color:var(--muted);background:transparent;border:none;cursor:pointer;
+    border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;
+  }
+  .feat-tab:hover{color:var(--ink)}
+  .feat-tab.active{color:var(--green);border-bottom-color:var(--green)}
+  .feat-panel{display:none;grid-template-columns:1fr 1.1fr;gap:50px;align-items:center}
+  .feat-panel.active{display:grid}
+  @media (max-width:880px){.feat-panel.active{grid-template-columns:1fr}}
+  .feat-panel h3{font-family:var(--mono);font-size:28px;letter-spacing:-0.02em;margin-bottom:18px;line-height:1.2}
+  .feat-panel p{color:var(--muted);font-size:16px;line-height:1.7;margin-bottom:22px}
+  .feat-list{list-style:none;margin-bottom:8px}
+  .feat-list li{display:flex;gap:10px;padding:8px 0;font-size:14px;color:var(--ink);font-family:var(--mono)}
+  .feat-list li::before{content:"▸";color:var(--green);font-weight:700}
+  .feat-code{
+    background:#080B10;border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;
+  }
+  .feat-code-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#11161D;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .copy-btn{
+    background:transparent;border:1px solid var(--line);color:var(--muted);
+    font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:4px;cursor:pointer;
+    transition:all .15s;
+  }
+  .copy-btn:hover{border-color:var(--green);color:var(--green)}
+  .feat-code pre{padding:20px;font-family:var(--mono);font-size:13px;line-height:1.7;overflow-x:auto;color:var(--ink)}
+
+  /* Chat mock for feature 3 */
+  .chat-mock{background:#080B10;border:1px solid var(--line);border-radius:10px;padding:20px;font-family:var(--sans)}
+  .chat-head{display:flex;align-items:center;gap:10px;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .chat-msg{display:flex;gap:12px;margin-bottom:16px}
+  .chat-avatar{width:36px;height:36px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--mono);font-size:14px}
+  .chat-avatar.user{background:#4F46E5;color:#fff}
+  .chat-avatar.bot{background:var(--green-dim);color:var(--green);border:1px solid var(--green-soft)}
+  .chat-content{flex:1}
+  .chat-name{font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink)}
+  .chat-name span{color:var(--muted);font-weight:400;font-size:11px;margin-left:6px;font-family:var(--mono)}
+  .chat-body{font-size:14px;color:var(--ink);line-height:1.6}
+  .chat-body code{font-family:var(--mono);font-size:13px;background:var(--bg-elev-2);padding:2px 6px;border-radius:4px;color:var(--green)}
+
+  /* Compare table */
+  .compare{
+    background:var(--bg-elev);border:1px solid var(--line);
+    border-radius:12px;overflow:hidden;
+  }
+  .compare table{width:100%;border-collapse:collapse;font-size:14px}
+  .compare thead th{
+    background:#0A0E13;padding:18px 16px;text-align:left;
+    font-family:var(--mono);font-weight:700;font-size:13px;
+    border-bottom:1px solid var(--line);color:var(--muted);
+  }
+  .compare thead th.openryoko{color:var(--green);background:rgba(57,255,20,0.04)}
+  .compare tbody td{padding:16px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+  .compare tbody tr:last-child td{border-bottom:none}
+  .compare td.feature{font-family:var(--mono);color:var(--ink);font-weight:500;font-size:13px}
+  .compare td.openryoko{background:rgba(57,255,20,0.04)}
+  .check{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--green);color:#000;font-weight:900;font-size:13px}
+  .cross{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(139,148,158,0.15);color:var(--muted);font-weight:700;font-size:13px}
+  .partial{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(254,188,46,0.15);color:#FEBC2E;font-weight:700;font-size:13px}
+  .compare-scroll{overflow-x:auto}
+
+  /* Pricing */
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media (max-width:880px){.price-grid{grid-template-columns:1fr}}
+  .price-card{
+    background:var(--bg-elev);border:1px solid var(--line);
+    padding:36px 30px;border-radius:12px;
+    transition:all .2s;position:relative;
+  }
+  .price-card.featured{border-color:var(--green-soft);box-shadow:0 0 0 1px var(--green-dim),0 20px 40px -20px rgba(57,255,20,0.15)}
+  .price-card.featured::before{
+    content:"RECOMMENDED";position:absolute;top:-12px;left:30px;
+    background:var(--green);color:#000;
+    font-family:var(--mono);font-size:11px;font-weight:800;
+    padding:4px 10px;border-radius:4px;letter-spacing:0.05em;
+  }
+  .price-name{font-family:var(--mono);font-size:14px;color:var(--muted);margin-bottom:8px;letter-spacing:0.05em;text-transform:uppercase}
+  .price-amount{font-family:var(--mono);font-size:42px;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;line-height:1}
+  .price-amount .unit{font-size:16px;color:var(--muted);font-weight:500}
+  .price-desc{color:var(--muted);font-size:14px;margin-bottom:24px;min-height:42px}
+  .price-list{list-style:none;margin-bottom:28px}
+  .price-list li{display:flex;gap:10px;padding:8px 0;font-size:14px;color:var(--ink)}
+  .price-list li::before{content:"✓";color:var(--green);font-weight:800}
+  .price-list li.dim{color:var(--muted)}
+  .price-list li.dim::before{content:"·";color:var(--muted)}
+  .price-cta{
+    width:100%;text-align:center;
+    padding:12px;border-radius:6px;
+    font-family:var(--mono);font-weight:700;font-size:14px;
+    border:1px solid var(--line);background:transparent;color:var(--ink);
+    transition:all .15s;cursor:pointer;display:block;
+  }
+  .price-cta:hover{border-color:var(--green);color:var(--green)}
+  .price-cta.primary{background:var(--green);color:#000;border-color:var(--green)}
+  .price-cta.primary:hover{box-shadow:0 0 18px var(--green-soft)}
+  .price-soon{position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:10px;color:var(--muted);border:1px solid var(--line);padding:3px 8px;border-radius:99px;letter-spacing:0.05em}
+
+  /* Testimonials */
+  .test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media (max-width:880px){.test-grid{grid-template-columns:1fr}}
+  .test-card{
+    background:var(--bg-elev);border:1px solid var(--line);
+    padding:28px;border-radius:10px;
+    display:flex;flex-direction:column;gap:18px;
+  }
+  .test-card .quote{font-size:15px;line-height:1.7;color:var(--ink);position:relative;padding-left:18px}
+  .test-card .quote::before{content:"“";position:absolute;left:-4px;top:-12px;font-size:50px;color:var(--green);font-family:Georgia,serif;line-height:1;font-weight:700}
+  .test-meta{display:flex;align-items:center;gap:12px;padding-top:14px;border-top:1px solid var(--line-soft)}
+  .test-avatar{
+    width:42px;height:42px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-weight:800;font-size:14px;
+    background:linear-gradient(135deg, var(--green-dim), rgba(255,59,48,0.1));
+    color:var(--green);border:1px solid var(--line);
+  }
+  .test-name{font-family:var(--mono);font-weight:700;font-size:14px}
+  .test-role{font-size:12px;color:var(--muted)}
+
+  /* FAQ */
+  .faq-list{display:flex;flex-direction:column;gap:12px}
+  .faq-item{
+    background:var(--bg-elev);border:1px solid var(--line);
+    border-radius:10px;overflow:hidden;
+  }
+  .faq-q{
+    width:100%;text-align:left;padding:22px 24px;
+    background:transparent;border:none;color:var(--ink);
+    font-family:var(--mono);font-weight:700;font-size:16px;
+    cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;
+    transition:color .15s;
+  }
+  .faq-q:hover{color:var(--green)}
+  .faq-q .num{color:var(--green);font-size:12px;margin-right:12px}
+  .faq-icon{width:18px;height:18px;flex-shrink:0;transition:transform .25s;color:var(--muted)}
+  .faq-item.open .faq-icon{transform:rotate(45deg);color:var(--green)}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease;padding:0 24px;color:var(--muted);font-size:15px;line-height:1.7}
+  .faq-item.open .faq-a{max-height:300px;padding:0 24px 22px}
+
+  /* Footer CTA */
+  .foot-cta{
+    background:linear-gradient(135deg, var(--bg-elev) 0%, #0A0E13 100%);
+    border:1px solid var(--line);
+    border-radius:14px;padding:60px 40px;text-align:center;
+    position:relative;overflow:hidden;
+  }
+  .foot-cta::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse at center top, rgba(57,255,20,0.08), transparent 60%);
+    pointer-events:none;
+  }
+  .foot-cta h2{font-family:var(--mono);font-size:clamp(32px,5vw,56px);font-weight:800;letter-spacing:-0.04em;margin-bottom:16px}
+  .foot-cta h2 .gh{color:var(--green)}
+  .foot-cta p{color:var(--muted);font-size:17px;margin-bottom:32px}
+  .tags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:32px}
+  .tag{font-family:var(--mono);font-size:12px;color:var(--green);background:var(--green-dim);border:1px solid var(--green-soft);padding:6px 12px;border-radius:99px}
+
+  /* Footer */
+  footer{padding:60px 0 40px;border-top:1px solid var(--line);margin-top:80px}
+  .foot-inner{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+  .foot-links{display:flex;gap:24px;font-family:var(--mono);font-size:13px;color:var(--muted);flex-wrap:wrap}
+  .foot-links a:hover{color:var(--green)}
+  .foot-copy{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+  /* Icons */
+  .icon{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .icon-lg{width:22px;height:22px}
+</style>
+</head>
+<body>
+
+<!-- ============== NAV ============== -->
+<nav class="top">
+  <div class="nav-inner">
+    <a href="#" class="logo"><span class="logo-dot"></span>OpenRyoko<span style="color:var(--muted);font-weight:500;margin-left:4px">~/</span></a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#compare">Compare</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a class="nav-star" href="https://github.com/rsensui2/OpenRyoko" target="_blank" rel="noopener">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor" stroke="none"/></svg>
+        Star
+        <span class="star-count">★ 1.2k</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============== HERO ============== -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="badge">v2026.4.29 · MIT License · Production Ready</div>
+        <h1 class="display">Markdown が、<br><span class="accent">AI</span>になる<span class="slash">.</span></h1>
+        <p class="hero-sub">自宅サーバーに住む、常駐型 <b>AI ゲートウェイ OSS</b>。<br>YAML で人格、Markdown でスキル、JSON で cron。<br>全部テキストで、全部 git 管理できる。</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://github.com/rsensui2/OpenRyoko" target="_blank" rel="noopener">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            GitHub で見る
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/rsensui2/OpenRyoko" target="_blank" rel="noopener">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            $ npm i -g openryoko
+          </a>
+        </div>
+        <div class="hero-meta">
+          <span><span class="dot-g"></span>MIT License</span>
+          <span><span class="dot-g"></span>Self-hosted</span>
+          <span><span class="dot-g"></span>Node.js 20+</span>
+          <span><span class="dot-g"></span>Claude + Codex</span>
+        </div>
+      </div>
+
+      <div style="position:relative">
+        <div class="terminal">
+          <div class="term-bar">
+            <span class="term-dot r"></span>
+            <span class="term-dot y"></span>
+            <span class="term-dot g"></span>
+            <span class="term-title">~/.ryoko — zsh — 80×24</span>
+          </div>
+          <div class="term-body">
+            <div><span class="prompt">$</span> <span class="cmd">npm i -g openryoko</span></div>
+            <div class="out">added 247 packages in 8s</div>
+            <div class="out"><span class="ok">✓</span> openryoko@2026.4.29 installed</div>
+            <div style="margin-top:8px"><span class="prompt">$</span> <span class="cmd">ryoko start</span></div>
+            <div class="out">▸ loading config.yaml</div>
+            <div class="out">▸ mounting skills/ org/ memory/</div>
+            <div class="out"><span class="ok">✓</span> Gateway listening on :7777</div>
+            <div class="out"><span class="ok">✓</span> Employee Ryoko ready</div>
+            <div class="out"><span class="ok">✓</span> Slack connector online</div>
+            <div class="out"><span class="ok">✓</span> 23 cron jobs scheduled</div>
+            <div style="margin-top:8px"><span class="prompt">$</span><span class="cursor"></span></div>
+          </div>
+        </div>
+
+        <div class="phone-float">
+          <div class="phone-inner">
+            <div class="phone-head">
+              <div class="phone-avatar">🌸</div>
+              <div>
+                <div class="phone-name">Ryoko <span>· bot</span></div>
+              </div>
+            </div>
+            <div class="bubble me">@Ryoko 今日のタスクは？</div>
+            <div class="bubble bot">📋 Linear 3 件、Slack 未返信 2 件。<br>優先順位、見る？</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== PROBLEMS ============== -->
+<section id="problems">
+  <div class="wrap">
+    <div class="sec-eyebrow">The Problem</div>
+    <h2 class="sec-title">あなたの AI、<br>誰のものですか<span style="color:var(--red)">?</span></h2>
+    <p class="sec-sub">月額 20 ドル払って、自分のデータは他人のサーバー。プロンプトは UI に閉じ込められ、Git で管理もできない。AI Agent が「ツール」止まりなのは、そもそも自分の手元で動いていないから。</p>
+
+    <div class="prob-grid">
+      <div class="prob-card">
+        <div class="prob-head"><span class="prob-dot"></span><span class="prob-num">01 / Lock-in</span></div>
+        <h3>ベンダーロック</h3>
+        <p>OpenAI が値上げしたら終わり。料金体系が変わったら逃げ場がない。プラットフォームに人格を預けるリスク、見ないふりしてませんか。</p>
+      </div>
+      <div class="prob-card">
+        <div class="prob-head"><span class="prob-dot"></span><span class="prob-num">02 / Privacy</span></div>
+        <h3>データ持ち出し不可</h3>
+        <p>会話履歴も、設定も、記憶も、向こうのクラウド。社内データを食わせたくても、コンプラ的にアウト。自分のサーバーに置けないと話にならない。</p>
+      </div>
+      <div class="prob-card">
+        <div class="prob-head"><span class="prob-dot"></span><span class="prob-num">03 / Custom</span></div>
+        <h3>人格カスタマイズ困難</h3>
+        <p>「カスタム GPT」では足りない。複数 AI を組織化したい、cron で自走させたい、Slack で呼びたい。GUI ベースのツールは、結局そこまで届かない。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== SOLUTION ============== -->
+<section id="solution" style="background:linear-gradient(180deg, transparent 0%, rgba(57,255,20,0.02) 50%, transparent 100%)">
+  <div class="wrap">
+    <div class="sec-eyebrow">The Solution</div>
+    <h2 class="sec-title">Markdown で、<br><span style="color:var(--green)">AI 部下</span>を雇う。</h2>
+    <p class="sec-sub">OpenRyoko は自宅サーバーに常駐する Node.js デーモン。設定は全部テキスト。Git で管理して、お気に入りのエディタで編集して、即反映。重い管理画面はいらない。</p>
+
+    <div class="sol-grid">
+      <div class="sol-card">
+        <div class="sol-icon"><svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <h3><span class="label">01</span>Gateway</h3>
+        <p>:7777 で待ち受ける REST API。Slack でも cron でも CLI でも、全部ここを通る。</p>
+        <div class="snippet"><span class="c"># start the daemon</span><br>$ <span class="k">ryoko</span> start <span class="v">--port</span> <span class="n">7777</span></div>
+      </div>
+      <div class="sol-card">
+        <div class="sol-icon"><svg class="icon icon-lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6M4.22 4.22l4.24 4.24m7.07 7.07l4.24 4.24M1 12h6m10 0h6M4.22 19.78l4.24-4.24m7.07-7.07l4.24-4.24"/></svg></div>
+        <h3><span class="label">02</span>Engines</h3>
+        <p>Claude Opus と Codex を切り替え自由。同じ人格を別エンジンで走らせるのも可。</p>
+        <div class="snippet"><span class="k">engine:</span> <span class="v">claude</span><br><span class="k">model:</span> <span class="v">opus</span><br><span class="k">fallback:</span> <span class="v">codex</span></div>
+      </div>
+      <div class="sol-card">
+        <div class="sol-icon"><svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg></div>
+        <h3><span class="label">03</span>Employees</h3>
+        <p>YAML で人格を定義。階層構造で組織化できて、上司が部下に委任できる。</p>
+        <div class="snippet"><span class="k">name:</span> <span class="v">backend-dev</span><br><span class="k">rank:</span> <span class="v">senior</span><br><span class="k">reportsTo:</span> <span class="v">cto</span></div>
+      </div>
+      <div class="sol-card">
+        <div class="sol-icon"><svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <h3><span class="label">04</span>Skills</h3>
+        <p>Markdown の手順書。AI はこれを読んで「やり方」を学ぶ。コードじゃなくて散文で。</p>
+        <div class="snippet"><span class="c"># SKILL.md</span><br><span class="k">---</span><br><span class="k">name:</span> <span class="v">deploy-staging</span><br><span class="k">description:</span> <span class="v">"..."</span></div>
+      </div>
+      <div class="sol-card">
+        <div class="sol-icon"><svg class="icon icon-lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <h3><span class="label">05</span>Cron</h3>
+        <p>JSON に書いて保存するだけ。デーモンが hot reload で即スケジュール反映。</p>
+        <div class="snippet">{<br>&nbsp;&nbsp;<span class="k">"schedule"</span>: <span class="v">"0 9 * * 1-5"</span>,<br>&nbsp;&nbsp;<span class="k">"prompt"</span>: <span class="v">"daily brief"</span><br>}</div>
+      </div>
+      <div class="sol-card">
+        <div class="sol-icon"><svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <h3><span class="label">06</span>Memory</h3>
+        <p>会話も知識も全部 Markdown ファイル。grep もできるし、git diff もできる。</p>
+        <div class="snippet"><span class="c"># MEMORY.md</span><br>- <span class="v">user:</span> Ryosuke<br>- <span class="v">tz:</span> JST<br>- <span class="v">lang:</span> ja</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FEATURE DEEP ============== -->
+<section id="features">
+  <div class="wrap">
+    <div class="sec-eyebrow">Deep Dive</div>
+    <h2 class="sec-title">テキストで、<br>全部できる。</h2>
+    <p class="sec-sub">人格 / cron / 連携 — どれもファイルで完結。エディタ一個と git があれば、AI 組織を運用できる。</p>
+
+    <div class="feat-tabs" id="featTabs">
+      <button class="feat-tab active" data-tab="t1">$ define-persona</button>
+      <button class="feat-tab" data-tab="t2">$ schedule-cron</button>
+      <button class="feat-tab" data-tab="t3">$ call-via-slack</button>
+    </div>
+
+    <div class="feat-panel active" data-panel="t1">
+      <div>
+        <h3>YAML で人格を定義</h3>
+        <p>名前・口調・スキル・上司・部下。全部 1 ファイルで決まる。Git に commit すれば、組織図そのものがバージョン管理対象になる。</p>
+        <ul class="feat-list">
+          <li>rank / reportsTo で階層構造</li>
+          <li>provides で他部署にサービス提供</li>
+          <li>persona は IDENTITY.md / SOUL.md に分離</li>
+          <li>employee_id は kebab-case でファイル名 = ID</li>
+        </ul>
+      </div>
+      <div class="feat-code">
+        <div class="feat-code-head">
+          <span>~/.ryoko/org/engineering/backend-dev.yaml</span>
+          <button class="copy-btn" data-copy="t1">Copy</button>
+        </div>
+<pre id="code-t1"><span style="color:#FF7B72">name</span>: <span style="color:#A5D6FF">backend-dev</span>
+<span style="color:#FF7B72">department</span>: <span style="color:#A5D6FF">engineering</span>
+<span style="color:#FF7B72">rank</span>: <span style="color:#A5D6FF">senior</span>
+<span style="color:#FF7B72">reportsTo</span>: <span style="color:#A5D6FF">cto</span>
+<span style="color:#FF7B72">engine</span>: <span style="color:#A5D6FF">claude</span>
+<span style="color:#FF7B72">model</span>: <span style="color:#A5D6FF">opus</span>
+<span style="color:#FF7B72">skills</span>:
+  - <span style="color:#A5D6FF">code-review</span>
+  - <span style="color:#A5D6FF">postgres-migration</span>
+  - <span style="color:#A5D6FF">deploy-staging</span>
+<span style="color:#FF7B72">provides</span>:
+  - <span style="color:#FF7B72">name</span>: <span style="color:#A5D6FF">api-design</span>
+    <span style="color:#FF7B72">description</span>: <span style="color:#A5D6FF">"REST/GraphQL の設計レビュー"</span>
+<span style="color:#FF7B72">persona</span>: <span style="color:#FFA657">|</span>
+  寡黙だがレビューは厳しい。<span style="color:#A5D6FF">SOLID</span> を信奉。
+  深夜のデプロイには反対する。</pre>
+      </div>
+    </div>
+
+    <div class="feat-panel" data-panel="t2">
+      <div>
+        <h3>JSON で cron を定義</h3>
+        <p>cron 式と prompt を書くだけ。delivery で配信先も指定できる。ファイルを保存した瞬間、デーモンが watch で検知して即スケジュール反映。</p>
+        <ul class="feat-list">
+          <li>標準 cron 式 (5 fields)</li>
+          <li>timezone 指定可</li>
+          <li>delivery で Slack/Email/Webhook へ自動配信</li>
+          <li>実行ログは runs/ 配下に永続化</li>
+        </ul>
+      </div>
+      <div class="feat-code">
+        <div class="feat-code-head">
+          <span>~/.ryoko/cron/jobs.json</span>
+          <button class="copy-btn" data-copy="t2">Copy</button>
+        </div>
+<pre id="code-t2">{
+  <span style="color:#FF7B72">"id"</span>: <span style="color:#A5D6FF">"daily-briefing"</span>,
+  <span style="color:#FF7B72">"name"</span>: <span style="color:#A5D6FF">"朝の業務ブリーフィング"</span>,
+  <span style="color:#FF7B72">"enabled"</span>: <span style="color:#FFA657">true</span>,
+  <span style="color:#FF7B72">"schedule"</span>: <span style="color:#A5D6FF">"0 9 * * 1-5"</span>,
+  <span style="color:#FF7B72">"timezone"</span>: <span style="color:#A5D6FF">"Asia/Tokyo"</span>,
+  <span style="color:#FF7B72">"engine"</span>: <span style="color:#A5D6FF">"claude"</span>,
+  <span style="color:#FF7B72">"model"</span>: <span style="color:#A5D6FF">"opus"</span>,
+  <span style="color:#FF7B72">"employee"</span>: <span style="color:#A5D6FF">"ryoko"</span>,
+  <span style="color:#FF7B72">"prompt"</span>: <span style="color:#A5D6FF">"Linear と Slack を確認して、</span>
+<span style="color:#A5D6FF">  今日の優先タスク Top3 をまとめて。"</span>,
+  <span style="color:#FF7B72">"delivery"</span>: {
+    <span style="color:#FF7B72">"connector"</span>: <span style="color:#A5D6FF">"slack"</span>,
+    <span style="color:#FF7B72">"channel"</span>: <span style="color:#A5D6FF">"#daily-brief"</span>
+  }
+}</pre>
+      </div>
+    </div>
+
+    <div class="feat-panel" data-panel="t3">
+      <div>
+        <h3>Slack で呼べば、返事する</h3>
+        <p>Slack のメンションで起動、スレッドで対話、cron からのプロアクティブ通知。あなたの DM が、AI のホームになる。</p>
+        <ul class="feat-list">
+          <li>メンション・DM・スレッド返信に対応</li>
+          <li>employee 名でも department 名でも呼べる</li>
+          <li>長時間タスクは child session で非同期処理</li>
+          <li>Slack 記法 (太字 / コード / 箇条書き) ネイティブ</li>
+        </ul>
+      </div>
+      <div class="chat-mock">
+        <div class="chat-head">
+          <span style="color:var(--green)">●</span> #engineering · 14 members
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar user">R</div>
+          <div class="chat-content">
+            <div class="chat-name">Ryosuke <span>10:42 AM</span></div>
+            <div class="chat-body">@Ryoko <code>users</code> テーブルにインデックス足りてる？ 確認して</div>
+          </div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar bot">🌸</div>
+          <div class="chat-content">
+            <div class="chat-name">Ryoko <span>10:42 AM · APP</span></div>
+            <div class="chat-body">確認したよ。 <code>email</code> に unique index あり。 <code>created_at</code> は range scan が多いから btree 推奨。 <br>backend-dev に PR 任せる？</div>
+          </div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar user">R</div>
+          <div class="chat-content">
+            <div class="chat-name">Ryosuke <span>10:43 AM</span></div>
+            <div class="chat-body">頼む</div>
+          </div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar bot">🌸</div>
+          <div class="chat-content">
+            <div class="chat-name">Ryoko <span>10:43 AM · APP</span></div>
+            <div class="chat-body">了解。 child session 起動した。 完了したら通知する 🌸</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== COMPARE ============== -->
+<section id="compare">
+  <div class="wrap">
+    <div class="sec-eyebrow">Comparison</div>
+    <h2 class="sec-title">他のと、何が違う<span style="color:var(--red)">?</span></h2>
+    <p class="sec-sub">ノーコードでもなく、SaaS でもなく、ライブラリでもない。OpenRyoko は「自分で運用する AI 部下」を、テキストファイルだけで作るための基盤。</p>
+
+    <div class="compare">
+      <div class="compare-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="min-width:200px">Feature</th>
+              <th class="openryoko" style="min-width:120px">OpenRyoko</th>
+              <th style="min-width:100px">n8n</th>
+              <th style="min-width:100px">LangChain</th>
+              <th style="min-width:100px">Lindy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="feature">OSS / セルフホスト可</td>
+              <td class="openryoko"><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="cross">×</span></td>
+            </tr>
+            <tr>
+              <td class="feature">Markdown / YAML で設定</td>
+              <td class="openryoko"><span class="check">✓</span></td>
+              <td><span class="cross">×</span></td>
+              <td><span class="partial">△</span></td>
+              <td><span class="cross">×</span></td>
+            </tr>
+            <tr>
+              <td class="feature">永続記憶 (file-based)</td>
+              <td class="openryoko"><span class="check">✓</span></td>
+              <td><span class="cross">×</span></td>
+              <td><span class="partial">△</span></td>
+              <td><span class="partial">△</span></td>
+            </tr>
+            <tr>
+              <td class="feature">Slack ネイティブ統合</td>
+              <td class="openryoko"><span class="check">✓</span></td>
+              <td><span class="partial">△</span></td>
+              <td><span class="cross">×</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td class="feature">cron hot reload</td>
+              <td class="openryoko"><span class="check">✓</span></td>
+              <td><span class="partial">△</span></td>
+              <td><span class="cross">×</span></td>
+              <td><span class="cross">×</span></td>
+            </tr>
+            <tr>
+              <td class="feature">階層型エージェント組織</td>
+              <td class="openryoko"><span class="check">✓</span></td>
+              <td><span class="cross">×</span></td>
+              <td><span class="partial">△</span></td>
+              <td><span class="cross">×</span></td>
+            </tr>
+            <tr>
+              <td class="feature">Git で全部管理</td>
+              <td class="openryoko"><span class="check">✓</span></td>
+              <td><span class="cross">×</span></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="cross">×</span></td>
+            </tr>
+            <tr>
+              <td class="feature">複数 LLM 切替 (Claude+GPT)</td>
+              <td class="openryoko"><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="partial">△</span></td>
+            </tr>
+            <tr>
+              <td class="feature">学習コスト</td>
+              <td class="openryoko" style="font-family:var(--mono);color:var(--green);font-weight:700">Low</td>
+              <td style="font-family:var(--mono);color:#FEBC2E">Medium</td>
+              <td style="font-family:var(--mono);color:var(--red)">High</td>
+              <td style="font-family:var(--mono);color:var(--green);font-weight:700">Low</td>
+            </tr>
+            <tr>
+              <td class="feature">月額コスト</td>
+              <td class="openryoko" style="font-family:var(--mono);color:var(--green);font-weight:700">$0</td>
+              <td style="font-family:var(--mono);color:var(--ink)">$20+</td>
+              <td style="font-family:var(--mono);color:var(--green);font-weight:700">$0</td>
+              <td style="font-family:var(--mono);color:var(--ink)">$49+</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== PRICING ============== -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="sec-eyebrow">Pricing</div>
+    <h2 class="sec-title">料金。シンプル。</h2>
+    <p class="sec-sub">本体は永久無料の OSS。エンタープライズ需要には別途応える。</p>
+
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="price-name">Community</div>
+        <div class="price-amount">$0<span class="unit"> / forever</span></div>
+        <div class="price-desc">個人開発・OSS 利用・スタートアップ向け。MIT ライセンスで完全フリー。</div>
+        <ul class="price-list">
+          <li>全機能アンロック</li>
+          <li>自宅サーバー / VPS にセルフホスト</li>
+          <li>GitHub Issues でサポート</li>
+          <li>コミュニティ Discord</li>
+          <li class="dim">SLA なし</li>
+        </ul>
+        <a href="https://github.com/rsensui2/OpenRyoko" target="_blank" rel="noopener" class="price-cta primary">GitHub で始める</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-name">Pro Support</div>
+        <div class="price-amount">¥要相談<span class="unit"> / month</span></div>
+        <div class="price-desc">受託サポート付きのプラン。社内導入を確実に成功させたいチームへ。</div>
+        <ul class="price-list">
+          <li>Community の全機能</li>
+          <li>導入支援 / 設計レビュー</li>
+          <li>専用 Slack サポートチャネル</li>
+          <li>優先バグ修正</li>
+          <li>カスタム skill 開発</li>
+        </ul>
+        <a href="https://github.com/rsensui2/OpenRyoko" target="_blank" rel="noopener" class="price-cta">問い合わせる</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-soon">Coming Soon</div>
+        <div class="price-name">Enterprise</div>
+        <div class="price-amount">Custom</div>
+        <div class="price-desc">マルチテナント / SOC2 / SSO / 監査ログ対応。組織横断の AI 基盤を持ちたい大企業向け。</div>
+        <ul class="price-list">
+          <li>マルチテナント対応</li>
+          <li>SOC2 Type II 準拠 (準備中)</li>
+          <li>SSO / SAML / SCIM</li>
+          <li>監査ログ / コンプライアンス</li>
+          <li>専任カスタマーサクセス</li>
+        </ul>
+        <a href="https://github.com/rsensui2/OpenRyoko" target="_blank" rel="noopener" class="price-cta">Waitlist に登録</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== TESTIMONIALS ============== -->
+<section id="testimonials">
+  <div class="wrap">
+    <div class="sec-eyebrow">Voices</div>
+    <h2 class="sec-title">使ってる人の声。</h2>
+    <p class="sec-sub">Indie Hacker、研究者、CTO — それぞれの現場で、OpenRyoko は違う形で動いている。</p>
+
+    <div class="test-grid">
+      <div class="test-card">
+        <p class="quote">cron で毎朝 Linear と GitHub Issue を眺めて、Slack DM で「今日これやろう」って言ってくる。 自分の subagent が雇える時代になった。</p>
+        <div class="test-meta">
+          <div class="test-avatar">K</div>
+          <div>
+            <div class="test-name">@kentaro_dev</div>
+            <div class="test-role">Indie Hacker · SaaS 個人開発</div>
+          </div>
+        </div>
+      </div>
+      <div class="test-card">
+        <p class="quote">学内データを Claude に食わせたかったけど、外に出せなくて詰んでた。 OpenRyoko を研究室サーバーに置いて、Markdown で人格定義して、ようやく現実的になった。</p>
+        <div class="test-meta">
+          <div class="test-avatar">M</div>
+          <div>
+            <div class="test-name">Dr. Mizuki S.</div>
+            <div class="test-role">研究者 · 計算社会科学</div>
+          </div>
+        </div>
+      </div>
+      <div class="test-card">
+        <p class="quote">社内の AI 基盤を自前で持ちたかった。 n8n は重くて、LangChain は薄すぎる。 OpenRyoko はちょうど中間で、エンジニアが「読める」アーキテクチャだった。</p>
+        <div class="test-meta">
+          <div class="test-avatar">T</div>
+          <div>
+            <div class="test-name">Takeshi A.</div>
+            <div class="test-role">CTO · Series B Startup</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FAQ ============== -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-eyebrow">FAQ</div>
+    <h2 class="sec-title">よくある質問。</h2>
+    <p class="sec-sub">気になるところを先回りで。さらに聞きたいことは GitHub Discussions で。</p>
+
+    <div class="faq-list" id="faqList">
+      <div class="faq-item">
+        <button class="faq-q"><span><span class="num">Q01</span>他の AI Agent フレームワークと何が違う？</span>
+          <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">設定が全部 Markdown / YAML / JSON なこと、自宅サーバーに常駐できること、Slack ネイティブで cron が hot reload なこと。 LangChain のような「ライブラリ」ではなく、 n8n のような「GUI ワークフロー」でもなく、 デーモンとしてバックグラウンドで生きている AI です。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span><span class="num">Q02</span>どの LLM が使えますか？</span>
+          <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">現在は Anthropic Claude (Opus / Sonnet / Haiku) と OpenAI Codex (GPT-5 系) に対応。 設定ファイルで切替可能で、 employee ごとに異なるエンジンを当てることもできます。 Ollama 等のローカル LLM 対応は roadmap にあり。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span><span class="num">Q03</span>Slack 以外との連携は？</span>
+          <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">Slack はネイティブ、 その他は REST API 経由でほぼ何でも (Linear / GitHub / Discord / Email / Webhook 等)。 connector を Markdown / YAML で書けば足せる作りなので、 自前の社内 API も問題なく繋がります。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span><span class="num">Q04</span>商用利用できますか？</span>
+          <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">はい、 MIT License なので商用利用 OK。 改変・再配布も自由です。 ソースを社内製品に組み込むのも問題ありません。 受託サポートが欲しい場合は Pro Support プランで対応します。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span><span class="num">Q05</span>どこにホストするのが良いですか？</span>
+          <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a">Node.js 20 が動けばどこでも。 自宅 Mac mini / Raspberry Pi / Linux サーバー / 各種 VPS (Vultr, Hetzner, Sakura 等) / Docker / 社内のオンプレ。 systemd unit でデーモン化するのが推奨パターンです。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FOOTER CTA ============== -->
+<section id="cta-final">
+  <div class="wrap">
+    <div class="foot-cta">
+      <h2><span class="gh">★</span> Star us on GitHub.</h2>
+      <p>OSS の生命線はスター数。あなたの ★ が、次のアップデートを生みます。</p>
+      <div class="cta-row" style="justify-content:center">
+        <a class="btn btn-primary" href="https://github.com/rsensui2/OpenRyoko" target="_blank" rel="noopener">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor" stroke="none"/></svg>
+          github.com/rsensui2/OpenRyoko
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/rsensui2/OpenRyoko" target="_blank" rel="noopener">$ npm i -g openryoko</a>
+      </div>
+      <div class="tags">
+        <span class="tag">#vibecoding</span>
+        <span class="tag">#aiagent</span>
+        <span class="tag">#oss</span>
+        <span class="tag">#self-hosted</span>
+        <span class="tag">#claude</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer>
+  <div class="wrap">
+    <div class="foot-inner">
+      <div class="logo"><span class="logo-dot"></span>OpenRyoko</div>
+      <div class="foot-links">
+        <a href="https://github.com/rsensui2/OpenRyoko" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/rsensui2/OpenRyoko" target="_blank" rel="noopener">npm</a>
+        <a href="https://github.com/rsensui2/OpenRyoko/issues" target="_blank" rel="noopener">Issues</a>
+        <a href="https://github.com/rsensui2/OpenRyoko/discussions" target="_blank" rel="noopener">Discussions</a>
+        <a href="https://x.com/rsensui" target="_blank" rel="noopener">@rsensui</a>
+      </div>
+      <div class="foot-copy">© 2026 Ryosuke Sensui · MIT License</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Tabs
+  const tabs = document.querySelectorAll('.feat-tab');
+  const panels = document.querySelectorAll('.feat-panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => t.classList.toggle('active', t === tab));
+      panels.forEach(p => p.classList.toggle('active', p.dataset.panel === target));
+    });
+  });
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const q = item.querySelector('.faq-q');
+    q.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = 'code-' + btn.dataset.copy;
+      const el = document.getElementById(id);
+      if (!el) return;
+      const text = el.innerText;
+      navigator.clipboard?.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        btn.style.color = 'var(--green)';
+        btn.style.borderColor = 'var(--green)';
+        setTimeout(() => {
+          btn.textContent = orig;
+          btn.style.color = '';
+          btn.style.borderColor = '';
+        }, 1500);
+      });
+    });
+  });
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const href = a.getAttribute('href');
+      if (href.length > 1) {
+        const target = document.querySelector(href);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      }
+    });
+  });
+</script>
+</body>
+</html>

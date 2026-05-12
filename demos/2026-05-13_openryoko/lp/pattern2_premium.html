@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OpenRyoko — あなた専用の AI を、住まわせる。</title>
+<meta name="description" content="OpenRyoko は Markdown と YAML だけで動く常駐 AI ゲートウェイ。自宅サーバーで、あなたの脳の延長線として育つ。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  /* =========================================
+     Design tokens
+     ========================================= */
+  :root {
+    --bg: #FAFAFA;
+    --bg-card: #FFFFFF;
+    --bg-soft: #F4F6F8;
+    --primary: #0EA5A5;
+    --primary-2: #2DD4BF;
+    --accent: #FF6B5B;
+    --ink: #0A0F1C;
+    --muted: #5C6A7B;
+    --line: #E8ECEF;
+    --line-strong: #D6DCE2;
+    --gradient: linear-gradient(135deg, #0EA5A5 0%, #2DD4BF 100%);
+    --gradient-soft: linear-gradient(135deg, rgba(14,165,165,0.08) 0%, rgba(45,212,191,0.04) 100%);
+    --shadow-sm: 0 1px 2px rgba(10,15,28,0.04), 0 1px 1px rgba(10,15,28,0.02);
+    --shadow-md: 0 4px 16px rgba(10,15,28,0.06), 0 1px 3px rgba(10,15,28,0.04);
+    --shadow-lg: 0 24px 60px -20px rgba(14,165,165,0.18), 0 8px 24px rgba(10,15,28,0.06);
+    --radius: 14px;
+    --radius-lg: 20px;
+    --max: 1200px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+  .container {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* =========================================
+     Typography
+     ========================================= */
+  h1, h2, h3, h4 {
+    font-family: 'Sora', 'Noto Sans JP', sans-serif;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--primary);
+    background: var(--gradient-soft);
+    border: 1px solid rgba(14,165,165,0.18);
+    padding: 6px 14px;
+    border-radius: 100px;
+  }
+
+  .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 0 4px rgba(14,165,165,0.15);
+  }
+
+  .section-title {
+    font-size: clamp(32px, 4.2vw, 52px);
+    letter-spacing: -0.025em;
+  }
+
+  .section-sub {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 640px;
+    margin-top: 16px;
+  }
+
+  .text-gradient {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* =========================================
+     Buttons
+     ========================================= */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 22px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--gradient);
+    color: white;
+    box-shadow: 0 8px 20px -8px rgba(14,165,165,0.5);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px -8px rgba(14,165,165,0.6);
+  }
+
+  .btn-outline {
+    background: var(--bg-card);
+    color: var(--ink);
+    border-color: var(--line-strong);
+  }
+  .btn-outline:hover {
+    border-color: var(--ink);
+    background: var(--bg);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    padding: 10px 16px;
+  }
+  .btn-ghost:hover { background: var(--bg-soft); }
+
+  /* =========================================
+     Nav
+     ========================================= */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,250,250,0.72);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid rgba(232,236,239,0.6);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: -0.02em;
+  }
+  .logo-mark {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--gradient);
+    display: grid;
+    place-items: center;
+    color: white;
+    box-shadow: 0 4px 10px -2px rgba(14,165,165,0.5);
+  }
+  .nav-links {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .nav-links a {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .nav-links a:hover { color: var(--ink); background: var(--bg-soft); }
+  .nav-right {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  @media (max-width: 820px) {
+    .nav-links { display: none; }
+  }
+
+  /* =========================================
+     Hero
+     ========================================= */
+  .hero {
+    padding: 80px 0 100px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(14,165,165,0.08), transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -150px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(255,107,91,0.06), transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 60px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  .hero h1 {
+    font-size: clamp(42px, 6vw, 76px);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    margin-top: 24px;
+    font-family: 'Sora', 'Noto Sans JP', sans-serif;
+  }
+  .hero p.lead {
+    font-size: 19px;
+    color: var(--muted);
+    margin-top: 24px;
+    max-width: 560px;
+    line-height: 1.65;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+    max-width: 520px;
+  }
+  .hero-stat .num {
+    font-family: 'Sora', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-stat .label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Editor mock */
+  .editor {
+    background: #0A0F1C;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .editor-bar {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: #0F1524;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    gap: 10px;
+  }
+  .dots {
+    display: flex; gap: 6px;
+  }
+  .dots span {
+    width: 12px; height: 12px; border-radius: 50%;
+  }
+  .dots .r { background: #FF5F57; }
+  .dots .y { background: #FEBC2E; }
+  .dots .g { background: #28C840; }
+  .editor-tabs {
+    display: flex;
+    gap: 4px;
+    margin-left: 18px;
+  }
+  .editor-tab {
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #8b95a7;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .editor-tab.active {
+    background: rgba(14,165,165,0.12);
+    color: #2DD4BF;
+  }
+  .editor-body {
+    padding: 22px 24px;
+    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: #C9D1D9;
+  }
+  .editor-body .line {
+    display: flex;
+    gap: 16px;
+  }
+  .editor-body .ln {
+    color: #4a5566;
+    width: 18px;
+    text-align: right;
+    user-select: none;
+  }
+  .tk-key { color: #FF6B5B; }
+  .tk-str { color: #2DD4BF; }
+  .tk-com { color: #6b7383; font-style: italic; }
+  .tk-num { color: #FF9D6B; }
+  .tk-fn  { color: #A78BFA; }
+
+  @media (max-width: 980px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .editor { order: -1; }
+  }
+
+  /* =========================================
+     Logo wall
+     ========================================= */
+  .logowall {
+    padding: 50px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-card);
+  }
+  .logowall-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .logowall-label {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .logowall-items {
+    display: flex;
+    gap: 36px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .logowall-item {
+    font-family: 'Sora', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--muted);
+    opacity: 0.85;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logowall-item svg { opacity: 0.6; }
+
+  /* =========================================
+     Sections
+     ========================================= */
+  section.block {
+    padding: 110px 0;
+    position: relative;
+  }
+  .block-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .block-header.left {
+    text-align: left;
+    margin-bottom: 56px;
+  }
+  .block-header .section-sub {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .block-header.left .section-sub { margin-left: 0; }
+
+  /* =========================================
+     Reasons (3-card)
+     ========================================= */
+  .reasons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+  .reason-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 36px 32px;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .reason-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gradient);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .reason-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: transparent;
+  }
+  .reason-card:hover::before { opacity: 1; }
+  .reason-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: var(--gradient-soft);
+    display: grid;
+    place-items: center;
+    color: var(--primary);
+    margin-bottom: 22px;
+  }
+  .reason-card h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  .reason-card p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  .reason-num {
+    position: absolute;
+    top: 24px; right: 28px;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--line-strong);
+    letter-spacing: 0.05em;
+  }
+  @media (max-width: 860px) {
+    .reasons { grid-template-columns: 1fr; }
+  }
+
+  /* =========================================
+     How it works (timeline)
+     ========================================= */
+  .how {
+    background: var(--bg-card);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .timeline {
+    position: relative;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--primary) 0%, var(--primary-2) 50%, var(--line) 100%);
+  }
+  .step {
+    position: relative;
+    padding-left: 76px;
+    padding-bottom: 36px;
+  }
+  .step:last-child { padding-bottom: 0; }
+  .step-num {
+    position: absolute;
+    left: 0; top: 0;
+    width: 50px; height: 50px;
+    border-radius: 14px;
+    background: var(--bg-card);
+    border: 2px solid var(--primary);
+    display: grid;
+    place-items: center;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    color: var(--primary);
+    box-shadow: 0 4px 14px -4px rgba(14,165,165,0.4);
+  }
+  .step h4 {
+    font-size: 19px;
+    margin-bottom: 6px;
+  }
+  .step p {
+    color: var(--muted);
+    font-size: 15.5px;
+  }
+  .step code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    padding: 2px 8px;
+    border-radius: 6px;
+    color: var(--ink);
+    margin-top: 8px;
+    display: inline-block;
+  }
+
+  /* =========================================
+     Features grid
+     ========================================= */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .feature {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px 26px;
+    transition: all 0.2s;
+  }
+  .feature:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .feature-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--gradient-soft);
+    display: grid;
+    place-items: center;
+    color: var(--primary);
+    margin-bottom: 18px;
+  }
+  .feature h4 {
+    font-size: 17px;
+    margin-bottom: 6px;
+    font-family: 'Sora', sans-serif;
+  }
+  .feature h4 small {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+  }
+  .feature p {
+    color: var(--muted);
+    font-size: 14.5px;
+    line-height: 1.65;
+    margin-top: 8px;
+  }
+  @media (max-width: 880px) {
+    .features { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .features { grid-template-columns: 1fr; }
+  }
+
+  /* =========================================
+     Comparison
+     ========================================= */
+  .compare-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  table.compare {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  .compare th, .compare td {
+    padding: 18px 22px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  .compare thead th {
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    background: var(--bg-soft);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .compare thead th.us {
+    background: var(--gradient-soft);
+    color: var(--primary);
+  }
+  .compare tbody tr:last-child td { border-bottom: none; }
+  .compare td {
+    color: var(--ink);
+  }
+  .compare td.feat {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .compare td.us {
+    background: rgba(14,165,165,0.03);
+  }
+  .check, .cross {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+  .check { color: var(--primary); }
+  .cross { color: var(--accent); }
+  .partial { color: #C68900; }
+  @media (max-width: 720px) {
+    .compare th, .compare td {
+      padding: 12px 14px;
+      font-size: 13.5px;
+    }
+  }
+
+  /* =========================================
+     Stats
+     ========================================= */
+  .stats {
+    background: var(--ink);
+    color: white;
+    border-radius: var(--radius-lg);
+    padding: 60px 50px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stats::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -10%;
+    width: 60%; height: 200%;
+    background: radial-gradient(ellipse, rgba(14,165,165,0.15), transparent 60%);
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .stat-item .stat-num {
+    font-family: 'Sora', sans-serif;
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    background: linear-gradient(180deg, #FFFFFF 0%, #2DD4BF 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-item .stat-label {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 8px;
+  }
+  .stat-item .stat-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  @media (max-width: 780px) {
+    .stats { padding: 40px 28px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .stat-item .stat-num { font-size: 42px; }
+  }
+
+  /* =========================================
+     Testimonials
+     ========================================= */
+  .testimonials {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .testim {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 32px 30px;
+    transition: all 0.2s;
+  }
+  .testim:hover { box-shadow: var(--shadow-md); }
+  .quote-mark {
+    color: var(--primary);
+    font-size: 36px;
+    line-height: 1;
+    font-family: 'Sora', serif;
+  }
+  .testim p {
+    font-size: 15.5px;
+    color: var(--ink);
+    margin: 14px 0 24px;
+    line-height: 1.7;
+  }
+  .testim-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--gradient);
+    color: white;
+    display: grid;
+    place-items: center;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .avatar.b { background: linear-gradient(135deg, #FF6B5B 0%, #FF9D6B 100%); }
+  .avatar.c { background: linear-gradient(135deg, #6366F1 0%, #A78BFA 100%); }
+  .testim-name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .testim-role {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  @media (max-width: 880px) {
+    .testimonials { grid-template-columns: 1fr; }
+  }
+
+  /* =========================================
+     Pricing
+     ========================================= */
+  .pricing {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    align-items: stretch;
+  }
+  .price-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 36px 32px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .price-card.featured {
+    border: 2px solid var(--primary);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-8px);
+  }
+  .price-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gradient);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 100px;
+    letter-spacing: 0.05em;
+  }
+  .price-name {
+    font-family: 'Sora', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .price-amount {
+    margin: 14px 0 6px;
+    font-family: 'Sora', sans-serif;
+    font-size: 44px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+  .price-amount small {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .price-tag {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .price-feats {
+    list-style: none;
+    padding: 24px 0;
+    border-top: 1px solid var(--line);
+    flex: 1;
+  }
+  .price-feats li {
+    font-size: 14.5px;
+    padding: 7px 0;
+    color: var(--ink);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .price-feats li svg {
+    flex-shrink: 0;
+    margin-top: 4px;
+    color: var(--primary);
+  }
+  .price-card .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  @media (max-width: 900px) {
+    .pricing { grid-template-columns: 1fr; }
+    .price-card.featured { transform: none; }
+  }
+
+  /* =========================================
+     FAQ
+     ========================================= */
+  .faq-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .faq-item {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .faq-item.open {
+    border-color: var(--primary);
+    box-shadow: 0 4px 18px -8px rgba(14,165,165,0.25);
+  }
+  .faq-q {
+    padding: 22px 26px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+    font-size: 16px;
+    user-select: none;
+    width: 100%;
+    text-align: left;
+  }
+  .faq-q .ico {
+    transition: transform 0.25s;
+    color: var(--muted);
+    flex-shrink: 0;
+    margin-left: 16px;
+  }
+  .faq-item.open .faq-q .ico {
+    transform: rotate(45deg);
+    color: var(--primary);
+  }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0 26px;
+  }
+  .faq-item.open .faq-a {
+    max-height: 360px;
+    padding: 0 26px 24px;
+  }
+  .faq-a p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  /* =========================================
+     CTA band
+     ========================================= */
+  .cta-band {
+    background: var(--gradient);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-band::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15), transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(255,107,91,0.2), transparent 50%);
+  }
+  .cta-band-inner {
+    position: relative;
+    z-index: 1;
+  }
+  .cta-band h2 {
+    font-size: clamp(32px, 4.5vw, 52px);
+    color: white;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+  }
+  .cta-band p {
+    margin-top: 16px;
+    color: rgba(255,255,255,0.85);
+    font-size: 18px;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cta-band .btn-primary {
+    background: white;
+    color: var(--primary);
+    margin-top: 32px;
+    padding: 16px 28px;
+    font-size: 16px;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
+  }
+  .cta-band .btn-primary:hover { background: rgba(255,255,255,0.95); }
+
+  /* =========================================
+     Footer
+     ========================================= */
+  footer {
+    background: var(--bg);
+    padding: 70px 0 30px;
+    border-top: 1px solid var(--line);
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 50px;
+  }
+  .footer-brand p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 14px;
+    max-width: 280px;
+    line-height: 1.7;
+  }
+  .footer-col h5 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 18px;
+    font-family: 'Inter', sans-serif;
+  }
+  .footer-col ul {
+    list-style: none;
+  }
+  .footer-col ul li {
+    margin-bottom: 10px;
+  }
+  .footer-col ul li a {
+    color: var(--ink);
+    font-size: 14.5px;
+    transition: color 0.15s;
+  }
+  .footer-col ul li a:hover { color: var(--primary); }
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+  .footer-bottom .social {
+    display: flex;
+    gap: 16px;
+  }
+  .footer-bottom .social a {
+    color: var(--muted);
+    transition: color 0.15s;
+  }
+  .footer-bottom .social a:hover { color: var(--ink); }
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 540px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .footer-bottom { flex-direction: column; gap: 16px; }
+  }
+
+  /* =========================================
+     Utility
+     ========================================= */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===========================
+     NAV
+=========================== -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="#" class="logo">
+      <span class="logo-mark">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7l9 5 9-5-9-5z"/><path d="M3 17l9 5 9-5"/><path d="M3 12l9 5 9-5"/></svg>
+      </span>
+      OpenRyoko
+    </a>
+    <div class="nav-links">
+      <a href="#features">機能</a>
+      <a href="#how">仕組み</a>
+      <a href="#compare">比較</a>
+      <a href="#pricing">料金</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="nav-right">
+      <a class="btn btn-ghost" href="https://github.com/rsensui2/OpenRyoko">Docs</a>
+      <a class="btn btn-outline" href="https://github.com/rsensui2/OpenRyoko">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.3v3.4c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===========================
+     HERO
+=========================== -->
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="reveal">
+      <span class="eyebrow"><span class="dot"></span>v2026.5 — Open Source MIT</span>
+      <h1>あなた専用の AI を、<br /><span class="text-gradient">住まわせる。</span></h1>
+      <p class="lead">
+        OpenRyoko は <strong>Markdown と YAML だけで動く常駐 AI ゲートウェイ</strong>。<br />
+        自宅サーバーで、あなたの脳の延長線として育つ。
+        ベンダーロックも、月額課金も、もういらない。
+      </p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://github.com/rsensui2/OpenRyoko">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          5 分で始める
+        </a>
+        <a class="btn btn-outline" href="https://github.com/rsensui2/OpenRyoko">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.3v3.4c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+          GitHub で見る
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="num">~10k</div>
+          <div class="label">コード行数（軽量）</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num">0 min</div>
+          <div class="label">設計時間（書き始めるだけ）</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num">0</div>
+          <div class="label">ベンダーロック</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="editor">
+        <div class="editor-bar">
+          <div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <div class="editor-tabs">
+            <span class="editor-tab active">researcher.yaml</span>
+            <span class="editor-tab">daily.json</span>
+            <span class="editor-tab">SKILL.md</span>
+          </div>
+        </div>
+        <div class="editor-body">
+<div class="line"><span class="ln">1</span><span><span class="tk-com"># ~/.ryoko/org/research/researcher.yaml</span></span></div>
+<div class="line"><span class="ln">2</span><span><span class="tk-key">name</span>: researcher</span></div>
+<div class="line"><span class="ln">3</span><span><span class="tk-key">rank</span>: <span class="tk-str">senior</span></span></div>
+<div class="line"><span class="ln">4</span><span><span class="tk-key">engine</span>: <span class="tk-str">claude-opus</span></span></div>
+<div class="line"><span class="ln">5</span><span><span class="tk-key">persona</span>: |</span></div>
+<div class="line"><span class="ln">6</span><span>  Deep researcher. Cites sources.</span></div>
+<div class="line"><span class="ln">7</span><span>  Outputs structured Markdown.</span></div>
+<div class="line"><span class="ln">8</span><span><span class="tk-key">tools</span>:</span></div>
+<div class="line"><span class="ln">9</span><span>  - web_search</span></div>
+<div class="line"><span class="ln">10</span><span>  - read_arxiv</span></div>
+<div class="line"><span class="ln">11</span><span><span class="tk-key">cron</span>: <span class="tk-str">"0 9 * * 1-5"</span></span></div>
+<div class="line"><span class="ln">12</span><span><span class="tk-key">deliver</span>:</span></div>
+<div class="line"><span class="ln">13</span><span>  <span class="tk-key">slack</span>: <span class="tk-str">"#research"</span></span></div>
+<div class="line"><span class="ln">14</span><span></span></div>
+<div class="line"><span class="ln">15</span><span><span class="tk-com"># $ ryoko start → 出社完了。</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     LOGO WALL
+=========================== -->
+<section class="logowall">
+  <div class="container logowall-inner">
+    <div class="logowall-label">Built for</div>
+    <div class="logowall-items">
+      <div class="logowall-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+        Indie Hackers
+      </div>
+      <div class="logowall-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+        Startup CTOs
+      </div>
+      <div class="logowall-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+        OSS Maintainers
+      </div>
+      <div class="logowall-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Vibe Coders
+      </div>
+      <div class="logowall-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Solo Engineers
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     REASONS
+=========================== -->
+<section class="block container">
+  <div class="block-header reveal">
+    <span class="eyebrow"><span class="dot"></span>Why OpenRyoko</span>
+    <h2 class="section-title" style="margin-top:18px;">
+      なぜ "自分専用 AI" は<br />OSS であるべきか。
+    </h2>
+    <p class="section-sub">SaaS は便利だ。でも、あなたの脳のコピーを、誰かのサーバーに置いておく時代じゃない。</p>
+  </div>
+
+  <div class="reasons">
+    <div class="reason-card reveal">
+      <span class="reason-num">01</span>
+      <div class="reason-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <h3>完全 OSS / MIT</h3>
+      <p>コードを読める、フォークできる、改変できる。あなたの AI は誰のサービスでもなく、あなたのソフトウェア。</p>
+    </div>
+
+    <div class="reason-card reveal">
+      <span class="reason-num">02</span>
+      <div class="reason-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6M9 9h1"/></svg>
+      </div>
+      <h3>Markdown 設定</h3>
+      <p>YAML で人格、Markdown でスキル、JSON で cron。GUI もダッシュボードもいらない。エディタが管理画面。</p>
+    </div>
+
+    <div class="reason-card reveal">
+      <span class="reason-num">03</span>
+      <div class="reason-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <h3>自宅サーバー稼働</h3>
+      <p>あなたの Mac、Raspberry Pi、社内サーバー。データはあなたの土地で動く。クラウド請求書はもう来ない。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     HOW IT WORKS
+=========================== -->
+<section class="block how" id="how">
+  <div class="container">
+    <div class="block-header reveal">
+      <span class="eyebrow"><span class="dot"></span>How it works</span>
+      <h2 class="section-title" style="margin-top:18px;">5 つのファイルで、AI が出社する。</h2>
+      <p class="section-sub">プログラミングは要らない。書けるなら、雇える。</p>
+    </div>
+
+    <div class="timeline">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <h4>Markdown を書く</h4>
+        <p>あなたの好み・口調・知っていてほしい事実を書き出す。</p>
+        <code>~/.ryoko/MEMORY.md</code>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <h4>YAML で従業員を定義</h4>
+        <p>名前、役割、人格、得意なツール、報告先。一人ぶんで 15 行。</p>
+        <code>~/.ryoko/org/research/researcher.yaml</code>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <h4>JSON で cron を定義</h4>
+        <p>「毎朝 9 時に AI ニュースをまとめて」。これでスケジューラが組まれる。ホットリロード対応。</p>
+        <code>~/.ryoko/cron/jobs.json</code>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">4</div>
+        <h4>Slack で呼ぶ</h4>
+        <p>DM もメンションも、ゲートウェイ経由でルーティング。返事は数秒。</p>
+        <code>@ryoko 今日の予定まとめて</code>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">5</div>
+        <h4>AI が応える</h4>
+        <p>会話履歴は SQLite に永続化、学んだことは MEMORY に追記。明日のあなたの AI は、今日より少し賢い。</p>
+        <code>systemctl --user restart ryoko.service</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     FEATURES
+=========================== -->
+<section class="block container" id="features">
+  <div class="block-header reveal">
+    <span class="eyebrow"><span class="dot"></span>Features</span>
+    <h2 class="section-title" style="margin-top:18px;">6 つのコア、ひとつのデーモン。</h2>
+    <p class="section-sub">REST API ひとつで全部繋がっている。CLI も Slack も Cron も、同じゲートウェイの上で動く。</p>
+  </div>
+
+  <div class="features">
+    <div class="feature reveal">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01M6 18h.01"/></svg>
+      </div>
+      <h4>Gateway <small>REST API :7777</small></h4>
+      <p>常駐デーモン。/api/status, /api/sessions, /api/cron 等の REST 越しに全機能アクセス。</p>
+    </div>
+
+    <div class="feature reveal">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-6 0v4"/><rect x="3" y="11" width="18" height="11" rx="2"/></svg>
+      </div>
+      <h4>Engines <small>Claude + Codex</small></h4>
+      <p>Claude Opus と Codex (gpt-5.4) を用途別にスイッチ。ジョブごとにエンジン指定可能。</p>
+    </div>
+
+    <div class="feature reveal">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <h4>Employees <small>YAML personas</small></h4>
+      <p>無限階層の組織図。manager / senior / employee の rank、reportsTo、provides で部署横断連携。</p>
+    </div>
+
+    <div class="feature reveal">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      </div>
+      <h4>Skills <small>Markdown playbooks</small></h4>
+      <p>SKILL.md を書けばエージェントが従う。コードじゃない、手順書。バージョン管理も git で。</p>
+    </div>
+
+    <div class="feature reveal">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <h4>Cron <small>JSON hot reload</small></h4>
+      <p>jobs.json を保存した瞬間にスケジューラが再読込。再起動なし。失敗ログは runs/ に残る。</p>
+    </div>
+
+    <div class="feature reveal">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
+      </div>
+      <h4>Memory <small>SQLite + Markdown</small></h4>
+      <p>会話履歴は SQLite、長期記憶は MEMORY.md、参照記憶は knowledge/。grep で過去が引ける。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     COMPARE
+=========================== -->
+<section class="block" id="compare" style="background: var(--bg-card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
+  <div class="container">
+    <div class="block-header reveal">
+      <span class="eyebrow"><span class="dot"></span>Compare</span>
+      <h2 class="section-title" style="margin-top:18px;">他の選択肢と並べてみる。</h2>
+      <p class="section-sub">SaaS は速い。フレームワークは強い。OpenRyoko は、その間の「自分専用」を狙う。</p>
+    </div>
+
+    <div class="compare-wrap reveal">
+      <table class="compare">
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th class="us">OpenRyoko</th>
+            <th>SaaS 系</th>
+            <th>FW 系</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="feat">月額費用</td>
+            <td class="us"><span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 0 円</span></td>
+            <td><span class="cross"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> $20〜/月</span></td>
+            <td><span class="partial">インフラ次第</span></td>
+          </tr>
+          <tr>
+            <td class="feat">セルフホスト</td>
+            <td class="us"><span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 完全対応</span></td>
+            <td><span class="cross"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> 不可</span></td>
+            <td><span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 可</span></td>
+          </tr>
+          <tr>
+            <td class="feat">設定方法</td>
+            <td class="us">Markdown + YAML</td>
+            <td>GUI ダッシュボード</td>
+            <td>Python / TypeScript</td>
+          </tr>
+          <tr>
+            <td class="feat">学習コスト</td>
+            <td class="us"><span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 5 分</span></td>
+            <td><span class="partial">サインアップから</span></td>
+            <td><span class="cross"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> 数日</span></td>
+          </tr>
+          <tr>
+            <td class="feat">Cron / スケジューラ</td>
+            <td class="us"><span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 内蔵</span></td>
+            <td><span class="partial">プランによる</span></td>
+            <td><span class="cross"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> 自前</span></td>
+          </tr>
+          <tr>
+            <td class="feat">Slack 統合</td>
+            <td class="us"><span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 標準</span></td>
+            <td><span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 標準</span></td>
+            <td><span class="cross"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> 自前</span></td>
+          </tr>
+          <tr>
+            <td class="feat">データ所有権</td>
+            <td class="us"><span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> あなた</span></td>
+            <td><span class="cross"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ベンダー</span></td>
+            <td><span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> あなた</span></td>
+          </tr>
+          <tr>
+            <td class="feat">マルチエンジン</td>
+            <td class="us"><span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Claude + Codex</span></td>
+            <td><span class="partial">1〜2 種</span></td>
+            <td><span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 自由</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     STATS
+=========================== -->
+<section class="block container">
+  <div class="block-header reveal">
+    <span class="eyebrow"><span class="dot"></span>Built in production</span>
+    <h2 class="section-title" style="margin-top:18px;">作者の Ryoko、稼働中の実数値。</h2>
+    <p class="section-sub">これは僕（@rsensui）のホーム環境で動いている、実際の Ryoko のサイズ感。</p>
+  </div>
+
+  <div class="stats reveal">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-num">23</div>
+        <div class="stat-label">Cron Jobs</div>
+        <div class="stat-desc">毎日のニュース・要約・障害監視まで自動運行</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">17</div>
+        <div class="stat-label">Employees</div>
+        <div class="stat-desc">researcher, designer, slack-summarizer ほか</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">42</div>
+        <div class="stat-label">Skills</div>
+        <div class="stat-desc">スライド生成・議事録・画像生成 Markdown 化済</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">8.4k+</div>
+        <div class="stat-label">Sessions</div>
+        <div class="stat-desc">過去 4 ヶ月で蓄積された会話、SQLite で grep 可能</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     TESTIMONIALS
+=========================== -->
+<section class="block" style="background: var(--bg-card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
+  <div class="container">
+    <div class="block-header reveal">
+      <span class="eyebrow"><span class="dot"></span>Voices</span>
+      <h2 class="section-title" style="margin-top:18px;">使い始めた人たちの声。</h2>
+    </div>
+
+    <div class="testimonials">
+      <div class="testim reveal">
+        <div class="quote-mark">"</div>
+        <p>SaaS の AI 秘書を 3 つ解約しました。Markdown で自分の業務フローを書ける時点で、もう戻れない。cron で毎朝 Slack に要約が来るのが革命的。</p>
+        <div class="testim-user">
+          <div class="avatar">K</div>
+          <div>
+            <div class="testim-name">@kazumatsu</div>
+            <div class="testim-role">Indie Hacker, Tokyo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testim reveal">
+        <div class="quote-mark">"</div>
+        <p>"自宅サーバーで動く AI" にずっと憧れていて、いろんな OSS を試したけど OpenRyoko が一番続いてる。理由は単純で、書くものが Markdown と YAML だけだから。</p>
+        <div class="testim-user">
+          <div class="avatar b">M</div>
+          <div>
+            <div class="testim-name">@matsuda_dev</div>
+            <div class="testim-role">CTO, Seed startup</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testim reveal">
+        <div class="quote-mark">"</div>
+        <p>OSS の良さって、結局「困ったら自分で直せる」こと。reportsTo フィールドを 1 行追加して組織図を変えられるエージェント基盤、他に知らない。</p>
+        <div class="testim-user">
+          <div class="avatar c">N</div>
+          <div>
+            <div class="testim-name">@nori_oss</div>
+            <div class="testim-role">OSS Maintainer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     PRICING
+=========================== -->
+<section class="block container" id="pricing">
+  <div class="block-header reveal">
+    <span class="eyebrow"><span class="dot"></span>Pricing</span>
+    <h2 class="section-title" style="margin-top:18px;">料金は、シンプルに 3 つ。</h2>
+    <p class="section-sub">本体は永久に無料。あなたの時間を買い戻したい時だけ、課金してください。</p>
+  </div>
+
+  <div class="pricing">
+    <div class="price-card reveal">
+      <div class="price-name">Community</div>
+      <div class="price-amount">¥0<small> / forever</small></div>
+      <div class="price-tag">OSS、MIT ライセンス</div>
+      <ul class="price-feats">
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>npm i -g openryoko</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>全機能利用可能（無制限）</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>GitHub Issues サポート</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>商用利用 OK</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>フォーク／改変自由</li>
+      </ul>
+      <a class="btn btn-outline" href="https://github.com/rsensui2/OpenRyoko">GitHub で始める</a>
+    </div>
+
+    <div class="price-card featured reveal">
+      <div class="price-badge">人気</div>
+      <div class="price-name">Pro 受託</div>
+      <div class="price-amount">要相談<small> / プロジェクト単位</small></div>
+      <div class="price-tag">あなた専用 AI の構築代行</div>
+      <ul class="price-feats">
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>サーバー構築 + デプロイ</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>あなた専用人格 / Skill 設計</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Slack / Notion / Linear 連携</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>運用ハンドオフ + ドキュメント</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>3 ヶ月サポート</li>
+      </ul>
+      <a class="btn btn-primary" href="https://github.com/rsensui2/OpenRyoko">問い合わせる</a>
+    </div>
+
+    <div class="price-card reveal">
+      <div class="price-name">Enterprise</div>
+      <div class="price-amount">Coming<small> Soon</small></div>
+      <div class="price-tag">SSO / 監査ログ / マネージド</div>
+      <ul class="price-feats">
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>マネージド・ホスティング</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>SSO / SAML 統合</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>監査ログ / ポリシー制御</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>専任サポート / SLA</li>
+        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>カスタム開発</li>
+      </ul>
+      <a class="btn btn-outline" href="https://github.com/rsensui2/OpenRyoko">ウェイトリストに登録</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     FAQ
+=========================== -->
+<section class="block" id="faq" style="background: var(--bg-card); border-top: 1px solid var(--line);">
+  <div class="container">
+    <div class="block-header reveal">
+      <span class="eyebrow"><span class="dot"></span>FAQ</span>
+      <h2 class="section-title" style="margin-top:18px;">よくある質問。</h2>
+    </div>
+
+    <div class="faq-wrap reveal">
+      <div class="faq-item">
+        <button class="faq-q">
+          <span>本当に無料で全部使えるんですか？</span>
+          <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </button>
+        <div class="faq-a">
+          <p>はい。OpenRyoko 本体は MIT ライセンスで、完全無料・無制限です。費用が発生するのは、利用する LLM API（Claude / OpenAI 等）への支払いだけ。あなたのキーで、あなたが直接プロバイダーに払う形なので、僕（作者）には 1 円も入りません。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span>普通のエージェントフレームワークと何が違うんですか？</span>
+          <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </button>
+        <div class="faq-a">
+          <p>「ライブラリ」じゃなくて「常駐デーモン」であること。OpenRyoko は npm install したら systemd / launchd で立ち上がり、自分でスケジューラと REST API を持って動き続けます。あなたが書くのは Python スクリプトじゃなく、Markdown と YAML だけ。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span>どの LLM が使えますか？</span>
+          <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </button>
+        <div class="faq-a">
+          <p>現在は Claude (Opus / Sonnet) と Codex (GPT 系) を標準サポート。エンジンはジョブごと・従業員ごとに切替可能です。ローカル LLM や他プロバイダー対応は engines プラグインで追加可能（コントリビューション歓迎）。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span>Mac mini / Raspberry Pi でも動きますか？</span>
+          <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </button>
+        <div class="faq-a">
+          <p>動きます。本体は Node.js / TypeScript 製で、メモリ使用量は数百 MB 程度。重い処理はクラウドの LLM 側でやるので、ゲートウェイ自体は ARM ベースの小型サーバーでも十分。作者自身も自宅 Mac mini で常駐運用しています。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span>会社のセキュリティ要件に通せますか？</span>
+          <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </button>
+        <div class="faq-a">
+          <p>OpenRyoko 自体は完全セルフホストなので、データを社外に出さない構成が組めます。SSO / 監査ログ / マネージドホスティングは Enterprise プラン（Coming Soon）で対応予定。先行登録は GitHub のディスカッションへどうぞ。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     CTA BAND
+=========================== -->
+<section class="cta-band">
+  <div class="container cta-band-inner reveal">
+    <h2>今すぐ、自分専用の AI を住まわせよう。</h2>
+    <p>npm i -g openryoko で 5 分後にはあなたの Slack に「出社しました」と返事が来る。</p>
+    <a class="btn btn-primary" href="https://github.com/rsensui2/OpenRyoko">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.3v3.4c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+      GitHub で始める
+    </a>
+  </div>
+</section>
+
+<!-- ===========================
+     FOOTER
+=========================== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="logo" href="#">
+          <span class="logo-mark">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7l9 5 9-5-9-5z"/><path d="M3 17l9 5 9-5"/><path d="M3 12l9 5 9-5"/></svg>
+          </span>
+          OpenRyoko
+        </a>
+        <p>Markdown と YAML だけで動く、自分専用 AI のためのオープンソース・ゲートウェイ。</p>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <ul>
+          <li><a href="#features">機能</a></li>
+          <li><a href="#how">仕組み</a></li>
+          <li><a href="#compare">比較</a></li>
+          <li><a href="#pricing">料金</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Developers</h5>
+        <ul>
+          <li><a href="https://github.com/rsensui2/OpenRyoko">GitHub</a></li>
+          <li><a href="https://github.com/rsensui2/OpenRyoko">Docs</a></li>
+          <li><a href="https://github.com/rsensui2/OpenRyoko">CLI</a></li>
+          <li><a href="https://github.com/rsensui2/OpenRyoko">API リファレンス</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Community</h5>
+        <ul>
+          <li><a href="https://github.com/rsensui2/OpenRyoko">Discussions</a></li>
+          <li><a href="https://github.com/rsensui2/OpenRyoko">Issues</a></li>
+          <li><a href="https://github.com/rsensui2/OpenRyoko">Contributing</a></li>
+          <li><a href="https://github.com/rsensui2/OpenRyoko">Changelog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <ul>
+          <li><a href="https://github.com/rsensui2/OpenRyoko">MIT License</a></li>
+          <li><a href="https://github.com/rsensui2/OpenRyoko">Privacy</a></li>
+          <li><a href="https://github.com/rsensui2/OpenRyoko">Security</a></li>
+          <li><a href="https://github.com/rsensui2/OpenRyoko">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 OpenRyoko — built by <a href="https://github.com/rsensui2" style="color:var(--ink);font-weight:600;">@rsensui</a> · MIT License</div>
+      <div class="social">
+        <a href="https://github.com/rsensui2/OpenRyoko" aria-label="GitHub">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.3v3.4c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        </a>
+        <a href="https://twitter.com/rsensui" aria-label="X">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // FAQ accordion
+  document.querySelectorAll('.faq-q').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.parentElement;
+      const isOpen = item.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.faq-item.open').forEach((el) => el.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+  // Open first FAQ by default for visibility
+  const firstFaq = document.querySelector('.faq-item');
+  if (firstFaq) firstFaq.classList.add('open');
+</script>
+
+</body>
+</html>
