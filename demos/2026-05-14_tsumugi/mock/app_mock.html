@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tsumugi 紡ぎ — モックアプリ</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700;800&family=Noto+Serif+JP:wght@500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+  /* ===================== カラートークン ===================== */
+  :root {
+    --kinari:   #F4EFE6;  /* 生成り — 背景 */
+    --card:     #FBF8F1;  /* カード */
+    --ai:       #1F3A5F;  /* 藍 — 見出し */
+    --ai-deep:  #13243B;  /* 濃藍 */
+    --shu:      #D9483B;  /* 朱 — 点・結び目・アクセント */
+    --kinshi:   #C9A23F;  /* 金糸 — 紡がれた線 */
+    --sumi:     #2A2620;  /* 墨 — 本文 */
+    --karecha:  #7A7264;  /* 枯茶 — サブテキスト */
+    --asa:      #D8CFBE;  /* 麻色 — 境界 */
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; min-height: 100%;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--sumi);
+  }
+
+  /* ===================== ステージ（和紙の卓上） ===================== */
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 16px;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(201,162,63,0.10), transparent 42%),
+      radial-gradient(circle at 82% 88%, rgba(31,58,95,0.08), transparent 46%),
+      repeating-linear-gradient(112deg, rgba(122,114,100,0.045) 0 2px, transparent 2px 5px),
+      repeating-linear-gradient(8deg, rgba(122,114,100,0.035) 0 1px, transparent 1px 6px),
+      #ECE4D4;
+  }
+
+  .stage-caption {
+    font-family: 'Shippori Mincho', serif;
+    color: var(--karecha);
+    letter-spacing: 0.16em;
+    font-size: 13px;
+    margin-bottom: 26px;
+    text-align: center;
+  }
+  .stage-caption strong {
+    display: block;
+    font-size: 22px;
+    color: var(--ai-deep);
+    letter-spacing: 0.28em;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+
+  /* ===================== iPhone フレーム ===================== */
+  .device {
+    position: relative;
+    width: 390px;
+    height: 844px;
+    background: #14110D;
+    border-radius: 56px;
+    padding: 12px;
+    box-shadow:
+      0 1px 0 2px #2c2820 inset,
+      0 0 0 11px #1b1813,
+      0 0 0 12px #322d24,
+      0 38px 80px -18px rgba(19,36,59,0.55),
+      0 18px 40px -22px rgba(0,0,0,0.6);
+  }
+  /* サイドボタン */
+  .device::before,
+  .device::after {
+    content: "";
+    position: absolute;
+    background: #211d17;
+    border-radius: 3px;
+  }
+  .device::before { /* 音量 + サイレント */
+    left: -14px; top: 168px;
+    width: 4px; height: 78px;
+    box-shadow: 0 -64px 0 0 #211d17, 0 -116px 0 -10px #211d17;
+  }
+  .device::after { /* 電源 */
+    right: -14px; top: 208px;
+    width: 4px; height: 104px;
+  }
+
+  .screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 44px;
+    overflow: hidden;
+    background: var(--kinari);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 和紙テクスチャ（画面内） */
+  .screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      repeating-linear-gradient(118deg, rgba(122,114,100,0.05) 0 1px, transparent 1px 6px),
+      repeating-linear-gradient(28deg, rgba(122,114,100,0.04) 0 1px, transparent 1px 7px),
+      radial-gradient(circle at 75% 8%, rgba(201,162,63,0.10), transparent 40%);
+  }
+
+  /* ===================== Dynamic Island ===================== */
+  .dynamic-island {
+    position: absolute;
+    top: 11px; left: 50%;
+    transform: translateX(-50%);
+    width: 124px; height: 35px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 13px;
+  }
+  .di-cam {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #2b3a4a 0 30%, #0a0d10 75%);
+    box-shadow: 0 0 0 1px rgba(80,110,140,0.25);
+  }
+
+  /* ===================== ステータスバー ===================== */
+  .statusbar {
+    position: relative;
+    z-index: 40;
+    height: 54px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 30px 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ai-deep);
+  }
+  .statusbar .sb-right { display: flex; align-items: center; gap: 6px; }
+  .sb-bars { display: flex; align-items: flex-end; gap: 1.5px; height: 11px; }
+  .sb-bars i { width: 3px; background: var(--ai-deep); border-radius: 1px; display: block; }
+  .sb-bars i:nth-child(1){ height: 4px; }
+  .sb-bars i:nth-child(2){ height: 6px; }
+  .sb-bars i:nth-child(3){ height: 8px; }
+  .sb-bars i:nth-child(4){ height: 11px; }
+  .sb-batt {
+    width: 25px; height: 12px;
+    border: 1.4px solid var(--ai-deep);
+    border-radius: 3px;
+    position: relative;
+    padding: 1.5px;
+  }
+  .sb-batt::after {
+    content: ""; position: absolute;
+    right: -3.4px; top: 50%; transform: translateY(-50%);
+    width: 2px; height: 4px;
+    background: var(--ai-deep);
+    border-radius: 0 1px 1px 0;
+  }
+  .sb-batt span { display: block; height: 100%; width: 78%; background: var(--ai-deep); border-radius: 1px; }
+
+  /* ===================== アプリヘッダー ===================== */
+  .app-header {
+    position: relative;
+    z-index: 30;
+    flex-shrink: 0;
+    padding: 4px 22px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+  }
+  .brand .logo-mark {
+    position: relative;
+    width: 26px; height: 26px;
+    align-self: center;
+  }
+  .brand .logo-mark .dot-a,
+  .brand .logo-mark .dot-b {
+    position: absolute;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--shu);
+  }
+  .brand .logo-mark .dot-a { top: 2px; left: 2px; }
+  .brand .logo-mark .dot-b { bottom: 2px; right: 2px; }
+  .brand .logo-mark .knot {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 5px; height: 5px;
+    transform: translate(-50%,-50%) rotate(45deg);
+    background: var(--kinshi);
+  }
+  .brand .logo-mark svg { position: absolute; inset: 0; }
+  .brand h1 {
+    margin: 0;
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 800;
+    font-size: 23px;
+    letter-spacing: 0.14em;
+    color: var(--ai-deep);
+  }
+  .brand .romaji {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 11px;
+    letter-spacing: 0.34em;
+    color: var(--karecha);
+    text-transform: lowercase;
+  }
+  .header-ava {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(140deg, var(--ai) 0%, var(--ai-deep) 100%);
+    color: var(--kinari);
+    font-family: 'Shippori Mincho', serif;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 8px -2px rgba(19,36,59,0.5);
+  }
+
+  /* ===================== スクロール領域 ===================== */
+  .viewport {
+    position: relative;
+    z-index: 20;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 4px 18px 150px;
+    scrollbar-width: none;
+  }
+  .viewport::-webkit-scrollbar { display: none; }
+
+  .screen-panel { display: none; animation: fade .34s ease both; }
+  .screen-panel.active { display: block; }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===================== 共通パーツ ===================== */
+  .section-eyebrow {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--kinshi);
+    margin: 6px 0 2px;
+  }
+  .section-title {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--ai-deep);
+    letter-spacing: 0.08em;
+    margin: 0 0 3px;
+  }
+  .section-sub {
+    font-size: 11.5px;
+    color: var(--karecha);
+    line-height: 1.7;
+    margin: 0 0 14px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--asa);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px -14px rgba(42,38,32,0.5);
+  }
+
+  /* dot カード */
+  .dot-card {
+    position: relative;
+    padding: 14px 15px 14px 26px;
+    margin-bottom: 11px;
+  }
+  .dot-card::before { /* 朱の点 */
+    content: "";
+    position: absolute;
+    left: 13px; top: 19px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--shu);
+    box-shadow: 0 0 0 4px rgba(217,72,59,0.13);
+  }
+  .dot-card .dot-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .dot-type {
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--asa);
+    color: var(--ai);
+    background: rgba(31,58,95,0.05);
+  }
+  .dot-type.t-url   { color: var(--ai);     border-color: rgba(31,58,95,0.3); }
+  .dot-type.t-text  { color: var(--karecha); }
+  .dot-type.t-voice { color: var(--shu);    border-color: rgba(217,72,59,0.3); background: rgba(217,72,59,0.06); }
+  .dot-type.t-image { color: var(--kinshi); border-color: rgba(201,162,63,0.4); background: rgba(201,162,63,0.08); }
+  .dot-time { font-size: 10px; color: var(--karecha); margin-left: auto; }
+  .dot-card .dot-body {
+    font-size: 13px;
+    line-height: 1.72;
+    color: var(--sumi);
+  }
+  .dot-card .dot-body .src {
+    display: block;
+    font-size: 10.5px;
+    color: var(--ai);
+    margin-top: 4px;
+    word-break: break-all;
+  }
+  .dot-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 9px;
+  }
+  .dot-tag {
+    font-size: 9.5px;
+    color: var(--karecha);
+    background: rgba(122,114,100,0.08);
+    padding: 2px 7px;
+    border-radius: 5px;
+  }
+  .dot-tag.linked {
+    color: var(--kinshi);
+    background: rgba(201,162,63,0.13);
+    font-weight: 600;
+  }
+  /* 紡がれ済みインジケータ */
+  .dot-card.woven::after {
+    content: "紡";
+    position: absolute;
+    right: 12px; bottom: 11px;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 10px;
+    color: var(--kinshi);
+    border: 1px solid rgba(201,162,63,0.5);
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+  }
+
+  /* 日付の仕切り */
+  .day-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 2px 11px;
+  }
+  .day-divider span {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--karecha);
+    white-space: nowrap;
+  }
+  .day-divider::before,
+  .day-divider::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: linear-gradient(90deg, transparent, var(--asa), transparent);
+  }
+
+  /* AI 横断解析バナー */
+  .ai-pulse {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: linear-gradient(120deg, rgba(31,58,95,0.07), rgba(201,162,63,0.07));
+    border: 1px solid rgba(31,58,95,0.14);
+    margin-bottom: 14px;
+  }
+  .ai-pulse .orb {
+    position: relative;
+    width: 30px; height: 30px;
+    flex-shrink: 0;
+  }
+  .ai-pulse .orb i {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid var(--ai);
+    opacity: 0.5;
+    animation: pulse 2.4s ease-out infinite;
+  }
+  .ai-pulse .orb i:nth-child(2) { animation-delay: .8s; }
+  .ai-pulse .orb i:nth-child(3) { animation-delay: 1.6s; }
+  .ai-pulse .orb b {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: var(--ai);
+  }
+  @keyframes pulse {
+    0%   { transform: scale(0.45); opacity: 0.7; }
+    100% { transform: scale(1.25); opacity: 0; }
+  }
+  .ai-pulse .txt { font-size: 11.5px; line-height: 1.6; color: var(--ai-deep); }
+  .ai-pulse .txt b { color: var(--shu); font-weight: 700; }
+
+  /* thread カード */
+  .thread-card { padding: 0; margin-bottom: 15px; overflow: hidden; }
+  .thread-card .tc-head {
+    padding: 14px 16px 10px;
+    border-bottom: 1px dashed var(--asa);
+  }
+  .thread-card .tc-kicker {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    color: var(--kinshi);
+    margin-bottom: 4px;
+  }
+  .thread-card .tc-title {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: 15.5px;
+    line-height: 1.55;
+    color: var(--ai-deep);
+  }
+  .thread-card .tc-graph {
+    padding: 6px 8px 4px;
+    background: rgba(244,239,230,0.6);
+  }
+  .thread-card .tc-foot {
+    padding: 9px 16px 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .strength {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px; color: var(--karecha);
+  }
+  .strength .bar {
+    width: 56px; height: 5px;
+    border-radius: 3px;
+    background: rgba(122,114,100,0.18);
+    overflow: hidden;
+  }
+  .strength .bar i {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--kinshi), var(--shu));
+    border-radius: 3px;
+  }
+  .tc-action {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--ai);
+    border: 1px solid rgba(31,58,95,0.3);
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: none;
+  }
+
+  .graph-legend {
+    display: flex;
+    gap: 14px;
+    padding: 4px 8px 8px;
+    font-size: 9.5px;
+    color: var(--karecha);
+  }
+  .graph-legend span { display: flex; align-items: center; gap: 5px; }
+  .graph-legend .swatch { width: 9px; height: 9px; border-radius: 50%; }
+
+  /* ビジネスの種 カード */
+  .seed-card {
+    padding: 15px 16px 14px;
+    margin-bottom: 13px;
+    position: relative;
+  }
+  .seed-card .seed-no {
+    position: absolute;
+    top: 13px; right: 14px;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 26px;
+    color: rgba(201,162,63,0.32);
+    font-weight: 800;
+  }
+  .seed-card .seed-stage {
+    display: inline-block;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    color: var(--shu);
+    background: rgba(217,72,59,0.08);
+    border: 1px solid rgba(217,72,59,0.25);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .seed-card .seed-title {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ai-deep);
+    margin-bottom: 6px;
+    padding-right: 30px;
+  }
+  .seed-card .seed-desc {
+    font-size: 11.5px;
+    line-height: 1.78;
+    color: var(--sumi);
+    margin-bottom: 11px;
+  }
+  .seed-from {
+    border-top: 1px dashed var(--asa);
+    padding-top: 10px;
+  }
+  .seed-from .sf-label {
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    color: var(--kinshi);
+    font-family: 'Shippori Mincho', serif;
+    margin-bottom: 7px;
+  }
+  .seed-from .sf-dot {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 10.5px;
+    color: var(--karecha);
+    line-height: 1.6;
+    margin-bottom: 5px;
+  }
+  .seed-from .sf-dot::before {
+    content: "";
+    margin-top: 4px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--shu);
+    flex-shrink: 0;
+  }
+  .seed-from .sf-dot b { color: var(--sumi); font-weight: 600; }
+
+  /* セレンディピティ通知 */
+  .serendip {
+    display: flex;
+    gap: 12px;
+    padding: 14px 15px;
+    margin-bottom: 11px;
+    position: relative;
+  }
+  .serendip .knot-icon {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    position: relative;
+  }
+  .serendip .knot-icon svg { position: absolute; inset: 0; }
+  .serendip .s-body { flex: 1; }
+  .serendip .s-time {
+    font-size: 9.5px;
+    color: var(--karecha);
+    letter-spacing: 0.08em;
+    margin-bottom: 3px;
+  }
+  .serendip .s-text {
+    font-size: 12px;
+    line-height: 1.74;
+    color: var(--sumi);
+  }
+  .serendip .s-text b { color: var(--shu); font-weight: 700; }
+  .serendip .s-text .span-thread { color: var(--kinshi); font-weight: 700; }
+  .serendip .s-link {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--ai);
+  }
+  .serendip.unread::after {
+    content: "";
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--shu);
+  }
+
+  /* 入力画面 */
+  .input-modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .imode {
+    background: var(--card);
+    border: 1px solid var(--asa);
+    border-radius: 14px;
+    padding: 14px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: .18s;
+  }
+  .imode.sel {
+    border-color: var(--shu);
+    background: rgba(217,72,59,0.05);
+    box-shadow: 0 6px 16px -12px rgba(217,72,59,0.6);
+  }
+  .imode .im-ico {
+    width: 38px; height: 38px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+    background: rgba(31,58,95,0.07);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .imode.sel .im-ico { background: rgba(217,72,59,0.12); }
+  .imode .im-name {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ai-deep);
+  }
+  .imode .im-hint {
+    font-size: 9.5px;
+    color: var(--karecha);
+    margin-top: 2px;
+  }
+  .input-canvas {
+    background: var(--card);
+    border: 1.5px dashed var(--asa);
+    border-radius: 16px;
+    padding: 16px;
+    min-height: 150px;
+    margin-bottom: 14px;
+  }
+  .input-canvas textarea {
+    width: 100%;
+    border: none;
+    background: none;
+    resize: none;
+    outline: none;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--sumi);
+    min-height: 116px;
+  }
+  .input-canvas textarea::placeholder { color: var(--karecha); }
+  .ai-hint-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10.5px;
+    color: var(--ai);
+    background: rgba(31,58,95,0.05);
+    border-radius: 10px;
+    padding: 9px 11px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+  .ai-hint-row .mini-orb {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--ai);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .ai-hint-row .mini-orb::after {
+    content: "";
+    position: absolute; inset: -4px;
+    border: 1px solid var(--ai);
+    border-radius: 50%;
+    opacity: 0.4;
+  }
+  .toss-btn {
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    background: linear-gradient(120deg, var(--shu), #b93a2f);
+    color: var(--kinari);
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    box-shadow: 0 12px 26px -12px rgba(217,72,59,0.7);
+    cursor: pointer;
+  }
+  .recent-toss {
+    margin-top: 20px;
+  }
+
+  /* ===================== 常設の投入バー ===================== */
+  .toss-bar {
+    position: absolute;
+    z-index: 45;
+    left: 14px; right: 14px;
+    bottom: 92px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: var(--card);
+    border: 1px solid var(--asa);
+    border-radius: 999px;
+    padding: 7px 7px 7px 16px;
+    box-shadow: 0 14px 30px -14px rgba(42,38,32,0.55);
+  }
+  .toss-bar input {
+    flex: 1;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 12.5px;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--sumi);
+  }
+  .toss-bar input::placeholder { color: var(--karecha); }
+  .toss-bar .tb-throw {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: var(--shu);
+    color: var(--kinari);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 14px -6px rgba(217,72,59,0.8);
+    cursor: pointer;
+  }
+  .toss-bar .tb-throw svg { display: block; }
+
+  /* ===================== タブバー ===================== */
+  .tabbar {
+    position: absolute;
+    z-index: 46;
+    left: 0; right: 0; bottom: 0;
+    height: 84px;
+    background: rgba(251,248,241,0.93);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid var(--asa);
+    display: flex;
+    padding: 8px 6px 22px;
+  }
+  .tab {
+    flex: 1;
+    border: none;
+    background: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    padding: 4px 0;
+    color: var(--karecha);
+    transition: color .18s;
+  }
+  .tab svg { display: block; }
+  .tab .tab-label {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+  }
+  .tab.active { color: var(--shu); }
+  .tab.active .tab-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--shu);
+    margin-top: 1px;
+  }
+  .tab .tab-dot { width: 4px; height: 4px; }
+
+  /* ホームインジケータ */
+  .home-indicator {
+    position: absolute;
+    z-index: 48;
+    bottom: 7px; left: 50%;
+    transform: translateX(-50%);
+    width: 134px; height: 5px;
+    border-radius: 3px;
+    background: rgba(42,38,32,0.32);
+  }
+
+  /* SVG グラフのノード共通 */
+  .g-node-dot { fill: var(--shu); }
+  .g-node-ring { fill: none; stroke: var(--shu); stroke-width: 1; opacity: 0.4; }
+  .g-thread { fill: none; stroke: var(--kinshi); stroke-width: 2; }
+  .g-thread-soft { fill: none; stroke: var(--kinshi); stroke-width: 1.2; opacity: 0.5; stroke-dasharray: 3 3; }
+  .g-knot { fill: var(--kinshi); }
+  .g-label {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 7px;
+    fill: var(--karecha);
+  }
+  .g-center-label {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 8.5px;
+    fill: var(--ai-deep);
+    font-weight: 700;
+  }
+
+  /* スタッツ行 */
+  .stat-row {
+    display: flex;
+    gap: 9px;
+    margin-bottom: 16px;
+  }
+  .stat-box {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--asa);
+    border-radius: 13px;
+    padding: 11px 10px;
+    text-align: center;
+  }
+  .stat-box .sv {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 800;
+    font-size: 21px;
+    color: var(--ai-deep);
+    line-height: 1;
+  }
+  .stat-box .sv .unit { font-size: 11px; color: var(--karecha); margin-left: 1px; }
+  .stat-box .sl {
+    font-size: 9px;
+    color: var(--karecha);
+    letter-spacing: 0.08em;
+    margin-top: 5px;
+  }
+  .stat-box.accent .sv { color: var(--shu); }
+
+  .filter-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 13px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0;
+    font-size: 10px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--asa);
+    background: var(--card);
+    color: var(--karecha);
+    font-family: 'Shippori Mincho', serif;
+    cursor: pointer;
+  }
+  .chip.on {
+    background: var(--ai-deep);
+    color: var(--kinari);
+    border-color: var(--ai-deep);
+  }
+
+  .footer-note {
+    text-align: center;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 10px;
+    color: var(--karecha);
+    letter-spacing: 0.16em;
+    margin-top: 18px;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+  <div class="stage-caption">
+    <strong>紡&nbsp;ぎ</strong>
+    点を、放り込むだけ。線は、AIが紡ぐ。
+  </div>
+
+  <!-- ============ デバイス ============ -->
+  <div class="device">
+    <div class="dynamic-island"><span class="di-cam"></span></div>
+
+    <div class="screen">
+
+      <!-- ステータスバー -->
+      <div class="statusbar">
+        <span>9:41</span>
+        <div class="sb-right">
+          <span class="sb-bars"><i></i><i></i><i></i><i></i></span>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+            <path d="M8 11.5C8 11.5 1 6 1 3.2 1 1.4 2.6 0.5 4 0.5c1.5 0 3 1 4 2.4C13 1.5 14.5 0.5 16 0.5" stroke="#13243B" stroke-width="1" opacity="0"/>
+            <path d="M1 4.2C3 2.4 5.3 1.4 8 1.4s5 1 7 2.8M3 6.6c1.4-1.3 3-2 5-2s3.6.7 5 2M5.2 9c.8-.8 1.8-1.2 2.8-1.2s2 .4 2.8 1.2M8 11.2l0 0" stroke="#13243B" stroke-width="1.1" stroke-linecap="round"/>
+          </svg>
+          <span class="sb-batt"><span></span></span>
+        </div>
+      </div>
+
+      <!-- アプリヘッダー -->
+      <div class="app-header">
+        <div class="brand">
+          <div class="logo-mark">
+            <svg viewBox="0 0 26 26">
+              <path d="M5 5 Q13 13 21 21" stroke="#C9A23F" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            </svg>
+            <span class="dot-a"></span>
+            <span class="knot"></span>
+            <span class="dot-b"></span>
+          </div>
+          <h1>紡ぎ</h1>
+          <span class="romaji">tsumugi</span>
+        </div>
+        <div class="header-ava">亮</div>
+      </div>
+
+      <!-- ============ スクロール領域 ============ -->
+      <div class="viewport" id="viewport">
+
+        <!-- =========== 画面1: ホーム（dotストリーム） =========== -->
+        <section class="screen-panel active" id="panel-home">
+          <p class="section-eyebrow">DOT STREAM</p>
+          <h2 class="section-title">放り込んだ、点。</h2>
+          <p class="section-sub">複数プロジェクトを横断する、脳内の断片。形式は問わない。AIが裏で繋がりを探し続けている。</p>
+
+          <div class="stat-row">
+            <div class="stat-box"><div class="sv">142<span class="unit">点</span></div><div class="sl">投入した dot</div></div>
+            <div class="stat-box accent"><div class="sv">9<span class="unit">本</span></div><div class="sl">紡がれた thread</div></div>
+            <div class="stat-box"><div class="sv">5<span class="unit">案</span></div><div class="sl">ビジネスの種</div></div>
+          </div>
+
+          <div class="ai-pulse">
+            <div class="orb"><i></i><i></i><i></i><b></b></div>
+            <div class="txt">AIが横断解析中 — 今日投入した<b>4つの点</b>のうち2つに、過去のメモとの隠れた関連を発見。</div>
+          </div>
+
+          <div class="filter-row">
+            <button class="chip on">すべて</button>
+            <button class="chip">A社案件</button>
+            <button class="chip">B社案件</button>
+            <button class="chip">リサーチ</button>
+            <button class="chip">未分類</button>
+          </div>
+
+          <div class="day-divider"><span>今日 ・ 5月14日</span></div>
+
+          <div class="card dot-card woven">
+            <div class="dot-meta">
+              <span class="dot-type t-text">テキスト</span>
+              <span class="dot-time">14:20</span>
+            </div>
+            <div class="dot-body">A社の物流課題：配送ドライバーの高齢化で、需要予測なしの「経験頼みの配車」が限界。庫内在庫もダブつき気味らしい。</div>
+            <div class="dot-tags">
+              <span class="dot-tag">A社案件</span>
+              <span class="dot-tag">物流</span>
+              <span class="dot-tag linked">◆ 3点と関連</span>
+            </div>
+          </div>
+
+          <div class="card dot-card">
+            <div class="dot-meta">
+              <span class="dot-type t-url">URL</span>
+              <span class="dot-time">11:48</span>
+            </div>
+            <div class="dot-body">
+              中小企業向けSaaSの解約率に関する記事。オンボーディング設計が全て、と。
+              <span class="src">note.com/saas-churn-2026-onboarding</span>
+            </div>
+            <div class="dot-tags">
+              <span class="dot-tag">リサーチ</span>
+              <span class="dot-tag">SaaS</span>
+            </div>
+          </div>
+
+          <div class="card dot-card woven">
+            <div class="dot-meta">
+              <span class="dot-type t-voice">音声メモ</span>
+              <span class="dot-time">09:02</span>
+            </div>
+            <div class="dot-body">「移動中の思いつき。需要予測って結局データ持ってる大企業しか使えてない。中小は蚊帳の外。ここ、空いてる気がする」<span class="src">＿ 自動文字起こし・38秒</span></div>
+            <div class="dot-tags">
+              <span class="dot-tag">アイデア</span>
+              <span class="dot-tag linked">◆ 4点と関連</span>
+            </div>
+          </div>
+
+          <div class="day-divider"><span>5月12日</span></div>
+
+          <div class="card dot-card">
+            <div class="dot-meta">
+              <span class="dot-type t-text">テキスト</span>
+              <span class="dot-time">21:30</span>
+            </div>
+            <div class="dot-body">B社のPR戦略メモ：プロダクトは良いのに「誰に刺すか」が曖昧。ストーリーの軸が複数あって散らかっている印象。</div>
+            <div class="dot-tags">
+              <span class="dot-tag">B社案件</span>
+              <span class="dot-tag">PR</span>
+            </div>
+          </div>
+
+          <div class="card dot-card woven">
+            <div class="dot-meta">
+              <span class="dot-type t-image">画像</span>
+              <span class="dot-time">15:11</span>
+            </div>
+            <div class="dot-body">展示会で撮った、競合の需要予測パネルの写真。「導入は大手中心」と書かれていた。<span class="src">＿ OCR解析済み・キーワード3件抽出</span></div>
+            <div class="dot-tags">
+              <span class="dot-tag">リサーチ</span>
+              <span class="dot-tag">競合</span>
+              <span class="dot-tag linked">◆ 2点と関連</span>
+            </div>
+          </div>
+
+          <div class="day-divider"><span>5月9日</span></div>
+
+          <div class="card dot-card">
+            <div class="dot-meta">
+              <span class="dot-type t-url">URL</span>
+              <span class="dot-time">08:40</span>
+            </div>
+            <div class="dot-body">
+              読んだ需要予測の論文。軽量モデルでも少量データで実用精度が出る、という結論。
+              <span class="src">arxiv.org/abs/2602.xxxx — lightweight demand forecasting</span>
+            </div>
+            <div class="dot-tags">
+              <span class="dot-tag">リサーチ</span>
+              <span class="dot-tag">論文</span>
+              <span class="dot-tag linked">◆ 3点と関連</span>
+            </div>
+          </div>
+
+          <p class="footer-note">― 点は、消えない。いつか線になる ―</p>
+        </section>
+
+        <!-- =========== 画面2: Threads（紡がれた線） =========== -->
+        <section class="screen-panel" id="panel-threads">
+          <p class="section-eyebrow">WOVEN THREADS</p>
+          <h2 class="section-title">紡がれた、線。</h2>
+          <p class="section-sub">一見無関係な点と点。AIがその間に金糸を通し、意味のある束にした。</p>
+
+          <div class="thread-card">
+            <div class="tc-head">
+              <div class="tc-kicker">THREAD 01 ・ 7点を結束</div>
+              <div class="tc-title">中小物流向け、AI需要予測SaaS</div>
+            </div>
+            <div class="tc-graph">
+              <svg viewBox="0 0 320 168" width="100%">
+                <!-- threads（金糸）中心の結び目へ -->
+                <path class="g-thread" d="M40,34 Q120,60 160,84"/>
+                <path class="g-thread" d="M44,128 Q110,108 160,84"/>
+                <path class="g-thread" d="M150,24 Q158,52 160,84"/>
+                <path class="g-thread" d="M280,40 Q220,58 160,84"/>
+                <path class="g-thread" d="M286,134 Q225,110 160,84"/>
+                <path class="g-thread" d="M165,150 Q162,118 160,84"/>
+                <path class="g-thread-soft" d="M40,34 Q40,90 44,128"/>
+                <path class="g-thread-soft" d="M280,40 Q300,90 286,134"/>
+                <!-- 結び目 -->
+                <g transform="translate(160,84)">
+                  <circle r="14" fill="rgba(201,162,63,0.16)"/>
+                  <circle class="g-knot" r="6"/>
+                  <path d="M-9,-9 L9,9 M-9,9 L9,-9" stroke="#C9A23F" stroke-width="1.4"/>
+                </g>
+                <text class="g-center-label" x="160" y="110" text-anchor="middle">需要予測SaaS</text>
+                <!-- dotノード -->
+                <g><circle class="g-node-ring" cx="40" cy="34" r="7"/><circle class="g-node-dot" cx="40" cy="34" r="4"/><text class="g-label" x="40" y="20" text-anchor="middle">A社物流課題</text></g>
+                <g><circle class="g-node-ring" cx="44" cy="128" r="7"/><circle class="g-node-dot" cx="44" cy="128" r="4"/><text class="g-label" x="44" y="148" text-anchor="middle">音声メモ・蚊帳の外</text></g>
+                <g><circle class="g-node-ring" cx="150" cy="24" r="7"/><circle class="g-node-dot" cx="150" cy="24" r="4"/><text class="g-label" x="150" y="13" text-anchor="middle">SaaS解約率の記事</text></g>
+                <g><circle class="g-node-ring" cx="280" cy="40" r="7"/><circle class="g-node-dot" cx="280" cy="40" r="4"/><text class="g-label" x="280" y="26" text-anchor="middle">需要予測の論文</text></g>
+                <g><circle class="g-node-ring" cx="286" cy="134" r="7"/><circle class="g-node-dot" cx="286" cy="134" r="4"/><text class="g-label" x="286" y="154" text-anchor="middle">競合パネルの写真</text></g>
+                <g><circle class="g-node-ring" cx="165" cy="150" r="7"/><circle class="g-node-dot" cx="165" cy="150" r="4"/><text class="g-label" x="165" y="164" text-anchor="middle">配車の経験頼み</text></g>
+              </svg>
+            </div>
+            <div class="graph-legend">
+              <span><i class="swatch" style="background:#D9483B"></i>点 dot</span>
+              <span><i class="swatch" style="background:#C9A23F"></i>線 thread</span>
+              <span><i class="swatch" style="background:#C9A23F;border-radius:1px"></i>結び目 knot</span>
+            </div>
+            <div class="tc-foot">
+              <div class="strength">結束強度 <span class="bar"><i style="width:88%"></i></span> 強</div>
+              <button class="tc-action">種に育てる →</button>
+            </div>
+          </div>
+
+          <div class="thread-card">
+            <div class="tc-head">
+              <div class="tc-kicker">THREAD 02 ・ 4点を結束</div>
+              <div class="tc-title">B社：PRストーリーの「軸」一本化</div>
+            </div>
+            <div class="tc-graph">
+              <svg viewBox="0 0 320 140" width="100%">
+                <path class="g-thread" d="M46,34 Q110,52 160,70"/>
+                <path class="g-thread" d="M48,108 Q110,90 160,70"/>
+                <path class="g-thread" d="M270,30 Q215,50 160,70"/>
+                <path class="g-thread" d="M268,112 Q215,92 160,70"/>
+                <path class="g-thread-soft" d="M46,34 Q30,70 48,108"/>
+                <g transform="translate(160,70)">
+                  <circle r="13" fill="rgba(201,162,63,0.16)"/>
+                  <circle class="g-knot" r="5.5"/>
+                  <path d="M-8,-8 L8,8 M-8,8 L8,-8" stroke="#C9A23F" stroke-width="1.3"/>
+                </g>
+                <text class="g-center-label" x="160" y="94" text-anchor="middle">物語の一軸化</text>
+                <g><circle class="g-node-ring" cx="46" cy="34" r="6.5"/><circle class="g-node-dot" cx="46" cy="34" r="3.8"/><text class="g-label" x="46" y="21" text-anchor="middle">B社PR戦略メモ</text></g>
+                <g><circle class="g-node-ring" cx="48" cy="108" r="6.5"/><circle class="g-node-dot" cx="48" cy="108" r="3.8"/><text class="g-label" x="48" y="126" text-anchor="middle">誰に刺すか曖昧</text></g>
+                <g><circle class="g-node-ring" cx="270" cy="30" r="6.5"/><circle class="g-node-dot" cx="270" cy="30" r="3.8"/><text class="g-label" x="270" y="17" text-anchor="middle">ナラティブ論の記事</text></g>
+                <g><circle class="g-node-ring" cx="268" cy="112" r="6.5"/><circle class="g-node-dot" cx="268" cy="112" r="3.8"/><text class="g-label" x="268" y="130" text-anchor="middle">登壇メモ・共感設計</text></g>
+              </svg>
+            </div>
+            <div class="graph-legend">
+              <span><i class="swatch" style="background:#D9483B"></i>点 dot</span>
+              <span><i class="swatch" style="background:#C9A23F"></i>線 thread</span>
+              <span><i class="swatch" style="background:#C9A23F;border-radius:1px"></i>結び目 knot</span>
+            </div>
+            <div class="tc-foot">
+              <div class="strength">結束強度 <span class="bar"><i style="width:62%"></i></span> 中</div>
+              <button class="tc-action">種に育てる →</button>
+            </div>
+          </div>
+
+          <div class="thread-card">
+            <div class="tc-head">
+              <div class="tc-kicker">THREAD 03 ・ 3点を結束 ・ 新着</div>
+              <div class="tc-title">「学びの記録」を資産化するメモ術</div>
+            </div>
+            <div class="tc-graph">
+              <svg viewBox="0 0 320 116" width="100%">
+                <path class="g-thread" d="M52,32 Q110,46 160,58"/>
+                <path class="g-thread" d="M58,90 Q110,74 160,58"/>
+                <path class="g-thread" d="M260,58 Q210,58 160,58"/>
+                <g transform="translate(160,58)">
+                  <circle r="12" fill="rgba(201,162,63,0.16)"/>
+                  <circle class="g-knot" r="5"/>
+                  <path d="M-7,-7 L7,7 M-7,7 L7,-7" stroke="#C9A23F" stroke-width="1.2"/>
+                </g>
+                <text class="g-center-label" x="160" y="80" text-anchor="middle">記録の資産化</text>
+                <g><circle class="g-node-ring" cx="52" cy="32" r="6"/><circle class="g-node-dot" cx="52" cy="32" r="3.6"/><text class="g-label" x="52" y="20" text-anchor="middle">読書メモの断片</text></g>
+                <g><circle class="g-node-ring" cx="58" cy="90" r="6"/><circle class="g-node-dot" cx="58" cy="90" r="3.6"/><text class="g-label" x="58" y="106" text-anchor="middle">講義の音声メモ</text></g>
+                <g><circle class="g-node-ring" cx="260" cy="58" r="6"/><circle class="g-node-dot" cx="260" cy="58" r="3.6"/><text class="g-label" x="260" y="44" text-anchor="middle">ノート術の記事</text></g>
+              </svg>
+            </div>
+            <div class="graph-legend">
+              <span><i class="swatch" style="background:#D9483B"></i>点 dot</span>
+              <span><i class="swatch" style="background:#C9A23F"></i>線 thread</span>
+              <span><i class="swatch" style="background:#C9A23F;border-radius:1px"></i>結び目 knot</span>
+            </div>
+            <div class="tc-foot">
+              <div class="strength">結束強度 <span class="bar"><i style="width:44%"></i></span> 芽生え</div>
+              <button class="tc-action">種に育てる →</button>
+            </div>
+          </div>
+
+          <p class="footer-note">― 線は、増える。束ねるほど太くなる ―</p>
+        </section>
+
+        <!-- =========== 画面3: ビジネスの種 =========== -->
+        <section class="screen-panel" id="panel-seeds">
+          <p class="section-eyebrow">SEEDS OF BUSINESS</p>
+          <h2 class="section-title">ビジネスの、種。</h2>
+          <p class="section-sub">紡がれた線から、AIが事業の輪郭を描いた。元になった点まで遡れる。</p>
+
+          <div class="card seed-card">
+            <span class="seed-no">壱</span>
+            <span class="seed-stage">注力候補</span>
+            <div class="seed-title">中小物流特化・少量データ需要予測SaaS</div>
+            <div class="seed-desc">大企業しか使えていない需要予測を、軽量モデルで中小物流に開放。配車と在庫の「経験頼み」を、数値の裏付けに置き換える。月額制・オンボーディング伴走型。</div>
+            <div class="seed-from">
+              <div class="sf-label">― 元になった3つの点 ―</div>
+              <div class="sf-dot"><span><b>A社の物流課題メモ</b>：高齢化で配車が経験頼みの限界</span></div>
+              <div class="sf-dot"><span><b>音声メモ</b>：需要予測は中小が蚊帳の外、空いてる</span></div>
+              <div class="sf-dot"><span><b>需要予測の論文</b>：軽量モデルでも少量データで実用精度</span></div>
+            </div>
+          </div>
+
+          <div class="card seed-card">
+            <span class="seed-no">弐</span>
+            <span class="seed-stage">育成中</span>
+            <div class="seed-title">B2B向け「PRストーリー診断」サービス</div>
+            <div class="seed-desc">良いプロダクトなのに刺さらない企業の、散らかった物語の軸を一本化。複数の訴求軸をAIが棚卸しし、最も共感を生む一軸を提案する診断＋伴走。</div>
+            <div class="seed-from">
+              <div class="sf-label">― 元になった3つの点 ―</div>
+              <div class="sf-dot"><span><b>B社のPR戦略メモ</b>：誰に刺すかが曖昧、軸が複数</span></div>
+              <div class="sf-dot"><span><b>ナラティブ論の記事</b>：物語は一軸に絞るほど強い</span></div>
+              <div class="sf-dot"><span><b>登壇メモ</b>：共感設計はストーリーの単純さから</span></div>
+            </div>
+          </div>
+
+          <div class="card seed-card">
+            <span class="seed-no">参</span>
+            <span class="seed-stage">芽生え</span>
+            <div class="seed-title">学びの断片を資産化する、メモ連携ツール</div>
+            <div class="seed-desc">読書・講義・記事の断片を放り込むだけで、AIが関連を束ねて「自分だけの知見ノート」に育てる。複数プロジェクトを持つ専門職・経営者向け。</div>
+            <div class="seed-from">
+              <div class="sf-label">― 元になった3つの点 ―</div>
+              <div class="sf-dot"><span><b>読書メモの断片</b>：気づきが流れて消えてしまう</span></div>
+              <div class="sf-dot"><span><b>講義の音声メモ</b>：後で繋がるはずなのに繋げられない</span></div>
+              <div class="sf-dot"><span><b>ノート術の記事</b>：記録は再会させて初めて資産になる</span></div>
+            </div>
+          </div>
+
+          <p class="footer-note">― 種は、選べる。育てるのはあなた ―</p>
+        </section>
+
+        <!-- =========== 画面4: セレンディピティ通知 =========== -->
+        <section class="screen-panel" id="panel-serendip">
+          <p class="section-eyebrow">SERENDIPITY</p>
+          <h2 class="section-title">点と点が、再会した。</h2>
+          <p class="section-sub">忘れていた断片と、今日の断片。AIが偶然の糸口を見つけて知らせる。</p>
+
+          <div class="card serendip unread">
+            <div class="knot-icon">
+              <svg viewBox="0 0 36 36">
+                <path d="M6 8 Q18 18 30 28" stroke="#C9A23F" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M30 8 Q18 18 6 28" stroke="#C9A23F" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+                <circle cx="6" cy="8" r="3.4" fill="#D9483B"/>
+                <circle cx="30" cy="28" r="3.4" fill="#D9483B"/>
+                <rect x="15" y="15" width="6" height="6" rx="1" fill="#C9A23F" transform="rotate(45 18 18)"/>
+              </svg>
+            </div>
+            <div class="s-body">
+              <div class="s-time">たった今</div>
+              <div class="s-text"><b>3週間前</b>の音声メモ「需要予測は中小が蚊帳の外」と、<b>今日</b>のA社物流課題メモが繋がりました。<span class="span-thread">thread「中小物流向けAI需要予測SaaS」</span>に紡がれています。</div>
+              <span class="s-link">紡がれた線を見る →</span>
+            </div>
+          </div>
+
+          <div class="card serendip unread">
+            <div class="knot-icon">
+              <svg viewBox="0 0 36 36">
+                <path d="M6 8 Q18 18 30 28" stroke="#C9A23F" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M30 8 Q18 18 6 28" stroke="#C9A23F" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+                <circle cx="6" cy="8" r="3.4" fill="#D9483B"/>
+                <circle cx="30" cy="28" r="3.4" fill="#D9483B"/>
+                <rect x="15" y="15" width="6" height="6" rx="1" fill="#C9A23F" transform="rotate(45 18 18)"/>
+              </svg>
+            </div>
+            <div class="s-body">
+              <div class="s-time">2時間前</div>
+              <div class="s-text">展示会で撮った<b>競合パネルの写真</b>（5月12日）が、<b>需要予測の論文</b>（5月9日）と同じ示唆を持っていました。「大手中心」という空白が二度、別の形で記録されています。</div>
+              <span class="s-link">2点の関連を見る →</span>
+            </div>
+          </div>
+
+          <div class="card serendip">
+            <div class="knot-icon">
+              <svg viewBox="0 0 36 36">
+                <path d="M6 8 Q18 18 30 28" stroke="#C9A23F" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M30 8 Q18 18 6 28" stroke="#C9A23F" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+                <circle cx="6" cy="8" r="3.4" fill="#D9483B"/>
+                <circle cx="30" cy="28" r="3.4" fill="#D9483B"/>
+                <rect x="15" y="15" width="6" height="6" rx="1" fill="#C9A23F" transform="rotate(45 18 18)"/>
+              </svg>
+            </div>
+            <div class="s-body">
+              <div class="s-time">昨日</div>
+              <div class="s-text">B社案件の<b>PR戦略メモ</b>と、半年前に保存した<b>ナラティブ論の記事</b>が再会。<span class="span-thread">新しい thread「PRストーリーの軸一本化」</span>が芽生えました。</div>
+              <span class="s-link">芽生えた線を見る →</span>
+            </div>
+          </div>
+
+          <div class="card serendip">
+            <div class="knot-icon">
+              <svg viewBox="0 0 36 36">
+                <path d="M6 8 Q18 18 30 28" stroke="#C9A23F" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M30 8 Q18 18 6 28" stroke="#C9A23F" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+                <circle cx="6" cy="8" r="3.4" fill="#D9483B"/>
+                <circle cx="30" cy="28" r="3.4" fill="#D9483B"/>
+                <rect x="15" y="15" width="6" height="6" rx="1" fill="#C9A23F" transform="rotate(45 18 18)"/>
+              </svg>
+            </div>
+            <div class="s-body">
+              <div class="s-time">3日前</div>
+              <div class="s-text">プロジェクトを跨いだ繋がり：<b>A社案件</b>の在庫メモと<b>リサーチ</b>のSaaS記事。別案件のはずが、同じ「オンボーディング設計」という核を共有していました。</div>
+              <span class="s-link">横断の関連を見る →</span>
+            </div>
+          </div>
+
+          <p class="footer-note">― 偶然は、放り込んだ点の数だけ起きる ―</p>
+        </section>
+
+        <!-- =========== 画面5: 点を放り込む（入力） =========== -->
+        <section class="screen-panel" id="panel-toss">
+          <p class="section-eyebrow">TOSS A DOT</p>
+          <h2 class="section-title">点を、放り込む。</h2>
+          <p class="section-sub">整理しなくていい。タグも付けなくていい。形式も問わない。繋ぐのはAIの仕事。</p>
+
+          <div class="input-modes">
+            <div class="imode sel">
+              <div class="im-ico">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 4h12M3 9h12M3 14h7" stroke="#D9483B" stroke-width="1.6" stroke-linecap="round"/></svg>
+              </div>
+              <div class="im-name">テキスト</div>
+              <div class="im-hint">思いつきをそのまま</div>
+            </div>
+            <div class="imode">
+              <div class="im-ico">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 11l4-4M6.5 4.5l1.5-1.5a3 3 0 014.2 4.2L10.7 8.7M11.5 13.5l-1.5 1.5a3 3 0 01-4.2-4.2l1.5-1.5" stroke="#1F3A5F" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              <div class="im-name">URL</div>
+              <div class="im-hint">記事・論文・ページ</div>
+            </div>
+            <div class="imode">
+              <div class="im-ico">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="6" y="2" width="6" height="9" rx="3" stroke="#1F3A5F" stroke-width="1.5"/><path d="M4 8a5 5 0 0010 0M9 13v3M6.5 16h5" stroke="#1F3A5F" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              <div class="im-name">音声メモ</div>
+              <div class="im-hint">話すだけ・自動文字起こし</div>
+            </div>
+            <div class="imode">
+              <div class="im-ico">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="3.5" width="13" height="11" rx="2" stroke="#1F3A5F" stroke-width="1.5"/><circle cx="6.5" cy="7.5" r="1.5" stroke="#1F3A5F" stroke-width="1.3"/><path d="M3 13l4-4 3 3 3-3 2 2" stroke="#1F3A5F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="im-name">画像</div>
+              <div class="im-hint">写真・スクショ・OCR</div>
+            </div>
+          </div>
+
+          <div class="input-canvas">
+            <textarea placeholder="例：移動中にふと思った「中小企業向けの需要予測、誰もやってない気がする」——こんな断片でいい。整理は要らない。"></textarea>
+          </div>
+
+          <div class="ai-hint-row">
+            <span class="mini-orb"></span>
+            <span>放り込んだ瞬間、AIが過去142点を横断照合。関連が見つかれば、セレンディピティ通知でお知らせします。</span>
+          </div>
+
+          <button class="toss-btn">この点を、放り込む</button>
+
+          <div class="recent-toss">
+            <div class="day-divider"><span>さっき放り込んだ点</span></div>
+            <div class="card dot-card woven">
+              <div class="dot-meta">
+                <span class="dot-type t-text">テキスト</span>
+                <span class="dot-time">たった今</span>
+              </div>
+              <div class="dot-body">A社の物流課題：配送ドライバーの高齢化で経験頼みの配車が限界。</div>
+              <div class="dot-tags">
+                <span class="dot-tag">AIが自動分類</span>
+                <span class="dot-tag linked">◆ 即・3点と関連</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="footer-note">― 放り込めば、放り込むほど ―</p>
+        </section>
+
+      </div><!-- /viewport -->
+
+      <!-- 常設の投入バー -->
+      <div class="toss-bar">
+        <input type="text" placeholder="新しい点を、ここに放り込む…" />
+        <button class="tb-throw" title="放り込む">
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+            <path d="M2.5 8.5h11M9 4l4.5 4.5L9 13" stroke="#F4EFE6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- タブバー -->
+      <nav class="tabbar">
+        <button class="tab active" data-target="panel-home">
+          <svg width="21" height="21" viewBox="0 0 21 21" fill="none">
+            <circle cx="5" cy="6" r="2.4" fill="currentColor"/>
+            <circle cx="14.5" cy="5" r="2" fill="currentColor" opacity="0.55"/>
+            <circle cx="9" cy="14" r="2" fill="currentColor" opacity="0.55"/>
+            <circle cx="16" cy="15" r="2.4" fill="currentColor"/>
+          </svg>
+          <span class="tab-label">ホーム</span>
+          <span class="tab-dot"></span>
+        </button>
+        <button class="tab" data-target="panel-threads">
+          <svg width="21" height="21" viewBox="0 0 21 21" fill="none">
+            <path d="M4 4 Q10.5 10.5 17 17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            <path d="M17 4 Q10.5 10.5 4 17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" opacity="0.45"/>
+            <circle cx="4" cy="4" r="2.1" fill="currentColor"/>
+            <circle cx="17" cy="17" r="2.1" fill="currentColor"/>
+            <rect x="8.4" y="8.4" width="4.2" height="4.2" rx="1" fill="currentColor" transform="rotate(45 10.5 10.5)"/>
+          </svg>
+          <span class="tab-label">紡ぎ</span>
+          <span class="tab-dot"></span>
+        </button>
+        <button class="tab" data-target="panel-seeds">
+          <svg width="21" height="21" viewBox="0 0 21 21" fill="none">
+            <path d="M10.5 18c-4-1-6-4-6-7.5C4.5 7 7 4 10.5 3c3.5 1 6 4 6 7.5 0 3.5-2 6.5-6 7.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M10.5 18V8M10.5 11l-2.3-2M10.5 13l2.5-2.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <span class="tab-label">種</span>
+          <span class="tab-dot"></span>
+        </button>
+        <button class="tab" data-target="panel-serendip">
+          <svg width="21" height="21" viewBox="0 0 21 21" fill="none">
+            <circle cx="10.5" cy="10.5" r="7" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M10.5 6.5v4l2.6 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="16.5" cy="4.5" r="2.2" fill="currentColor"/>
+          </svg>
+          <span class="tab-label">通知</span>
+          <span class="tab-dot"></span>
+        </button>
+        <button class="tab" data-target="panel-toss">
+          <svg width="21" height="21" viewBox="0 0 21 21" fill="none">
+            <circle cx="10.5" cy="10.5" r="8" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M10.5 6.5v8M6.5 10.5h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span class="tab-label">放り込む</span>
+          <span class="tab-dot"></span>
+        </button>
+      </nav>
+
+      <div class="home-indicator"></div>
+
+    </div><!-- /screen -->
+  </div><!-- /device -->
+
+  <div class="stage-caption" style="margin-top:24px;margin-bottom:0;font-size:11px;letter-spacing:0.2em;">
+    Tsumugi — 複数プロジェクトを並走する人のための、アイデア・コネクター
+  </div>
+
+<script>
+  // ===== タブ切り替え（素のJS） =====
+  (function () {
+    var tabs = document.querySelectorAll('.tab');
+    var panels = document.querySelectorAll('.screen-panel');
+    var viewport = document.getElementById('viewport');
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var target = tab.getAttribute('data-target');
+
+        tabs.forEach(function (t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+
+        panels.forEach(function (p) {
+          p.classList.toggle('active', p.id === target);
+        });
+
+        // 切替時にスクロール位置を先頭へ
+        if (viewport) viewport.scrollTop = 0;
+      });
+    });
+
+    // 入力モードの選択トグル
+    var modes = document.querySelectorAll('.imode');
+    modes.forEach(function (m) {
+      m.addEventListener('click', function () {
+        modes.forEach(function (x) { x.classList.remove('sel'); });
+        m.classList.add('sel');
+      });
+    });
+
+    // 通知を開いたら未読を既読化（デモ挙動）
+    var notifTab = document.querySelector('[data-target="panel-serendip"]');
+    if (notifTab) {
+      notifTab.addEventListener('click', function () {
+        setTimeout(function () {
+          document.querySelectorAll('.serendip.unread').forEach(function (s) {
+            s.classList.remove('unread');
+          });
+        }, 600);
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>
