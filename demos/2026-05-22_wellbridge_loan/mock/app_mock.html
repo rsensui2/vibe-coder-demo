@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WellBridge Loan — モックアップ</title>
+<style>
+  :root {
+    --navy: #0E2A47;
+    --gold: #D9A441;
+    --teal: #1F8A78;
+    --bg: #F7F5F0;
+    --text: #1A1A1A;
+    --muted: #6B7280;
+    --line: #E4E0D6;
+    --card: #FFFFFF;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: linear-gradient(160deg, #1a3a5c 0%, #0E2A47 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    color: var(--text);
+  }
+
+  /* ===== iPhone frame ===== */
+  .phone {
+    position: relative;
+    width: 390px;
+    height: 844px;
+    background: #000;
+    border-radius: 56px;
+    padding: 12px;
+    box-shadow:
+      0 0 0 12px #1c1c1e,
+      0 0 0 14px #2c2c2e,
+      0 40px 80px rgba(0,0,0,0.55);
+  }
+
+  .phone::before {
+    /* side buttons */
+    content: "";
+    position: absolute;
+    left: -16px;
+    top: 180px;
+    width: 4px;
+    height: 64px;
+    background: #2c2c2e;
+    border-radius: 2px;
+    box-shadow: 0 84px 0 #2c2c2e, 0 -100px 0 #2c2c2e;
+  }
+
+  .screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== Dynamic Island ===== */
+  .dynamic-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 124px;
+    height: 36px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 14px;
+  }
+
+  .dynamic-island::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #0a0a0a;
+    box-shadow: inset 0 0 3px #1b3a52;
+    border: 1px solid #14304a;
+  }
+
+  /* ===== Status bar ===== */
+  .status-bar {
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+    flex-shrink: 0;
+  }
+
+  .status-bar .time {
+    letter-spacing: 0.5px;
+  }
+
+  .status-icons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .status-icons .bars,
+  .status-icons .wifi,
+  .status-icons .batt {
+    display: inline-block;
+  }
+
+  .bars { width: 17px; height: 11px;
+    background:
+      linear-gradient(var(--navy),var(--navy)) 0 100%/3px 4px no-repeat,
+      linear-gradient(var(--navy),var(--navy)) 5px 100%/3px 7px no-repeat,
+      linear-gradient(var(--navy),var(--navy)) 10px 100%/3px 9px no-repeat,
+      linear-gradient(var(--navy),var(--navy)) 15px 100%/3px 11px no-repeat;
+  }
+  .wifi { width: 16px; height: 12px; }
+  .wifi svg { display:block; }
+  .batt {
+    width: 26px; height: 12px;
+    border: 1px solid var(--navy);
+    border-radius: 3px;
+    padding: 1.5px;
+    position: relative;
+  }
+  .batt::after {
+    content:""; position:absolute; right:-3px; top:3px;
+    width:2px; height:5px; background:var(--navy); border-radius:0 1px 1px 0;
+  }
+  .batt .fill { height:100%; width:78%; background:var(--navy); border-radius:1px; }
+
+  /* ===== App header ===== */
+  .app-header {
+    padding: 4px 22px 14px;
+    flex-shrink: 0;
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(140deg, var(--navy), #1d4368);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    font-weight: 800;
+    font-size: 16px;
+  }
+
+  .brand-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: 0.2px;
+  }
+  .brand-name span { color: var(--gold); }
+
+  .brand-sub {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .bell {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .bell::after {
+    content:"";
+    position:absolute; top:9px; right:9px;
+    width:7px; height:7px; border-radius:50%;
+    background: var(--gold); border: 1.5px solid #fff;
+  }
+
+  .screen-title {
+    font-size: 23px;
+    font-weight: 800;
+    color: var(--navy);
+    margin-top: 14px;
+  }
+  .screen-caption {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ===== Scrollable body ===== */
+  .app-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 22px 24px;
+  }
+  .app-body::-webkit-scrollbar { display: none; }
+
+  /* ===== Pages ===== */
+  .page { display: none; animation: fade 0.32s ease; }
+  .page.active { display: block; }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    margin-bottom: 14px;
+  }
+
+  /* Hero balance card */
+  .hero {
+    background: linear-gradient(150deg, var(--navy) 0%, #163a5e 100%);
+    border-radius: 24px;
+    padding: 22px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .hero::before {
+    content:"";
+    position:absolute;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(217,164,65,0.22), transparent 70%);
+    top: -70px; right: -40px;
+  }
+  .hero-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.5px;
+  }
+  .hero-amount {
+    font-size: 38px;
+    font-weight: 800;
+    margin-top: 4px;
+    letter-spacing: -0.5px;
+  }
+  .hero-amount .yen { font-size: 20px; font-weight: 600; margin-right: 3px; }
+  .hero-amount .unit { font-size: 17px; font-weight: 600; margin-left: 2px; color: rgba(255,255,255,0.85); }
+
+  .hero-bar {
+    margin-top: 16px;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.16);
+    overflow: hidden;
+  }
+  .hero-bar .used {
+    height: 100%;
+    width: 36%;
+    background: linear-gradient(90deg, var(--gold), #e8bd6c);
+    border-radius: 4px;
+  }
+  .hero-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 9px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.72);
+  }
+  .hero-meta b { color: var(--gold); font-size: 12px; }
+
+  /* Stat row */
+  .stat-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .stat {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 16px 14px;
+  }
+  .stat-ico {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+  .stat-ico.teal { background: rgba(31,138,120,0.12); }
+  .stat-ico.gold { background: rgba(217,164,65,0.16); }
+  .stat-label { font-size: 11px; color: var(--muted); }
+  .stat-value { font-size: 19px; font-weight: 800; color: var(--navy); margin-top: 3px; }
+  .stat-value small { font-size: 12px; font-weight: 600; }
+  .stat-note { font-size: 10px; color: var(--teal); margin-top: 3px; font-weight: 600; }
+
+  /* Section title */
+  .section-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--navy);
+    margin: 18px 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .section-title a { font-size: 11px; color: var(--teal); font-weight: 600; text-decoration: none; }
+
+  /* Next payment banner */
+  .pay-banner {
+    background: rgba(31,138,120,0.08);
+    border: 1px solid rgba(31,138,120,0.25);
+    border-radius: 18px;
+    padding: 15px 17px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 14px;
+  }
+  .pay-banner .pb-ico {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: var(--teal);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .pb-text .pb-t1 { font-size: 11px; color: var(--muted); }
+  .pb-text .pb-t2 { font-size: 15px; font-weight: 800; color: var(--navy); margin-top:1px;}
+  .pb-amt { margin-left: auto; text-align: right; }
+  .pb-amt .pa1 { font-size: 17px; font-weight: 800; color: var(--navy); }
+  .pb-amt .pa2 { font-size: 10px; color: var(--muted); }
+
+  /* Quick actions */
+  .quick-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .quick {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    cursor: pointer;
+    transition: transform 0.12s;
+  }
+  .quick:active { transform: scale(0.97); }
+  .quick .q-ico {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 16px;
+    background: rgba(14,42,71,0.07);
+  }
+  .quick .q-txt { font-size: 12px; font-weight: 700; color: var(--navy); line-height: 1.35; }
+
+  /* News list */
+  .news-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .news-item:last-child { border-bottom: none; }
+  .news-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--gold); margin-top: 5px; flex-shrink: 0;
+  }
+  .news-body .n-title { font-size: 12.5px; font-weight: 700; color: var(--text); }
+  .news-body .n-meta { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+
+  /* ===== Loan apply ===== */
+  .amount-display {
+    text-align: center;
+    padding: 8px 0 4px;
+  }
+  .amount-display .ad-label { font-size: 11px; color: var(--muted); }
+  .amount-display .ad-value {
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: -1px;
+  }
+  .amount-display .ad-value .yen { font-size: 22px; }
+  .amount-display .ad-value .unit { font-size: 18px; color: var(--muted); }
+
+  .slider-wrap { padding: 4px 4px 0; }
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--line);
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    border: 5px solid var(--gold);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    cursor: pointer;
+  }
+  .slider-range {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10.5px;
+    color: var(--muted);
+    margin-top: 7px;
+  }
+
+  /* purpose chips */
+  .chip-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    padding: 9px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--line);
+    background: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip.active {
+    border-color: var(--navy);
+    background: var(--navy);
+    color: #fff;
+  }
+
+  /* term selector */
+  .term-row { display: flex; gap: 8px; }
+  .term-opt {
+    flex: 1;
+    text-align: center;
+    padding: 11px 0;
+    border-radius: 12px;
+    border: 1.5px solid var(--line);
+    background: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .term-opt.active {
+    border-color: var(--teal);
+    background: rgba(31,138,120,0.1);
+    color: var(--teal);
+  }
+
+  /* result summary */
+  .result-box {
+    background: linear-gradient(145deg, #fbf6e9, #f6ecd4);
+    border: 1px solid rgba(217,164,65,0.4);
+    border-radius: 20px;
+    padding: 18px;
+  }
+  .result-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 9px 0;
+  }
+  .result-line + .result-line { border-top: 1px dashed rgba(217,164,65,0.45); }
+  .result-line .rl-label { font-size: 12px; color: #8a6d2e; font-weight: 600; }
+  .result-line .rl-value { font-size: 17px; font-weight: 800; color: var(--navy); }
+  .result-line.big .rl-value { font-size: 24px; }
+  .result-line .rl-value small { font-size: 12px; font-weight: 600; }
+
+  /* primary button */
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, var(--navy), #1d4368);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 16px;
+    box-shadow: 0 8px 20px rgba(14,42,71,0.28);
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), #e8bd6c);
+    color: var(--navy);
+    box-shadow: 0 8px 20px rgba(217,164,65,0.35);
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 9px;
+  }
+
+  /* ===== Repayment status ===== */
+  .balance-chart {
+    height: 130px;
+    display: flex;
+    align-items: flex-end;
+    gap: 9px;
+    padding: 8px 2px 0;
+  }
+  .bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .bar {
+    width: 100%;
+    background: linear-gradient(180deg, #2a5985, var(--navy));
+    border-radius: 6px 6px 0 0;
+    position: relative;
+  }
+  .bar.last { background: linear-gradient(180deg, var(--gold), #c98f2e); }
+  .bar-label { font-size: 9.5px; color: var(--muted); }
+
+  .timeline { position: relative; padding-left: 4px; }
+  .tl-item {
+    display: flex;
+    gap: 13px;
+    padding-bottom: 18px;
+    position: relative;
+  }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-line {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .tl-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--teal);
+    border: 3px solid rgba(31,138,120,0.25);
+    flex-shrink: 0;
+    z-index: 2;
+  }
+  .tl-dot.pending {
+    background: #fff;
+    border-color: var(--line);
+  }
+  .tl-connect {
+    width: 2px;
+    flex: 1;
+    background: var(--line);
+    margin: 2px 0;
+  }
+  .tl-content {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px 14px;
+  }
+  .tl-content .tc-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .tc-date { font-size: 11px; color: var(--muted); font-weight: 600; }
+  .tc-tag {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 8px;
+  }
+  .tc-tag.done { background: rgba(31,138,120,0.12); color: var(--teal); }
+  .tc-tag.scheduled { background: rgba(217,164,65,0.16); color: #b07d20; }
+  .tc-amount { font-size: 17px; font-weight: 800; color: var(--navy); margin-top: 6px; }
+  .tc-detail { font-size: 10.5px; color: var(--muted); margin-top: 3px; }
+
+  /* progress ring */
+  .progress-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .ring {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    background: conic-gradient(var(--teal) 0% 64%, var(--line) 64% 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .ring-inner {
+    width: 66px; height: 66px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .ring-inner .ri-pct { font-size: 19px; font-weight: 800; color: var(--navy); }
+  .ring-inner .ri-lbl { font-size: 8.5px; color: var(--muted); }
+  .progress-info .pi-row { margin-bottom: 8px; }
+  .progress-info .pi-lbl { font-size: 10.5px; color: var(--muted); }
+  .progress-info .pi-val { font-size: 14px; font-weight: 800; color: var(--navy); }
+
+  /* ===== Simulation ===== */
+  .sim-result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .sim-cell {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    text-align: center;
+  }
+  .sim-cell.hl { background: var(--navy); border-color: var(--navy); }
+  .sim-cell .sc-lbl { font-size: 10px; color: var(--muted); }
+  .sim-cell.hl .sc-lbl { color: rgba(255,255,255,0.65); }
+  .sim-cell .sc-val { font-size: 20px; font-weight: 800; color: var(--navy); margin-top: 4px; }
+  .sim-cell.hl .sc-val { color: var(--gold); }
+  .sim-cell .sc-val small { font-size: 11px; }
+
+  .info-note {
+    background: rgba(14,42,71,0.05);
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 10.5px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-top: 14px;
+  }
+
+  /* ===== Profile ===== */
+  .profile-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .avatar {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(140deg, var(--gold), #c98f2e);
+    color: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .profile-head .ph-name { font-size: 17px; font-weight: 800; color: var(--navy); }
+  .profile-head .ph-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .verified {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 700; color: var(--teal);
+    background: rgba(31,138,120,0.1);
+    padding: 3px 8px; border-radius: 8px;
+    margin-top: 5px;
+  }
+
+  .info-list .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .info-list .info-row:last-child { border-bottom: none; }
+  .info-row .ir-left { display: flex; align-items: center; gap: 11px; }
+  .info-row .ir-ico {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: rgba(14,42,71,0.07);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+  .info-row .ir-label { font-size: 12.5px; font-weight: 700; color: var(--navy); }
+  .info-row .ir-value { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .info-row .ir-chev { color: var(--muted); font-size: 17px; }
+
+  .toggle {
+    width: 44px; height: 26px;
+    border-radius: 13px;
+    background: var(--teal);
+    position: relative;
+    cursor: pointer;
+  }
+  .toggle::after {
+    content:"";
+    position: absolute;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    top: 3px; right: 3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .toggle.off { background: var(--line); }
+  .toggle.off::after { left: 3px; right: auto; }
+
+  /* ===== Tab bar ===== */
+  .tab-bar {
+    flex-shrink: 0;
+    display: flex;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+    padding: 8px 6px 26px;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+  .tab .t-ico {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tab .t-ico svg { width: 22px; height: 22px; }
+  .tab .t-ico svg path,
+  .tab .t-ico svg circle,
+  .tab .t-ico svg rect,
+  .tab .t-ico svg line,
+  .tab .t-ico svg polyline { stroke: var(--muted); }
+  .tab .t-ico svg .fill { fill: var(--muted); stroke: none; }
+  .tab .t-label { font-size: 9.5px; font-weight: 700; color: var(--muted); }
+  .tab.active .t-ico svg path,
+  .tab.active .t-ico svg circle,
+  .tab.active .t-ico svg rect,
+  .tab.active .t-ico svg line,
+  .tab.active .t-ico svg polyline { stroke: var(--navy); }
+  .tab.active .t-ico svg .fill { fill: var(--navy); }
+  .tab.active .t-label { color: var(--navy); }
+
+  .tab.apply-tab .t-ico {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #e8bd6c);
+    margin-top: -16px;
+    box-shadow: 0 6px 14px rgba(217,164,65,0.4);
+  }
+  .tab.apply-tab .t-ico svg path,
+  .tab.apply-tab .t-ico svg line { stroke: #fff; }
+  .tab.apply-tab.active .t-ico svg path,
+  .tab.apply-tab.active .t-ico svg line { stroke: #fff; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="dynamic-island"></div>
+  <div class="screen">
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <span class="status-icons">
+        <span class="bars"></span>
+        <span class="wifi">
+          <svg viewBox="0 0 16 12" fill="none">
+            <path d="M1 3.5C5 -0.2 11 -0.2 15 3.5" stroke="#0E2A47" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M3.5 6.2C6 3.9 10 3.9 12.5 6.2" stroke="#0E2A47" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M6 8.8C7.2 7.7 8.8 7.7 10 8.8" stroke="#0E2A47" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="8" cy="11" r="1" fill="#0E2A47"/>
+          </svg>
+        </span>
+        <span class="batt"><span class="fill"></span></span>
+      </span>
+    </div>
+
+    <!-- App header -->
+    <div class="app-header">
+      <div class="brand-row">
+        <div class="brand">
+          <div class="brand-logo">W</div>
+          <div>
+            <div class="brand-name">WellBridge<span> Loan</span></div>
+            <div class="brand-sub">○○商工会議所 福利厚生サービス</div>
+          </div>
+        </div>
+        <div class="bell">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke="#0E2A47" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13.7 21a2 2 0 0 1-3.4 0" stroke="#0E2A47" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="screen-title" id="screenTitle">こんにちは、田中さん</div>
+      <div class="screen-caption" id="screenCaption">本日 2026年5月22日 のご状況です</div>
+    </div>
+
+    <!-- ===================== BODY ===================== -->
+    <div class="app-body">
+
+      <!-- ============ PAGE 1 : HOME ============ -->
+      <div class="page active" id="page-home">
+
+        <div class="hero">
+          <div class="hero-label">ご利用可能枠</div>
+          <div class="hero-amount"><span class="yen">¥</span>1,920,000</div>
+          <div class="hero-bar"><div class="used"></div></div>
+          <div class="hero-meta">
+            <span>利用中 <b>¥1,080,000</b></span>
+            <span>総枠 ¥3,000,000</span>
+          </div>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat">
+            <div class="stat-ico teal">💳</div>
+            <div class="stat-label">現在の借入残高</div>
+            <div class="stat-value">¥1,080,000</div>
+            <div class="stat-note">適用金利 年1.8%</div>
+          </div>
+          <div class="stat">
+            <div class="stat-ico gold">📅</div>
+            <div class="stat-label">完済予定</div>
+            <div class="stat-value">2027<small>年9月</small></div>
+            <div class="stat-note">残り 16 回</div>
+          </div>
+        </div>
+
+        <div class="pay-banner">
+          <div class="pb-ico">💴</div>
+          <div class="pb-text">
+            <div class="pb-t1">次回返済日（給与天引き）</div>
+            <div class="pb-t2">2026年6月25日</div>
+          </div>
+          <div class="pb-amt">
+            <div class="pa1">¥67,500</div>
+            <div class="pa2">元金+利息</div>
+          </div>
+        </div>
+
+        <div class="section-title">クイック操作</div>
+        <div class="quick-grid">
+          <div class="quick" onclick="switchTab('apply')">
+            <div class="q-ico">📝</div>
+            <div class="q-txt">追加で<br>借入を申込む</div>
+          </div>
+          <div class="quick" onclick="switchTab('sim')">
+            <div class="q-ico">🧮</div>
+            <div class="q-txt">返済を<br>シミュレーション</div>
+          </div>
+          <div class="quick" onclick="switchTab('status')">
+            <div class="q-ico">📊</div>
+            <div class="q-txt">返済状況を<br>確認する</div>
+          </div>
+          <div class="quick" onclick="switchTab('profile')">
+            <div class="q-ico">🏦</div>
+            <div class="q-txt">口座情報を<br>登録・変更</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <span>お知らせ</span>
+          <a href="#">すべて見る</a>
+        </div>
+        <div class="card" style="padding:6px 18px;">
+          <div class="news-item">
+            <div class="news-dot"></div>
+            <div class="news-body">
+              <div class="n-title">6月度の給与天引きは6/25に実施されます</div>
+              <div class="n-meta">2026.05.20 ・ 返済について</div>
+            </div>
+          </div>
+          <div class="news-item">
+            <div class="news-dot" style="background:var(--teal);"></div>
+            <div class="news-body">
+              <div class="n-title">夏季特別金利キャンペーン（年1.5%）のご案内</div>
+              <div class="n-meta">2026.05.15 ・ キャンペーン</div>
+            </div>
+          </div>
+          <div class="news-item">
+            <div class="news-dot" style="background:var(--muted);"></div>
+            <div class="news-body">
+              <div class="n-title">退職時の引落口座登録のお願い</div>
+              <div class="n-meta">2026.05.01 ・ 重要</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-note">
+          WellBridge Loan は ○○商工会議所が運営する従業員向け福利厚生ローンです。給与天引きによる無理のない返済を、低利でサポートします。
+        </div>
+      </div>
+
+      <!-- ============ PAGE 2 : APPLY ============ -->
+      <div class="page" id="page-apply">
+
+        <div class="card">
+          <div class="amount-display">
+            <div class="ad-label">借入希望額</div>
+            <div class="ad-value">
+              <span class="yen">¥</span><span id="applyAmount">500,000</span>
+            </div>
+          </div>
+          <div class="slider-wrap">
+            <input type="range" id="amountSlider" min="100000" max="1900000" step="50000" value="500000" oninput="updateApply()">
+            <div class="slider-range">
+              <span>¥100,000</span>
+              <span>上限 ¥1,920,000</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="field-label">ご利用目的</div>
+          <div class="chip-grid" id="purposeChips">
+            <div class="chip active" onclick="selChip(this)">生活資金</div>
+            <div class="chip" onclick="selChip(this)">教育費</div>
+            <div class="chip" onclick="selChip(this)">医療費</div>
+            <div class="chip" onclick="selChip(this)">住宅関連</div>
+            <div class="chip" onclick="selChip(this)">冠婚葬祭</div>
+            <div class="chip" onclick="selChip(this)">借換え</div>
+            <div class="chip" onclick="selChip(this)">その他</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="field-label">返済期間</div>
+          <div class="term-row" id="applyTerm">
+            <div class="term-opt" onclick="selTerm(this,12)">12回</div>
+            <div class="term-opt active" onclick="selTerm(this,24)">24回</div>
+            <div class="term-opt" onclick="selTerm(this,36)">36回</div>
+            <div class="term-opt" onclick="selTerm(this,60)">60回</div>
+          </div>
+        </div>
+
+        <div class="result-box">
+          <div class="result-line">
+            <span class="rl-label">適用金利（年率）</span>
+            <span class="rl-value">1.8<small>%</small></span>
+          </div>
+          <div class="result-line">
+            <span class="rl-label">返済総額</span>
+            <span class="rl-value">¥<span id="applyTotal">509,420</span></span>
+          </div>
+          <div class="result-line big">
+            <span class="rl-label">月々のお支払い</span>
+            <span class="rl-value">¥<span id="applyMonthly">21,226</span></span>
+          </div>
+        </div>
+
+        <div class="info-note">
+          上記は概算です。給与天引きにより毎月のご返済を行います。審査の結果、ご希望に添えない場合があります。
+        </div>
+
+        <button class="btn-primary" onclick="alert('お申込み内容を確認画面へ進みます（モック）')">この内容で申込む</button>
+      </div>
+
+      <!-- ============ PAGE 3 : STATUS ============ -->
+      <div class="page" id="page-status">
+
+        <div class="card">
+          <div class="field-label">借入残高の推移</div>
+          <div class="balance-chart">
+            <div class="bar-col"><div class="bar" style="height:96%"></div><div class="bar-label">1月</div></div>
+            <div class="bar-col"><div class="bar" style="height:84%"></div><div class="bar-label">2月</div></div>
+            <div class="bar-col"><div class="bar" style="height:72%"></div><div class="bar-label">3月</div></div>
+            <div class="bar-col"><div class="bar" style="height:60%"></div><div class="bar-label">4月</div></div>
+            <div class="bar-col"><div class="bar" style="height:48%"></div><div class="bar-label">5月</div></div>
+            <div class="bar-col"><div class="bar last" style="height:40%"></div><div class="bar-label">現在</div></div>
+          </div>
+        </div>
+
+        <div class="card progress-card">
+          <div class="ring">
+            <div class="ring-inner">
+              <div class="ri-pct">64%</div>
+              <div class="ri-lbl">返済済み</div>
+            </div>
+          </div>
+          <div class="progress-info">
+            <div class="pi-row">
+              <div class="pi-lbl">返済済み元金</div>
+              <div class="pi-val">¥1,920,000</div>
+            </div>
+            <div class="pi-row">
+              <div class="pi-lbl">残り元金</div>
+              <div class="pi-val">¥1,080,000</div>
+            </div>
+            <div class="pi-row">
+              <div class="pi-lbl">完了予定</div>
+              <div class="pi-val" style="color:var(--teal);">2027年9月</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">給与天引き履歴</div>
+        <div class="timeline">
+
+          <div class="tl-item">
+            <div class="tl-line"><div class="tl-dot pending"></div><div class="tl-connect"></div></div>
+            <div class="tl-content">
+              <div class="tc-top">
+                <span class="tc-date">2026年6月25日</span>
+                <span class="tc-tag scheduled">予定</span>
+              </div>
+              <div class="tc-amount">¥67,500</div>
+              <div class="tc-detail">元金 ¥66,880 ・ 利息 ¥620</div>
+            </div>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-line"><div class="tl-dot"></div><div class="tl-connect"></div></div>
+            <div class="tl-content">
+              <div class="tc-top">
+                <span class="tc-date">2026年5月25日</span>
+                <span class="tc-tag done">完了</span>
+              </div>
+              <div class="tc-amount">¥67,500</div>
+              <div class="tc-detail">元金 ¥66,780 ・ 利息 ¥720 ・ 残高 ¥1,080,000</div>
+            </div>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-line"><div class="tl-dot"></div><div class="tl-connect"></div></div>
+            <div class="tl-content">
+              <div class="tc-top">
+                <span class="tc-date">2026年4月25日</span>
+                <span class="tc-tag done">完了</span>
+              </div>
+              <div class="tc-amount">¥67,500</div>
+              <div class="tc-detail">元金 ¥66,680 ・ 利息 ¥820 ・ 残高 ¥1,146,780</div>
+            </div>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-line"><div class="tl-dot"></div></div>
+            <div class="tl-content">
+              <div class="tc-top">
+                <span class="tc-date">2026年3月25日</span>
+                <span class="tc-tag done">完了</span>
+              </div>
+              <div class="tc-amount">¥67,500</div>
+              <div class="tc-detail">元金 ¥66,580 ・ 利息 ¥920 ・ 残高 ¥1,213,460</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ============ PAGE 4 : SIMULATION ============ -->
+      <div class="page" id="page-sim">
+
+        <div class="card">
+          <div class="amount-display">
+            <div class="ad-label">試算する借入額</div>
+            <div class="ad-value">
+              <span class="yen">¥</span><span id="simAmount">1,000,000</span>
+            </div>
+          </div>
+          <div class="slider-wrap">
+            <input type="range" id="simSlider" min="100000" max="3000000" step="100000" value="1000000" oninput="updateSim()">
+            <div class="slider-range">
+              <span>¥100,000</span>
+              <span>¥3,000,000</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="field-label">返済期間</div>
+          <div class="term-row" id="simTerm">
+            <div class="term-opt" onclick="selSimTerm(this,12)">12回</div>
+            <div class="term-opt" onclick="selSimTerm(this,24)">24回</div>
+            <div class="term-opt active" onclick="selSimTerm(this,36)">36回</div>
+            <div class="term-opt" onclick="selSimTerm(this,60)">60回</div>
+          </div>
+        </div>
+
+        <div class="section-title">試算結果</div>
+        <div class="sim-result-grid">
+          <div class="sim-cell hl">
+            <div class="sc-lbl">月々のお支払い</div>
+            <div class="sc-val">¥<span id="simMonthly">28,558</span></div>
+          </div>
+          <div class="sim-cell">
+            <div class="sc-lbl">適用金利（年率）</div>
+            <div class="sc-val">1.8<small>%</small></div>
+          </div>
+          <div class="sim-cell">
+            <div class="sc-lbl">利息総額</div>
+            <div class="sc-val">¥<span id="simInterest">28,088</span></div>
+          </div>
+          <div class="sim-cell">
+            <div class="sc-lbl">返済総額</div>
+            <div class="sc-val">¥<span id="simTotal">1,028,088</span></div>
+          </div>
+        </div>
+
+        <div class="info-note">
+          給与天引きでお支払いいただくため、毎月の手取りからは自動的に差し引かれます。手取り目安に対する返済比率は <b style="color:var(--teal)">月収の約9%</b> です。無理のない範囲でご利用ください。
+        </div>
+
+        <button class="btn-primary btn-gold" onclick="switchTab('apply')">この条件で申込みに進む</button>
+      </div>
+
+      <!-- ============ PAGE 5 : PROFILE ============ -->
+      <div class="page" id="page-profile">
+
+        <div class="card">
+          <div class="profile-head">
+            <div class="avatar">田</div>
+            <div>
+              <div class="ph-name">田中 健一</div>
+              <div class="ph-sub">会員番号 WB-204-88317</div>
+              <div class="verified">✓ 本人確認 済み</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">勤務先・お支払い情報</div>
+        <div class="card" style="padding:6px 18px;">
+          <div class="info-list">
+            <div class="info-row">
+              <div class="ir-left">
+                <div class="ir-ico">🏢</div>
+                <div>
+                  <div class="ir-label">勤務先</div>
+                  <div class="ir-value">株式会社マルナカ製作所</div>
+                </div>
+              </div>
+              <span class="ir-chev">›</span>
+            </div>
+            <div class="info-row">
+              <div class="ir-left">
+                <div class="ir-ico">💼</div>
+                <div>
+                  <div class="ir-label">給与天引き口座</div>
+                  <div class="ir-value">毎月25日 ・ 給与から自動控除</div>
+                </div>
+              </div>
+              <span class="ir-chev">›</span>
+            </div>
+            <div class="info-row">
+              <div class="ir-left">
+                <div class="ir-ico">🏦</div>
+                <div>
+                  <div class="ir-label">給与振込口座</div>
+                  <div class="ir-value">○○銀行 本店 ・ 普通 ****3201</div>
+                </div>
+              </div>
+              <span class="ir-chev">›</span>
+            </div>
+            <div class="info-row">
+              <div class="ir-left">
+                <div class="ir-ico">🔁</div>
+                <div>
+                  <div class="ir-label">退職時の引落口座</div>
+                  <div class="ir-value" style="color:var(--gold);font-weight:700;">未登録 ・ 登録をお願いします</div>
+                </div>
+              </div>
+              <span class="ir-chev">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">通知・セキュリティ</div>
+        <div class="card" style="padding:6px 18px;">
+          <div class="info-list">
+            <div class="info-row">
+              <div class="ir-left">
+                <div class="ir-ico">🔔</div>
+                <div><div class="ir-label">返済日リマインド</div><div class="ir-value">3日前に通知</div></div>
+              </div>
+              <div class="toggle" onclick="this.classList.toggle('off')"></div>
+            </div>
+            <div class="info-row">
+              <div class="ir-left">
+                <div class="ir-ico">📧</div>
+                <div><div class="ir-label">明細メール配信</div><div class="ir-value">毎月の控除明細を送信</div></div>
+              </div>
+              <div class="toggle" onclick="this.classList.toggle('off')"></div>
+            </div>
+            <div class="info-row">
+              <div class="ir-left">
+                <div class="ir-ico">🔒</div>
+                <div><div class="ir-label">生体認証ログイン</div><div class="ir-value">Face ID で開く</div></div>
+              </div>
+              <div class="toggle off" onclick="this.classList.toggle('off')"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">サポート</div>
+        <div class="card" style="padding:6px 18px;">
+          <div class="info-list">
+            <div class="info-row">
+              <div class="ir-left">
+                <div class="ir-ico">❓</div>
+                <div><div class="ir-label">よくあるご質問</div></div>
+              </div>
+              <span class="ir-chev">›</span>
+            </div>
+            <div class="info-row">
+              <div class="ir-left">
+                <div class="ir-ico">☎️</div>
+                <div><div class="ir-label">商工会議所サポート窓口</div><div class="ir-value">平日 9:00〜17:00</div></div>
+              </div>
+              <span class="ir-chev">›</span>
+            </div>
+            <div class="info-row">
+              <div class="ir-left">
+                <div class="ir-ico">📄</div>
+                <div><div class="ir-label">規約・重要事項</div></div>
+              </div>
+              <span class="ir-chev">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-note" style="text-align:center;">
+          WellBridge Loan v2.4.0 ・ ○○商工会議所 福利厚生サービス
+        </div>
+      </div>
+
+    </div>
+    <!-- ===================== /BODY ===================== -->
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="tab active" data-tab="home" onclick="switchTab('home')">
+        <span class="t-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
+          </svg>
+        </span>
+        <span class="t-label">ホーム</span>
+      </button>
+      <button class="tab" data-tab="status" onclick="switchTab('status')">
+        <span class="t-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="13" y="8" width="3" height="10"/><rect x="19" y="5" width="0.1" height="13"/>
+          </svg>
+        </span>
+        <span class="t-label">返済状況</span>
+      </button>
+      <button class="tab apply-tab" data-tab="apply" onclick="switchTab('apply')">
+        <span class="t-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </span>
+        <span class="t-label">借入申込</span>
+      </button>
+      <button class="tab" data-tab="sim" onclick="switchTab('sim')">
+        <span class="t-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="8" y2="12"/><line x1="12" y1="12" x2="12" y2="12"/><line x1="16" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="12" y1="16" x2="12" y2="16"/></svg>
+        </span>
+        <span class="t-label">試算</span>
+      </button>
+      <button class="tab" data-tab="profile" onclick="switchTab('profile')">
+        <span class="t-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>
+          </svg>
+        </span>
+        <span class="t-label">設定</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ----- Tab switching -----
+  var titles = {
+    home:    ['こんにちは、田中さん', '本日 2026年5月22日 のご状況です'],
+    apply:   ['借入のお申込み', 'ご希望の金額・期間をお選びください'],
+    status:  ['返済状況', '給与天引きによる返済の記録です'],
+    sim:     ['返済シミュレーション', '借入前にお支払いを試算できます'],
+    profile: ['プロフィール / 設定', '勤務先・口座情報の登録と変更']
+  };
+
+  function switchTab(name) {
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+    document.getElementById('page-' + name).classList.add('active');
+    document.querySelectorAll('.tab').forEach(function(t){
+      t.classList.toggle('active', t.getAttribute('data-tab') === name);
+    });
+    document.getElementById('screenTitle').textContent = titles[name][0];
+    document.getElementById('screenCaption').textContent = titles[name][1];
+    document.querySelector('.app-body').scrollTop = 0;
+  }
+
+  // ----- Number formatting -----
+  function fmt(n) { return Math.round(n).toLocaleString('ja-JP'); }
+
+  // Annuity monthly payment
+  function monthlyPayment(principal, annualRate, months) {
+    var r = annualRate / 12;
+    if (r === 0) return principal / months;
+    return principal * r / (1 - Math.pow(1 + r, -months));
+  }
+
+  var RATE = 0.018;
+
+  // ----- Apply page -----
+  var applyTerm = 24;
+  function updateApply() {
+    var amt = parseInt(document.getElementById('amountSlider').value, 10);
+    document.getElementById('applyAmount').textContent = fmt(amt);
+    var m = monthlyPayment(amt, RATE, applyTerm);
+    var total = m * applyTerm;
+    document.getElementById('applyMonthly').textContent = fmt(m);
+    document.getElementById('applyTotal').textContent = fmt(total);
+  }
+  function selChip(el) {
+    el.parentNode.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+    el.classList.add('active');
+  }
+  function selTerm(el, t) {
+    el.parentNode.querySelectorAll('.term-opt').forEach(function(c){ c.classList.remove('active'); });
+    el.classList.add('active');
+    applyTerm = t;
+    updateApply();
+  }
+
+  // ----- Simulation page -----
+  var simTerm = 36;
+  function updateSim() {
+    var amt = parseInt(document.getElementById('simSlider').value, 10);
+    document.getElementById('simAmount').textContent = fmt(amt);
+    var m = monthlyPayment(amt, RATE, simTerm);
+    var total = m * simTerm;
+    document.getElementById('simMonthly').textContent = fmt(m);
+    document.getElementById('simTotal').textContent = fmt(total);
+    document.getElementById('simInterest').textContent = fmt(total - amt);
+  }
+  function selSimTerm(el, t) {
+    el.parentNode.querySelectorAll('.term-opt').forEach(function(c){ c.classList.remove('active'); });
+    el.classList.add('active');
+    simTerm = t;
+    updateSim();
+  }
+
+  // initial render
+  updateApply();
+  updateSim();
+</script>
+
+</body>
+</html>
