@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>メキシカンタコスのデリバリーサービス Mock App</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; display: grid; place-items: center; background: radial-gradient(circle at 20% 10%, #FFD166, transparent 28%), radial-gradient(circle at 80% 70%, #E63946, transparent 25%), #1E1B18; font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif; color: #FFF3D4; padding: 28px; }
+    .stage { display: grid; grid-template-columns: 1fr 420px; gap: 60px; align-items: center; max-width: 1180px; width: 100%; }
+    .copy h1 { font-size: clamp(44px, 7vw, 94px); line-height: .94; margin-bottom: 22px; }
+    .copy p { font-size: 21px; max-width: 620px; color: #F8DFA9; }
+    .iphone { width: 390px; aspect-ratio: 9/19.5; border-radius: 54px; background: #080705; border: 10px solid #15120f; padding: 17px; box-shadow: 0 40px 100px rgba(0,0,0,.48); position: relative; }
+    .island { position: absolute; top: 25px; left: 50%; transform: translateX(-50%); width: 116px; height: 31px; border-radius: 999px; background: #050505; z-index: 5; }
+    .app { height: 100%; border-radius: 38px; background: #FFF3D4; color: #1E1B18; overflow: hidden; display: grid; grid-template-rows: 1fr 78px; }
+    .screens { position: relative; overflow: hidden; }
+    .screen-panel { display: none; height: 100%; padding: 78px 24px 24px; background: linear-gradient(160deg, #FFF3D4, #FFD166); }
+    .screen-panel.active { display: block; }
+    .screen-panel h2 { font-size: 34px; line-height: 1; margin-bottom: 12px; }
+    .screen-panel p { color: #5B3A29; margin-bottom: 22px; }
+    .mock-card { border-radius: 26px; background: #1E1B18; color: #FFF3D4; padding: 24px; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 18px 36px rgba(122,62,29,.22); }
+    .mock-card strong { font-size: 58px; line-height: .9; color: #C7F464; }
+    .mock-list { margin-top: 18px; display: grid; gap: 10px; }
+    .mock-list div { display: flex; justify-content: space-between; padding: 13px 14px; border-radius: 16px; background: rgba(255,255,255,.68); }
+    .tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 8px; background: #1E1B18; }
+    .tab { border: 0; border-radius: 16px; background: transparent; color: #FFF3D4; font-weight: 800; font-size: 11px; cursor: pointer; }
+    .tab.active { background: #E63946; }
+    @media (max-width: 900px) { .stage { grid-template-columns: 1fr; justify-items: center; } .iphone { width: min(390px, 94vw); } }
+    .grain-0 { opacity: .1; }
+    .grain-1 { opacity: .2; }
+    .grain-2 { opacity: .3; }
+    .grain-3 { opacity: .4; }
+    .grain-4 { opacity: .5; }
+    .grain-5 { opacity: .6; }
+    .grain-6 { opacity: .7; }
+    .grain-7 { opacity: .8; }
+    .grain-8 { opacity: .1; }
+    .grain-9 { opacity: .2; }
+    .grain-10 { opacity: .3; }
+    .grain-11 { opacity: .4; }
+    .grain-12 { opacity: .5; }
+    .grain-13 { opacity: .6; }
+    .grain-14 { opacity: .7; }
+    .grain-15 { opacity: .8; }
+    .grain-16 { opacity: .1; }
+    .grain-17 { opacity: .2; }
+    .grain-18 { opacity: .3; }
+    .grain-19 { opacity: .4; }
+    .grain-20 { opacity: .5; }
+    .grain-21 { opacity: .6; }
+    .grain-22 { opacity: .7; }
+    .grain-23 { opacity: .8; }
+    .grain-24 { opacity: .1; }
+    .grain-25 { opacity: .2; }
+    .grain-26 { opacity: .3; }
+    .grain-27 { opacity: .4; }
+    .grain-28 { opacity: .5; }
+    .grain-29 { opacity: .6; }
+    .grain-30 { opacity: .7; }
+    .grain-31 { opacity: .8; }
+    .grain-32 { opacity: .1; }
+    .grain-33 { opacity: .2; }
+    .grain-34 { opacity: .3; }
+    .grain-35 { opacity: .4; }
+    .grain-36 { opacity: .5; }
+    .grain-37 { opacity: .6; }
+    .grain-38 { opacity: .7; }
+    .grain-39 { opacity: .8; }
+    .grain-40 { opacity: .1; }
+    .grain-41 { opacity: .2; }
+    .grain-42 { opacity: .3; }
+    .grain-43 { opacity: .4; }
+    .grain-44 { opacity: .5; }
+    .grain-45 { opacity: .6; }
+    .grain-46 { opacity: .7; }
+    .grain-47 { opacity: .8; }
+    .grain-48 { opacity: .1; }
+    .grain-49 { opacity: .2; }
+    .grain-50 { opacity: .3; }
+    .grain-51 { opacity: .4; }
+    .grain-52 { opacity: .5; }
+    .grain-53 { opacity: .6; }
+    .grain-54 { opacity: .7; }
+    .grain-55 { opacity: .8; }
+    .grain-56 { opacity: .1; }
+    .grain-57 { opacity: .2; }
+    .grain-58 { opacity: .3; }
+    .grain-59 { opacity: .4; }
+    .grain-60 { opacity: .5; }
+    .grain-61 { opacity: .6; }
+    .grain-62 { opacity: .7; }
+    .grain-63 { opacity: .8; }
+    .grain-64 { opacity: .1; }
+    .grain-65 { opacity: .2; }
+    .grain-66 { opacity: .3; }
+    .grain-67 { opacity: .4; }
+    .grain-68 { opacity: .5; }
+    .grain-69 { opacity: .6; }
+    .grain-70 { opacity: .7; }
+    .grain-71 { opacity: .8; }
+    .grain-72 { opacity: .1; }
+    .grain-73 { opacity: .2; }
+    .grain-74 { opacity: .3; }
+    .grain-75 { opacity: .4; }
+    .grain-76 { opacity: .5; }
+    .grain-77 { opacity: .6; }
+    .grain-78 { opacity: .7; }
+    .grain-79 { opacity: .8; }
+    .grain-80 { opacity: .1; }
+    .grain-81 { opacity: .2; }
+    .grain-82 { opacity: .3; }
+    .grain-83 { opacity: .4; }
+    .grain-84 { opacity: .5; }
+    .grain-85 { opacity: .6; }
+    .grain-86 { opacity: .7; }
+    .grain-87 { opacity: .8; }
+    .grain-88 { opacity: .1; }
+    .grain-89 { opacity: .2; }
+    .grain-90 { opacity: .3; }
+    .grain-91 { opacity: .4; }
+    .grain-92 { opacity: .5; }
+    .grain-93 { opacity: .6; }
+    .grain-94 { opacity: .7; }
+    .grain-95 { opacity: .8; }
+    .grain-96 { opacity: .1; }
+    .grain-97 { opacity: .2; }
+    .grain-98 { opacity: .3; }
+    .grain-99 { opacity: .4; }
+    .grain-100 { opacity: .5; }
+    .grain-101 { opacity: .6; }
+    .grain-102 { opacity: .7; }
+    .grain-103 { opacity: .8; }
+    .grain-104 { opacity: .1; }
+    .grain-105 { opacity: .2; }
+    .grain-106 { opacity: .3; }
+    .grain-107 { opacity: .4; }
+    .grain-108 { opacity: .5; }
+    .grain-109 { opacity: .6; }
+    .grain-110 { opacity: .7; }
+    .grain-111 { opacity: .8; }
+    .grain-112 { opacity: .1; }
+    .grain-113 { opacity: .2; }
+    .grain-114 { opacity: .3; }
+    .grain-115 { opacity: .4; }
+    .grain-116 { opacity: .5; }
+    .grain-117 { opacity: .6; }
+    .grain-118 { opacity: .7; }
+    .grain-119 { opacity: .8; }
+    .grain-120 { opacity: .1; }
+    .grain-121 { opacity: .2; }
+    .grain-122 { opacity: .3; }
+    .grain-123 { opacity: .4; }
+    .grain-124 { opacity: .5; }
+    .grain-125 { opacity: .6; }
+    .grain-126 { opacity: .7; }
+    .grain-127 { opacity: .8; }
+    .grain-128 { opacity: .1; }
+    .grain-129 { opacity: .2; }
+    .grain-130 { opacity: .3; }
+    .grain-131 { opacity: .4; }
+    .grain-132 { opacity: .5; }
+    .grain-133 { opacity: .6; }
+    .grain-134 { opacity: .7; }
+    .grain-135 { opacity: .8; }
+    .grain-136 { opacity: .1; }
+    .grain-137 { opacity: .2; }
+    .grain-138 { opacity: .3; }
+    .grain-139 { opacity: .4; }
+    .grain-140 { opacity: .5; }
+    .grain-141 { opacity: .6; }
+    .grain-142 { opacity: .7; }
+    .grain-143 { opacity: .8; }
+    .grain-144 { opacity: .1; }
+    .grain-145 { opacity: .2; }
+    .grain-146 { opacity: .3; }
+    .grain-147 { opacity: .4; }
+    .grain-148 { opacity: .5; }
+    .grain-149 { opacity: .6; }
+    .grain-150 { opacity: .7; }
+    .grain-151 { opacity: .8; }
+    .grain-152 { opacity: .1; }
+    .grain-153 { opacity: .2; }
+    .grain-154 { opacity: .3; }
+    .grain-155 { opacity: .4; }
+    .grain-156 { opacity: .5; }
+    .grain-157 { opacity: .6; }
+    .grain-158 { opacity: .7; }
+    .grain-159 { opacity: .8; }
+    .grain-160 { opacity: .1; }
+    .grain-161 { opacity: .2; }
+    .grain-162 { opacity: .3; }
+    .grain-163 { opacity: .4; }
+    .grain-164 { opacity: .5; }
+    .grain-165 { opacity: .6; }
+    .grain-166 { opacity: .7; }
+    .grain-167 { opacity: .8; }
+    .grain-168 { opacity: .1; }
+    .grain-169 { opacity: .2; }
+    .grain-170 { opacity: .3; }
+    .grain-171 { opacity: .4; }
+    .grain-172 { opacity: .5; }
+    .grain-173 { opacity: .6; }
+    .grain-174 { opacity: .7; }
+    .grain-175 { opacity: .8; }
+    .grain-176 { opacity: .1; }
+    .grain-177 { opacity: .2; }
+    .grain-178 { opacity: .3; }
+    .grain-179 { opacity: .4; }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <div class="copy"><h1>焼きたてのメキシコを、玄関まで。</h1><p>本格メキシカンタコスを、注文から最短20分で届ける都市型デリバリーサービス。焼きたてトルティーヤ、選べるサルサ、辛さカスタム、ランチ・パーティー・深夜需要に対応。</p></div>
+    <div class="iphone"><div class="island"></div><div class="app"><div class="screens">      <section class="screen-panel active" id="screen0"><h2>今日のおすすめ</h2><p>ランチピーク前に人気セットを提案。</p><div class="mock-card"><strong>20 min</strong><span>最短到着</span></div><div class="mock-list"><div><b>Al Pastor</b><span>Hot / Verde</span></div><div><b>Carnitas</b><span>Mild / Roja</span></div><div><b>Vegan</b><span>Medium / Lime</span></div></div></section>
+      <section class="screen-panel" id="screen1"><h2>辛さカスタム</h2><p>前回の好みからAIがサルサを推薦。</p><div class="mock-card"><strong>5段階</strong><span>辛さ調整</span></div><div class="mock-list"><div><b>Roja</b><span>香ばしい赤</span></div><div><b>Verde</b><span>爽やかな緑</span></div><div><b>Habanero</b><span>刺激強め</span></div></div></section>
+      <section class="screen-panel" id="screen2"><h2>配送トラッキング</h2><p>焼き上がりから玄関まで通知。</p><div class="mock-card"><strong>7:42</strong><span>到着まで</span></div><div class="mock-list"><div><b>焼き上げ</b><span>完了</span></div><div><b>箱詰め</b><span>進行中</span></div><div><b>配送</b><span>待機</span></div></div></section>
+      <section class="screen-panel" id="screen3"><h2>Party BOX</h2><p>人数と辛さを入れるだけで最適な組み合わせ。</p><div class="mock-card"><strong>12 pcs</strong><span>おすすめ</span></div><div class="mock-list"><div><b>肉</b><span>6ピース</span></div><div><b>魚介</b><span>2ピース</span></div><div><b>野菜</b><span>4ピース</span></div></div></section>
+      <section class="screen-panel" id="screen4"><h2>注文履歴</h2><p>好みを覚えて次回の注文を速く。</p><div class="mock-card"><strong>82%</strong><span>リピート予測</span></div><div class="mock-list"><div><b>前回</b><span>Al Pastor</span></div><div><b>好み</b><span>辛さ4</span></div><div><b>次回</b><span>Lime追加</span></div></div></section></div><nav class="tabs">        <button class="tab active" data-tab="screen0">注文</button>        <button class="tab" data-tab="screen1">サルサ</button>        <button class="tab" data-tab="screen2">配送</button>        <button class="tab" data-tab="screen3">Party</button>        <button class="tab" data-tab="screen4">履歴</button></nav></div></div>
+  </main>
+  <script>
+    document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.screen-panel').forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    }));
+  </script>
+</body>
+</html>
