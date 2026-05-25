@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>つながりの縁側 — App Mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF6EC; --paper:#F2E9D8; --paper2:#EAE0CB;
+    --ink:#2A2620; --ink-soft:#5C5448; --ink-faint:#8A7F70;
+    --engawa:#B5654A; --indigo:#27496D; --moss:#7A8B5C; --gold:#C9A75B;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:linear-gradient(180deg,#F4ECD9 0%,#EFE3C7 100%);color:var(--ink);font-family:"Noto Sans JP",sans-serif;font-size:18px;line-height:1.8}
+  .page{max-width:1280px;margin:0 auto;padding:64px 32px 96px}
+  .lead{font-family:"Noto Serif JP",serif;font-size:42px;line-height:1.5;letter-spacing:.04em;margin:0 0 14px}
+  .lead small{font-family:"Noto Sans JP",sans-serif;font-size:14px;color:var(--ink-soft);letter-spacing:.2em;display:block;margin-bottom:18px;font-weight:500}
+  .sub{color:var(--ink-soft);font-size:17px;max-width:560px;margin-bottom:48px}
+  .stage{display:flex;justify-content:center;align-items:flex-start;gap:48px;flex-wrap:wrap}
+  /* iPhone frame */
+  .phone{
+    width:390px;height:844px;position:relative;
+    background:#1d1a14;border-radius:48px;padding:14px;
+    box-shadow:0 30px 80px -20px rgba(60,40,20,.35), 0 2px 6px rgba(60,40,20,.1), inset 0 0 0 2px #3a342a;
+  }
+  .phone::before{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#0a0908;border-radius:20px;z-index:5}
+  .screen{
+    width:100%;height:100%;background:var(--cream);border-radius:36px;overflow:hidden;position:relative;
+    display:flex;flex-direction:column;
+  }
+  .statusbar{height:50px;display:flex;justify-content:space-between;align-items:flex-end;padding:0 28px 8px;font-size:14px;font-weight:600;color:var(--ink);letter-spacing:.02em}
+  .statusbar .right span{margin-left:6px;opacity:.85}
+  .scroll{flex:1;overflow-y:auto;padding:8px 22px 12px}
+  .scroll::-webkit-scrollbar{display:none}
+  .nav{height:78px;background:#F2E9D8;border-top:1px solid #DDD0B5;display:flex;justify-content:space-around;align-items:flex-start;padding:10px 6px 0}
+  .nav button{background:none;border:none;font-family:inherit;color:var(--ink-soft);font-size:11px;letter-spacing:.1em;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;cursor:pointer}
+  .nav button .mark{font-family:"Noto Serif JP",serif;font-size:22px;line-height:1}
+  .nav button.active{color:var(--engawa)}
+  .nav button.active .mark{color:var(--engawa)}
+  /* Screen content shared */
+  .stack{display:flex;flex-direction:column;gap:14px;padding:6px 0 22px}
+  .card{background:#fff;border:1px solid #E5DAC3;border-radius:10px;padding:16px 18px;box-shadow:0 1px 0 rgba(60,40,20,.04)}
+  .h1{font-family:"Noto Serif JP",serif;font-size:24px;font-weight:500;margin:18px 0 4px;color:var(--ink);letter-spacing:.04em}
+  .h2{font-family:"Noto Serif JP",serif;font-size:17px;font-weight:500;color:var(--ink);margin:0 0 4px}
+  .meta{font-size:13px;color:var(--ink-faint);letter-spacing:.05em;margin-bottom:14px}
+  .pill{display:inline-block;background:var(--paper);color:var(--ink-soft);padding:4px 10px;border-radius:999px;font-size:12px;margin:2px 4px 2px 0}
+  .accent{color:var(--engawa)}
+  .indigo{color:var(--indigo)}
+  .small{font-size:13px;color:var(--ink-soft);line-height:1.7}
+  .divider{height:1px;background:var(--gold);opacity:.5;margin:18px 0}
+  .row{display:flex;gap:12px;align-items:center}
+  .avatar{width:48px;height:48px;border-radius:50%;background:var(--paper2);display:flex;align-items:center;justify-content:center;font-family:"Noto Serif JP",serif;font-size:18px;color:var(--ink-soft);flex-shrink:0;border:1px solid #D9CDB1}
+  .btn{display:block;width:100%;padding:16px;border-radius:8px;background:var(--engawa);color:#FBF6EC;font-family:"Noto Sans JP",sans-serif;font-size:18px;font-weight:500;border:none;text-align:center;letter-spacing:.06em;margin-top:14px;cursor:pointer}
+  .btn.outline{background:transparent;border:1px solid var(--engawa);color:var(--engawa)}
+  .quote{font-family:"Noto Serif JP",serif;font-size:17px;color:var(--ink);line-height:1.9;border-left:2px solid var(--gold);padding-left:14px;margin:10px 0}
+  .num{font-family:"Noto Serif JP",serif;font-size:36px;color:var(--engawa);line-height:1;margin-right:8px}
+  .next-pill{display:inline-flex;align-items:center;gap:8px;background:var(--paper);border:1px solid #DDD0B5;color:var(--ink);padding:10px 14px;border-radius:999px;font-size:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .photo{aspect-ratio:1;background:linear-gradient(135deg,#E8DBBE,#D9C99D);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:"Noto Serif JP",serif;font-size:22px;color:var(--ink-soft);border:1px solid #CFBE94}
+  .photo.alt{background:linear-gradient(135deg,#D9CFB6,#B5A98B)}
+  .photo.alt2{background:linear-gradient(135deg,#E2C9B0,#C49B7C)}
+  .photo.alt3{background:linear-gradient(135deg,#C9D2B5,#A3B084)}
+  .screen-page{display:none;height:100%;overflow:hidden}
+  .screen-page.active{display:flex;flex-direction:column;height:100%}
+  .scroll-area{flex:1;overflow-y:auto;padding:8px 22px 22px}
+  .scroll-area::-webkit-scrollbar{display:none}
+  .badge{display:inline-block;font-size:11px;color:var(--ink-soft);background:#fff;border:1px solid #DDD0B5;padding:3px 8px;border-radius:4px;letter-spacing:.1em;margin-right:6px}
+  .info-line{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #ECE0C6;font-size:15px}
+  .info-line:last-child{border-bottom:none}
+  .info-line span:last-child{color:var(--ink-soft)}
+  .legend{margin-top:48px;color:var(--ink-soft);font-size:14px;max-width:560px;line-height:1.9}
+  .legend strong{color:var(--engawa)}
+  .caption{font-family:"Noto Serif JP",serif;font-size:14px;color:var(--ink-soft);text-align:center;margin-top:14px;letter-spacing:.1em}
+  @media (max-width: 900px){.stage{flex-direction:column;align-items:center}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="lead"><small>APP MOCK · ENGAWA</small>つながりの縁側<br>— 高齢シニアと、その家族のためのアプリ。</div>
+  <div class="sub">本アプリは「縁側に座る」感覚で使えるように設計されています。文字は大きく、操作は3タップ以内、すべての画面に「やめる」「休む」が用意されています。</div>
+
+  <div class="stage">
+    <!-- Phone -->
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar"><div>9:41</div><div class="right"><span>●●●</span><span>📶</span><span>92%</span></div></div>
+
+        <!-- HOME 縁 -->
+        <div class="screen-page active" data-page="home">
+          <div class="scroll-area">
+            <div class="h1">今日の縁側</div>
+            <div class="meta">5月25日（日）　花曇り</div>
+            <div class="card" style="border-left:3px solid var(--engawa)">
+              <div class="h2">次のお電話まで</div>
+              <div style="display:flex;align-items:baseline;margin-top:6px"><span class="num">2</span><span>時間</span><span class="num" style="margin-left:12px">14</span><span>分</span></div>
+              <div class="small" style="margin-top:8px">14:00から、田中花子さん（82・元教員）と。<br>テーマ：『最近、読んだ本』</div>
+            </div>
+
+            <div class="h1" style="font-size:20px;margin-top:24px">今週、話した方</div>
+            <div class="stack">
+              <div class="card row"><div class="avatar">花</div><div><div class="h2">田中 花子さん</div><div class="small">5月22日（水）15分　— 読書会の思い出</div></div></div>
+              <div class="card row"><div class="avatar">健</div><div><div class="h2">佐藤 健一さん</div><div class="small">5月20日（月）22分　— 将棋の話</div></div></div>
+              <div class="card row"><div class="avatar">節</div><div><div class="h2">山田 節子さん</div><div class="small">5月18日（土）18分　— 戦後の食卓</div></div></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="h1" style="font-size:20px">今月のサロン</div>
+            <div class="card">
+              <span class="badge">5月28日（水）14:00</span>
+              <div class="h2" style="margin-top:8px">サロン『昭和の音楽を語る』</div>
+              <div class="small" style="margin-top:6px">6名定員 / 残り2席　会場：オンライン</div>
+              <button class="btn outline" style="margin-top:14px">参加する</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MATCH 結 -->
+        <div class="screen-page" data-page="match">
+          <div class="scroll-area">
+            <div class="h1">縁側マッチング</div>
+            <div class="meta">同世代の方を、3名ご紹介しました</div>
+            <div class="quote">「同じ時代を生きた方と、ゆっくりお話ししませんか。コーディネーターが間に立って、最初の一歩をご一緒します。」</div>
+            <div class="stack" style="margin-top:14px">
+              <div class="card">
+                <div class="row"><div class="avatar">花</div><div><div class="h2">花子さん　82歳・女性</div><div class="small">元教員 / 千葉県</div></div></div>
+                <div style="margin-top:10px"><span class="pill">同郷</span><span class="pill">読書好き</span><span class="pill">朝型</span></div>
+                <div class="small" style="margin-top:10px">『遠藤周作と司馬遼太郎が好き。お話が合いそうです。』</div>
+                <button class="btn">この方と話してみる</button>
+              </div>
+              <div class="card">
+                <div class="row"><div class="avatar">節</div><div><div class="h2">節子さん　78歳・女性</div><div class="small">元看護師 / 東京都</div></div></div>
+                <div style="margin-top:10px"><span class="pill">園芸</span><span class="pill">朝の散歩</span></div>
+                <button class="btn outline">この方の紹介を読む</button>
+              </div>
+              <div class="card">
+                <div class="row"><div class="avatar">和</div><div><div class="h2">和子さん　85歳・女性</div><div class="small">元主婦 / 神奈川県</div></div></div>
+                <div style="margin-top:10px"><span class="pill">音楽</span><span class="pill">短歌</span></div>
+                <button class="btn outline">この方の紹介を読む</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CALL 茶 -->
+        <div class="screen-page" data-page="call">
+          <div class="scroll-area">
+            <div class="h1">縁側のお茶</div>
+            <div class="meta">過去のお電話　— 12通話</div>
+            <div class="stack">
+              <div class="card">
+                <div style="display:flex;justify-content:space-between"><div class="h2">田中 花子さん</div><div class="small">22日（水）</div></div>
+                <div class="small" style="margin-top:4px">15分　/  『読書会の思い出』</div>
+                <div class="quote" style="margin-top:10px;font-size:15px">『また来週、同じ時間にお願いしますね。』</div>
+              </div>
+              <div class="card">
+                <div style="display:flex;justify-content:space-between"><div class="h2">佐藤 健一さん</div><div class="small">20日（月）</div></div>
+                <div class="small" style="margin-top:4px">22分　/  『将棋・郷土史』</div>
+              </div>
+              <div class="card">
+                <div style="display:flex;justify-content:space-between"><div class="h2">山田 節子さん</div><div class="small">18日（土）</div></div>
+                <div class="small" style="margin-top:4px">18分　/  『戦後の食卓』</div>
+              </div>
+              <div class="card">
+                <div style="display:flex;justify-content:space-between"><div class="h2">和田 茂さん</div><div class="small">15日（水）</div></div>
+                <div class="small" style="margin-top:4px">12分　/  『ゴルフの思い出』</div>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="small">— 通話の録音はされません。安心してお話しください。</div>
+          </div>
+        </div>
+
+        <!-- MEMORY 棚 -->
+        <div class="screen-page" data-page="shelf">
+          <div class="scroll-area">
+            <div class="h1">思い出の棚</div>
+            <div class="meta">写真と、手紙と、ひとこと</div>
+            <div class="grid2">
+              <div class="photo">昭和38年</div>
+              <div class="photo alt">運動会</div>
+              <div class="photo alt2">縁側</div>
+              <div class="photo alt3">夕陽</div>
+            </div>
+            <div class="divider"></div>
+            <div class="h2">今週のひとこと（録音）</div>
+            <div class="card" style="text-align:center;padding:24px 18px">
+              <div style="font-family:'Noto Serif JP',serif;font-size:48px;color:var(--engawa);line-height:1">●</div>
+              <div class="small" style="margin-top:8px">タップして30秒、録音できます</div>
+              <button class="btn" style="margin-top:14px">録音する</button>
+            </div>
+            <div class="h2" style="margin-top:24px">仲間のひとこと</div>
+            <div class="stack">
+              <div class="card row"><div class="avatar">花</div><div><div class="small">『今日、庭の紫陽花が咲きました。』</div><div class="small" style="color:var(--ink-faint);margin-top:4px">花子さん · 24分前</div></div></div>
+              <div class="card row"><div class="avatar">健</div><div><div class="small">『将棋、また勉強し直しています。』</div><div class="small" style="color:var(--ink-faint);margin-top:4px">健一さん · 昨日</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAMILY 家 -->
+        <div class="screen-page" data-page="family">
+          <div class="scroll-area">
+            <div class="h1">家族窓口</div>
+            <div class="meta">月次レポート　— 5月</div>
+            <div class="card">
+              <div class="h2">花子さんの今月</div>
+              <div class="info-line"><span>お電話の回数</span><span>4回 / 月</span></div>
+              <div class="info-line"><span>サロン参加</span><span>2回</span></div>
+              <div class="info-line"><span>気分の自己評価</span><span class="accent">4.2 / 5.0</span></div>
+              <div class="info-line"><span>体調の自己申告</span><span>良好</span></div>
+            </div>
+            <div class="quote" style="margin-top:18px">コーディネーターより：『最近、読書会のお話で笑顔が増えました。来月は対面サロンへのご案内も検討しています。』</div>
+            <div class="divider"></div>
+            <div class="h2">設定</div>
+            <button class="btn outline">家族通知の頻度を変える</button>
+            <button class="btn outline">緊急時の連絡先を確認</button>
+          </div>
+        </div>
+
+        <!-- Bottom nav -->
+        <div class="nav">
+          <button data-target="home" class="active"><span class="mark">縁</span><span>ホーム</span></button>
+          <button data-target="match"><span class="mark">結</span><span>マッチング</span></button>
+          <button data-target="call"><span class="mark">茶</span><span>お電話</span></button>
+          <button data-target="shelf"><span class="mark">棚</span><span>思い出</span></button>
+          <button data-target="family"><span class="mark">家</span><span>家族</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side notes -->
+    <div style="max-width:380px">
+      <div class="caption">— App Mock —</div>
+      <div class="legend">
+        <p><strong>5つの画面</strong>はすべて「縁側に座る」体験を支えるためのものです。本人が孤立せず、家族が安心できる、その両立を目指しています。</p>
+        <p style="margin-top:18px"><strong>縁　ホーム</strong><br>今日の予定と、最近話した方が一目で分かる。「明日の予定がある」を実感できる中心画面。</p>
+        <p style="margin-top:18px"><strong>結　マッチング</strong><br>AIが提案、人が最終判断。同世代の3名の中から、ご自身のペースで選びます。</p>
+        <p style="margin-top:18px"><strong>茶　お電話</strong><br>週1回15分から。通話は録音せず、安心して話せます。</p>
+        <p style="margin-top:18px"><strong>棚　思い出</strong><br>写真と、手紙と、30秒のひとこと録音。仲間と共有する非同期の交流。</p>
+        <p style="margin-top:18px"><strong>家　家族</strong><br>離れて暮らすご家族へ、月次レポートと、必要な時だけ届くお知らせ。</p>
+        <p style="margin-top:28px;font-family:'Noto Serif JP',serif;font-size:20px;color:var(--ink)">今日、誰かと話せた。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const buttons = document.querySelectorAll('.nav button');
+  buttons.forEach(b => b.addEventListener('click', () => {
+    buttons.forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.screen-page').forEach(p => p.classList.remove('active'));
+    document.querySelector('.screen-page[data-page="'+b.dataset.target+'"]').classList.add('active');
+    // scroll restore
+    const sc = document.querySelector('.screen-page.active .scroll-area');
+    if (sc) sc.scrollTop = 0;
+  }));
+</script>
+</body>
+</html>

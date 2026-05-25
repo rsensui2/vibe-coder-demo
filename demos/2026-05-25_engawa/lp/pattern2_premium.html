@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>つながりの縁側 — ある夕暮れの物語 / Engawa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho+B1:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1E2A3A;
+    --bg-deep:#15202E;
+    --bg-soft:#283849;
+    --ink:#F4ECDD;
+    --ink-soft:#C9B795;
+    --ink-faint:#8C7E64;
+    --kakishibu:#B5654A;
+    --kakishibu-light:#D9886A;
+    --sand:#E8D5B7;
+    --gold:#D9A66A;
+    --line:rgba(217,166,106,.28);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans JP",sans-serif;font-size:18px;line-height:1.95;letter-spacing:.02em}
+  .container{max-width:1240px;margin:0 auto;padding:0 40px}
+  .serif{font-family:"Shippori Mincho B1","Noto Serif JP",serif;font-weight:500}
+  .latin{font-family:"Cormorant Garamond",serif;letter-spacing:.2em}
+  .italic{font-family:"Cormorant Garamond",serif;font-style:italic}
+
+  /* Sun motif used across hero & dividers */
+  .sun{position:absolute;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--kakishibu-light) 0%,var(--kakishibu) 35%,transparent 70%);filter:blur(2px);opacity:.55;pointer-events:none}
+
+  /* Header */
+  header{position:absolute;top:0;left:0;right:0;z-index:10;padding:30px 0}
+  header .container{display:flex;justify-content:space-between;align-items:flex-end}
+  .brand{font-family:"Shippori Mincho B1",serif;font-size:20px;letter-spacing:.18em;color:var(--ink)}
+  .brand small{display:block;font-family:"Cormorant Garamond",serif;font-style:italic;font-size:14px;letter-spacing:.3em;color:var(--ink-soft);margin-top:4px}
+  nav{font-family:"Cormorant Garamond",serif;letter-spacing:.3em;font-size:13px;color:var(--ink-soft)}
+  nav a{color:var(--ink-soft);text-decoration:none;margin-left:32px}
+  nav a:hover{color:var(--gold)}
+
+  /* Hero */
+  .hero{position:relative;min-height:100vh;padding:160px 0 80px;overflow:hidden}
+  .hero .sun{right:-180px;top:80px}
+  .hero .grid-bg{position:absolute;left:0;right:0;top:0;bottom:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:120px 120px;opacity:.18;pointer-events:none}
+  .hero-grid{position:relative;display:grid;grid-template-columns:1.3fr 1fr;gap:60px;align-items:end;min-height:60vh}
+  .hero h1{font-family:"Shippori Mincho B1",serif;font-size:110px;line-height:1.2;font-weight:500;color:var(--ink);margin:0 0 36px;letter-spacing:.04em}
+  .hero h1 .amber{color:var(--kakishibu-light)}
+  .hero .vert{position:absolute;right:-40px;top:0;writing-mode:vertical-rl;font-family:"Shippori Mincho B1",serif;font-size:16px;letter-spacing:1.4em;color:var(--ink-soft);height:480px;text-align:center}
+  .hero p{max-width:520px;color:var(--ink-soft);font-size:18px;line-height:2.2;margin:0}
+  .hero-foot{display:grid;grid-template-columns:1fr auto;gap:40px;margin-top:80px;padding-top:32px;border-top:1px solid var(--line)}
+  .hero-foot .issue{font-family:"Cormorant Garamond",serif;letter-spacing:.3em;font-size:13px;color:var(--ink-faint)}
+  .hero-foot .issue strong{color:var(--gold);font-weight:400;font-size:16px;margin-left:6px}
+  .btn{display:inline-block;padding:18px 40px;background:var(--kakishibu);color:var(--ink);text-decoration:none;letter-spacing:.16em;font-size:14px;border:1px solid var(--kakishibu-light);transition:all .25s;font-family:"Noto Sans JP",sans-serif}
+  .btn:hover{background:var(--kakishibu-light);color:var(--bg-deep)}
+
+  /* Section base */
+  section{padding:140px 0;position:relative;overflow:hidden}
+  .label{font-family:"Cormorant Garamond",serif;font-style:italic;color:var(--gold);letter-spacing:.4em;font-size:13px;margin-bottom:14px}
+  .chap{font-family:"Cormorant Garamond",serif;color:var(--ink-faint);font-size:13px;letter-spacing:.6em;margin-bottom:24px}
+  .h-section{font-family:"Shippori Mincho B1",serif;font-size:64px;line-height:1.4;font-weight:500;margin:0 0 56px;letter-spacing:.04em}
+  .h-section .amber{color:var(--kakishibu-light)}
+  .h-section .small{display:block;font-family:"Cormorant Garamond",serif;font-style:italic;font-size:18px;color:var(--ink-soft);letter-spacing:.3em;margin-bottom:12px}
+
+  /* Prologue — magazine-style essay */
+  .prologue{background:var(--bg-deep);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .prologue-grid{display:grid;grid-template-columns:1fr 1.6fr;gap:72px;align-items:start}
+  .prologue .stamp{font-family:"Cormorant Garamond",serif;letter-spacing:.4em;font-size:13px;color:var(--ink-faint)}
+  .prologue .lede{font-family:"Shippori Mincho B1",serif;font-size:30px;line-height:1.9;color:var(--ink);margin:24px 0 32px}
+  .prologue p{color:var(--ink-soft);font-size:17px;line-height:2.2;margin:0 0 22px}
+  .prologue p:first-letter{font-family:"Shippori Mincho B1",serif;font-size:58px;float:left;line-height:1;margin:6px 14px -6px 0;color:var(--kakishibu-light)}
+  .vert-quote{writing-mode:vertical-rl;font-family:"Shippori Mincho B1",serif;font-size:24px;line-height:2.2;color:var(--gold);max-height:520px;padding:0 12px;border-right:1px solid var(--line);border-left:1px solid var(--line)}
+
+  /* Three layers */
+  .layers .h-section{margin-bottom:64px}
+  .layer-rows{display:flex;flex-direction:column;gap:0}
+  .layer-row{display:grid;grid-template-columns:80px 1fr 1.4fr;gap:36px;padding:48px 0;border-bottom:1px solid var(--line);align-items:start}
+  .layer-row .ord{font-family:"Cormorant Garamond",serif;font-size:48px;color:var(--gold);line-height:1;font-style:italic;font-weight:300}
+  .layer-row .h{font-family:"Shippori Mincho B1",serif;font-size:32px;line-height:1.5;margin:0 0 10px}
+  .layer-row .sub{font-family:"Cormorant Garamond",serif;color:var(--ink-faint);letter-spacing:.3em;font-size:12px}
+  .layer-row p{color:var(--ink-soft);font-size:16px;line-height:2.1;margin:0}
+
+  /* Pillars — magazine spread */
+  .pillars{background:var(--bg-deep);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .pillar-list{display:flex;flex-direction:column;gap:120px;margin-top:64px}
+  .pillar-spread{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+  .pillar-spread:nth-child(even){direction:rtl}
+  .pillar-spread:nth-child(even) > *{direction:ltr}
+  .pillar-art{aspect-ratio:1;background:var(--bg-soft);position:relative;overflow:hidden;border:1px solid var(--line)}
+  .pillar-art.one::after{content:"";position:absolute;width:60%;height:60%;left:20%;top:20%;border-radius:50%;background:radial-gradient(circle,var(--kakishibu) 0%,transparent 70%);opacity:.7}
+  .pillar-art.two{background:repeating-linear-gradient(0deg,var(--bg-soft) 0,var(--bg-soft) 38px,var(--bg-deep) 38px,var(--bg-deep) 39px)}
+  .pillar-art.two::after{content:"";position:absolute;left:30%;top:30%;width:40%;height:40%;background:repeating-linear-gradient(90deg,transparent 0,transparent 18px,var(--gold) 18px,var(--gold) 19px);opacity:.35}
+  .pillar-art.three{background:radial-gradient(circle at 30% 70%,var(--kakishibu) 0%,transparent 50%),radial-gradient(circle at 70% 30%,var(--gold) 0%,transparent 50%);opacity:.7}
+  .pillar-spread .ord{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:13px;color:var(--gold);letter-spacing:.4em;margin-bottom:14px}
+  .pillar-spread h3{font-family:"Shippori Mincho B1",serif;font-size:48px;line-height:1.45;font-weight:500;margin:0 0 24px;letter-spacing:.04em}
+  .pillar-spread p{color:var(--ink-soft);font-size:17px;line-height:2.1;margin:0 0 18px}
+  .pillar-spread .quote{font-family:"Shippori Mincho B1",serif;font-size:20px;color:var(--gold);line-height:2;border-left:1px solid var(--gold);padding-left:18px;margin-top:32px}
+
+  /* Pricing as editorial */
+  .pricing{background:var(--bg)}
+  .price-lede{font-family:"Shippori Mincho B1",serif;font-size:28px;line-height:2;max-width:780px;margin:0 0 64px;color:var(--ink-soft)}
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .price-cell{padding:56px 36px;border-right:1px solid var(--line)}
+  .price-cell:last-child{border-right:none}
+  .price-cell .who{font-family:"Cormorant Garamond",serif;letter-spacing:.4em;font-size:13px;color:var(--gold);margin-bottom:14px}
+  .price-cell h3{font-family:"Shippori Mincho B1",serif;font-size:28px;line-height:1.5;margin:0 0 14px}
+  .price-cell .amt{font-family:"Cormorant Garamond",serif;font-size:42px;color:var(--kakishibu-light);font-style:italic;font-weight:400;margin-bottom:20px;line-height:1}
+  .price-cell .amt small{font-size:14px;color:var(--ink-faint);letter-spacing:.16em;font-style:normal;margin-left:6px}
+  .price-cell p{color:var(--ink-soft);font-size:15px;line-height:2}
+
+  /* Interview */
+  .interview{background:var(--bg-deep);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .interview-grid{display:grid;grid-template-columns:240px 1fr;gap:80px;align-items:start}
+  .portrait{aspect-ratio:3/4;background:linear-gradient(180deg,var(--bg-soft) 0%,var(--bg-deep) 100%);border:1px solid var(--line);position:relative;display:flex;align-items:center;justify-content:center;font-family:"Shippori Mincho B1",serif;font-size:72px;color:var(--gold);opacity:.8}
+  .interview .who-line{font-family:"Cormorant Garamond",serif;font-style:italic;color:var(--ink-soft);font-size:13px;letter-spacing:.3em;margin-top:18px;text-align:center}
+  .interview .q{font-family:"Shippori Mincho B1",serif;font-size:22px;color:var(--gold);margin:32px 0 12px}
+  .interview .a{font-size:17px;color:var(--ink-soft);line-height:2.2;margin:0}
+  .interview .q:first-child{margin-top:0}
+
+  /* CTA */
+  .cta{background:linear-gradient(180deg,var(--bg) 0%,var(--bg-deep) 100%);text-align:center;padding:180px 0;position:relative;overflow:hidden}
+  .cta .sun{left:-160px;bottom:-160px;opacity:.4}
+  .cta h2{font-family:"Shippori Mincho B1",serif;font-size:88px;line-height:1.4;margin:0 0 32px;font-weight:500;position:relative;z-index:1}
+  .cta h2 .amber{color:var(--kakishibu-light)}
+  .cta p{color:var(--ink-soft);font-size:18px;max-width:580px;margin:0 auto 56px;line-height:2.2;position:relative;z-index:1}
+  .cta .phone-num{font-family:"Cormorant Garamond",serif;font-size:40px;color:var(--gold);letter-spacing:.2em;margin:0 0 32px;font-style:italic;position:relative;z-index:1}
+  .cta .btn{position:relative;z-index:1}
+
+  /* Footer */
+  footer{padding:48px 0;background:var(--bg-deep);color:var(--ink-faint);font-size:13px;letter-spacing:.08em;border-top:1px solid var(--line)}
+  footer .container{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+
+  @media (max-width: 920px){
+    .hero h1{font-size:54px}
+    .hero-grid{grid-template-columns:1fr}
+    .hero .vert{display:none}
+    .h-section{font-size:36px}
+    section{padding:80px 0}
+    .prologue-grid,.pillar-spread,.interview-grid{grid-template-columns:1fr;gap:32px}
+    .vert-quote{writing-mode:horizontal-tb;border:none;border-bottom:1px solid var(--line);padding:0 0 18px}
+    .layer-row{grid-template-columns:1fr;gap:14px}
+    .price-grid{grid-template-columns:1fr}
+    .price-cell{border-right:none;border-bottom:1px solid var(--line)}
+    .cta h2{font-size:42px}
+    nav{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="brand">つながりの縁側<small>— a quiet veranda</small></div>
+    <nav>
+      <a href="#prologue">プロローグ</a>
+      <a href="#layers">なぜ</a>
+      <a href="#pillars">柱</a>
+      <a href="#cta">縁を結ぶ</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="sun"></div>
+  <div class="grid-bg"></div>
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="label">— a story of dusk, 2026 —</div>
+        <h1>夕暮れの<br>縁側に、<br>もう一度、<br><span class="amber">座ろう。</span></h1>
+        <p>70代から、90代へ。あなたのための場所。亡くなっていく友との別れの中でも、今日、誰かと話せた、明日、会える人がいると感じられる、人間関係の再構築プラットフォーム。</p>
+      </div>
+      <div></div>
+    </div>
+    <div class="vert">— つながりの縁側 / ENGAWA —</div>
+
+    <div class="hero-foot">
+      <div class="issue">ISSUE <strong>No.01</strong> · MAY 2026 · A quiet veranda for those who lived their lives fully</div>
+      <a class="btn" href="#cta">縁を結ぶ</a>
+    </div>
+  </div>
+</section>
+
+<!-- PROLOGUE -->
+<section class="prologue" id="prologue">
+  <div class="container">
+    <div class="chap">— PROLOGUE —</div>
+    <h2 class="h-section"><span class="small">ある82歳の女性の話 — An Essay</span>『話す相手が、<br>いつのまにかいなくなった』</h2>
+
+    <div class="prologue-grid">
+      <div class="vert-quote">『同じ時代の音楽を、同じ温度で語れる人が、ひとり、またひとりと、逝ってしまった。』</div>
+      <div>
+        <div class="stamp">— THE ENGAWA, AN ESSAY · I —</div>
+        <p class="lede">花子さんは元教員。70代まで地域の読書会に通っていた。85歳まで生きた親友が3年前に亡くなり、読書会の半数も逝った。彼女は静かに、参加を止めた。</p>
+        <p>姪が週に1度電話をくれる。会話は嬉しい。けれど、姪は58歳で、語れる時代が違う。話題はすぐに尽きる。テレビと新聞、お茶と猫。それが、彼女の一日のすべてになりつつあった。</p>
+        <p>『迷惑をかけたくないんです。』と、彼女はよく言う。日本中の、たくさんの花子さんが、同じ言葉を呟いている。Engawaは、その呟きから生まれたサービスです。</p>
+        <p>縁側は、内と外、私と公、静と動が自然に交わる場所。押し付けがましくなく、立ち寄りやすく、長居してもよい。私たちはこの文化的メタファーを、サービスの根幹に据えました。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THREE LAYERS -->
+<section class="layers" id="layers">
+  <div class="container">
+    <div class="chap">— CHAPTER I —</div>
+    <h2 class="h-section"><span class="small">Why Engawa exists</span>孤独には、<br><span class="amber">三つの層</span>がある。</h2>
+
+    <div class="layer-rows">
+      <div class="layer-row">
+        <div class="ord"><i>i</i></div>
+        <div>
+          <h3 class="h">社会的孤独</h3>
+          <div class="sub">SOCIAL LONELINESS</div>
+        </div>
+        <p>交流の機会・頻度の不足。「誰かと一緒にいる」経験の欠如。既存のデイサービスやサークルが対応してきた、最も外側の層。</p>
+      </div>
+      <div class="layer-row">
+        <div class="ord"><i>ii</i></div>
+        <div>
+          <h3 class="h">感情的孤独</h3>
+          <div class="sub">EMOTIONAL LONELINESS</div>
+        </div>
+        <p>本音を話せる相手の不在。理解してもらえる感覚の喪失。家族がいても、世代の違いで埋められない深さがある。</p>
+      </div>
+      <div class="layer-row">
+        <div class="ord"><i>iii</i></div>
+        <div>
+          <h3 class="h">存在論的孤独</h3>
+          <div class="sub">EXISTENTIAL LONELINESS</div>
+        </div>
+        <p>「自分の人生を、誰も知らない」という感覚。死別を繰り返す中での「残された者」としての孤立。最も深く、最も語られにくい層。</p>
+      </div>
+    </div>
+
+    <p style="margin-top:64px;font-family:'Shippori Mincho B1',serif;font-size:22px;line-height:2;color:var(--ink);max-width:780px">既存の高齢者向けサービスの多くは、第一層に留まる。<br>Engawaは、第二層・第三層まで踏み込みます。</p>
+  </div>
+</section>
+
+<!-- PILLARS -->
+<section class="pillars" id="pillars">
+  <div class="container">
+    <div class="chap">— CHAPTER II —</div>
+    <h2 class="h-section"><span class="small">The Three Pillars</span>縁側を支える、<br>三つの柱。</h2>
+
+    <div class="pillar-list">
+      <div class="pillar-spread">
+        <div class="pillar-art one"></div>
+        <div>
+          <div class="ord"><i>pillar one</i></div>
+          <h3>同世代の縁側</h3>
+          <p>年齢差±5〜10歳。同じ時代の音楽、同じ時代の事件、同じ時代の価値観。AIが候補を提示し、コーディネーターが調整し、最終判断はあなた自身に委ねます。</p>
+          <p>同世代だからこそ、説明しなくても通じる温度がある。それが第二層・第三層の孤独に届く鍵です。</p>
+          <div class="quote">『話が、通じる。』<br>その当たり前を、もう一度。</div>
+        </div>
+      </div>
+
+      <div class="pillar-spread">
+        <div class="pillar-art two"></div>
+        <div>
+          <div class="ord"><i>pillar two</i></div>
+          <h3>小さな習慣</h3>
+          <p>大きなイベントは要りません。週に1回、15分の電話から。月に2回、6〜8人の少人数サロン。写真や手紙、30秒のひとこと録音を共有する「思い出の棚」。</p>
+          <p>習慣は、続けやすさから生まれる。続けやすさは、無理のなさから生まれる。</p>
+          <div class="quote">『明日の予定がある』<br>それが、希望のかたち。</div>
+        </div>
+      </div>
+
+      <div class="pillar-spread">
+        <div class="pillar-art three"></div>
+        <div>
+          <div class="ord"><i>pillar three</i></div>
+          <h3>安心の裏方</h3>
+          <p>AIは補助に徹し、関係構築の中心は人間のコーディネーター。元教員・元看護師・元介護士などのシニア層が、専門研修を経て伴走します。</p>
+          <p>家族窓口は過剰でなく、地域包括との連携は本人の同意を前提に。安全は、目立たない場所で守られるべきものです。</p>
+          <div class="quote">『人が、人を、静かに支える。』</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTERVIEW -->
+<section class="interview">
+  <div class="container">
+    <div class="chap">— CHAPTER III —</div>
+    <h2 class="h-section"><span class="small">An interview with a coordinator</span>『縁側にいる』<br>とは、どんな仕事ですか。</h2>
+
+    <div class="interview-grid">
+      <div>
+        <div class="portrait">嶋</div>
+        <div class="who-line">— 嶋村 久子 · 67歳 · コーディネーター（元 小学校教員）</div>
+      </div>
+      <div>
+        <p class="q">Q. なぜ、このお仕事を？</p>
+        <p class="a">教員を辞めて、自分の母を看取った後、地域でも『話す相手のいない高齢の方』が増えていることに気づきました。誰かが、間に立つ必要がある。それが、私の役目だと思ったんです。</p>
+
+        <p class="q">Q. 一日の流れは？</p>
+        <p class="a">朝、担当しているお一人お一人のご様子を、コーディネーター仲間と短く共有します。日中は、初対面の方の冒頭の5分だけご一緒したり、サロンの司会をしたり。夕方は、ご家族からのご相談を伺うこともあります。</p>
+
+        <p class="q">Q. 大切にしていることは？</p>
+        <p class="a">『助けてあげる』のではなく、『一緒に、縁側に座る』。その姿勢です。皆さん、これまでの人生で、誰かを助けてきた方々ですから。今度は、私たちが静かに横に座らせていただく、それだけです。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing">
+  <div class="container">
+    <div class="chap">— CHAPTER IV —</div>
+    <h2 class="h-section"><span class="small">Plans, as a way of caring</span>Engawaを、<br>『贈る』ということ。</h2>
+
+    <p class="price-lede">親孝行は、形を変えていきます。ご家族から、自治体から、企業から。それぞれのかたちで、誰かの夕暮れに、縁側を贈ることができます。</p>
+
+    <div class="price-grid">
+      <div class="price-cell">
+        <div class="who">— FROM FAMILY</div>
+        <h3>ご家族プラン</h3>
+        <div class="amt">¥4,800<small>/月</small></div>
+        <p>離れて暮らすご両親、おじいさま、おばあさまへ。月次レポートで様子をお知らせしつつ、過度な見守りはいたしません。</p>
+      </div>
+      <div class="price-cell">
+        <div class="who">— FROM A CITY</div>
+        <h3>自治体プラン</h3>
+        <div class="amt">¥3M<small>〜/年</small></div>
+        <p>地域包括ケアシステム、孤独・孤立対策推進法対応。住民へのまとまった提供と、自治体独自KPIへの貢献を両立。</p>
+      </div>
+      <div class="price-cell">
+        <div class="who">— FROM A COMPANY</div>
+        <h3>保険・ホワイトラベル</h3>
+        <div class="amt italic">個別<small>ご相談</small></div>
+        <p>生命保険・損保の顧客特典として、また事業者の自社ソリューションとして組み込み可能。研修プログラムも提供します。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+  <div class="sun"></div>
+  <div class="container">
+    <div class="label" style="text-align:center">— EPILOGUE —</div>
+    <h2>あなたの大切な人にも、<br><span class="amber">縁側</span>を。</h2>
+    <p>資料請求・無料相談のお電話、Webからのお問い合わせを承ります。<br>ご本人の状況に合わせて、私たちから一度ご訪問することも可能です。</p>
+    <div class="phone-num">0120 — 縁 — 縁側</div>
+    <a class="btn" href="mailto:hello@engawa.example.jp">資料を請求する</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="brand">つながりの縁側　/　ENGAWA</div>
+    <div>© 2026 Engawa · A quiet veranda for those who lived their lives fully · in development with Uchida Systems</div>
+  </div>
+</footer>
+
+</body>
+</html>
