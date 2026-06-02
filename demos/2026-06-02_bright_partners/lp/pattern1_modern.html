@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ブライトマネジメントパートナーズ｜人とITで、中小企業を一段上へ。</title>
+<style>
+  :root{
+    --bg:#0b1220;
+    --panel:#13203a;
+    --amber:#f5b740;
+    --blue:#3b82f6;
+    --success:#34d399;
+    --text:#f4f6fb;
+    --muted:#94a3b8;
+    --line:rgba(148,163,184,.16);
+    --card:linear-gradient(160deg,#16243f 0%,#101a30 100%);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",-apple-system,BlinkMacSystemFont,"Segoe UI",Meiryo,sans-serif;
+    line-height:1.7;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .amber{color:var(--amber)}
+  .blue{color:var(--blue)}
+  .note{font-size:11px;color:var(--muted);opacity:.75}
+
+  /* ===== ambient glow background ===== */
+  body::before{
+    content:"";
+    position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(900px 600px at 78% -8%, rgba(245,183,64,.10), transparent 60%),
+      radial-gradient(800px 600px at 8% 18%, rgba(59,130,246,.12), transparent 55%),
+      radial-gradient(700px 700px at 92% 88%, rgba(52,211,153,.07), transparent 60%);
+  }
+
+  /* ===== header ===== */
+  header{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(14px);
+    background:rgba(11,18,32,.72);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.02em}
+  .logo-mark{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,var(--amber),#ffd98a);
+    display:grid;place-items:center;color:#0b1220;font-weight:900;
+    box-shadow:0 0 22px rgba(245,183,64,.45);
+  }
+  .brand small{display:block;font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.16em}
+  .nav-links{display:flex;gap:28px;font-size:14px;color:var(--muted)}
+  .nav-links a:hover{color:var(--text)}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    font-weight:700;font-size:14px;
+    padding:11px 20px;border-radius:11px;cursor:pointer;border:none;
+    transition:transform .18s ease,box-shadow .18s ease;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg,var(--amber),#ffcf6b);
+    color:#0b1220;
+    box-shadow:0 8px 26px rgba(245,183,64,.32);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(245,183,64,.5)}
+  .btn-ghost{background:rgba(148,163,184,.08);color:var(--text);border:1px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--blue);color:#fff}
+  @media(max-width:860px){.nav-links{display:none}}
+
+  /* ===== hero ===== */
+  .hero{padding:84px 0 96px;position:relative}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:54px;align-items:center}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;
+    font-size:12.5px;letter-spacing:.1em;color:var(--amber);font-weight:700;
+    border:1px solid rgba(245,183,64,.35);border-radius:999px;
+    padding:7px 15px;margin-bottom:24px;
+    background:rgba(245,183,64,.06);
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .hero h1{
+    font-size:clamp(34px,5vw,58px);line-height:1.18;font-weight:900;letter-spacing:-.01em;
+    margin-bottom:22px;
+  }
+  .hero h1 .grad{
+    background:linear-gradient(110deg,var(--amber) 10%,#ffe1a3 50%,var(--blue) 110%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .hero p.lead{font-size:17px;color:var(--muted);max-width:520px;margin-bottom:32px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:38px}
+  .hero-stats{display:flex;gap:34px;flex-wrap:wrap}
+  .stat .num{font-size:clamp(28px,4vw,40px);font-weight:900;color:var(--amber);line-height:1;letter-spacing:-.02em}
+  .stat .num .u{font-size:18px;margin-left:2px}
+  .stat .lbl{font-size:12.5px;color:var(--muted);margin-top:6px}
+
+  /* ===== phone mock ===== */
+  .phone-stage{position:relative;display:flex;justify-content:center}
+  .glow-ring{
+    position:absolute;width:330px;height:330px;border-radius:50%;
+    background:radial-gradient(circle,rgba(245,183,64,.22),transparent 62%);
+    filter:blur(8px);top:50%;left:50%;transform:translate(-50%,-50%);z-index:0;
+  }
+  .phone{
+    position:relative;z-index:2;
+    width:268px;height:548px;border-radius:42px;
+    background:linear-gradient(160deg,#1b2b4a,#0c1526);
+    border:1px solid rgba(148,163,184,.22);
+    box-shadow:0 40px 90px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06);
+    padding:14px;
+    animation:float 6s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  .phone::before{content:"";position:absolute;top:16px;left:50%;transform:translateX(-50%);width:96px;height:7px;border-radius:99px;background:rgba(148,163,184,.4)}
+  .screen{
+    width:100%;height:100%;border-radius:30px;
+    background:linear-gradient(180deg,#0e1830,#0a1124);
+    padding:26px 16px 16px;overflow:hidden;border:1px solid rgba(148,163,184,.1);
+  }
+  .scr-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .scr-head .t{font-size:13px;font-weight:800}
+  .scr-head .t small{display:block;font-size:8.5px;color:var(--muted);font-weight:600;letter-spacing:.12em}
+  .live{font-size:8.5px;color:var(--success);display:flex;align-items:center;gap:5px;font-weight:700}
+  .live i{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 1.6s infinite}
+  .kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px}
+  .kpi{
+    background:rgba(148,163,184,.06);border:1px solid var(--line);border-radius:13px;padding:10px 11px;
+  }
+  .kpi .v{font-size:21px;font-weight:900;color:var(--amber);line-height:1}
+  .kpi.blue .v{color:var(--blue)}
+  .kpi.green .v{color:var(--success)}
+  .kpi .k{font-size:8.5px;color:var(--muted);margin-top:4px}
+  .scr-card{background:rgba(148,163,184,.06);border:1px solid var(--line);border-radius:13px;padding:11px;margin-bottom:10px}
+  .scr-card .ct{font-size:9px;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between}
+  .scr-card .ct b{color:var(--success);font-size:9px}
+  .bars{display:flex;align-items:flex-end;gap:6px;height:54px}
+  .bars span{
+    flex:1;border-radius:5px 5px 0 0;
+    background:linear-gradient(180deg,var(--amber),rgba(245,183,64,.25));
+    animation:grow 1.4s ease both;transform-origin:bottom;
+  }
+  .bars span:nth-child(even){background:linear-gradient(180deg,var(--blue),rgba(59,130,246,.25))}
+  @keyframes grow{from{transform:scaleY(.1)}to{transform:scaleY(1)}}
+  .donut-row{display:flex;align-items:center;gap:12px}
+  .donut{
+    width:58px;height:58px;border-radius:50%;flex-shrink:0;
+    background:conic-gradient(var(--success) 0 78%,rgba(148,163,184,.18) 78% 100%);
+    display:grid;place-items:center;position:relative;
+  }
+  .donut::after{content:"";position:absolute;width:40px;height:40px;border-radius:50%;background:#0c1526}
+  .donut b{position:relative;z-index:1;font-size:13px;font-weight:900;color:var(--success)}
+  .donut-row .meta{font-size:9px;color:var(--muted);line-height:1.5}
+  .donut-row .meta b{color:var(--text);font-size:11px;display:block}
+
+  @media(max-width:900px){
+    .hero-grid{grid-template-columns:1fr;gap:48px}
+    .phone-stage{order:-1}
+  }
+
+  /* ===== generic section ===== */
+  section{padding:90px 0;position:relative}
+  .sec-tag{font-size:12.5px;letter-spacing:.16em;color:var(--blue);font-weight:800;text-transform:uppercase;margin-bottom:14px}
+  .sec-head{font-size:clamp(26px,3.6vw,40px);font-weight:900;line-height:1.25;margin-bottom:16px;letter-spacing:-.01em}
+  .sec-sub{color:var(--muted);max-width:620px;font-size:16px}
+  .center{text-align:center}
+  .center .sec-sub{margin:0 auto}
+
+  .panel-bg{background:var(--panel);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+
+  /* ===== problems ===== */
+  .prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:54px}
+  .prob{
+    background:var(--card);border:1px solid var(--line);border-radius:20px;padding:30px 26px;position:relative;overflow:hidden;
+    transition:transform .25s,border-color .25s;
+  }
+  .prob:hover{transform:translateY(-6px);border-color:rgba(245,183,64,.4)}
+  .prob::before{content:"";position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(245,183,64,.14),transparent 70%)}
+  .prob .idx{font-size:13px;font-weight:900;color:var(--amber);letter-spacing:.1em;margin-bottom:14px}
+  .prob h3{font-size:20px;font-weight:800;margin-bottom:10px}
+  .prob p{font-size:14.5px;color:var(--muted)}
+  .prob .bignum{font-size:46px;font-weight:900;color:var(--amber);line-height:1;margin-top:18px;letter-spacing:-.02em}
+  .prob .bignum .u{font-size:18px}
+  .prob .bcap{font-size:11.5px;color:var(--muted);margin-top:4px}
+  @media(max-width:820px){.prob-grid{grid-template-columns:1fr}}
+
+  /* ===== solution / two wheels ===== */
+  .sol{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:54px}
+  .wheel{
+    border-radius:22px;padding:34px 30px;position:relative;overflow:hidden;
+    background:var(--card);border:1px solid var(--line);
+  }
+  .wheel.human{box-shadow:inset 0 0 0 1px rgba(245,183,64,.18)}
+  .wheel.it{box-shadow:inset 0 0 0 1px rgba(59,130,246,.2)}
+  .wheel .tagpill{display:inline-block;font-size:12px;font-weight:800;padding:6px 13px;border-radius:999px;margin-bottom:18px;letter-spacing:.06em}
+  .wheel.human .tagpill{background:rgba(245,183,64,.13);color:var(--amber)}
+  .wheel.it .tagpill{background:rgba(59,130,246,.15);color:var(--blue)}
+  .wheel h3{font-size:23px;font-weight:900;margin-bottom:12px}
+  .wheel p{font-size:14.5px;color:var(--muted);margin-bottom:20px}
+  .wheel ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+  .wheel li{font-size:14px;display:flex;gap:11px;align-items:flex-start}
+  .wheel li::before{content:"";width:7px;height:7px;border-radius:50%;margin-top:8px;flex-shrink:0}
+  .wheel.human li::before{background:var(--amber);box-shadow:0 0 8px var(--amber)}
+  .wheel.it li::before{background:var(--blue);box-shadow:0 0 8px var(--blue)}
+  .sol-bridge{
+    grid-column:1/-1;text-align:center;margin-top:6px;padding:26px;
+    border-radius:18px;border:1px dashed var(--line);
+    background:linear-gradient(90deg,rgba(245,183,64,.05),rgba(59,130,246,.05));
+  }
+  .sol-bridge b{color:var(--success);font-weight:800}
+  @media(max-width:820px){.sol{grid-template-columns:1fr}}
+
+  /* ===== features ===== */
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:54px}
+  .feat{
+    background:var(--card);border:1px solid var(--line);border-radius:20px;padding:30px 26px;
+    transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden;
+  }
+  .feat:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,.45)}
+  .feat .ficon{
+    width:52px;height:52px;border-radius:14px;display:grid;place-items:center;margin-bottom:20px;
+    font-size:22px;font-weight:900;
+    background:linear-gradient(135deg,rgba(245,183,64,.18),rgba(245,183,64,.04));
+    color:var(--amber);border:1px solid rgba(245,183,64,.25);
+  }
+  .feat:nth-child(2) .ficon{background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(59,130,246,.04));color:var(--blue);border-color:rgba(59,130,246,.3)}
+  .feat:nth-child(3) .ficon{background:linear-gradient(135deg,rgba(52,211,153,.2),rgba(52,211,153,.04));color:var(--success);border-color:rgba(52,211,153,.3)}
+  .feat h3{font-size:19px;font-weight:800;margin-bottom:10px}
+  .feat p{font-size:14px;color:var(--muted);margin-bottom:18px}
+  .flow{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .flow .node{font-size:11px;font-weight:700;padding:6px 11px;border-radius:9px;background:rgba(148,163,184,.08);border:1px solid var(--line)}
+  .flow .arr{color:var(--amber);font-weight:900}
+  .meter{margin-top:18px}
+  .meter .ml{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:6px}
+  .meter .track{height:8px;border-radius:99px;background:rgba(148,163,184,.12);overflow:hidden}
+  .meter .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--amber),#ffd98a)}
+  .feat:nth-child(2) .meter .fill{background:linear-gradient(90deg,var(--blue),#7eaaff)}
+  .feat:nth-child(3) .meter .fill{background:linear-gradient(90deg,var(--success),#7ef0c4)}
+  @media(max-width:820px){.feat-grid{grid-template-columns:1fr}}
+
+  /* ===== cockpit teaser ===== */
+  .cockpit{
+    margin-top:62px;border-radius:24px;overflow:hidden;
+    border:1px solid var(--line);
+    background:linear-gradient(160deg,#16243f,#0c1424);
+    display:grid;grid-template-columns:.9fr 1.1fr;
+  }
+  .cockpit .ctxt{padding:42px 40px}
+  .cockpit .ctxt .sec-tag{color:var(--amber)}
+  .cockpit h3{font-size:27px;font-weight:900;margin-bottom:14px;letter-spacing:-.01em}
+  .cockpit p{color:var(--muted);font-size:15px;margin-bottom:18px}
+  .cockpit .clist{display:flex;flex-direction:column;gap:9px;font-size:13.5px}
+  .cockpit .clist span{display:flex;gap:9px;align-items:center}
+  .cockpit .clist span b{color:var(--amber)}
+  .dashboard{padding:30px;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:min-content;gap:14px;align-content:start;background:rgba(8,13,24,.5)}
+  .d-card{background:rgba(148,163,184,.05);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .d-card.full{grid-column:1/-1}
+  .d-card .dl{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:8px}
+  .d-card .dv{font-size:30px;font-weight:900;color:var(--amber);line-height:1;letter-spacing:-.02em}
+  .d-card .dv .u{font-size:14px}
+  .d-card.blue .dv{color:var(--blue)}
+  .d-card .trend{font-size:11px;color:var(--success);font-weight:700}
+  .dbars{display:flex;align-items:flex-end;gap:8px;height:74px;margin-top:6px}
+  .dbars span{flex:1;border-radius:5px 5px 0 0;background:linear-gradient(180deg,var(--blue),rgba(59,130,246,.2))}
+  .dbars span:nth-child(3n){background:linear-gradient(180deg,var(--amber),rgba(245,183,64,.2))}
+  @media(max-width:900px){.cockpit{grid-template-columns:1fr}}
+
+  /* ===== pricing ===== */
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:54px;align-items:stretch}
+  .plan{
+    background:var(--card);border:1px solid var(--line);border-radius:22px;padding:34px 28px;
+    display:flex;flex-direction:column;position:relative;transition:transform .25s;
+  }
+  .plan:hover{transform:translateY(-6px)}
+  .plan.feature{
+    border-color:rgba(245,183,64,.5);
+    box-shadow:0 0 0 1px rgba(245,183,64,.3),0 30px 70px rgba(245,183,64,.12);
+    transform:scale(1.02);
+  }
+  .plan.feature:hover{transform:scale(1.02) translateY(-6px)}
+  .ribbon{position:absolute;top:18px;right:18px;font-size:11px;font-weight:800;color:#0b1220;background:linear-gradient(135deg,var(--amber),#ffd98a);padding:5px 12px;border-radius:999px}
+  .plan .pname{font-size:18px;font-weight:800;margin-bottom:6px}
+  .plan .pdesc{font-size:12.5px;color:var(--muted);margin-bottom:22px;min-height:38px}
+  .plan .price{font-size:38px;font-weight:900;letter-spacing:-.02em;line-height:1}
+  .plan.feature .price{color:var(--amber)}
+  .plan .price .u{font-size:14px;color:var(--muted);font-weight:600}
+  .plan .pterm{font-size:11px;color:var(--muted);margin:6px 0 22px}
+  .plan ul{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:26px;flex:1}
+  .plan li{font-size:13.5px;display:flex;gap:10px;align-items:flex-start;color:var(--text)}
+  .plan li .ck{color:var(--success);font-weight:900;flex-shrink:0}
+  .plan li.off{color:var(--muted);opacity:.55}
+  .plan li.off .ck{color:var(--muted)}
+  .plan .btn{width:100%;justify-content:center}
+  @media(max-width:820px){.price-grid{grid-template-columns:1fr}.plan.feature{transform:none}.plan.feature:hover{transform:translateY(-6px)}}
+
+  /* ===== testimonials ===== */
+  .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:54px}
+  .testi{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:30px 26px;position:relative}
+  .testi .q{font-size:40px;color:rgba(245,183,64,.35);font-weight:900;line-height:.5;font-family:Georgia,serif}
+  .testi p{font-size:14.5px;margin:14px 0 22px;color:#e2e8f5}
+  .testi .who{display:flex;align-items:center;gap:13px}
+  .av{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-weight:900;color:#0b1220;font-size:16px;background:linear-gradient(135deg,var(--amber),#ffd98a)}
+  .testi:nth-child(2) .av{background:linear-gradient(135deg,var(--blue),#7eaaff)}
+  .testi:nth-child(3) .av{background:linear-gradient(135deg,var(--success),#7ef0c4)}
+  .who .nm{font-size:13.5px;font-weight:800}
+  .who .rl{font-size:11.5px;color:var(--muted)}
+  @media(max-width:820px){.testi-grid{grid-template-columns:1fr}}
+
+  /* ===== faq ===== */
+  .faq{max-width:820px;margin:54px auto 0}
+  details{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:0 22px;margin-bottom:13px;overflow:hidden;transition:border-color .2s;
+  }
+  details[open]{border-color:rgba(245,183,64,.4)}
+  summary{
+    list-style:none;cursor:pointer;padding:20px 0;font-size:15.5px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary .pm{
+    flex-shrink:0;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
+    background:rgba(245,183,64,.12);color:var(--amber);font-weight:900;transition:transform .25s;
+  }
+  details[open] summary .pm{transform:rotate(45deg)}
+  details .ans{padding:0 0 20px;font-size:14px;color:var(--muted)}
+
+  /* ===== footer CTA ===== */
+  .cta-band{
+    margin-top:30px;border-radius:26px;padding:54px 44px;
+    background:linear-gradient(135deg,#16243f,#0c1424);
+    border:1px solid rgba(245,183,64,.25);position:relative;overflow:hidden;
+  }
+  .cta-band::before{content:"";position:absolute;top:-60px;right:-40px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(245,183,64,.18),transparent 70%)}
+  .cta-band h2{font-size:clamp(24px,3.4vw,36px);font-weight:900;margin-bottom:14px;position:relative}
+  .cta-band p{color:var(--muted);max-width:560px;margin-bottom:30px;position:relative}
+  .cta-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;position:relative}
+  .cta-tile{
+    background:rgba(148,163,184,.06);border:1px solid var(--line);border-radius:16px;padding:22px;
+    transition:transform .22s,border-color .22s;cursor:pointer;
+  }
+  .cta-tile:hover{transform:translateY(-5px);border-color:rgba(245,183,64,.5)}
+  .cta-tile .tt{font-size:15px;font-weight:800;margin-bottom:6px}
+  .cta-tile .td{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .cta-tile .go{font-size:13px;font-weight:800;color:var(--amber);display:inline-flex;gap:6px;align-items:center}
+  @media(max-width:820px){.cta-actions{grid-template-columns:1fr}}
+
+  footer{padding:54px 0 40px;border-top:1px solid var(--line);margin-top:80px}
+  .foot-grid{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;margin-bottom:34px}
+  .foot-grid .col h4{font-size:13px;font-weight:800;margin-bottom:14px;color:var(--text)}
+  .foot-grid .col a,.foot-grid .col p{display:block;font-size:13px;color:var(--muted);margin-bottom:9px}
+  .foot-grid .col a:hover{color:var(--amber)}
+  .foot-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <div class="logo-mark">B</div>
+      <div>ブライトマネジメントパートナーズ<small>BRIGHT MANAGEMENT PARTNERS</small></div>
+    </div>
+    <nav class="nav-links">
+      <a href="#problem">課題</a>
+      <a href="#solution">ソリューション</a>
+      <a href="#features">機能</a>
+      <a href="#pricing">料金</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a href="#cta"><button class="btn btn-primary">無料経営相談 →</button></a>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow"><span class="dot"></span>DX × 経営コンサルティング</span>
+      <h1>人とITで、<br><span class="grad">中小企業を一段上へ。</span></h1>
+      <p class="lead">戦略立案という「人」の領域から、RPA・認証・データ活用という「IT」の実装まで。一社で完結する伴走型パートナーが、現場の数字を動かします。</p>
+      <div class="hero-cta">
+        <a href="#cta"><button class="btn btn-primary">無料経営相談を予約 →</button></a>
+        <a href="#features"><button class="btn btn-ghost">WinActor無料デモを見る</button></a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="num">320<span class="u">時間</span></div>
+          <div class="lbl">年間の手作業削減 <span class="note">※イメージ例</span></div>
+        </div>
+        <div class="stat">
+          <div class="num">98<span class="u">%</span></div>
+          <div class="lbl">伴走支援の継続率 <span class="note">※イメージ例</span></div>
+        </div>
+        <div class="stat">
+          <div class="num">1<span class="u">社</span></div>
+          <div class="lbl">戦略〜実装まで完結</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- phone mock -->
+    <div class="phone-stage">
+      <div class="glow-ring"></div>
+      <div class="phone">
+        <div class="screen">
+          <div class="scr-head">
+            <div class="t">Bright Cockpit<small>統合経営ダッシュボード</small></div>
+            <div class="live"><i></i>LIVE</div>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi"><div class="v">42.6<span style="font-size:11px">h</span></div><div class="k">今週のRPA削減時間</div></div>
+            <div class="kpi blue"><div class="v">96<span style="font-size:11px">%</span></div><div class="k">勤怠 打刻率</div></div>
+            <div class="kpi green"><div class="v">128<span style="font-size:11px">%</span></div><div class="k">売上 対目標</div></div>
+            <div class="kpi"><div class="v">7</div><div class="k">稼働中ロボット</div></div>
+          </div>
+          <div class="scr-card">
+            <div class="ct"><span>RPA稼働状況（週次）</span><b>▲ 18%</b></div>
+            <div class="bars">
+              <span style="height:42%"></span><span style="height:58%"></span><span style="height:50%"></span>
+              <span style="height:72%"></span><span style="height:64%"></span><span style="height:88%"></span><span style="height:78%"></span>
+            </div>
+          </div>
+          <div class="scr-card">
+            <div class="ct"><span>入退室ログ × 稼働率</span></div>
+            <div class="donut-row">
+              <div class="donut"><b>78%</b></div>
+              <div class="meta"><b>オフィス稼働率</b>指紋認証ICで自動集計。<br>当月 +6pt の改善傾向。</div>
+            </div>
+          </div>
+          <div class="note" style="text-align:center;margin-top:6px">※画面はイメージ（構想中）</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROBLEM ===== -->
+<section id="problem" class="panel-bg">
+  <div class="wrap">
+    <div class="sec-tag">The Challenge</div>
+    <h2 class="sec-head">中小企業の前に立ちはだかる<span class="amber">3つの壁</span></h2>
+    <p class="sec-sub">どれか一つでも放置すると、他の2つを連鎖的に悪化させます。だからこそ、人とITを切り離さずに解く必要があります。</p>
+
+    <div class="prob-grid">
+      <div class="prob">
+        <div class="idx">WALL 01</div>
+        <h3>人手不足</h3>
+        <p>採用は難しく、既存社員は雑務に追われる。本来やるべき付加価値業務に時間を割けない。</p>
+        <div class="bignum">68<span class="u">%</span></div>
+        <div class="bcap">が「人手不足を実感」 <span class="note">※イメージ例</span></div>
+      </div>
+      <div class="prob">
+        <div class="idx">WALL 02</div>
+        <h3>DXの遅れ</h3>
+        <p>「何から始めればいいか分からない」。ツールは増えても現場に定着せず、データはバラバラのまま。</p>
+        <div class="bignum">2.4<span class="u">倍</span></div>
+        <div class="bcap">DX推進企業との生産性差 <span class="note">※イメージ例</span></div>
+      </div>
+      <div class="prob">
+        <div class="idx">WALL 03</div>
+        <h3>売上の頭打ち</h3>
+        <p>営業は属人化し、戦略は経営者の頭の中だけ。数字が見えず、次の一手を打てない。</p>
+        <div class="bignum">3<span class="u">年</span></div>
+        <div class="bcap">横ばいが続くと危険水域 <span class="note">※イメージ例</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SOLUTION ===== -->
+<section id="solution">
+  <div class="wrap">
+    <div class="sec-tag">Our Approach</div>
+    <h2 class="sec-head">「人」と「IT」の<span class="amber">両輪</span>で回す</h2>
+    <p class="sec-sub">片方だけでは前に進みません。戦略を描く人の力と、それを止めず回し続けるITの力。両方を一社で担うのが私たちの強みです。</p>
+
+    <div class="sol">
+      <div class="wheel human">
+        <span class="tagpill">WHEEL ─ 人</span>
+        <h3>経営コンサルティング</h3>
+        <p>経営戦略・営業支援・人材育成を、伴走型で。レポートを置いて帰らず、現場と一緒に手を動かします。</p>
+        <ul>
+          <li>経営戦略の言語化とKPI設計</li>
+          <li>営業プロセスの標準化・脱属人化</li>
+          <li>人材育成・現場巻き込みの定着支援</li>
+        </ul>
+      </div>
+      <div class="wheel it">
+        <span class="tagpill">WHEEL ─ IT</span>
+        <h3>ITソリューション</h3>
+        <p>RPA「WinActor」導入支援と、指紋認証機能付きICカード。決めた戦略を、現場で動くシステムに落とし込みます。</p>
+        <ul>
+          <li>WinActorによる定型業務の自動化</li>
+          <li>指紋認証ICカードで勤怠・入退室を一元化</li>
+          <li>データを統合し、経営の見える化へ</li>
+        </ul>
+      </div>
+      <div class="sol-bridge">
+        さらに、自社ブランド「<b>飲めルンです</b>」を運営する<b>当事者</b>として。机上論ではなく、自分たちも事業を回す立場から、リアルな経営課題に向き合います。
+      </div>
+    </div>
+
+    <!-- cockpit teaser -->
+    <div class="cockpit" id="cockpit">
+      <div class="ctxt">
+        <div class="sec-tag">Coming Soon — 構想中</div>
+        <h3>統合経営ダッシュボード<br>「Bright Cockpit」</h3>
+        <p>RPAの稼働状況、勤怠・入退室ログ、売上KPI。バラバラだった経営データを、たった1画面に。次の一手が、数字で見えるようになります。</p>
+        <div class="clist">
+          <span><b>◆</b> RPA稼働ログ ── 削減時間をリアルタイム集計</span>
+          <span><b>◆</b> 勤怠 / 入退室 ── 指紋認証ICから自動連携</span>
+          <span><b>◆</b> 売上・利益KPI ── 目標対比を一目で把握</span>
+        </div>
+      </div>
+      <div class="dashboard">
+        <div class="d-card">
+          <div class="dl"><span>RPA削減時間 / 月</span></div>
+          <div class="dv">186<span class="u">h</span></div>
+          <div class="trend">▲ 24% vs 前月</div>
+        </div>
+        <div class="d-card blue">
+          <div class="dl"><span>勤怠 打刻率</span></div>
+          <div class="dv">96<span class="u">%</span></div>
+          <div class="trend">▲ 4pt</div>
+        </div>
+        <div class="d-card full">
+          <div class="dl"><span>月次売上推移（対目標）</span><span style="color:var(--success)">128%</span></div>
+          <div class="dbars">
+            <span style="height:48%"></span><span style="height:56%"></span><span style="height:52%"></span>
+            <span style="height:70%"></span><span style="height:62%"></span><span style="height:84%"></span>
+            <span style="height:76%"></span><span style="height:92%"></span>
+          </div>
+        </div>
+        <div class="d-card full">
+          <div class="dl"><span>オフィス稼働率（入退室ログ）</span></div>
+          <div class="meter" style="margin-top:4px">
+            <div class="track"><div class="fill" style="width:78%;background:linear-gradient(90deg,var(--success),#7ef0c4)"></div></div>
+          </div>
+          <div class="note" style="margin-top:8px">※画面・数値はイメージ（構想中の機能です）</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section id="features" class="panel-bg">
+  <div class="wrap">
+    <div class="sec-tag">Core Capabilities</div>
+    <h2 class="sec-head">現場を変える<span class="amber">3つの主要機能</span></h2>
+    <p class="sec-sub">どれも「導入して終わり」にしません。定着するまで伴走するのが、私たちのやり方です。</p>
+
+    <div class="feat-grid">
+      <div class="feat">
+        <div class="ficon">⚙</div>
+        <h3>WinActorによる業務自動化</h3>
+        <p>転記・集計・帳票作成などの定型業務をロボットが代行。残業と入力ミスを同時に減らします。</p>
+        <div class="flow">
+          <span class="node">手作業</span><span class="arr">→</span>
+          <span class="node">シナリオ設計</span><span class="arr">→</span>
+          <span class="node">自動実行</span>
+        </div>
+        <div class="meter">
+          <div class="ml"><span>定型業務の自動化率</span><span class="amber">最大 85%</span></div>
+          <div class="track"><div class="fill" style="width:85%"></div></div>
+          <div class="note" style="margin-top:6px">※イメージ例</div>
+        </div>
+      </div>
+
+      <div class="feat">
+        <div class="ficon">⬡</div>
+        <h3>指紋認証機能付きICカード</h3>
+        <p>「なりすまし打刻」をゼロに。勤怠と入退室を1枚で管理し、ログを経営データへ直結させます。</p>
+        <div class="flow">
+          <span class="node">指紋認証</span><span class="arr">→</span>
+          <span class="node">勤怠 / 入退室</span><span class="arr">→</span>
+          <span class="node">データ連携</span>
+        </div>
+        <div class="meter">
+          <div class="ml"><span>不正打刻リスク削減</span><span class="blue">約 99%</span></div>
+          <div class="track"><div class="fill" style="width:99%"></div></div>
+          <div class="note" style="margin-top:6px">※イメージ例</div>
+        </div>
+      </div>
+
+      <div class="feat">
+        <div class="ficon">◎</div>
+        <h3>伴走型コンサルティング</h3>
+        <p>戦略づくりから現場の実行まで並走。「絵に描いた餅」で終わらせず、数字が動くまで一緒に走ります。</p>
+        <div class="flow">
+          <span class="node">戦略</span><span class="arr">→</span>
+          <span class="node">実装</span><span class="arr">→</span>
+          <span class="node">定着・改善</span>
+        </div>
+        <div class="meter">
+          <div class="ml"><span>施策の現場定着率</span><span class="amber" style="color:var(--success)">92%</span></div>
+          <div class="track"><div class="fill" style="width:92%"></div></div>
+          <div class="note" style="margin-top:6px">※イメージ例</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRICING ===== -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="sec-tag">Pricing</div>
+    <h2 class="sec-head">事業フェーズに合わせた<span class="amber">3プラン</span></h2>
+    <p class="sec-sub">まずは経営相談から。実装が必要になればスタンダード、全領域を任せたいならプレミアムへ。途中での切替も可能です。</p>
+
+    <div class="price-grid">
+      <!-- light -->
+      <div class="plan">
+        <div class="pname">経営相談ライト</div>
+        <div class="pdesc">まず課題を整理し、優先順位を決めたい経営者向け。</div>
+        <div class="price">¥80,000<span class="u">/月</span></div>
+        <div class="pterm">税別 ／ 6ヶ月〜 <span class="note">※イメージ例</span></div>
+        <ul>
+          <li><span class="ck">✓</span>月2回の経営相談（オンライン）</li>
+          <li><span class="ck">✓</span>経営課題の棚卸し・KPI設計</li>
+          <li><span class="ck">✓</span>Slack/メールでの随時相談</li>
+          <li class="off"><span class="ck">✓</span>WinActor導入支援</li>
+          <li class="off"><span class="ck">✓</span>Bright Cockpit 利用</li>
+        </ul>
+        <a href="#cta"><button class="btn btn-ghost">このプランで相談</button></a>
+      </div>
+
+      <!-- standard (feature) -->
+      <div class="plan feature">
+        <div class="ribbon">人気No.1</div>
+        <div class="pname">DX実装スタンダード</div>
+        <div class="pdesc">戦略だけでなく、RPA・認証まで実装で動かしたい企業向け。</div>
+        <div class="price">¥250,000<span class="u">/月</span></div>
+        <div class="pterm">税別 ／ 12ヶ月〜 <span class="note">※イメージ例</span></div>
+        <ul>
+          <li><span class="ck">✓</span>月4回の伴走コンサル</li>
+          <li><span class="ck">✓</span>WinActor導入・シナリオ構築</li>
+          <li><span class="ck">✓</span>指紋認証ICカード導入支援</li>
+          <li><span class="ck">✓</span>営業プロセス標準化</li>
+          <li class="off"><span class="ck">✓</span>Bright Cockpit フル機能</li>
+        </ul>
+        <a href="#cta"><button class="btn btn-primary">このプランで相談 →</button></a>
+      </div>
+
+      <!-- premium -->
+      <div class="plan">
+        <div class="pname">統合パートナープレミアム</div>
+        <div class="pdesc">経営の右腕として、戦略〜IT〜データ活用まで丸ごと任せたい企業向け。</div>
+        <div class="price">¥500,000<span class="u">/月</span></div>
+        <div class="pterm">税別 ／ 個別見積 <span class="note">※イメージ例</span></div>
+        <ul>
+          <li><span class="ck">✓</span>専任チームによる週次伴走</li>
+          <li><span class="ck">✓</span>スタンダードの全機能</li>
+          <li><span class="ck">✓</span>Bright Cockpit フル機能（構想）</li>
+          <li><span class="ck">✓</span>幹部・人材育成プログラム</li>
+          <li><span class="ck">✓</span>経営会議への同席・提言</li>
+        </ul>
+        <a href="#cta"><button class="btn btn-ghost">このプランで相談</button></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section class="panel-bg">
+  <div class="wrap">
+    <div class="sec-tag">Voices</div>
+    <h2 class="sec-head">経営者からの<span class="amber">声</span></h2>
+    <p class="sec-sub">※以下は想定される利用シーンを表現したコメント例です（イメージ）。</p>
+
+    <div class="testi-grid">
+      <div class="testi">
+        <div class="q">”</div>
+        <p>「コンサルとIT会社を別々に探す手間がなくなりました。戦略の話がそのまま自動化に落ちていくので、決めたことが本当に現場で動く。月に40時間以上、入力作業が消えました。」</p>
+        <div class="who">
+          <div class="av">製</div>
+          <div><div class="nm">A社 代表取締役</div><div class="rl">製造業 ／ 従業員35名</div></div>
+        </div>
+      </div>
+      <div class="testi">
+        <div class="q">”</div>
+        <p>「指紋認証ICにしてから打刻のごまかしがゼロに。勤怠と入退室が一本化されて、誰がいつ何をしているかが数字で見える。経営判断のスピードが明らかに上がりました。」</p>
+        <div class="who">
+          <div class="av">サ</div>
+          <div><div class="nm">B社 管理部長</div><div class="rl">サービス業 ／ 従業員80名</div></div>
+        </div>
+      </div>
+      <div class="testi">
+        <div class="q">”</div>
+        <p>「自社ブランドを持っている会社なので、現場感のある提案が来る。机上論じゃない。伴走してくれるから、こちらも本気になれる。横ばいだった売上が、また伸び始めました。」</p>
+        <div class="who">
+          <div class="av">小</div>
+          <div><div class="nm">C社 代表</div><div class="rl">小売業 ／ 従業員18名</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-tag center" style="text-align:center">FAQ</div>
+    <h2 class="sec-head center">よくある<span class="amber">ご質問</span></h2>
+
+    <div class="faq">
+      <details open>
+        <summary>コンサルとITの両方を頼まないとダメですか？<span class="pm">+</span></summary>
+        <div class="ans">いいえ。経営相談だけ、WinActor導入だけ、といった単独のご依頼も歓迎です。まずは「経営相談ライト」から始めて、必要になったタイミングでIT実装を追加する企業様が多いです。</div>
+      </details>
+      <details>
+        <summary>ITに詳しい社員がいなくても導入できますか？<span class="pm">+</span></summary>
+        <div class="ans">問題ありません。WinActorのシナリオ設計から運用定着まで私たちが伴走します。「何から始めればいいか分からない」状態を一緒に整理するところがスタートですので、ご安心ください。</div>
+      </details>
+      <details>
+        <summary>「Bright Cockpit」は今すぐ使えますか？<span class="pm">+</span></summary>
+        <div class="ans">Bright Cockpitは現在構想・開発中の統合経営ダッシュボードです。RPA稼働・勤怠/入退室ログ・KPIを1画面に集約する機能を計画しており、提供時期はプレミアムプランのお客様を中心に順次ご案内する予定です。</div>
+      </details>
+      <details>
+        <summary>小規模な会社でも費用に見合いますか？<span class="pm">+</span></summary>
+        <div class="ans">むしろ小規模な企業ほど、一人あたりの作業削減インパクトが大きく出ます。まずは無料経営相談で、削減できそうな業務時間とコストの目安を一緒に試算しましょう。費用対効果を見てからのご判断で構いません。</div>
+      </details>
+      <details>
+        <summary>自社ブランド「飲めルンです」は事業に関係ありますか？<span class="pm">+</span></summary>
+        <div class="ans">私たち自身がブランドを運営する「事業者」だからこそ、現場のリアルな課題を当事者として理解しています。コンサルティングが机上論にならない理由は、自分たちも同じ立場で事業を回しているからです。</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER CTA ===== -->
+<section id="cta">
+  <div class="wrap">
+    <div class="cta-band">
+      <h2>まずは、無料で話してみませんか。</h2>
+      <p>戦略から実装まで、ワンストップで。あなたの会社の「次の一段」を、一緒に設計します。お好きな入口からどうぞ。</p>
+      <div class="cta-actions">
+        <div class="cta-tile">
+          <div class="tt">無料経営相談</div>
+          <div class="td">課題の棚卸しから。30分のオンライン相談を無料で。</div>
+          <span class="go">予約する →</span>
+        </div>
+        <div class="cta-tile">
+          <div class="tt">WinActor無料デモ</div>
+          <div class="td">あなたの業務で、どこまで自動化できるかを実演。</div>
+          <span class="go">デモを見る →</span>
+        </div>
+        <div class="cta-tile">
+          <div class="tt">ICカード資料請求</div>
+          <div class="td">指紋認証ICカードの仕様・導入事例をお送りします。</div>
+          <span class="go">資料を請求 →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="col" style="max-width:280px">
+        <div class="brand" style="margin-bottom:14px">
+          <div class="logo-mark">B</div>
+          <div>ブライトマネジメントパートナーズ<small>BRIGHT MANAGEMENT PARTNERS</small></div>
+        </div>
+        <p>人とITで、中小企業を一段上へ。戦略立案から実装・定着まで伴走する経営パートナー。</p>
+      </div>
+      <div class="col">
+        <h4>サービス</h4>
+        <a href="#solution">経営コンサルティング</a>
+        <a href="#features">WinActor導入支援</a>
+        <a href="#features">指紋認証ICカード</a>
+        <a href="#cockpit">Bright Cockpit（構想）</a>
+      </div>
+      <div class="col">
+        <h4>会社情報</h4>
+        <a href="#">自社ブランド「飲めルンです」</a>
+        <a href="#pricing">料金プラン</a>
+        <a href="#faq">よくある質問</a>
+        <a href="#cta">お問い合わせ</a>
+      </div>
+      <div class="col">
+        <h4>はじめる</h4>
+        <a href="#cta">無料経営相談</a>
+        <a href="#cta">WinActor無料デモ</a>
+        <a href="#cta">ICカード資料請求</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 ブライトマネジメントパートナーズ. All rights reserved.</span>
+      <span>本ページの数値・画面は一部イメージ例を含みます。</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

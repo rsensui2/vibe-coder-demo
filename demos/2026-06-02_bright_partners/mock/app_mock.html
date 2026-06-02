@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bright Cockpit — ブライトマネジメントパートナーズ</title>
+<style>
+  :root {
+    --navy:#0b1220;
+    --navy2:#111a2e;
+    --card:#16203a;
+    --card2:#1c2747;
+    --amber:#f5b740;
+    --blue:#3b82f6;
+    --success:#34d399;
+    --text:#f4f6fb;
+    --muted:#8a96b4;
+    --line:rgba(255,255,255,0.07);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body {
+    height:100%;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Segoe UI",sans-serif;
+  }
+  body {
+    background:radial-gradient(circle at 20% 10%, #1a2540 0%, #070b15 55%, #04060c 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:30px 12px;
+    color:var(--text);
+  }
+
+  /* ===== iPhone frame ===== */
+  .phone {
+    position:relative;
+    width:390px;
+    height:820px;
+    background:#05080f;
+    border-radius:54px;
+    padding:14px;
+    box-shadow:
+      0 0 0 11px #1a1d27,
+      0 0 0 13px #2a2e3c,
+      0 40px 90px rgba(0,0,0,0.65),
+      inset 0 0 4px rgba(255,255,255,0.08);
+  }
+  .phone::after {
+    content:"";
+    position:absolute;
+    left:50%; bottom:9px;
+    transform:translateX(-50%);
+    width:128px; height:5px;
+    background:rgba(255,255,255,0.45);
+    border-radius:3px;
+    z-index:50;
+  }
+  .screen {
+    position:relative;
+    width:100%; height:100%;
+    background:var(--navy);
+    border-radius:42px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  /* Dynamic Island */
+  .island {
+    position:absolute;
+    top:13px; left:50%;
+    transform:translateX(-50%);
+    width:122px; height:34px;
+    background:#000;
+    border-radius:20px;
+    z-index:40;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    padding-right:11px;
+  }
+  .island::before {
+    content:"";
+    width:10px; height:10px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #20364f, #060a12);
+    box-shadow:inset 0 0 2px rgba(90,140,200,0.6);
+  }
+
+  /* status bar */
+  .statusbar {
+    height:54px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    padding:0 26px 6px;
+    font-size:13px;
+    font-weight:600;
+    flex:none;
+    z-index:30;
+  }
+  .statusbar .right { display:flex; gap:6px; align-items:center; letter-spacing:1px; }
+
+  /* content */
+  .content {
+    flex:1;
+    overflow-y:auto;
+    padding:6px 18px 26px;
+    scroll-behavior:smooth;
+  }
+  .content::-webkit-scrollbar { display:none; }
+  .view { display:none; animation:fade .35s ease; }
+  .view.active { display:block; }
+  @keyframes fade { from {opacity:0; transform:translateY(8px);} to {opacity:1; transform:none;} }
+
+  /* app header */
+  .appbar { display:flex; align-items:center; justify-content:space-between; margin:4px 0 16px; }
+  .appbar .brand { display:flex; align-items:center; gap:10px; }
+  .logo-mark {
+    width:36px; height:36px; border-radius:11px;
+    background:linear-gradient(135deg,var(--amber),#e08a1e);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; color:#1a1205; font-size:18px;
+    box-shadow:0 6px 16px rgba(245,183,64,0.35);
+  }
+  .appbar h1 { font-size:17px; font-weight:700; letter-spacing:.3px; }
+  .appbar .sub { font-size:10.5px; color:var(--muted); margin-top:1px; }
+  .avatar {
+    width:38px; height:38px; border-radius:50%;
+    background:linear-gradient(135deg,#2c3a63,#16203a);
+    border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:700; color:var(--amber);
+  }
+
+  .section-title { font-size:13px; color:var(--muted); margin:22px 2px 11px; font-weight:600; letter-spacing:.4px; }
+  .section-title:first-of-type { margin-top:6px; }
+
+  /* card base */
+  .card {
+    background:linear-gradient(160deg,var(--card2) 0%, var(--card) 100%);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:16px;
+    box-shadow:0 14px 30px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  /* hero kpi */
+  .hero {
+    background:linear-gradient(135deg,#1d2c52 0%, #16203a 60%, #101a31 100%);
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::after {
+    content:""; position:absolute; right:-40px; top:-40px;
+    width:150px; height:150px; border-radius:50%;
+    background:radial-gradient(circle,rgba(245,183,64,0.22),transparent 70%);
+  }
+  .hero .label { font-size:12px; color:var(--muted); }
+  .hero .big { font-size:34px; font-weight:800; margin:6px 0 2px; letter-spacing:.5px; }
+  .hero .big small { font-size:16px; font-weight:600; color:var(--muted); margin-left:3px; }
+  .pill { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; padding:4px 9px; border-radius:20px; }
+  .pill.up { background:rgba(52,211,153,0.15); color:var(--success); }
+  .pill.down { background:rgba(245,183,64,0.15); color:var(--amber); }
+
+  /* mini bar chart */
+  .barchart { display:flex; align-items:flex-end; gap:7px; height:60px; margin-top:14px; }
+  .barchart .bar {
+    flex:1; border-radius:6px 6px 3px 3px;
+    background:linear-gradient(180deg,var(--blue),#1e3a8a);
+    opacity:.85; transition:height .6s ease;
+  }
+  .barchart .bar.hl { background:linear-gradient(180deg,var(--amber),#c97f16); opacity:1; }
+  .barlabels { display:flex; gap:7px; margin-top:6px; }
+  .barlabels span { flex:1; text-align:center; font-size:9.5px; color:var(--muted); }
+
+  /* grid of small kpis */
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .kpi .k-label { font-size:11px; color:var(--muted); display:flex; align-items:center; gap:6px; }
+  .dot { width:8px; height:8px; border-radius:50%; }
+  .kpi .k-val { font-size:23px; font-weight:800; margin-top:7px; }
+  .kpi .k-val small { font-size:12px; color:var(--muted); font-weight:600; }
+  .kpi .k-trend { font-size:10.5px; margin-top:4px; }
+
+  /* progress ring (donut) */
+  .donut-wrap { display:flex; align-items:center; gap:16px; }
+  .donut {
+    width:84px; height:84px; border-radius:50%;
+    background:conic-gradient(var(--success) 0% 82%, rgba(255,255,255,0.08) 82% 100%);
+    display:flex; align-items:center; justify-content:center;
+    flex:none;
+  }
+  .donut .hole {
+    width:60px; height:60px; border-radius:50%;
+    background:var(--card);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .donut .hole b { font-size:18px; font-weight:800; }
+  .donut .hole span { font-size:8.5px; color:var(--muted); }
+
+  /* line chart (css) */
+  .linechart { position:relative; height:90px; margin-top:6px; }
+  .linechart svg { width:100%; height:100%; overflow:visible; }
+
+  /* list rows */
+  .row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--line); }
+  .row:last-child { border-bottom:none; }
+  .row .ico {
+    width:40px; height:40px; border-radius:12px; flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:18px;
+    background:rgba(59,130,246,0.13);
+  }
+  .row .ico.amber { background:rgba(245,183,64,0.14); }
+  .row .ico.green { background:rgba(52,211,153,0.14); }
+  .row .meta { flex:1; min-width:0; }
+  .row .meta .t { font-size:13.5px; font-weight:600; }
+  .row .meta .s { font-size:11px; color:var(--muted); margin-top:2px; }
+  .badge { font-size:10px; font-weight:700; padding:3px 8px; border-radius:8px; white-space:nowrap; }
+  .badge.run { background:rgba(52,211,153,0.16); color:var(--success); }
+  .badge.idle { background:rgba(138,150,180,0.16); color:var(--muted); }
+  .badge.err { background:rgba(248,113,113,0.16); color:#f87171; }
+  .badge.sched { background:rgba(59,130,246,0.16); color:#93c5fd; }
+
+  /* counter */
+  .counter-card { text-align:center; background:linear-gradient(135deg,#22305a,#15203c); position:relative; overflow:hidden; }
+  .counter-card::before {
+    content:""; position:absolute; left:-30px; bottom:-30px;
+    width:130px; height:130px; border-radius:50%;
+    background:radial-gradient(circle,rgba(52,211,153,0.18),transparent 70%);
+  }
+  .counter-card .num { font-size:46px; font-weight:800; letter-spacing:1px; color:var(--amber); }
+  .counter-card .num small { font-size:18px; color:var(--text); margin-left:4px; }
+  .counter-card .cap { font-size:11.5px; color:var(--muted); margin-top:2px; }
+
+  /* progress bar */
+  .pbar { height:8px; border-radius:6px; background:rgba(255,255,255,0.08); overflow:hidden; margin-top:9px; }
+  .pbar > i { display:block; height:100%; border-radius:6px; }
+  .pj-head { display:flex; justify-content:space-between; align-items:baseline; }
+  .pj-head .pj-t { font-size:14px; font-weight:700; }
+  .pj-head .pj-pct { font-size:13px; font-weight:800; }
+  .pj-sub { font-size:11px; color:var(--muted); margin-top:3px; }
+
+  /* status chip strip */
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+  .chip { font-size:11px; padding:6px 11px; border-radius:20px; background:rgba(255,255,255,0.05); border:1px solid var(--line); color:var(--muted); }
+  .chip.on { background:rgba(52,211,153,0.14); color:var(--success); border-color:transparent; }
+
+  /* toggle */
+  .toggle { width:42px; height:25px; border-radius:14px; background:rgba(255,255,255,0.12); position:relative; cursor:pointer; transition:.25s; flex:none; }
+  .toggle::after { content:""; position:absolute; top:3px; left:3px; width:19px; height:19px; border-radius:50%; background:#fff; transition:.25s; }
+  .toggle.on { background:var(--success); }
+  .toggle.on::after { left:20px; }
+
+  .gap { height:14px; }
+
+  /* tab bar */
+  .tabbar {
+    flex:none;
+    height:78px;
+    background:rgba(10,16,28,0.92);
+    backdrop-filter:blur(14px);
+    border-top:1px solid var(--line);
+    display:flex;
+    padding:8px 6px 20px;
+  }
+  .tab {
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    border:none; background:none; cursor:pointer; color:var(--muted);
+    font-size:9.5px; font-weight:600; padding-top:6px;
+    transition:.2s;
+  }
+  .tab svg { width:23px; height:23px; stroke:currentColor; fill:none; stroke-width:1.9; }
+  .tab.active { color:var(--amber); }
+  .tab.active svg { filter:drop-shadow(0 0 6px rgba(245,183,64,0.5)); }
+
+  .att-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; text-align:center; }
+  .att-grid .ac .n { font-size:22px; font-weight:800; }
+  .att-grid .ac .l { font-size:10px; color:var(--muted); margin-top:2px; }
+
+  .alert-ok { display:flex; align-items:center; gap:10px; background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.25); border-radius:14px; padding:12px 14px; }
+  .alert-ok .ico { width:30px;height:30px;border-radius:50%;background:var(--success);color:#04140d;display:flex;align-items:center;justify-content:center;font-weight:900;flex:none;}
+  .alert-ok .tx .t { font-size:13px; font-weight:700; }
+  .alert-ok .tx .s { font-size:10.5px; color:var(--muted); }
+
+  .prof-head { display:flex; align-items:center; gap:14px; }
+  .prof-head .pa { width:60px;height:60px;border-radius:18px;background:linear-gradient(135deg,var(--amber),#d4880f);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#1a1205;flex:none;}
+  .prof-head .pn { font-size:17px; font-weight:700; }
+  .prof-head .pr { font-size:11.5px; color:var(--muted); margin-top:3px; }
+
+  .set-row { display:flex; align-items:center; gap:13px; padding:14px 0; border-bottom:1px solid var(--line); }
+  .set-row:last-child { border-bottom:none; }
+  .set-row .si { width:34px;height:34px;border-radius:10px;background:rgba(59,130,246,0.13);display:flex;align-items:center;justify-content:center;font-size:16px;flex:none;}
+  .set-row .st { flex:1; font-size:13.5px; font-weight:600; }
+  .set-row .chev { color:var(--muted); font-size:16px; }
+
+  .live-dot { display:inline-block; width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 0 0 rgba(52,211,153,0.6); animation:pulse 1.8s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(52,211,153,0.5);} 70%{box-shadow:0 0 0 8px rgba(52,211,153,0);} 100%{box-shadow:0 0 0 0 rgba(52,211,153,0);} }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="island"></div>
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="right"><span>5G</span><span>100%</span></div>
+    </div>
+
+    <div class="content">
+
+      <!-- ============ HOME ============ -->
+      <section class="view active" id="view-home">
+        <div class="appbar">
+          <div class="brand">
+            <div class="logo-mark">B</div>
+            <div>
+              <h1>Bright Cockpit</h1>
+              <div class="sub">ブライトマネジメントパートナーズ</div>
+            </div>
+          </div>
+          <div class="avatar">経</div>
+        </div>
+
+        <div class="card hero">
+          <div class="label">今月売上 <span class="live-dot"></span> リアルタイム</div>
+          <div class="big">¥ 4,820<small>万</small></div>
+          <span class="pill up">▲ 12.4% 前月比</span>
+          <div class="barchart">
+            <div class="bar" style="height:38%"></div>
+            <div class="bar" style="height:52%"></div>
+            <div class="bar" style="height:46%"></div>
+            <div class="bar" style="height:64%"></div>
+            <div class="bar" style="height:58%"></div>
+            <div class="bar hl" style="height:88%"></div>
+          </div>
+          <div class="barlabels">
+            <span>1月</span><span>2月</span><span>3月</span><span>4月</span><span>5月</span><span>6月</span>
+          </div>
+        </div>
+
+        <div class="section-title">主要KPI</div>
+        <div class="grid2">
+          <div class="card kpi">
+            <div class="k-label"><span class="dot" style="background:var(--amber)"></span>コスト削減</div>
+            <div class="k-val">¥182<small>万/月</small></div>
+            <div class="k-trend pill up" style="padding:2px 7px;">▲ 9.1%</div>
+          </div>
+          <div class="card kpi">
+            <div class="k-label"><span class="dot" style="background:var(--blue)"></span>RPA稼働率</div>
+            <div class="k-val">94<small>%</small></div>
+            <div class="k-trend pill up" style="padding:2px 7px;">▲ 3.2pt</div>
+          </div>
+          <div class="card kpi">
+            <div class="k-label"><span class="dot" style="background:var(--success)"></span>勤怠遵守率</div>
+            <div class="k-val">99.2<small>%</small></div>
+            <div class="k-trend pill up" style="padding:2px 7px;">良好</div>
+          </div>
+          <div class="card kpi">
+            <div class="k-label"><span class="dot" style="background:#a78bfa"></span>粗利率</div>
+            <div class="k-val">38.6<small>%</small></div>
+            <div class="k-trend pill down" style="padding:2px 7px;">▼ 1.1pt</div>
+          </div>
+        </div>
+
+        <div class="section-title">月次推移トレンド</div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:13px;font-weight:700;">売上 / コスト削減</div>
+            <div style="font-size:10.5px;color:var(--muted);">直近6ヶ月</div>
+          </div>
+          <div class="linechart">
+            <svg viewBox="0 0 300 90" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="fillBlue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(59,130,246,0.35)"/>
+                  <stop offset="100%" stop-color="rgba(59,130,246,0)"/>
+                </linearGradient>
+              </defs>
+              <polyline points="0,70 60,55 120,60 180,40 240,46 300,18" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+              <polygon points="0,70 60,55 120,60 180,40 240,46 300,18 300,90 0,90" fill="url(#fillBlue)"/>
+              <polyline points="0,80 60,72 120,68 180,60 240,55 300,44" fill="none" stroke="#f5b740" stroke-width="2.5" stroke-dasharray="4 3" stroke-linecap="round"/>
+              <circle cx="300" cy="18" r="3.5" fill="#3b82f6"/>
+              <circle cx="300" cy="44" r="3.5" fill="#f5b740"/>
+            </svg>
+          </div>
+          <div class="chips">
+            <span class="chip"><span style="color:#3b82f6">●</span> 売上</span>
+            <span class="chip"><span style="color:var(--amber)">●</span> コスト削減</span>
+          </div>
+        </div>
+
+        <div class="section-title">今日のハイライト</div>
+        <div class="card">
+          <div class="row">
+            <div class="ico green">⚙</div>
+            <div class="meta"><div class="t">請求書発行RPAが完了</div><div class="s">38件処理 / 所要 6分</div></div>
+            <span class="badge run">完了</span>
+          </div>
+          <div class="row">
+            <div class="ico amber">指</div>
+            <div class="meta"><div class="t">全12名が指紋認証で出勤打刻</div><div class="s">代理打刻ゼロを維持</div></div>
+            <span class="badge run">正常</span>
+          </div>
+          <div class="row">
+            <div class="ico">★</div>
+            <div class="meta"><div class="t">A社 営業支援PJ 中間レビュー</div><div class="s">14:00 オンライン</div></div>
+            <span class="badge sched">予定</span>
+          </div>
+        </div>
+        <div class="gap"></div>
+      </section>
+
+      <!-- ============ RPA ============ -->
+      <section class="view" id="view-rpa">
+        <div class="appbar">
+          <div class="brand">
+            <div class="logo-mark" style="background:linear-gradient(135deg,var(--blue),#1e40af);color:#fff;">⚙</div>
+            <div><h1>自動化 RPA</h1><div class="sub">WinActor シナリオ管理</div></div>
+          </div>
+          <div class="avatar">経</div>
+        </div>
+
+        <div class="card counter-card">
+          <div class="cap">今月の自動化による削減時間</div>
+          <div class="num" id="counter">0<small>時間</small></div>
+          <div class="cap">人件費換算 <b style="color:var(--success)">約 ¥48万</b> / 月</div>
+        </div>
+
+        <div class="section-title">稼働サマリー</div>
+        <div class="grid2">
+          <div class="card kpi">
+            <div class="k-label"><span class="dot" style="background:var(--success)"></span>稼働中シナリオ</div>
+            <div class="k-val">7<small>/9</small></div>
+          </div>
+          <div class="card kpi">
+            <div class="k-label"><span class="dot" style="background:var(--blue)"></span>今月の実行回数</div>
+            <div class="k-val">1,284<small>回</small></div>
+          </div>
+        </div>
+
+        <div class="section-title">WinActor シナリオ一覧</div>
+        <div class="card">
+          <div class="row">
+            <div class="ico green">⚙</div>
+            <div class="meta"><div class="t">請求書一括発行</div><div class="s">毎営業日 9:00 / 平均6分</div></div>
+            <span class="badge run">稼働中</span>
+          </div>
+          <div class="row">
+            <div class="ico green">⚙</div>
+            <div class="meta"><div class="t">受注データ基幹連携</div><div class="s">15分間隔 / リアルタイム</div></div>
+            <span class="badge run">稼働中</span>
+          </div>
+          <div class="row">
+            <div class="ico amber">⚙</div>
+            <div class="meta"><div class="t">勤怠データ集計</div><div class="s">毎日 18:30</div></div>
+            <span class="badge sched">待機</span>
+          </div>
+          <div class="row">
+            <div class="ico">⚙</div>
+            <div class="meta"><div class="t">経費精算チェック</div><div class="s">週次 月曜 10:00</div></div>
+            <span class="badge sched">待機</span>
+          </div>
+          <div class="row">
+            <div class="ico" style="background:rgba(248,113,113,0.13)">⚙</div>
+            <div class="meta"><div class="t">在庫アラート通知</div><div class="s">前回 API タイムアウト</div></div>
+            <span class="badge err">要確認</span>
+          </div>
+        </div>
+
+        <div class="section-title">シナリオ別 削減時間（時間/月）</div>
+        <div class="card">
+          <div class="barchart" style="height:80px;">
+            <div class="bar hl" style="height:95%"></div>
+            <div class="bar" style="height:62%"></div>
+            <div class="bar" style="height:50%"></div>
+            <div class="bar" style="height:40%"></div>
+            <div class="bar" style="height:28%"></div>
+          </div>
+          <div class="barlabels">
+            <span>請求</span><span>連携</span><span>勤怠</span><span>経費</span><span>在庫</span>
+          </div>
+        </div>
+        <div class="gap"></div>
+      </section>
+
+      <!-- ============ ATTENDANCE ============ -->
+      <section class="view" id="view-att">
+        <div class="appbar">
+          <div class="brand">
+            <div class="logo-mark" style="background:linear-gradient(135deg,var(--success),#0f9b6c);color:#04140d;">指</div>
+            <div><h1>勤怠・入退室</h1><div class="sub">指紋認証 ICカード連携</div></div>
+          </div>
+          <div class="avatar">経</div>
+        </div>
+
+        <div class="alert-ok">
+          <div class="ico">✓</div>
+          <div class="tx">
+            <div class="t">代理打刻ゼロ・なりすまし検知なし</div>
+            <div class="s">指紋認証により不正打刻を完全防止中</div>
+          </div>
+        </div>
+
+        <div class="gap"></div>
+        <div class="card">
+          <div class="att-grid">
+            <div class="ac"><div class="n" style="color:var(--success)">9</div><div class="l">在席</div></div>
+            <div class="ac"><div class="n" style="color:var(--amber)">2</div><div class="l">外出中</div></div>
+            <div class="ac"><div class="n" style="color:var(--muted)">1</div><div class="l">休暇</div></div>
+          </div>
+        </div>
+
+        <div class="section-title">リアルタイム在席状況</div>
+        <div class="card">
+          <div class="donut-wrap">
+            <div class="donut">
+              <div class="hole"><b>75%</b><span>在席率</span></div>
+            </div>
+            <div style="flex:1;">
+              <div class="chips" style="flex-direction:column;align-items:stretch;gap:7px;">
+                <span class="chip on">● 開発室 — 入室中 4名</span>
+                <span class="chip on">● 営業フロア — 入室中 3名</span>
+                <span class="chip">● 会議室A — 施錠中</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">本日の打刻ログ <span class="live-dot"></span></div>
+        <div class="card">
+          <div class="row">
+            <div class="ico green">指</div>
+            <div class="meta"><div class="t">田中 健一</div><div class="s">指紋認証 — 正面入口</div></div>
+            <span class="badge run">08:52 出勤</span>
+          </div>
+          <div class="row">
+            <div class="ico green">指</div>
+            <div class="meta"><div class="t">佐藤 美咲</div><div class="s">ICカード — 通用口</div></div>
+            <span class="badge run">08:58 出勤</span>
+          </div>
+          <div class="row">
+            <div class="ico amber">指</div>
+            <div class="meta"><div class="t">鈴木 大輔</div><div class="s">指紋認証 — 正面入口</div></div>
+            <span class="badge sched">12:05 外出</span>
+          </div>
+          <div class="row">
+            <div class="ico green">指</div>
+            <div class="meta"><div class="t">山本 由美</div><div class="s">指紋認証 — 正面入口</div></div>
+            <span class="badge run">09:01 出勤</span>
+          </div>
+        </div>
+
+        <div class="section-title">残業・労務アラート</div>
+        <div class="card">
+          <div class="pj-head"><div class="pj-t">月間残業 平均</div><div class="pj-pct" style="color:var(--success)">14.2h</div></div>
+          <div class="pj-sub">上限 45h に対し健全な水準</div>
+          <div class="pbar"><i style="width:32%;background:linear-gradient(90deg,var(--success),#10b981)"></i></div>
+        </div>
+        <div class="gap"></div>
+      </section>
+
+      <!-- ============ CONSULTING ============ -->
+      <section class="view" id="view-consult">
+        <div class="appbar">
+          <div class="brand">
+            <div class="logo-mark" style="background:linear-gradient(135deg,#a78bfa,#6d28d9);color:#fff;">★</div>
+            <div><h1>コンサル</h1><div class="sub">営業支援・人材育成</div></div>
+          </div>
+          <div class="avatar">経</div>
+        </div>
+
+        <div class="card hero">
+          <div class="label">次回ミーティング</div>
+          <div style="display:flex;align-items:center;gap:14px;margin-top:10px;">
+            <div style="text-align:center;background:rgba(255,255,255,0.07);border-radius:14px;padding:8px 14px;">
+              <div style="font-size:22px;font-weight:800;color:var(--amber)">06</div>
+              <div style="font-size:10px;color:var(--muted)">JUN</div>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:700;">営業支援PJ 中間レビュー</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px;">14:00–15:00 / オンライン会議</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">進行中プロジェクト</div>
+
+        <div class="card">
+          <div class="pj-head"><div class="pj-t">営業支援強化プログラム</div><div class="pj-pct" style="color:var(--success)">68%</div></div>
+          <div class="pj-sub">商談化率 +22% 達成 / フェーズ3進行中</div>
+          <div class="pbar"><i style="width:68%;background:linear-gradient(90deg,var(--success),#10b981)"></i></div>
+        </div>
+        <div class="gap"></div>
+        <div class="card">
+          <div class="pj-head"><div class="pj-t">次世代リーダー育成研修</div><div class="pj-pct" style="color:var(--blue)">45%</div></div>
+          <div class="pj-sub">全8回中4回完了 / 受講者 6名</div>
+          <div class="pbar"><i style="width:45%;background:linear-gradient(90deg,var(--blue),#1d4ed8)"></i></div>
+        </div>
+        <div class="gap"></div>
+        <div class="card">
+          <div class="pj-head"><div class="pj-t">業務プロセス可視化</div><div class="pj-pct" style="color:var(--amber)">90%</div></div>
+          <div class="pj-sub">最終報告書作成中 / 今月末納品</div>
+          <div class="pbar"><i style="width:90%;background:linear-gradient(90deg,var(--amber),#d4880f)"></i></div>
+        </div>
+
+        <div class="section-title">担当コンサルタント</div>
+        <div class="card">
+          <div class="row">
+            <div class="ico amber">星</div>
+            <div class="meta"><div class="t">星野 拓也 — シニアコンサルタント</div><div class="s">営業支援・KPI設計担当</div></div>
+            <span class="badge run">対応中</span>
+          </div>
+          <div class="row">
+            <div class="ico">高</div>
+            <div class="meta"><div class="t">高橋 真理 — 人材開発担当</div><div class="s">研修・評価制度設計</div></div>
+            <span class="badge sched">待機</span>
+          </div>
+        </div>
+        <div class="gap"></div>
+      </section>
+
+      <!-- ============ SETTINGS ============ -->
+      <section class="view" id="view-set">
+        <div class="appbar">
+          <div class="brand">
+            <div class="logo-mark" style="background:linear-gradient(135deg,#64748b,#334155);color:#fff;">⚙</div>
+            <div><h1>設定</h1><div class="sub">プロフィール・通知</div></div>
+          </div>
+          <div class="avatar">経</div>
+        </div>
+
+        <div class="card">
+          <div class="prof-head">
+            <div class="pa">経</div>
+            <div>
+              <div class="pn">経営者 太郎</div>
+              <div class="pr">代表取締役 / 株式会社サンプル商事</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">会社情報</div>
+        <div class="card">
+          <div class="set-row"><div class="si">🏢</div><div class="st">契約プラン</div><span class="chip on">Cockpit Pro</span></div>
+          <div class="set-row"><div class="si">👥</div><div class="st">登録従業員数</div><span style="color:var(--muted);font-size:13px;">12 名</span></div>
+          <div class="set-row"><div class="si">⚙</div><div class="st">連携RPAシナリオ</div><span style="color:var(--muted);font-size:13px;">9 件</span></div>
+        </div>
+
+        <div class="section-title">通知設定</div>
+        <div class="card">
+          <div class="set-row"><div class="si">⚙</div><div class="st">RPA異常時アラート</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="set-row"><div class="si">指</div><div class="st">不正打刻検知通知</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="set-row"><div class="si">📊</div><div class="st">日次KPIサマリー</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="set-row"><div class="si">⏰</div><div class="st">残業上限アラート</div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+
+        <div class="section-title">サポート</div>
+        <div class="card">
+          <div class="set-row"><div class="si">💬</div><div class="st">コンサルタントに相談</div><span class="chev">›</span></div>
+          <div class="set-row"><div class="si">📘</div><div class="st">ヘルプ・操作ガイド</div><span class="chev">›</span></div>
+          <div class="set-row"><div class="si">📞</div><div class="st">お問い合わせ</div><span class="chev">›</span></div>
+        </div>
+
+        <div style="text-align:center;color:var(--muted);font-size:10.5px;margin:18px 0 4px;">
+          Bright Cockpit v2.4.0<br>© ブライトマネジメントパートナーズ
+        </div>
+        <div class="gap"></div>
+      </section>
+
+    </div>
+
+    <!-- ============ TAB BAR ============ -->
+    <nav class="tabbar">
+      <button class="tab active" data-view="home">
+        <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg>
+        ホーム
+      </button>
+      <button class="tab" data-view="rpa">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+        自動化
+      </button>
+      <button class="tab" data-view="att">
+        <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM5 21v-1a7 7 0 0 1 14 0v1"/></svg>
+        勤怠
+      </button>
+      <button class="tab" data-view="consult">
+        <svg viewBox="0 0 24 24"><path d="M12 3l2.4 5 5.6.6-4 4 1 5.6-5-3-5 3 1-5.6-4-4 5.6-.6z"/></svg>
+        コンサル
+      </button>
+      <button class="tab" data-view="set">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.4l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2.4-1.4L13.8 2h-3.6l-.4 2.3a7 7 0 0 0-2.4 1.4l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.4l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2.4 1.4l.4 2.3h3.6l.4-2.3a7 7 0 0 0 2.4-1.4l2.3 1 2-3.4-2-1.5A7 7 0 0 0 19 12z"/></svg>
+        設定
+      </button>
+    </nav>
+
+  </div>
+</div>
+
+<script>
+  // ===== Tab switching =====
+  var tabs = document.querySelectorAll('.tab');
+  var views = document.querySelectorAll('.view');
+  var content = document.querySelector('.content');
+  var counterStarted = false;
+
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      var target = tab.getAttribute('data-view');
+      tabs.forEach(function(t){ t.classList.remove('active'); });
+      views.forEach(function(v){ v.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById('view-' + target).classList.add('active');
+      content.scrollTop = 0;
+      if (target === 'rpa') { animateCounter(); }
+    });
+  });
+
+  // ===== Counter animation (RPA saved hours) =====
+  function animateCounter(){
+    var el = document.getElementById('counter');
+    var target = 160;
+    var cur = 0;
+    var step = Math.ceil(target / 40);
+    var timer = setInterval(function(){
+      cur += step;
+      if (cur >= target){ cur = target; clearInterval(timer); }
+      el.innerHTML = cur + '<small>時間</small>';
+    }, 22);
+  }
+
+  // ===== Subtle live bar shimmer on home hero =====
+  setInterval(function(){
+    var bars = document.querySelectorAll('#view-home .hero .bar');
+    if (!bars.length) return;
+    bars.forEach(function(b){
+      if (b.classList.contains('hl')) return;
+      var base = parseInt(b.style.height) || 50;
+      var jitter = base + (Math.random() * 8 - 4);
+      jitter = Math.max(25, Math.min(90, jitter));
+      b.style.height = jitter + '%';
+    });
+  }, 2600);
+</script>
+</body>
+</html>
