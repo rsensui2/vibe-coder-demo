@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>わんとなり — ご近所で、わんこをあずけあう。</title>
+<style>
+  :root { --bg: #FAF8F3; --gold: #C8A24B; --gold-light: #DCC07F; --gold-deep: #A8842F; --ink: #1A1A1A; --ink-soft: #555049; --line: #E6E0D4; --paper: #FFFFFF; --serif: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Times New Roman", serif; --sans: "Hiragino Sans", "Yu Gothic", "YuGothic", "Helvetica Neue", Arial, sans-serif; }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.85; font-size: 16px; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+  ::selection { background: var(--gold); color: #fff; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 40px; }
+
+  /* ============ ヘッダー ============ */
+  header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(250, 248, 243, 0.82); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 80px; }
+  .logo { font-family: var(--serif); font-size: 1.45rem; letter-spacing: 0.18em; display: flex; align-items: center; gap: 12px; }
+  .logo-mark { width: 34px; height: 34px; border-radius: 50%; background: var(--gold); position: relative; display: inline-block; }
+  .logo-mark::before { content: ""; position: absolute; inset: 6px; border-radius: 50%; border: 1.5px solid var(--bg); }
+  .logo-mark::after { content: ""; position: absolute; width: 7px; height: 7px; border-radius: 50%; background: var(--bg); top: 13px; left: 13px; }
+  .nav-links { display: flex; align-items: center; gap: 38px; list-style: none; }
+  .nav-links a { color: var(--ink); text-decoration: none; font-size: 0.83rem; letter-spacing: 0.12em; transition: color .3s; }
+  .nav-links a:hover { color: var(--gold-deep); }
+  .nav-cta { border: 1px solid var(--gold); color: var(--gold-deep) !important; padding: 11px 26px; border-radius: 2px; letter-spacing: 0.14em !important; transition: all .35s !important; }
+  .nav-cta:hover { background: var(--gold); color: #fff !important; }
+  .burger { display: none; }
+
+  /* ============ ボタン ============ */
+  .btn-gold { display: inline-block; background: var(--gold); color: #fff; text-decoration: none; padding: 18px 46px; border-radius: 2px; font-size: 0.92rem; letter-spacing: 0.16em; font-weight: 500; transition: all .4s cubic-bezier(.2,.7,.3,1); border: 1px solid var(--gold); box-shadow: 0 10px 30px -12px rgba(168,132,47,.5); }
+  .btn-gold:hover { background: var(--gold-deep); border-color: var(--gold-deep); transform: translateY(-2px); box-shadow: 0 16px 38px -12px rgba(168,132,47,.6); }
+  .btn-line { display: inline-block; background: transparent; color: var(--ink); text-decoration: none; padding: 17px 44px; border-radius: 2px; font-size: 0.92rem; letter-spacing: 0.16em; border: 1px solid var(--ink); transition: all .4s; }
+  .btn-line:hover { background: var(--ink); color: var(--bg); }
+
+  /* ============ セクション共通 ============ */
+  section { position: relative; }
+  .eyebrow { font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.42em; color: var(--gold-deep); text-transform: uppercase; display: inline-flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+  .eyebrow::before { content: ""; width: 36px; height: 1px; background: var(--gold); }
+  .sec-title { font-family: var(--serif); font-weight: 400; line-height: 1.3; letter-spacing: 0.04em; }
+
+  /* ============ HERO ============ */
+  .hero { padding: 190px 0 130px; position: relative; overflow: hidden; }
+  .hero::before { content: "癒"; position: absolute; right: -4%; top: 4%; font-family: var(--serif); font-size: 46rem; color: rgba(200,162,75,.045); line-height: 1; z-index: 0; pointer-events: none; }
+  .hero-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 60px; align-items: center; position: relative; z-index: 2; }
+  .hero h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(2.9rem, 6.2vw, 5.4rem); line-height: 1.22; letter-spacing: 0.02em; margin-bottom: 38px; }
+  .hero h1 .gold { color: var(--gold-deep); }
+  .hero h1 .small { display: block; font-size: 0.42em; letter-spacing: 0.3em; color: var(--ink-soft); margin-bottom: 22px; font-family: var(--sans); }
+  .hero-lead { font-size: 1.05rem; color: var(--ink-soft); max-width: 460px; margin-bottom: 46px; line-height: 2; }
+  .hero-actions { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+  .hero-note { margin-top: 34px; font-size: 0.78rem; letter-spacing: 0.1em; color: var(--ink-soft); display: flex; align-items: center; gap: 12px; }
+  .hero-note .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+
+  /* ===== スマホモック ===== */
+  .phone-stage { display: flex; justify-content: center; position: relative; }
+  .phone-stage::after { content: ""; position: absolute; width: 320px; height: 320px; border: 1px solid var(--gold-light); border-radius: 50%; opacity: .35; z-index: 0; }
+  .phone { position: relative; width: 286px; height: 580px; background: #fff; border-radius: 42px; padding: 14px; box-shadow: 0 40px 80px -30px rgba(26,26,26,.35), 0 0 0 1px var(--line); z-index: 2; }
+  .phone::before { content: ""; position: absolute; top: 22px; left: 50%; transform: translateX(-50%); width: 108px; height: 24px; background: #1A1A1A; border-radius: 0 0 16px 16px; z-index: 3; }
+  .screen { width: 100%; height: 100%; background: var(--bg); border-radius: 30px; overflow: hidden; position: relative; }
+  .app-top { background: #fff; padding: 46px 20px 16px; border-bottom: 1px solid var(--line); }
+  .app-top .greet { font-size: 0.64rem; letter-spacing: 0.2em; color: var(--gold-deep); margin-bottom: 4px; }
+  .app-top .area { font-family: var(--serif); font-size: 1.12rem; }
+  .app-body { padding: 18px; }
+  .app-section-label { font-size: 0.62rem; letter-spacing: 0.18em; color: var(--ink-soft); margin: 6px 0 12px; }
+  .sitter-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 13px; display: flex; gap: 12px; align-items: center; margin-bottom: 11px; box-shadow: 0 8px 20px -16px rgba(26,26,26,.4); }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; position: relative; background: linear-gradient(135deg, var(--gold-light), var(--gold)); }
+  .avatar::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: #fff; }
+  .avatar.b { background: linear-gradient(135deg, #d6cdb8, #b3a585); }
+  .avatar.c { background: linear-gradient(135deg, #cbb990, var(--gold-deep)); }
+  .sitter-info { flex: 1; min-width: 0; }
+  .sitter-info .name { font-size: 0.78rem; font-weight: 600; margin-bottom: 2px; }
+  .sitter-info .meta { font-size: 0.6rem; color: var(--ink-soft); letter-spacing: 0.04em; }
+  .stars { font-size: 0.58rem; color: var(--gold); margin-top: 3px; letter-spacing: 2px; }
+  .badge-near { font-size: 0.54rem; background: rgba(200,162,75,.12); color: var(--gold-deep); padding: 3px 8px; border-radius: 20px; white-space: nowrap; letter-spacing: 0.06em; }
+  .app-cta { margin-top: 10px; background: var(--gold); color: #fff; text-align: center; padding: 12px; border-radius: 12px; font-size: 0.72rem; letter-spacing: 0.12em; }
+
+  /* ============ 課題提起 ============ */
+  .problem { padding: 130px 0; background: var(--paper); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .problem-head { max-width: 720px; margin-bottom: 70px; }
+  .problem-head .sec-title { font-size: clamp(1.9rem, 3.8vw, 3rem); margin-top: 10px; }
+  .problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  .problem-cell { background: var(--paper); padding: 50px 40px; transition: background .4s; }
+  .problem-cell:hover { background: var(--bg); }
+  .problem-num { font-family: var(--serif); font-size: 2.4rem; color: var(--gold); line-height: 1; margin-bottom: 22px; }
+  .problem-cell h3 { font-family: var(--serif); font-size: 1.25rem; font-weight: 400; margin-bottom: 16px; line-height: 1.5; }
+  .problem-cell p { font-size: 0.92rem; color: var(--ink-soft); line-height: 1.9; }
+
+  /* ============ ソリューション ============ */
+  .solution { padding: 140px 0; position: relative; }
+  .solution-inner { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 80px; align-items: center; }
+  .solution-copy .sec-title { font-size: clamp(2.1rem, 4.4vw, 3.6rem); margin: 14px 0 34px; }
+  .solution-copy p { color: var(--ink-soft); font-size: 1rem; line-height: 2.1; margin-bottom: 22px; max-width: 460px; }
+  .solution-copy .accent-line { font-family: var(--serif); font-size: 1.3rem; color: var(--ink); border-left: 2px solid var(--gold); padding-left: 22px; margin: 36px 0; line-height: 1.8; }
+  .solution-visual { position: relative; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; }
+  .ring { position: absolute; border-radius: 50%; border: 1px solid var(--gold-light); }
+  .ring.r1 { inset: 0; }
+  .ring.r2 { inset: 14%; border-color: rgba(200,162,75,.4); }
+  .ring.r3 { inset: 30%; }
+  .ring-center { width: 38%; height: 38%; border-radius: 50%; background: linear-gradient(140deg, var(--gold-light), var(--gold-deep)); display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--serif); text-align: center; line-height: 1.4; box-shadow: 0 30px 60px -24px rgba(168,132,47,.6); }
+  .ring-center span { font-size: 1.1rem; letter-spacing: 0.1em; }
+  .orbit-dot { position: absolute; width: 56px; height: 56px; border-radius: 50%; background: #fff; border: 1px solid var(--line); box-shadow: 0 14px 30px -18px rgba(26,26,26,.5); display: flex; align-items: center; justify-content: center; }
+  .orbit-dot .pup { width: 24px; height: 22px; background: var(--gold); border-radius: 50% 50% 45% 45%; position: relative; }
+  .orbit-dot .pup::before,
+  .orbit-dot .pup::after { content: ""; position: absolute; top: -6px; width: 9px; height: 13px; background: var(--gold-deep); border-radius: 50%; }
+  .orbit-dot .pup::before { left: -2px; transform: rotate(-18deg); }
+  .orbit-dot .pup::after { right: -2px; transform: rotate(18deg); }
+  .od1 { top: -4%; left: 44%; }
+  .od2 { top: 42%; right: -4%; }
+  .od3 { bottom: -2%; left: 18%; }
+  .od4 { top: 16%; left: 2%; }
+
+  /* ============ 機能 ============ */
+  .features { padding: 140px 0; background: var(--ink); color: var(--bg); }
+  .features .eyebrow { color: var(--gold-light); }
+  .features .eyebrow::before { background: var(--gold-light); }
+  .features-head { text-align: center; max-width: 700px; margin: 0 auto 80px; }
+  .features-head .sec-title { font-size: clamp(2rem, 4vw, 3.2rem); margin-top: 14px; color: var(--bg); }
+  .features-head .eyebrow { justify-content: center; }
+  .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 50px; }
+  .feat { text-align: center; padding: 0 14px; }
+  .feat-icon { width: 92px; height: 92px; margin: 0 auto 34px; border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+  .feat-icon::after { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(200,162,75,.3); border-radius: 50%; }
+  .ic { position: relative; z-index: 2; }
+  /* icon: match */
+  .ic-match { width: 34px; height: 34px; }
+  .ic-match span { position: absolute; width: 13px; height: 13px; border-radius: 50%; border: 1.5px solid var(--gold-light); }
+  .ic-match span:nth-child(1) { top: 2px; left: 0; }
+  .ic-match span:nth-child(2) { top: 2px; right: 0; }
+  .ic-match .link { position: absolute; top: 8px; left: 8px; width: 18px; height: 1.5px; background: var(--gold); }
+  /* icon: shield */
+  .ic-shield { width: 30px; height: 36px; border: 1.5px solid var(--gold-light); border-radius: 6px 6px 50% 50% / 6px 6px 60% 60%; position: relative; }
+  .ic-shield::after { content: ""; position: absolute; top: 12px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 6px; height: 11px; border-right: 1.5px solid var(--gold); border-bottom: 1.5px solid var(--gold); }
+  /* icon: chat */
+  .ic-chat { width: 34px; height: 26px; border: 1.5px solid var(--gold-light); border-radius: 8px; position: relative; }
+  .ic-chat::after { content: ""; position: absolute; bottom: -7px; left: 8px; width: 8px; height: 8px; background: var(--ink); border-right: 1.5px solid var(--gold-light); border-bottom: 1.5px solid var(--gold-light); transform: rotate(45deg); }
+  .ic-chat span { position: absolute; height: 1.5px; background: var(--gold); left: 7px; }
+  .ic-chat span:nth-child(1) { top: 8px; width: 18px; }
+  .ic-chat span:nth-child(2) { top: 14px; width: 12px; }
+  .feat h3 { font-family: var(--serif); font-size: 1.4rem; font-weight: 400; margin-bottom: 8px; }
+  .feat .feat-no { font-size: 0.68rem; letter-spacing: 0.3em; color: var(--gold-light); margin-bottom: 18px; }
+  .feat p { font-size: 0.92rem; color: rgba(250,248,243,.66); line-height: 2; }
+
+  /* ============ 料金 ============ */
+  .pricing { padding: 140px 0; }
+  .pricing-head { text-align: center; max-width: 640px; margin: 0 auto 74px; }
+  .pricing-head .eyebrow { justify-content: center; }
+  .pricing-head .sec-title { font-size: clamp(2rem, 4vw, 3.2rem); margin-top: 14px; }
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; align-items: stretch; }
+  .plan { background: var(--paper); border: 1px solid var(--line); padding: 52px 40px; border-radius: 4px; display: flex; flex-direction: column; transition: transform .4s, box-shadow .4s; }
+  .plan:hover { transform: translateY(-6px); box-shadow: 0 30px 60px -34px rgba(26,26,26,.4); }
+  .plan.feature { background: var(--ink); color: var(--bg); border-color: var(--ink); position: relative; box-shadow: 0 36px 70px -32px rgba(26,26,26,.55); }
+  .plan.feature .plan-name { color: var(--gold-light); }
+  .plan.feature .plan-desc { color: rgba(250,248,243,.6); }
+  .plan.feature li { color: rgba(250,248,243,.8); }
+  .ribbon { position: absolute; top: 26px; right: -1px; background: var(--gold); color: #fff; font-size: 0.62rem; letter-spacing: 0.2em; padding: 7px 18px; border-radius: 2px 0 0 2px; }
+  .plan-name { font-size: 0.72rem; letter-spacing: 0.28em; color: var(--gold-deep); margin-bottom: 20px; }
+  .plan-price { font-family: var(--serif); font-size: 3rem; line-height: 1; margin-bottom: 6px; display: flex; align-items: baseline; gap: 6px; }
+  .plan-price .yen { font-size: 1.1rem; }
+  .plan-price .per { font-size: 0.8rem; color: var(--ink-soft); font-family: var(--sans); }
+  .plan.feature .plan-price .per { color: rgba(250,248,243,.55); }
+  .plan-desc { font-size: 0.86rem; color: var(--ink-soft); margin-bottom: 30px; min-height: 48px; line-height: 1.8; }
+  .plan ul { list-style: none; margin-bottom: 36px; flex: 1; }
+  .plan li { font-size: 0.9rem; padding: 11px 0 11px 28px; border-bottom: 1px solid var(--line); position: relative; }
+  .plan.feature li { border-color: rgba(255,255,255,.1); }
+  .plan li::before { content: ""; position: absolute; left: 2px; top: 18px; width: 9px; height: 5px; border-left: 1.5px solid var(--gold); border-bottom: 1.5px solid var(--gold); transform: rotate(-45deg); }
+  .plan .btn-gold, .plan .btn-line { width: 100%; text-align: center; padding: 15px; }
+  .plan.feature .btn-line { color: var(--bg); border-color: var(--gold-light); }
+  .plan.feature .btn-line:hover { background: var(--gold); border-color: var(--gold); color:#fff; }
+
+  /* ============ ユーザーの声 ============ */
+  .voices { padding: 140px 0; background: var(--paper); border-top: 1px solid var(--line); }
+  .voices-head { text-align: center; margin-bottom: 76px; }
+  .voices-head .eyebrow { justify-content: center; }
+  .voices-head .sec-title { font-size: clamp(2rem, 4vw, 3.2rem); margin-top: 14px; }
+  .voice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+  .voice { background: var(--bg); border: 1px solid var(--line); padding: 44px 38px; border-radius: 4px; position: relative; }
+  .voice .quote { font-family: var(--serif); font-size: 3.2rem; color: var(--gold-light); line-height: 1; position: absolute; top: 22px; left: 30px; }
+  .voice p { font-size: 0.95rem; line-height: 2; margin: 40px 0 28px; color: var(--ink); }
+  .voice-person { display: flex; align-items: center; gap: 14px; padding-top: 22px; border-top: 1px solid var(--line); }
+  .voice-avatar { width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-light), var(--gold)); position: relative; flex-shrink: 0; }
+  .voice-avatar::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--bg); }
+  .voice-avatar.v2 { background: linear-gradient(135deg, #cdc2a8, #9d8e6c); }
+  .voice-avatar.v3 { background: linear-gradient(135deg, #d8c79b, var(--gold-deep)); }
+  .voice-person .who { font-size: 0.85rem; font-weight: 600; }
+  .voice-person .role { font-size: 0.72rem; color: var(--ink-soft); }
+
+  /* ============ FAQ ============ */
+  .faq { padding: 140px 0; }
+  .faq-inner { display: grid; grid-template-columns: 0.7fr 1.3fr; gap: 70px; }
+  .faq-head .sec-title { font-size: clamp(2rem, 4vw, 3.2rem); margin-top: 14px; line-height: 1.4; }
+  .faq-head p { color: var(--ink-soft); font-size: 0.92rem; margin-top: 26px; line-height: 2; }
+  .faq-list { border-top: 1px solid var(--line); }
+  .faq-item { border-bottom: 1px solid var(--line); }
+  .faq-q { width: 100%; background: none; border: none; text-align: left; cursor: pointer; padding: 28px 50px 28px 4px; font-size: 1.02rem; font-family: var(--serif); color: var(--ink); position: relative; display: flex; gap: 18px; align-items: baseline; }
+  .faq-q .q-mark { color: var(--gold); font-size: 0.9rem; font-family: var(--sans); letter-spacing: 0.1em; }
+  .faq-q .plus { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; }
+  .faq-q .plus::before,
+  .faq-q .plus::after { content: ""; position: absolute; background: var(--gold-deep); transition: transform .35s; }
+  .faq-q .plus::before { top: 7px; left: 0; width: 16px; height: 1.5px; }
+  .faq-q .plus::after { left: 7px; top: 0; width: 1.5px; height: 16px; }
+  .faq-item.open .plus::after { transform: scaleY(0); }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height .45s ease, padding .45s ease; padding: 0 50px 0 38px; }
+  .faq-a p { color: var(--ink-soft); font-size: 0.92rem; line-height: 2; }
+  .faq-item.open .faq-a { max-height: 320px; padding: 0 50px 30px 38px; }
+
+  /* ============ フッター CTA ============ */
+  .cta-final { padding: 150px 0 120px; background: var(--ink); color: var(--bg); text-align: center; position: relative; overflow: hidden; }
+  .cta-final::before { content: "隣"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: var(--serif); font-size: 34rem; color: rgba(200,162,75,.05); line-height: 1; pointer-events: none; }
+  .cta-final .inner { position: relative; z-index: 2; }
+  .cta-final .eyebrow { color: var(--gold-light); justify-content: center; }
+  .cta-final .eyebrow::before { background: var(--gold-light); }
+  .cta-final h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(2.4rem, 5.4vw, 4.4rem); line-height: 1.35; margin: 22px 0 40px; color: var(--bg); }
+  .cta-final p { color: rgba(250,248,243,.62); max-width: 520px; margin: 0 auto 50px; line-height: 2; }
+  .cta-final .hero-actions { justify-content: center; }
+  .cta-final .btn-line { color: var(--bg); border-color: var(--gold-light); }
+  .cta-final .btn-line:hover { background: var(--bg); color: var(--ink); border-color: var(--bg); }
+
+  footer { background: #141414; color: rgba(250,248,243,.5); padding: 70px 0 50px; }
+  .footer-grid { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; padding-bottom: 50px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .footer-brand .logo { color: var(--bg); margin-bottom: 18px; }
+  .footer-brand p { font-size: 0.84rem; max-width: 280px; line-height: 1.9; }
+  .footer-cols { display: flex; gap: 70px; flex-wrap: wrap; }
+  .footer-col h4 { color: var(--gold-light); font-size: 0.72rem; letter-spacing: 0.2em; margin-bottom: 20px; font-weight: 500; }
+  .footer-col a { display: block; color: rgba(250,248,243,.5); text-decoration: none; font-size: 0.85rem; margin-bottom: 13px; transition: color .3s; }
+  .footer-col a:hover { color: var(--gold-light); }
+  .footer-bottom { padding-top: 30px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; font-size: 0.76rem; letter-spacing: 0.06em; }
+
+  /* ============ アニメーション ============ */
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 1s cubic-bezier(.2,.7,.3,1), transform 1s cubic-bezier(.2,.7,.3,1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ============ レスポンシブ ============ */
+    .burger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; }
+    .burger span { width: 26px; height: 1.5px; background: var(--ink); display: block; }
+  }
+  @media (max-width: 520px) { .wrap { padding: 0 20px; } .hero h1 { font-size: 2.5rem; } .problem-cell, .plan, .voice { padding: 38px 28px; } .btn-gold, .btn-line { padding: 15px 30px; font-size: 0.84rem; } .hero-actions { flex-direction: column; align-items: stretch; } .hero-actions a { text-align: center; } }
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<header>
+  <div class="wrap nav">
+    <div class="logo"><span class="logo-mark"></span>わんとなり</div>
+    <ul class="nav-links">
+      <li><a href="#problem">課題</a></li>
+      <li><a href="#solution">考え方</a></li>
+      <li><a href="#features">機能</a></li>
+      <li><a href="#pricing">料金</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#cta" class="nav-cta">はじめる</a></li>
+    </ul>
+    <button class="burger" aria-label="menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy reveal">
+      <span class="eyebrow">Neighborhood Dog Concierge</span>
+      <h1>
+        <span class="small">ご近所で、わんこをあずけあう。</span>
+        顔の見える隣人へ、<br><span class="gold">わが子</span>をあずける。
+      </h1>
+      <p class="hero-lead">
+        わんとなりは、同じマンション・同じ街に暮らす飼い主同士が、犬のお世話を上品に融通し合うコミュニティです。高額なシッターも、取りづらい予約も、見知らぬ人へ託す不安も——もう、いりません。
+      </p>
+      <div class="hero-actions">
+        <a href="#cta" class="btn-gold">無料ではじめる</a>
+        <a href="#solution" class="btn-line">仕組みを見る</a>
+      </div>
+      <div class="hero-note"><span class="dot"></span>登録者は全員、本人確認済み。ご近所だけの、静かな安心を。</div>
+    </div>
+
+    <div class="phone-stage reveal">
+      <div class="phone">
+        <div class="screen">
+          <div class="app-top">
+            <div class="greet">GOOD AFTERNOON</div>
+            <div class="area">ザ・パークレジデンス白金</div>
+          </div>
+          <div class="app-body">
+            <div class="app-section-label">同じマンションのあずかり手</div>
+            <div class="sitter-card">
+              <div class="avatar"></div>
+              <div class="sitter-info">
+                <div class="name">佐々木 美和さん</div>
+                <div class="meta">12F・トイプードル飼育歴8年</div>
+                <div class="stars">★★★★★ 4.9</div>
+              </div>
+              <div class="badge-near">同じ棟</div>
+            </div>
+            <div class="sitter-card">
+              <div class="avatar b"></div>
+              <div class="sitter-info">
+                <div class="name">高橋 健一さん</div>
+                <div class="meta">7F・元動物看護師</div>
+                <div class="stars">★★★★★ 5.0</div>
+              </div>
+              <div class="badge-near">徒歩2分</div>
+            </div>
+            <div class="sitter-card">
+              <div class="avatar c"></div>
+              <div class="sitter-info">
+                <div class="name">林 さやかさん</div>
+                <div class="meta">3F・柴犬と暮らす</div>
+                <div class="stars">★★★★☆ 4.7</div>
+              </div>
+              <div class="badge-near">同じ階</div>
+            </div>
+            <div class="app-cta">あずけたい日を選ぶ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 課題提起 -->
+<section class="problem" id="problem">
+  <div class="wrap">
+    <div class="problem-head reveal">
+      <span class="eyebrow">The Problem</span>
+      <h2 class="sec-title">「ちょっとお願い」が、<br>これほど難しいのは、なぜでしょう。</h2>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-cell reveal">
+        <div class="problem-num">01</div>
+        <h3>費用が、重い。</h3>
+        <p>ペットホテルやシッターは一泊数千円から。急な出張や残業が続けば、お世話の費用だけで月数万円に。日常的に頼るには、あまりに高くつきます。</p>
+      </div>
+      <div class="problem-cell reveal">
+        <div class="problem-num">02</div>
+        <h3>予約が、取れない。</h3>
+        <p>連休や週末は数週間前から満室。「明日どうしても」という時にかぎって、どこも空いていない。暮らしの予定が、預け先の都合に縛られてしまう。</p>
+      </div>
+      <div class="problem-cell reveal">
+        <div class="problem-num">03</div>
+        <h3>知らない人に、預けたくない。</h3>
+        <p>家族同然のわが子を、顔も知らない相手に託す不安。どんな環境で、どう過ごすのか。安さや便利さよりも、本当はその一点が気がかりなのです。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ソリューション -->
+<section class="solution" id="solution">
+  <div class="wrap solution-inner">
+    <div class="solution-copy reveal">
+      <span class="eyebrow">Our Philosophy</span>
+      <h2 class="sec-title">信頼は、<br>距離の近さから。</h2>
+      <p>わんとなりは、便利さでつながるのではなく、<strong>顔の見える信頼</strong>でつながるサービスです。あずかり手は、同じマンションや同じ街に暮らす犬好きの隣人。すれ違えば挨拶を交わす、その距離感が、何よりの安心になります。</p>
+      <div class="accent-line">「いってらっしゃい」と送り出せる相手が、<br>すぐ隣の部屋にいる。</div>
+      <p>お互いさまの関係だから、肩肘を張らずに頼れる。あなたが旅行に出る週末は隣人に。隣人が出張の夜は、あなたが。あずけ合いの輪が、街にひとつずつ広がっていきます。</p>
+    </div>
+    <div class="solution-visual reveal">
+      <div class="ring r1"></div>
+      <div class="ring r2"></div>
+      <div class="ring r3"></div>
+      <div class="ring-center"><span>ご近所の<br>あずけ合い</span></div>
+      <div class="orbit-dot od1"><div class="pup"></div></div>
+      <div class="orbit-dot od2"><div class="pup"></div></div>
+      <div class="orbit-dot od3"><div class="pup"></div></div>
+      <div class="orbit-dot od4"><div class="pup"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 機能 -->
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="features-head reveal">
+      <span class="eyebrow">Key Features</span>
+      <h2 class="sec-title">安心して、あずけあうための仕組み。</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat reveal">
+        <div class="feat-icon">
+          <div class="ic ic-match"><span></span><span></span><div class="link"></div></div>
+        </div>
+        <div class="feat-no">FEATURE 01</div>
+        <h3>ご近所マッチング</h3>
+        <p>住所と犬種、飼育歴をもとに、最も近くの信頼できるあずかり手を提案。同じ棟・同じ階の隣人から、まず見つかります。距離が近いほど、預け迎えも気軽に。</p>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-icon">
+          <div class="ic ic-shield"></div>
+        </div>
+        <div class="feat-no">FEATURE 02</div>
+        <h3>本人確認と相互レビュー</h3>
+        <p>登録は全員、公的書類による本人確認済み。お世話のたびに双方が評価を残すため、信頼が可視化されます。万一に備えた損害補償も標準で付帯します。</p>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-icon">
+          <div class="ic ic-chat"><span></span><span></span></div>
+        </div>
+        <div class="feat-no">FEATURE 03</div>
+        <h3>お世話レポート</h3>
+        <p>あずけている間も、写真とひとことメッセージがアプリに届きます。お散歩やごはんの様子をリアルタイムで。離れていても、その表情がそばにあります。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 料金 -->
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="pricing-head reveal">
+      <span class="eyebrow">Pricing</span>
+      <h2 class="sec-title">暮らしに合わせて、3つのプラン。</h2>
+    </div>
+    <div class="plans">
+      <div class="plan reveal">
+        <div class="plan-name">FREE</div>
+        <div class="plan-price"><span class="yen">¥</span>0<span class="per">/ 月</span></div>
+        <div class="plan-desc">まずは、ご近所にどんなあずかり手がいるのか。気軽に始めたい方へ。</div>
+        <ul>
+          <li>ご近所あずかり手の検索</li>
+          <li>月3回までのあずけ依頼</li>
+          <li>お世話レポートの閲覧</li>
+          <li>本人確認バッジ</li>
+        </ul>
+        <a href="#cta" class="btn-line">無料で登録</a>
+      </div>
+      <div class="plan feature reveal">
+        <div class="ribbon">人気</div>
+        <div class="plan-name">STANDARD</div>
+        <div class="plan-price"><span class="yen">¥</span>980<span class="per">/ 月</span></div>
+        <div class="plan-desc">日常的にあずけ合う、ご近所コミュニティの中心的な一枚。</div>
+        <ul>
+          <li>あずけ依頼が無制限</li>
+          <li>優先マッチングと事前予約</li>
+          <li>損害補償 最大100万円</li>
+          <li>緊急あずかりの24時間受付</li>
+          <li>コミュニティイベントへの参加</li>
+        </ul>
+        <a href="#cta" class="btn-gold">このプランで始める</a>
+      </div>
+      <div class="plan reveal">
+        <div class="plan-name">RESIDENCE</div>
+        <div class="plan-price"><span class="per" style="font-size:1rem">ご相談</span></div>
+        <div class="plan-desc">マンション・地域コミュニティ単位で導入する、管理組合向けプラン。</div>
+        <ul>
+          <li>居住者限定のクローズドコミュニティ</li>
+          <li>管理画面と利用状況レポート</li>
+          <li>共用部での受け渡し動線サポート</li>
+          <li>専任コンシェルジュによる運営代行</li>
+        </ul>
+        <a href="#cta" class="btn-line">お問い合わせ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ユーザーの声 -->
+<section class="voices">
+  <div class="wrap">
+    <div class="voices-head reveal">
+      <span class="eyebrow">Voices</span>
+      <h2 class="sec-title">あずけ合う、その先の物語。</h2>
+    </div>
+    <div class="voice-grid">
+      <div class="voice reveal">
+        <div class="quote">"</div>
+        <p>急な出張が決まっても、同じ階の佐々木さんにお願いできる。帰宅すると、うちの子がすっかりくつろいでいて。预け先を探す不安から、ようやく解放されました。</p>
+        <div class="voice-person">
+          <div class="voice-avatar"></div>
+          <div>
+            <div class="who">谷口 由美子さん</div>
+            <div class="role">トイプードル・ルナと暮らす</div>
+          </div>
+        </div>
+      </div>
+      <div class="voice reveal">
+        <div class="quote">"</div>
+        <p>在宅勤務なので、日中に隣人のわんこを預かるのが楽しみのひとつに。お礼に自分が旅行する時は預かってもらえる。お金以上の、ちょうどいい関係です。</p>
+        <div class="voice-person">
+          <div class="voice-avatar v2"></div>
+          <div>
+            <div class="who">中村 拓也さん</div>
+            <div class="role">ビーグル・そらの飼い主</div>
+          </div>
+        </div>
+      </div>
+      <div class="voice reveal">
+        <div class="quote">"</div>
+        <p>マンションで導入してから、エレベーターで犬の話をする住民が増えました。あずけ合いをきっかけに、街そのものが少し温かくなった気がしています。</p>
+        <div class="voice-person">
+          <div class="voice-avatar v3"></div>
+          <div>
+            <div class="who">石川 真理さん</div>
+            <div class="role">管理組合理事・柴犬と暮らす</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="wrap faq-inner">
+    <div class="faq-head reveal">
+      <span class="eyebrow">FAQ</span>
+      <h2 class="sec-title">はじめる前の、<br>小さな疑問に。</h2>
+      <p>ご不明な点は、専任のコンシェルジュがチャットで丁寧にお答えします。お気軽にお問い合わせください。</p>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item open">
+        <button class="faq-q"><span class="q-mark">Q</span>あずかり手は、どんな人ですか？<span class="plus"></span></button>
+        <div class="faq-a"><p>全員が公的書類による本人確認を済ませた、近隣にお住まいの犬好きの方々です。飼育経験やプロフィール、過去の利用者からのレビューをすべて確認したうえで、ご自身であずけ先を選んでいただけます。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span class="q-mark">Q</span>もしお世話中にトラブルがあったら？<span class="plus"></span></button>
+        <div class="faq-a"><p>STANDARDプラン以上には最大100万円の損害補償が標準付帯します。怪我や物損などの万一の際も、運営事務局が間に入って対応いたしますので、安心してご利用ください。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span class="q-mark">Q</span>あずかる側として参加することもできますか？<span class="plus"></span></button>
+        <div class="faq-a"><p>もちろんです。あずける側とあずかる側は、同じアカウントで自由に切り替えられます。お世話を引き受けるとポイントが貯まり、ご自身が依頼する際の利用に充てることができます。お互いさまの関係が、無理なく続きます。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span class="q-mark">Q</span>近くにあずかり手が見つからない場合は？<span class="plus"></span></button>
+        <div class="faq-a"><p>サービス開始初期は地域によって登録者が少ない場合があります。エリアにあずかり手が増え次第ご案内するほか、マンション単位での導入（RESIDENCEプラン）にもご相談いただけます。コミュニティはあなたの参加から広がっていきます。</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span class="q-mark">Q</span>料金プランはいつでも変更できますか？<span class="plus"></span></button>
+        <div class="faq-a"><p>はい。アプリの設定画面から、いつでもアップグレード・ダウングレードが可能です。解約金や違約金は一切いただきません。まずはFREEプランで、ご近所の雰囲気を確かめてみてください。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- フッターCTA -->
+<section class="cta-final" id="cta">
+  <div class="wrap inner">
+    <span class="eyebrow reveal">Get Started</span>
+    <h2 class="reveal">隣の部屋に、<br>もうひとつの家族を。</h2>
+    <p class="reveal">わんとなりは、あなたの街から静かに始まります。まずは無料で登録して、ご近所のあずかり手を探してみてください。きっと、思っているより近くに見つかります。</p>
+    <div class="hero-actions reveal">
+      <a href="#" class="btn-gold">無料ではじめる</a>
+      <a href="#pricing" class="btn-line">料金を見る</a>
+    </div>
+  </div>
+</section>
+
+<!-- フッター -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo"><span class="logo-mark"></span>わんとなり</div>
+        <p>ご近所で、わんこをあずけあう。顔の見える信頼でつながる、上質なドッグコミュニティ。</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>SERVICE</h4>
+          <a href="#problem">課題</a>
+          <a href="#solution">考え方</a>
+          <a href="#features">機能</a>
+          <a href="#pricing">料金プラン</a>
+        </div>
+        <div class="footer-col">
+          <h4>SUPPORT</h4>
+          <a href="#faq">よくある質問</a>
+          <a href="#">お問い合わせ</a>
+          <a href="#">安心・補償について</a>
+          <a href="#">コンシェルジュ</a>
+        </div>
+        <div class="footer-col">
+          <h4>COMPANY</h4>
+          <a href="#">運営会社</a>
+          <a href="#">利用規約</a>
+          <a href="#">プライバシーポリシー</a>
+          <a href="#">採用情報</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 Wantonari Inc. All rights reserved.</div>
+      <div>ご近所で、わんこをあずけあう。</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // FAQ アコーディオン
+  document.querySelectorAll('.faq-q').forEach(function(q){
+    q.addEventListener('click', function(){
+      var item = q.parentElement;
+      var wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(function(i){ i.classList.remove('open'); });
+      if(!wasOpen){ item.classList.add('open'); }
+    });
+  });
+
+  // スクロールリビール
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+  // モバイルメニュー（ナビへスムーズスクロール用の簡易トグル）
+  var burger = document.querySelector('.burger');
+  if(burger){
+    burger.addEventListener('click', function(){
+      var links = document.querySelector('.nav-links');
+      if(links){
+        var shown = links.style.display === 'flex';
+        links.style.display = shown ? 'none' : 'flex';
+        if(!shown){
+          links.style.position = 'absolute';
+          links.style.top = '80px';
+          links.style.left = '0';
+          links.style.right = '0';
+          links.style.flexDirection = 'column';
+          links.style.background = 'var(--bg)';
+          links.style.padding = '24px 26px';
+          links.style.borderBottom = '1px solid var(--line)';
+          links.style.gap = '20px';
+        }
+      }
+    });
+  }
+</script>
+</body>
+</html>

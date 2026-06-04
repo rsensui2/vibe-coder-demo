@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>わんとなり — Wantonari</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #FFF6EC;
+    --accent: #FF7A59;
+    --sub: #2BB3A3;
+    --text: #2E2A26;
+    --pop: #FFD25A;
+    --card: #FFFFFF;
+    --muted: #9A9088;
+    --line: #F0E6D8;
+  }
+  html, body {
+    font-family: -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    background: linear-gradient(135deg, #FFE8D6 0%, #FFF6EC 50%, #E8F6F3 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 0;
+    color: var(--text);
+  }
+
+  /* ===== iPhone Frame ===== */
+  .phone {
+    position: relative;
+    width: 390px;
+    height: 844px;
+    background: #1a1a1a;
+    border-radius: 56px;
+    padding: 12px;
+    box-shadow: 0 30px 80px rgba(46,42,38,0.35), inset 0 0 3px rgba(255,255,255,0.4);
+  }
+  .phone::before {
+    /* side buttons */
+    content: "";
+    position: absolute;
+    left: -3px;
+    top: 180px;
+    width: 3px;
+    height: 64px;
+    background: #2a2a2a;
+    border-radius: 3px 0 0 3px;
+    box-shadow: 0 90px 0 #2a2a2a, 0 -90px 0 #2a2a2a;
+  }
+  .phone::after {
+    content: "";
+    position: absolute;
+    right: -3px;
+    top: 230px;
+    width: 3px;
+    height: 90px;
+    background: #2a2a2a;
+    border-radius: 0 3px 3px 0;
+  }
+  .screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== Dynamic Island ===== */
+  .island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 122px;
+    height: 36px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 12px;
+  }
+  .island::after {
+    content: "";
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #1b2a2a;
+    box-shadow: inset -2px -2px 3px rgba(80,120,120,0.5);
+  }
+
+  /* ===== Status Bar ===== */
+  .statusbar {
+    height: 54px;
+    flex: 0 0 54px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    z-index: 10;
+  }
+  .statusbar .right { display: flex; gap: 6px; align-items: center; }
+  .signal { display:flex; gap:2px; align-items:flex-end; height:11px;}
+  .signal i { width:3px; background:var(--text); border-radius:1px; }
+  .signal i:nth-child(1){height:4px} .signal i:nth-child(2){height:6px}
+  .signal i:nth-child(3){height:8px} .signal i:nth-child(4){height:11px}
+  .batt { width:24px; height:12px; border:1.5px solid var(--text); border-radius:3px; position:relative; padding:1.5px;}
+  .batt::after { content:""; position:absolute; right:-3px; top:3px; width:2px; height:5px; background:var(--text); border-radius:0 1px 1px 0;}
+  .batt i { display:block; height:100%; width:80%; background:var(--text); border-radius:1px;}
+
+  /* ===== App Header ===== */
+  .appbar {
+    flex: 0 0 auto;
+    padding: 6px 20px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .appbar .title { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; }
+  .appbar .title .paw { color: var(--accent); }
+  .appbar .sub { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 2px;}
+  .appbar .ico {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--card); display:flex; align-items:center; justify-content:center;
+    font-size: 18px; box-shadow: 0 2px 8px rgba(46,42,38,0.08);
+  }
+
+  /* ===== Scroll Body ===== */
+  .body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 0 18px 96px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .body::-webkit-scrollbar { display: none; }
+
+  /* ===== Pages ===== */
+  .page { display: none; animation: fade 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px);} to {opacity:1; transform:none;} }
+
+  /* ===== Map ===== */
+  .map {
+    position: relative;
+    height: 220px;
+    border-radius: 22px;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 20% 30%, #D9F0EC 0 40px, transparent 41px),
+      radial-gradient(circle at 75% 60%, #FFE3D6 0 50px, transparent 51px),
+      linear-gradient(120deg, #EAF6F3 0%, #FFF0E4 100%);
+    box-shadow: inset 0 0 0 1px var(--line);
+    margin-bottom: 16px;
+  }
+  .map .road { position:absolute; background: #fff; opacity:0.8;}
+  .map .road.h { left:0; right:0; height:14px; }
+  .map .road.v { top:0; bottom:0; width:14px; }
+  .pin {
+    position: absolute;
+    width: 40px; height: 40px;
+    transform: translate(-50%,-100%);
+  }
+  .pin .dot {
+    width: 40px; height: 40px;
+    background: var(--accent);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 4px 10px rgba(255,122,89,0.4);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pin .dot span { transform: rotate(45deg); font-size:18px;}
+  .pin.you .dot { background: var(--sub); box-shadow: 0 0 0 6px rgba(43,179,163,0.18), 0 4px 10px rgba(43,179,163,0.4); }
+  .map .legend {
+    position:absolute; bottom:10px; left:10px;
+    background: rgba(255,255,255,0.92);
+    border-radius: 12px; padding: 6px 10px; font-size: 11px; font-weight:600;
+    display:flex; gap:10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+  .legend .d { display:flex; align-items:center; gap:4px;}
+  .legend .d::before { content:""; width:8px; height:8px; border-radius:50%; background:var(--accent);}
+  .legend .d.me::before { background: var(--sub);}
+
+  /* ===== Section ===== */
+  .sec-head { display:flex; align-items:center; justify-content:space-between; margin: 4px 2px 12px;}
+  .sec-head h2 { font-size: 16px; font-weight: 800; }
+  .sec-head a { font-size: 12px; color: var(--accent); font-weight:700; }
+
+  /* ===== Sitter Card ===== */
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 14px rgba(46,42,38,0.06);
+    display: flex;
+    gap: 12px;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  .card:active { transform: scale(0.98); }
+  .avatar {
+    flex: 0 0 56px; width:56px; height:56px; border-radius: 18px;
+    display:flex; align-items:center; justify-content:center; font-size:28px;
+    background: linear-gradient(135deg, #FFE3D6, #FFD25A);
+  }
+  .avatar.t2 { background: linear-gradient(135deg,#D9F0EC,#2BB3A3);}
+  .avatar.t3 { background: linear-gradient(135deg,#FFF0C9,#FFD25A);}
+  .avatar.t4 { background: linear-gradient(135deg,#E8E0F5,#B6A6E0);}
+  .card .info { flex:1; min-width:0;}
+  .card .info .nm { font-size: 15px; font-weight:800; display:flex; align-items:center; gap:6px;}
+  .badge { font-size:9px; background: var(--sub); color:#fff; padding:2px 6px; border-radius:8px; font-weight:700;}
+  .badge.gold { background: var(--pop); color:#7a5b00;}
+  .card .info .meta { font-size: 12px; color: var(--muted); margin-top:3px; line-height:1.5;}
+  .card .info .tags { margin-top: 7px; display:flex; gap:5px; flex-wrap:wrap;}
+  .tag { font-size:10px; background:#FFF0E4; color:var(--accent); padding:3px 8px; border-radius:10px; font-weight:700;}
+  .tag.sub { background:#E2F5F1; color:var(--sub);}
+  .card .right { flex:0 0 auto; text-align:right; display:flex; flex-direction:column; justify-content:space-between; align-items:flex-end;}
+  .star { font-size:12px; font-weight:800; color:#E8A100;}
+  .dist { font-size:11px; color:var(--muted); margin-top:2px;}
+  .price { font-size:13px; font-weight:800; color:var(--text); margin-top:auto;}
+  .price small { font-size:10px; color:var(--muted); font-weight:600;}
+
+  .chips { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:14px;}
+  .chips::-webkit-scrollbar{ display:none;}
+  .chip { flex:0 0 auto; font-size:12px; font-weight:700; padding:8px 14px; border-radius:14px; background:var(--card); color:var(--muted); box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+  .chip.on { background:var(--accent); color:#fff;}
+
+  /* ===== Detail / Booking ===== */
+  .hero {
+    background: var(--card); border-radius: 22px; padding: 18px; margin-bottom:14px;
+    box-shadow: 0 4px 14px rgba(46,42,38,0.06); text-align:center;
+  }
+  .hero .av { width:84px; height:84px; border-radius:26px; margin:0 auto 10px; font-size:42px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#FFE3D6,#FFD25A);}
+  .hero .nm { font-size:19px; font-weight:800;}
+  .hero .loc { font-size:12px; color:var(--muted); margin-top:3px;}
+  .hero .stats { display:flex; justify-content:center; gap:0; margin-top:14px; }
+  .hero .stats div { flex:1; border-right:1px solid var(--line);}
+  .hero .stats div:last-child { border:none;}
+  .hero .stats .v { font-size:17px; font-weight:800; color:var(--accent);}
+  .hero .stats .l { font-size:10px; color:var(--muted); margin-top:2px;}
+  .hero .stats .v.sub { color: var(--sub);}
+
+  .panel { background:var(--card); border-radius:20px; padding:16px; margin-bottom:14px; box-shadow:0 4px 14px rgba(46,42,38,0.06);}
+  .panel h3 { font-size:14px; font-weight:800; margin-bottom:10px; display:flex; align-items:center; gap:6px;}
+  .panel p.bio { font-size:13px; line-height:1.7; color:#5c544c;}
+
+  .cal { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-top:6px;}
+  .cal .dow { font-size:10px; text-align:center; color:var(--muted); font-weight:700; padding-bottom:2px;}
+  .cal .day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; border-radius:12px; background:#FBF3E8; color:var(--text);}
+  .cal .day.off { color:#cdc4ba; background:transparent;}
+  .cal .day.ok { background:#E2F5F1; color:var(--sub); font-weight:800;}
+  .cal .day.sel { background:var(--accent); color:#fff; box-shadow:0 4px 10px rgba(255,122,89,.4);}
+  .timeslots { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
+  .slot { font-size:12px; font-weight:700; padding:9px 14px; border-radius:13px; background:#FBF3E8; color:var(--text);}
+  .slot.on { background:var(--sub); color:#fff;}
+  .slot.x { color:#cdc4ba; text-decoration:line-through; }
+
+  .cta {
+    background:var(--accent); color:#fff; text-align:center;
+    padding:15px; border-radius:18px; font-weight:800; font-size:15px;
+    box-shadow:0 8px 20px rgba(255,122,89,0.35); margin-top:4px;
+  }
+  .cta:active { transform:scale(0.98);}
+
+  .review { display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line);}
+  .review:first-of-type{ border:none;}
+  .review .ra { flex:0 0 34px; width:34px; height:34px; border-radius:11px; background:linear-gradient(135deg,#D9F0EC,#2BB3A3); display:flex; align-items:center; justify-content:center; font-size:17px;}
+  .review .rb .rn { font-size:12px; font-weight:800;}
+  .review .rb .rs { font-size:10px; color:#E8A100; }
+  .review .rb p { font-size:12px; color:#5c544c; line-height:1.5; margin-top:2px;}
+
+  /* ===== Chat ===== */
+  .chat-list .crow {
+    display:flex; gap:12px; align-items:center; padding:13px 6px; border-bottom:1px solid var(--line); cursor:pointer;
+  }
+  .chat-list .crow:active { background:#FFF0E4;}
+  .crow .ca { flex:0 0 50px; width:50px; height:50px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:26px; position:relative; background:linear-gradient(135deg,#FFE3D6,#FFD25A);}
+  .crow .ca.t2{background:linear-gradient(135deg,#D9F0EC,#2BB3A3);}
+  .crow .ca.t3{background:linear-gradient(135deg,#E8E0F5,#B6A6E0);}
+  .crow .ca .on-dot{ position:absolute; right:-2px; bottom:-2px; width:13px; height:13px; border-radius:50%; background:var(--sub); border:2px solid var(--card);}
+  .crow .cc { flex:1; min-width:0;}
+  .crow .cc .cn { font-size:14px; font-weight:800; display:flex; justify-content:space-between;}
+  .crow .cc .cn .tm { font-size:10px; color:var(--muted); font-weight:600;}
+  .crow .cc .cm { font-size:12px; color:var(--muted); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .unread { background:var(--accent); color:#fff; font-size:10px; font-weight:800; min-width:18px; height:18px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; padding:0 5px; margin-left:6px;}
+
+  /* chat thread */
+  .thread-head { display:flex; align-items:center; gap:10px; padding:6px 4px 14px; border-bottom:1px solid var(--line); margin-bottom:14px;}
+  .thread-head .back { font-size:20px; color:var(--accent); font-weight:800;}
+  .thread-head .ta { width:38px; height:38px; border-radius:12px; background:linear-gradient(135deg,#FFE3D6,#FFD25A); display:flex; align-items:center; justify-content:center; font-size:20px;}
+  .thread-head .tn { font-size:14px; font-weight:800;}
+  .thread-head .ts { font-size:10px; color:var(--sub); font-weight:700;}
+  .bubble { max-width:78%; padding:10px 13px; border-radius:16px; font-size:13px; line-height:1.55; margin-bottom:10px;}
+  .bubble.them { background:var(--card); color:var(--text); border-bottom-left-radius:5px; box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+  .bubble.me { background:var(--accent); color:#fff; border-bottom-right-radius:5px; margin-left:auto;}
+  .btime { font-size:9px; color:var(--muted); margin:-6px 4px 12px; }
+  .btime.me { text-align:right;}
+  .daydiv { text-align:center; font-size:10px; color:var(--muted); margin:6px 0 14px; }
+  .daydiv span { background:rgba(154,144,136,0.15); padding:3px 12px; border-radius:10px;}
+  .chatbar { display:flex; gap:8px; align-items:center; margin-top:8px;}
+  .chatbar .inp { flex:1; background:var(--card); border-radius:20px; padding:11px 16px; font-size:13px; color:var(--muted); box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+  .chatbar .snd { width:42px; height:42px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px;}
+
+  /* ===== My Dog ===== */
+  .dogcard { background:var(--card); border-radius:24px; overflow:hidden; box-shadow:0 6px 18px rgba(46,42,38,0.08); margin-bottom:16px;}
+  .dogcard .photo {
+    height:180px; position:relative;
+    background: radial-gradient(circle at 50% 40%, #FFE3D6, #FFD25A);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dogcard .photo .emoji { font-size:90px; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.12));}
+  .dogcard .photo .edit { position:absolute; right:14px; bottom:14px; background:rgba(255,255,255,0.95); font-size:11px; font-weight:700; padding:7px 12px; border-radius:14px; color:var(--accent); box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+  .dogcard .di { padding:16px;}
+  .dogcard .di .dn { font-size:22px; font-weight:800; display:flex; align-items:center; gap:8px;}
+  .dogcard .di .dn small { font-size:12px; color:var(--muted); font-weight:600; background:#FFF0E4; padding:3px 9px; border-radius:10px;}
+  .dogcard .di .db { font-size:13px; color:var(--muted); margin-top:4px;}
+  .infogrid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px;}
+  .infogrid .ig { background:#FBF3E8; border-radius:14px; padding:11px 13px;}
+  .infogrid .ig .igl { font-size:10px; color:var(--muted); font-weight:700;}
+  .infogrid .ig .igv { font-size:14px; font-weight:800; margin-top:3px;}
+  .infogrid .ig .igv.ok { color:var(--sub);}
+  .persona { display:flex; gap:6px; flex-wrap:wrap; margin-top:12px;}
+  .persona .pt { font-size:11px; font-weight:700; background:#E2F5F1; color:var(--sub); padding:5px 11px; border-radius:12px;}
+  .photoframes { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:8px;}
+  .photoframes .pf { aspect-ratio:1; border-radius:14px; background:#FBF3E8; display:flex; align-items:center; justify-content:center; font-size:28px; border:2px dashed var(--line);}
+  .photoframes .pf.filled { border:none; background:linear-gradient(135deg,#FFE3D6,#FFD25A);}
+
+  /* ===== MyPage ===== */
+  .profhead { background:var(--card); border-radius:22px; padding:18px; box-shadow:0 4px 14px rgba(46,42,38,0.06); display:flex; align-items:center; gap:14px; margin-bottom:14px;}
+  .profhead .pa { width:64px; height:64px; border-radius:20px; background:linear-gradient(135deg,#D9F0EC,#2BB3A3); display:flex; align-items:center; justify-content:center; font-size:32px;}
+  .profhead .pn { font-size:18px; font-weight:800;}
+  .profhead .pm { font-size:12px; color:var(--muted); margin-top:3px;}
+  .profhead .prate { margin-top:6px; font-size:13px; font-weight:800; color:#E8A100;}
+  .pts { background:linear-gradient(135deg,var(--accent),#FF9A7A); border-radius:20px; padding:16px 18px; color:#fff; margin-bottom:14px; box-shadow:0 8px 20px rgba(255,122,89,0.3); display:flex; align-items:center; justify-content:space-between;}
+  .pts .pl { font-size:12px; opacity:0.9; font-weight:600;}
+  .pts .pv { font-size:28px; font-weight:800; margin-top:2px;}
+  .pts .pv small{ font-size:13px;}
+  .pts .pbtn { background:rgba(255,255,255,0.25); padding:9px 14px; border-radius:14px; font-size:12px; font-weight:800;}
+  .twocol { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;}
+  .statbox { background:var(--card); border-radius:18px; padding:15px; text-align:center; box-shadow:0 4px 14px rgba(46,42,38,0.06);}
+  .statbox .sv { font-size:24px; font-weight:800; color:var(--accent);}
+  .statbox .sv.sub { color:var(--sub);}
+  .statbox .sl { font-size:11px; color:var(--muted); margin-top:3px; font-weight:600;}
+  .histrow { display:flex; gap:12px; align-items:center; background:var(--card); border-radius:16px; padding:12px 14px; margin-bottom:10px; box-shadow:0 3px 10px rgba(46,42,38,0.05);}
+  .histrow .ha { width:42px; height:42px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:21px; background:linear-gradient(135deg,#FFE3D6,#FFD25A);}
+  .histrow .hb { flex:1;}
+  .histrow .hb .ht { font-size:13px; font-weight:800;}
+  .histrow .hb .hd { font-size:11px; color:var(--muted); margin-top:2px;}
+  .pill { font-size:10px; font-weight:800; padding:4px 9px; border-radius:10px;}
+  .pill.in { background:#E2F5F1; color:var(--sub);}
+  .pill.out { background:#FFF0E4; color:var(--accent);}
+  .menu { background:var(--card); border-radius:18px; overflow:hidden; box-shadow:0 4px 14px rgba(46,42,38,0.06);}
+  .menu .mrow { display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--line); font-size:13px; font-weight:600;}
+  .menu .mrow:last-child{ border:none;}
+  .menu .mrow .mi { font-size:18px;}
+  .menu .mrow .ar { margin-left:auto; color:var(--muted);}
+
+  /* ===== Tab Bar ===== */
+  .tabbar {
+    position:absolute; bottom:0; left:0; right:0;
+    height:84px;
+    background:rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top:1px solid var(--line);
+    display:flex; align-items:flex-start; justify-content:space-around;
+    padding-top:10px;
+    z-index:50;
+  }
+  .tabbar .tab {
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    color:var(--muted); cursor:pointer; font-size:10px; font-weight:700;
+    transition: color .15s;
+  }
+  .tabbar .tab .ti { font-size:22px; line-height:1; filter:grayscale(1) opacity(0.55);}
+  .tabbar .tab.on { color:var(--accent);}
+  .tabbar .tab.on .ti { filter:none;}
+  .homebar { position:absolute; bottom:8px; left:50%; transform:translateX(-50%); width:134px; height:5px; border-radius:3px; background:var(--text); opacity:0.85; z-index:60;}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="island"></div>
+
+    <!-- Status bar -->
+    <div class="statusbar">
+      <div class="time">9:41</div>
+      <div class="right">
+        <div class="signal"><i></i><i></i><i></i><i></i></div>
+        <span style="font-size:12px;font-weight:700;">5G</span>
+        <div class="batt"><i></i></div>
+      </div>
+    </div>
+
+    <!-- App bar -->
+    <div class="appbar" id="appbar">
+      <div>
+        <div class="title"><span class="paw">🐾</span> わんとなり</div>
+        <div class="sub">サニーヒルズ目黒 ・ ご近所のあずかり</div>
+      </div>
+      <div class="ico">🔔</div>
+    </div>
+
+    <!-- ====================== BODY ====================== -->
+    <div class="body" id="scrollbody">
+
+      <!-- ========== 1. HOME ========== -->
+      <div class="page active" id="page-home">
+        <div class="map">
+          <div class="road h" style="top:80px"></div>
+          <div class="road v" style="left:150px"></div>
+          <div class="pin you" style="left:50%;top:55%"><div class="dot"><span>🏠</span></div></div>
+          <div class="pin" style="left:25%;top:35%"><div class="dot"><span>🐕</span></div></div>
+          <div class="pin" style="left:72%;top:48%"><div class="dot"><span>🐕</span></div></div>
+          <div class="pin" style="left:60%;top:78%"><div class="dot"><span>🐕</span></div></div>
+          <div class="pin" style="left:38%;top:70%"><div class="dot"><span>🐕</span></div></div>
+          <div class="legend">
+            <div class="d">あずかり可</div>
+            <div class="d me">あなた</div>
+          </div>
+        </div>
+
+        <div class="chips">
+          <div class="chip on">すべて</div>
+          <div class="chip">今日OK</div>
+          <div class="chip">小型犬◎</div>
+          <div class="chip">★4.5以上</div>
+          <div class="chip">徒歩5分</div>
+        </div>
+
+        <div class="sec-head">
+          <h2>ご近所のあずかりさん</h2>
+          <a>地図で見る ›</a>
+        </div>
+
+        <div class="card" onclick="go('search')">
+          <div class="avatar">👩</div>
+          <div class="info">
+            <div class="nm">田中 まりこ <span class="badge gold">人気</span></div>
+            <div class="meta">サニーヒルズ目黒 3F ・ 在宅ワーカー<br>柴犬を飼育中、中型犬まで対応</div>
+            <div class="tags"><span class="tag">小型犬</span><span class="tag">中型犬</span><span class="tag sub">庭あり</span></div>
+          </div>
+          <div class="right">
+            <div class="star">★ 4.9</div>
+            <div class="dist">徒歩2分</div>
+            <div class="price">¥800<small>/h</small></div>
+          </div>
+        </div>
+
+        <div class="card" onclick="go('search')">
+          <div class="avatar t2">🧑</div>
+          <div class="info">
+            <div class="nm">佐々木 けんと <span class="badge">認証済</span></div>
+            <div class="meta">パークサイド中目黒 8F ・ 週末メイン<br>トイプー2匹と暮らす多頭飼い</div>
+            <div class="tags"><span class="tag">小型犬</span><span class="tag sub">多頭OK</span></div>
+          </div>
+          <div class="right">
+            <div class="star">★ 4.7</div>
+            <div class="dist">徒歩4分</div>
+            <div class="price">¥700<small>/h</small></div>
+          </div>
+        </div>
+
+        <div class="card" onclick="go('search')">
+          <div class="avatar t3">👵</div>
+          <div class="info">
+            <div class="nm">中村 ふみえ</div>
+            <div class="meta">サニーヒルズ目黒 5F ・ シニア歓迎<br>元トリマー、老犬ケア得意</div>
+            <div class="tags"><span class="tag">小型犬</span><span class="tag">老犬◎</span><span class="tag sub">投薬OK</span></div>
+          </div>
+          <div class="right">
+            <div class="star">★ 5.0</div>
+            <div class="dist">徒歩1分</div>
+            <div class="price">¥900<small>/h</small></div>
+          </div>
+        </div>
+
+        <div class="card" onclick="go('search')">
+          <div class="avatar t4">🧔</div>
+          <div class="info">
+            <div class="nm">山田 だいご <span class="badge">新人</span></div>
+            <div class="meta">グリーンコート祐天寺 2F ・ 大型犬OK<br>ゴールデンと暮らすアクティブ派</div>
+            <div class="tags"><span class="tag">中型犬</span><span class="tag">大型犬</span><span class="tag sub">散歩長め</span></div>
+          </div>
+          <div class="right">
+            <div class="star">★ 4.4</div>
+            <div class="dist">徒歩7分</div>
+            <div class="price">¥650<small>/h</small></div>
+          </div>
+        </div>
+
+        <div class="card" onclick="go('search')">
+          <div class="avatar t2">👨‍🦰</div>
+          <div class="info">
+            <div class="nm">高橋 りく <span class="badge gold">★多</span></div>
+            <div class="meta">サニーヒルズ目黒 2F ・ フリーランス<br>ミニチュアダックスと在宅多め</div>
+            <div class="tags"><span class="tag">小型犬</span><span class="tag sub">日中OK</span><span class="tag">短時間◎</span></div>
+          </div>
+          <div class="right">
+            <div class="star">★ 4.8</div>
+            <div class="dist">徒歩3分</div>
+            <div class="price">¥750<small>/h</small></div>
+          </div>
+        </div>
+
+        <div class="sec-head" style="margin-top:18px;">
+          <h2>あずかりリクエスト募集中</h2>
+          <a>投稿する ›</a>
+        </div>
+        <div class="card" style="background:linear-gradient(135deg,#FFF6EC,#FFF0E4);" onclick="go('chat')">
+          <div class="avatar t3">🙋‍♀️</div>
+          <div class="info">
+            <div class="nm">鈴木 さき さん募集中</div>
+            <div class="meta">明日 6/6(金) 出張のため<br>柴犬「だいず」を9:00〜18:00あずけたい</div>
+            <div class="tags"><span class="tag">中型犬</span><span class="tag sub">終日</span><span class="tag">謝礼1,500pt</span></div>
+          </div>
+          <div class="right">
+            <div class="star" style="color:var(--sub);">急募</div>
+            <div class="dist">徒歩5分</div>
+            <div class="price">引受ける</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 2. SEARCH / BOOKING ========== -->
+      <div class="page" id="page-search">
+        <div class="hero">
+          <div class="av">👩</div>
+          <div class="nm">田中 まりこ</div>
+          <div class="loc">📍 サニーヒルズ目黒 3F ・ 徒歩2分</div>
+          <div class="stats">
+            <div><div class="v">★4.9</div><div class="l">評価(38)</div></div>
+            <div><div class="v">124</div><div class="l">あずかり回数</div></div>
+            <div><div class="v sub">98%</div><div class="l">承認率</div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>🐶 自己紹介</h3>
+          <p class="bio">在宅でデザインの仕事をしています。柴犬の「もなか」と暮らしていて、犬好きが高じてご近所のわんちゃんをお預かりしています。日中はずっと家にいるので安心してお任せください。お散歩は近くの目黒川沿いがお気に入りです🌸</p>
+        </div>
+
+        <div class="panel">
+          <h3>📅 日時を選ぶ ・ 6月</h3>
+          <div class="cal">
+            <div class="dow">日</div><div class="dow">月</div><div class="dow">火</div><div class="dow">水</div><div class="dow">木</div><div class="dow">金</div><div class="dow">土</div>
+            <div class="day off"></div><div class="day">1</div><div class="day ok">2</div><div class="day">3</div><div class="day ok">4</div><div class="day sel">5</div><div class="day ok">6</div>
+            <div class="day">7</div><div class="day ok">8</div><div class="day">9</div><div class="day ok">10</div><div class="day">11</div><div class="day ok">12</div><div class="day ok">13</div>
+            <div class="day">14</div><div class="day">15</div><div class="day ok">16</div><div class="day ok">17</div><div class="day">18</div><div class="day ok">19</div><div class="day">20</div>
+          </div>
+          <div class="timeslots">
+            <div class="slot x">09:00</div>
+            <div class="slot on">11:00</div>
+            <div class="slot">13:00</div>
+            <div class="slot">15:00</div>
+            <div class="slot">17:00</div>
+            <div class="slot x">19:00</div>
+          </div>
+        </div>
+
+        <div class="panel" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:11px;color:var(--muted);font-weight:700;">6/5(木) 11:00〜15:00 ・ 4時間</div>
+            <div style="font-size:20px;font-weight:800;margin-top:3px;">¥3,200 <span style="font-size:11px;color:var(--muted);font-weight:600;">(¥800/h)</span></div>
+          </div>
+          <div style="font-size:11px;color:var(--sub);font-weight:800;">200pt利用可</div>
+        </div>
+
+        <div class="cta" onclick="go('chat')">この内容で予約をリクエスト</div>
+
+        <div class="sec-head" style="margin-top:20px;"><h2>みんなの口コミ</h2></div>
+        <div class="panel">
+          <div class="review">
+            <div class="ra">🧑</div>
+            <div class="rb">
+              <div class="rn">佐々木 けんと</div>
+              <div class="rs">★★★★★</div>
+              <p>急なお願いだったのに快く預かってくれました。写真もたくさん送ってくれて安心。</p>
+            </div>
+          </div>
+          <div class="review">
+            <div class="ra">👵</div>
+            <div class="rb">
+              <div class="rn">中村 ふみえ</div>
+              <div class="rs">★★★★★</div>
+              <p>うちの老犬の投薬も丁寧に対応いただきました。また絶対お願いします。</p>
+            </div>
+          </div>
+          <div class="review">
+            <div class="ra" style="background:linear-gradient(135deg,#FFE3D6,#FFD25A);">🙋‍♀️</div>
+            <div class="rb">
+              <div class="rn">鈴木 ゆい</div>
+              <div class="rs">★★★★☆</div>
+              <p>目黒川沿いをしっかり散歩してくれて、こむぎも大満足でした。送迎もスムーズ！</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 3. CHAT ========== -->
+      <div class="page" id="page-chat">
+        <div class="thread-head">
+          <div class="back" onclick="go('home')">‹</div>
+          <div class="ta">👩</div>
+          <div>
+            <div class="tn">田中 まりこ</div>
+            <div class="ts">● オンライン ・ 徒歩2分</div>
+          </div>
+        </div>
+
+        <div class="daydiv"><span>6月4日(水)</span></div>
+        <div class="bubble them">こんにちは！もなかの飼い主の田中です🐕 明日のあずかりリクエストありがとうございます！</div>
+        <div class="btime">14:02</div>
+
+        <div class="bubble me">こちらこそありがとうございます！うちのコは「こむぎ」っていうトイプードルです。少し人見知りで…大丈夫でしょうか？🙇</div>
+        <div class="btime me">14:05</div>
+
+        <div class="bubble them">全然大丈夫ですよ〜！うちのもなかも最初は人見知りでした😊 ゆっくり慣らすので安心してくださいね。</div>
+        <div class="btime">14:07</div>
+
+        <div class="bubble them">ご飯のタイミングとアレルギーがあれば教えてください！あと普段使っているリードもお持ちいただけると助かります。</div>
+        <div class="btime">14:08</div>
+
+        <div class="bubble me">朝晩2回で、鶏アレルギーがあります🐔❌ リード持っていきますね。11時にエントランスでお渡しでいいですか？</div>
+        <div class="btime me">14:11</div>
+
+        <div class="bubble them">承知しました！鶏NGメモしました📝 11時にサニーヒルズのエントランスでお待ちしてます。お預かり楽しみにしてます🌸</div>
+        <div class="btime">14:13</div>
+
+        <div class="chatbar">
+          <div class="inp">メッセージを入力…</div>
+          <div class="snd">➤</div>
+        </div>
+
+        <div class="sec-head" style="margin-top:22px;"><h2>そのほかのトーク</h2></div>
+        <div class="chat-list">
+          <div class="crow" onclick="go('chat')">
+            <div class="ca t2">🧑<div class="on-dot"></div></div>
+            <div class="cc">
+              <div class="cn">佐々木 けんと <span class="tm">昨日</span></div>
+              <div class="cm">了解です！日曜の朝10時でお願いします🐩</div>
+            </div>
+          </div>
+          <div class="crow" onclick="go('chat')">
+            <div class="ca t3">👵</div>
+            <div class="cc">
+              <div class="cn">中村 ふみえ <span class="tm">6/2</span></div>
+              <div class="cm">お薬の件、写真送りますね〜<span class="unread">2</span></div>
+            </div>
+          </div>
+          <div class="crow" onclick="go('chat')">
+            <div class="ca">🧔</div>
+            <div class="cc">
+              <div class="cn">山田 だいご <span class="tm">5/28</span></div>
+              <div class="cm">大型犬同士、相性よさそうでしたね！</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 4. MY DOG ========== -->
+      <div class="page" id="page-dog">
+        <div class="dogcard">
+          <div class="photo">
+            <div class="emoji">🐩</div>
+            <div class="edit">📷 写真を変更</div>
+          </div>
+          <div class="di">
+            <div class="dn">こむぎ <small>♀ 3歳</small></div>
+            <div class="db">トイプードル ・ アプリコット ・ 3.2kg</div>
+            <div class="infogrid">
+              <div class="ig"><div class="igl">体重</div><div class="igv">3.2 kg</div></div>
+              <div class="ig"><div class="igl">去勢/避妊</div><div class="igv ok">済み</div></div>
+              <div class="ig"><div class="igl">ワクチン</div><div class="igv ok">接種済(5種)</div></div>
+              <div class="ig"><div class="igl">狂犬病</div><div class="igv ok">2026/4 済</div></div>
+            </div>
+            <div style="font-size:12px;font-weight:800;margin:16px 0 4px;">性格 ・ 特徴</div>
+            <div class="persona">
+              <span class="pt">人見知り</span>
+              <span class="pt">甘えん坊</span>
+              <span class="pt">お散歩大好き</span>
+              <span class="pt">鶏アレルギー</span>
+              <span class="pt">トイレ自立</span>
+            </div>
+            <div style="font-size:12px;font-weight:800;margin:18px 0 4px;">アルバム</div>
+            <div class="photoframes">
+              <div class="pf filled" style="font-size:34px;">🐩</div>
+              <div class="pf filled" style="font-size:34px;">🦴</div>
+              <div class="pf filled" style="font-size:34px;">🎾</div>
+              <div class="pf">＋</div>
+              <div class="pf">＋</div>
+              <div class="pf">＋</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>📝 あずける際のメモ</h3>
+          <p class="bio">ご飯は朝7時・夜7時の2回。鶏肉NGです。雷の音が苦手なので天気の悪い日は注意。おやつは1日2個まで。トイレはペットシーツで自立しています。</p>
+        </div>
+
+        <div class="cta" style="background:var(--sub);box-shadow:0 8px 20px rgba(43,179,163,0.3);">＋ もう一頭のわんこを登録</div>
+      </div>
+
+      <!-- ========== 5. MY PAGE ========== -->
+      <div class="page" id="page-mypage">
+        <div class="profhead">
+          <div class="pa">🙋‍♀️</div>
+          <div>
+            <div class="pn">鈴木 ゆい</div>
+            <div class="pm">サニーヒルズ目黒 7F ・ 認証済み✓</div>
+            <div class="prate">★ 4.8 <span style="color:var(--muted);font-weight:600;font-size:11px;">(あずかり評価)</span></div>
+          </div>
+        </div>
+
+        <div class="pts">
+          <div>
+            <div class="pl">わんとなりポイント</div>
+            <div class="pv">1,250 <small>pt</small></div>
+          </div>
+          <div class="pbtn">使う / 貯める</div>
+        </div>
+
+        <div class="twocol">
+          <div class="statbox"><div class="sv">12</div><div class="sl">あずけた回数</div></div>
+          <div class="statbox"><div class="sv sub">27</div><div class="sl">あずかった回数</div></div>
+        </div>
+
+        <div class="sec-head"><h2>利用履歴</h2><a>すべて ›</a></div>
+
+        <div class="histrow">
+          <div class="ha">👩</div>
+          <div class="hb">
+            <div class="ht">田中 まりこ さんにあずけた</div>
+            <div class="hd">6/5(木) 11:00〜15:00 ・ こむぎ</div>
+          </div>
+          <span class="pill out">あずけ</span>
+        </div>
+        <div class="histrow">
+          <div class="ha" style="background:linear-gradient(135deg,#D9F0EC,#2BB3A3);">🐕</div>
+          <div class="hb">
+            <div class="ht">佐々木さんのトイプーをあずかった</div>
+            <div class="hd">6/1(日) 09:00〜18:00 ・ +900pt</div>
+          </div>
+          <span class="pill in">あずかり</span>
+        </div>
+        <div class="histrow">
+          <div class="ha">👵</div>
+          <div class="hb">
+            <div class="ht">中村 ふみえ さんにあずけた</div>
+            <div class="hd">5/24(土) 13:00〜17:00 ・ こむぎ</div>
+          </div>
+          <span class="pill out">あずけ</span>
+        </div>
+
+        <div class="sec-head" style="margin-top:18px;"><h2>設定</h2></div>
+        <div class="menu">
+          <div class="mrow"><span class="mi">🏠</span> マンション・住所の設定 <span class="ar">›</span></div>
+          <div class="mrow"><span class="mi">🛡️</span> 本人確認・ワクチン証明 <span class="ar">›</span></div>
+          <div class="mrow"><span class="mi">💳</span> 支払い方法 <span class="ar">›</span></div>
+          <div class="mrow"><span class="mi">🔔</span> 通知設定 <span class="ar">›</span></div>
+          <div class="mrow"><span class="mi">❓</span> ヘルプ・お問い合わせ <span class="ar">›</span></div>
+        </div>
+      </div>
+
+    </div>
+    <!-- ====================== /BODY ====================== -->
+
+    <!-- Tab bar -->
+    <div class="tabbar">
+      <div class="tab on" data-page="home" onclick="go('home')"><div class="ti">🗺️</div>ホーム</div>
+      <div class="tab" data-page="search" onclick="go('search')"><div class="ti">🔍</div>さがす</div>
+      <div class="tab" data-page="chat" onclick="go('chat')"><div class="ti">💬</div>チャット</div>
+      <div class="tab" data-page="dog" onclick="go('dog')"><div class="ti">🐶</div>マイわんこ</div>
+      <div class="tab" data-page="mypage" onclick="go('mypage')"><div class="ti">👤</div>マイページ</div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+</div>
+
+<script>
+  var titles = {
+    home:   ['🐾 わんとなり', 'サニーヒルズ目黒 ・ ご近所のあずかり'],
+    search: ['さがす / 予約', '田中 まりこ さんのプロフィール'],
+    chat:   ['チャット', '飼い主同士のやりとり'],
+    dog:    ['マイわんこ', '愛犬のプロフィール管理'],
+    mypage: ['マイページ', '鈴木 ゆい さん']
+  };
+  function go(page) {
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+    document.getElementById('page-' + page).classList.add('active');
+    document.querySelectorAll('.tabbar .tab').forEach(function(t){
+      t.classList.toggle('on', t.getAttribute('data-page') === page);
+    });
+    var ab = document.getElementById('appbar');
+    var t = titles[page];
+    ab.querySelector('.title').innerHTML = (page==='home' ? '<span class="paw">🐾</span> ' : '') + t[0];
+    ab.querySelector('.sub').textContent = t[1];
+    document.getElementById('scrollbody').scrollTop = 0;
+  }
+</script>
+</body>
+</html>

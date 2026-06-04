@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>わんとなり｜ご近所で、わんこをあずけあう。</title>
+<style>
+  :root {
+    --bg: #FFFDF7;
+    --accent-a: #FF6B6B;
+    --accent-b: #FFD93D;
+    --sub: #4ECDC4;
+    --text: #2E2A26;
+    --grad: linear-gradient(120deg, #FF6B6B 0%, #FFD93D 100%);
+    --grad-rainbow: linear-gradient(120deg, #FF6B6B 0%, #FFD93D 35%, #4ECDC4 70%, #6C8FFF 100%);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Maru Gothic ProN", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== ポップな背景の点々 ===== */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-image:
+      radial-gradient(circle, rgba(255,107,107,0.10) 2px, transparent 2px),
+      radial-gradient(circle, rgba(78,205,196,0.10) 2px, transparent 2px);
+    background-size: 48px 48px, 48px 48px;
+    background-position: 0 0, 24px 24px;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  .wrap { width: 90%; max-width: 1100px; margin: 0 auto; }
+
+  /* ===== ステッカー風共通 ===== */
+  .sticker {
+    display: inline-block;
+    background: #fff;
+    border: 3px solid var(--text);
+    border-radius: 999px;
+    padding: 6px 18px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    box-shadow: 4px 4px 0 var(--text);
+    transform: rotate(-3deg);
+  }
+
+  .btn {
+    display: inline-block;
+    font-weight: 900;
+    font-size: 1.05rem;
+    padding: 16px 38px;
+    border: 3px solid var(--text);
+    border-radius: 999px;
+    background: var(--grad);
+    color: var(--text);
+    box-shadow: 6px 6px 0 var(--text);
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover { transform: translate(-2px,-2px); box-shadow: 9px 9px 0 var(--text); }
+  .btn:active { transform: translate(3px,3px); box-shadow: 2px 2px 0 var(--text); }
+
+  .btn-sub { background: var(--sub); }
+  .btn-white { background: #fff; }
+
+  /* ===== ナビ ===== */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255,253,247,0.85);
+    backdrop-filter: blur(6px);
+    border-bottom: 3px dashed var(--text);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0;
+  }
+  .logo {
+    font-weight: 900; font-size: 1.5rem; display: flex; align-items: center; gap: 8px;
+  }
+  .logo .paw {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--grad); border: 3px solid var(--text);
+    display: grid; place-items: center; transform: rotate(-8deg);
+  }
+  .nav-links { display: flex; gap: 26px; font-weight: 700; }
+  .nav-links a { position: relative; }
+  .nav-links a::after {
+    content: ""; position: absolute; left: 0; bottom: -4px; width: 0; height: 3px;
+    background: var(--sub); transition: width .2s;
+  }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-cta { font-size: 0.9rem; padding: 10px 22px; }
+  @media(max-width: 820px){ .nav-links { display: none; } }
+
+  /* ===== Hero ===== */
+  .hero {
+    position: relative;
+    padding: 70px 0 110px;
+    overflow: hidden;
+  }
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 40px;
+    align-items: center;
+  }
+  .hero-copy h1 {
+    font-size: clamp(2.3rem, 5.5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
+  }
+  .hero-copy h1 .hl {
+    background: var(--grad);
+    padding: 0 8px;
+    border-radius: 8px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .hero-copy .tag {
+    font-size: 1.25rem; font-weight: 800; margin: 22px 0 14px;
+    color: #6b6256;
+  }
+  .hero-copy p.lead { font-size: 1.05rem; max-width: 460px; margin-bottom: 30px; }
+  .hero-btns { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .hero-badges { margin-top: 28px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* デコ吹き出し */
+  .speech {
+    position: absolute;
+    background: #fff;
+    border: 3px solid var(--text);
+    border-radius: 18px;
+    padding: 8px 16px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    box-shadow: 5px 5px 0 var(--text);
+  }
+  .speech::after {
+    content: ""; position: absolute; width: 0; height: 0;
+  }
+  .speech-1 { top: 30px; right: 4%; transform: rotate(6deg); background: var(--accent-b); }
+  .speech-2 { bottom: 90px; left: 2%; transform: rotate(-5deg); background: var(--sub); }
+
+  /* スマホモック */
+  .phone-stage { position: relative; display: grid; place-items: center; }
+  .blob {
+    position: absolute;
+    width: 380px; height: 380px;
+    background: var(--grad-rainbow);
+    border-radius: 46% 54% 60% 40% / 50% 42% 58% 50%;
+    filter: blur(2px);
+    z-index: 0;
+    animation: wobble 9s ease-in-out infinite;
+  }
+  @keyframes wobble {
+    0%,100% { border-radius: 46% 54% 60% 40% / 50% 42% 58% 50%; transform: rotate(0deg) scale(1); }
+    50% { border-radius: 58% 42% 44% 56% / 42% 56% 44% 58%; transform: rotate(8deg) scale(1.04); }
+  }
+  .phone {
+    position: relative;
+    z-index: 2;
+    width: 260px; height: 530px;
+    background: #fff;
+    border: 5px solid var(--text);
+    border-radius: 42px;
+    box-shadow: 12px 14px 0 rgba(46,42,38,0.85);
+    transform: rotate(4deg);
+    padding: 16px 14px;
+    display: flex; flex-direction: column;
+  }
+  .phone .notch {
+    width: 90px; height: 22px; background: var(--text); border-radius: 0 0 14px 14px;
+    margin: -16px auto 12px;
+  }
+  .phone-head {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+  }
+  .phone-head .av {
+    width: 38px; height: 38px; border-radius: 50%; border: 3px solid var(--text);
+    background: var(--grad);
+  }
+  .phone-head .nm { font-weight: 900; font-size: 0.95rem; line-height: 1.2; }
+  .phone-head .nm small { font-weight: 600; color: #8a8174; font-size: 0.7rem; }
+
+  .map-card {
+    background: var(--bg);
+    border: 3px solid var(--text);
+    border-radius: 18px;
+    height: 170px; position: relative; overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .map-card .road { position: absolute; background: #e7e1d4; }
+  .map-card .r1 { width: 200%; height: 14px; top: 40px; left: -20px; transform: rotate(-8deg); }
+  .map-card .r2 { width: 14px; height: 200%; left: 90px; top: -20px; }
+  .pin {
+    position: absolute; width: 24px; height: 24px; border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg); border: 2px solid var(--text);
+  }
+  .pin::after {
+    content: ""; position: absolute; inset: 6px; background: #fff; border-radius: 50%;
+  }
+  .pin-a { background: var(--accent-a); top: 40px; left: 50px; }
+  .pin-b { background: var(--sub); top: 95px; left: 150px; }
+  .pin-c { background: var(--accent-b); top: 120px; left: 60px; }
+
+  .req-card {
+    background: var(--accent-b);
+    border: 3px solid var(--text);
+    border-radius: 16px;
+    padding: 10px 12px; font-size: 0.8rem; font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .req-card b { display: block; font-size: 0.9rem; }
+  .phone-btn {
+    margin-top: auto;
+    background: var(--grad); border: 3px solid var(--text); border-radius: 14px;
+    text-align: center; font-weight: 900; padding: 12px; font-size: 0.9rem;
+  }
+
+  @media(max-width: 820px){
+    .hero-inner { grid-template-columns: 1fr; }
+    .phone-stage { margin-top: 30px; }
+    .speech-1 { right: 6%; top: 10px; }
+  }
+
+  /* ===== セクション共通 ===== */
+  section { position: relative; padding: 90px 0; }
+  .sec-head { text-align: center; margin-bottom: 50px; }
+  .sec-head h2 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; display: inline-block; position: relative;
+  }
+  .sec-head h2 .squiggle {
+    display:block; height: 12px; margin-top: 6px;
+  }
+  .sec-head p { margin-top: 14px; font-weight: 700; color: #6b6256; }
+
+  /* ===== 課題提起 ===== */
+  .problem { background: #fff; border-top: 4px dashed var(--text); border-bottom: 4px dashed var(--text); }
+  .prob-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 26px; }
+  .prob-card {
+    background: var(--bg); border: 3px solid var(--text); border-radius: 22px;
+    padding: 30px 24px; box-shadow: 6px 6px 0 var(--text); position: relative;
+  }
+  .prob-card:nth-child(1){ transform: rotate(-1.5deg); }
+  .prob-card:nth-child(2){ transform: rotate(1deg); }
+  .prob-card:nth-child(3){ transform: rotate(-0.5deg); }
+  .prob-card .face {
+    width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--text);
+    background: #ffe1e1; margin-bottom: 18px; position: relative; overflow: hidden;
+  }
+  .prob-card .face::before, .prob-card .face::after {
+    content:""; position:absolute; width: 9px; height: 9px; background: var(--text); border-radius: 50%; top: 24px;
+  }
+  .prob-card .face::before { left: 18px; }
+  .prob-card .face::after { right: 18px; }
+  .prob-card .mouth {
+    position: absolute; width: 22px; height: 12px; border: 3px solid var(--text); border-top: none;
+    border-radius: 0 0 22px 22px; left: 18px; bottom: 14px; transform: rotate(180deg);
+  }
+  .prob-card h3 { font-size: 1.15rem; font-weight: 900; margin-bottom: 8px; }
+  .prob-card p { font-size: 0.95rem; }
+  .prob-emoji { position:absolute; top:-16px; right:-10px; font-size: 1.8rem; transform: rotate(12deg); }
+  @media(max-width: 820px){ .prob-grid { grid-template-columns: 1fr; } }
+
+  /* ===== ソリューション ===== */
+  .solution .sol-inner {
+    display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 50px; align-items: center;
+  }
+  .sol-visual {
+    position: relative; aspect-ratio: 1; max-width: 380px; margin: 0 auto;
+    background: var(--grad-rainbow); border: 4px solid var(--text); border-radius: 30px;
+    box-shadow: 10px 10px 0 var(--text); display: grid; place-items: center;
+  }
+  .sol-visual .ring {
+    position: absolute; width: 70%; height: 70%; border: 4px dashed #fff; border-radius: 50%;
+    animation: spin 22s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .sol-house {
+    width: 110px; height: 110px; background: #fff; border: 4px solid var(--text); border-radius: 20px;
+    position: relative; z-index: 2; display:grid; place-items:center; font-size: 2.6rem;
+  }
+  .orbit-dot {
+    position: absolute; width: 50px; height: 50px; border-radius: 50%;
+    border: 3px solid var(--text); display: grid; place-items: center; font-size: 1.4rem; background:#fff;
+  }
+  .od1 { top: 14px; left: 50%; transform: translateX(-50%); }
+  .od2 { bottom: 30px; left: 20px; }
+  .od3 { bottom: 30px; right: 20px; }
+
+  .sol-steps { counter-reset: step; }
+  .sol-step {
+    display: flex; gap: 18px; align-items: flex-start; margin-bottom: 26px;
+  }
+  .sol-step .num {
+    flex: 0 0 auto; counter-increment: step;
+    width: 50px; height: 50px; border-radius: 50%; border: 3px solid var(--text);
+    background: var(--accent-b); display: grid; place-items: center; font-weight: 900; font-size: 1.3rem;
+    box-shadow: 4px 4px 0 var(--text);
+  }
+  .sol-step:nth-child(2) .num { background: var(--sub); }
+  .sol-step:nth-child(3) .num { background: var(--accent-a); }
+  .sol-step .num::before { content: counter(step); }
+  .sol-step h3 { font-size: 1.2rem; font-weight: 900; }
+  .sol-step p { font-size: 0.96rem; }
+  @media(max-width: 820px){ .solution .sol-inner { grid-template-columns: 1fr; } }
+
+  /* ===== 機能 ===== */
+  .features { background: #fff; border-top: 4px dashed var(--text); border-bottom: 4px dashed var(--text); }
+  .feat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
+  .feat-card {
+    background: var(--bg); border: 3px solid var(--text); border-radius: 24px; overflow: hidden;
+    box-shadow: 7px 7px 0 var(--text); transition: transform .15s;
+  }
+  .feat-card:hover { transform: translateY(-6px) rotate(-1deg); }
+  .feat-top { height: 130px; position: relative; display: grid; place-items: center; }
+  .ft1 { background: linear-gradient(135deg,#FF6B6B,#FFD93D); }
+  .ft2 { background: linear-gradient(135deg,#4ECDC4,#6C8FFF); }
+  .ft3 { background: linear-gradient(135deg,#FFD93D,#FF6B6B); }
+  .feat-icon {
+    width: 70px; height: 70px; background:#fff; border:3px solid var(--text); border-radius: 18px;
+    display:grid; place-items:center; font-size: 2.2rem; transform: rotate(-6deg);
+  }
+  .feat-body { padding: 22px 22px 28px; }
+  .feat-body h3 { font-size: 1.2rem; font-weight: 900; margin-bottom: 10px; }
+  .feat-body p { font-size: 0.95rem; }
+  .feat-no { font-size: 0.78rem; font-weight: 900; color: var(--accent-a); letter-spacing: 1px; }
+  @media(max-width: 820px){ .feat-grid { grid-template-columns: 1fr; } }
+
+  /* ===== 料金 ===== */
+  .pricing .price-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; align-items: stretch;
+  }
+  .price-card {
+    background: #fff; border: 3px solid var(--text); border-radius: 26px; padding: 34px 26px;
+    box-shadow: 7px 7px 0 var(--text); position: relative; display: flex; flex-direction: column;
+  }
+  .price-card.pop { background: var(--grad); transform: scale(1.04); }
+  .price-card.pop .ribbon {
+    position: absolute; top: -18px; left: 50%; transform: translateX(-50%) rotate(-3deg);
+  }
+  .price-name { font-size: 1.3rem; font-weight: 900; }
+  .price-sub { font-size: 0.85rem; color:#6b6256; font-weight: 700; margin-bottom: 18px; }
+  .price-card.pop .price-sub { color: #5a4a2a; }
+  .price-amt { font-size: 2.6rem; font-weight: 900; line-height: 1; }
+  .price-amt small { font-size: 0.95rem; font-weight: 700; }
+  .price-list { list-style: none; margin: 22px 0 26px; }
+  .price-list li { padding: 8px 0 8px 28px; position: relative; font-size: 0.93rem; font-weight: 600; }
+  .price-list li::before {
+    content: "🐾"; position: absolute; left: 0; top: 7px; font-size: 0.95rem;
+  }
+  .price-card .btn { width: 100%; text-align: center; margin-top: auto; }
+  .price-card.pop .btn { background: #fff; }
+  @media(max-width: 820px){ .pricing .price-grid { grid-template-columns: 1fr; } .price-card.pop { transform: none; } }
+
+  /* ===== 声 ===== */
+  .voices { background: #fff; border-top: 4px dashed var(--text); border-bottom: 4px dashed var(--text); }
+  .voice-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 26px; }
+  .voice-card {
+    background: var(--bg); border: 3px solid var(--text); border-radius: 22px; padding: 26px 24px;
+    box-shadow: 6px 6px 0 var(--text); position: relative;
+  }
+  .voice-card:nth-child(odd){ transform: rotate(-1deg); }
+  .voice-card:nth-child(even){ transform: rotate(1.2deg); }
+  .voice-stars { color: var(--accent-a); font-weight: 900; letter-spacing: 2px; margin-bottom: 10px; }
+  .voice-card p.txt { font-size: 0.96rem; margin-bottom: 18px; }
+  .voice-who { display:flex; align-items:center; gap: 12px; }
+  .voice-who .av {
+    width: 46px; height: 46px; border-radius: 50%; border: 3px solid var(--text);
+  }
+  .av-1 { background: linear-gradient(135deg,#FF6B6B,#FFD93D); }
+  .av-2 { background: linear-gradient(135deg,#4ECDC4,#6C8FFF); }
+  .av-3 { background: linear-gradient(135deg,#FFD93D,#4ECDC4); }
+  .voice-who .meta b { display:block; font-size: 0.95rem; }
+  .voice-who .meta small { color:#8a8174; font-weight:700; }
+  @media(max-width: 820px){ .voice-grid { grid-template-columns: 1fr; } }
+
+  /* ===== FAQ ===== */
+  .faq-list { max-width: 760px; margin: 0 auto; }
+  details.faq {
+    background: #fff; border: 3px solid var(--text); border-radius: 18px; margin-bottom: 16px;
+    box-shadow: 5px 5px 0 var(--text); overflow: hidden;
+  }
+  details.faq summary {
+    list-style: none; cursor: pointer; padding: 20px 24px; font-weight: 900; font-size: 1.05rem;
+    display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  }
+  details.faq summary::-webkit-details-marker { display: none; }
+  details.faq summary .q {
+    flex: 0 0 auto; width: 30px; height: 30px; background: var(--sub); border: 3px solid var(--text);
+    border-radius: 50%; display: grid; place-items: center; font-size: 0.85rem;
+  }
+  details.faq summary .ico {
+    flex: 0 0 auto; width: 30px; height: 30px; border: 3px solid var(--text); border-radius: 50%;
+    display: grid; place-items: center; font-weight: 900; transition: transform .2s; background: var(--accent-b);
+  }
+  details.faq[open] summary .ico { transform: rotate(45deg); }
+  details.faq .ans { padding: 0 24px 22px 70px; font-size: 0.96rem; }
+  summary span.label { flex: 1; }
+
+  /* ===== フッターCTA ===== */
+  .cta {
+    background: var(--grad-rainbow);
+    border-top: 5px solid var(--text);
+    text-align: center;
+    padding: 90px 0;
+    position: relative; overflow: hidden;
+  }
+  .cta h2 { font-size: clamp(2rem,5vw,3.2rem); font-weight: 900; color: var(--text); line-height: 1.3; }
+  .cta p { font-weight: 800; font-size: 1.1rem; margin: 18px 0 34px; }
+  .cta .btn-white { font-size: 1.2rem; padding: 20px 50px; }
+  .paw-deco { position: absolute; font-size: 2.4rem; opacity: 0.5; }
+  .pd1 { top: 20px; left: 8%; transform: rotate(-20deg); }
+  .pd2 { bottom: 30px; right: 10%; transform: rotate(25deg); }
+  .pd3 { top: 60px; right: 16%; transform: rotate(10deg); }
+  .pd4 { bottom: 40px; left: 14%; transform: rotate(-12deg); }
+
+  footer {
+    background: var(--text); color: #fff; padding: 50px 0 36px;
+  }
+  .foot-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 30px; }
+  .foot-logo { font-weight: 900; font-size: 1.4rem; display:flex; align-items:center; gap:8px; }
+  .foot-logo .paw {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--grad);
+    border: 2px solid #fff; transform: rotate(-8deg);
+  }
+  .foot-cols { display: flex; gap: 56px; flex-wrap: wrap; }
+  .foot-col h4 { font-size: 0.9rem; margin-bottom: 14px; color: var(--accent-b); }
+  .foot-col a { display:block; font-size: 0.88rem; color:#e9e4da; padding: 4px 0; }
+  .foot-col a:hover { color: var(--sub); }
+  .foot-bottom { text-align:center; margin-top: 40px; font-size: 0.8rem; color:#b8b0a4; }
+
+  /* paw icon shared */
+  .paw-svg { width: 20px; height: 20px; }
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav>
+  <div class="wrap nav-inner">
+    <div class="logo">
+      <span class="paw">
+        <svg class="paw-svg" viewBox="0 0 24 24" fill="#2E2A26">
+          <circle cx="6" cy="8" r="2.4"/><circle cx="12" cy="6" r="2.4"/>
+          <circle cx="18" cy="8" r="2.4"/><ellipse cx="12" cy="16" rx="5" ry="4"/>
+        </svg>
+      </span>
+      わんとなり
+    </div>
+    <div class="nav-links">
+      <a href="#problem">こんな悩み</a>
+      <a href="#solution">使い方</a>
+      <a href="#features">機能</a>
+      <a href="#pricing">料金</a>
+      <a href="#faq">よくある質問</a>
+    </div>
+    <a href="#cta" class="btn nav-cta">はじめる</a>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="speech speech-1">今日ちょっとお願い！🐶</div>
+  <div class="speech speech-2">まかせて〜🙌</div>
+  <div class="wrap hero-inner">
+    <div class="hero-copy">
+      <span class="sticker">🐾 ご近所わんこシェア</span>
+      <h1>ご近所で、<br><span class="hl">わんこを</span><br>あずけあう。</h1>
+      <p class="tag">＝ わんとなり ＝</p>
+      <p class="lead">「急な残業で散歩に間に合わない」「旅行のあいだ預け先がない」。
+        そんなとき、同じマンション・同じ町内の犬好きさんが、ちょっと手を貸してくれる。
+        顔の見えるご近所だから、安心しておまかせ。</p>
+      <div class="hero-btns">
+        <a href="#cta" class="btn">無料で登録する</a>
+        <a href="#solution" class="btn btn-white">使い方を見る</a>
+      </div>
+      <div class="hero-badges">
+        <span class="sticker" style="transform:rotate(2deg)">💰 シッター代1/3</span>
+        <span class="sticker" style="transform:rotate(-4deg)">📍 徒歩5分圏内</span>
+        <span class="sticker" style="transform:rotate(3deg)">🤝 ご近所だけ</span>
+      </div>
+    </div>
+
+    <!-- スマホモック -->
+    <div class="phone-stage">
+      <div class="blob"></div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="phone-head">
+          <div class="av"></div>
+          <div class="nm">わんとなり<br><small>サニーハイツ301号室</small></div>
+        </div>
+        <div class="map-card">
+          <span class="road r1"></span>
+          <span class="road r2"></span>
+          <span class="pin pin-a"></span>
+          <span class="pin pin-b"></span>
+          <span class="pin pin-c"></span>
+        </div>
+        <div class="req-card">
+          <b>🐕 ポチを2時間お散歩</b>
+          今日 18:00〜 / 徒歩3分の佐藤さん
+        </div>
+        <div class="req-card" style="background:var(--sub);">
+          <b>🦴 おあずかり 1泊</b>
+          土曜〜日曜 / 同じ棟の田中さん
+        </div>
+        <div class="phone-btn">ご近所をさがす 🔍</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 課題提起 ===== -->
+<section class="problem" id="problem">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sticker">😵‍💫 こんな悩み、ありませんか？</span>
+      <h2>「預けたい、でも…」のモヤモヤ</h2>
+      <p>飼い主さんなら一度は感じる、あの困りごと。</p>
+    </div>
+    <div class="prob-grid">
+      <div class="prob-card">
+        <span class="prob-emoji">💸</span>
+        <div class="face"><span class="mouth"></span></div>
+        <h3>シッター代、高すぎ問題</h3>
+        <p>1回お願いするだけで数千円〜。気軽に頼めず、結局ムリして自分でなんとかしちゃう。</p>
+      </div>
+      <div class="prob-card">
+        <span class="prob-emoji">📵</span>
+        <div class="face"><span class="mouth"></span></div>
+        <h3>予約が取れない問題</h3>
+        <p>連休や急な用事のときほど埋まってる。「今日の夜だけ」みたいな急ぎは特に難しい。</p>
+      </div>
+      <div class="prob-card">
+        <span class="prob-emoji">😰</span>
+        <div class="face"><span class="mouth"></span></div>
+        <h3>知らない人、こわい問題</h3>
+        <p>大事な家族を初対面の他人に預けるのは不安。預けた後も「ちゃんとしてるかな」と気が気じゃない。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ソリューション ===== -->
+<section class="solution" id="solution">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sticker">💡 わんとなりのこたえ</span>
+      <h2>ご近所同士で、ぐるっと助け合い</h2>
+      <p>遠くのプロより、近くの犬好きさん。3ステップでおまかせ完了。</p>
+    </div>
+    <div class="sol-inner">
+      <div class="sol-visual">
+        <div class="ring"></div>
+        <div class="sol-house">🏠</div>
+        <div class="orbit-dot od1">🐕</div>
+        <div class="orbit-dot od2">🧑</div>
+        <div class="orbit-dot od3">🐩</div>
+      </div>
+      <div class="sol-steps">
+        <div class="sol-step">
+          <div class="num"></div>
+          <div>
+            <h3>ご近所さんを見つける</h3>
+            <p>マップであなたの徒歩圏内の登録者を表示。プロフィール・飼っている犬・口コミを見て「この人なら」を選べます。</p>
+          </div>
+        </div>
+        <div class="sol-step">
+          <div class="num"></div>
+          <div>
+            <h3>チャットでお願いする</h3>
+            <p>「今夜18時から2時間お散歩お願いできますか？」とメッセージ。事前にカフェで顔合わせ、なんてことも気軽に。</p>
+          </div>
+        </div>
+        <div class="sol-step">
+          <div class="num"></div>
+          <div>
+            <h3>おまかせ＆お礼</h3>
+            <p>当日はアプリで様子を共有。終わったらアプリ内ポイントでお礼。次はあなたが誰かのわんこを預かる番かも。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 機能 ===== -->
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sticker">🛠 安心の3つのしくみ</span>
+      <h2>たのしく、ちゃんと、あんしん。</h2>
+      <p>ご近所の助け合いを、テクノロジーでそっと支えます。</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-top ft1"><span class="feat-icon">🗺️</span></div>
+        <div class="feat-body">
+          <span class="feat-no">FEATURE 01</span>
+          <h3>ご近所マップ</h3>
+          <p>同じマンション・町内の登録者を地図にピン表示。徒歩◯分が一目でわかるから、お迎えもラクラク。誰が近くにいるか丸わかり。</p>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-top ft2"><span class="feat-icon">📸</span></div>
+        <div class="feat-body">
+          <span class="feat-no">FEATURE 02</span>
+          <h3>おさんぽ実況</h3>
+          <p>預かり中の写真や歩いたルートをリアルタイムで共有。離れていても「今こんな感じ〜🐾」が届くから、心配ゼロでニコニコ。</p>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-top ft3"><span class="feat-icon">⭐</span></div>
+        <div class="feat-body">
+          <span class="feat-no">FEATURE 03</span>
+          <h3>ご近所バッジ＆口コミ</h3>
+          <p>本人確認・狂犬病予防接種証明・ご近所からの口コミで信頼を見える化。バッジが多い人ほど安心しておまかせできます。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 料金 ===== -->
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sticker">💰 わかりやすい料金</span>
+      <h2>はじめるのは、ぜんぶ無料。</h2>
+      <p>助け合いの輪に入るだけならずっと0円。使い方に合わせて選べます。</p>
+    </div>
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="price-name">おためし</div>
+        <div class="price-sub">まずはご近所をのぞいてみる</div>
+        <div class="price-amt">¥0<small>/月</small></div>
+        <ul class="price-list">
+          <li>ご近所マップ閲覧</li>
+          <li>月3回までお願いOK</li>
+          <li>チャット機能</li>
+          <li>基本のご近所バッジ</li>
+        </ul>
+        <a href="#cta" class="btn btn-white">無料ではじめる</a>
+      </div>
+      <div class="price-card pop">
+        <span class="ribbon sticker">🐾 いちばん人気</span>
+        <div class="price-name">ごきんじょプラス</div>
+        <div class="price-sub">毎日使う愛犬家さんに</div>
+        <div class="price-amt">¥480<small>/月</small></div>
+        <ul class="price-list">
+          <li>お願い回数むせいげん</li>
+          <li>おさんぽ実況フル機能</li>
+          <li>優先マッチング</li>
+          <li>あずかり保険つき</li>
+        </ul>
+        <a href="#cta" class="btn">プラスを試す</a>
+      </div>
+      <div class="price-card">
+        <div class="price-name">マンション</div>
+        <div class="price-sub">管理組合・自治会向け</div>
+        <div class="price-amt">要相談</div>
+        <ul class="price-list">
+          <li>建物まるごと招待</li>
+          <li>専用コミュニティ作成</li>
+          <li>掲示板・イベント機能</li>
+          <li>導入サポートつき</li>
+        </ul>
+        <a href="#cta" class="btn btn-sub">相談してみる</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ユーザーの声 ===== -->
+<section class="voices">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sticker">🗣 みんなの声</span>
+      <h2>ご近所、いい感じに回ってます</h2>
+      <p>使ってくれている飼い主さんからのリアルなコメント。</p>
+    </div>
+    <div class="voice-grid">
+      <div class="voice-card">
+        <div class="voice-stars">★★★★★</div>
+        <p class="txt">残業確定の日に「今日だけお願い！」が3分で決まりました。同じ棟の人だから帰りにそのまま受け取れて神。シッター代の心配もなくなった〜。</p>
+        <div class="voice-who">
+          <span class="av av-1"></span>
+          <div class="meta"><b>みさきさん</b><small>トイプードル・マンション住まい</small></div>
+        </div>
+      </div>
+      <div class="voice-card">
+        <div class="voice-stars">★★★★★</div>
+        <p class="txt">うちの子はもう散歩仲間ができました🐕 預かる側も楽しくて、いまや週末はご近所わんこ大集合。子どもが犬好きになって一石二鳥です。</p>
+        <div class="voice-who">
+          <span class="av av-2"></span>
+          <div class="meta"><b>たけしさん</b><small>柴犬・一戸建て</small></div>
+        </div>
+      </div>
+      <div class="voice-card">
+        <div class="voice-stars">★★★★☆</div>
+        <p class="txt">最初は「他人に預けるの…」と不安でしたが、事前に公園で顔合わせできるので安心。おさんぽ実況の写真が届くたびニヤニヤしてます。</p>
+        <div class="voice-who">
+          <span class="av av-3"></span>
+          <div class="meta"><b>ゆかりさん</b><small>ミニチュアダックス・賃貸</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sticker">❓ よくある質問</span>
+      <h2>気になること、お答えします</h2>
+    </div>
+    <div class="faq-list">
+      <details class="faq" open>
+        <summary><span class="q">Q</span><span class="label">本当に無料で使えるの？</span><span class="ico">＋</span></summary>
+        <div class="ans">はい。ご近所を探してお願いするだけなら「おためしプラン」でずっと無料です。回数無制限やあずかり保険が必要になったら、月480円の「ごきんじょプラス」へどうぞ。</div>
+      </details>
+      <details class="faq">
+        <summary><span class="q">Q</span><span class="label">知らない人に預けるのが不安です。</span><span class="ico">＋</span></summary>
+        <div class="ans">わんとなりは徒歩圏内のご近所さんだけが対象。本人確認・ワクチン証明・口コミで信頼を見える化しています。預ける前にカフェや公園で顔合わせするのが定番なので、納得してからおまかせできます。</div>
+      </details>
+      <details class="faq">
+        <summary><span class="q">Q</span><span class="label">お礼はお金でやり取りするの？</span><span class="ico">＋</span></summary>
+        <div class="ans">直接の現金のやり取りはありません。アプリ内のポイントでお礼を渡します。預かる側になればポイントが貯まり、自分が預けたいときに使えるので、ご近所でぐるっと循環します。</div>
+      </details>
+      <details class="faq">
+        <summary><span class="q">Q</span><span class="label">もし預かり中にトラブルがあったら？</span><span class="ico">＋</span></summary>
+        <div class="ans">「ごきんじょプラス」にはあずかり保険が付いています。万一のケガや事故に備えてサポート窓口も用意。チャット履歴やおさんぽ実況の記録が残るので、状況の共有もスムーズです。</div>
+      </details>
+      <details class="faq">
+        <summary><span class="q">Q</span><span class="label">うちのマンションで使いたいです。</span><span class="ico">＋</span></summary>
+        <div class="ans">管理組合・自治会向けの「マンションプラン」で、建物まるごとの専用コミュニティを作れます。掲示板やイベント機能つき。導入のご相談はCTAボタンからお気軽にどうぞ。</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta" id="cta">
+  <span class="paw-deco pd1">🐾</span>
+  <span class="paw-deco pd2">🐾</span>
+  <span class="paw-deco pd3">🦴</span>
+  <span class="paw-deco pd4">🐾</span>
+  <div class="wrap">
+    <h2>さあ、ご近所と<br>わんこをあずけあおう。</h2>
+    <p>登録は30秒。今日からあなたのまちが、わんこにやさしい場所に。</p>
+    <a href="#" class="btn btn-white">無料ではじめる 🐶</a>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="wrap foot-inner">
+    <div>
+      <div class="foot-logo">
+        <span class="paw">
+          <svg class="paw-svg" viewBox="0 0 24 24" fill="#2E2A26">
+            <circle cx="6" cy="8" r="2.4"/><circle cx="12" cy="6" r="2.4"/>
+            <circle cx="18" cy="8" r="2.4"/><ellipse cx="12" cy="16" rx="5" ry="4"/>
+          </svg>
+        </span>
+        わんとなり
+      </div>
+      <p style="margin-top:12px; font-size:0.85rem; color:#b8b0a4; max-width:260px;">ご近所で、わんこをあずけあう。顔の見える助け合いプラットフォーム。</p>
+    </div>
+    <div class="foot-cols">
+      <div class="foot-col">
+        <h4>サービス</h4>
+        <a href="#solution">使い方</a>
+        <a href="#features">機能</a>
+        <a href="#pricing">料金プラン</a>
+        <a href="#faq">よくある質問</a>
+      </div>
+      <div class="foot-col">
+        <h4>運営</h4>
+        <a href="#">会社概要</a>
+        <a href="#">採用情報</a>
+        <a href="#">お知らせ</a>
+        <a href="#">お問い合わせ</a>
+      </div>
+      <div class="foot-col">
+        <h4>規約</h4>
+        <a href="#">利用規約</a>
+        <a href="#">プライバシーポリシー</a>
+        <a href="#">あずかりガイドライン</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">© 2026 わんとなり (Wantonari) — ご近所わんこシェア. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
