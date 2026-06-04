@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ペトモ｜あずけ合う、ご近所のやさしさ。</title>
+<style>
+  /* ============================================================
+     ペトモ Petomo — Pattern 3 / Casual Pop
+     コーラル × スカイブルー、非対称、プレイフル
+     ============================================================ */
+
+  :root{
+    --sky:#EAF6FF;
+    --coral:#FF6B6B;
+    --coral-dark:#e84f4f;
+    --sunny:#FFD43B;
+    --ink:#1B3A4B;
+    --ink-soft:#3a5a6b;
+    --white:#ffffff;
+    --shadow:0 14px 0 rgba(27,58,75,.10);
+    --radius:26px;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    font-family:"Hiragino Maru Gothic ProN","Hiragino Maru Gothic Pro","Quicksand","Rounded Mplus 1c","M PLUS Rounded 1c",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--sky);
+    color:var(--ink);
+    font-size:18px;
+    line-height:1.85;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  h1,h2,h3{line-height:1.3;font-weight:800;letter-spacing:.01em;}
+
+  a{color:inherit;text-decoration:none;}
+
+  .wrap{width:min(1140px,92vw);margin-inline:auto;}
+
+  /* ====== ステッカー風ボタン ====== */
+  .btn{
+    display:inline-flex;align-items:center;gap:.5em;
+    font-weight:800;font-size:1.05rem;
+    padding:18px 34px;border-radius:999px;
+    border:3px solid var(--ink);
+    cursor:pointer;transition:.18s transform,.18s box-shadow;
+    box-shadow:0 6px 0 var(--ink);
+  }
+  .btn:hover{transform:translateY(-3px);box-shadow:0 9px 0 var(--ink);}
+  .btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink);}
+  .btn-coral{background:var(--coral);color:#fff;}
+  .btn-sunny{background:var(--sunny);color:var(--ink);}
+  .btn-white{background:#fff;color:var(--ink);}
+
+  /* 肉球の汎用 */
+  .paw{display:inline-block;}
+
+  /* セクション見出し */
+  .eyebrow{
+    display:inline-block;
+    background:var(--sunny);
+    color:var(--ink);
+    font-weight:800;
+    padding:6px 18px;border-radius:999px;
+    border:3px solid var(--ink);
+    transform:rotate(-2deg);
+    font-size:.95rem;
+    box-shadow:0 4px 0 var(--ink);
+  }
+  .sec-title{
+    font-size:clamp(1.9rem,5vw,3rem);
+    margin:18px 0 14px;
+  }
+  .sec-title .hl{
+    background:linear-gradient(transparent 62%, var(--sunny) 62%);
+    padding:0 .1em;
+  }
+  .sec-lead{font-size:1.15rem;color:var(--ink-soft);max-width:640px;}
+
+  /* ============================================================
+     ヘッダー
+     ============================================================ */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(234,246,255,.86);
+    backdrop-filter:blur(8px);
+    border-bottom:3px dashed rgba(27,58,75,.18);
+  }
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 0;
+  }
+  .logo{
+    display:flex;align-items:center;gap:8px;
+    font-weight:800;font-size:1.5rem;
+  }
+  .logo .mark{
+    width:42px;height:42px;border-radius:50%;
+    background:var(--coral);color:#fff;
+    display:grid;place-items:center;font-size:1.3rem;
+    border:3px solid var(--ink);
+    transform:rotate(-6deg);
+    box-shadow:0 4px 0 var(--ink);
+  }
+  .nav-links{display:flex;gap:26px;align-items:center;font-weight:700;}
+  .nav-links a{transition:.15s color;}
+  .nav-links a:hover{color:var(--coral);}
+  .nav .btn{padding:12px 24px;font-size:.95rem;box-shadow:0 5px 0 var(--ink);}
+  .burger{display:none;font-size:1.8rem;background:none;border:none;cursor:pointer;}
+
+  @media(max-width:880px){
+    .nav-links{display:none;}
+    .burger{display:block;}
+  }
+
+  /* ============================================================
+     HERO（非対称）
+     ============================================================ */
+  .hero{
+    position:relative;
+    padding:70px 0 120px;
+    overflow:hidden;
+  }
+  /* 背景の遊びゴロゴロ */
+  .blob{
+    position:absolute;border-radius:50%;z-index:0;opacity:.5;
+    filter:blur(2px);
+  }
+  .blob.b1{width:340px;height:340px;background:var(--coral);top:-90px;right:-70px;opacity:.18;}
+  .blob.b2{width:260px;height:260px;background:var(--sunny);bottom:-60px;left:-50px;opacity:.30;}
+
+  .hero-grid{
+    position:relative;z-index:2;
+    display:grid;
+    grid-template-columns:1.05fr .95fr;
+    gap:40px;align-items:center;
+  }
+
+  .hero-copy{transform:rotate(-1deg);}
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:#fff;border:3px solid var(--ink);
+    border-radius:999px;padding:8px 18px;font-weight:800;
+    box-shadow:0 5px 0 var(--ink);transform:rotate(2deg);
+    font-size:.95rem;margin-bottom:22px;
+  }
+  .hero h1{
+    font-size:clamp(2.3rem,6.2vw,4.1rem);
+    line-height:1.18;
+  }
+  .hero h1 .pop{color:var(--coral);position:relative;display:inline-block;}
+  .hero h1 .pop::after{
+    content:"";position:absolute;left:0;right:0;bottom:6px;height:14px;
+    background:var(--sunny);z-index:-1;border-radius:8px;transform:rotate(-1.5deg);
+  }
+  .hero-sub{
+    font-size:1.2rem;color:var(--ink-soft);
+    margin:24px 0 32px;max-width:480px;font-weight:600;
+  }
+  .hero-cta{display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+  .hero-mini{
+    margin-top:26px;display:flex;align-items:center;gap:12px;
+    font-weight:700;font-size:.95rem;color:var(--ink-soft);
+  }
+  .avatars{display:flex;}
+  .avatars span{
+    width:38px;height:38px;border-radius:50%;border:3px solid #fff;
+    display:grid;place-items:center;font-size:1.1rem;margin-left:-10px;
+    box-shadow:0 2px 6px rgba(0,0,0,.12);
+  }
+  .avatars span:nth-child(1){background:#FFD4D4;margin-left:0;}
+  .avatars span:nth-child(2){background:#C9E8FF;}
+  .avatars span:nth-child(3){background:#FFE9A8;}
+  .avatars span:nth-child(4){background:#D8F5D0;}
+
+  /* ===== スマホモック（CSSのみ） ===== */
+  .phone-stage{
+    position:relative;display:flex;justify-content:center;align-items:center;
+    min-height:560px;
+  }
+  .phone{
+    position:relative;
+    width:290px;height:580px;
+    background:#1B3A4B;
+    border-radius:46px;
+    padding:14px;
+    box-shadow:0 26px 60px rgba(27,58,75,.35), 0 0 0 3px var(--ink);
+    transform:rotate(4deg);
+    z-index:3;
+  }
+  .phone-screen{
+    width:100%;height:100%;
+    background:linear-gradient(170deg,#fff 0%, #f3fbff 100%);
+    border-radius:34px;overflow:hidden;position:relative;
+    display:flex;flex-direction:column;
+  }
+  .notch{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:120px;height:24px;background:#1B3A4B;
+    border-bottom-left-radius:16px;border-bottom-right-radius:16px;z-index:5;
+  }
+  .app-top{
+    background:var(--coral);color:#fff;
+    padding:36px 18px 18px;
+  }
+  .app-top .row{display:flex;justify-content:space-between;align-items:center;}
+  .app-top .title{font-weight:800;font-size:1.2rem;}
+  .app-top .bell{font-size:1.2rem;}
+  .app-search{
+    margin-top:14px;background:#fff;border-radius:14px;
+    padding:9px 14px;color:#9bb0bb;font-size:.85rem;display:flex;gap:8px;align-items:center;
+  }
+  .app-body{padding:16px;flex:1;overflow:hidden;}
+  .app-card{
+    background:#fff;border:2px solid #eef3f6;border-radius:18px;
+    padding:12px;margin-bottom:12px;display:flex;gap:11px;align-items:center;
+    box-shadow:0 5px 0 rgba(27,58,75,.05);
+  }
+  .app-card .pet{
+    width:48px;height:48px;border-radius:14px;display:grid;place-items:center;
+    font-size:1.6rem;flex-shrink:0;
+  }
+  .app-card.c1 .pet{background:#FFE0E0;}
+  .app-card.c2 .pet{background:#D6EEFF;}
+  .app-card.c3 .pet{background:#FFF2C2;}
+  .app-card .info{flex:1;min-width:0;}
+  .app-card .name{font-weight:800;font-size:.92rem;color:var(--ink);}
+  .app-card .meta{font-size:.74rem;color:#9bb0bb;font-weight:600;}
+  .app-card .tag{
+    font-size:.66rem;font-weight:800;color:#fff;background:var(--sunny);
+    color:var(--ink);padding:3px 8px;border-radius:999px;white-space:nowrap;
+  }
+  .app-card .tag.busy{background:#ffd0d0;color:var(--coral-dark);}
+  .app-nav{
+    display:flex;justify-content:space-around;padding:12px 0 16px;
+    border-top:2px solid #eef3f6;font-size:1.3rem;background:#fff;
+  }
+  .app-nav span:nth-child(1){filter:none;}
+  .app-nav span{opacity:.35;}
+  .app-nav span.on{opacity:1;}
+
+  /* 浮かぶ吹き出し */
+  .bubble{
+    position:absolute;z-index:4;
+    background:#fff;border:3px solid var(--ink);
+    border-radius:18px;padding:10px 14px;font-weight:800;font-size:.9rem;
+    box-shadow:0 8px 0 var(--ink);
+  }
+  .bubble::after{
+    content:"";position:absolute;width:14px;height:14px;background:#fff;
+    border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);
+    transform:rotate(45deg);
+  }
+  .bubble.bb1{top:30px;left:-6px;background:var(--sunny);transform:rotate(-7deg);}
+  .bubble.bb1::after{bottom:-9px;left:24px;background:var(--sunny);}
+  .bubble.bb2{bottom:64px;right:-22px;transform:rotate(6deg);}
+  .bubble.bb2::after{top:-9px;left:30px;transform:rotate(225deg);}
+
+  /* 浮かぶ肉球 */
+  .float-paw{position:absolute;font-size:2rem;z-index:1;opacity:.7;}
+  .fp1{top:10px;right:30px;transform:rotate(20deg);}
+  .fp2{bottom:30px;left:6px;transform:rotate(-15deg);}
+
+  @media(max-width:880px){
+    .hero-grid{grid-template-columns:1fr;}
+    .phone-stage{min-height:540px;margin-top:20px;}
+    .hero-copy{transform:none;text-align:center;}
+    .hero-sub{margin-inline:auto;}
+    .hero-cta{justify-content:center;}
+    .hero-mini{justify-content:center;}
+  }
+
+  /* ============================================================
+     課題提起
+     ============================================================ */
+  .problem{padding:90px 0;background:#fff;position:relative;}
+  .problem::before{
+    content:"";position:absolute;top:-30px;left:0;right:0;height:30px;
+    background:#fff;
+    -webkit-mask:radial-gradient(22px at 50% 0,#0000 99%,#000) repeat-x;
+    mask:radial-gradient(22px at 50% 0,#0000 99%,#000) repeat-x;
+    -webkit-mask-size:44px 30px;mask-size:44px 30px;
+  }
+  .problem .head{text-align:center;max-width:680px;margin:0 auto 50px;}
+  .problem .head .sec-lead{margin-inline:auto;}
+  .prob-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+  }
+  .prob-card{
+    background:var(--sky);border:3px solid var(--ink);border-radius:var(--radius);
+    padding:30px 26px;position:relative;box-shadow:var(--shadow);
+  }
+  .prob-card:nth-child(1){transform:rotate(-1.5deg);}
+  .prob-card:nth-child(2){transform:rotate(1deg);margin-top:24px;}
+  .prob-card:nth-child(3){transform:rotate(-1deg);}
+  .prob-card .emoji{
+    font-size:2.6rem;display:inline-grid;place-items:center;
+    width:66px;height:66px;background:#fff;border:3px solid var(--ink);
+    border-radius:50%;margin-bottom:14px;box-shadow:0 4px 0 var(--ink);
+  }
+  .prob-card h3{font-size:1.3rem;margin-bottom:8px;}
+  .prob-card p{font-size:1.02rem;color:var(--ink-soft);font-weight:600;}
+  @media(max-width:880px){.prob-grid{grid-template-columns:1fr;}
+    .prob-card{transform:none!important;margin-top:0!important;}}
+
+  /* ============================================================
+     ソリューション（非対称・横並びジグザグ）
+     ============================================================ */
+  .solution{padding:100px 0;position:relative;}
+  .float-paw.s1{top:60px;left:6%;font-size:2.4rem;opacity:.35;}
+  .float-paw.s2{bottom:40px;right:4%;font-size:3rem;opacity:.3;transform:rotate(30deg);}
+  .sol-row{
+    display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;
+    margin-bottom:80px;
+  }
+  .sol-row:last-child{margin-bottom:0;}
+  .sol-row.rev .sol-visual{order:2;}
+  .sol-visual{
+    background:#fff;border:3px solid var(--ink);border-radius:var(--radius);
+    min-height:280px;position:relative;box-shadow:var(--shadow);
+    display:grid;place-items:center;overflow:hidden;
+  }
+  .sol-visual .big{font-size:6rem;}
+  .sol-visual.v1{background:linear-gradient(135deg,#FFE3E3,#FFF);}
+  .sol-visual.v2{background:linear-gradient(135deg,#D7EEFF,#FFF);transform:rotate(1.5deg);}
+  .sol-visual .stick{
+    position:absolute;background:var(--sunny);border:3px solid var(--ink);
+    border-radius:999px;padding:6px 14px;font-weight:800;font-size:.9rem;
+    box-shadow:0 4px 0 var(--ink);
+  }
+  .sol-visual.v1 .stick{top:18px;right:18px;transform:rotate(8deg);}
+  .sol-visual.v2 .stick{bottom:18px;left:18px;transform:rotate(-6deg);background:var(--coral);color:#fff;}
+  .sol-text .num{
+    font-size:1rem;font-weight:800;color:var(--coral);letter-spacing:.1em;
+  }
+  .sol-text h3{font-size:1.8rem;margin:6px 0 14px;}
+  .sol-text p{font-size:1.08rem;color:var(--ink-soft);font-weight:600;}
+  .check-list{list-style:none;margin-top:18px;display:flex;flex-direction:column;gap:10px;}
+  .check-list li{display:flex;gap:10px;align-items:flex-start;font-weight:700;}
+  .check-list li::before{content:"🐾";flex-shrink:0;}
+  @media(max-width:880px){
+    .sol-row{grid-template-columns:1fr;gap:24px;}
+    .sol-row.rev .sol-visual{order:0;}
+    .sol-visual{transform:none!important;}
+  }
+
+  /* ============================================================
+     主要機能 3つ
+     ============================================================ */
+  .features{padding:100px 0;background:var(--ink);color:#fff;position:relative;}
+  .features::before,.features::after{
+    content:"";position:absolute;left:0;right:0;height:34px;
+  }
+  .features::before{
+    top:-1px;background:var(--ink);
+    -webkit-mask:radial-gradient(24px at 50% 100%,#0000 99%,#000) repeat-x;
+    mask:radial-gradient(24px at 50% 100%,#0000 99%,#000) repeat-x;
+    -webkit-mask-size:48px 34px;mask-size:48px 34px;top:-34px;
+  }
+  .features .head{text-align:center;margin-bottom:54px;}
+  .features .sec-title{color:#fff;}
+  .features .sec-title .hl{background:linear-gradient(transparent 62%, var(--coral) 62%);color:#fff;}
+  .features .sec-lead{color:#bcd6e2;margin-inline:auto;}
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+  .feat{
+    background:#fff;color:var(--ink);border-radius:var(--radius);
+    padding:34px 28px;position:relative;border:3px solid #000;
+    box-shadow:0 12px 0 rgba(0,0,0,.35);
+  }
+  .feat:nth-child(2){transform:translateY(-22px);}
+  .feat .icon{
+    width:74px;height:74px;border-radius:20px;display:grid;place-items:center;
+    font-size:2.2rem;margin-bottom:18px;border:3px solid var(--ink);
+    box-shadow:0 5px 0 var(--ink);transform:rotate(-4deg);
+  }
+  .feat:nth-child(1) .icon{background:var(--coral);}
+  .feat:nth-child(2) .icon{background:var(--sunny);}
+  .feat:nth-child(3) .icon{background:#9BD8FF;}
+  .feat h3{font-size:1.45rem;margin-bottom:10px;}
+  .feat p{font-size:1.02rem;color:var(--ink-soft);font-weight:600;}
+  .feat .num{
+    position:absolute;top:-16px;right:18px;
+    width:42px;height:42px;background:var(--coral);color:#fff;
+    border:3px solid var(--ink);border-radius:50%;display:grid;place-items:center;
+    font-weight:800;box-shadow:0 4px 0 var(--ink);
+  }
+  @media(max-width:880px){.feat-grid{grid-template-columns:1fr;}
+    .feat:nth-child(2){transform:none;}}
+
+  /* ============================================================
+     料金プラン
+     ============================================================ */
+  .pricing{padding:100px 0;position:relative;}
+  .float-paw.p1{top:50px;right:8%;font-size:2.2rem;opacity:.4;}
+  .pricing .head{text-align:center;margin-bottom:56px;}
+  .pricing .sec-lead{margin-inline:auto;}
+  .price-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:26px;align-items:stretch;
+  }
+  .plan{
+    background:#fff;border:3px solid var(--ink);border-radius:var(--radius);
+    padding:34px 28px;display:flex;flex-direction:column;
+    box-shadow:var(--shadow);position:relative;
+  }
+  .plan:nth-child(1){transform:rotate(-1deg);}
+  .plan:nth-child(3){transform:rotate(1deg);}
+  .plan.pop{
+    background:var(--coral);color:#fff;transform:scale(1.04) translateY(-6px);
+    z-index:2;box-shadow:0 16px 0 var(--ink);
+  }
+  .plan.pop .price,.plan.pop h3{color:#fff;}
+  .plan .ribbon{
+    position:absolute;top:-18px;left:50%;transform:translateX(-50%) rotate(-2deg);
+    background:var(--sunny);color:var(--ink);border:3px solid var(--ink);
+    padding:5px 18px;border-radius:999px;font-weight:800;font-size:.85rem;
+    box-shadow:0 4px 0 var(--ink);white-space:nowrap;
+  }
+  .plan h3{font-size:1.35rem;margin-bottom:6px;}
+  .plan .who{font-size:.92rem;font-weight:700;opacity:.8;margin-bottom:18px;}
+  .plan .price{font-size:2.6rem;font-weight:800;color:var(--ink);}
+  .plan .price small{font-size:1rem;font-weight:700;opacity:.7;}
+  .plan ul{list-style:none;margin:22px 0 26px;display:flex;flex-direction:column;gap:11px;flex:1;}
+  .plan ul li{display:flex;gap:9px;font-weight:600;font-size:1rem;}
+  .plan ul li::before{content:"✓";font-weight:900;}
+  .plan.pop ul li::before{color:var(--sunny);}
+  .plan:not(.pop) ul li::before{color:var(--coral);}
+  .plan .btn{width:100%;justify-content:center;}
+  @media(max-width:880px){.price-grid{grid-template-columns:1fr;}
+    .plan{transform:none!important;}.plan.pop{transform:none!important;}}
+
+  /* ============================================================
+     ユーザーの声
+     ============================================================ */
+  .voices{padding:100px 0;background:#fff;position:relative;}
+  .voices .head{text-align:center;margin-bottom:54px;}
+  .voices .sec-lead{margin-inline:auto;}
+  .voice-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:26px;
+  }
+  .voice{
+    background:var(--sky);border:3px solid var(--ink);border-radius:var(--radius);
+    padding:28px 26px;position:relative;box-shadow:var(--shadow);
+  }
+  .voice:nth-child(1){transform:rotate(-1.5deg);}
+  .voice:nth-child(2){transform:rotate(1deg);margin-top:18px;}
+  .voice:nth-child(3){transform:rotate(-1deg);}
+  .voice .quote{font-size:2.6rem;line-height:0;color:var(--coral);font-weight:900;height:20px;}
+  .voice p{font-size:1.04rem;font-weight:600;color:var(--ink);margin:8px 0 18px;}
+  .voice .who{display:flex;align-items:center;gap:12px;}
+  .voice .who .ava{
+    width:48px;height:48px;border-radius:50%;display:grid;place-items:center;
+    font-size:1.6rem;border:3px solid var(--ink);background:#fff;
+  }
+  .voice .who .nm{font-weight:800;font-size:.98rem;}
+  .voice .who .sub{font-size:.82rem;color:var(--ink-soft);font-weight:600;}
+  .voice .stars{color:var(--sunny);font-size:1rem;margin-bottom:4px;letter-spacing:2px;
+    -webkit-text-stroke:1px var(--ink);}
+  @media(max-width:880px){.voice-grid{grid-template-columns:1fr;}
+    .voice{transform:none!important;margin-top:0!important;}}
+
+  /* ============================================================
+     FAQ
+     ============================================================ */
+  .faq{padding:100px 0;position:relative;}
+  .float-paw.f1{bottom:60px;left:5%;font-size:2.4rem;opacity:.35;transform:rotate(-20deg);}
+  .faq .head{text-align:center;margin-bottom:48px;}
+  .faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
+  details.qa{
+    background:#fff;border:3px solid var(--ink);border-radius:20px;
+    padding:4px 4px;box-shadow:var(--shadow);overflow:hidden;
+  }
+  details.qa:nth-child(odd){transform:rotate(-.5deg);}
+  details.qa:nth-child(even){transform:rotate(.5deg);}
+  details.qa summary{
+    list-style:none;cursor:pointer;font-weight:800;font-size:1.1rem;
+    padding:20px 22px;display:flex;justify-content:space-between;align-items:center;gap:14px;
+  }
+  details.qa summary::-webkit-details-marker{display:none;}
+  details.qa summary .q{display:flex;gap:12px;align-items:center;}
+  details.qa summary .q .badge{
+    background:var(--sunny);border:2px solid var(--ink);border-radius:8px;
+    width:32px;height:32px;display:grid;place-items:center;font-weight:900;flex-shrink:0;
+  }
+  details.qa summary .plus{
+    font-size:1.6rem;transition:.2s transform;color:var(--coral);flex-shrink:0;
+  }
+  details.qa[open] summary .plus{transform:rotate(45deg);}
+  details.qa .ans{padding:0 22px 22px 66px;color:var(--ink-soft);font-weight:600;font-size:1.04rem;}
+
+  /* ============================================================
+     フッター CTA
+     ============================================================ */
+  .cta{
+    margin:0 auto;width:min(1140px,92vw);
+    background:var(--coral);border:4px solid var(--ink);border-radius:40px;
+    padding:64px 40px;text-align:center;position:relative;overflow:hidden;
+    box-shadow:0 18px 0 var(--ink);margin-bottom:80px;
+    transform:rotate(-.6deg);
+  }
+  .cta .pawbg{position:absolute;font-size:7rem;opacity:.12;color:#fff;}
+  .cta .pawbg.pa{top:-10px;left:20px;transform:rotate(-20deg);}
+  .cta .pawbg.pb{bottom:-20px;right:30px;transform:rotate(25deg);}
+  .cta h2{color:#fff;font-size:clamp(1.9rem,5vw,3rem);position:relative;z-index:2;}
+  .cta p{color:#fff;font-size:1.2rem;font-weight:700;margin:14px auto 30px;max-width:560px;position:relative;z-index:2;opacity:.95;}
+  .cta .hero-cta{justify-content:center;position:relative;z-index:2;}
+
+  footer{
+    background:var(--ink);color:#cfe4ee;padding:60px 0 40px;
+  }
+  .foot-grid{
+    display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:30px;margin-bottom:40px;
+  }
+  footer .logo{color:#fff;margin-bottom:14px;}
+  footer .logo .mark{box-shadow:0 4px 0 #000;}
+  .foot-about{font-size:.98rem;font-weight:600;max-width:280px;opacity:.85;}
+  .foot-col h4{color:#fff;font-size:1.05rem;margin-bottom:16px;}
+  .foot-col a{display:block;margin-bottom:10px;font-weight:600;opacity:.85;transition:.15s;}
+  .foot-col a:hover{opacity:1;color:var(--sunny);padding-left:4px;}
+  .foot-bottom{
+    border-top:1px solid rgba(255,255,255,.15);padding-top:24px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;
+    font-size:.88rem;opacity:.7;
+  }
+  .foot-bottom .socials{display:flex;gap:14px;font-size:1.3rem;}
+  @media(max-width:880px){
+    .foot-grid{grid-template-columns:1fr 1fr;}
+    .cta{padding:48px 24px;}
+  }
+
+  /* スクロールふわっと */
+  .reveal{opacity:0;transform:translateY(26px);transition:.6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in{opacity:1;transform:none;}
+</style>
+</head>
+<body>
+
+<!-- ===== ヘッダー ===== -->
+<header>
+  <div class="wrap nav">
+    <a href="#" class="logo"><span class="mark">🐾</span>ペトモ</a>
+    <nav class="nav-links">
+      <a href="#problem">こんな悩み</a>
+      <a href="#solution">仕組み</a>
+      <a href="#features">機能</a>
+      <a href="#pricing">料金</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a href="#cta" class="btn btn-coral">はじめる</a>
+    <button class="burger" aria-label="menu">☰</button>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <span class="blob b1"></span>
+  <span class="blob b2"></span>
+  <span class="float-paw fp1">🐾</span>
+  <span class="float-paw fp2">🐾</span>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="hero-badge">🏠 同じマンション・ご近所で</span>
+      <h1>あずけ合う、<br>ご近所の<span class="pop">やさしさ</span>。</h1>
+      <p class="hero-sub">急なお出かけも、残業も、もう大丈夫。犬や猫を“近くの信頼できる誰か”と気軽にあずけ合える、あったかい相互扶助アプリ。</p>
+      <div class="hero-cta">
+        <a href="#cta" class="btn btn-coral">無料ではじめる 🎉</a>
+        <a href="#solution" class="btn btn-white">仕組みを見る</a>
+      </div>
+      <div class="hero-mini">
+        <div class="avatars">
+          <span>🐶</span><span>🐱</span><span>🐰</span><span>🐹</span>
+        </div>
+        <span>ご近所の仲間が続々参加中！</span>
+      </div>
+    </div>
+
+    <!-- スマホモック -->
+    <div class="phone-stage">
+      <div class="bubble bb1">あずかってくれる人 みーつけた！🙌</div>
+      <div class="phone">
+        <div class="phone-screen">
+          <span class="notch"></span>
+          <div class="app-top">
+            <div class="row">
+              <span class="title">🐾 ご近所さがす</span>
+              <span class="bell">🔔</span>
+            </div>
+            <div class="app-search">🔍 半径500m以内であずけ先を探す</div>
+          </div>
+          <div class="app-body">
+            <div class="app-card c1">
+              <div class="pet">🐶</div>
+              <div class="info">
+                <div class="name">さくら（柴犬）</div>
+                <div class="meta">3階・たなかさん 徒歩1分</div>
+              </div>
+              <div class="tag">あずかれます</div>
+            </div>
+            <div class="app-card c2">
+              <div class="pet">🐱</div>
+              <div class="info">
+                <div class="name">こてつ（猫）</div>
+                <div class="meta">隣の棟・やまもとさん</div>
+              </div>
+              <div class="tag">あずかれます</div>
+            </div>
+            <div class="app-card c3">
+              <div class="pet">🐶</div>
+              <div class="info">
+                <div class="name">マロン（トイプー）</div>
+                <div class="meta">5階・さとうさん 徒歩2分</div>
+              </div>
+              <div class="tag busy">予約済み</div>
+            </div>
+          </div>
+          <div class="app-nav">
+            <span class="on">🏠</span>
+            <span>🔍</span>
+            <span>💬</span>
+            <span>🐾</span>
+            <span>👤</span>
+          </div>
+        </div>
+      </div>
+      <div class="bubble bb2">徒歩1分でお迎えOK 🐾</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 課題提起 ===== -->
+<section class="problem" id="problem">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">あるある、こんな悩み</span>
+      <h2 class="sec-title">ペットがいると、<span class="hl">ちょっと出かけにくい。</span></h2>
+      <p class="sec-lead">ペットホテルは高いし緊張する。実家は遠い。でも、急用も旅行もある。そんな“あずけ先ジレンマ”、ありませんか？</p>
+    </div>
+    <div class="prob-grid">
+      <div class="prob-card">
+        <span class="emoji">💸</span>
+        <h3>ホテルが高い…</h3>
+        <p>1泊数千円〜。連泊するとお財布が大ピンチ。気軽には頼めないのが本音。</p>
+      </div>
+      <div class="prob-card">
+        <span class="emoji">😢</span>
+        <h3>知らない場所はかわいそう</h3>
+        <p>慣れない環境やケージでストレス気味。できれば住み慣れたご近所であずけたい。</p>
+      </div>
+      <div class="prob-card">
+        <span class="emoji">🆘</span>
+        <h3>急な用事に頼れない</h3>
+        <p>残業・出張・体調不良。「今日だけ数時間」を頼める相手が、近くにいない。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ソリューション ===== -->
+<section class="solution" id="solution">
+  <span class="float-paw s1">🐾</span>
+  <span class="float-paw s2">🐾</span>
+  <div class="wrap">
+    <div class="head" style="text-align:center;margin-bottom:60px;">
+      <span class="eyebrow">ペトモのこたえ</span>
+      <h2 class="sec-title"><span class="hl">ご近所同士</span>で、あずけ合おう。</h2>
+      <p class="sec-lead" style="margin-inline:auto;">同じマンション・徒歩圏のペット好きさんと繋がって、お互いさまで助け合う。お金じゃなく“やさしさ”が回るしくみです。</p>
+    </div>
+
+    <div class="sol-row">
+      <div class="sol-visual v1">
+        <span class="big">🗺️</span>
+        <span class="stick">徒歩1分で発見！</span>
+      </div>
+      <div class="sol-text">
+        <span class="num">STEP 01</span>
+        <h3>ご近所のあずけ先を見つける</h3>
+        <p>マンション名・住所で登録すると、徒歩圏のペット仲間が地図に表示。「同じ建物の3階の人」みたいに、すぐ会える距離だけが出てきます。</p>
+        <ul class="check-list">
+          <li>半径500m以内でしぼり込み</li>
+          <li>飼っているペットの相性も一目でわかる</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sol-row rev">
+      <div class="sol-visual v2">
+        <span class="big">🤝</span>
+        <span class="stick">お互いさまで安心</span>
+      </div>
+      <div class="sol-text">
+        <span class="num">STEP 02</span>
+        <h3>チャットで気軽にお願い</h3>
+        <p>「明日の夜だけお願いできますか？」とひと言。あずけた分は“ありがとうポイント”で記録され、今度はあなたがあずかる番に。無理なく続く関係です。</p>
+        <ul class="check-list">
+          <li>本人確認＆レビューで信頼を可視化</li>
+          <li>ありがとうポイントで貸し借りもスッキリ</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 主要機能 ===== -->
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">うれしい3つの機能</span>
+      <h2 class="sec-title">安心して<span class="hl">あずけ合える</span>理由。</h2>
+      <p class="sec-lead">はじめての相手でも大丈夫。ペトモには“やさしさ”を支えるしかけがいっぱい。</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat">
+        <span class="num">1</span>
+        <span class="icon">🛡️</span>
+        <h3>あんしん本人確認</h3>
+        <p>登録時に本人確認＆住まいエリア認証。ご近所のリアルな住民同士だから、はじめましてでも安心して頼めます。</p>
+      </div>
+      <div class="feat">
+        <span class="num">2</span>
+        <span class="icon">📸</span>
+        <h3>おあずかりレポート</h3>
+        <p>あずけている間も、写真とひと言メッセージで様子をシェア。「今おやつ中だよ🦴」が届くから離れていても安心。</p>
+      </div>
+      <div class="feat">
+        <span class="num">3</span>
+        <span class="icon">💛</span>
+        <h3>ありがとうポイント</h3>
+        <p>あずかった分がポイントに。貯めて使って、ご近所でやさしさを循環。お金のやりとりに気をつかわず続けられます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 料金プラン ===== -->
+<section class="pricing" id="pricing">
+  <span class="float-paw p1">🐾</span>
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">わかりやすい料金</span>
+      <h2 class="sec-title">まずは<span class="hl">無料</span>からどうぞ。</h2>
+      <p class="sec-lead">使い方に合わせて選べる3プラン。いつでも変更・解約OK。</p>
+    </div>
+    <div class="price-grid">
+      <div class="plan">
+        <h3>おためし 🌱</h3>
+        <div class="who">まず試したい人に</div>
+        <div class="price">¥0<small>/月</small></div>
+        <ul>
+          <li>ご近所さがし</li>
+          <li>あずけ依頼 月3回まで</li>
+          <li>ありがとうポイント</li>
+          <li>おあずかりレポート</li>
+        </ul>
+        <a href="#cta" class="btn btn-white">無料ではじめる</a>
+      </div>
+      <div class="plan pop">
+        <span class="ribbon">🏆 いちばん人気</span>
+        <h3>なかよし 🐾</h3>
+        <div class="who">日常的に使うご家庭に</div>
+        <div class="price">¥480<small>/月</small></div>
+        <ul>
+          <li>あずけ依頼 無制限</li>
+          <li>優先マッチング</li>
+          <li>あんしん補償つき</li>
+          <li>チャット既読＆通知強化</li>
+        </ul>
+        <a href="#cta" class="btn btn-sunny">なかよしを選ぶ</a>
+      </div>
+      <div class="plan">
+        <h3>マンション 🏢</h3>
+        <div class="who">管理組合・棟まるごと</div>
+        <div class="price">応相談</div>
+        <ul>
+          <li>棟内コミュニティ機能</li>
+          <li>住民限定の安心エリア</li>
+          <li>管理会社サポート連携</li>
+          <li>専用サポート窓口</li>
+        </ul>
+        <a href="#cta" class="btn btn-white">問い合わせる</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ユーザーの声 ===== -->
+<section class="voices">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">みんなの声</span>
+      <h2 class="sec-title">ご近所に<span class="hl">仲間が増えた</span>って、うれしい。</h2>
+      <p class="sec-lead">ペトモを使ってくれているご家庭からのリアルな声。</p>
+    </div>
+    <div class="voice-grid">
+      <div class="voice">
+        <div class="stars">★★★★★</div>
+        <div class="quote">“</div>
+        <p>急な出張でも、同じ階のさんに数時間お願いできて本当に助かりました。今度はうちが猫ちゃんをあずかる番です🐱</p>
+        <div class="who">
+          <span class="ava">🐶</span>
+          <div>
+            <div class="nm">みきさん（柴犬・さくら）</div>
+            <div class="sub">タワマン3階／30代</div>
+          </div>
+        </div>
+      </div>
+      <div class="voice">
+        <div class="stars">★★★★★</div>
+        <div class="quote">“</div>
+        <p>ホテルだとソワソワしてた子が、ご近所さんのお家だとリラックス。レポートの写真が毎回かわいくて癒されてます😊</p>
+        <div class="who">
+          <span class="ava">🐱</span>
+          <div>
+            <div class="nm">けんじさん（猫・こてつ）</div>
+            <div class="sub">2児のパパ／40代</div>
+          </div>
+        </div>
+      </div>
+      <div class="voice">
+        <div class="stars">★★★★★</div>
+        <div class="quote">“</div>
+        <p>引っ越したばかりでご近所付き合いゼロだったけど、ペトモきっかけでママ友ならぬ“わんこ友”ができました🐾</p>
+        <div class="who">
+          <span class="ava">🐰</span>
+          <div>
+            <div class="nm">あやさん（トイプー・マロン）</div>
+            <div class="sub">新米飼い主／20代</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="faq" id="faq">
+  <span class="float-paw f1">🐾</span>
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">よくある質問</span>
+      <h2 class="sec-title">気になること、<span class="hl">ぜんぶ</span>お答え。</h2>
+    </div>
+    <div class="faq-list">
+      <details class="qa" open>
+        <summary>
+          <span class="q"><span class="badge">Q</span>はじめての相手にあずけるのは不安です。</span>
+          <span class="plus">+</span>
+        </summary>
+        <div class="ans">全ユーザーに本人確認とエリア認証をお願いしています。さらにレビュー・評価で信頼度が見えるので、安心できる相手を選んであずけられます。まずはチャットで顔合わせから始めましょう。</div>
+      </details>
+      <details class="qa">
+        <summary>
+          <span class="q"><span class="badge">Q</span>お金のやりとりは発生しますか？</span>
+          <span class="plus">+</span>
+        </summary>
+        <div class="ans">基本は“ありがとうポイント”での助け合いなので、現金のやりとりは不要です。あずかった分がポイントになり、次に自分があずける時に使える仕組みです。気をつかわず続けられます。</div>
+      </details>
+      <details class="qa">
+        <summary>
+          <span class="q"><span class="badge">Q</span>どんなペットが対象ですか？</span>
+          <span class="plus">+</span>
+        </summary>
+        <div class="ans">犬・猫を中心に、うさぎや小動物にも対応予定です。プロフィールに性格・食事・お世話のポイントを登録できるので、相手も安心してお預かりできます。</div>
+      </details>
+      <details class="qa">
+        <summary>
+          <span class="q"><span class="badge">Q</span>万が一のトラブルが心配です。</span>
+          <span class="plus">+</span>
+        </summary>
+        <div class="ans">「なかよしプラン」以上にはあんしん補償が付帯します。ケガや体調不良など、万が一の際もサポート窓口がフォロー。安心してご近所助け合いをお楽しみください。</div>
+      </details>
+      <details class="qa">
+        <summary>
+          <span class="q"><span class="badge">Q</span>マンション全体で導入できますか？</span>
+          <span class="plus">+</span>
+        </summary>
+        <div class="ans">はい。「マンションプラン」で管理組合・管理会社向けに、棟内限定の安心コミュニティをご用意できます。住民限定エリアで、より身近に助け合えます。お気軽にお問い合わせください。</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ===== フッター CTA ===== -->
+<section class="cta" id="cta">
+  <span class="pawbg pa">🐾</span>
+  <span class="pawbg pb">🐾</span>
+  <h2>さあ、ご近所であずけ合おう。</h2>
+  <p>登録は3分、しかも無料。あなたのご近所にも、やさしさのわが広がります。</p>
+  <div class="hero-cta">
+    <a href="#" class="btn btn-sunny">無料アプリをはじめる 🎉</a>
+    <a href="#" class="btn btn-white">資料をもらう</a>
+  </div>
+</section>
+
+<!-- ===== フッター ===== -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="#" class="logo"><span class="mark">🐾</span>ペトモ</a>
+        <p class="foot-about">あずけ合う、ご近所のやさしさ。同じマンション・ご近所で犬や猫を預け合える相互扶助プラットフォームです。</p>
+      </div>
+      <div class="foot-col">
+        <h4>サービス</h4>
+        <a href="#solution">仕組み</a>
+        <a href="#features">機能</a>
+        <a href="#pricing">料金プラン</a>
+        <a href="#faq">よくある質問</a>
+      </div>
+      <div class="foot-col">
+        <h4>会社情報</h4>
+        <a href="#">運営会社</a>
+        <a href="#">お知らせ</a>
+        <a href="#">採用情報</a>
+        <a href="#">お問い合わせ</a>
+      </div>
+      <div class="foot-col">
+        <h4>サポート</h4>
+        <a href="#">利用規約</a>
+        <a href="#">プライバシー</a>
+        <a href="#">安全への取り組み</a>
+        <a href="#">ヘルプセンター</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Petomo Inc. あずけ合う、ご近所のやさしさ。</span>
+      <span class="socials"><a href="#">📷</a><a href="#">🐦</a><a href="#">📘</a><a href="#">🎬</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // スクロールふわっと表示
+  const targets = document.querySelectorAll(
+    '.prob-card,.sol-row,.feat,.plan,.voice,.qa,.head'
+  );
+  targets.forEach(t=>t.classList.add('reveal'));
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.12});
+  targets.forEach(t=>io.observe(t));
+
+  // バーガー（簡易：ナビへスクロール）
+  document.querySelector('.burger').addEventListener('click',()=>{
+    document.querySelector('#pricing').scrollIntoView({behavior:'smooth'});
+  });
+</script>
+
+</body>
+</html>

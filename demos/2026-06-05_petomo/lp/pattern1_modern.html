@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ペトモ｜あずけ合う、ご近所のやさしさ。</title>
+<style>
+  :root{
+    --cream:#FFF8F2;
+    --coral:#FF7A59;
+    --coral-soft:#FFE3DA;
+    --teal:#2BB3A3;
+    --teal-soft:#DEF4F0;
+    --honey:#FFC857;
+    --honey-soft:#FFF0CE;
+    --char:#2E2A26;
+    --char-soft:#6B635B;
+    --white:#FFFFFF;
+    --radius-s:16px;
+    --radius-m:20px;
+    --radius-l:28px;
+    --shadow-soft:0 14px 40px rgba(255,122,89,.14);
+    --shadow-card:0 10px 30px rgba(46,42,38,.08);
+    --shadow-deep:0 24px 60px rgba(46,42,38,.14);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+    background:var(--cream);
+    color:var(--char);
+    font-size:17px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  .wrap{
+    max-width:1120px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  .section{padding:96px 0;}
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--coral-soft);
+    color:var(--coral);
+    font-weight:700;
+    font-size:14px;
+    padding:8px 18px;
+    border-radius:999px;
+    letter-spacing:.04em;
+  }
+
+  .eyebrow.teal{background:var(--teal-soft);color:var(--teal);}
+  .eyebrow.honey{background:var(--honey-soft);color:#C58B00;}
+
+  h2.section-title{
+    font-size:clamp(28px,4vw,42px);
+    line-height:1.35;
+    font-weight:800;
+    margin:18px 0 14px;
+    letter-spacing:.01em;
+  }
+
+  .section-lead{
+    font-size:18px;
+    color:var(--char-soft);
+    max-width:620px;
+  }
+
+  .center{text-align:center;}
+  .center .section-lead{margin:0 auto;}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-weight:700;
+    font-size:17px;
+    padding:16px 30px;
+    border-radius:999px;
+    border:none;
+    cursor:pointer;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .btn-primary{
+    background:var(--coral);
+    color:#fff;
+    box-shadow:0 12px 26px rgba(255,122,89,.36);
+  }
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 18px 34px rgba(255,122,89,.46);}
+  .btn-ghost{
+    background:#fff;
+    color:var(--char);
+    border:2px solid rgba(46,42,38,.1);
+  }
+  .btn-ghost:hover{transform:translateY(-3px);border-color:var(--coral);color:var(--coral);}
+
+  /* ---------- Header ---------- */
+  header.nav{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(255,248,242,.82);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(46,42,38,.06);
+  }
+  .nav-inner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 24px;
+    max-width:1120px;
+    margin:0 auto;
+  }
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:800;
+    font-size:22px;
+  }
+  .logo-mark{
+    width:42px;height:42px;
+    border-radius:14px;
+    background:linear-gradient(135deg,var(--coral),var(--honey));
+    display:grid;place-items:center;
+    font-size:22px;
+    box-shadow:0 8px 18px rgba(255,122,89,.3);
+  }
+  .nav-links{display:flex;align-items:center;gap:28px;}
+  .nav-links a{font-weight:600;color:var(--char-soft);font-size:15px;transition:color .2s;}
+  .nav-links a:hover{color:var(--coral);}
+  .nav-cta{
+    background:var(--coral);color:#fff;
+    padding:10px 22px;border-radius:999px;font-size:15px;
+    box-shadow:0 8px 18px rgba(255,122,89,.3);
+  }
+  @media(max-width:860px){.nav-links a:not(.nav-cta){display:none;}}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;
+    padding:80px 0 110px;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    top:-160px;right:-120px;
+    width:520px;height:520px;
+    background:radial-gradient(circle at center,var(--coral-soft),transparent 68%);
+    border-radius:50%;
+    z-index:0;
+  }
+  .hero::after{
+    content:"";
+    position:absolute;
+    bottom:-180px;left:-140px;
+    width:480px;height:480px;
+    background:radial-gradient(circle at center,var(--teal-soft),transparent 70%);
+    border-radius:50%;
+    z-index:0;
+  }
+  .hero-grid{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns:1.05fr .95fr;
+    gap:56px;
+    align-items:center;
+  }
+  .hero-copy h1{
+    font-size:clamp(34px,5.4vw,58px);
+    line-height:1.25;
+    font-weight:900;
+    letter-spacing:.01em;
+    margin:20px 0 22px;
+  }
+  .hero-copy h1 .accent{color:var(--coral);}
+  .hero-copy h1 .teal{color:var(--teal);}
+  .hero-copy p.lead{
+    font-size:19px;
+    color:var(--char-soft);
+    margin-bottom:34px;
+    max-width:520px;
+  }
+  .hero-actions{display:flex;gap:16px;flex-wrap:wrap;}
+  .hero-trust{
+    margin-top:34px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+  }
+  .avatars{display:flex;}
+  .avatars span{
+    width:46px;height:46px;border-radius:50%;
+    border:3px solid var(--cream);
+    margin-left:-12px;
+    display:grid;place-items:center;
+    font-size:22px;
+    box-shadow:0 4px 10px rgba(46,42,38,.12);
+  }
+  .avatars span:first-child{margin-left:0;}
+  .avatars .a1{background:var(--coral-soft);}
+  .avatars .a2{background:var(--teal-soft);}
+  .avatars .a3{background:var(--honey-soft);}
+  .avatars .a4{background:#EDE3FF;}
+  .trust-text{font-size:15px;color:var(--char-soft);}
+  .trust-text strong{color:var(--char);font-size:17px;}
+
+  /* ---------- Phone Mock ---------- */
+  .phone-stage{
+    position:relative;
+    display:flex;
+    justify-content:center;
+  }
+  .phone{
+    position:relative;
+    width:300px;
+    height:610px;
+    background:#fff;
+    border-radius:46px;
+    padding:14px;
+    box-shadow:var(--shadow-deep);
+    border:1px solid rgba(46,42,38,.06);
+    z-index:2;
+  }
+  .phone::before{
+    content:"";
+    position:absolute;
+    top:20px;left:50%;transform:translateX(-50%);
+    width:120px;height:26px;
+    background:#1d1b19;
+    border-radius:999px;
+    z-index:5;
+  }
+  .phone-screen{
+    height:100%;
+    border-radius:34px;
+    background:linear-gradient(180deg,var(--coral-soft) 0%,var(--cream) 30%);
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  .ps-top{
+    padding:42px 20px 14px;
+  }
+  .ps-greeting{font-size:13px;color:var(--char-soft);}
+  .ps-name{font-size:20px;font-weight:800;}
+  .ps-map{
+    margin:6px 18px;
+    height:160px;
+    border-radius:22px;
+    background:
+      linear-gradient(135deg,var(--teal-soft),#fff);
+    position:relative;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 1px rgba(43,179,163,.18);
+  }
+  .ps-map .road{
+    position:absolute;
+    background:rgba(43,179,163,.16);
+  }
+  .ps-map .road.h{left:0;right:0;height:8px;top:55%;}
+  .ps-map .road.v{top:0;bottom:0;width:8px;left:38%;}
+  .ps-map .road.v2{top:0;bottom:0;width:8px;left:72%;}
+  .pin{
+    position:absolute;
+    width:34px;height:34px;
+    background:var(--coral);
+    border-radius:50% 50% 50% 0;
+    transform:rotate(-45deg);
+    display:grid;place-items:center;
+    box-shadow:0 6px 12px rgba(255,122,89,.4);
+  }
+  .pin span{transform:rotate(45deg);font-size:15px;}
+  .pin.teal{background:var(--teal);box-shadow:0 6px 12px rgba(43,179,163,.4);}
+  .pin.honey{background:var(--honey);box-shadow:0 6px 12px rgba(255,200,87,.5);}
+  .pin.p1{top:30px;left:50px;}
+  .pin.p2{top:80px;left:160px;}
+  .pin.p3{top:110px;left:90px;}
+  .ps-cards{
+    flex:1;
+    background:#fff;
+    border-radius:28px 28px 0 0;
+    margin-top:14px;
+    padding:18px 18px 22px;
+    box-shadow:0 -6px 20px rgba(46,42,38,.05);
+  }
+  .ps-cards h4{font-size:15px;margin-bottom:12px;}
+  .ps-cards h4 .small{font-size:12px;font-weight:600;color:var(--coral);float:right;}
+  .sitter-card{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--cream);
+    border-radius:18px;
+    padding:12px;
+    margin-bottom:10px;
+  }
+  .sitter-avatar{
+    width:48px;height:48px;border-radius:50%;
+    display:grid;place-items:center;font-size:24px;
+    flex-shrink:0;
+  }
+  .sa1{background:var(--coral-soft);}
+  .sa2{background:var(--teal-soft);}
+  .sa3{background:var(--honey-soft);}
+  .sitter-info{flex:1;min-width:0;}
+  .sitter-info .sname{font-size:14px;font-weight:700;}
+  .sitter-info .smeta{font-size:11.5px;color:var(--char-soft);}
+  .sitter-badge{
+    font-size:11px;font-weight:700;
+    background:var(--teal);color:#fff;
+    padding:4px 9px;border-radius:999px;
+    flex-shrink:0;
+  }
+  .sitter-badge.dist{background:var(--honey);color:#5b4200;}
+  .ps-bottombar{
+    position:absolute;
+    bottom:0;left:0;right:0;
+    background:#fff;
+    display:flex;
+    justify-content:space-around;
+    padding:12px 0 16px;
+    border-top:1px solid rgba(46,42,38,.06);
+    font-size:20px;
+  }
+  .ps-bottombar .nav-active{color:var(--coral);}
+  .ps-bottombar .nav-dim{opacity:.35;}
+
+  /* floating chips around phone */
+  .float-chip{
+    position:absolute;
+    background:#fff;
+    border-radius:18px;
+    padding:12px 16px;
+    box-shadow:var(--shadow-card);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:14px;
+    font-weight:600;
+    z-index:3;
+  }
+  .float-chip .emo{font-size:22px;}
+  .fc1{top:60px;left:-30px;animation:floaty 5s ease-in-out infinite;}
+  .fc2{bottom:130px;right:-34px;animation:floaty 6s ease-in-out infinite .8s;}
+  .fc3{bottom:30px;left:-20px;animation:floaty 5.5s ease-in-out infinite .4s;}
+  .fc-sub{font-size:11px;color:var(--char-soft);font-weight:500;}
+  @keyframes floaty{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-12px);}
+  }
+
+  @media(max-width:920px){
+    .hero-grid{grid-template-columns:1fr;text-align:center;}
+    .hero-copy p.lead{margin-left:auto;margin-right:auto;}
+    .hero-actions{justify-content:center;}
+    .hero-trust{justify-content:center;}
+    .phone-stage{margin-top:30px;}
+    .fc1{left:0;}.fc2{right:0;}.fc3{left:6px;}
+  }
+
+  /* ---------- Problem ---------- */
+  .problem{background:var(--white);}
+  .problem-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+    margin-top:50px;
+  }
+  .problem-card{
+    background:var(--cream);
+    border-radius:var(--radius-l);
+    padding:34px 28px;
+    box-shadow:var(--shadow-card);
+    position:relative;
+    transition:transform .3s ease;
+  }
+  .problem-card:hover{transform:translateY(-6px);}
+  .problem-emoji{
+    width:64px;height:64px;
+    border-radius:18px;
+    background:var(--coral-soft);
+    display:grid;place-items:center;
+    font-size:32px;
+    margin-bottom:18px;
+  }
+  .problem-card:nth-child(2) .problem-emoji{background:var(--teal-soft);}
+  .problem-card:nth-child(3) .problem-emoji{background:var(--honey-soft);}
+  .problem-card h3{font-size:21px;margin-bottom:10px;}
+  .problem-card p{font-size:16px;color:var(--char-soft);}
+  .problem-quote{
+    margin-top:54px;
+    text-align:center;
+    font-size:clamp(22px,3vw,30px);
+    font-weight:800;
+    line-height:1.5;
+  }
+  .problem-quote .hl{color:var(--coral);}
+  @media(max-width:820px){.problem-grid{grid-template-columns:1fr;}}
+
+  /* ---------- Solution ---------- */
+  .solution{position:relative;}
+  .solution-grid{
+    display:grid;
+    grid-template-columns:.9fr 1.1fr;
+    gap:60px;
+    align-items:center;
+    margin-top:30px;
+  }
+  .steps{display:flex;flex-direction:column;gap:18px;}
+  .step{
+    display:flex;
+    gap:18px;
+    background:#fff;
+    border-radius:var(--radius-m);
+    padding:22px 24px;
+    box-shadow:var(--shadow-card);
+    transition:transform .3s ease;
+  }
+  .step:hover{transform:translateX(8px);}
+  .step-num{
+    width:48px;height:48px;flex-shrink:0;
+    border-radius:14px;
+    background:linear-gradient(135deg,var(--teal),#1f9c8e);
+    color:#fff;font-weight:800;font-size:20px;
+    display:grid;place-items:center;
+  }
+  .step:nth-child(2) .step-num{background:linear-gradient(135deg,var(--coral),#ff9576);}
+  .step:nth-child(3) .step-num{background:linear-gradient(135deg,var(--honey),#f0ad2e);color:#5b4200;}
+  .step h4{font-size:19px;margin-bottom:4px;}
+  .step p{font-size:15.5px;color:var(--char-soft);}
+
+  .houses-illust{
+    position:relative;
+    background:linear-gradient(180deg,var(--teal-soft),#fff);
+    border-radius:var(--radius-l);
+    padding:46px 30px 0;
+    height:380px;
+    overflow:hidden;
+    box-shadow:var(--shadow-card);
+  }
+  .houses-row{
+    position:absolute;
+    bottom:0;left:0;right:0;
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    align-items:flex-end;
+  }
+  .house{
+    width:90px;
+    position:relative;
+  }
+  .house .roof{
+    width:0;height:0;
+    border-left:45px solid transparent;
+    border-right:45px solid transparent;
+    border-bottom:38px solid var(--coral);
+    margin:0 auto;
+  }
+  .house:nth-child(2) .roof{border-bottom-color:var(--teal);}
+  .house:nth-child(3) .roof{border-bottom-color:var(--honey);}
+  .house .body{
+    background:#fff;
+    height:130px;
+    border-radius:8px 8px 0 0;
+    box-shadow:0 -4px 14px rgba(46,42,38,.06);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .window{
+    width:34px;height:34px;
+    border-radius:8px;
+    background:var(--honey-soft);
+    display:grid;place-items:center;
+    font-size:18px;
+    box-shadow:inset 0 0 0 2px rgba(255,200,87,.5);
+  }
+  .heart-link{
+    position:absolute;
+    font-size:24px;
+    animation:floaty 3.5s ease-in-out infinite;
+  }
+  .hl1{top:40px;left:30%;}
+  .hl2{top:70px;left:55%;animation-delay:.7s;}
+  .hl3{top:30px;left:72%;animation-delay:1.2s;}
+  @media(max-width:820px){.solution-grid{grid-template-columns:1fr;}}
+
+  /* ---------- Features ---------- */
+  .features{background:var(--white);}
+  .feature-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:26px;
+    margin-top:50px;
+  }
+  .feature-card{
+    background:var(--cream);
+    border-radius:var(--radius-l);
+    padding:36px 30px;
+    box-shadow:var(--shadow-card);
+    position:relative;
+    overflow:hidden;
+    transition:transform .3s ease,box-shadow .3s ease;
+  }
+  .feature-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-deep);}
+  .feature-card::after{
+    content:"";
+    position:absolute;
+    top:-40px;right:-40px;
+    width:120px;height:120px;
+    border-radius:50%;
+    background:var(--coral-soft);
+    opacity:.6;
+  }
+  .feature-card:nth-child(2)::after{background:var(--teal-soft);}
+  .feature-card:nth-child(3)::after{background:var(--honey-soft);}
+  .feature-icon{
+    position:relative;
+    z-index:1;
+    width:70px;height:70px;
+    border-radius:20px;
+    background:#fff;
+    display:grid;place-items:center;
+    font-size:34px;
+    box-shadow:var(--shadow-card);
+    margin-bottom:22px;
+  }
+  .feature-card h3{position:relative;z-index:1;font-size:22px;margin-bottom:12px;}
+  .feature-card p{position:relative;z-index:1;font-size:16px;color:var(--char-soft);}
+  .feature-tag{
+    position:relative;z-index:1;
+    display:inline-block;
+    margin-top:18px;
+    font-size:13px;font-weight:700;
+    color:var(--coral);
+    background:#fff;
+    padding:6px 14px;border-radius:999px;
+  }
+  .feature-card:nth-child(2) .feature-tag{color:var(--teal);}
+  .feature-card:nth-child(3) .feature-tag{color:#C58B00;}
+  @media(max-width:820px){.feature-grid{grid-template-columns:1fr;}}
+
+  /* ---------- Pricing ---------- */
+  .pricing-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:26px;
+    margin-top:50px;
+    align-items:stretch;
+  }
+  .price-card{
+    background:#fff;
+    border-radius:var(--radius-l);
+    padding:38px 30px;
+    box-shadow:var(--shadow-card);
+    display:flex;
+    flex-direction:column;
+    border:2px solid transparent;
+    transition:transform .3s ease;
+  }
+  .price-card:hover{transform:translateY(-6px);}
+  .price-card.featured{
+    border-color:var(--coral);
+    box-shadow:var(--shadow-deep);
+    position:relative;
+  }
+  .price-card.featured::before{
+    content:"いちばん人気 🐾";
+    position:absolute;
+    top:-15px;left:50%;transform:translateX(-50%);
+    background:var(--coral);color:#fff;
+    font-size:13px;font-weight:700;
+    padding:6px 18px;border-radius:999px;
+    white-space:nowrap;
+    box-shadow:0 8px 16px rgba(255,122,89,.35);
+  }
+  .price-name{font-size:20px;font-weight:800;margin-bottom:6px;}
+  .price-desc{font-size:14px;color:var(--char-soft);margin-bottom:20px;min-height:42px;}
+  .price-amount{font-size:42px;font-weight:900;line-height:1;}
+  .price-amount span{font-size:17px;font-weight:600;color:var(--char-soft);}
+  .price-sub{font-size:13px;color:var(--char-soft);margin-top:6px;margin-bottom:24px;}
+  .price-features{list-style:none;flex:1;margin-bottom:26px;}
+  .price-features li{
+    display:flex;align-items:flex-start;gap:10px;
+    font-size:15.5px;padding:8px 0;
+    border-bottom:1px dashed rgba(46,42,38,.1);
+  }
+  .price-features li .ck{color:var(--teal);font-weight:800;flex-shrink:0;}
+  .price-card .btn{width:100%;}
+  @media(max-width:820px){.pricing-grid{grid-template-columns:1fr;}}
+
+  /* ---------- Voices ---------- */
+  .voices{background:var(--white);}
+  .voice-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:24px;
+    margin-top:50px;
+  }
+  .voice-card{
+    background:var(--cream);
+    border-radius:var(--radius-l);
+    padding:32px;
+    box-shadow:var(--shadow-card);
+    position:relative;
+  }
+  .voice-card .quote-mark{
+    position:absolute;top:18px;right:26px;
+    font-size:60px;color:var(--coral-soft);
+    font-family:Georgia,serif;line-height:1;
+  }
+  .voice-stars{color:var(--honey);font-size:18px;margin-bottom:14px;letter-spacing:2px;}
+  .voice-text{font-size:16.5px;margin-bottom:22px;position:relative;z-index:1;}
+  .voice-who{display:flex;align-items:center;gap:14px;}
+  .voice-avatar{
+    width:54px;height:54px;border-radius:50%;
+    display:grid;place-items:center;font-size:26px;
+  }
+  .va1{background:var(--coral-soft);}
+  .va2{background:var(--teal-soft);}
+  .va3{background:var(--honey-soft);}
+  .va4{background:#EDE3FF;}
+  .voice-name{font-weight:700;font-size:16px;}
+  .voice-role{font-size:13.5px;color:var(--char-soft);}
+  @media(max-width:760px){.voice-grid{grid-template-columns:1fr;}}
+
+  /* ---------- FAQ ---------- */
+  .faq-list{max-width:760px;margin:50px auto 0;}
+  .faq-item{
+    background:#fff;
+    border-radius:var(--radius-m);
+    margin-bottom:16px;
+    box-shadow:var(--shadow-card);
+    overflow:hidden;
+  }
+  .faq-q{
+    width:100%;
+    text-align:left;
+    background:none;border:none;cursor:pointer;
+    padding:22px 26px;
+    font-size:18px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    color:var(--char);
+    font-family:inherit;
+  }
+  .faq-q .ico{
+    flex-shrink:0;
+    width:30px;height:30px;border-radius:50%;
+    background:var(--coral-soft);color:var(--coral);
+    display:grid;place-items:center;font-size:18px;
+    transition:transform .3s ease;
+  }
+  .faq-item.open .faq-q .ico{transform:rotate(45deg);}
+  .faq-a{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .35s ease,padding .35s ease;
+    padding:0 26px;
+    font-size:16px;color:var(--char-soft);
+  }
+  .faq-item.open .faq-a{
+    max-height:240px;
+    padding:0 26px 24px;
+  }
+
+  /* ---------- Footer CTA ---------- */
+  .footer-cta{
+    background:linear-gradient(135deg,var(--coral) 0%,#ff936f 60%,var(--honey) 130%);
+    color:#fff;
+    text-align:center;
+    border-radius:var(--radius-l);
+    padding:70px 30px;
+    position:relative;
+    overflow:hidden;
+    margin-bottom:60px;
+  }
+  .footer-cta::before,.footer-cta::after{
+    content:"🐾";
+    position:absolute;
+    font-size:120px;
+    opacity:.12;
+  }
+  .footer-cta::before{top:-20px;left:20px;transform:rotate(-15deg);}
+  .footer-cta::after{bottom:-30px;right:30px;transform:rotate(20deg);}
+  .footer-cta h2{
+    font-size:clamp(28px,4vw,40px);
+    font-weight:900;
+    margin-bottom:16px;
+    position:relative;z-index:1;
+  }
+  .footer-cta p{font-size:18px;max-width:540px;margin:0 auto 30px;position:relative;z-index:1;opacity:.95;}
+  .footer-cta .btn{position:relative;z-index:1;background:#fff;color:var(--coral);}
+  .footer-cta .btn:hover{transform:translateY(-3px);}
+  .store-badges{
+    display:flex;gap:14px;justify-content:center;margin-top:22px;
+    position:relative;z-index:1;flex-wrap:wrap;
+  }
+  .store-badge{
+    background:rgba(255,255,255,.18);
+    border:1.5px solid rgba(255,255,255,.5);
+    border-radius:14px;
+    padding:10px 20px;
+    font-size:15px;font-weight:600;
+    display:flex;align-items:center;gap:8px;
+  }
+
+  footer.site-foot{
+    background:var(--char);
+    color:#fff;
+    padding:56px 0 30px;
+  }
+  .foot-grid{
+    display:grid;
+    grid-template-columns:1.4fr 1fr 1fr 1fr;
+    gap:36px;
+  }
+  .foot-brand .logo{color:#fff;margin-bottom:14px;}
+  .foot-brand p{font-size:15px;color:rgba(255,255,255,.6);max-width:280px;}
+  .foot-col h5{font-size:15px;font-weight:700;margin-bottom:16px;}
+  .foot-col a{
+    display:block;
+    font-size:14.5px;
+    color:rgba(255,255,255,.6);
+    padding:6px 0;
+    transition:color .2s;
+  }
+  .foot-col a:hover{color:var(--honey);}
+  .foot-bottom{
+    margin-top:44px;
+    padding-top:24px;
+    border-top:1px solid rgba(255,255,255,.12);
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:13.5px;color:rgba(255,255,255,.5);
+    flex-wrap:wrap;gap:12px;
+  }
+  .foot-social{display:flex;gap:14px;font-size:22px;}
+  @media(max-width:820px){.foot-grid{grid-template-columns:1fr 1fr;}}
+  @media(max-width:520px){.foot-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<header class="nav">
+  <div class="nav-inner">
+    <div class="logo">
+      <div class="logo-mark">🐾</div>
+      <span>ペトモ</span>
+    </div>
+    <nav class="nav-links">
+      <a href="#problem">課題</a>
+      <a href="#solution">使い方</a>
+      <a href="#features">機能</a>
+      <a href="#pricing">料金</a>
+      <a href="#faq">FAQ</a>
+      <a href="#cta" class="nav-cta">はじめる</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">🏠 ご近所どうしの預け合い</span>
+      <h1>あずけ合う、<br><span class="accent">ご近所</span>の<span class="teal">やさしさ</span>。</h1>
+      <p class="lead">急な外出も、長めのお出かけも。同じマンション・同じ町内の顔の見える仲間に、大切な家族（ペット）をあずけ合える。ペトモは、やさしさが循環するご近所コミュニティです。</p>
+      <div class="hero-actions">
+        <a href="#cta" class="btn btn-primary">🐶 無料ではじめる</a>
+        <a href="#solution" class="btn btn-ghost">使い方を見る</a>
+      </div>
+      <div class="hero-trust">
+        <div class="avatars">
+          <span class="a1">🐕</span>
+          <span class="a2">🐈</span>
+          <span class="a3">🐩</span>
+          <span class="a4">🐱</span>
+        </div>
+        <div class="trust-text"><strong>12,800組</strong>のご近所が<br>あずけ合っています</div>
+      </div>
+    </div>
+
+    <!-- Phone Mock (CSS only) -->
+    <div class="phone-stage">
+      <div class="float-chip fc1">
+        <span class="emo">🔔</span>
+        <div>
+          <div>あずかります！</div>
+          <div class="fc-sub">3軒となりの佐藤さん</div>
+        </div>
+      </div>
+      <div class="float-chip fc2">
+        <span class="emo">⭐️</span>
+        <div>
+          <div>評価 4.9</div>
+          <div class="fc-sub">98件のあずかり実績</div>
+        </div>
+      </div>
+      <div class="float-chip fc3">
+        <span class="emo">📍</span>
+        <div>
+          <div>徒歩2分</div>
+          <div class="fc-sub">同じマンション内</div>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="ps-top">
+            <div class="ps-greeting">おはようございます ☀️</div>
+            <div class="ps-name">近くのあずかり先</div>
+          </div>
+          <div class="ps-map">
+            <div class="road h"></div>
+            <div class="road v"></div>
+            <div class="road v2"></div>
+            <div class="pin p1"><span>🐾</span></div>
+            <div class="pin teal p2"><span>🐾</span></div>
+            <div class="pin honey p3"><span>🏠</span></div>
+          </div>
+          <div class="ps-cards">
+            <h4>近くのペトモ <span class="small">すべて見る ›</span></h4>
+            <div class="sitter-card">
+              <div class="sitter-avatar sa1">🧑</div>
+              <div class="sitter-info">
+                <div class="sname">佐藤さん</div>
+                <div class="smeta">⭐️4.9・犬OK・3軒となり</div>
+              </div>
+              <div class="sitter-badge">空きあり</div>
+            </div>
+            <div class="sitter-card">
+              <div class="sitter-avatar sa2">👵</div>
+              <div class="sitter-info">
+                <div class="sname">田村さん</div>
+                <div class="smeta">⭐️5.0・猫OK・同じ階</div>
+              </div>
+              <div class="sitter-badge dist">徒歩1分</div>
+            </div>
+            <div class="sitter-card">
+              <div class="sitter-avatar sa3">👨</div>
+              <div class="sitter-info">
+                <div class="sname">小林さん</div>
+                <div class="smeta">⭐️4.8・犬猫OK・同じ棟</div>
+              </div>
+              <div class="sitter-badge">空きあり</div>
+            </div>
+          </div>
+          <div class="ps-bottombar">
+            <span class="nav-active">🏠</span>
+            <span class="nav-dim">🔍</span>
+            <span class="nav-dim">💬</span>
+            <span class="nav-dim">🐾</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Problem ===== -->
+<section class="section problem" id="problem">
+  <div class="wrap center">
+    <span class="eyebrow honey">😢 こんなこと、ありませんか</span>
+    <h2 class="section-title">「ちょっとの間だけ」が、<br>いちばん頼みにくい。</h2>
+    <p class="section-lead">大切な家族だからこそ、知らない誰かには預けられない。でも家族や友人にも、毎回はお願いしづらい。</p>
+  </div>
+  <div class="wrap">
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-emoji">🏥</div>
+        <h3>急な予定が入った</h3>
+        <p>突然の出張や通院。数時間だけでも見てくれる人が、すぐ近くにいない。ペットホテルは遠いし、慣れない場所はかわいそう。</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-emoji">💸</div>
+        <h3>ペットホテルは割高</h3>
+        <p>一泊数千円。ちょっとの外出でも気軽には使えない。送り迎えの手間もかかって、結局あきらめてしまう。</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-emoji">🤝</div>
+        <h3>頼れる相手がいない</h3>
+        <p>同じマンションに住んでいても、隣に誰がいるのか知らない。本当は助け合えるはずなのに、きっかけがない。</p>
+      </div>
+    </div>
+    <p class="problem-quote">その不安、<span class="hl">同じ町内の「ペット仲間」</span>が<br>そっと支えてくれます。</p>
+  </div>
+</section>
+
+<!-- ===== Solution ===== -->
+<section class="section solution" id="solution">
+  <div class="wrap center">
+    <span class="eyebrow teal">🌱 ペトモのしくみ</span>
+    <h2 class="section-title">「貸し借り」じゃなく、<br>「あずけ合い」。</h2>
+    <p class="section-lead">あずかってもらった分、誰かをあずかる。ポイントでやさしさが循環する、お金以上のつながりが生まれます。</p>
+  </div>
+  <div class="wrap">
+    <div class="solution-grid">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <h4>ご近所のペトモを探す</h4>
+            <p>マンション・町内ごとのマップで、徒歩圏内のあずかり先がひと目で分かる。プロフィールと評価で安心して選べます。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <h4>チャットでお願いする</h4>
+            <p>日時とペットの情報を送るだけ。事前のごあいさつ散歩や顔合わせもアプリから設定できます。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <h4>ポイントでお礼を渡す</h4>
+            <p>あずかってもらったらポイントでお礼。次は自分が誰かをあずかって、やさしさをぐるっと巡らせます。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="houses-illust">
+        <div class="heart-link hl1">💛</div>
+        <div class="heart-link hl2">🧡</div>
+        <div class="heart-link hl3">💚</div>
+        <div class="houses-row">
+          <div class="house">
+            <div class="roof"></div>
+            <div class="body">
+              <div class="window">🐕</div>
+              <div class="window">🪟</div>
+            </div>
+          </div>
+          <div class="house">
+            <div class="roof"></div>
+            <div class="body">
+              <div class="window">🐈</div>
+              <div class="window">🪟</div>
+            </div>
+          </div>
+          <div class="house">
+            <div class="roof"></div>
+            <div class="body">
+              <div class="window">🐩</div>
+              <div class="window">🪟</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Features ===== -->
+<section class="section features" id="features">
+  <div class="wrap center">
+    <span class="eyebrow">✨ 安心のための3つの機能</span>
+    <h2 class="section-title">顔が見えるから、<br>あずけられる。</h2>
+    <p class="section-lead">大切な家族をあずけ合うために、ペトモは「安心」をいちばん大切にしています。</p>
+  </div>
+  <div class="wrap">
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🗺️</div>
+        <h3>ご近所マップ</h3>
+        <p>同じマンション・徒歩圏内のペトモだけを表示。地図ピンをタップすれば、すぐにプロフィールと空き状況が分かります。遠くまで連れて行く必要はありません。</p>
+        <span class="feature-tag">徒歩圏内マッチング</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>本人確認＆あんしん補償</h3>
+        <p>全メンバー本人確認済み。お互いの評価・あずかり実績が見えるから安心。万が一に備えた補償サポートも標準でついています。</p>
+        <span class="feature-tag">本人確認・補償つき</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📸</div>
+        <h3>あずかり日記</h3>
+        <p>あずけている間も、写真とひと言メッセージでリアルタイムに様子が届く。離れていても、家族の笑顔が見られて安心です。</p>
+        <span class="feature-tag">リアルタイム報告</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Pricing ===== -->
+<section class="section pricing" id="pricing">
+  <div class="wrap center">
+    <span class="eyebrow honey">🎁 料金プラン</span>
+    <h2 class="section-title">無料からはじめられる。</h2>
+    <p class="section-lead">基本のあずけ合いはずっと無料。もっと安心して使いたい方に、やさしいプランをご用意しました。</p>
+  </div>
+  <div class="wrap">
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">ごきんじょ</div>
+        <div class="price-desc">まずは気軽に。ご近所のあずけ合いを体験。</div>
+        <div class="price-amount">¥0<span> /月</span></div>
+        <div class="price-sub">ずっと無料</div>
+        <ul class="price-features">
+          <li><span class="ck">✓</span>ご近所マップ検索</li>
+          <li><span class="ck">✓</span>チャットでの依頼</li>
+          <li><span class="ck">✓</span>ポイントでのあずけ合い</li>
+          <li><span class="ck">✓</span>本人確認バッジ</li>
+        </ul>
+        <a href="#cta" class="btn btn-ghost">無料ではじめる</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-name">なかよし</div>
+        <div class="price-desc">毎月あずけ合う、ヘビーユーザーに。</div>
+        <div class="price-amount">¥480<span> /月</span></div>
+        <div class="price-sub">いちばん選ばれています</div>
+        <ul class="price-features">
+          <li><span class="ck">✓</span>ごきんじょの全機能</li>
+          <li><span class="ck">✓</span>あずかり補償の拡充</li>
+          <li><span class="ck">✓</span>優先マッチング表示</li>
+          <li><span class="ck">✓</span>あずかり日記の動画送信</li>
+          <li><span class="ck">✓</span>毎月ボーナスポイント</li>
+        </ul>
+        <a href="#cta" class="btn btn-primary">なかよしを選ぶ</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-name">マンション</div>
+        <div class="price-desc">管理組合・自治会でまるごと導入。</div>
+        <div class="price-amount">要相談</div>
+        <div class="price-sub">棟・町内まとめて</div>
+        <ul class="price-features">
+          <li><span class="ck">✓</span>なかよしの全機能</li>
+          <li><span class="ck">✓</span>住民限定コミュニティ</li>
+          <li><span class="ck">✓</span>管理者ダッシュボード</li>
+          <li><span class="ck">✓</span>導入サポート・説明会</li>
+        </ul>
+        <a href="#cta" class="btn btn-ghost">相談してみる</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Voices ===== -->
+<section class="section voices" id="voices">
+  <div class="wrap center">
+    <span class="eyebrow teal">💬 ユーザーの声</span>
+    <h2 class="section-title">やさしさが、<br>つながりに変わった。</h2>
+    <p class="section-lead">ペトモを通じて生まれた、ご近所どうしのあたたかいエピソード。</p>
+  </div>
+  <div class="wrap">
+    <div class="voice-grid">
+      <div class="voice-card">
+        <div class="quote-mark">&rdquo;</div>
+        <div class="voice-stars">★★★★★</div>
+        <p class="voice-text">急な入院で愛犬の預け先に困っていたとき、同じ階の田村さんがすぐ手をあげてくれました。毎日届く写真に、入院中どれだけ救われたか。今は私が田村さんの猫ちゃんをあずかる番です。</p>
+        <div class="voice-who">
+          <div class="voice-avatar va1">👩</div>
+          <div>
+            <div class="voice-name">M.K さん（30代・トイプードルと暮らす）</div>
+            <div class="voice-role">マンション内であずけ合い</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="quote-mark">&rdquo;</div>
+        <div class="voice-stars">★★★★★</div>
+        <p class="voice-text">ペットホテルは費用も移動も負担でした。ペトモなら徒歩2分のお宅。慣れた環境に近いからか、うちの子も全然ストレスがなくて。ご近所にこんなに犬好きがいたなんて、と驚いています。</p>
+        <div class="voice-who">
+          <div class="voice-avatar va2">🧔</div>
+          <div>
+            <div class="voice-name">T.S さん（40代・柴犬と暮らす）</div>
+            <div class="voice-role">同じ町内であずけ合い</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="quote-mark">&rdquo;</div>
+        <div class="voice-stars">★★★★★</div>
+        <p class="voice-text">ひとり暮らしで、出張のたびに猫を心配していました。ペトモで知り合った下の階の方と、今ではお互いの鍵を預け合う仲に。ペットがきっかけで、ご近所づきあいが本当に豊かになりました。</p>
+        <div class="voice-who">
+          <div class="voice-avatar va3">👨</div>
+          <div>
+            <div class="voice-name">Y.N さん（30代・サバトラ猫と暮らす）</div>
+            <div class="voice-role">マンション内であずけ合い</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-card">
+        <div class="quote-mark">&rdquo;</div>
+        <div class="voice-stars">★★★★★</div>
+        <p class="voice-text">高齢で外出が減りましたが、ご近所のワンちゃんをあずかるのが毎日の楽しみに。お礼のポイントで、自分の通院のときに送迎をお願いできるのも助かっています。世代を超えてつながれるのが嬉しい。</p>
+        <div class="voice-who">
+          <div class="voice-avatar va4">👵</div>
+          <div>
+            <div class="voice-name">K.T さん（60代・あずかり専門）</div>
+            <div class="voice-role">同じマンションであずけ合い</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="section faq" id="faq">
+  <div class="wrap center">
+    <span class="eyebrow">❓ よくある質問</span>
+    <h2 class="section-title">はじめる前の、ちいさな不安に。</h2>
+  </div>
+  <div class="wrap">
+    <div class="faq-list">
+      <div class="faq-item open">
+        <button class="faq-q">本当に知らない人にあずけて大丈夫？<span class="ico">＋</span></button>
+        <div class="faq-a">ペトモのメンバーは全員が本人確認済みです。さらに、お互いの「あずかり実績」と「評価」がプロフィールに表示されるので、安心できる相手を選べます。事前の顔合わせ散歩もアプリから設定でき、納得してからお願いできます。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">あずかる側もお金がもらえるの？<span class="ico">＋</span></button>
+        <div class="faq-a">ペトモは現金のやり取りではなく「ポイント」で循環するしくみです。あずかるとポイントが貯まり、自分がお願いするときに使えます。お金よりも「お互いさま」のやさしさを大切にした設計です。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">ペットがケガをしたらどうなる？<span class="ico">＋</span></button>
+        <div class="faq-a">万が一のトラブルに備え、あずかり中の補償サポートを標準で用意しています。通院費などの補償範囲はプランによって拡充できます。もちろん、いざというときの連絡フローもアプリ内で完結します。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">マンションに住んでいないと使えない？<span class="ico">＋</span></button>
+        <div class="faq-a">いいえ。戸建てにお住まいの方も、町内・徒歩圏内のご近所とあずけ合えます。マップは「マンション内」「同じ町内」など範囲を絞って表示できるので、無理なく通える距離の相手が見つかります。</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">犬と猫、どちらも対応している？<span class="ico">＋</span></button>
+        <div class="faq-a">はい、犬・猫の両方に対応しています。プロフィールで「犬OK」「猫OK」「小型犬のみ」などの受け入れ条件を設定でき、相性の合うペトモだけを探せます。今後は小動物への対応も広げていく予定です。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer CTA ===== -->
+<section class="section" id="cta" style="padding-top:40px;">
+  <div class="wrap">
+    <div class="footer-cta">
+      <h2>さあ、ご近所と<br>やさしさをあずけ合おう。</h2>
+      <p>登録は3分。今日からあなたの町内に、頼れるペット仲間が見つかります。まずは無料で、近くのペトモを探してみませんか。</p>
+      <a href="#" class="btn">🐾 無料でペトモをはじめる</a>
+      <div class="store-badges">
+        <div class="store-badge">📱 App Store</div>
+        <div class="store-badge">🤖 Google Play</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Site Footer ===== -->
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="logo">
+          <div class="logo-mark">🐾</div>
+          <span>ペトモ</span>
+        </div>
+        <p>あずけ合う、ご近所のやさしさ。<br>同じマンション・町内で、ペットも人もつながるコミュニティ。</p>
+      </div>
+      <div class="foot-col">
+        <h5>サービス</h5>
+        <a href="#solution">使い方</a>
+        <a href="#features">機能紹介</a>
+        <a href="#pricing">料金プラン</a>
+        <a href="#voices">ユーザーの声</a>
+      </div>
+      <div class="foot-col">
+        <h5>サポート</h5>
+        <a href="#faq">よくある質問</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">あんしん補償について</a>
+        <a href="#">マンション導入</a>
+      </div>
+      <div class="foot-col">
+        <h5>会社情報</h5>
+        <a href="#">運営会社</a>
+        <a href="#">利用規約</a>
+        <a href="#">プライバシーポリシー</a>
+        <a href="#">採用情報</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Petomo, Inc. All rights reserved.</span>
+      <div class="foot-social">
+        <span>📷</span><span>🐦</span><span>📘</span><span>💬</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-q').forEach(function(q){
+    q.addEventListener('click',function(){
+      var item=q.parentElement;
+      var wasOpen=item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(function(i){i.classList.remove('open');});
+      if(!wasOpen){item.classList.add('open');}
+    });
+  });
+</script>
+
+</body>
+</html>

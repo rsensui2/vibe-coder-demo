@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ペトモ (Petomo)</title>
+<style>
+  /* ============================================================
+     ペトモ (Petomo) — ご近所ペット相互あずかりプラットフォーム
+     iPhone モックアップ（CSS のみでフレーム描画）
+     ============================================================ */
+
+  :root {
+    --cream:      #FFF8F2;  /* 背景クリーム */
+    --coral:      #FF7A59;  /* アクセント コーラル */
+    --coral-soft: #FFE5DD;  /* コーラル薄め */
+    --teal:       #2BB3A3;  /* サブ ティール */
+    --teal-soft:  #DDF3F0;  /* ティール薄め */
+    --ink:        #2E2A26;  /* テキスト */
+    --ink-soft:   #8C857E;  /* サブテキスト */
+    --white:      #FFFFFF;
+    --line:       #F0E6DC;  /* 境界線 */
+    --shadow:     0 8px 24px rgba(255, 122, 89, 0.12);
+    --shadow-sm:  0 4px 12px rgba(46, 42, 38, 0.06);
+    --radius:     22px;
+    --radius-sm:  16px;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    font-family: -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+                 "Yu Gothic", "Meiryo", system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 20% 10%, #FFEFE6 0%, transparent 45%),
+      radial-gradient(circle at 85% 90%, #E4F5F2 0%, transparent 45%),
+      #F3ECE4;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 32px 0;
+  }
+
+  /* ============================================================
+     iPhone フレーム
+     ============================================================ */
+  .phone {
+    position: relative;
+    width: 390px;
+    height: 844px;
+    background: #1a1715;
+    border-radius: 56px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 2px #2c2825,
+      0 30px 70px rgba(46, 42, 38, 0.45),
+      inset 0 0 4px rgba(255,255,255,0.1);
+  }
+
+  /* サイドボタン */
+  .phone::before {
+    content: "";
+    position: absolute;
+    left: -3px;
+    top: 180px;
+    width: 3px;
+    height: 64px;
+    background: #2c2825;
+    border-radius: 4px 0 0 4px;
+    box-shadow: 0 84px 0 #2c2825, 0 168px 0 #2c2825;
+  }
+  .phone::after {
+    content: "";
+    position: absolute;
+    right: -3px;
+    top: 230px;
+    width: 3px;
+    height: 96px;
+    background: #2c2825;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--cream);
+    border-radius: 44px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Dynamic Island */
+  .dynamic-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 122px;
+    height: 35px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 12px;
+  }
+  .dynamic-island::after {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #0d1a26;
+    box-shadow: inset 0 0 3px rgba(120,160,200,0.4);
+  }
+
+  /* ステータスバー */
+  .status-bar {
+    height: 54px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    z-index: 50;
+  }
+  .status-bar .right {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  /* ============================================================
+     アプリ本体
+     ============================================================ */
+  .app-header {
+    flex-shrink: 0;
+    padding: 6px 20px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .app-header .title {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .app-header .title .logo {
+    width: 32px;
+    height: 32px;
+    background: var(--coral);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: var(--shadow-sm);
+  }
+  .app-header .sub {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .header-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--teal-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border: 2px solid var(--white);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 16px 96px;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* 画面の表示切り替え */
+  .view { display: none; animation: fade .35s ease; }
+  .view.active { display: block; }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 汎用カード */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 800;
+    margin: 18px 4px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-title .pill {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--coral);
+    background: var(--coral-soft);
+    padding: 3px 10px;
+    border-radius: 99px;
+  }
+
+  /* ============================================================
+     1. ホーム — マップ
+     ============================================================ */
+  .map {
+    position: relative;
+    height: 230px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background:
+      linear-gradient(120deg, #E8F4F1 0%, #F3F0E9 100%);
+  }
+  /* 道路 */
+  .map .road {
+    position: absolute;
+    background: rgba(255,255,255,0.85);
+  }
+  .map .road.h1 { top: 70px;  left: 0; right: 0; height: 14px; transform: rotate(-2deg); }
+  .map .road.h2 { top: 160px; left: -20px; right: -20px; height: 18px; transform: rotate(3deg); }
+  .map .road.v1 { top: 0; bottom: 0; left: 120px; width: 14px; transform: rotate(4deg); }
+  .map .road.v2 { top: 0; bottom: 0; left: 260px; width: 12px; transform: rotate(-3deg); }
+  /* 緑地 */
+  .map .park {
+    position: absolute;
+    width: 76px; height: 60px;
+    background: #CDEBDD;
+    border-radius: 16px;
+    top: 24px; left: 150px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    transform: rotate(-3deg);
+  }
+  /* ピン */
+  .pin {
+    position: absolute;
+    width: 40px; height: 40px;
+    transform: translate(-50%, -100%);
+    cursor: pointer;
+  }
+  .pin .bubble {
+    width: 40px; height: 40px;
+    background: var(--coral);
+    border-radius: 50% 50% 50% 4px;
+    transform: rotate(45deg);
+    box-shadow: 0 4px 10px rgba(255,122,89,0.4);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pin .bubble span { transform: rotate(-45deg); font-size: 18px; }
+  .pin.teal .bubble { background: var(--teal); box-shadow: 0 4px 10px rgba(43,179,163,0.4); }
+  .pin.me {
+    width: 22px; height: 22px;
+    transform: translate(-50%, -50%);
+  }
+  .pin.me .dot {
+    width: 22px; height: 22px;
+    background: #4A90E2;
+    border: 3px solid var(--white);
+    border-radius: 50%;
+    box-shadow: 0 0 0 6px rgba(74,144,226,0.2);
+  }
+  .map .legend {
+    position: absolute;
+    bottom: 12px; left: 12px;
+    background: rgba(255,255,255,0.92);
+    border-radius: 12px;
+    padding: 7px 11px;
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+    display: flex; gap: 4px; align-items: center;
+  }
+  .map .zoom {
+    position: absolute;
+    bottom: 12px; right: 12px;
+    display: flex; flex-direction: column;
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .map .zoom button {
+    border: none; background: var(--white);
+    width: 32px; height: 32px;
+    font-size: 18px; font-weight: 700;
+    color: var(--ink); cursor: pointer;
+  }
+  .map .zoom button:first-child { border-bottom: 1px solid var(--line); }
+
+  /* あずかり先カード（横スクロール） */
+  .h-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 4px 4px 8px;
+    margin: 0 -4px;
+  }
+  .h-scroll::-webkit-scrollbar { display: none; }
+
+  .sitter-card {
+    flex: 0 0 200px;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 14px;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  .sitter-card:active { transform: scale(0.97); }
+  .sitter-card .top {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+  }
+  .avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+  .av-1 { background: #FFE0B2; }
+  .av-2 { background: #C8E6C9; }
+  .av-3 { background: #D1C4E9; }
+  .av-4 { background: #B3E5FC; }
+  .av-5 { background: #F8BBD0; }
+  .sitter-card .name { font-size: 14px; font-weight: 700; }
+  .sitter-card .dist {
+    font-size: 11px; color: var(--teal); font-weight: 700;
+    display: flex; align-items: center; gap: 2px;
+  }
+  .sitter-card .tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+  .tag {
+    font-size: 10px; font-weight: 600;
+    background: var(--cream); color: var(--ink-soft);
+    padding: 3px 8px; border-radius: 99px;
+  }
+  .tag.coral { background: var(--coral-soft); color: var(--coral); }
+  .tag.teal  { background: var(--teal-soft);  color: var(--teal); }
+  .stars { font-size: 11px; color: #FFB74D; font-weight: 700; }
+  .stars .num { color: var(--ink-soft); }
+
+  /* 縦リストの行カード */
+  .list-row {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  .list-row:active { transform: scale(0.98); }
+  .list-row .info { flex: 1; min-width: 0; }
+  .list-row .info .name { font-size: 14px; font-weight: 700; }
+  .list-row .info .meta { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  .list-row .badge {
+    font-size: 11px; font-weight: 700; color: var(--coral);
+    text-align: right; flex-shrink: 0;
+  }
+  .list-row .badge .dist { color: var(--teal); display: block; font-size: 12px; }
+
+  .urgent-banner {
+    background: linear-gradient(120deg, var(--coral) 0%, #FF9776 100%);
+    border-radius: var(--radius);
+    padding: 16px;
+    color: var(--white);
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 4px;
+  }
+  .urgent-banner .ic { font-size: 28px; }
+  .urgent-banner .t1 { font-size: 14px; font-weight: 800; }
+  .urgent-banner .t2 { font-size: 11px; opacity: .92; margin-top: 2px; }
+  .urgent-banner .go {
+    margin-left: auto; background: rgba(255,255,255,0.25);
+    border-radius: 99px; padding: 7px 12px; font-size: 12px; font-weight: 700;
+  }
+
+  /* ============================================================
+     2. さがす — 詳細プロフィール
+     ============================================================ */
+  .profile-hero {
+    background: linear-gradient(160deg, var(--teal-soft) 0%, var(--cream) 100%);
+    border-radius: var(--radius);
+    padding: 22px 18px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 14px;
+  }
+  .profile-hero .avatar { width: 86px; height: 86px; font-size: 46px; margin: 0 auto 12px; border: 4px solid var(--white); box-shadow: var(--shadow-sm); }
+  .profile-hero .name { font-size: 20px; font-weight: 800; }
+  .profile-hero .loc { font-size: 12px; color: var(--ink-soft); margin-top: 3px; }
+  .profile-hero .verify {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 700; color: var(--teal);
+    background: var(--white); padding: 4px 12px; border-radius: 99px;
+    margin-top: 10px; box-shadow: var(--shadow-sm);
+  }
+
+  .stat-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  .stat-box {
+    flex: 1; background: var(--white); border-radius: var(--radius-sm);
+    padding: 14px 8px; text-align: center; box-shadow: var(--shadow-sm);
+  }
+  .stat-box .v { font-size: 20px; font-weight: 800; color: var(--coral); }
+  .stat-box .l { font-size: 10px; color: var(--ink-soft); margin-top: 2px; }
+
+  .pet-ability { display: flex; gap: 10px; }
+  .pet-ability .ab {
+    flex: 1; text-align: center; padding: 12px 6px;
+    border-radius: var(--radius-sm); background: var(--cream);
+  }
+  .pet-ability .ab.on { background: var(--teal-soft); }
+  .pet-ability .ab .ic { font-size: 28px; }
+  .pet-ability .ab .nm { font-size: 11px; font-weight: 700; margin-top: 4px; }
+  .pet-ability .ab .st { font-size: 10px; margin-top: 2px; color: var(--teal); font-weight: 700; }
+  .pet-ability .ab.off .st { color: var(--ink-soft); }
+
+  .review {
+    display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line);
+  }
+  .review:last-child { border-bottom: none; }
+  .review .avatar { width: 38px; height: 38px; font-size: 20px; }
+  .review .rv-name { font-size: 12px; font-weight: 700; }
+  .review .rv-stars { font-size: 11px; color: #FFB74D; }
+  .review .rv-text { font-size: 12px; color: var(--ink); margin-top: 4px; line-height: 1.5; }
+  .review .rv-date { font-size: 10px; color: var(--ink-soft); margin-top: 4px; }
+
+  .btn-primary {
+    width: 100%; border: none; cursor: pointer;
+    background: var(--coral); color: var(--white);
+    font-size: 15px; font-weight: 800;
+    padding: 16px; border-radius: var(--radius-sm);
+    box-shadow: var(--shadow);
+    margin-top: 6px;
+    font-family: inherit;
+  }
+  .btn-primary:active { transform: scale(0.98); }
+
+  /* ============================================================
+     3. チャット予約
+     ============================================================ */
+  .chat-head {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--white); border-radius: var(--radius-sm);
+    padding: 10px 14px; box-shadow: var(--shadow-sm); margin-bottom: 12px;
+  }
+  .chat-head .avatar { width: 42px; height: 42px; font-size: 22px; }
+  .chat-head .nm { font-size: 14px; font-weight: 700; }
+  .chat-head .on { font-size: 11px; color: var(--teal); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+  .chat-head .on::before { content: ""; width: 7px; height: 7px; background: var(--teal); border-radius: 50%; }
+
+  .msg { display: flex; margin-bottom: 12px; max-width: 80%; }
+  .msg.them { margin-right: auto; }
+  .msg.me { margin-left: auto; flex-direction: row-reverse; }
+  .msg .bubble {
+    padding: 11px 14px; font-size: 13px; line-height: 1.5;
+    border-radius: 18px;
+  }
+  .msg.them .bubble { background: var(--white); border-bottom-left-radius: 5px; box-shadow: var(--shadow-sm); }
+  .msg.me .bubble { background: var(--coral); color: var(--white); border-bottom-right-radius: 5px; }
+  .msg .time { font-size: 9px; color: var(--ink-soft); align-self: flex-end; margin: 0 6px; }
+
+  .booking-card {
+    background: var(--white); border-radius: var(--radius);
+    padding: 16px; box-shadow: var(--shadow); margin: 8px 0 14px;
+    border: 1.5px dashed var(--coral);
+  }
+  .booking-card .bk-title { font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+  .date-row { display: flex; gap: 7px; margin-bottom: 14px; }
+  .date-chip {
+    flex: 1; text-align: center; padding: 10px 0;
+    border-radius: 12px; background: var(--cream); cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .date-chip.sel { background: var(--coral-soft); border-color: var(--coral); }
+  .date-chip .dow { font-size: 10px; color: var(--ink-soft); }
+  .date-chip .d { font-size: 17px; font-weight: 800; margin-top: 2px; }
+  .date-chip.sel .d { color: var(--coral); }
+  .time-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .time-chip {
+    padding: 8px 14px; border-radius: 99px; font-size: 12px; font-weight: 700;
+    background: var(--cream); cursor: pointer; border: 2px solid transparent;
+  }
+  .time-chip.sel { background: var(--teal); color: var(--white); }
+  .time-chip.off { opacity: .4; text-decoration: line-through; cursor: not-allowed; }
+
+  .chat-input {
+    position: absolute; left: 16px; right: 16px; bottom: 88px;
+    display: flex; gap: 8px; align-items: center;
+    background: var(--white); border-radius: 99px;
+    padding: 6px 6px 6px 16px; box-shadow: var(--shadow);
+  }
+  .chat-input input {
+    flex: 1; border: none; outline: none; font-size: 13px;
+    background: transparent; font-family: inherit; color: var(--ink);
+  }
+  .chat-input .send {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--coral); border: none; color: var(--white);
+    font-size: 16px; cursor: pointer;
+  }
+
+  /* ============================================================
+     4. 見守り — タイムライン
+     ============================================================ */
+  .watch-banner {
+    background: linear-gradient(120deg, var(--teal) 0%, #4FC9BA 100%);
+    border-radius: var(--radius); padding: 16px; color: var(--white);
+    box-shadow: var(--shadow); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .watch-banner .avatar { width: 50px; height: 50px; font-size: 28px; background: rgba(255,255,255,0.25); }
+  .watch-banner .t1 { font-size: 12px; opacity: .9; }
+  .watch-banner .t2 { font-size: 16px; font-weight: 800; margin-top: 2px; }
+  .watch-banner .t3 { font-size: 11px; opacity: .9; margin-top: 3px; }
+
+  .timeline { position: relative; padding-left: 26px; }
+  .timeline::before {
+    content: ""; position: absolute; left: 8px; top: 8px; bottom: 8px;
+    width: 2px; background: var(--line);
+  }
+  .tl-item { position: relative; margin-bottom: 16px; }
+  .tl-item::before {
+    content: ""; position: absolute; left: -25px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--coral); border: 3px solid var(--cream);
+    box-shadow: 0 0 0 2px var(--coral-soft);
+  }
+  .tl-item.teal::before { background: var(--teal); box-shadow: 0 0 0 2px var(--teal-soft); }
+  .tl-time { font-size: 11px; font-weight: 700; color: var(--ink-soft); margin-bottom: 6px; }
+  .report-card {
+    background: var(--white); border-radius: var(--radius);
+    overflow: hidden; box-shadow: var(--shadow-sm);
+  }
+  .report-photo {
+    height: 130px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 64px; position: relative;
+  }
+  .ph-1 { background: linear-gradient(135deg,#FFE0B2,#FFCC80); }
+  .ph-2 { background: linear-gradient(135deg,#C8E6C9,#A5D6A7); }
+  .ph-3 { background: linear-gradient(135deg,#B3E5FC,#81D4FA); }
+  .ph-4 { background: linear-gradient(135deg,#F8BBD0,#F48FB1); }
+  .report-photo .cap {
+    position: absolute; bottom: 8px; right: 8px;
+    background: rgba(0,0,0,0.4); color: #fff; font-size: 10px;
+    padding: 3px 8px; border-radius: 99px;
+  }
+  .report-body { padding: 12px 14px 14px; }
+  .report-body .txt { font-size: 13px; line-height: 1.6; }
+  .report-body .react { display: flex; gap: 14px; margin-top: 10px; font-size: 12px; color: var(--ink-soft); }
+  .report-body .react span.on { color: var(--coral); font-weight: 700; }
+
+  /* ============================================================
+     5. マイページ
+     ============================================================ */
+  .my-hero {
+    background: linear-gradient(160deg, var(--coral) 0%, #FF9776 100%);
+    border-radius: var(--radius); padding: 22px 18px;
+    color: var(--white); box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
+  }
+  .my-hero .avatar { width: 64px; height: 64px; font-size: 34px; background: rgba(255,255,255,0.3); border: 3px solid rgba(255,255,255,0.6); }
+  .my-hero .nm { font-size: 18px; font-weight: 800; }
+  .my-hero .loc { font-size: 12px; opacity: .9; margin-top: 2px; }
+  .my-hero .edit {
+    margin-left: auto; background: rgba(255,255,255,0.25);
+    border-radius: 99px; padding: 7px 12px; font-size: 12px; font-weight: 700;
+  }
+
+  .points-card {
+    background: var(--white); border-radius: var(--radius);
+    padding: 18px; box-shadow: var(--shadow-sm); margin-bottom: 14px;
+    text-align: center;
+  }
+  .points-card .label { font-size: 12px; color: var(--ink-soft); font-weight: 600; }
+  .points-card .pts { font-size: 40px; font-weight: 900; color: var(--coral); line-height: 1.1; margin: 4px 0; }
+  .points-card .pts small { font-size: 16px; }
+  .points-card .bar {
+    height: 10px; background: var(--cream); border-radius: 99px; overflow: hidden; margin: 12px 0 6px;
+  }
+  .points-card .bar .fill { height: 100%; width: 72%; background: linear-gradient(90deg, var(--coral), var(--teal)); border-radius: 99px; }
+  .points-card .next { font-size: 11px; color: var(--ink-soft); }
+  .points-card .next b { color: var(--teal); }
+
+  .my-pet {
+    display: flex; align-items: center; gap: 12px; padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .my-pet:last-child { border-bottom: none; }
+  .my-pet .avatar { width: 50px; height: 50px; font-size: 28px; }
+  .my-pet .nm { font-size: 14px; font-weight: 700; }
+  .my-pet .meta { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  .my-pet .arrow { margin-left: auto; color: var(--ink-soft); font-size: 18px; }
+
+  .menu-row {
+    display: flex; align-items: center; gap: 12px; padding: 14px 4px;
+    border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 600;
+  }
+  .menu-row:last-child { border-bottom: none; }
+  .menu-row .ic {
+    width: 36px; height: 36px; border-radius: 12px; background: var(--cream);
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .menu-row .arrow { margin-left: auto; color: var(--ink-soft); }
+
+  /* ============================================================
+     下部タブナビ
+     ============================================================ */
+  .tabbar {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 82px;
+    background: rgba(255,255,255,0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid var(--line);
+    display: flex;
+    padding: 8px 6px 22px;
+    z-index: 60;
+  }
+  .tab {
+    flex: 1; border: none; background: none; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--ink-soft); font-family: inherit;
+    transition: color .2s;
+  }
+  .tab .ic { font-size: 22px; transition: transform .2s; }
+  .tab .lb { font-size: 10px; font-weight: 700; }
+  .tab.active { color: var(--coral); }
+  .tab.active .ic { transform: translateY(-2px) scale(1.12); }
+
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; background: var(--ink); opacity: .25;
+    border-radius: 99px; z-index: 70;
+  }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <div class="dynamic-island"></div>
+    <div class="screen">
+
+      <!-- ステータスバー -->
+      <div class="status-bar">
+        <div class="time">9:41</div>
+        <div class="right">
+          <span>📶</span><span>🛜</span><span>🔋</span>
+        </div>
+      </div>
+
+      <!-- アプリヘッダ（画面で切り替わる） -->
+      <div class="app-header">
+        <div>
+          <div class="title">
+            <span class="logo">🐾</span>
+            <span id="hdr-title">ペトモ</span>
+          </div>
+          <div class="sub" id="hdr-sub">東京都・目黒区ご近所コミュニティ</div>
+        </div>
+        <div class="header-avatar">👩</div>
+      </div>
+
+      <!-- コンテンツ領域 -->
+      <div class="content" id="content">
+
+        <!-- ============ 1. ホーム ============ -->
+        <div class="view active" id="view-home">
+          <div class="map">
+            <div class="road h1"></div>
+            <div class="road h2"></div>
+            <div class="road v1"></div>
+            <div class="road v2"></div>
+            <div class="park">🌳</div>
+            <div class="pin" style="top:60px; left:90px;"><div class="bubble"><span>🐕</span></div></div>
+            <div class="pin teal" style="top:120px; left:210px;"><div class="bubble"><span>🐈</span></div></div>
+            <div class="pin" style="top:185px; left:130px;"><div class="bubble"><span>🐕</span></div></div>
+            <div class="pin teal" style="top:90px; left:300px;"><div class="bubble"><span>🐈</span></div></div>
+            <div class="pin me" style="top:140px; left:150px;"><div class="dot"></div></div>
+            <div class="legend">📍 現在地・中目黒</div>
+            <div class="zoom"><button>＋</button><button>－</button></div>
+          </div>
+
+          <div class="urgent-banner">
+            <div class="ic">⏰</div>
+            <div>
+              <div class="t1">急な残業であずけたい？</div>
+              <div class="t2">今すぐ対応OKのご近所が3人</div>
+            </div>
+            <div class="go">さがす ›</div>
+          </div>
+
+          <div class="section-title">🏠 近くのあずかり先 <span class="pill">8人がオンライン</span></div>
+          <div class="h-scroll">
+            <div class="sitter-card" onclick="switchTab('search')">
+              <div class="top">
+                <div class="avatar av-1">👵</div>
+                <div>
+                  <div class="name">さとう みえこ</div>
+                  <div class="dist">🏢 同じ建物・3F</div>
+                </div>
+              </div>
+              <div class="tags"><span class="tag coral">🐕 犬OK</span><span class="tag teal">🐈 猫OK</span></div>
+              <div class="stars">★★★★★ <span class="num">5.0 (42件)</span></div>
+            </div>
+
+            <div class="sitter-card" onclick="switchTab('search')">
+              <div class="top">
+                <div class="avatar av-2">🧑</div>
+                <div>
+                  <div class="name">たなか けんと</div>
+                  <div class="dist">🚶 徒歩2分</div>
+                </div>
+              </div>
+              <div class="tags"><span class="tag coral">🐕 犬OK</span><span class="tag">🏡 庭あり</span></div>
+              <div class="stars">★★★★☆ <span class="num">4.8 (27件)</span></div>
+            </div>
+
+            <div class="sitter-card" onclick="switchTab('search')">
+              <div class="top">
+                <div class="avatar av-3">👩</div>
+                <div>
+                  <div class="name">やまもと あや</div>
+                  <div class="dist">🚶 徒歩5分</div>
+                </div>
+              </div>
+              <div class="tags"><span class="tag teal">🐈 猫OK</span><span class="tag">💉 投薬可</span></div>
+              <div class="stars">★★★★★ <span class="num">4.9 (61件)</span></div>
+            </div>
+          </div>
+
+          <div class="section-title">🆕 新しく登録したご近所</div>
+          <div class="list-row" onclick="switchTab('search')">
+            <div class="avatar av-4">👨</div>
+            <div class="info">
+              <div class="name">こばやし たくみ</div>
+              <div class="meta">🐕 中型犬まで・散歩代行も対応</div>
+            </div>
+            <div class="badge"><span class="dist">徒歩3分</span>★ 新規</div>
+          </div>
+          <div class="list-row" onclick="switchTab('search')">
+            <div class="avatar av-5">👧</div>
+            <div class="info">
+              <div class="name">いとう さくら</div>
+              <div class="meta">🐈 猫専門・在宅ワーカー</div>
+            </div>
+            <div class="badge"><span class="dist">同じ建物</span>★ 新規</div>
+          </div>
+          <div class="list-row" onclick="switchTab('search')">
+            <div class="avatar av-1">👵</div>
+            <div class="info">
+              <div class="name">なかむら ふみ</div>
+              <div class="meta">🐕🐈 犬猫OK・元動物看護師</div>
+            </div>
+            <div class="badge"><span class="dist">徒歩7分</span>★ 新規</div>
+          </div>
+        </div>
+
+        <!-- ============ 2. さがす（詳細プロフィール） ============ -->
+        <div class="view" id="view-search">
+          <div class="profile-hero">
+            <div class="avatar av-1">👵</div>
+            <div class="name">さとう みえこ さん</div>
+            <div class="loc">🏢 グランドメゾン中目黒・同じ建物（3F）</div>
+            <div class="verify">✓ 本人確認・住所確認ずみ</div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-box"><div class="v">42</div><div class="l">あずかり実績</div></div>
+            <div class="stat-box"><div class="v">5.0</div><div class="l">平均評価</div></div>
+            <div class="stat-box"><div class="v">1時間</div><div class="l">平均返信</div></div>
+          </div>
+
+          <div class="card">
+            <div style="font-size:13px; line-height:1.7; color:var(--ink);">
+              定年後、ずっと犬を飼っていた経験を活かしてご近所のお手伝いをしています🐕
+              日中は在宅なので、急なお預かりも大歓迎。お庭で日向ぼっこもできますよ。
+            </div>
+          </div>
+
+          <div class="section-title">🐾 対応できるペット</div>
+          <div class="card">
+            <div class="pet-ability">
+              <div class="ab on"><div class="ic">🐕</div><div class="nm">犬</div><div class="st">◎ 大型もOK</div></div>
+              <div class="ab on"><div class="ic">🐈</div><div class="nm">猫</div><div class="st">◎ 得意</div></div>
+              <div class="ab off"><div class="ic">🐰</div><div class="nm">小動物</div><div class="st">要相談</div></div>
+            </div>
+            <div style="margin-top:14px; display:flex; gap:6px; flex-wrap:wrap;">
+              <span class="tag teal">💉 投薬対応</span>
+              <span class="tag teal">🏡 庭あり</span>
+              <span class="tag teal">🚶 散歩代行</span>
+              <span class="tag teal">🌙 お泊まり可</span>
+            </div>
+          </div>
+
+          <div class="section-title">⭐ ご近所さんのレビュー <span class="pill">42件</span></div>
+          <div class="card">
+            <div class="review">
+              <div class="avatar av-2">🧑</div>
+              <div>
+                <div class="rv-name">たなか けんと <span class="rv-stars">★★★★★</span></div>
+                <div class="rv-text">柴犬のマロンを2泊お願いしました。毎日お散歩の写真を送ってくれて、安心して出張に行けました！</div>
+                <div class="rv-date">2026年5月・柴犬「マロン」</div>
+              </div>
+            </div>
+            <div class="review">
+              <div class="avatar av-3">👩</div>
+              <div>
+                <div class="rv-name">やまもと あや <span class="rv-stars">★★★★★</span></div>
+                <div class="rv-text">人見知りな保護猫でしたが、すっかり懐いていてびっくり。投薬もきちんとしてくれて本当に助かりました🐈</div>
+                <div class="rv-date">2026年4月・猫「ちくわ」</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-primary" onclick="switchTab('chat')">💬 メッセージして予約する</button>
+          <div style="height:8px;"></div>
+        </div>
+
+        <!-- ============ 3. チャット予約 ============ -->
+        <div class="view" id="view-chat">
+          <div class="chat-head">
+            <div class="avatar av-1">👵</div>
+            <div>
+              <div class="nm">さとう みえこ さん</div>
+              <div class="on">オンライン・同じ建物</div>
+            </div>
+          </div>
+
+          <div class="msg them">
+            <div class="bubble">こんにちは！マロンちゃんのお預かりですね🐕 いつ頃をご希望ですか？</div>
+            <div class="time">9:32</div>
+          </div>
+          <div class="msg me">
+            <div class="bubble">こんにちは！今週末、出張で1泊お願いできたら…と思っています🙏</div>
+            <div class="time">9:35</div>
+          </div>
+          <div class="msg them">
+            <div class="bubble">大丈夫ですよ😊 土曜の朝から日曜の夜まで空いてます。日時を選んでもらえますか？</div>
+            <div class="time">9:36</div>
+          </div>
+
+          <div class="booking-card">
+            <div class="bk-title">📅 あずかり日時を予約</div>
+            <div class="date-row">
+              <div class="date-chip" onclick="selDate(this)"><div class="dow">金</div><div class="d">6</div></div>
+              <div class="date-chip sel" onclick="selDate(this)"><div class="dow">土</div><div class="d">7</div></div>
+              <div class="date-chip" onclick="selDate(this)"><div class="dow">日</div><div class="d">8</div></div>
+              <div class="date-chip" onclick="selDate(this)"><div class="dow">月</div><div class="d">9</div></div>
+            </div>
+            <div style="font-size:11px; font-weight:700; color:var(--ink-soft); margin-bottom:8px;">お迎え時間</div>
+            <div class="time-row">
+              <div class="time-chip off">8:00</div>
+              <div class="time-chip sel" onclick="selTime(this)">9:00</div>
+              <div class="time-chip" onclick="selTime(this)">10:00</div>
+              <div class="time-chip" onclick="selTime(this)">13:00</div>
+              <div class="time-chip" onclick="selTime(this)">17:00</div>
+            </div>
+            <div style="font-size:12px; color:var(--ink); background:var(--cream); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
+              <b>🐕 マロン（柴犬・3歳）</b><br>
+              <span style="color:var(--ink-soft); font-size:11px;">6/7(土) 9:00 〜 6/8(日) 19:00 ・ 1泊2日</span>
+            </div>
+            <button class="btn-primary" onclick="alert('予約リクエストを送信しました🐾\\nさとうさんの承認をお待ちください')">この日時で予約をリクエスト</button>
+          </div>
+
+          <div style="height:60px;"></div>
+        </div>
+
+        <!-- ============ 4. 見守り ============ -->
+        <div class="view" id="view-watch">
+          <div class="watch-banner">
+            <div class="avatar">🐕</div>
+            <div>
+              <div class="t1">あずかり中</div>
+              <div class="t2">マロン @ さとうさん宅</div>
+              <div class="t3">残り 8時間 ・ 6/8(日) 19:00 お迎え予定</div>
+            </div>
+          </div>
+
+          <div class="section-title">📸 見守りレポート</div>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-time">今日 16:20</div>
+              <div class="report-card">
+                <div class="report-photo ph-1">🐕<div class="cap">📸 さとうさん</div></div>
+                <div class="report-body">
+                  <div class="txt">おやつタイムです🦴 ちゃんと「おすわり」できてえらい！完食しました😋</div>
+                  <div class="react"><span class="on">❤️ ありがとう 1</span><span>💬 返信</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tl-item teal">
+              <div class="tl-time">今日 14:05</div>
+              <div class="report-card">
+                <div class="report-photo ph-2">🌳<div class="cap">📍 中目黒公園</div></div>
+                <div class="report-body">
+                  <div class="txt">午後のお散歩いってきました🚶 30分くらい元気いっぱい歩きました。気持ちよさそう！</div>
+                  <div class="react"><span class="on">❤️ ありがとう 1</span><span>💬 返信</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tl-item">
+              <div class="tl-time">今日 11:30</div>
+              <div class="report-card">
+                <div class="report-photo ph-3">😴<div class="cap">🛋️ お昼寝中</div></div>
+                <div class="report-body">
+                  <div class="txt">お部屋にもすっかり慣れて、ソファでぐっすりお昼寝中です💤 リラックスしてますよ〜</div>
+                  <div class="react"><span>❤️ ありがとう</span><span>💬 返信</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tl-item teal">
+              <div class="tl-time">今日 9:10</div>
+              <div class="report-card">
+                <div class="report-photo ph-4">🐾<div class="cap">🏠 到着</div></div>
+                <div class="report-body">
+                  <div class="txt">マロンちゃん、無事おあずかりしました🐕 最初は緊張気味でしたが、すぐ慣れてくれました。1泊よろしくお願いします😊</div>
+                  <div class="react"><span class="on">❤️ ありがとう 2</span><span>💬 返信</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ 5. マイページ ============ -->
+        <div class="view" id="view-mypage">
+          <div class="my-hero">
+            <div class="avatar">👩</div>
+            <div>
+              <div class="nm">わたなべ ゆい</div>
+              <div class="loc">🏢 グランドメゾン中目黒・8F</div>
+            </div>
+            <div class="edit">編集</div>
+          </div>
+
+          <div class="points-card">
+            <div class="label">🌸 やさしさポイント</div>
+            <div class="pts">1,280<small> pt</small></div>
+            <div class="bar"><div class="fill"></div></div>
+            <div class="next">あと <b>220pt</b> で「ご近所マイスター 🏅」にランクアップ</div>
+          </div>
+
+          <div class="section-title">🐾 うちの子</div>
+          <div class="card">
+            <div class="my-pet">
+              <div class="avatar av-1">🐕</div>
+              <div>
+                <div class="nm">マロン</div>
+                <div class="meta">柴犬・オス・3歳 ・ 人なつっこい</div>
+              </div>
+              <div class="arrow">›</div>
+            </div>
+            <div class="my-pet">
+              <div class="avatar av-5">🐈</div>
+              <div>
+                <div class="nm">きなこ</div>
+                <div class="meta">スコティッシュ・メス・5歳 ・ 投薬中</div>
+              </div>
+              <div class="arrow">›</div>
+            </div>
+            <div class="my-pet" style="justify-content:center; color:var(--coral); font-weight:700; font-size:13px;">＋ ペットを追加</div>
+          </div>
+
+          <div class="section-title">📋 アクティビティ</div>
+          <div class="stat-row">
+            <div class="stat-box"><div class="v">14</div><div class="l">あずけた回数</div></div>
+            <div class="stat-box"><div class="v">9</div><div class="l">あずかった回数</div></div>
+            <div class="stat-box"><div class="v">4.9</div><div class="l">あなたの評価</div></div>
+          </div>
+
+          <div class="card">
+            <div class="menu-row"><div class="ic">💝</div>あずかり先になる（プロフィール公開）<div class="arrow">›</div></div>
+            <div class="menu-row"><div class="ic">📜</div>あずかり履歴<div class="arrow">›</div></div>
+            <div class="menu-row"><div class="ic">🛡️</div>本人確認・安心ガイド<div class="arrow">›</div></div>
+            <div class="menu-row"><div class="ic">🔔</div>通知設定<div class="arrow">›</div></div>
+            <div class="menu-row"><div class="ic">❓</div>ヘルプ・お問い合わせ<div class="arrow">›</div></div>
+          </div>
+          <div style="height:8px;"></div>
+        </div>
+
+      </div>
+
+      <!-- 下部タブナビ -->
+      <div class="tabbar">
+        <button class="tab active" data-tab="home" onclick="switchTab('home')">
+          <span class="ic">🏠</span><span class="lb">ホーム</span>
+        </button>
+        <button class="tab" data-tab="search" onclick="switchTab('search')">
+          <span class="ic">🔍</span><span class="lb">さがす</span>
+        </button>
+        <button class="tab" data-tab="chat" onclick="switchTab('chat')">
+          <span class="ic">💬</span><span class="lb">予約</span>
+        </button>
+        <button class="tab" data-tab="watch" onclick="switchTab('watch')">
+          <span class="ic">📸</span><span class="lb">見守り</span>
+        </button>
+        <button class="tab" data-tab="mypage" onclick="switchTab('mypage')">
+          <span class="ic">👤</span><span class="lb">マイページ</span>
+        </button>
+      </div>
+
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+<script>
+  // ヘッダのタイトル・サブタイトル定義
+  var HEADERS = {
+    home:   { t: "ペトモ",     s: "東京都・目黒区ご近所コミュニティ" },
+    search: { t: "あずかり先",  s: "プロフィールを確認" },
+    chat:   { t: "メッセージ",  s: "さとう みえこ さん" },
+    watch:  { t: "見守り",      s: "マロンのあずかりレポート" },
+    mypage: { t: "マイページ",  s: "わたなべ ゆい さん" }
+  };
+
+  // 画面切り替え
+  function switchTab(name) {
+    // ビュー
+    var views = document.querySelectorAll('.view');
+    for (var i = 0; i < views.length; i++) views[i].classList.remove('active');
+    var target = document.getElementById('view-' + name);
+    if (target) target.classList.add('active');
+
+    // タブのハイライト
+    var tabs = document.querySelectorAll('.tab');
+    for (var j = 0; j < tabs.length; j++) {
+      tabs[j].classList.toggle('active', tabs[j].getAttribute('data-tab') === name);
+    }
+
+    // ヘッダ更新
+    var h = HEADERS[name];
+    if (h) {
+      document.getElementById('hdr-title').textContent = h.t;
+      document.getElementById('hdr-sub').textContent = h.s;
+    }
+
+    // コンテンツを最上部にスクロール
+    document.getElementById('content').scrollTop = 0;
+  }
+
+  // 予約：日付選択
+  function selDate(el) {
+    var chips = el.parentNode.querySelectorAll('.date-chip');
+    for (var i = 0; i < chips.length; i++) chips[i].classList.remove('sel');
+    el.classList.add('sel');
+  }
+
+  // 予約：時間選択
+  function selTime(el) {
+    if (el.classList.contains('off')) return;
+    var chips = el.parentNode.querySelectorAll('.time-chip');
+    for (var i = 0; i < chips.length; i++) {
+      if (!chips[i].classList.contains('off')) chips[i].classList.remove('sel');
+    }
+    el.classList.add('sel');
+  }
+</script>
+</body>
+</html>
