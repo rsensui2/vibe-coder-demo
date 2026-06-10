@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SeminarPulse — 興味に響く部分だけを、あなたに。</title>
+<style>
+  :root{
+    --cream:#FFF4E8;
+    --coral:#FF6B5C;
+    --honey:#FFB84C;
+    --teal:#2BB3A3;
+    --ink:#3A322E;
+    --cream-deep:#FBE7D2;
+    --white:#FFFDFA;
+    --shadow:rgba(58,50,46,.12);
+    --shadow-soft:rgba(255,107,92,.18);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    line-height:1.7;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* レトロな幾何学パターン背景 */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,184,76,.10) 0 2px, transparent 3px),
+      radial-gradient(circle at 78% 32%, rgba(43,179,163,.10) 0 2px, transparent 3px),
+      radial-gradient(circle at 40% 80%, rgba(255,107,92,.08) 0 2px, transparent 3px);
+    background-size:140px 140px, 180px 180px, 160px 160px;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .wrap{position:relative;z-index:1;}
+
+  .container{
+    width:min(1120px,90vw);
+    margin:0 auto;
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  h1,h2,h3{font-weight:900;letter-spacing:.01em;line-height:1.25;}
+
+  /* ====== ボタン ====== */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:.5em;
+    font-weight:900;
+    font-size:1.05rem;
+    padding:16px 34px;
+    border-radius:999px;
+    border:none;
+    cursor:pointer;
+    transition:transform .18s ease, box-shadow .18s ease;
+    font-family:inherit;
+  }
+  .btn-primary{
+    background:var(--coral);
+    color:var(--white);
+    box-shadow:0 10px 0 #e2503f, 0 18px 30px var(--shadow-soft);
+  }
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 13px 0 #e2503f,0 22px 36px var(--shadow-soft);}
+  .btn-primary:active{transform:translateY(3px);box-shadow:0 4px 0 #e2503f,0 8px 16px var(--shadow-soft);}
+  .btn-ghost{
+    background:var(--white);
+    color:var(--ink);
+    box-shadow:0 8px 0 var(--cream-deep), 0 14px 26px var(--shadow);
+  }
+  .btn-ghost:hover{transform:translateY(-3px);}
+
+  /* ====== ヘッダー ====== */
+  header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(255,244,232,.82);
+    backdrop-filter:blur(10px);
+    border-bottom:2px dashed rgba(58,50,46,.12);
+  }
+  .nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 0;
+  }
+  .logo{
+    display:flex;align-items:center;gap:10px;
+    font-weight:900;font-size:1.3rem;
+  }
+  .logo .dot{
+    width:38px;height:38px;border-radius:13px;
+    background:var(--coral);
+    display:grid;place-items:center;
+    box-shadow:0 5px 0 #e2503f;
+    transform:rotate(-6deg);
+  }
+  .logo .dot svg{width:22px;height:22px;}
+  .nav-links{display:flex;gap:26px;align-items:center;font-weight:700;}
+  .nav-links a{transition:color .2s;}
+  .nav-links a:hover{color:var(--coral);}
+  .nav .btn{padding:11px 24px;font-size:.95rem;}
+  .menu-toggle{display:none;}
+
+  /* ====== Hero ====== */
+  .hero{
+    padding:70px 0 90px;
+    position:relative;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.05fr .95fr;
+    gap:50px;
+    align-items:center;
+  }
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--honey);
+    color:var(--ink);
+    font-weight:800;
+    font-size:.9rem;
+    padding:8px 18px;
+    border-radius:999px;
+    box-shadow:0 6px 0 #e6a335;
+    transform:rotate(-2deg);
+    margin-bottom:24px;
+  }
+  .hero h1{
+    font-size:clamp(2.4rem,5.5vw,4rem);
+    margin-bottom:22px;
+  }
+  .hero h1 .mark{
+    color:var(--coral);
+    position:relative;
+    display:inline-block;
+  }
+  .hero h1 .mark::after{
+    content:"";
+    position:absolute;
+    left:-2%;right:-2%;bottom:6px;
+    height:14px;
+    background:var(--honey);
+    border-radius:8px;
+    z-index:-1;
+    opacity:.65;
+  }
+  .hero p.lead{
+    font-size:1.15rem;
+    color:#5d544e;
+    max-width:520px;
+    margin-bottom:34px;
+  }
+  .hero-cta{display:flex;gap:16px;flex-wrap:wrap;}
+  .hero-stats{
+    display:flex;gap:30px;margin-top:40px;flex-wrap:wrap;
+  }
+  .hero-stats .stat .num{
+    font-size:1.9rem;font-weight:900;color:var(--teal);
+  }
+  .hero-stats .stat .lbl{font-size:.85rem;color:#6b625c;font-weight:700;}
+
+  /* スマホモック */
+  .phone-stage{
+    position:relative;
+    display:grid;
+    place-items:center;
+    min-height:480px;
+  }
+  .blob{
+    position:absolute;
+    width:330px;height:330px;
+    background:radial-gradient(circle at 30% 30%, var(--honey), var(--coral));
+    border-radius:46% 54% 60% 40% / 50% 42% 58% 50%;
+    filter:blur(2px);
+    opacity:.35;
+    z-index:0;
+    animation:wobble 9s ease-in-out infinite;
+  }
+  @keyframes wobble{
+    0%,100%{border-radius:46% 54% 60% 40% / 50% 42% 58% 50%;transform:rotate(0deg);}
+    50%{border-radius:60% 40% 44% 56% / 42% 58% 42% 58%;transform:rotate(8deg);}
+  }
+  .phone{
+    position:relative;
+    z-index:2;
+    width:248px;
+    height:500px;
+    background:var(--ink);
+    border-radius:42px;
+    padding:13px;
+    box-shadow:0 28px 50px rgba(58,50,46,.30), inset 0 0 0 2px rgba(255,255,255,.05);
+    transform:rotate(4deg);
+  }
+  .phone::before{
+    content:"";
+    position:absolute;
+    top:22px;left:50%;transform:translateX(-50%);
+    width:90px;height:7px;border-radius:6px;
+    background:#5a514c;
+    z-index:3;
+  }
+  .phone-screen{
+    width:100%;height:100%;
+    background:var(--cream);
+    border-radius:30px;
+    overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .ps-top{
+    background:var(--coral);
+    color:#fff;
+    padding:34px 18px 16px;
+  }
+  .ps-top .ps-title{font-weight:900;font-size:1.05rem;}
+  .ps-top .ps-sub{font-size:.7rem;opacity:.85;}
+  .ps-body{padding:14px;display:flex;flex-direction:column;gap:11px;flex:1;}
+  .ps-card{
+    background:var(--white);
+    border-radius:16px;
+    padding:11px 13px;
+    box-shadow:0 6px 14px rgba(58,50,46,.08);
+  }
+  .ps-card .tag{
+    display:inline-block;
+    font-size:.6rem;font-weight:800;
+    padding:3px 9px;border-radius:999px;
+    margin-bottom:6px;
+  }
+  .tag-coral{background:#ffe2dd;color:var(--coral);}
+  .tag-teal{background:#d4f1ed;color:var(--teal);}
+  .tag-honey{background:#fff0d4;color:#cf8e1f;}
+  .ps-card .ps-h{font-size:.78rem;font-weight:800;margin-bottom:3px;}
+  .ps-card .ps-meta{font-size:.62rem;color:#8a807a;}
+  .ps-bar{height:6px;border-radius:6px;background:var(--cream-deep);overflow:hidden;margin-top:7px;}
+  .ps-bar span{display:block;height:100%;background:var(--teal);border-radius:6px;}
+
+  /* 浮遊するミニカード */
+  .float-card{
+    position:absolute;
+    z-index:3;
+    background:var(--white);
+    border-radius:18px;
+    padding:13px 16px;
+    box-shadow:0 16px 32px rgba(58,50,46,.16);
+    font-weight:800;
+    font-size:.85rem;
+    display:flex;align-items:center;gap:9px;
+  }
+  .float-card .ico{
+    width:34px;height:34px;border-radius:11px;
+    display:grid;place-items:center;flex-shrink:0;
+  }
+  .fc-1{top:30px;left:-10px;transform:rotate(-7deg);animation:bobA 5s ease-in-out infinite;}
+  .fc-2{bottom:60px;right:-18px;transform:rotate(6deg);animation:bobB 6s ease-in-out infinite;}
+  @keyframes bobA{0%,100%{transform:rotate(-7deg) translateY(0);}50%{transform:rotate(-7deg) translateY(-12px);}}
+  @keyframes bobB{0%,100%{transform:rotate(6deg) translateY(0);}50%{transform:rotate(6deg) translateY(10px);}}
+
+  /* ====== セクション共通 ====== */
+  section{padding:80px 0;position:relative;}
+  .sec-head{text-align:center;max-width:680px;margin:0 auto 56px;}
+  .sec-kicker{
+    display:inline-block;
+    font-weight:900;font-size:.85rem;
+    color:var(--coral);
+    background:#ffe2dd;
+    padding:6px 16px;border-radius:999px;
+    margin-bottom:16px;
+    transform:rotate(-1.5deg);
+  }
+  .sec-head h2{font-size:clamp(1.8rem,4vw,2.7rem);margin-bottom:14px;}
+  .sec-head p{color:#5d544e;font-size:1.05rem;}
+
+  /* ====== 課題提起 ====== */
+  .problems{background:var(--cream-deep);}
+  .problem-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:26px;
+  }
+  .problem-card{
+    background:var(--white);
+    border-radius:26px;
+    padding:34px 28px;
+    box-shadow:0 14px 30px var(--shadow);
+    position:relative;
+    transition:transform .25s ease;
+  }
+  .problem-card:nth-child(1){transform:rotate(-2deg);}
+  .problem-card:nth-child(2){transform:rotate(1deg);margin-top:18px;}
+  .problem-card:nth-child(3){transform:rotate(-1.5deg);}
+  .problem-card:hover{transform:rotate(0deg) translateY(-6px);}
+  .problem-emoji{
+    font-size:2.4rem;
+    width:66px;height:66px;border-radius:20px;
+    background:var(--cream);
+    display:grid;place-items:center;
+    box-shadow:0 6px 0 var(--cream-deep);
+    margin-bottom:18px;
+  }
+  .problem-card h3{font-size:1.25rem;margin-bottom:10px;}
+  .problem-card p{color:#5d544e;font-size:.97rem;}
+  .problem-card .nag{
+    margin-top:14px;
+    font-weight:800;color:var(--coral);font-size:.9rem;
+  }
+
+  /* ====== ソリューション 4ステップ ====== */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+  .step{
+    background:var(--white);
+    border-radius:24px;
+    padding:30px 22px;
+    box-shadow:0 12px 26px var(--shadow);
+    position:relative;
+    border:3px solid transparent;
+    transition:transform .25s, border-color .25s;
+  }
+  .step:hover{transform:translateY(-8px);border-color:var(--honey);}
+  .step .step-no{
+    position:absolute;top:-18px;left:22px;
+    width:42px;height:42px;border-radius:14px;
+    background:var(--teal);color:#fff;
+    font-weight:900;font-size:1.15rem;
+    display:grid;place-items:center;
+    box-shadow:0 6px 0 #1f8a7d;
+    transform:rotate(-8deg);
+  }
+  .step .step-ico{
+    margin:14px 0 16px;
+    width:58px;height:58px;border-radius:18px;
+    display:grid;place-items:center;
+    background:var(--cream);
+  }
+  .step .step-ico svg{width:30px;height:30px;}
+  .step h3{font-size:1.12rem;margin-bottom:8px;}
+  .step p{font-size:.9rem;color:#5d544e;}
+  .step-arrow{
+    display:none;
+  }
+
+  /* ====== 主要機能 ====== */
+  .features{background:linear-gradient(180deg,var(--cream) 0%, var(--cream-deep) 100%);}
+  .feature-row{
+    display:flex;flex-direction:column;gap:40px;
+  }
+  .feature{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:46px;
+    align-items:center;
+    background:var(--white);
+    border-radius:30px;
+    padding:42px;
+    box-shadow:0 18px 40px var(--shadow);
+  }
+  .feature:nth-child(even){direction:rtl;}
+  .feature:nth-child(even) > *{direction:ltr;}
+  .feature .f-text .f-num{
+    font-weight:900;color:var(--honey);font-size:1rem;
+    letter-spacing:.1em;
+  }
+  .feature .f-text h3{font-size:1.7rem;margin:8px 0 14px;}
+  .feature .f-text p{color:#5d544e;margin-bottom:18px;}
+  .feature .f-text ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .feature .f-text li{
+    display:flex;gap:10px;align-items:flex-start;
+    font-weight:600;font-size:.97rem;
+  }
+  .feature .f-text li::before{
+    content:"✓";
+    color:#fff;
+    background:var(--teal);
+    width:22px;height:22px;border-radius:7px;
+    display:grid;place-items:center;
+    font-size:.8rem;font-weight:900;
+    flex-shrink:0;margin-top:2px;
+  }
+  .f-visual{
+    border-radius:24px;
+    padding:30px;
+    min-height:260px;
+    display:flex;flex-direction:column;justify-content:center;gap:14px;
+    position:relative;
+    overflow:hidden;
+  }
+  .fv-1{background:linear-gradient(135deg,#ffe2dd,#fff0d4);}
+  .fv-2{background:linear-gradient(135deg,#d4f1ed,#e8f7d8);}
+  .fv-3{background:linear-gradient(135deg,#fff0d4,#ffe2dd);}
+  .fv-chip{
+    background:var(--white);
+    border-radius:14px;
+    padding:12px 16px;
+    box-shadow:0 8px 18px rgba(58,50,46,.10);
+    display:flex;align-items:center;gap:12px;
+    font-weight:700;font-size:.92rem;
+  }
+  .fv-chip.shift{margin-left:36px;}
+  .fv-chip.shift2{margin-left:18px;}
+  .fv-chip .pct{margin-left:auto;font-weight:900;color:var(--coral);}
+  .fv-mini-ico{
+    width:34px;height:34px;border-radius:11px;
+    display:grid;place-items:center;flex-shrink:0;
+  }
+  .fv-dash{
+    display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  }
+  .fv-stat{
+    background:var(--white);border-radius:14px;padding:14px;
+    box-shadow:0 8px 18px rgba(58,50,46,.10);
+  }
+  .fv-stat .v{font-size:1.5rem;font-weight:900;color:var(--teal);}
+  .fv-stat .k{font-size:.72rem;color:#8a807a;font-weight:700;}
+
+  /* ====== 料金 ====== */
+  .pricing-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:26px;
+    align-items:stretch;
+  }
+  .plan{
+    background:var(--white);
+    border-radius:28px;
+    padding:38px 30px;
+    box-shadow:0 14px 32px var(--shadow);
+    display:flex;flex-direction:column;
+    position:relative;
+    transition:transform .25s;
+  }
+  .plan:hover{transform:translateY(-8px);}
+  .plan.featured{
+    background:var(--ink);
+    color:var(--cream);
+    transform:scale(1.05);
+    box-shadow:0 24px 50px rgba(58,50,46,.30);
+    z-index:2;
+  }
+  .plan.featured:hover{transform:scale(1.05) translateY(-8px);}
+  .plan-flag{
+    position:absolute;top:-16px;left:50%;transform:translateX(-50%) rotate(-2deg);
+    background:var(--honey);color:var(--ink);
+    font-weight:900;font-size:.8rem;
+    padding:6px 18px;border-radius:999px;
+    box-shadow:0 5px 0 #e6a335;
+    white-space:nowrap;
+  }
+  .plan h3{font-size:1.35rem;margin-bottom:6px;}
+  .plan .plan-desc{font-size:.88rem;opacity:.8;margin-bottom:20px;min-height:38px;}
+  .plan .price{display:flex;align-items:baseline;gap:4px;margin-bottom:6px;}
+  .plan .price .amt{font-size:2.5rem;font-weight:900;}
+  .plan .price .per{font-size:.9rem;opacity:.7;}
+  .plan .price-note{font-size:.78rem;opacity:.65;margin-bottom:24px;}
+  .plan ul{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:28px;flex:1;}
+  .plan li{display:flex;gap:9px;font-size:.92rem;align-items:flex-start;}
+  .plan li .chk{
+    width:20px;height:20px;border-radius:6px;flex-shrink:0;
+    display:grid;place-items:center;font-size:.72rem;font-weight:900;color:#fff;margin-top:2px;
+    background:var(--teal);
+  }
+  .plan.featured li .chk{background:var(--honey);color:var(--ink);}
+  .plan .btn{width:100%;justify-content:center;}
+  .plan.featured .btn-primary{box-shadow:0 9px 0 #e6a335;background:var(--honey);color:var(--ink);}
+  .plan.featured .btn-primary:hover{box-shadow:0 12px 0 #e6a335;}
+
+  /* ====== ユーザーの声 ====== */
+  .voices{background:var(--cream-deep);}
+  .voice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+  .voice{
+    background:var(--white);
+    border-radius:26px;
+    padding:30px 28px;
+    box-shadow:0 14px 30px var(--shadow);
+    position:relative;
+  }
+  .voice:nth-child(1){transform:rotate(-1.5deg);}
+  .voice:nth-child(2){transform:rotate(1deg);margin-top:16px;}
+  .voice:nth-child(3){transform:rotate(-1deg);}
+  .voice .quote-mark{
+    font-size:3rem;font-weight:900;color:var(--honey);
+    line-height:.6;margin-bottom:8px;font-family:Georgia,serif;
+  }
+  .voice p.body{font-size:.98rem;color:#4a423d;margin-bottom:20px;}
+  .voice .person{display:flex;align-items:center;gap:12px;}
+  .voice .avatar{
+    width:48px;height:48px;border-radius:50%;
+    display:grid;place-items:center;
+    font-weight:900;color:#fff;font-size:1.1rem;flex-shrink:0;
+  }
+  .voice .person .who{font-weight:800;font-size:.95rem;}
+  .voice .person .role{font-size:.78rem;color:#8a807a;}
+  .voice .stars{color:var(--honey);font-size:.9rem;margin-bottom:12px;}
+
+  /* ====== FAQ ====== */
+  .faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
+  .faq-item{
+    background:var(--white);
+    border-radius:20px;
+    box-shadow:0 10px 24px var(--shadow);
+    overflow:hidden;
+    border:2px solid transparent;
+    transition:border-color .2s;
+  }
+  .faq-item[open]{border-color:var(--honey);}
+  .faq-item summary{
+    list-style:none;
+    cursor:pointer;
+    padding:22px 26px;
+    font-weight:800;
+    font-size:1.05rem;
+    display:flex;align-items:center;gap:14px;
+  }
+  .faq-item summary::-webkit-details-marker{display:none;}
+  .faq-item summary .q-ico{
+    width:30px;height:30px;border-radius:10px;
+    background:var(--coral);color:#fff;
+    display:grid;place-items:center;font-weight:900;flex-shrink:0;
+    transition:transform .25s;
+  }
+  .faq-item[open] summary .q-ico{transform:rotate(45deg);}
+  .faq-item .faq-a{
+    padding:0 26px 24px 70px;
+    color:#5d544e;font-size:.97rem;
+  }
+
+  /* ====== フッターCTA ====== */
+  .footer-cta{
+    text-align:center;
+    background:linear-gradient(135deg,var(--coral),var(--honey));
+    margin:0 auto;
+    width:min(1120px,90vw);
+    border-radius:38px;
+    padding:64px 40px;
+    color:#fff;
+    box-shadow:0 24px 50px var(--shadow-soft);
+    position:relative;
+    overflow:hidden;
+    margin-bottom:70px;
+  }
+  .footer-cta::before,.footer-cta::after{
+    content:"";position:absolute;border-radius:50%;
+  }
+  .footer-cta::before{width:200px;height:200px;background:rgba(255,255,255,.15);top:-70px;left:-50px;}
+  .footer-cta::after{width:160px;height:160px;background:rgba(255,255,255,.12);bottom:-60px;right:-30px;}
+  .footer-cta h2{font-size:clamp(1.9rem,4.5vw,3rem);margin-bottom:14px;position:relative;}
+  .footer-cta p{font-size:1.1rem;opacity:.95;margin-bottom:30px;position:relative;}
+  .footer-cta .btn{position:relative;background:var(--white);color:var(--coral);box-shadow:0 9px 0 rgba(0,0,0,.12);}
+  .footer-cta .btn:hover{transform:translateY(-3px);}
+
+  footer{
+    padding:40px 0 60px;
+    text-align:center;
+  }
+  .footer-bottom{
+    display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:18px;
+    border-top:2px dashed rgba(58,50,46,.15);
+    padding-top:28px;
+  }
+  .footer-bottom .logo{font-size:1.1rem;}
+  .footer-bottom .f-links{display:flex;gap:22px;font-weight:700;font-size:.92rem;}
+  .footer-bottom .f-links a:hover{color:var(--coral);}
+  .copyright{font-size:.85rem;color:#8a807a;margin-top:18px;}
+
+  /* ====== レスポンシブ ====== */
+  @media(max-width:900px){
+    .hero-grid{grid-template-columns:1fr;gap:30px;}
+    .phone-stage{min-height:520px;margin-top:10px;}
+    .problem-grid,.steps,.pricing-grid,.voice-grid{grid-template-columns:1fr;}
+    .problem-card,.voice{transform:none !important;margin-top:0 !important;}
+    .feature{grid-template-columns:1fr;gap:26px;padding:30px;direction:ltr !important;}
+    .plan.featured{transform:none;}
+    .plan.featured:hover{transform:translateY(-8px);}
+    .nav-links{display:none;}
+  }
+  @media(max-width:560px){
+    .footer-cta{padding:48px 24px;}
+    .hero-cta{flex-direction:column;align-items:stretch;}
+    .hero-cta .btn{justify-content:center;}
+    .feature{padding:24px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ========== ヘッダー ========== -->
+<header>
+  <div class="container">
+    <nav class="nav">
+      <div class="logo">
+        <span class="dot">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12h3l2-6 4 14 3-9 2 5h6"/>
+          </svg>
+        </span>
+        SeminarPulse
+      </div>
+      <div class="nav-links">
+        <a href="#problem">課題</a>
+        <a href="#how">仕組み</a>
+        <a href="#features">機能</a>
+        <a href="#pricing">料金</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <a href="#contact" class="btn btn-primary">無料で相談する</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ========== Hero ========== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <span class="badge">✨ セミナー体験を、AIで個別最適化</span>
+        <h1>興味に響く部分だけを、<br><span class="mark">あなたに。</span></h1>
+        <p class="lead">
+          長いセミナーも、もう全部見なくて大丈夫。<br>
+          SeminarPulse のAIが音声・映像・スライドをまるごと解析して、
+          <strong>あなたが知りたいところだけ</strong>をキュッと抽出してお届けします。
+        </p>
+        <div class="hero-cta">
+          <a href="#contact" class="btn btn-primary">無料で試してみる →</a>
+          <a href="#how" class="btn btn-ghost">▶ 仕組みを見る</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><div class="num">70%</div><div class="lbl">視聴完了率（目標）</div></div>
+          <div class="stat"><div class="num">+40</div><div class="lbl">NPS（目標）</div></div>
+          <div class="stat"><div class="num">3者</div><div class="lbl">みんなに価値</div></div>
+        </div>
+      </div>
+
+      <!-- スマホモック -->
+      <div class="phone-stage">
+        <div class="blob"></div>
+
+        <div class="float-card fc-1">
+          <span class="ico" style="background:#ffe2dd;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#FF6B5C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg>
+          </span>
+          AIが抽出中…
+        </div>
+
+        <div class="float-card fc-2">
+          <span class="ico" style="background:#d4f1ed;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#2BB3A3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </span>
+          要約できたよ！
+        </div>
+
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="ps-top">
+              <div class="ps-title">今日のあなた向けダイジェスト</div>
+              <div class="ps-sub">AIマーケティング実践セミナー</div>
+            </div>
+            <div class="ps-body">
+              <div class="ps-card">
+                <span class="tag tag-coral">あなたの興味 92%</span>
+                <div class="ps-h">第3章：LTV最大化の実例</div>
+                <div class="ps-meta">⏱ 4分20秒 / 元は42分</div>
+                <div class="ps-bar"><span style="width:92%"></span></div>
+              </div>
+              <div class="ps-card">
+                <span class="tag tag-teal">ハイライト</span>
+                <div class="ps-h">登壇者の本音Q&amp;A</div>
+                <div class="ps-meta">⏱ 2分10秒</div>
+                <div class="ps-bar"><span style="width:78%;background:#2BB3A3"></span></div>
+              </div>
+              <div class="ps-card">
+                <span class="tag tag-honey">記事化</span>
+                <div class="ps-h">セミナー全体の要点まとめ</div>
+                <div class="ps-meta">📄 読了2分</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 課題提起 ========== -->
+<section class="problems" id="problem">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-kicker">よくある「あるある」</span>
+      <h2>セミナー、ちゃんと活かせてますか？</h2>
+      <p>せっかく時間をかけて開催・参加したのに、なんだかもったいない。<br>そんな「あるある」、SeminarPulse が解決します。</p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-emoji">😪</div>
+        <h3>全員に、同じ長講演</h3>
+        <p>1時間の講演を、興味の度合いが違うみんなに同じだけ届けても、刺さる人と退屈する人に分かれちゃう。</p>
+        <div class="nag">→ 個別最適化されてない</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-emoji">⏳</div>
+        <h3>見返す時間が、ない</h3>
+        <p>「後でアーカイブ見よう」と思っても、結局そのまま。長尺の録画を最初から見る気力、もう残ってないよね。</p>
+        <div class="nag">→ 完了率が伸びない</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-emoji">💭</div>
+        <h3>知見が、活きない</h3>
+        <p>良い話だったのに、社内に共有されず、記事にもならず。せっかくの学びが、その場限りで消えていく。</p>
+        <div class="nag">→ 知識資産にならない</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ソリューション 4ステップ ========== -->
+<section id="how">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-kicker">かんたん4ステップ</span>
+      <h2>AIが「興味だけ」を抜き出す仕組み</h2>
+      <p>むずかしい設定は不要。アップロードしたら、あとはAIにおまかせ。</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-no">1</div>
+        <div class="step-ico" style="background:#ffe2dd;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FF6B5C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        </div>
+        <h3>まるごとアップ</h3>
+        <p>音声・映像・スライドをそのまま投入。形式は問いません。</p>
+      </div>
+      <div class="step">
+        <div class="step-no">2</div>
+        <div class="step-ico" style="background:#fff0d4;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FFB84C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+        </div>
+        <h3>AIが解析</h3>
+        <p>内容を理解し、トピックごとに自動でチャプター分け。</p>
+      </div>
+      <div class="step">
+        <div class="step-no">3</div>
+        <div class="step-ico" style="background:#d4f1ed;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2BB3A3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h12M3 18h6"/></svg>
+        </div>
+        <h3>興味で再編集</h3>
+        <p>一人ひとりの関心に合わせ、価値の高い部分だけを抽出。</p>
+      </div>
+      <div class="step">
+        <div class="step-no">4</div>
+        <div class="step-ico" style="background:#ffe2dd;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FF6B5C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+        </div>
+        <h3>あなたに届く</h3>
+        <p>ダイジェスト・要約・記事として、最適な形でお届け。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 主要機能 ========== -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-kicker">3つの主役機能</span>
+      <h2>できることを、ちょっと自慢させてね</h2>
+      <p>参加者・主催者・登壇者、それぞれにうれしい3つの機能。</p>
+    </div>
+
+    <div class="feature-row">
+
+      <!-- 機能1 -->
+      <div class="feature">
+        <div class="f-text">
+          <div class="f-num">FEATURE 01</div>
+          <h3>興味で、切り出し</h3>
+          <p>参加者の関心プロファイルをもとに、AIが「この人に刺さる部分」をピンポイントで抽出。同じセミナーでも、届く中身は一人ひとり違います。</p>
+          <ul>
+            <li>関心度スコアでチャプターを自動ランキング</li>
+            <li>42分の講演を、刺さる4分に再編集</li>
+            <li>見れば見るほど精度がアップ</li>
+          </ul>
+        </div>
+        <div class="f-visual fv-1">
+          <div class="fv-chip">
+            <span class="fv-mini-ico" style="background:#ffe2dd;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#FF6B5C" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+            LTV最大化の実例 <span class="pct">92%</span>
+          </div>
+          <div class="fv-chip shift">
+            <span class="fv-mini-ico" style="background:#fff0d4;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#FFB84C" stroke-width="2.4"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></span>
+            データ分析の基礎 <span class="pct">61%</span>
+          </div>
+          <div class="fv-chip shift2">
+            <span class="fv-mini-ico" style="background:#d4f1ed;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#2BB3A3" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></span>
+            登壇者Q&amp;A <span class="pct">88%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 機能2 -->
+      <div class="feature">
+        <div class="f-text">
+          <div class="f-num">FEATURE 02</div>
+          <h3>いろんな形で、要約</h3>
+          <p>動画ダイジェスト、テキスト要約、ブログ記事。ひとつのセミナーから、用途に合わせた複数のアウトプットを自動生成します。</p>
+          <ul>
+            <li>全体要約・章ごとハイライトを自動作成</li>
+            <li>そのまま公開できる記事フォーマット</li>
+            <li>社内共有用のサマリーもワンクリック</li>
+          </ul>
+        </div>
+        <div class="f-visual fv-2">
+          <div class="fv-chip">
+            <span class="fv-mini-ico" style="background:#ffe2dd;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#FF6B5C" stroke-width="2.4"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+            動画ダイジェスト
+          </div>
+          <div class="fv-chip shift">
+            <span class="fv-mini-ico" style="background:#fff0d4;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#FFB84C" stroke-width="2.4"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>
+            テキスト要約
+          </div>
+          <div class="fv-chip shift2">
+            <span class="fv-mini-ico" style="background:#d4f1ed;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#2BB3A3" stroke-width="2.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
+            ブログ記事
+          </div>
+        </div>
+      </div>
+
+      <!-- 機能3 -->
+      <div class="feature">
+        <div class="f-text">
+          <div class="f-num">FEATURE 03</div>
+          <h3>主催者ダッシュボード</h3>
+          <p>誰がどこで盛り上がり、どこで離脱したか。参加者の反応がまるっと見える化。次のセミナーづくりに、すぐ活かせます。</p>
+          <ul>
+            <li>視聴完了率・関心ヒートマップを可視化</li>
+            <li>人気トピックのランキング表示</li>
+            <li>登壇者へのフィードバックも自動集計</li>
+          </ul>
+        </div>
+        <div class="f-visual fv-3">
+          <div class="fv-dash">
+            <div class="fv-stat"><div class="v">72%</div><div class="k">視聴完了率</div></div>
+            <div class="fv-stat"><div class="v">+43</div><div class="k">NPS</div></div>
+            <div class="fv-stat"><div class="v">1.8k</div><div class="k">ダイジェスト視聴</div></div>
+            <div class="fv-stat"><div class="v">12</div><div class="k">自動記事化</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== 料金 ========== -->
+<section id="pricing">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-kicker">わかりやすい料金</span>
+      <h2>あなたにちょうどいいプランを</h2>
+      <p>まずは小さく試して、必要になったら広げればOK。いつでも変更できます。</p>
+    </div>
+    <div class="pricing-grid">
+
+      <div class="plan">
+        <h3>Starter</h3>
+        <div class="plan-desc">まずは試したい個人・小規模チームに。</div>
+        <div class="price"><span class="amt">¥5</span><span class="per">万 / 月</span></div>
+        <div class="price-note">月3セミナーまで</div>
+        <ul>
+          <li><span class="chk">✓</span>興味抽出ダイジェスト</li>
+          <li><span class="chk">✓</span>全体要約・ハイライト</li>
+          <li><span class="chk">✓</span>記事化（月5本まで）</li>
+          <li><span class="chk">✓</span>メールサポート</li>
+        </ul>
+        <a href="#contact" class="btn btn-ghost">まずは試す</a>
+      </div>
+
+      <div class="plan featured">
+        <div class="plan-flag">⭐ いちばん人気</div>
+        <h3>Growth</h3>
+        <div class="plan-desc">定期開催する企業・スクールにぴったり。</div>
+        <div class="price"><span class="amt">¥20</span><span class="per">万 / 月</span></div>
+        <div class="price-note">月20セミナーまで</div>
+        <ul>
+          <li><span class="chk">✓</span>Starterの全機能</li>
+          <li><span class="chk">✓</span>主催者ダッシュボード</li>
+          <li><span class="chk">✓</span>参加者の関心プロファイル</li>
+          <li><span class="chk">✓</span>記事化 無制限</li>
+          <li><span class="chk">✓</span>優先サポート</li>
+        </ul>
+        <a href="#contact" class="btn btn-primary">これにする</a>
+      </div>
+
+      <div class="plan">
+        <h3>Enterprise</h3>
+        <div class="plan-desc">大規模・カスタム要件のある組織へ。</div>
+        <div class="price"><span class="amt">個別</span></div>
+        <div class="price-note">ボリューム・要件に応じて</div>
+        <ul>
+          <li><span class="chk">✓</span>Growthの全機能</li>
+          <li><span class="chk">✓</span>SSO・権限管理</li>
+          <li><span class="chk">✓</span>API・既存システム連携</li>
+          <li><span class="chk">✓</span>専任カスタマーサクセス</li>
+          <li><span class="chk">✓</span>SLA保証</li>
+        </ul>
+        <a href="#contact" class="btn btn-ghost">相談する</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== ユーザーの声 ========== -->
+<section class="voices">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-kicker">うれしい声、届いてます</span>
+      <h2>使ってる人は、こう言ってます</h2>
+    </div>
+    <div class="voice-grid">
+
+      <div class="voice">
+        <div class="quote-mark">”</div>
+        <div class="stars">★★★★★</div>
+        <p class="body">毎月のオンラインセミナー、アーカイブの完走率がずっと悩みでした。ダイジェストにしたら完了率が一気に伸びて、参加者から「これ助かる！」の声が止まりません。</p>
+        <div class="person">
+          <div class="avatar" style="background:#FF6B5C;">あ</div>
+          <div>
+            <div class="who">安藤 まどか さん</div>
+            <div class="role">セミナー主催 / イベント企画会社</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice">
+        <div class="quote-mark">”</div>
+        <div class="stars">★★★★★</div>
+        <p class="body">社内研修の動画、誰も最後まで見てなかったんです（笑）。SeminarPulseで一人ひとりに必要な部分だけ届けたら、学習完了率がまるで別物に。人事として本当に助かってます。</p>
+        <div class="person">
+          <div class="avatar" style="background:#2BB3A3;">き</div>
+          <div>
+            <div class="who">木下 涼 さん</div>
+            <div class="role">人事マネージャー / IT企業</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice">
+        <div class="quote-mark">”</div>
+        <div class="stars">★★★★★</div>
+        <p class="body">登壇後に「どこが響いたか」がデータで見えるのが新鮮。次の話し方を考えるヒントになるし、自分の講演が記事になって残るのも単純にうれしいですね。</p>
+        <div class="person">
+          <div class="avatar" style="background:#FFB84C;">た</div>
+          <div>
+            <div class="who">田所 健一 さん</div>
+            <div class="role">講演者 / マーケティングコンサルタント</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== FAQ ========== -->
+<section id="faq">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-kicker">気になること</span>
+      <h2>よくあるご質問</h2>
+    </div>
+    <div class="faq-list">
+
+      <details class="faq-item" open>
+        <summary><span class="q-ico">+</span>処理にはどれくらい時間がかかりますか？</summary>
+        <div class="faq-a">1時間程度のセミナーで、目安はアップロードから30〜60分ほど。解析が終わるとメールでお知らせします。長尺コンテンツも、お待たせしすぎないよう最適化しています。</div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span class="q-ico">+</span>どんなソース形式に対応していますか？</summary>
+        <div class="faq-a">音声（mp3 / wav など）、映像（mp4 / mov など）、スライド（PDF / PowerPoint）に対応。Zoom や各種配信ツールの録画ファイルもそのままアップロードできます。</div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span class="q-ico">+</span>セキュリティは大丈夫ですか？</summary>
+        <div class="faq-a">通信・保存ともに暗号化し、アップロードされたデータをAIの再学習に使うことはありません。Enterpriseプランでは権限管理・SSO・SLAにも対応します。安心してお使いください。</div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span class="q-ico">+</span>料金プランは途中で変更できますか？</summary>
+        <div class="faq-a">はい、いつでもアップグレード・ダウングレード可能です。まずはStarterで小さく試して、開催頻度が増えてきたらGrowthへ、という流れがおすすめです。</div>
+      </details>
+
+      <details class="faq-item">
+        <summary><span class="q-ico">+</span>参加者ごとの「興味」はどう判定するの？</summary>
+        <div class="faq-a">事前アンケートや過去の視聴傾向をもとに関心プロファイルを作成し、AIが各チャプターの関連度をスコアリングします。使うほど精度が上がり、より「刺さる」ダイジェストになっていきます。</div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== フッターCTA ========== -->
+<div class="footer-cta" id="contact">
+  <h2>聞き流しを、知識資産へ。</h2>
+  <p>あなたのセミナーが、もっと多くの人に、もっと深く届く。<br>まずは気軽に、相談してみませんか？</p>
+  <a href="#" class="btn">無料で導入相談する →</a>
+</div>
+
+<!-- ========== フッター ========== -->
+<footer>
+  <div class="container">
+    <div class="footer-bottom">
+      <div class="logo">
+        <span class="dot">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12h3l2-6 4 14 3-9 2 5h6"/>
+          </svg>
+        </span>
+        SeminarPulse
+      </div>
+      <div class="f-links">
+        <a href="#problem">課題</a>
+        <a href="#how">仕組み</a>
+        <a href="#features">機能</a>
+        <a href="#pricing">料金</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">お問い合わせ</a>
+      </div>
+    </div>
+    <div class="copyright">© 2026 SeminarPulse. セミナー体験を、AIで個別最適化する。</div>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

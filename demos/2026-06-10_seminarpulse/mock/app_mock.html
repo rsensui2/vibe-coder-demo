@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SeminarPulse</title>
+<style>
+  :root{
+    --bg:#0A0E27;
+    --sub:#141A3D;
+    --accent:#6366F1;
+    --pulse:#22D3EE;
+    --highlight:#F472B6;
+    --text:#F8FAFC;
+    --muted:#8B93C4;
+    --line:rgba(255,255,255,.07);
+    --glass:rgba(255,255,255,.04);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  html,body{height:100%;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans",sans-serif;
+    background:
+      radial-gradient(1200px 600px at 20% -10%, rgba(99,102,241,.25), transparent 60%),
+      radial-gradient(900px 500px at 110% 20%, rgba(34,211,238,.16), transparent 55%),
+      radial-gradient(800px 600px at 50% 120%, rgba(244,114,182,.14), transparent 60%),
+      #05071a;
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:32px 0;
+  }
+
+  /* ===== iPhone frame ===== */
+  .device{
+    position:relative;
+    width:390px;
+    height:844px;
+    border-radius:56px;
+    background:linear-gradient(155deg,#23264a,#0c0f24);
+    padding:13px;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,.06),
+      0 40px 90px rgba(0,0,0,.65),
+      0 0 120px rgba(99,102,241,.35);
+  }
+  .device::after{ /* side buttons */
+    content:"";
+    position:absolute;
+    left:-3px;top:170px;width:3px;height:64px;
+    border-radius:4px;
+    background:linear-gradient(#3a3f6b,#171a30);
+  }
+  .screen{
+    position:relative;
+    width:100%;
+    height:100%;
+    border-radius:44px;
+    overflow:hidden;
+    background:var(--bg);
+    display:flex;
+    flex-direction:column;
+  }
+  /* Dynamic Island */
+  .island{
+    position:absolute;
+    top:11px;left:50%;
+    transform:translateX(-50%);
+    width:122px;height:35px;
+    background:#000;
+    border-radius:20px;
+    z-index:60;
+    display:flex;align-items:center;justify-content:flex-end;
+    padding-right:14px;
+  }
+  .island::before{
+    content:"";position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    width:10px;height:10px;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%,#2b3358,#0a0c1c);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .island .cam{
+    width:7px;height:7px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%,#1d6f86,#06121a);
+  }
+
+  /* Status bar */
+  .statusbar{
+    height:52px;flex:0 0 52px;
+    display:flex;align-items:flex-end;justify-content:space-between;
+    padding:0 26px 6px;
+    font-size:14px;font-weight:600;letter-spacing:.3px;
+    z-index:50;
+  }
+  .statusbar .right{display:flex;align-items:center;gap:6px;}
+  .sig{display:flex;align-items:flex-end;gap:2px;height:11px;}
+  .sig i{width:3px;background:var(--text);border-radius:1px;}
+  .sig i:nth-child(1){height:4px}.sig i:nth-child(2){height:6px}
+  .sig i:nth-child(3){height:8px}.sig i:nth-child(4){height:11px}
+  .batt{width:24px;height:12px;border:1.5px solid rgba(255,255,255,.6);border-radius:3px;position:relative;padding:1.5px;}
+  .batt::after{content:"";position:absolute;right:-4px;top:3px;width:2px;height:6px;background:rgba(255,255,255,.6);border-radius:0 2px 2px 0;}
+  .batt i{display:block;height:100%;width:78%;background:var(--pulse);border-radius:1px;}
+
+  /* Body / pages */
+  .body{
+    flex:1;
+    overflow-y:auto;
+    overflow-x:hidden;
+    position:relative;
+    padding-bottom:96px;
+    scrollbar-width:none;
+  }
+  .body::-webkit-scrollbar{display:none;}
+  .page{display:none;animation:fade .35s ease;}
+  .page.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* Generic header */
+  .phead{padding:6px 22px 14px;}
+  .phead .ey{font-size:11px;letter-spacing:2px;color:var(--pulse);font-weight:700;text-transform:uppercase;}
+  .phead h1{font-size:26px;font-weight:800;margin-top:4px;letter-spacing:-.5px;}
+  .phead .sub{color:var(--muted);font-size:13px;margin-top:5px;line-height:1.5;}
+
+  .brand{display:flex;align-items:center;gap:9px;}
+  .logo{
+    width:30px;height:30px;border-radius:9px;
+    background:linear-gradient(135deg,var(--accent),var(--pulse));
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 18px rgba(99,102,241,.55);
+  }
+  .logo svg{width:18px;height:18px;}
+  .brandname{font-weight:800;font-size:16px;letter-spacing:-.3px;}
+  .brandname b{color:var(--pulse);}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:4px 22px 2px;}
+  .avatar{
+    width:36px;height:36px;border-radius:50%;
+    background:linear-gradient(135deg,var(--highlight),var(--accent));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:14px;color:#fff;
+    box-shadow:0 4px 14px rgba(244,114,182,.4);
+  }
+
+  /* Cards / glass */
+  .card{
+    background:var(--glass);
+    border:1px solid var(--line);
+    border-radius:20px;
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+  }
+
+  /* Digest card */
+  .digest{margin:0 18px 14px;padding:16px;position:relative;overflow:hidden;}
+  .digest.feat{
+    background:linear-gradient(150deg,rgba(99,102,241,.22),rgba(34,211,238,.08));
+    border-color:rgba(99,102,241,.4);
+    box-shadow:0 12px 40px rgba(99,102,241,.25);
+  }
+  .digest .tagrow{display:flex;align-items:center;gap:7px;margin-bottom:11px;flex-wrap:wrap;}
+  .chip{
+    font-size:10px;font-weight:700;letter-spacing:.4px;
+    padding:4px 9px;border-radius:20px;
+    background:rgba(34,211,238,.14);color:var(--pulse);
+    border:1px solid rgba(34,211,238,.3);
+  }
+  .chip.pink{background:rgba(244,114,182,.14);color:var(--highlight);border-color:rgba(244,114,182,.3);}
+  .chip.live{background:rgba(244,114,182,.18);color:#fff;border-color:transparent;display:flex;align-items:center;gap:5px;}
+  .chip.live i{width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.2s infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+  .match{
+    margin-left:auto;display:flex;align-items:center;gap:6px;
+    font-size:11px;font-weight:700;color:var(--text);
+  }
+  .match .dot{width:7px;height:7px;border-radius:50%;background:var(--pulse);box-shadow:0 0 10px var(--pulse);}
+  .digest h3{font-size:16px;font-weight:700;line-height:1.4;letter-spacing:-.2px;}
+  .digest .by{color:var(--muted);font-size:12px;margin-top:6px;display:flex;align-items:center;gap:8px;}
+  .digest .by span{display:flex;align-items:center;gap:4px;}
+
+  /* waveform */
+  .wave{display:flex;align-items:center;gap:2px;height:34px;margin:13px 0 4px;}
+  .wave i{
+    flex:1;border-radius:2px;
+    background:linear-gradient(var(--pulse),var(--accent));
+    opacity:.85;
+    animation:eq 1.4s ease-in-out infinite;
+  }
+  .wave.pink i{background:linear-gradient(var(--highlight),var(--accent));}
+  @keyframes eq{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+
+  .metarow{display:flex;align-items:center;gap:14px;margin-top:10px;font-size:12px;color:var(--muted);}
+  .metarow .m{display:flex;align-items:center;gap:5px;}
+  .playbtn{
+    margin-left:auto;
+    background:linear-gradient(135deg,var(--accent),var(--pulse));
+    color:#fff;font-weight:700;font-size:12px;
+    border:none;border-radius:14px;padding:8px 16px;
+    display:flex;align-items:center;gap:6px;
+    box-shadow:0 6px 18px rgba(99,102,241,.45);
+  }
+
+  .matchbar{height:5px;border-radius:4px;background:rgba(255,255,255,.08);margin-top:13px;overflow:hidden;}
+  .matchbar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--pulse));box-shadow:0 0 12px var(--pulse);}
+
+  /* section title */
+  .sect{display:flex;align-items:center;justify-content:space-between;padding:6px 22px 10px;}
+  .sect h2{font-size:15px;font-weight:700;}
+  .sect a{font-size:12px;color:var(--pulse);font-weight:600;text-decoration:none;}
+
+  /* horizontal interest pills */
+  .scroller{display:flex;gap:8px;overflow-x:auto;padding:2px 18px 14px;scrollbar-width:none;}
+  .scroller::-webkit-scrollbar{display:none;}
+  .pill{
+    flex:0 0 auto;font-size:12px;font-weight:600;
+    padding:8px 14px;border-radius:20px;
+    background:var(--glass);border:1px solid var(--line);color:var(--muted);
+    white-space:nowrap;
+  }
+  .pill.on{background:linear-gradient(135deg,rgba(99,102,241,.3),rgba(34,211,238,.15));color:#fff;border-color:rgba(99,102,241,.5);}
+
+  /* ===== Player page ===== */
+  .player-hero{
+    margin:0 18px 14px;border-radius:22px;overflow:hidden;position:relative;
+    background:linear-gradient(150deg,#1b2150,#0c0f2c);
+    border:1px solid var(--line);
+    padding:18px;
+  }
+  .player-hero::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(400px 200px at 80% 0%,rgba(34,211,238,.25),transparent 60%);
+  }
+  .player-hero .inner{position:relative;}
+  .bigwave{display:flex;align-items:center;gap:3px;height:70px;margin:14px 0;}
+  .bigwave i{flex:1;border-radius:3px;background:linear-gradient(var(--pulse),var(--accent));animation:eq 1.6s ease-in-out infinite;}
+  .ctrl{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:6px;}
+  .ctrl .ic{width:42px;height:42px;border-radius:50%;background:var(--glass);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--text);}
+  .ctrl .main{
+    width:58px;height:58px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--pulse));
+    box-shadow:0 8px 24px rgba(99,102,241,.55);
+    display:flex;align-items:center;justify-content:center;color:#fff;
+  }
+  .seek{height:5px;border-radius:4px;background:rgba(255,255,255,.12);margin-top:16px;position:relative;}
+  .seek i{position:absolute;left:0;top:0;height:100%;width:38%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--pulse));}
+  .seek b{position:absolute;left:38%;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:#fff;box-shadow:0 0 12px var(--pulse);}
+  .seektime{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px;}
+
+  .summary{margin:0 18px 14px;padding:16px;}
+  .summary h4{font-size:11px;letter-spacing:1.5px;color:var(--pulse);text-transform:uppercase;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+  .summary p{font-size:13.5px;line-height:1.75;color:#dfe3fb;}
+  .summary .key{display:inline;background:rgba(34,211,238,.16);color:var(--pulse);padding:1px 5px;border-radius:5px;font-weight:600;}
+
+  .timeline{margin:0 18px 14px;padding:6px 0;}
+  .tl-item{display:flex;gap:13px;padding:12px 16px;position:relative;}
+  .tl-item:not(:last-child)::after{content:"";position:absolute;left:25px;top:34px;bottom:-4px;width:2px;background:linear-gradient(var(--accent),transparent);}
+  .tl-time{
+    flex:0 0 22px;width:22px;height:22px;border-radius:50%;
+    background:var(--sub);border:2px solid var(--accent);
+    display:flex;align-items:center;justify-content:center;font-size:0;
+    position:relative;z-index:2;
+  }
+  .tl-item.on .tl-time{background:var(--accent);box-shadow:0 0 14px var(--accent);}
+  .tl-c .t{font-size:11px;color:var(--pulse);font-weight:700;}
+  .tl-c .d{font-size:13px;margin-top:2px;line-height:1.4;}
+  .tl-c .d.muted{color:var(--muted);}
+
+  .res{margin:0 18px 14px;padding:6px;display:flex;flex-direction:column;gap:2px;}
+  .res-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:14px;}
+  .res-item:active{background:rgba(255,255,255,.04);}
+  .res-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:0 0 38px;}
+  .res-ic.pdf{background:rgba(244,114,182,.16);color:var(--highlight);}
+  .res-ic.vid{background:rgba(34,211,238,.16);color:var(--pulse);}
+  .res-ic.lnk{background:rgba(99,102,241,.18);color:var(--accent);}
+  .res-c{flex:1;}
+  .res-c .rt{font-size:13.5px;font-weight:600;}
+  .res-c .rs{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  /* ===== Profile page ===== */
+  .profcard{margin:0 18px 16px;padding:20px;text-align:center;position:relative;overflow:hidden;}
+  .profcard::before{content:"";position:absolute;inset:0;background:radial-gradient(300px 160px at 50% -20%,rgba(244,114,182,.3),transparent 60%);}
+  .bigav{
+    width:74px;height:74px;border-radius:50%;margin:0 auto 12px;position:relative;z-index:2;
+    background:linear-gradient(135deg,var(--highlight),var(--accent));
+    display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;
+    box-shadow:0 8px 26px rgba(244,114,182,.5);
+  }
+  .profcard h3{font-size:19px;font-weight:800;position:relative;}
+  .profcard .role{color:var(--muted);font-size:13px;margin-top:4px;position:relative;}
+  .profstats{display:flex;justify-content:center;gap:22px;margin-top:16px;position:relative;}
+  .profstats .s b{display:block;font-size:20px;font-weight:800;color:var(--pulse);}
+  .profstats .s span{font-size:11px;color:var(--muted);}
+
+  .editrow{display:flex;align-items:center;justify-content:space-between;padding:8px 22px;}
+  .editrow h2{font-size:15px;font-weight:700;}
+  .editrow button{background:var(--glass);border:1px solid var(--line);color:var(--pulse);font-size:12px;font-weight:600;padding:6px 14px;border-radius:14px;display:flex;align-items:center;gap:5px;}
+
+  .tagwrap{display:flex;flex-wrap:wrap;gap:8px;padding:6px 20px 16px;}
+  .tag{
+    font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:14px;
+    background:linear-gradient(135deg,rgba(99,102,241,.22),rgba(34,211,238,.1));
+    border:1px solid rgba(99,102,241,.35);color:#eef0ff;
+    display:flex;align-items:center;gap:7px;
+  }
+  .tag .x{color:var(--muted);font-weight:400;font-size:13px;}
+  .tag.add{background:transparent;border:1px dashed var(--line);color:var(--muted);}
+
+  .trend{margin:0 18px 14px;padding:18px 16px;}
+  .trend h4{font-size:13px;font-weight:700;margin-bottom:4px;}
+  .trend .cap{font-size:11px;color:var(--muted);margin-bottom:14px;}
+  .chart{position:relative;height:130px;}
+  .chart svg{width:100%;height:100%;overflow:visible;}
+  .chart .xlbl{display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--muted);}
+
+  .barlist{display:flex;flex-direction:column;gap:14px;padding:4px 4px;}
+  .barrow .top{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;}
+  .barrow .top b{font-weight:700;}
+  .barrow .top span{color:var(--muted);}
+  .bar{height:8px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;}
+  .bar i{display:block;height:100%;border-radius:5px;}
+  .bar.a i{background:linear-gradient(90deg,var(--accent),var(--pulse));box-shadow:0 0 12px rgba(34,211,238,.5);}
+  .bar.b i{background:linear-gradient(90deg,var(--highlight),var(--accent));}
+
+  /* ===== Dashboard page ===== */
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px 18px 14px;}
+  .kpi{padding:15px;}
+  .kpi .lab{font-size:11px;color:var(--muted);letter-spacing:.5px;}
+  .kpi .val{font-size:26px;font-weight:800;margin-top:6px;letter-spacing:-1px;}
+  .kpi .val small{font-size:14px;font-weight:600;color:var(--muted);}
+  .kpi .delta{font-size:11px;font-weight:700;margin-top:5px;display:flex;align-items:center;gap:4px;}
+  .kpi .delta.up{color:#4ade80;}
+  .kpi .delta.down{color:var(--highlight);}
+
+  .heatcard{margin:0 18px 14px;padding:16px;}
+  .heatcard h4{font-size:13px;font-weight:700;}
+  .heatcard .cap{font-size:11px;color:var(--muted);margin:3px 0 14px;}
+  .heatgrid{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;}
+  .heatgrid .cell{aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.05);}
+  .heat-axis{display:flex;justify-content:space-between;margin-top:9px;font-size:10px;color:var(--muted);}
+  .heat-leg{display:flex;align-items:center;gap:7px;margin-top:13px;font-size:10px;color:var(--muted);}
+  .heat-leg .grad{flex:1;height:6px;border-radius:4px;background:linear-gradient(90deg,rgba(99,102,241,.15),var(--accent),var(--pulse));}
+
+  .live-strip{margin:0 18px 14px;padding:14px 16px;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(244,114,182,.16),rgba(99,102,241,.08));border-color:rgba(244,114,182,.3);}
+  .live-strip .pulse-ring{width:34px;height:34px;border-radius:50%;background:rgba(244,114,182,.2);display:flex;align-items:center;justify-content:center;position:relative;}
+  .live-strip .pulse-ring::before{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--highlight);animation:ring 1.8s infinite;}
+  @keyframes ring{0%{transform:scale(.7);opacity:1}100%{transform:scale(1.6);opacity:0}}
+  .live-strip .pulse-ring i{width:10px;height:10px;border-radius:50%;background:var(--highlight);}
+  .live-strip .t b{font-size:13px;}
+  .live-strip .t span{display:block;font-size:11px;color:var(--muted);margin-top:2px;}
+  .live-strip .num{margin-left:auto;text-align:right;}
+  .live-strip .num b{font-size:18px;font-weight:800;color:var(--highlight);}
+  .live-strip .num span{font-size:10px;color:var(--muted);}
+
+  /* ===== Notifications page ===== */
+  .seg{display:flex;gap:6px;padding:4px 20px 14px;}
+  .seg button{flex:1;font-size:12px;font-weight:600;padding:9px;border-radius:13px;background:var(--glass);border:1px solid var(--line);color:var(--muted);}
+  .seg button.on{background:linear-gradient(135deg,rgba(99,102,241,.3),rgba(34,211,238,.14));color:#fff;border-color:rgba(99,102,241,.5);}
+
+  .noti{margin:0 18px 11px;padding:14px;display:flex;gap:13px;position:relative;}
+  .noti.unread{border-color:rgba(34,211,238,.35);}
+  .noti.unread::before{content:"";position:absolute;left:6px;top:18px;width:6px;height:6px;border-radius:50%;background:var(--pulse);box-shadow:0 0 10px var(--pulse);}
+  .noti .nic{width:42px;height:42px;border-radius:13px;flex:0 0 42px;display:flex;align-items:center;justify-content:center;}
+  .nic.slack{background:rgba(244,114,182,.14);color:var(--highlight);}
+  .nic.mail{background:rgba(99,102,241,.18);color:var(--accent);}
+  .nic.pulse{background:rgba(34,211,238,.16);color:var(--pulse);}
+  .noti .nc{flex:1;}
+  .noti .nc .nt{font-size:13.5px;font-weight:600;line-height:1.4;}
+  .noti .nc .nt b{color:var(--pulse);}
+  .noti .nc .nd{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5;}
+  .noti .nc .when{font-size:10.5px;color:var(--muted);margin-top:7px;display:flex;align-items:center;gap:6px;}
+  .badge-st{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:10px;}
+  .badge-st.ok{background:rgba(74,222,128,.14);color:#4ade80;}
+  .badge-st.send{background:rgba(34,211,238,.14);color:var(--pulse);}
+
+  .delivery-card{margin:0 18px 14px;padding:16px;}
+  .delivery-card h4{font-size:13px;font-weight:700;margin-bottom:13px;}
+  .drow{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--line);}
+  .drow:last-child{border-bottom:none;}
+  .drow .dic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 30px;}
+  .drow .dt{flex:1;font-size:13px;font-weight:600;}
+  .drow .dt span{display:block;font-size:11px;color:var(--muted);font-weight:400;margin-top:1px;}
+  .toggle{width:40px;height:23px;border-radius:14px;background:rgba(255,255,255,.1);position:relative;flex:0 0 40px;}
+  .toggle.on{background:linear-gradient(90deg,var(--accent),var(--pulse));}
+  .toggle b{position:absolute;top:2.5px;left:2.5px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s;}
+  .toggle.on b{left:19.5px;}
+
+  /* ===== Tab bar ===== */
+  .tabbar{
+    position:absolute;
+    left:14px;right:14px;bottom:14px;
+    height:68px;
+    border-radius:26px;
+    background:rgba(18,22,52,.82);
+    backdrop-filter:blur(22px);
+    -webkit-backdrop-filter:blur(22px);
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-around;
+    z-index:55;
+    box-shadow:0 14px 40px rgba(0,0,0,.5);
+  }
+  .tab{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+    color:var(--muted);font-size:9.5px;font-weight:600;letter-spacing:.2px;
+    cursor:pointer;position:relative;padding:6px 0;
+  }
+  .tab svg{width:23px;height:23px;transition:.2s;}
+  .tab.active{color:var(--pulse);}
+  .tab.active svg{filter:drop-shadow(0 0 8px var(--pulse));transform:translateY(-1px);}
+  .tab.active::before{
+    content:"";position:absolute;top:-1px;width:26px;height:3px;border-radius:3px;
+    background:var(--pulse);box-shadow:0 0 12px var(--pulse);
+  }
+
+  .home-ind{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:128px;height:5px;border-radius:3px;background:rgba(255,255,255,.3);z-index:56;}
+</style>
+</head>
+<body>
+<div class="device">
+  <div class="screen">
+    <div class="island"><span class="cam"></span></div>
+
+    <!-- Status bar -->
+    <div class="statusbar">
+      <div>9:41</div>
+      <div class="right">
+        <div class="sig"><i></i><i></i><i></i><i></i></div>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M8 2C5 2 2.7 3.2 1 5l1.4 1.4C3.8 5 5.8 4 8 4s4.2 1 5.6 2.4L15 5C13.3 3.2 11 2 8 2Z" fill="#F8FAFC"/><circle cx="8" cy="9.5" r="1.6" fill="#F8FAFC"/></svg>
+        <div class="batt"><i></i></div>
+      </div>
+    </div>
+
+    <div class="body">
+
+      <!-- ============ PAGE 1 : HOME / MY DIGEST ============ -->
+      <div class="page active" id="page-home">
+        <div class="topbar">
+          <div class="brand">
+            <div class="logo">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M2 12h3l2-7 4 14 3-9 2 4 3-2h3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="brandname">Seminar<b>Pulse</b></div>
+          </div>
+          <div class="avatar">涼</div>
+        </div>
+
+        <div class="phead">
+          <div class="ey">My Digest · 6月10日</div>
+          <h1>あなたの今日の<br>ハイライト</h1>
+          <div class="sub">14時間分のセミナーから、興味に合う <b style="color:var(--pulse)">6本</b> を抽出。合計 <b style="color:var(--pulse)">19分</b> で追いつけます。</div>
+        </div>
+
+        <div class="scroller">
+          <div class="pill on">すべて</div>
+          <div class="pill">生成AI</div>
+          <div class="pill">SaaS戦略</div>
+          <div class="pill">組織開発</div>
+          <div class="pill">マーケ</div>
+          <div class="pill">資金調達</div>
+        </div>
+
+        <!-- featured -->
+        <div class="card digest feat">
+          <div class="tagrow">
+            <span class="chip live"><i></i>LIVE抽出</span>
+            <span class="chip">生成AI</span>
+            <div class="match"><span class="dot"></span>あなたと <b>92%</b> マッチ</div>
+          </div>
+          <h3>LLMエージェントを本番運用に乗せる5つの設計原則</h3>
+          <div class="by"><span>🎤 高橋 拓也 / Anthropic Japan</span><span>· SaaS Summit 2026</span></div>
+          <div class="wave">
+            <i style="animation-delay:0s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.4s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.35s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.45s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.4s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.1s"></i>
+          </div>
+          <div class="metarow">
+            <span class="m">⏱ 4分で読める</span>
+            <span class="m">🔥 注目度 上位3%</span>
+            <button class="playbtn" onclick="go('player')">▶ 再生</button>
+          </div>
+          <div class="matchbar"><i style="width:92%"></i></div>
+        </div>
+
+        <div class="sect"><h2>あなた向けの抽出</h2><a href="#">並べ替え</a></div>
+
+        <div class="card digest">
+          <div class="tagrow">
+            <span class="chip pink">SaaS戦略</span>
+            <div class="match"><span class="dot"></span>あなたと <b>88%</b> マッチ</div>
+          </div>
+          <h3>PLGとSLGを両立させるGTM設計の最前線</h3>
+          <div class="by"><span>🎤 中村 さくら / Notion</span></div>
+          <div class="wave pink">
+            <i style="animation-delay:0s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.35s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.4s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.45s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.35s"></i>
+          </div>
+          <div class="metarow">
+            <span class="m">⏱ 3分</span>
+            <span class="m">📌 関連資料 2件</span>
+            <button class="playbtn" onclick="go('player')">▶ 再生</button>
+          </div>
+          <div class="matchbar"><i style="width:88%"></i></div>
+        </div>
+
+        <div class="card digest">
+          <div class="tagrow">
+            <span class="chip">組織開発</span>
+            <div class="match"><span class="dot"></span>あなたと <b>81%</b> マッチ</div>
+          </div>
+          <h3>非同期文化で成果を出すリモート組織の作り方</h3>
+          <div class="by"><span>🎤 佐藤 健一 / GitLab</span></div>
+          <div class="wave">
+            <i style="animation-delay:.1s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:0s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.4s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.35s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.45s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.4s"></i>
+          </div>
+          <div class="metarow">
+            <span class="m">⏱ 5分</span>
+            <span class="m">💬 質疑あり</span>
+            <button class="playbtn" onclick="go('player')">▶ 再生</button>
+          </div>
+          <div class="matchbar"><i style="width:81%"></i></div>
+        </div>
+      </div>
+
+      <!-- ============ PAGE 2 : PLAYER / DETAIL ============ -->
+      <div class="page" id="page-player">
+        <div class="topbar">
+          <div class="brand" onclick="go('home')" style="cursor:pointer">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#8B93C4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="color:var(--muted);font-size:13px;font-weight:600">My Digest</span>
+          </div>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v13" stroke="#8B93C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <div class="phead" style="padding-bottom:6px">
+          <div class="tagrow" style="display:flex;gap:7px;margin-bottom:8px">
+            <span class="chip">生成AI</span>
+            <span class="chip pink">本番運用</span>
+            <div class="match" style="margin-left:auto"><span class="dot"></span>92% マッチ</div>
+          </div>
+          <h1 style="font-size:21px;line-height:1.35">LLMエージェントを本番運用に乗せる5つの設計原則</h1>
+          <div class="sub">🎤 高橋 拓也 / Anthropic Japan · SaaS Summit 2026 メインステージ</div>
+        </div>
+
+        <!-- player -->
+        <div class="player-hero">
+          <div class="inner">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span class="chip" style="background:rgba(255,255,255,.08);border-color:transparent;color:#fff">ハイライト 03 / 06</span>
+              <span style="font-size:11px;color:var(--muted)">元動画 48:12 → 抽出 4:08</span>
+            </div>
+            <div class="bigwave">
+              <i style="animation-delay:0s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.4s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.35s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.45s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.4s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.1s"></i><i style="animation-delay:.35s"></i><i style="animation-delay:.05s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.4s"></i>
+            </div>
+            <div class="ctrl">
+              <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M11 19l-7-7 7-7M19 19l-7-7 7-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="main"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M6 4l14 8-14 8V4z"/></svg></div>
+              <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M13 5l7 7-7 7M5 5l7 7-7 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="seek"><i></i><b></b></div>
+            <div class="seektime"><span>1:34</span><span>4:08</span></div>
+          </div>
+        </div>
+
+        <!-- AI summary -->
+        <div class="card summary">
+          <h4>⚡ 3行サマリー</h4>
+          <p>エージェントを本番に乗せる鍵は <span class="key">権限の最小化</span> と <span class="key">観測可能性</span>。失敗をリトライ可能な単位に分割し、各ステップを構造化ログで追えるようにすることで、夜間の自律実行でも事故を局所化できる。最後の砦として <span class="key">人間の承認ゲート</span> を外部送信の直前にだけ置くのが実務上の最適解。</p>
+        </div>
+
+        <!-- timeline -->
+        <div class="sect" style="padding-bottom:4px"><h2>チャプター・タイムライン</h2><a href="#">元動画へ</a></div>
+        <div class="card timeline">
+          <div class="tl-item on">
+            <div class="tl-time"></div>
+            <div class="tl-c"><div class="t">00:00 — 01:10</div><div class="d">なぜ「動くデモ」と「本番運用」の間に崖があるのか</div></div>
+          </div>
+          <div class="tl-item on">
+            <div class="tl-time"></div>
+            <div class="tl-c"><div class="t">01:10 — 02:25</div><div class="d">原則① 権限の最小化と承認ゲートの置き方</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time"></div>
+            <div class="tl-c"><div class="t">02:25 — 03:30</div><div class="d muted">原則② 構造化ログによる観測可能性の確保</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time"></div>
+            <div class="tl-c"><div class="t">03:30 — 04:08</div><div class="d muted">原則③〜⑤ リトライ設計・コスト管理・評価ループ</div></div>
+          </div>
+        </div>
+
+        <!-- resources -->
+        <div class="sect" style="padding-bottom:4px"><h2>関連資料</h2></div>
+        <div class="card res">
+          <div class="res-item">
+            <div class="res-ic pdf"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 2h8l4 4v16H6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2v4h4" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+            <div class="res-c"><div class="rt">登壇スライド（全42枚）</div><div class="rs">PDF · 8.4MB · 講演者提供</div></div>
+            <span style="color:var(--muted)">↓</span>
+          </div>
+          <div class="res-item">
+            <div class="res-ic vid"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M17 9l4-2v10l-4-2" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+            <div class="res-c"><div class="rt">フルセッション録画 48:12</div><div class="rs">該当チャプター 12:40 から再生</div></div>
+            <span style="color:var(--muted)">▶</span>
+          </div>
+          <div class="res-item">
+            <div class="res-ic lnk"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1.5 1.5M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1.5-1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+            <div class="res-c"><div class="rt">設計原則の元論文 & GitHub</div><div class="rs">arxiv.org / agent-prod-patterns</div></div>
+            <span style="color:var(--muted)">↗</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ PAGE 3 : INTEREST PROFILE ============ -->
+      <div class="page" id="page-profile">
+        <div class="phead" style="padding-bottom:8px">
+          <div class="eye ey" style="color:var(--highlight)">Interest Profile</div>
+          <h1>興味プロファイル</h1>
+        </div>
+
+        <div class="card profcard">
+          <div class="bigav">涼</div>
+          <h3>泉水 涼介</h3>
+          <div class="role">SaaSスタートアップ / プロダクト責任者</div>
+          <div class="profstats">
+            <div class="s"><b>47</b><span>視聴ダイジェスト</span></div>
+            <div class="s"><b>12</b><span>関心テーマ</span></div>
+            <div class="s"><b>91%</b><span>平均マッチ</span></div>
+          </div>
+        </div>
+
+        <div class="editrow">
+          <h2>あなたの属性</h2>
+          <button>✎ 編集</button>
+        </div>
+        <div class="tagwrap">
+          <div class="tag">🏢 業種：SaaS / B2B <span class="x">×</span></div>
+          <div class="tag">👤 役職：プロダクト責任者 <span class="x">×</span></div>
+          <div class="tag">📍 従業員 50–200名 <span class="x">×</span></div>
+        </div>
+
+        <div class="editrow">
+          <h2>関心テーマ</h2>
+          <button>＋ 追加</button>
+        </div>
+        <div class="tagwrap">
+          <div class="tag">生成AI / エージェント <span class="x">×</span></div>
+          <div class="tag">GTM・PLG戦略 <span class="x">×</span></div>
+          <div class="tag">プロダクト分析 <span class="x">×</span></div>
+          <div class="tag">組織開発 <span class="x">×</span></div>
+          <div class="tag">資金調達 <span class="x">×</span></div>
+          <div class="tag">UXリサーチ <span class="x">×</span></div>
+          <div class="tag add">＋ テーマを追加</div>
+        </div>
+
+        <div class="sect"><h2>興味の推移</h2><a href="#">過去90日</a></div>
+        <div class="card trend">
+          <h4>あなたの関心が強まっているテーマ</h4>
+          <div class="cap">視聴・スキップ・滞在時間からAIが推定</div>
+          <div class="chart">
+            <svg viewBox="0 0 300 120" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#22D3EE" stop-opacity=".35"/>
+                  <stop offset="1" stop-color="#22D3EE" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#F472B6" stop-opacity=".3"/>
+                  <stop offset="1" stop-color="#F472B6" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <line x1="0" y1="30" x2="300" y2="30" stroke="rgba(255,255,255,.05)"/>
+              <line x1="0" y1="60" x2="300" y2="60" stroke="rgba(255,255,255,.05)"/>
+              <line x1="0" y1="90" x2="300" y2="90" stroke="rgba(255,255,255,.05)"/>
+              <path d="M0 95 L50 88 L100 70 L150 60 L200 38 L250 28 L300 18 L300 120 L0 120 Z" fill="url(#g1)"/>
+              <path d="M0 95 L50 88 L100 70 L150 60 L200 38 L250 28 L300 18" fill="none" stroke="#22D3EE" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M0 78 L50 82 L100 80 L150 88 L200 84 L250 92 L300 90 L300 120 L0 120 Z" fill="url(#g2)"/>
+              <path d="M0 78 L50 82 L100 80 L150 88 L200 84 L250 92 L300 90" fill="none" stroke="#F472B6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="300" cy="18" r="4" fill="#22D3EE"/>
+              <circle cx="300" cy="90" r="4" fill="#F472B6"/>
+            </svg>
+          </div>
+          <div class="xlbl"><span>3月</span><span>4月</span><span>5月</span><span>今</span></div>
+          <div style="display:flex;gap:18px;margin-top:12px;font-size:11px">
+            <span style="display:flex;align-items:center;gap:6px;color:var(--pulse)"><b style="width:8px;height:8px;border-radius:50%;background:var(--pulse);display:inline-block"></b>生成AI ↑急上昇</span>
+            <span style="display:flex;align-items:center;gap:6px;color:var(--highlight)"><b style="width:8px;height:8px;border-radius:50%;background:var(--highlight);display:inline-block"></b>資金調達 →横ばい</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ PAGE 4 : ORGANIZER DASHBOARD ============ -->
+      <div class="page" id="page-dash">
+        <div class="phead" style="padding-bottom:6px">
+          <div class="ey">Organizer · ライブ分析</div>
+          <h1>関心ダッシュボード</h1>
+          <div class="sub">SaaS Summit 2026 · メインステージ — リアルタイム集計中</div>
+        </div>
+
+        <div class="live-strip card">
+          <div class="pulse-ring"><i></i></div>
+          <div class="t"><b>いま盛り上がっています</b><span>「権限の最小化」のチャプターで滞在が集中</span></div>
+          <div class="num"><b>+38%</b><span>注目度</span></div>
+        </div>
+
+        <div class="kpis">
+          <div class="card kpi">
+            <div class="lab">アクティブ参加者</div>
+            <div class="val">1,284<small> 人</small></div>
+            <div class="delta up">▲ 12% 前セッション比</div>
+          </div>
+          <div class="card kpi">
+            <div class="lab">ダイジェスト消費率</div>
+            <div class="val">73<small>%</small></div>
+            <div class="delta up">▲ 8% 目標超過</div>
+          </div>
+          <div class="card kpi">
+            <div class="lab">平均完了率</div>
+            <div class="val">61<small>%</small></div>
+            <div class="delta up">▲ 5%</div>
+          </div>
+          <div class="card kpi">
+            <div class="lab">途中離脱率</div>
+            <div class="val">14<small>%</small></div>
+            <div class="delta down">▼ 3% 改善</div>
+          </div>
+        </div>
+
+        <div class="card heatcard">
+          <h4>関心ヒートマップ</h4>
+          <div class="cap">縦：トピック × 横：講演経過（分）— 濃いほど注目が集中</div>
+          <div class="heatgrid" id="heatgrid"></div>
+          <div class="heat-axis"><span>0分</span><span>12分</span><span>24分</span><span>36分</span><span>48分</span></div>
+          <div class="heat-leg"><span>低</span><div class="grad"></div><span>高</span></div>
+        </div>
+
+        <div class="sect"><h2>トピック別の注目度</h2><a href="#">CSV</a></div>
+        <div class="card heatcard" style="padding:18px 16px">
+          <div class="barlist">
+            <div class="barrow">
+              <div class="top"><b>権限設計・承認ゲート</b><span>94</span></div>
+              <div class="bar a"><i style="width:94%"></i></div>
+            </div>
+            <div class="barrow">
+              <div class="top"><b>観測可能性・ログ設計</b><span>87</span></div>
+              <div class="bar a"><i style="width:87%"></i></div>
+            </div>
+            <div class="barrow">
+              <div class="top"><b>リトライ・冪等性</b><span>72</span></div>
+              <div class="bar a"><i style="width:72%"></i></div>
+            </div>
+            <div class="barrow">
+              <div class="top"><b>コスト最適化</b><span>58</span></div>
+              <div class="bar b"><i style="width:58%"></i></div>
+            </div>
+            <div class="barrow">
+              <div class="top"><b>評価・ベンチマーク</b><span>41</span></div>
+              <div class="bar b"><i style="width:41%"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ PAGE 5 : NOTIFICATIONS / DELIVERY ============ -->
+      <div class="page" id="page-noti">
+        <div class="phead" style="padding-bottom:8px">
+          <div class="ey">Notifications</div>
+          <h1>通知・配信</h1>
+        </div>
+
+        <div class="seg">
+          <button class="on">すべて</button>
+          <button>新着ダイジェスト</button>
+          <button>配信ログ</button>
+        </div>
+
+        <div class="card noti unread">
+          <div class="nic pulse"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M2 12h3l2-7 4 14 3-9 2 4 3-2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nc">
+            <div class="nt">今日のダイジェスト <b>6本</b> が届きました</div>
+            <div class="nd">「LLMエージェントの本番運用」など、あなたの興味に92%マッチするハイライトを抽出しました。</div>
+            <div class="when">⏱ 5分前 · プッシュ通知</div>
+          </div>
+        </div>
+
+        <div class="card noti unread">
+          <div class="nic slack"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="10" width="4" height="4" rx="1.3" stroke="currentColor" stroke-width="1.7"/><rect x="10" y="3" width="4" height="4" rx="1.3" stroke="currentColor" stroke-width="1.7"/><rect x="17" y="10" width="4" height="4" rx="1.3" stroke="currentColor" stroke-width="1.7"/><rect x="10" y="17" width="4" height="4" rx="1.3" stroke="currentColor" stroke-width="1.7"/></svg></div>
+          <div class="nc">
+            <div class="nt">Slack <b>#product-team</b> に配信しました</div>
+            <div class="nd">チーム向けに「GTM設計の最前線」のサマリーを共有。3名がリアクション済み。</div>
+            <div class="when">⏱ 1時間前 · <span class="badge-st ok">配信成功</span></div>
+          </div>
+        </div>
+
+        <div class="card noti">
+          <div class="nic mail"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <div class="nc">
+            <div class="nt">週次メールダイジェストを送信</div>
+            <div class="nd">今週のハイライト18本を1通に要約してお届けしました。開封率 64%。</div>
+            <div class="when">⏱ 昨日 08:00 · <span class="badge-st ok">配信成功</span></div>
+          </div>
+        </div>
+
+        <div class="card noti">
+          <div class="nic pulse"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 22a2 2 0 002-2h-4a2 2 0 002 2zM18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="nc">
+            <div class="nt">新しい関心テーマを検出しました</div>
+            <div class="nd">「資金調達」関連の視聴が増加。プロファイルに追加すると抽出精度が上がります。</div>
+            <div class="when">⏱ 昨日 · タップして追加</div>
+          </div>
+        </div>
+
+        <div class="sect" style="padding-bottom:6px"><h2>配信チャンネル設定</h2></div>
+        <div class="card delivery-card">
+          <h4>有効な連携</h4>
+          <div class="drow">
+            <div class="dic mail" style="background:rgba(99,102,241,.18);color:var(--accent)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+            <div class="dt">メール配信<span>毎朝 8:00 · 週次サマリー</span></div>
+            <div class="toggle on"><b></b></div>
+          </div>
+          <div class="drow">
+            <div class="dic" style="background:rgba(244,114,182,.14);color:var(--highlight)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="10" width="4" height="4" rx="1.3" stroke="currentColor" stroke-width="1.7"/><rect x="10" y="3" width="4" height="4" rx="1.3" stroke="currentColor" stroke-width="1.7"/><rect x="17" y="10" width="4" height="4" rx="1.3" stroke="currentColor" stroke-width="1.7"/><rect x="10" y="17" width="4" height="4" rx="1.3" stroke="currentColor" stroke-width="1.7"/></svg></div>
+            <div class="dt">Slack 連携<span>#product-team へ即時配信</span></div>
+            <div class="toggle on"><b></b></div>
+          </div>
+          <div class="drow">
+            <div class="dic" style="background:rgba(34,211,238,.16);color:var(--pulse)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 6v6l4 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="dt">プッシュ通知<span>新着ダイジェストを即時通知</span></div>
+            <div class="toggle"><b></b></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /body -->
+
+    <!-- ===== Tab bar ===== -->
+    <div class="tabbar">
+      <div class="tab active" data-page="home" onclick="go('home')">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8M5 9.5V20a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>ダイジェスト</span>
+      </div>
+      <div class="tab" data-page="player" onclick="go('player')">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M10 8.5l5 3.5-5 3.5v-7z" fill="currentColor"/></svg>
+        <span>再生</span>
+      </div>
+      <div class="tab" data-page="profile" onclick="go('profile')">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="2"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>興味</span>
+      </div>
+      <div class="tab" data-page="dash" onclick="go('dash')">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>主催者</span>
+      </div>
+      <div class="tab" data-page="noti" onclick="go('noti')">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9zM10 21a2 2 0 004 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>通知</span>
+      </div>
+    </div>
+
+    <div class="home-ind"></div>
+  </div>
+</div>
+
+<script>
+  function go(name){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+name).classList.add('active');
+    document.querySelectorAll('.tab').forEach(t=>{
+      t.classList.toggle('active', t.dataset.page===name);
+    });
+    document.querySelector('.body').scrollTop = 0;
+  }
+
+  // build heatmap (12 cols x 6 rows) with weighted random intensity
+  (function(){
+    const grid = document.getElementById('heatgrid');
+    const cols = 12, rows = 6;
+    // hotspots biased toward early-mid topics
+    const peaks = [[1,3],[2,4],[1,5],[0,4],[3,6],[2,7]];
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        let v = Math.random()*0.35;
+        peaks.forEach(([pr,pc])=>{
+          const d = Math.hypot(r-pr, (c-pc)*0.6);
+          v += Math.max(0, 0.95 - d*0.32);
+        });
+        v = Math.min(1, v);
+        const cell = document.createElement('div');
+        cell.className='cell';
+        // colour ramp: indigo -> cyan
+        const a = 0.06 + v*0.85;
+        const hueMix = v;
+        const col = `rgba(${Math.round(99 - hueMix*65)}, ${Math.round(102 + hueMix*109)}, ${Math.round(241 - hueMix*3)}, ${a})`;
+        cell.style.background = col;
+        if(v>0.78) cell.style.boxShadow = '0 0 8px rgba(34,211,238,.55)';
+        grid.appendChild(cell);
+      }
+    }
+  })();
+</script>
+</body>
+</html>
