@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AGENT ACADEMIA — 日本初のAIエージェント・クリエイター養成プログラム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  /* ============================================================
+     AGENT ACADEMIA — Pattern 2: White × Gold Luxury
+     ============================================================ */
+
+  :root {
+    --bg: #faf8f3;
+    --bg-sub: #f2eee5;
+    --gold: #c9a227;
+    --gold-soft: #d8bf6e;
+    --ink: #1a1a1a;
+    --text: #2a2a28;
+    --text-sub: #7a7468;
+    --line: #e3dcce;
+    --white: #ffffff;
+    --shadow-sm: 0 2px 20px rgba(40, 36, 28, 0.05);
+    --shadow-md: 0 18px 50px rgba(40, 36, 28, 0.09);
+    --shadow-lg: 0 30px 80px rgba(40, 36, 28, 0.13);
+    --serif-en: "Playfair Display", "Noto Serif JP", serif;
+    --serif-jp: "Noto Serif JP", serif;
+    --sans-jp: "Noto Sans JP", sans-serif;
+    --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--sans-jp);
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.85;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: rgba(201, 162, 39, 0.22);
+    color: var(--ink);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ---- Section rhythm ---- */
+  section {
+    position: relative;
+  }
+
+  .eyebrow {
+    font-family: var(--sans-jp);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 34px;
+    height: 1px;
+    background: var(--gold);
+    display: inline-block;
+  }
+
+  .eyebrow.center {
+    justify-content: center;
+  }
+
+  .eyebrow.center::after {
+    content: "";
+    width: 34px;
+    height: 1px;
+    background: var(--gold);
+    display: inline-block;
+  }
+
+  h2.section-title {
+    font-family: var(--serif-jp);
+    font-weight: 600;
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    line-height: 1.4;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+    margin-top: 22px;
+  }
+
+  .section-lead {
+    color: var(--text-sub);
+    font-size: 1.02rem;
+    max-width: 620px;
+    margin-top: 22px;
+    font-weight: 300;
+  }
+
+  /* ============================================================
+     Reveal on scroll
+     ============================================================ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(34px);
+    transition: opacity 1.1s var(--ease), transform 1.1s var(--ease);
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal.d1 { transition-delay: 0.1s; }
+  .reveal.d2 { transition-delay: 0.22s; }
+  .reveal.d3 { transition-delay: 0.34s; }
+
+  /* ============================================================
+     Header
+     ============================================================ */
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    transition: background 0.5s var(--ease), box-shadow 0.5s var(--ease),
+      padding 0.5s var(--ease);
+    padding: 26px 0;
+  }
+  header.scrolled {
+    background: rgba(250, 248, 243, 0.86);
+    backdrop-filter: saturate(150%) blur(14px);
+    box-shadow: 0 1px 0 var(--line);
+    padding: 16px 0;
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    font-family: var(--serif-en);
+    font-size: 1.32rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand .mark {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 0.85rem;
+    color: var(--gold);
+    font-style: italic;
+  }
+  .nav-links {
+    display: flex;
+    gap: 38px;
+    align-items: center;
+  }
+  .nav-links a {
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    color: var(--text-sub);
+    transition: color 0.3s;
+  }
+  .nav-links a:hover {
+    color: var(--ink);
+  }
+  .nav-cta {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    border: 1px solid var(--ink);
+    color: var(--ink) !important;
+    padding: 11px 24px;
+    border-radius: 2px;
+    transition: all 0.4s var(--ease);
+  }
+  .nav-cta:hover {
+    background: var(--ink);
+    color: var(--bg) !important;
+  }
+  .nav-toggle {
+    display: none;
+  }
+
+  /* ============================================================
+     Buttons
+     ============================================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-family: var(--sans-jp);
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    padding: 17px 38px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.45s var(--ease);
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-soft) 100%);
+    color: #2a230d;
+    box-shadow: 0 14px 34px rgba(201, 162, 39, 0.28);
+  }
+  .btn-gold:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 22px 46px rgba(201, 162, 39, 0.38);
+  }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .btn-ghost:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    transform: translateY(-3px);
+  }
+  .btn .arrow {
+    transition: transform 0.4s var(--ease);
+  }
+  .btn:hover .arrow {
+    transform: translateX(5px);
+  }
+
+  /* ============================================================
+     Hero
+     ============================================================ */
+  .hero {
+    padding: 190px 0 130px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: -180px;
+    right: -180px;
+    width: 620px;
+    height: 620px;
+    background: radial-gradient(
+      circle,
+      rgba(201, 162, 39, 0.1) 0%,
+      rgba(201, 162, 39, 0) 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.08fr 0.92fr;
+    gap: 70px;
+    align-items: center;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.74rem;
+    letter-spacing: 0.18em;
+    color: var(--text-sub);
+    padding: 8px 18px;
+    border: 1px solid var(--line);
+    border-radius: 40px;
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+  }
+  .hero-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.18);
+  }
+  .hero h1 {
+    font-family: var(--serif-en);
+    font-weight: 500;
+    font-size: clamp(2.9rem, 6vw, 5.1rem);
+    line-height: 1.08;
+    color: var(--ink);
+    margin: 32px 0 0;
+    letter-spacing: 0.005em;
+  }
+  .hero h1 .gold {
+    color: var(--gold);
+    font-style: italic;
+  }
+  .hero .jp-title {
+    font-family: var(--serif-jp);
+    font-weight: 500;
+    font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+    color: var(--text);
+    margin-top: 26px;
+    line-height: 1.7;
+  }
+  .hero .tagline {
+    color: var(--text-sub);
+    font-size: 1.04rem;
+    margin-top: 22px;
+    font-weight: 300;
+    max-width: 460px;
+  }
+  .hero .tagline .accent {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    margin-top: 42px;
+    flex-wrap: wrap;
+  }
+  .hero-meta {
+    margin-top: 38px;
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    color: var(--text-sub);
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+  }
+  .hero-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .hero-meta span::before {
+    content: "—";
+    color: var(--gold);
+  }
+
+  /* ---- Phone mock (CSS only) ---- */
+  .phone-stage {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1600px;
+  }
+  .phone-stage .glow-card {
+    position: absolute;
+    width: 230px;
+    height: 470px;
+    border-radius: 38px;
+    background: var(--bg-sub);
+    border: 1px solid var(--line);
+  }
+  .phone-stage .glow-card.c1 {
+    transform: rotate(-9deg) translate(-44px, 22px);
+    box-shadow: var(--shadow-sm);
+  }
+  .phone-stage .glow-card.c2 {
+    transform: rotate(7deg) translate(40px, -14px);
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+  }
+  .phone {
+    position: relative;
+    width: 264px;
+    height: 540px;
+    background: var(--white);
+    border-radius: 42px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-lg);
+    padding: 16px 14px;
+    z-index: 3;
+    transform: rotate(-2deg);
+  }
+  .phone::before {
+    content: "";
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 22px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  .phone-screen {
+    height: 100%;
+    background: linear-gradient(180deg, #ffffff 0%, #fbf9f4 100%);
+    border-radius: 30px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .ps-top {
+    padding: 40px 20px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .ps-agent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ps-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+  .ps-agent .nm {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+  }
+  .ps-agent .st {
+    font-size: 0.62rem;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    letter-spacing: 0.06em;
+  }
+  .ps-agent .st::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #4caf7d;
+  }
+  .ps-body {
+    flex: 1;
+    padding: 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+  }
+  .bubble {
+    font-size: 0.66rem;
+    line-height: 1.6;
+    padding: 9px 12px;
+    border-radius: 12px;
+    max-width: 80%;
+  }
+  .bubble.user {
+    align-self: flex-end;
+    background: var(--ink);
+    color: #f4efe3;
+    border-bottom-right-radius: 4px;
+  }
+  .bubble.bot {
+    align-self: flex-start;
+    background: var(--bg-sub);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-bottom-left-radius: 4px;
+  }
+  .ps-task {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 11px;
+    box-shadow: var(--shadow-sm);
+  }
+  .ps-task .t-h {
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .ps-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.62rem;
+    color: var(--text-sub);
+    padding: 3px 0;
+  }
+  .ps-step .chk {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    display: grid;
+    place-items: center;
+    font-size: 0.5rem;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .ps-step.done .chk {
+    background: var(--gold);
+    color: #fff;
+  }
+  .ps-step.run {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .ps-step.run .chk {
+    border-style: dashed;
+    animation: spin 2.6s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .ps-bottom {
+    padding: 12px 16px 18px;
+    border-top: 1px solid var(--line);
+  }
+  .ps-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 30px;
+    padding: 8px 14px;
+    font-size: 0.62rem;
+    color: var(--text-sub);
+  }
+  .ps-input .send {
+    margin-left: auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 0.6rem;
+  }
+  .float-tag {
+    position: absolute;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 16px;
+    box-shadow: var(--shadow-md);
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .float-tag .ft-ico {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--bg-sub);
+    display: grid;
+    place-items: center;
+    color: var(--gold);
+    font-family: var(--serif-en);
+    font-style: italic;
+  }
+  .float-tag .ft-num {
+    font-family: var(--serif-en);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .float-tag .ft-lbl {
+    font-size: 0.58rem;
+    color: var(--text-sub);
+    letter-spacing: 0.08em;
+  }
+  .float-tag.t1 {
+    top: 30px;
+    left: -18px;
+    animation: floaty 6s ease-in-out infinite;
+  }
+  .float-tag.t2 {
+    bottom: 50px;
+    right: -10px;
+    animation: floaty 6s ease-in-out infinite 1.6s;
+  }
+  @keyframes floaty {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  /* ============================================================
+     Problem section
+     ============================================================ */
+  .problem {
+    padding: 130px 0;
+    background: var(--bg-sub);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .problem-head {
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .problem-head .section-lead {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-top: 78px;
+    border: 1px solid var(--line);
+    background: var(--white);
+    border-radius: 6px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .stat {
+    padding: 54px 38px;
+    text-align: center;
+    border-right: 1px solid var(--line);
+    position: relative;
+  }
+  .stat:last-child {
+    border-right: none;
+  }
+  .stat .num {
+    font-family: var(--serif-en);
+    font-weight: 600;
+    font-size: clamp(2.6rem, 5vw, 3.7rem);
+    color: var(--gold);
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+  .stat .num .small {
+    font-size: 0.42em;
+    color: var(--ink);
+    font-family: var(--sans-jp);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .stat .label {
+    margin-top: 18px;
+    font-size: 0.86rem;
+    color: var(--text);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .stat .sub {
+    font-size: 0.72rem;
+    color: var(--text-sub);
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ============================================================
+     Solution section — stacked cards
+     ============================================================ */
+  .solution {
+    padding: 140px 0;
+    overflow: hidden;
+  }
+  .sol-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .sol-text h2 {
+    font-family: var(--serif-jp);
+    font-weight: 600;
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    line-height: 1.42;
+    color: var(--ink);
+    margin-top: 22px;
+  }
+  .sol-text h2 .gold {
+    color: var(--gold);
+    font-family: var(--serif-en);
+    font-style: italic;
+  }
+  .sol-text p {
+    color: var(--text-sub);
+    margin-top: 26px;
+    font-weight: 300;
+    font-size: 1.02rem;
+  }
+  .sol-list {
+    margin-top: 34px;
+    list-style: none;
+  }
+  .sol-list li {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+    align-items: flex-start;
+  }
+  .sol-list li .n {
+    font-family: var(--serif-en);
+    font-style: italic;
+    color: var(--gold);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    width: 28px;
+  }
+  .sol-list li .txt strong {
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 0.98rem;
+    display: block;
+  }
+  .sol-list li .txt span {
+    color: var(--text-sub);
+    font-size: 0.86rem;
+    font-weight: 300;
+  }
+  /* stacked card visual */
+  .sol-stack {
+    position: relative;
+    height: 460px;
+  }
+  .stack-card {
+    position: absolute;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--white);
+    box-shadow: var(--shadow-md);
+    padding: 28px;
+  }
+  .stack-card.s1 {
+    width: 78%;
+    top: 0;
+    left: 0;
+    transform: rotate(-3deg);
+    z-index: 1;
+  }
+  .stack-card.s2 {
+    width: 72%;
+    top: 90px;
+    right: 8px;
+    transform: rotate(2.5deg);
+    z-index: 2;
+    background: var(--bg-sub);
+  }
+  .stack-card.s3 {
+    width: 74%;
+    bottom: 0;
+    left: 30px;
+    transform: rotate(-1deg);
+    z-index: 3;
+  }
+  .sc-tag {
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .sc-title {
+    font-family: var(--serif-jp);
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 1.05rem;
+    margin-top: 10px;
+  }
+  .sc-line {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg-sub);
+    margin-top: 14px;
+  }
+  .sc-line.w70 { width: 70%; }
+  .sc-line.w50 { width: 50%; background: rgba(201,162,39,0.4); }
+  .sc-code {
+    font-family: "SF Mono", monospace;
+    font-size: 0.62rem;
+    color: var(--text-sub);
+    margin-top: 12px;
+    line-height: 1.7;
+  }
+  .sc-code .k { color: var(--gold); }
+
+  /* ============================================================
+     Features
+     ============================================================ */
+  .features {
+    padding: 140px 0;
+    background: var(--bg-sub);
+    border-top: 1px solid var(--line);
+  }
+  .feat-head {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 78px;
+  }
+  .feat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+  .feat-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 44px 34px;
+    position: relative;
+    transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease);
+    box-shadow: var(--shadow-sm);
+  }
+  .feat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+  }
+  .feat-card .fnum {
+    font-family: var(--serif-en);
+    font-style: italic;
+    font-size: 2.6rem;
+    color: var(--line);
+    line-height: 1;
+  }
+  .feat-card:hover .fnum {
+    color: var(--gold-soft);
+  }
+  .feat-card .fico {
+    width: 52px;
+    height: 52px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    margin: 22px 0 24px;
+    color: var(--gold);
+  }
+  .feat-card h3 {
+    font-family: var(--serif-jp);
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .feat-card p {
+    color: var(--text-sub);
+    font-size: 0.9rem;
+    margin-top: 16px;
+    font-weight: 300;
+  }
+  .feat-card .fmeta {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .feat-card .fmeta span {
+    font-size: 0.68rem;
+    color: var(--text-sub);
+    border: 1px solid var(--line);
+    border-radius: 30px;
+    padding: 4px 12px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ============================================================
+     Pricing
+     ============================================================ */
+  .pricing {
+    padding: 140px 0;
+  }
+  .price-head {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 78px;
+  }
+  .price-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 26px;
+    align-items: stretch;
+  }
+  .price-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 46px 36px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease);
+    box-shadow: var(--shadow-sm);
+  }
+  .price-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
+  }
+  .price-card.featured {
+    background: var(--ink);
+    color: #efe9da;
+    border-color: var(--ink);
+    transform: scale(1.04);
+    box-shadow: var(--shadow-lg);
+    z-index: 2;
+  }
+  .price-card.featured:hover {
+    transform: scale(1.04) translateY(-8px);
+  }
+  .price-tag-pop {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+    color: #2a230d;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    padding: 7px 22px;
+    border-radius: 30px;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(201, 162, 39, 0.4);
+  }
+  .price-name {
+    font-family: var(--serif-en);
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+  .price-card .pn-jp {
+    font-size: 0.74rem;
+    color: var(--text-sub);
+    letter-spacing: 0.14em;
+    margin-top: 4px;
+  }
+  .price-card.featured .pn-jp {
+    color: var(--gold-soft);
+  }
+  .price-amount {
+    font-family: var(--serif-en);
+    font-size: 2.9rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 28px 0 4px;
+    line-height: 1;
+  }
+  .price-card.featured .price-amount {
+    color: #fff;
+  }
+  .price-amount .yen {
+    font-size: 1.3rem;
+    vertical-align: top;
+    margin-right: 2px;
+  }
+  .price-amount .per {
+    font-size: 0.9rem;
+    color: var(--text-sub);
+    font-family: var(--sans-jp);
+    font-weight: 400;
+  }
+  .price-card.featured .price-amount .per {
+    color: var(--gold-soft);
+  }
+  .price-desc {
+    font-size: 0.86rem;
+    color: var(--text-sub);
+    margin-top: 4px;
+    font-weight: 300;
+    min-height: 44px;
+  }
+  .price-card.featured .price-desc {
+    color: #c8c0ad;
+  }
+  .price-feats {
+    list-style: none;
+    margin: 28px 0 32px;
+    flex: 1;
+  }
+  .price-feats li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 9px 0;
+    font-size: 0.88rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .price-card.featured .price-feats li {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  .price-feats li .pk {
+    color: var(--gold);
+    flex-shrink: 0;
+    font-size: 0.8rem;
+  }
+  .price-card .btn {
+    width: 100%;
+  }
+  .price-card.featured .btn-ghost {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+  }
+  .price-card.featured .btn-ghost:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* ============================================================
+     Testimonials
+     ============================================================ */
+  .voices {
+    padding: 140px 0;
+    background: var(--bg-sub);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .voice-head {
+    text-align: center;
+    margin-bottom: 78px;
+  }
+  .voice-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 26px;
+  }
+  .voice-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 44px 36px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    transition: transform 0.5s var(--ease);
+  }
+  .voice-card:hover {
+    transform: translateY(-6px);
+  }
+  .voice-card .quote-mark {
+    font-family: var(--serif-en);
+    font-size: 4rem;
+    color: var(--gold-soft);
+    line-height: 0.6;
+    opacity: 0.5;
+  }
+  .voice-card .stars {
+    color: var(--gold);
+    letter-spacing: 4px;
+    font-size: 0.8rem;
+    margin: 10px 0 18px;
+  }
+  .voice-card .v-text {
+    font-family: var(--serif-jp);
+    font-weight: 500;
+    font-size: 1.08rem;
+    color: var(--ink);
+    line-height: 1.8;
+  }
+  .voice-card .v-person {
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .voice-card .v-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--bg-sub), var(--line));
+    display: grid;
+    place-items: center;
+    font-family: var(--serif-jp);
+    font-weight: 600;
+    color: var(--gold);
+    border: 1px solid var(--line);
+  }
+  .voice-card .v-name {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 0.92rem;
+  }
+  .voice-card .v-role {
+    font-size: 0.76rem;
+    color: var(--text-sub);
+    letter-spacing: 0.04em;
+  }
+
+  /* ============================================================
+     FAQ
+     ============================================================ */
+  .faq {
+    padding: 140px 0;
+  }
+  .faq-head {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .faq-list {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .faq-item {
+    border-bottom: 1px solid var(--line);
+  }
+  .faq-q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px 4px;
+    cursor: pointer;
+    gap: 20px;
+  }
+  .faq-q .q-text {
+    font-family: var(--serif-jp);
+    font-weight: 500;
+    font-size: 1.1rem;
+    color: var(--ink);
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+  }
+  .faq-q .q-text .q-mark {
+    font-family: var(--serif-en);
+    font-style: italic;
+    color: var(--gold);
+    font-size: 1.1rem;
+  }
+  .faq-q .q-toggle {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--gold);
+    flex-shrink: 0;
+    transition: transform 0.4s var(--ease), background 0.4s, color 0.4s;
+    font-size: 1rem;
+  }
+  .faq-item.open .q-toggle {
+    transform: rotate(45deg);
+    background: var(--gold);
+    color: #fff;
+    border-color: var(--gold);
+  }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s var(--ease), padding 0.5s var(--ease);
+  }
+  .faq-a-inner {
+    color: var(--text-sub);
+    font-weight: 300;
+    font-size: 0.94rem;
+    padding: 0 4px 30px 38px;
+  }
+  .faq-item.open .faq-a {
+    max-height: 320px;
+  }
+
+  /* ============================================================
+     Footer / final CTA
+     ============================================================ */
+  .final-cta {
+    padding: 130px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    background: var(--ink);
+    color: #efe9da;
+  }
+  .final-cta::before {
+    content: "";
+    position: absolute;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(
+      circle,
+      rgba(201, 162, 39, 0.16) 0%,
+      rgba(201, 162, 39, 0) 68%
+    );
+    border-radius: 50%;
+  }
+  .final-cta .eyebrow {
+    color: var(--gold-soft);
+  }
+  .final-cta .eyebrow::before,
+  .final-cta .eyebrow::after {
+    background: var(--gold-soft);
+  }
+  .final-cta h2 {
+    font-family: var(--serif-en);
+    font-weight: 500;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    line-height: 1.15;
+    margin-top: 24px;
+    position: relative;
+  }
+  .final-cta h2 .gold {
+    color: var(--gold);
+    font-style: italic;
+  }
+  .final-cta .jp {
+    font-family: var(--serif-jp);
+    color: #c8c0ad;
+    margin-top: 22px;
+    font-size: 1.05rem;
+    position: relative;
+  }
+  .final-cta .hero-cta {
+    justify-content: center;
+    margin-top: 44px;
+    position: relative;
+  }
+  .final-cta .btn-ghost {
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #efe9da;
+  }
+  .final-cta .btn-ghost:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .final-cta .open-info {
+    margin-top: 40px;
+    font-size: 0.84rem;
+    color: #9c958522;
+    color: #a59d8b;
+    letter-spacing: 0.08em;
+    position: relative;
+  }
+
+  footer {
+    background: #141414;
+    color: #8a8474;
+    padding: 70px 0 40px;
+  }
+  .foot-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 40px;
+    padding-bottom: 44px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .foot-brand .brand {
+    color: #efe9da;
+    font-size: 1.5rem;
+  }
+  .foot-brand .brand .mark {
+    border-color: var(--gold-soft);
+    color: var(--gold-soft);
+  }
+  .foot-brand p {
+    margin-top: 16px;
+    font-size: 0.86rem;
+    font-weight: 300;
+    max-width: 320px;
+    line-height: 1.8;
+  }
+  .foot-cols {
+    display: flex;
+    gap: 70px;
+    flex-wrap: wrap;
+  }
+  .foot-col h4 {
+    color: #efe9da;
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    font-weight: 500;
+  }
+  .foot-col a {
+    display: block;
+    font-size: 0.86rem;
+    color: #8a8474;
+    padding: 5px 0;
+    font-weight: 300;
+    transition: color 0.3s;
+  }
+  .foot-col a:hover {
+    color: var(--gold-soft);
+  }
+  .foot-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-top: 34px;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+  }
+  .foot-social {
+    display: flex;
+    gap: 22px;
+  }
+  .foot-social a {
+    color: #8a8474;
+    transition: color 0.3s;
+  }
+  .foot-social a:hover {
+    color: var(--gold-soft);
+  }
+
+  /* ============================================================
+     Responsive
+     ============================================================ */
+  @media (max-width: 980px) {
+    .hero-grid,
+    .sol-grid {
+      grid-template-columns: 1fr;
+      gap: 60px;
+    }
+    .phone-stage {
+      margin-top: 20px;
+    }
+    .feat-grid,
+    .price-grid,
+    .voice-grid {
+      grid-template-columns: 1fr;
+      max-width: 460px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .price-card.featured {
+      transform: scale(1);
+    }
+    .price-card.featured:hover {
+      transform: translateY(-8px);
+    }
+    .stat-row {
+      grid-template-columns: 1fr;
+    }
+    .stat {
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+    }
+    .stat:last-child {
+      border-bottom: none;
+    }
+    .nav-links {
+      display: none;
+    }
+  }
+  @media (max-width: 620px) {
+    .wrap {
+      padding: 0 22px;
+    }
+    .hero {
+      padding: 150px 0 90px;
+    }
+    .hero-cta .btn,
+    .final-cta .btn {
+      width: 100%;
+    }
+    section {
+      overflow-x: hidden;
+    }
+    .problem,
+    .solution,
+    .features,
+    .pricing,
+    .voices,
+    .faq {
+      padding: 90px 0;
+    }
+    .float-tag {
+      display: none;
+    }
+    .foot-grid {
+      flex-direction: column;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header id="header">
+  <div class="wrap nav">
+    <div class="brand">
+      <span class="mark">A</span>
+      AGENT ACADEMIA
+    </div>
+    <nav class="nav-links">
+      <a href="#problem">課題</a>
+      <a href="#solution">プログラム</a>
+      <a href="#pricing">料金</a>
+      <a href="#voices">受講生の声</a>
+      <a href="#faq">FAQ</a>
+      <a href="#cta" class="nav-cta">無料説明会</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-text reveal">
+      <span class="hero-badge"><span class="dot"></span>第1期生募集 ・ 2026年9月開講</span>
+      <h1>Build <span class="gold">Agents</span>.<br />Not just prompts.</h1>
+      <p class="jp-title">日本初の、AIエージェント・クリエイター養成プログラム。</p>
+      <p class="tagline">
+        AIに使われる側から、<span class="accent">AIを創る側へ。</span><br />
+        12週間で、ゼロから自律的に動くエージェントを設計・実装・運用する。
+      </p>
+      <div class="hero-cta">
+        <a href="#cta" class="btn btn-gold">無料説明会に申し込む <span class="arrow">→</span></a>
+        <a href="#pricing" class="btn btn-ghost">資料を請求する</a>
+      </div>
+      <div class="hero-meta">
+        <span>オンライン ＋ スクーリング</span>
+        <span>全12週間</span>
+        <span>未経験から</span>
+      </div>
+    </div>
+
+    <!-- CSS phone mock -->
+    <div class="phone-stage reveal d2">
+      <div class="glow-card c1"></div>
+      <div class="glow-card c2"></div>
+
+      <div class="float-tag t1">
+        <div class="ft-ico">A</div>
+        <div>
+          <div class="ft-num">12<span style="font-size:0.6em">週</span></div>
+          <div class="ft-lbl">で創れるように</div>
+        </div>
+      </div>
+      <div class="float-tag t2">
+        <div class="ft-ico">↗</div>
+        <div>
+          <div class="ft-num">98<span style="font-size:0.6em">%</span></div>
+          <div class="ft-lbl">満足度</div>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="ps-top">
+            <div class="ps-agent">
+              <div class="ps-avatar">a</div>
+              <div>
+                <div class="nm">My First Agent</div>
+                <div class="st">autonomous</div>
+              </div>
+            </div>
+          </div>
+          <div class="ps-body">
+            <div class="bubble user">来週の市場レポートを毎週まとめて</div>
+            <div class="bubble bot">承知しました。タスクを分解します。</div>
+            <div class="ps-task">
+              <div class="t-h">Agent Plan</div>
+              <div class="ps-step done"><span class="chk">✓</span>データソースを収集</div>
+              <div class="ps-step done"><span class="chk">✓</span>要点を抽出・要約</div>
+              <div class="ps-step run"><span class="chk">↻</span>レポートを生成中…</div>
+              <div class="ps-step"><span class="chk"></span>スケジュール登録</div>
+            </div>
+          </div>
+          <div class="ps-bottom">
+            <div class="ps-input">
+              指示を入力…
+              <span class="send">↑</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section class="problem" id="problem">
+  <div class="wrap">
+    <div class="problem-head reveal">
+      <span class="eyebrow center">The Problem</span>
+      <h2 class="section-title">AIを使うだけでは、<br />もう足りない。</h2>
+      <p class="section-lead">
+        プロンプトを書ける人は増えた。けれど、自律的に判断し動くエージェントを「設計し、創れる」人材は、まだ圧倒的に足りていない。
+      </p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat reveal d1">
+        <div class="num">49<span class="small">万人</span></div>
+        <div class="label">AI活用人材の不足</div>
+        <div class="sub">2030年予測 ・ 国内</div>
+      </div>
+      <div class="stat reveal d2">
+        <div class="num">44<span class="small">%</span></div>
+        <div class="label">エージェント市場の成長</div>
+        <div class="sub">年平均成長率（CAGR）</div>
+      </div>
+      <div class="stat reveal d3">
+        <div class="num">7<span class="small">%</span></div>
+        <div class="label">内製できる日本企業</div>
+        <div class="sub">AIエージェントを自社開発</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SOLUTION ============ -->
+<section class="solution" id="solution">
+  <div class="wrap sol-grid">
+    <div class="sol-text reveal">
+      <span class="eyebrow">The Shift</span>
+      <h2>「使う」から、<br /><span class="gold">「創る」</span>へ。</h2>
+      <p>
+        AGENT ACADEMIA は、消費者として AI を「使う」段階を越え、設計者として AI を「創る」側へとあなたを導きます。座学で終わらせず、現場と同じ手触りで、手を動かしながら身につける。
+      </p>
+      <ul class="sol-list">
+        <li>
+          <span class="n">01</span>
+          <span class="txt"><strong>設計思想から学ぶ</strong><span>プロンプトの先にある、エージェントの意思決定とアーキテクチャ。</span></span>
+        </li>
+        <li>
+          <span class="n">02</span>
+          <span class="txt"><strong>実装で証明する</strong><span>動くものを創る。読むだけ・聞くだけでは終わらせない。</span></span>
+        </li>
+        <li>
+          <span class="n">03</span>
+          <span class="txt"><strong>運用まで伴走する</strong><span>デプロイし、改善し、現場で使えるところまで。</span></span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sol-stack reveal d2">
+      <div class="stack-card s1">
+        <div class="sc-tag">Design</div>
+        <div class="sc-title">エージェント設計図</div>
+        <div class="sc-line w70"></div>
+        <div class="sc-line w50"></div>
+      </div>
+      <div class="stack-card s2">
+        <div class="sc-tag">Build</div>
+        <div class="sc-code">
+          <span class="k">agent</span>.plan(task)<br />
+          &nbsp;&nbsp;.<span class="k">tools</span>([search, write])<br />
+          &nbsp;&nbsp;.<span class="k">run</span>()
+        </div>
+      </div>
+      <div class="stack-card s3">
+        <div class="sc-tag">Deploy</div>
+        <div class="sc-title">本番環境へ</div>
+        <div class="sc-line w70"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="features">
+  <div class="wrap">
+    <div class="feat-head reveal">
+      <span class="eyebrow center">Curriculum</span>
+      <h2 class="section-title">創れるようになるための、<br />3つの柱。</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card reveal d1">
+        <div class="fnum">01</div>
+        <div class="fico">⌘</div>
+        <h3>現場と同じスタックで<br />ハンズオン</h3>
+        <p>業界標準のツールとフレームワークを使い、実務でそのまま通用する手触りを最初から。書籍では得られない、生きた開発体験を。</p>
+        <div class="fmeta">
+          <span>LLM API</span><span>Agent SDK</span><span>Vector DB</span>
+        </div>
+      </div>
+      <div class="feat-card reveal d2">
+        <div class="fnum">02</div>
+        <div class="fico">⊞</div>
+        <h3>マルチエージェント<br />設計まで踏み込む</h3>
+        <p>単一エージェントの先へ。複数のエージェントが役割を分担し、協調して動く高度なオーケストレーションを体系的に学ぶ。</p>
+        <div class="fmeta">
+          <span>協調設計</span><span>ツール連携</span><span>メモリ管理</span>
+        </div>
+      </div>
+      <div class="feat-card reveal d3">
+        <div class="fnum">03</div>
+        <div class="fico">✦</div>
+        <h3>卒業制作 → デプロイ<br />→ ポートフォリオ</h3>
+        <p>学んだすべてを注ぎ込む卒業制作。実際にデプロイし、世に出せる形に仕上げ、あなたの実力を証明する作品として残す。</p>
+        <div class="fmeta">
+          <span>個別メンタリング</span><span>本番デプロイ</span><span>成果物</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="price-head reveal">
+      <span class="eyebrow center">Plans</span>
+      <h2 class="section-title">あなたに合った、学びの形を。</h2>
+      <p class="section-lead" style="margin:22px auto 0;">第1期生限定。すべてのプランに12週間の本編カリキュラムが含まれます。</p>
+    </div>
+
+    <div class="price-grid">
+      <!-- Basic -->
+      <div class="price-card reveal d1">
+        <div class="price-name">Basic</div>
+        <div class="pn-jp">ベーシック</div>
+        <div class="price-amount"><span class="yen">¥</span>298,000</div>
+        <div class="price-desc">自分のペースで、まず創ってみたい方へ。</div>
+        <ul class="price-feats">
+          <li><span class="pk">✦</span>全12週間のオンライン講義</li>
+          <li><span class="pk">✦</span>ハンズオン教材一式</li>
+          <li><span class="pk">✦</span>受講生コミュニティ参加</li>
+          <li><span class="pk">✦</span>卒業制作（自主制作）</li>
+        </ul>
+        <a href="#cta" class="btn btn-ghost">このプランを選ぶ</a>
+      </div>
+
+      <!-- Standard (featured) -->
+      <div class="price-card featured reveal d2">
+        <div class="price-tag-pop">人気No.1</div>
+        <div class="price-name">Standard</div>
+        <div class="pn-jp">スタンダード</div>
+        <div class="price-amount"><span class="yen">¥</span>498,000</div>
+        <div class="price-desc">ベーシック ＋ スクーリングとメンタリング。</div>
+        <ul class="price-feats">
+          <li><span class="pk">✦</span>ベーシックの全内容</li>
+          <li><span class="pk">✦</span>対面スクーリング（全4回）</li>
+          <li><span class="pk">✦</span>グループメンタリング</li>
+          <li><span class="pk">✦</span>卒業制作レビュー＆フィードバック</li>
+          <li><span class="pk">✦</span>修了証の発行</li>
+        </ul>
+        <a href="#cta" class="btn btn-gold">このプランを選ぶ</a>
+      </div>
+
+      <!-- Pro -->
+      <div class="price-card reveal d3">
+        <div class="price-name">Pro</div>
+        <div class="pn-jp">プロ</div>
+        <div class="price-amount"><span class="yen">¥</span>980,000</div>
+        <div class="price-desc">本気でキャリアを変えたい方へ、最大限の伴走を。</div>
+        <ul class="price-feats">
+          <li><span class="pk">✦</span>スタンダードの全内容</li>
+          <li><span class="pk">✦</span>1on1専属メンター</li>
+          <li><span class="pk">✦</span>転職・案件サポート</li>
+          <li><span class="pk">✦</span>ポートフォリオ個別添削</li>
+          <li><span class="pk">✦</span>修了後3ヶ月の継続サポート</li>
+        </ul>
+        <a href="#cta" class="btn btn-ghost">このプランを選ぶ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VOICES ============ -->
+<section class="voices" id="voices">
+  <div class="wrap">
+    <div class="voice-head reveal">
+      <span class="eyebrow center">Voices</span>
+      <h2 class="section-title">受講生の、その後。</h2>
+    </div>
+    <div class="voice-grid">
+      <div class="voice-card reveal d1">
+        <div class="quote-mark">&ldquo;</div>
+        <div class="stars">★★★★★</div>
+        <p class="v-text">プロンプトの先にある「設計」が、ようやく腹落ちしました。なぜ動くのかが分かると、創れるものが一気に広がる。</p>
+        <div class="v-person">
+          <div class="v-avatar">中</div>
+          <div>
+            <div class="v-name">中村さん</div>
+            <div class="v-role">29歳 ・ エンジニア</div>
+          </div>
+        </div>
+      </div>
+      <div class="voice-card reveal d2">
+        <div class="quote-mark">&ldquo;</div>
+        <div class="stars">★★★★★</div>
+        <p class="v-text">非エンジニアの私でも、自分の手で動くエージェントを作れた。事業の現場で、すぐに使える武器になりました。</p>
+        <div class="v-person">
+          <div class="v-avatar">岡</div>
+          <div>
+            <div class="v-name">岡田さん</div>
+            <div class="v-role">35歳 ・ 事業企画</div>
+          </div>
+        </div>
+      </div>
+      <div class="voice-card reveal d3">
+        <div class="quote-mark">&ldquo;</div>
+        <div class="stars">★★★★★</div>
+        <p class="v-text">卒業制作で作ったエージェントが、そのまま内定につながりました。学生のうちに「創れる」と証明できたのは大きい。</p>
+        <div class="v-person">
+          <div class="v-avatar">林</div>
+          <div>
+            <div class="v-name">林さん</div>
+            <div class="v-role">24歳 ・ 学生</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="faq-head reveal">
+      <span class="eyebrow center">Questions</span>
+      <h2 class="section-title">よくあるご質問</h2>
+    </div>
+    <div class="faq-list reveal d1">
+      <div class="faq-item open">
+        <div class="faq-q">
+          <div class="q-text"><span class="q-mark">Q.</span>プログラミング未経験でも大丈夫ですか？</div>
+          <div class="q-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            はい、未経験から始められるよう設計されています。基礎から段階的に積み上げ、現役エンジニアやメンターが伴走します。事業企画や学生の方も多数受講されています。
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="q-text"><span class="q-mark">Q.</span>働きながらでも受講できますか？</div>
+          <div class="q-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            可能です。講義はオンラインで録画も提供されるため、ご自身のペースで学習できます。スクーリングは週末を中心に開催し、社会人の方が両立しやすい構成にしています。
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="q-text"><span class="q-mark">Q.</span>必要な学習時間の目安は？</div>
+          <div class="q-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            週あたり8〜10時間を推奨しています。講義に加え、ハンズオン課題と卒業制作の時間を含みます。無理なく続けられるよう、進捗に応じてメンターが調整をサポートします。
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="q-text"><span class="q-mark">Q.</span>プランは後から変更できますか？</div>
+          <div class="q-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            開講前であればアップグレード・ダウングレードともに可能です。まずは無料説明会で、あなたの目的に最適なプランをご一緒に検討しましょう。
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="q-text"><span class="q-mark">Q.</span>修了後のサポートはありますか？</div>
+          <div class="q-toggle">+</div>
+        </div>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Proプランには修了後3ヶ月の継続サポートと、転職・案件サポートが含まれます。すべての受講生は卒業生コミュニティに参加でき、情報交換や案件相談を続けられます。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="final-cta" id="cta">
+  <div class="wrap">
+    <span class="eyebrow center">Join the First Cohort</span>
+    <h2>AIを、<span class="gold">創る側</span>へ。<br />その一歩を、ここから。</h2>
+    <p class="jp">第1期生募集中。2026年9月開講 ・ 定員に達し次第締め切ります。</p>
+    <div class="hero-cta">
+      <a href="#" class="btn btn-gold">無料説明会に申し込む <span class="arrow">→</span></a>
+      <a href="#" class="btn btn-ghost">資料を請求する</a>
+    </div>
+    <p class="open-info">所要時間 約60分 ・ オンライン開催 ・ 参加無料</p>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="brand"><span class="mark">A</span>AGENT ACADEMIA</div>
+        <p>日本初のAIエージェント・クリエイター養成プログラム。AIに使われる側から、AIを創る側へ。</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h4>Program</h4>
+          <a href="#problem">課題</a>
+          <a href="#solution">プログラム</a>
+          <a href="#pricing">料金プラン</a>
+          <a href="#voices">受講生の声</a>
+        </div>
+        <div class="foot-col">
+          <h4>Support</h4>
+          <a href="#faq">よくある質問</a>
+          <a href="#cta">無料説明会</a>
+          <a href="#cta">資料請求</a>
+          <a href="#">お問い合わせ</a>
+        </div>
+        <div class="foot-col">
+          <h4>Connect</h4>
+          <a href="#">agent-academia.jp</a>
+          <a href="#">@agent_academia</a>
+          <a href="#">note</a>
+          <a href="#">YouTube</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div>© 2026 AGENT ACADEMIA. All rights reserved.</div>
+      <div class="foot-social">
+        <a href="#">X / Twitter</a>
+        <a href="#">Instagram</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Header scroll state
+  const header = document.getElementById("header");
+  window.addEventListener("scroll", () => {
+    header.classList.toggle("scrolled", window.scrollY > 40);
+  });
+
+  // Reveal on scroll
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add("in");
+          io.unobserve(e.target);
+        }
+      });
+    },
+    { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+  );
+  document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+  // FAQ accordion
+  document.querySelectorAll(".faq-item").forEach((item) => {
+    item.querySelector(".faq-q").addEventListener("click", () => {
+      const open = item.classList.contains("open");
+      document.querySelectorAll(".faq-item").forEach((i) => i.classList.remove("open"));
+      if (!open) item.classList.add("open");
+    });
+  });
+</script>
+</body>
+</html>

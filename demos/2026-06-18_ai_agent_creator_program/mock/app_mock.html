@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGENT ACADEMIA — 受講生アプリ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0E1A;
+    --panel: #121A2E;
+    --panel2: #18223C;
+    --accent: #00E5FF;
+    --sub: #FF2E93;
+    --purple: #7C5CFF;
+    --text: #EAF2FF;
+    --muted: #9FB2CE;
+    --line: rgba(159, 178, 206, 0.14);
+    --ok: #38E8A0;
+    --warn: #FFC25A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Space Grotesk', 'Noto Sans JP', sans-serif;
+    background:
+      radial-gradient(1200px 700px at 20% -10%, rgba(124, 92, 255, 0.18), transparent 60%),
+      radial-gradient(1000px 600px at 100% 110%, rgba(255, 46, 147, 0.12), transparent 55%),
+      #05070F;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 12px;
+  }
+
+  /* ===== iPhone frame ===== */
+  .phone {
+    position: relative;
+    width: 390px;
+    height: 844px;
+    background: #05070F;
+    border-radius: 56px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.04),
+      0 0 0 12px #0c0f18,
+      0 0 0 13px #000,
+      0 40px 90px rgba(0,0,0,0.65),
+      0 0 80px rgba(0, 229, 255, 0.08);
+  }
+
+  .screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Dynamic Island */
+  .island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 122px;
+    height: 35px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 12px;
+    gap: 8px;
+  }
+  .island::before {
+    content: "";
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #1b3a4a, #04141a);
+    box-shadow: inset 0 0 3px rgba(0,229,255,0.5);
+  }
+  .island .cam {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #0a0a0a;
+  }
+
+  /* Status bar */
+  .statusbar {
+    height: 54px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 6px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    color: var(--text);
+    z-index: 40;
+  }
+  .statusbar .icons { display: flex; align-items: center; gap: 6px; }
+  .bars { display: flex; align-items: flex-end; gap: 2px; height: 11px; }
+  .bars i { width: 3px; background: var(--text); border-radius: 1px; display: block; }
+  .bars i:nth-child(1){ height: 4px; }
+  .bars i:nth-child(2){ height: 6px; }
+  .bars i:nth-child(3){ height: 8px; }
+  .bars i:nth-child(4){ height: 11px; }
+  .batt {
+    width: 24px; height: 12px; border: 1.5px solid var(--text);
+    border-radius: 3px; position: relative; padding: 1.5px;
+  }
+  .batt::after { content:""; position:absolute; right:-3px; top:3px; width:2px; height:5px; background:var(--text); border-radius:0 1px 1px 0; }
+  .batt span { display:block; height:100%; width:78%; background: var(--ok); border-radius:1px; }
+
+  /* App content scroll area */
+  .app {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+  }
+  .app::-webkit-scrollbar { display: none; }
+
+  .view { display: none; padding: 6px 20px 24px; animation: fade .35s ease; }
+  .view.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* ===== Shared bits ===== */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 8px 0 18px;
+  }
+  .topbar .hello { font-size: 13px; color: var(--muted); }
+  .topbar h1 { font-size: 22px; font-weight: 700; letter-spacing: -.3px; }
+  .topbar .brand {
+    font-size: 10px; letter-spacing: 2px; color: var(--accent);
+    font-weight: 600; text-transform: uppercase;
+  }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--purple), var(--sub));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px; color: #fff;
+    box-shadow: 0 6px 18px rgba(124,92,255,.4);
+  }
+
+  .panel {
+    background: linear-gradient(160deg, var(--panel), var(--panel2));
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .section-label {
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin: 22px 2px 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::before { content:""; width: 14px; height: 2px; background: var(--accent); border-radius:2px; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 600; padding: 4px 9px; border-radius: 999px;
+    letter-spacing: .5px;
+  }
+  .pill.cyan { background: rgba(0,229,255,.12); color: var(--accent); border:1px solid rgba(0,229,255,.3); }
+  .pill.purple { background: rgba(124,92,255,.14); color: #b6a6ff; border:1px solid rgba(124,92,255,.35); }
+  .pill.mag { background: rgba(255,46,147,.12); color: #ff7ab8; border:1px solid rgba(255,46,147,.32); }
+  .pill.ok { background: rgba(56,232,160,.12); color: var(--ok); border:1px solid rgba(56,232,160,.3); }
+  .pill.muted { background: rgba(159,178,206,.1); color: var(--muted); border:1px solid var(--line); }
+
+  /* ===== HOME ===== */
+  .progress-card {
+    display: flex; align-items: center; gap: 18px;
+    background: linear-gradient(160deg, #15203b, #101830);
+    border: 1px solid rgba(0,229,255,.18);
+    border-radius: 24px; padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .progress-card::after {
+    content:""; position:absolute; right:-40px; top:-40px;
+    width:140px; height:140px; border-radius:50%;
+    background: radial-gradient(circle, rgba(0,229,255,.16), transparent 70%);
+  }
+  .ring {
+    --p: 48;
+    width: 104px; height: 104px; border-radius: 50%;
+    background:
+      radial-gradient(closest-side, var(--panel) 76%, transparent 77%),
+      conic-gradient(var(--accent) calc(var(--p)*1%), rgba(255,255,255,.07) 0);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    box-shadow: 0 0 24px rgba(0,229,255,.25);
+    flex: 0 0 auto;
+  }
+  .ring b { font-size: 24px; font-weight: 700; line-height: 1; }
+  .ring small { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+  .progress-meta h2 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .progress-meta p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .phase-track { display: flex; gap: 6px; margin-top: 12px; }
+  .phase-track span { flex:1; height: 5px; border-radius: 3px; background: rgba(255,255,255,.08); }
+  .phase-track span.done { background: var(--accent); }
+  .phase-track span.active { background: linear-gradient(90deg, var(--accent), var(--purple)); }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 6px; }
+  .stat {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 18px; padding: 16px;
+  }
+  .stat .ico { font-size: 18px; margin-bottom: 8px; }
+  .stat b { font-size: 22px; font-weight: 700; display: block; }
+  .stat b .u { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .stat span { font-size: 11px; color: var(--muted); }
+  .stat.flame b { color: var(--sub); }
+
+  .countdown {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(120deg, rgba(124,92,255,.18), rgba(255,46,147,.1));
+    border: 1px solid rgba(124,92,255,.3);
+    border-radius: 20px; padding: 16px 18px;
+  }
+  .countdown .lt { font-size: 12px; color: #c9bcff; }
+  .countdown .lt b { display:block; font-size: 15px; color: var(--text); margin-top:3px; }
+  .cd-time { display: flex; gap: 8px; }
+  .cd-time div {
+    background: rgba(0,0,0,.3); border-radius: 12px; padding: 6px 9px;
+    text-align: center; min-width: 42px;
+  }
+  .cd-time div b { font-size: 18px; font-family: 'JetBrains Mono', monospace; color: var(--accent); }
+  .cd-time div span { font-size: 9px; color: var(--muted); display:block; }
+
+  .task {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 4px; border-bottom: 1px solid var(--line);
+  }
+  .task:last-child { border-bottom: none; }
+  .check {
+    width: 22px; height: 22px; border-radius: 7px; flex: 0 0 auto;
+    border: 2px solid var(--muted); position: relative;
+  }
+  .check.on { background: var(--accent); border-color: var(--accent); }
+  .check.on::after {
+    content:"✓"; position:absolute; inset:0; color:#04121a; font-size:13px;
+    font-weight:700; display:flex; align-items:center; justify-content:center;
+  }
+  .task .tx { flex: 1; }
+  .task .tx b { font-size: 14px; font-weight: 600; display:block; }
+  .task .tx b.dn { color: var(--muted); text-decoration: line-through; }
+  .task .tx span { font-size: 11px; color: var(--muted); }
+
+  /* ===== CURRICULUM ===== */
+  .phase-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 20px 2px 10px;
+  }
+  .phase-head .pl { display: flex; align-items: center; gap: 10px; }
+  .phase-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .phase-dot.f { background: var(--accent); box-shadow:0 0 10px var(--accent); }
+  .phase-dot.b { background: var(--purple); box-shadow:0 0 10px var(--purple); }
+  .phase-dot.s { background: var(--sub); box-shadow:0 0 10px var(--sub); }
+  .phase-head h3 { font-size: 16px; font-weight: 700; letter-spacing: 1px; }
+  .phase-head small { font-size: 11px; color: var(--muted); }
+
+  .module {
+    background: linear-gradient(160deg, var(--panel), var(--panel2));
+    border: 1px solid var(--line); border-radius: 18px;
+    padding: 16px; margin-bottom: 12px; position: relative;
+  }
+  .module.lock { opacity: .55; }
+  .module .mhead { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .module .mno {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--accent); letter-spacing: 1px;
+  }
+  .module h4 { font-size: 15px; font-weight: 600; margin: 4px 0 6px; line-height: 1.35; }
+  .module p { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+  .pbar { height: 6px; background: rgba(255,255,255,.07); border-radius: 4px; overflow: hidden; }
+  .pbar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--purple)); }
+  .module .pbot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+  .module .pbot span { font-size: 11px; color: var(--muted); font-family:'JetBrains Mono',monospace; }
+
+  /* ===== BUILD ===== */
+  .build-head { text-align: center; padding: 10px 0 4px; }
+  .build-head h2 { font-size: 19px; font-weight: 700; }
+  .build-head p { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .canvas {
+    background:
+      radial-gradient(circle at 20% 20%, rgba(124,92,255,.1), transparent 40%),
+      var(--panel);
+    border: 1px solid var(--line); border-radius: 20px;
+    padding: 22px 16px; margin-bottom: 14px;
+    background-image:
+      linear-gradient(rgba(159,178,206,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(159,178,206,.05) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .node-row { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+  .node {
+    background: var(--panel2); border: 1px solid rgba(0,229,255,.3);
+    border-radius: 12px; padding: 9px 11px; text-align: center;
+    min-width: 76px;
+  }
+  .node.trigger { border-color: rgba(56,232,160,.4); }
+  .node.llm { border-color: rgba(124,92,255,.5); box-shadow: 0 0 16px rgba(124,92,255,.2); }
+  .node.tool { border-color: rgba(255,46,147,.4); }
+  .node .ni { font-size: 18px; }
+  .node b { font-size: 11px; display: block; margin-top: 4px; }
+  .node span { font-size: 9px; color: var(--muted); }
+  .arrow { color: var(--accent); font-size: 16px; }
+  .node-branch { display: flex; justify-content: center; gap: 18px; margin-top: 10px; }
+  .conn { text-align:center; color: var(--muted); font-size: 14px; margin: 4px 0; }
+
+  .log {
+    background: #070B16; border: 1px solid var(--line); border-radius: 16px;
+    padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    line-height: 1.7; margin-bottom: 16px;
+  }
+  .log .lhead { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-family:'Space Grotesk',sans-serif; }
+  .log .lhead b { font-size: 12px; }
+  .log .lhead .dots span { display:inline-block; width:8px; height:8px; border-radius:50%; margin-left:5px; }
+  .log .lhead .dots span:nth-child(1){background:var(--sub);}
+  .log .lhead .dots span:nth-child(2){background:var(--warn);}
+  .log .lhead .dots span:nth-child(3){background:var(--ok);}
+  .log p { color: var(--muted); }
+  .log .ok { color: var(--ok); }
+  .log .cy { color: var(--accent); }
+  .log .pu { color: #b6a6ff; }
+  .log .mg { color: #ff7ab8; }
+  .log .ts { color: #51607d; }
+
+  .run-btn {
+    width: 100%; border: none; cursor: pointer;
+    background: linear-gradient(120deg, var(--accent), var(--purple));
+    color: #04121a; font-weight: 700; font-size: 15px;
+    padding: 16px; border-radius: 16px; letter-spacing: .5px;
+    font-family: 'Space Grotesk', sans-serif;
+    box-shadow: 0 10px 26px rgba(0,229,255,.3);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: transform .12s ease;
+  }
+  .run-btn:active { transform: scale(.97); }
+
+  /* ===== COMMUNITY ===== */
+  .post {
+    background: linear-gradient(160deg, var(--panel), var(--panel2));
+    border: 1px solid var(--line); border-radius: 18px;
+    padding: 16px; margin-bottom: 14px;
+  }
+  .post .ph { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .post .pa {
+    width: 38px; height: 38px; border-radius: 11px; flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; color: #fff;
+  }
+  .post .pi b { font-size: 13px; display:block; }
+  .post .pi span { font-size: 11px; color: var(--muted); }
+  .post .body { font-size: 13px; line-height: 1.55; color: var(--text); margin-bottom: 10px; }
+  .post .tag { font-size: 11px; color: var(--accent); }
+  .post .thumb {
+    height: 96px; border-radius: 12px; margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: rgba(255,255,255,.6); letter-spacing: 1px;
+  }
+  .post .meta { display: flex; gap: 18px; font-size: 12px; color: var(--muted); }
+  .post .meta span { display: flex; align-items: center; gap: 5px; }
+  .mentor-reply {
+    background: rgba(0,229,255,.06); border-left: 2px solid var(--accent);
+    border-radius: 0 10px 10px 0; padding: 10px 12px; margin: 10px 0;
+    font-size: 12px; line-height: 1.5; color: var(--muted);
+  }
+  .mentor-reply b { color: var(--accent); }
+
+  /* ===== PROFILE ===== */
+  .profile-hero {
+    text-align: center; padding: 8px 0 16px;
+  }
+  .profile-hero .pav {
+    width: 88px; height: 88px; border-radius: 26px; margin: 0 auto 12px;
+    background: linear-gradient(135deg, var(--purple), var(--sub));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; font-weight: 700; color: #fff;
+    box-shadow: 0 14px 32px rgba(124,92,255,.4);
+  }
+  .profile-hero h2 { font-size: 21px; font-weight: 700; }
+  .profile-hero .sub { font-size: 12px; color: var(--muted); margin: 4px 0 12px; }
+  .profile-hero .row { display: flex; justify-content: center; gap: 26px; }
+  .profile-hero .row div b { font-size: 18px; display:block; }
+  .profile-hero .row div span { font-size: 10px; color: var(--muted); letter-spacing:.5px; }
+
+  .badges { display: flex; gap: 12px; flex-wrap: wrap; }
+  .badge {
+    flex: 1 1 calc(33% - 12px); text-align: center;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 16px; padding: 14px 6px;
+  }
+  .badge.locked { opacity: .35; }
+  .badge .be { font-size: 26px; }
+  .badge b { font-size: 11px; display: block; margin-top: 6px; }
+
+  .port-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .port {
+    border-radius: 14px; height: 92px; padding: 12px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    position: relative; overflow: hidden;
+  }
+  .port b { font-size: 12px; font-weight: 600; z-index: 2; }
+  .port span { font-size: 10px; color: rgba(255,255,255,.7); z-index: 2; }
+
+  .plan {
+    background: linear-gradient(120deg, rgba(0,229,255,.12), rgba(124,92,255,.12));
+    border: 1px solid rgba(0,229,255,.25);
+    border-radius: 18px; padding: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .plan .pn b { font-size: 15px; }
+  .plan .pn span { font-size: 11px; color: var(--muted); display:block; margin-top:3px; }
+
+  /* ===== TAB BAR ===== */
+  .tabbar {
+    flex: 0 0 auto;
+    height: 84px;
+    background: rgba(8, 12, 22, 0.92);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid var(--line);
+    display: flex;
+    padding: 10px 8px 26px;
+    z-index: 40;
+  }
+  .tab {
+    flex: 1; background: none; border: none; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: var(--muted); font-family: 'Space Grotesk', sans-serif;
+    transition: color .2s;
+  }
+  .tab .ti { font-size: 21px; line-height: 1; }
+  .tab .tl { font-size: 10px; font-weight: 600; letter-spacing: .3px; }
+  .tab.active { color: var(--accent); }
+  .tab.active .ti { filter: drop-shadow(0 0 8px rgba(0,229,255,.7)); }
+
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; border-radius: 3px;
+    background: rgba(255,255,255,.4); z-index: 45;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <!-- Dynamic Island -->
+    <div class="island"><span class="cam"></span></div>
+
+    <!-- Status bar -->
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="icons">
+        <div class="bars"><i></i><i></i><i></i><i></i></div>
+        <span style="font-size:11px;">5G</span>
+        <div class="batt"><span></span></div>
+      </div>
+    </div>
+
+    <!-- App content -->
+    <div class="app">
+
+      <!-- ===================== HOME ===================== -->
+      <section class="view active" id="view-home">
+        <div class="topbar">
+          <div>
+            <div class="brand">AGENT ACADEMIA</div>
+            <div class="hello">おかえり、Ryo</div>
+            <h1>ダッシュボード</h1>
+          </div>
+          <div class="avatar">RS</div>
+        </div>
+
+        <div class="progress-card">
+          <div class="ring" style="--p:48;">
+            <b>48%</b>
+            <small>WEEK 6/12</small>
+          </div>
+          <div class="progress-meta">
+            <h2>BUILD フェーズ進行中</h2>
+            <p>ツール連携とメモリ設計の週。<br>残り 6 週で卒業制作へ。</p>
+            <div class="phase-track">
+              <span class="done"></span>
+              <span class="active"></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">今日の進捗</div>
+        <div class="stat-grid">
+          <div class="stat flame">
+            <div class="ico">🔥</div>
+            <b>23<span class="u"> 日</span></b>
+            <span>連続学習</span>
+          </div>
+          <div class="stat">
+            <div class="ico">⚡</div>
+            <b>1,840<span class="u"> XP</span></b>
+            <span>累計ポイント</span>
+          </div>
+        </div>
+
+        <div class="section-label">次のライブ授業</div>
+        <div class="countdown">
+          <div class="lt">
+            LIVE SESSION
+            <b>マルチエージェント設計</b>
+            講師: 高木 шин
+          </div>
+          <div class="cd-time">
+            <div><b>02</b><span>DAYS</span></div>
+            <div><b>14</b><span>HRS</span></div>
+            <div><b>30</b><span>MIN</span></div>
+          </div>
+        </div>
+
+        <div class="section-label">今日のタスク</div>
+        <div class="panel" style="padding:6px 18px;">
+          <div class="task">
+            <div class="check on"></div>
+            <div class="tx">
+              <b class="dn">Module 6-1 動画視聴 (ReActパターン)</b>
+              <span>完了 · 18分</span>
+            </div>
+          </div>
+          <div class="task">
+            <div class="check on"></div>
+            <div class="tx">
+              <b class="dn">Function Calling 小テスト</b>
+              <span>完了 · 9/10 正解</span>
+            </div>
+          </div>
+          <div class="task">
+            <div class="check"></div>
+            <div class="tx">
+              <b>実習: Weatherエージェントのツール接続</b>
+              <span>提出期限 今日 23:59</span>
+            </div>
+          </div>
+          <div class="task">
+            <div class="check"></div>
+            <div class="tx">
+              <b>コミュニティで他受講生のコードをレビュー</b>
+              <span>+50 XP</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== CURRICULUM ===================== -->
+      <section class="view" id="view-curriculum">
+        <div class="topbar">
+          <div>
+            <div class="brand">CURRICULUM · 12 WEEKS</div>
+            <h1>カリキュラム</h1>
+          </div>
+          <div class="avatar" style="font-size:13px;">🗺️</div>
+        </div>
+
+        <!-- FOUNDATION -->
+        <div class="phase-head">
+          <div class="pl">
+            <span class="phase-dot f"></span>
+            <h3>FOUNDATION</h3>
+          </div>
+          <small>Week 1–4 · 完了</small>
+        </div>
+
+        <div class="module">
+          <div class="mhead">
+            <span class="mno">MODULE 01</span>
+            <span class="pill ok">完了</span>
+          </div>
+          <h4>LLM の仕組みとプロンプト設計</h4>
+          <p>トークン・温度・コンテキストウィンドウの基礎。</p>
+          <div class="pbar"><i style="width:100%;"></i></div>
+          <div class="pbot"><span>6 / 6 レッスン</span><span>100%</span></div>
+        </div>
+
+        <div class="module">
+          <div class="mhead">
+            <span class="mno">MODULE 02</span>
+            <span class="pill ok">完了</span>
+          </div>
+          <h4>エージェントとは何か / ループの基本</h4>
+          <p>Reason→Act→Observe の思考ループを理解する。</p>
+          <div class="pbar"><i style="width:100%;"></i></div>
+          <div class="pbot"><span>5 / 5 レッスン</span><span>100%</span></div>
+        </div>
+
+        <!-- BUILD -->
+        <div class="phase-head">
+          <div class="pl">
+            <span class="phase-dot b"></span>
+            <h3>BUILD</h3>
+          </div>
+          <small>Week 5–8 · 進行中</small>
+        </div>
+
+        <div class="module">
+          <div class="mhead">
+            <span class="mno">MODULE 06</span>
+            <span class="pill purple">進行中</span>
+          </div>
+          <h4>ツール連携 & Function Calling</h4>
+          <p>外部APIをエージェントの手足にする。スキーマ定義と実行。</p>
+          <div class="pbar"><i style="width:60%;"></i></div>
+          <div class="pbot"><span>3 / 5 レッスン</span><span>60%</span></div>
+        </div>
+
+        <div class="module">
+          <div class="mhead">
+            <span class="mno">MODULE 07</span>
+            <span class="pill muted">未開始</span>
+          </div>
+          <h4>メモリとRAG設計</h4>
+          <p>短期/長期メモリ、ベクトル検索で文脈を持続させる。</p>
+          <div class="pbar"><i style="width:0%;"></i></div>
+          <div class="pbot"><span>0 / 6 レッスン</span><span>0%</span></div>
+        </div>
+
+        <!-- SHIP -->
+        <div class="phase-head">
+          <div class="pl">
+            <span class="phase-dot s"></span>
+            <h3>SHIP</h3>
+          </div>
+          <small>Week 9–12 · ロック中</small>
+        </div>
+
+        <div class="module lock">
+          <div class="mhead">
+            <span class="mno">MODULE 10</span>
+            <span class="pill muted">🔒 ロック</span>
+          </div>
+          <h4>本番デプロイと監視</h4>
+          <p>エラーハンドリング・コスト最適化・運用モニタリング。</p>
+          <div class="pbar"><i style="width:0%;"></i></div>
+          <div class="pbot"><span>0 / 5 レッスン</span><span>BUILD 完了で解放</span></div>
+        </div>
+
+        <div class="module lock">
+          <div class="mhead">
+            <span class="mno">MODULE 12</span>
+            <span class="pill muted">🔒 ロック</span>
+          </div>
+          <h4>卒業制作: 自律エージェントを世に出す</h4>
+          <p>企画から実装・デモまで。デモデーで発表。</p>
+          <div class="pbar"><i style="width:0%;"></i></div>
+          <div class="pbot"><span>最終課題</span><span>Week 12</span></div>
+        </div>
+      </section>
+
+      <!-- ===================== BUILD (実習) ===================== -->
+      <section class="view" id="view-build">
+        <div class="build-head">
+          <span class="pill cyan" style="margin-bottom:8px;">● 実習モード · Module 06</span>
+          <h2>Weather Agent ビルダー</h2>
+          <p>ノードを繋いでエージェントを組み、実行する</p>
+        </div>
+
+        <div class="canvas">
+          <div class="node-row">
+            <div class="node trigger">
+              <div class="ni">💬</div>
+              <b>Input</b>
+              <span>user query</span>
+            </div>
+            <span class="arrow">→</span>
+            <div class="node llm">
+              <div class="ni">🧠</div>
+              <b>Reasoner</b>
+              <span>gpt-4o</span>
+            </div>
+          </div>
+          <div class="conn">↓</div>
+          <div class="node-branch">
+            <div class="node tool">
+              <div class="ni">🌤️</div>
+              <b>Weather API</b>
+              <span>tool</span>
+            </div>
+            <div class="node tool">
+              <div class="ni">📍</div>
+              <b>Geocode</b>
+              <span>tool</span>
+            </div>
+          </div>
+          <div class="conn">↓</div>
+          <div class="node-row">
+            <div class="node llm">
+              <div class="ni">✍️</div>
+              <b>Synthesize</b>
+              <span>応答生成</span>
+            </div>
+            <span class="arrow">→</span>
+            <div class="node trigger">
+              <div class="ni">✅</div>
+              <b>Output</b>
+              <span>reply</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="log">
+          <div class="lhead">
+            <b>実行ログ</b>
+            <div class="dots"><span></span><span></span><span></span></div>
+          </div>
+          <p><span class="ts">[09:41:02]</span> <span class="cy">▸ run started</span> agent=weather-bot</p>
+          <p><span class="ts">[09:41:02]</span> input: "明日の東京の天気は?"</p>
+          <p><span class="ts">[09:41:03]</span> <span class="pu">🧠 reasoning</span> → need: geocode + forecast</p>
+          <p><span class="ts">[09:41:03]</span> <span class="mg">🔧 call</span> geocode(city="東京")</p>
+          <p><span class="ts">[09:41:04]</span> <span class="ok">✓</span> lat=35.68 lng=139.69</p>
+          <p><span class="ts">[09:41:04]</span> <span class="mg">🔧 call</span> weather(lat,lng,day=+1)</p>
+          <p><span class="ts">[09:41:05]</span> <span class="ok">✓</span> 晴れ 26°C 降水10%</p>
+          <p><span class="ts">[09:41:05]</span> <span class="cy">✍️ synthesize</span> 応答を生成</p>
+          <p><span class="ts">[09:41:06]</span> <span class="ok">● done</span> 4 steps · 1.2s · 820 tok</p>
+        </div>
+
+        <button class="run-btn">▶ エージェントを実行</button>
+      </section>
+
+      <!-- ===================== COMMUNITY ===================== -->
+      <section class="view" id="view-community">
+        <div class="topbar">
+          <div>
+            <div class="brand">COMMUNITY</div>
+            <h1>フィード</h1>
+          </div>
+          <div class="avatar" style="font-size:13px;">💬</div>
+        </div>
+
+        <!-- 卒業制作シェア -->
+        <div class="post">
+          <div class="ph">
+            <div class="pa" style="background:linear-gradient(135deg,#00E5FF,#7C5CFF);">MK</div>
+            <div class="pi">
+              <b>三上 かなで <span class="pill ok" style="margin-left:4px;">SHIP</span></b>
+              <span>2時間前 · Cohort #4</span>
+            </div>
+          </div>
+          <span class="tag">#卒業制作</span>
+          <div class="body">議事録から自動でタスクをLinearに起票するエージェント作りました！会議のSlack通知も自動化🎉</div>
+          <div class="thumb" style="background:linear-gradient(135deg,#15203b,#2a1840);border:1px solid rgba(124,92,255,.3);">▶ DEMO · MeetingOps Agent</div>
+          <div class="meta">
+            <span>❤️ 42</span>
+            <span>💬 11</span>
+            <span>🔁 6</span>
+          </div>
+        </div>
+
+        <!-- 質問 + メンター回答 -->
+        <div class="post">
+          <div class="ph">
+            <div class="pa" style="background:linear-gradient(135deg,#FF2E93,#7C5CFF);">YT</div>
+            <div class="pi">
+              <b>山田 拓海</b>
+              <span>5時間前 · Cohort #5</span>
+            </div>
+          </div>
+          <span class="tag">#質問 #Module06</span>
+          <div class="body">Function Callingでツールが2回連続で呼ばれちゃうんですが、ループを止める良い書き方ありますか？</div>
+          <div class="mentor-reply">
+            <b>🎓 メンター 佐々木</b><br>
+            max_iterations を設定するか、観測結果に「十分」フラグを立てて終了条件を明示すると安定しますよ。
+          </div>
+          <div class="meta">
+            <span>❤️ 18</span>
+            <span>💬 7</span>
+            <span>✅ 解決</span>
+          </div>
+        </div>
+
+        <!-- 進捗シェア -->
+        <div class="post">
+          <div class="ph">
+            <div class="pa" style="background:linear-gradient(135deg,#38E8A0,#00E5FF);">RS</div>
+            <div class="pi">
+              <b>あなた</b>
+              <span>昨日 · Cohort #5</span>
+            </div>
+          </div>
+          <span class="tag">#進捗 #23日連続</span>
+          <div class="body">BUILDフェーズ突入！メモリ設計むずいけど楽しい。連続23日達成しました🔥</div>
+          <div class="meta">
+            <span>❤️ 29</span>
+            <span>💬 4</span>
+            <span>🔁 2</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== PROFILE ===================== -->
+      <section class="view" id="view-profile">
+        <div class="topbar">
+          <div>
+            <div class="brand">PROFILE</div>
+            <h1>マイページ</h1>
+          </div>
+          <div class="avatar" style="font-size:13px;">⚙️</div>
+        </div>
+
+        <div class="profile-hero">
+          <div class="pav">RS</div>
+          <h2>泉水 亮介</h2>
+          <div class="sub">Cohort #5 · BUILD フェーズ · @ryo_builds</div>
+          <div class="row">
+            <div><b>Week 6</b><span>進行中</span></div>
+            <div><b>1,840</b><span>XP</span></div>
+            <div><b>23日</b><span>連続</span></div>
+          </div>
+        </div>
+
+        <div class="section-label">取得バッジ</div>
+        <div class="badges">
+          <div class="badge"><div class="be">🎯</div><b>初課題提出</b></div>
+          <div class="badge"><div class="be">🔥</div><b>7日連続</b></div>
+          <div class="badge"><div class="be">🧠</div><b>LLM Master</b></div>
+          <div class="badge"><div class="be">🔧</div><b>初ツール接続</b></div>
+          <div class="badge locked"><div class="be">🚀</div><b>初デプロイ</b></div>
+          <div class="badge locked"><div class="be">🎓</div><b>卒業</b></div>
+        </div>
+
+        <div class="section-label">ポートフォリオ</div>
+        <div class="port-grid">
+          <div class="port" style="background:linear-gradient(135deg,#15203b,#1a2c4d);border:1px solid rgba(0,229,255,.25);">
+            <b>Weather Agent</b>
+            <span>Module 06 実習</span>
+          </div>
+          <div class="port" style="background:linear-gradient(135deg,#241433,#3a1840);border:1px solid rgba(124,92,255,.3);">
+            <b>Quiz Bot</b>
+            <span>Module 04</span>
+          </div>
+          <div class="port" style="background:linear-gradient(135deg,#2a1024,#3a1530);border:1px solid rgba(255,46,147,.3);">
+            <b>News Digest</b>
+            <span>個人プロジェクト</span>
+          </div>
+          <div class="port" style="background:linear-gradient(135deg,#0e1830,#15203b);border:1px dashed rgba(159,178,206,.3);align-items:center;justify-content:center;">
+            <b style="color:var(--muted);">+ 卒業制作</b>
+            <span>Week 12</span>
+          </div>
+        </div>
+
+        <div class="section-label">現在のプラン</div>
+        <div class="plan">
+          <div class="pn">
+            <b>スタンダード</b>
+            <span>ライブ授業 + メンター + コミュニティ</span>
+          </div>
+          <span class="pill cyan">アクティブ</span>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ===================== TAB BAR ===================== -->
+    <nav class="tabbar">
+      <button class="tab active" data-view="home">
+        <span class="ti">◈</span><span class="tl">ホーム</span>
+      </button>
+      <button class="tab" data-view="curriculum">
+        <span class="ti">▤</span><span class="tl">カリキュラム</span>
+      </button>
+      <button class="tab" data-view="build">
+        <span class="ti">⚡</span><span class="tl">ビルド</span>
+      </button>
+      <button class="tab" data-view="community">
+        <span class="ti">◍</span><span class="tl">コミュニティ</span>
+      </button>
+      <button class="tab" data-view="profile">
+        <span class="ti">◉</span><span class="tl">プロフィール</span>
+      </button>
+    </nav>
+
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var tabs = document.querySelectorAll('.tab');
+    var views = document.querySelectorAll('.view');
+    var app = document.querySelector('.app');
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var target = tab.getAttribute('data-view');
+
+        tabs.forEach(function (t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+
+        views.forEach(function (v) { v.classList.remove('active'); });
+        var view = document.getElementById('view-' + target);
+        if (view) { view.classList.add('active'); }
+
+        if (app) { app.scrollTop = 0; }
+      });
+    });
+
+    // 実習: 実行ボタンの簡易フィードバック
+    var runBtn = document.querySelector('.run-btn');
+    if (runBtn) {
+      runBtn.addEventListener('click', function () {
+        var original = runBtn.innerHTML;
+        runBtn.innerHTML = '⏳ 実行中...';
+        runBtn.style.opacity = '.8';
+        setTimeout(function () {
+          runBtn.innerHTML = '✅ 完了 (4 steps · 1.2s)';
+          setTimeout(function () {
+            runBtn.innerHTML = original;
+            runBtn.style.opacity = '1';
+          }, 1600);
+        }, 1200);
+      });
+    }
+
+    // タスクのチェック切り替え
+    document.querySelectorAll('.task .check').forEach(function (c) {
+      c.addEventListener('click', function () {
+        c.classList.toggle('on');
+        var label = c.parentElement.querySelector('.tx b');
+        if (label) { label.classList.toggle('dn'); }
+      });
+    });
+  })();
+</script>
+</body>
+</html>
